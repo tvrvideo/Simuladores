@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Diseñador Geométrico - Cotas Ajustables</title>
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --secondary: #34495e;
+            --paper: #DEDDCE;
+            --input-bg: #FFFCE6;
+            --accent: #2980b9;
+            --success: #27ae60;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: #fafafa; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* BOTÓN MENÚ AÑADIDO */
+        .btn-menu { 
+            position: fixed; top: 10px; left: 10px; z-index: 9999; 
+            padding: 10px 15px; border-radius: 20px; border: none; 
+            background: var(--primary); color: white; font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .container { width: 100%; max-width: 900px; margin-top: 40px; /* Espacio para el botón menú */ }
+        #vista-exportar { display: none; text-align: center; width: 100%; }
+        
+        .panel-controles {
+            background: var(--paper);
+            padding: 20px; border-radius: 12px;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; margin-bottom: 20px;
+            border-top: 6px solid var(--primary);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .seccion-label {
+            grid-column: span 2;
+            text-align: center;
+            font-weight: 900;
+            color: var(--secondary);
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .input-group { display: flex; flex-direction: column; align-items: center; }
+        label { font-weight: bold; font-size: 0.75em; margin-bottom: 4px; color: var(--secondary); text-transform: uppercase; text-align: center; }
+        input { padding: 10px; border-radius: 8px; border: 1px solid #bbb; background: var(--input-bg); font-size: 1.1em; text-align: center; font-weight: bold; width: 100%; box-sizing: border-box; }
+        .grado-input { color: var(--primary); border-color: var(--primary); }
+
+        .toggle-group {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .button-group { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        button { padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 0.7em; }
+        .btn-action { background: var(--accent); border-bottom: 3px solid #1a5276; }
+        .btn-chapa { background: var(--success); border-bottom: 3px solid #1e8449; grid-column: span 2; font-size: 0.9em; margin-top: 5px; }
+        .btn-toggle { background: var(--secondary); border-bottom: 3px solid #1a252f; }
+        .btn-toggle.active { background: var(--primary); border-bottom: 3px solid #c0392b; }
+        .btn-export { background: #2c3e50; grid-column: span 2; font-size: 1.1em; margin-top: 10px; padding: 15px; border-bottom: 4px solid #1a252f; }
+        .btn-back { background: var(--primary); margin-top: 20px; width: 280px; font-size: 1.1em; }
+
+        .control-qty { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.4); padding: 5px; border-radius: 8px; width: 100%; box-sizing: border-box; }
+        .btn-round { width: 35px; height: 35px; border-radius: 50%; border: none; background: var(--secondary); color: white; font-size: 1.2em; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .canvas-card { background: white; border-radius: 12px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; justify-content: center; }
+        svg { width: 900px; height: 700px; max-width: 100%; height: auto; background: #fff; }
+
+        #img-resultado { max-width: 100%; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<button class="btn-menu" onclick="parent.volverMenu()">← MENÚ</button>
+
+<div class="container">
+    <div id="vista-diseno">
+        <h1 style="text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.5em;">SISTEMA DE MODULACIÓN</h1>
+        
+        <div class="panel-controles">
+            <div class="seccion-label">Medidas de Lados (mm)</div>
+            <div class="input-group"><label>Izq (D)</label><input type="number" id="sideD" value="6600"></div>
+            <div class="input-group"><label>Der (B)</label><input type="number" id="sideB" value="6600"></div>
+            <div class="input-group"><label>Sup (C)</label><input type="number" id="sideC" value="2200"></div>
+            <div class="input-group"><label>Inf (A)</label><input type="number" id="sideA" value="5600"></div>
+
+            <div class="seccion-label">Reparto Equidistante (+/-)</div>
+            <div class="input-group" style="grid-column: span 2;">
+                <div class="control-qty">
+                    <button class="btn-round" onclick="cambiarQty(-1)">-</button>
+                    <span id="valV" style="font-weight: bold; min-width: 30px; text-align: center;">0</span>
+                    <button class="btn-round" onclick="cambiarQty(1)">+</button>
+                </div>
+            </div>
+
+            <div class="seccion-label">Auto-Ajustar Chapas Fijas</div>
+            <div class="input-group">
+                <label>Ancho Chapa</label>
+                <input type="number" id="anchoChapa" value="1000">
+            </div>
+            <button class="btn-chapa" onclick="ajustarAChapa()">AUTO-AJUSTAR A ANCHO</button>
+
+            <div class="seccion-label">Herramientas de Simetría</div>
+            <div class="button-group">
+                <button id="btnIgualarBase" class="btn-action" onclick="igualar('base')">Igualar Base</button>
+                <button class="btn-action" onclick="igualar('techo')">Igualar Techo</button>
+                <button class="btn-action" onclick="igualar('izq')">Igualar Izq</button>
+                <button class="btn-action" onclick="igualar('der')">Igualar Der</button>
+            </div>
+
+            <div class="seccion-label">Ángulos (Grados)</div>
+            <div class="input-group"><label>Sup. Izq (4)</label><input type="number" id="ang4" class="grado-input" step="0.1"></div>
+            <div class="input-group"><label>Sup. Der (3)</label><input type="number" id="ang3" class="grado-input" value="90" step="0.1"></div>
+            <div class="input-group"><label>Inf. Izq (1)</label><input type="number" id="ang1" class="grado-input" step="0.1"></div>
+            <div class="input-group"><label>Inf. Der (2)</label><input type="number" id="ang2" class="grado-input" step="0.1"></div>
+
+            <div class="seccion-label">Visibilidad y Exportación</div>
+            <div class="toggle-group">
+                <button class="btn-toggle active" id="btnMedidas">Cotas</button>
+                <button class="btn-toggle active" id="btnGrados">Grados</button>
+                <button class="btn-toggle active" id="btnDivs">Divs</button>
+            </div>
+            <button class="btn-export" id="btnExport">Exportar imagen PNG</button>
+        </div>
+
+        <div class="canvas-card">
+            <svg id="mainSVG" viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg">
+                <style>
+                    .cota-line { stroke: #333; stroke-width: 3; }
+                    .cota-text { fill: #000; font-family: Arial, sans-serif; font-size: 52px; font-weight: 900; }
+                    .grado-text { fill: #e74c3c; font-family: Arial, sans-serif; font-size: 38px; font-weight: bold; }
+                    .chapa-line { stroke: #27ae60; stroke-width: 3; stroke-dasharray: 8,4; }
+                    .linea-reparto { stroke: #2980b9; stroke-width: 3; stroke-dasharray: 5,5; }
+                    .cota-hueco { font-family: Arial; font-size: 24px; font-weight: 900; } 
+                    .cota-largo-chapa { fill: #e74c3c; font-family: Arial; font-size: 30px; font-weight: 900; } 
+                    .cota-sobrante { fill: #e67e22; font-family: Arial; font-size: 24px; font-weight: 900; }
+                </style>
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+                    </marker>
+                </defs>
+                <rect width="900" height="700" fill="#ffffff" />
+                <path id="poly" fill="#ffffff" stroke="#2c3e50" stroke-width="6" />
+                <g id="gDivisiones"></g>
+                <g id="gMedidas"></g>
+                <g id="gGrados"></g>
+            </svg>
+        </div>
+    </div>
+
+    <div id="vista-exportar">
+        <h1 style="color: #27ae60;">IMAGEN GENERADA</h1>
+        <img id="img-resultado" src="" alt="PNG Final">
+        <p style="font-size: 0.9em; color: #666;">Mantén pulsada la imagen para guardarla</p>
+        <button class="btn-back" id="btnBack">← VOLVER</button>
+    </div>
+</div>
+
+<script>
+    let state = { medidas: true, grados: true, divisiones: true, qtyV: 0, modo: 'equidistante' };
+    let lastActiveId = 'ang2';
+
+    const inputs = ['sideA', 'sideB', 'sideC', 'sideD', 'ang1', 'ang2', 'ang3', 'ang4'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            if (id.startsWith('ang')) lastActiveId = id;
+            update(false);
+        });
+    });
+
+    function ajustarAChapa() {
+        state.modo = 'fijo';
+        state.divisiones = true;
+        document.getElementById('btnDivs').classList.add('active');
+        const a = parseFloat(document.getElementById('sideA').value);
+        const ancho = parseFloat(document.getElementById('anchoChapa').value) || 1000;
+        state.qtyV = Math.floor(a / ancho);
+        document.getElementById('valV').innerText = state.qtyV;
+        update();
+    }
+
+    function cambiarQty(delta) {
+        state.modo = 'equidistante';
+        state.divisiones = true;
+        document.getElementById('btnDivs').classList.add('active');
+        state.qtyV = Math.max(0, state.qtyV + delta);
+        document.getElementById('valV').innerText = state.qtyV;
+        update();
+    }
+
+    function igualar(modo) {
+        const a = parseFloat(document.getElementById('sideA').value);
+        const b = parseFloat(document.getElementById('sideB').value);
+        const c = parseFloat(document.getElementById('sideC').value);
+        const d = parseFloat(document.getElementById('sideD').value);
+        let mejorAngulo = 90;
+        let minDiff = 999;
+        for (let i = 10; i < 170; i += 0.1) {
+            const res = calcularPuntos(a, b, c, d, i, 'ang2'); 
+            if (!res) continue;
+            const g = obtenerTodosLosGrados(res.pts);
+            let diff = 0;
+            if (modo === 'base') diff = Math.abs(g[0] - g[1]);
+            else if (modo === 'techo') diff = Math.abs(g[2] - g[3]);
+            else if (modo === 'izq') diff = Math.abs(g[0] - g[3]);
+            else if (modo === 'der') diff = Math.abs(g[1] - g[2]);
+            if (diff < minDiff) { minDiff = diff; mejorAngulo = i; }
+        }
+        document.getElementById('ang2').value = mejorAngulo.toFixed(1);
+        lastActiveId = 'ang2';
+        update(true);
+    }
+
+    function obtenerTodosLosGrados(pts) {
+        const getA = (A, B, C) => {
+            const v1 = { x: A.x - B.x, y: A.y - B.y };
+            const v2 = { x: C.x - B.x, y: C.y - B.y };
+            const mag = Math.sqrt(v1.x**2+v1.y**2)*Math.sqrt(v2.x**2+v2.y**2);
+            return mag === 0 ? 0 : Math.acos(Math.max(-1, Math.min(1, (v1.x*v2.x + v1.y*v2.y) / mag))) * 180 / Math.PI;
+        };
+        return [getA(pts[1], pts[0], pts[3]), getA(pts[0], pts[1], pts[2]), getA(pts[1], pts[2], pts[3]), getA(pts[2], pts[3], pts[0])];
+    }
+
+    function calcularPuntos(a, b, c, d, ang, id) {
+        const rad = ang * Math.PI / 180;
+        try {
+            let p1, p2, p3, p4;
+            if (id === 'ang2') {
+                p2 = {x:0, y:0}; p1 = {x:-a, y:0};
+                p3 = {x: b*Math.cos(Math.PI - rad), y: b*Math.sin(Math.PI - rad)};
+                const dist = Math.sqrt((p3.x-p1.x)**2 + p3.y**2);
+                const K = (d*d - c*c + dist*dist) / (2*dist), h = Math.sqrt(Math.max(0, d*d - K*K));
+                p4 = { x: p1.x + K*(p3.x-p1.x)/dist - h*p3.y/dist, y: K*p3.y/dist + h*(p3.x-p1.x)/dist };
+            } else {
+                p1 = {x:0, y:0}; p2 = {x:a, y:0};
+                p4 = {x: d*Math.cos(rad), y: d*Math.sin(rad)};
+                const dist = Math.sqrt((p4.x-p2.x)**2 + p4.y**2);
+                const K = (b*b - c*c + dist*dist) / (2*dist), h = Math.sqrt(Math.max(0, b*b - K*K));
+                p3 = { x: p2.x + K*(p4.x-p2.x)/dist + h*p4.y/dist, y: K*p4.y/dist - h*(p4.x-p2.x)/dist };
+            }
+            return { pts: [p1, p2, p3, p4] };
+        } catch(e) { return null; }
+    }
+
+    function findIntersection(p1, p2, xCoord) {
+        if (Math.abs(p2.x - p1.x) < 0.1) return null;
+        const t = (xCoord - p1.x) / (p2.x - p1.x);
+        if (t < 0 || t > 1) return null;
+        return p1.y + t * (p2.y - p1.y);
+    }
+
+    function update(overwriteActive = true) {
+        const a = parseFloat(document.getElementById('sideA').value), b = parseFloat(document.getElementById('sideB').value);
+        const c = parseFloat(document.getElementById('sideC').value), d = parseFloat(document.getElementById('sideD').value);
+        const ang = parseFloat(document.getElementById(lastActiveId).value);
+        const res = calcularPuntos(a, b, c, d, ang, lastActiveId);
+        if (!res) return;
+        const pts = res.pts;
+        const grados = obtenerTodosLosGrados(pts);
+        grados.forEach((v, i) => {
+            const id = 'ang' + (i+1);
+            if (overwriteActive || id !== lastActiveId) document.getElementById(id).value = v.toFixed(1);
+        });
+        const minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x));
+        const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y));
+        const scale = Math.min(650/(maxX-minX || 1), 450/(maxY-minY || 1));
+        const offX = (900 - (maxX-minX)*scale)/2 - minX*scale, offY = (700 - (maxY-minY)*scale)/2 + maxY*scale;
+        const s = (p) => ({ x: p.x * scale + offX, y: offY - p.y * scale });
+        const sps = pts.map(s);
+        document.getElementById('poly').setAttribute('d', `M${sps[0].x},${sps[0].y} L${sps[1].x},${sps[1].y} L${sps[2].x},${sps[2].y} L${sps[3].x},${sps[3].y} Z`);
+        
+        const gD = document.getElementById('gDivisiones'); gD.innerHTML = '';
+        if (state.divisiones) {
+            if (state.modo === 'fijo') {
+                const anchoFijo = parseFloat(document.getElementById('anchoChapa').value) || 1000;
+                for (let i = 1; i <= state.qtyV; i++) {
+                    const xReal = pts[0].x + (i * anchoFijo);
+                    if (xReal > pts[1].x + 0.1) break;
+                    const xCanvas = sps[0].x + (i * anchoFijo * scale);
+                    let yTop = findIntersection(pts[3], pts[2], xReal) || findIntersection(pts[0], pts[3], xReal) || findIntersection(pts[1], pts[2], xReal);
+                    if (yTop !== null) {
+                        const yCanvasTop = offY - yTop * scale;
+                        gD.innerHTML += `<line x1="${xCanvas}" y1="${sps[0].y}" x2="${xCanvas}" y2="${yCanvasTop}" class="chapa-line" />`;
+                        gD.innerHTML += `<text x="${xCanvas}" y="${yCanvasTop - 15}" class="cota-largo-chapa" text-anchor="middle">${yTop.toFixed(0)}</text>`;
+                        gD.innerHTML += `<text x="${xCanvas - (anchoFijo*scale/2)}" y="${sps[0].y + 35}" class="cota-hueco" style="fill:#27ae60" text-anchor="middle">${anchoFijo}</text>`;
+                    }
+                }
+                const resto = a % anchoFijo;
+                if (resto > 1) gD.innerHTML += `<text x="${sps[1].x - (resto*scale/2)}" y="${sps[1].y + 35}" class="cota-sobrante" text-anchor="middle">${resto.toFixed(0)}</text>`;
+            } else {
+                const numHuecos = state.qtyV + 1;
+                const anchoHueco = a / numHuecos;
+                for (let i = 1; i < numHuecos; i++) {
+                    const t = i / numHuecos;
+                    const pInf = { x: sps[0].x + (sps[1].x - sps[0].x) * t, y: sps[0].y + (sps[1].y - sps[0].y) * t };
+                    const pSup = { x: sps[3].x + (sps[2].x - sps[3].x) * t, y: sps[3].y + (sps[2].y - sps[3].y) * t };
+                    gD.innerHTML += `<line x1="${pInf.x}" y1="${pInf.y}" x2="${pSup.x}" y2="${pSup.y}" class="linea-reparto" />`;
+                    gD.innerHTML += `<text x="${pInf.x - (anchoHueco*scale/2)}" y="${pInf.y + 35}" class="cota-hueco" style="fill:#2980b9" text-anchor="middle">${anchoHueco.toFixed(0)}</text>`;
+                }
+                gD.innerHTML += `<text x="${sps[1].x - (anchoHueco*scale/2)}" y="${sps[1].y + 35}" class="cota-hueco" style="fill:#2980b9" text-anchor="middle">${anchoHueco.toFixed(0)}</text>`;
+            }
+        }
+
+        const gM = document.getElementById('gMedidas'); gM.innerHTML = '';
+        if (state.medidas) {
+            const labels = [a, b, c, d];
+            sps.forEach((p, i) => {
+                const pNext = sps[(i+1)%4];
+                const angLine = Math.atan2(pNext.y-p.y, pNext.x-p.x);
+                
+                const offsetLinea = 50; 
+                const ox = Math.cos(angLine + Math.PI/2) * offsetLinea;
+                const oy = Math.sin(angLine + Math.PI/2) * offsetLinea;
+                
+                let rot = angLine * 180 / Math.PI;
+                if (rot > 90 || rot < -90) rot += 180;
+
+                gM.innerHTML += `<line x1="${p.x}" y1="${p.y}" x2="${pNext.x}" y2="${pNext.y}" class="cota-line" marker-start="url(#arrow)" marker-end="url(#arrow)" transform="translate(${ox},${oy})"/>`;
+                gM.innerHTML += `<text x="${(p.x+pNext.x)/2}" y="${(p.y+pNext.y)/2}" class="cota-text" text-anchor="middle" transform="translate(${ox*1.9},${oy*1.9}) rotate(${rot}, ${(p.x+pNext.x)/2}, ${(p.y+pNext.y)/2}) translate(0,18)">${labels[i].toFixed(0)}</text>`;
+            });
+        }
+        
+        const gG = document.getElementById('gGrados'); gG.innerHTML = '';
+        if (state.grados) {
+            const offs = [{x:-95, y:80}, {x:95, y:80}, {x:95, y:-55}, {x:-95, y:-55}];
+            grados.forEach((v, i) => { gG.innerHTML += `<text x="${sps[i].x + offs[i].x}" y="${sps[i].y + offs[i].y}" class="grado-text" text-anchor="middle">${v.toFixed(1)}°</text>`; });
+        }
+    }
+
+    function toggleBtn(btnId, key) {
+        state[key] = !state[key];
+        document.getElementById(btnId).classList.toggle('active');
+        update();
+    }
+
+    document.getElementById('btnMedidas').onclick = () => toggleBtn('btnMedidas', 'medidas');
+    document.getElementById('btnGrados').onclick = () => toggleBtn('btnGrados', 'grados');
+    document.getElementById('btnDivs').onclick = () => toggleBtn('btnDivs', 'divisiones');
+    document.getElementById('btnBack').onclick = () => { document.getElementById('vista-exportar').style.display='none'; document.getElementById('vista-diseno').style.display='block'; };
+
+    document.getElementById('btnExport').onclick = function() {
+        const svg = document.getElementById('mainSVG');
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const ratio = 2;
+        canvas.width = 900 * ratio; canvas.height = 700 * ratio;
+
+        const svgData = (new XMLSerializer()).serializeToString(svg);
+        const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        
+        img.onload = function() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            document.getElementById('img-resultado').src = canvas.toDataURL("image/png");
+            document.getElementById('vista-diseno').style.display = 'none';
+            document.getElementById('vista-exportar').style.display = 'block';
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    };
+
+    window.onload = () => { igualar('base'); };
+</script>
+</body>
+</html>

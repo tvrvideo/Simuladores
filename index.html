@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simuladores</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        body { margin: 0; font-family: -apple-system, sans-serif; background: #f2f2f2; height: 100vh; overflow: hidden; }
+        header { background: #e74c3c; color: white; padding: 40px 15px 20px; text-align: center; font-weight: bold; font-size: 1.2em; }
+        #menu { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        button { 
+            padding: 20px; font-size: 1.1em; border-radius: 15px; border: none; 
+            background: white; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        /* Visor optimizado para iOS */
+        #visor { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            border: none; 
+            display: none; 
+            background: white; 
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="cabecera">SIMULADORES TÉCNICOS</header>
+
+    <div id="menu">
+        <button onclick="abrir('./rejilla.html')">🪟 Rejilla Ventilación</button>
+        <button onclick="abrir('./poligono.html')">📐 Polígono / Modulación</button>
+    </div>
+
+    <iframe id="visor" name="visor" src="about:blank"></iframe>
+
+    <script>
+        function abrir(url) {
+            const visor = document.getElementById('visor');
+            const cabecera = document.getElementById('cabecera');
+            const menu = document.getElementById('menu');
+
+            // Primero mostramos el contenedor
+            visor.style.display = 'block';
+            
+            // Cargamos la URL con un pequeño retraso para asegurar que el iframe está listo en iOS
+            setTimeout(() => {
+                visor.src = url;
+            }, 10);
+
+            // Ocultamos el resto
+            cabecera.style.display = 'none';
+            menu.style.display = 'none';
+        }
+
+        function volverMenu() {
+            const visor = document.getElementById('visor');
+            visor.src = 'about:blank';
+            visor.style.display = 'none';
+            
+            document.getElementById('cabecera').style.display = 'block';
+            document.getElementById('menu').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

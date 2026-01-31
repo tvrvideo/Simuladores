@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Calculadora Rejilla</title>
+    <style>
+        :root { 
+            --primary: #e74c3c; 
+            --background-paper: #DEDDCE; 
+            --input-bg: #FFFCE6; 
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #fafafa; 
+            padding: 10px; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        /* BOTÓN MENÚ (Estilo unificado con Polígono) */
+        .btn-menu { 
+            position: fixed; top: 10px; left: 10px; z-index: 9999; 
+            padding: 10px 15px; border-radius: 20px; border: none; 
+            background: var(--primary); color: white; font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 950px; 
+            background: var(--background-paper); 
+            padding: 15px; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            margin-top: 50px; /* Espacio para el botón menú */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; font-size: 1.5rem; color: #333; margin: 10px 0 20px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        
+        .color-group { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
+        
+        label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #555; text-transform: uppercase; }
+        input { 
+            padding: 12px; border: 1px solid #ccc; border-radius: 8px; 
+            background: var(--input-bg); font-size: 1.1rem; text-align: center; font-weight: bold;
+        }
+
+        #colorLamas { width: 100px; height: 45px; cursor: pointer; border: 2px solid #333; border-radius: 8px; padding: 0; }
+
+        .btn-group { display: flex; justify-content: center; margin-bottom: 15px; }
+        .btn-export { 
+            background-color: #27ae60; color: white; padding: 15px 30px; 
+            border: none; border-radius: 8px; font-weight: bold; width: 100%; 
+            max-width: 300px; font-size: 1rem; cursor: pointer; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .display-area { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        
+        .resumen-texto { font-size: 1.4rem; font-weight: bold; margin: 20px 0; text-align: center; color: #333; width: 100%; }
+        .resumen-texto span { color: #e74c3c; }
+
+        .canvas-container { 
+            background: white; padding: 10px; border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            display: flex; justify-content: center; width: 100%; max-width: 900px; box-sizing: border-box; 
+        }
+
+        svg { width: 100%; height: auto; display: block; background: white; }
+
+        #lista-medidas { 
+            margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; 
+            gap: 10px 20px; width: 100%; max-width: 600px; padding: 20px 0; 
+        }
+        .medida-item { font-size: 1rem; font-weight: bold; color: #333; border-left: 5px solid var(--primary); padding-left: 10px; background: rgba(255,255,255,0.5); padding-top: 5px; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<button class="btn-menu" onclick="parent.volverMenu()">← MENÚ</button>
+
+<div class="container">
+    <h1>Rejilla Ventilación</h1>
+    <div class="controls">
+        <div class="input-group"><label>ANCHO</label><input type="number" id="anchoTotal" value="480" oninput="calcular()"></div>
+        <div class="input-group"><label>ALTO</label><input type="number" id="altoTotal" value="820" oninput="calcular()"></div>
+        <div class="input-group"><label>INICIO</label><input type="number" id="distInicio" value="13" oninput="calcular()"></div>
+        <div class="input-group"><label>FINAL</label><input type="number" id="distFinal" value="43" oninput="calcular()"></div>
+        <div class="input-group"><label>SEP. MÁXIMA</label><input type="number" id="sepMaxima" value="44" oninput="calcular()"></div>
+        <div class="input-group"><label>GROSOR LAMA</label><input type="number" id="grosorLama" value="25" oninput="calcular()"></div>
+        <div class="input-group"><label>GROSOR MARCO</label><input type="number" id="grosorMarco" value="10" oninput="calcular()"></div>
+        <div class="color-group">
+            <label>COLOR REJILLA</label>
+            <input type="color" id="colorLamas" value="#C2C2C2" oninput="calcular()">
+        </div>
+    </div>
+    
+    <div class="btn-group"><button class="btn-export" onclick="exportarSoloSVG()">Exportar Rejilla (PNG)</button></div>
+    
+    <div class="display-area">
+        <div id="frase-resumen" class="resumen-texto">Cargando...</div>
+        <div class="canvas-container"><svg id="disenoSvg" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div id="lista-medidas"></div>
+    </div>
+</div>
+
+<script>
+    let lamasData = [];
+    let lamasCount = 0;
+    let largoLama = 0;
+
+    function calcular() {
+        const H = parseInt(document.getElementById('altoTotal').value) || 0;
+        const W = parseInt(document.getElementById('anchoTotal').value) || 0;
+        const G = parseInt(document.getElementById('grosorLama').value) || 0;
+        const GM = parseInt(document.getElementById('grosorMarco').value) || 0;
+        const inicio = parseInt(document.getElementById('distInicio').value) || 0;
+        const fin = parseInt(document.getElementById('distFinal').value) || 0;
+        const Smax = parseInt(document.getElementById('sepMaxima').value) || 44; 
+        const util = H - inicio - fin;
+        const numHuecos = util > 0 ? Math.ceil(util / Smax) : 0;
+        const pasoReal = numHuecos > 0 ? util / numHuecos : 0;
+        lamasCount = numHuecos + 1;
+        largoLama = W - (GM * 2);
+        lamasData = [];
+        for (let i = 0; i < lamasCount; i++) { lamasData.push(Math.round(inicio + (i * pasoReal))); }
+        actualizarVista(H, W, G, GM);
+    }
+
+    function actualizarVista(H, W, G, GM) {
+        document.getElementById('frase-resumen').innerHTML = `${lamasCount} Lamas de <span>${largoLama} mm</span>`;
+        const listaDiv = document.getElementById('lista-medidas');
+        listaDiv.innerHTML = lamasData.map((pos, i) => `<div class="medida-item">Lama ${i+1}: ${pos}</div>`).join('');
+        const svg = document.getElementById('disenoSvg');
+        const colorLamas = document.getElementById('colorLamas').value;
+        const drawArea = 700; const scale = Math.min(drawArea / W, drawArea / H);
+        const dW = W * scale; const dH = H * scale; const dG = G * scale; const dGM = GM * scale;
+        const marginX = (1000 - dW) / 2; const marginY = (1000 - dH) / 2 + 50; 
+        
+        let html = `<rect width="1000" height="1000" fill="white" />`;
+        html += `<rect x="${marginX}" y="${marginY}" width="${dW}" height="${dH}" fill="#f2f2f2" stroke="#333" stroke-width="1"/>`;
+        lamasData.forEach((pos) => { const yPos = marginY + (pos * scale); html += `<rect x="${marginX + dGM}" y="${yPos - (dG/2)}" width="${dW - (dGM*2)}" height="${dG}" fill="${colorLamas}" stroke="black" stroke-width="0.5"/>`; });
+        html += `<rect x="${marginX}" y="${marginY}" width="${dGM}" height="${dH}" fill="${colorLamas}" stroke="black" stroke-width="1"/>`;
+        html += `<rect x="${marginX + dW - dGM}" y="${marginY}" width="${dGM}" height="${dH}" fill="${colorLamas}" stroke="black" stroke-width="1"/>`;
+        
+        // Cotas
+        html += drawDimension(marginX - 30, marginY, marginY + dH, `${H}`, 'V'); 
+        html += drawDimension(marginY - 30, marginX, marginX + dW, `${W}`, 'H'); 
+        
+        svg.innerHTML = html;
+    }
+
+    function drawDimension(posXY, start, end, text, orient) {
+        const color = "blue"; const arrow = 25; const fontSize = "120"; 
+        if (orient === 'V') {
+            return `<line x1="${posXY}" y1="${start}" x2="${posXY}" y2="${end}" stroke="${color}" stroke-width="5"/><path d="M ${posXY-15} ${start+arrow} L ${posXY} ${start} L ${posXY+15} ${start+arrow}" fill="none" stroke="${color}" stroke-width="5"/><path d="M ${posXY-15} ${end-arrow} L ${posXY} ${end} L ${posXY+15} ${end-arrow}" fill="none" stroke="${color}" stroke-width="5"/><text x="${posXY-35}" y="${start + (end-start)/2}" fill="${color}" font-size="${fontSize}" font-weight="normal" transform="rotate(-90, ${posXY-45}, ${start + (end-start)/2})" text-anchor="middle" dominant-baseline="middle">${text}</text>`;
+        } else {
+            return `<line x1="${start}" y1="${posXY}" x2="${end}" y2="${posXY}" stroke="${color}" stroke-width="5"/><path d="M ${start+arrow} ${posXY-15} L ${start} ${posXY} L ${start+arrow} ${posXY+15}" fill="none" stroke="${color}" stroke-width="5"/><path d="M ${end-arrow} ${posXY-15} L ${end} ${posXY} L ${end-arrow} ${posXY+15}" fill="none" stroke="${color}" stroke-width="5"/><text x="${start + (end-start)/2}" y="${posXY - 15}" fill="${color}" font-size="${fontSize}" font-weight="normal" text-anchor="middle">${text}</text>`;
+        }
+    }
+
+    function exportarSoloSVG() {
+        const svg = document.getElementById('disenoSvg');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 2000; canvas.height = 2000;
+        ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const svgData = (new XMLSerializer()).serializeToString(svg);
+        const img = new Image();
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, 2000, 2000);
+            const dataUrl = canvas.toDataURL("image/png");
+            
+            // Lógica específica para iPhone/App
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center;';
+            overlay.innerHTML = `<div style="background:white; padding:10px; border-radius:10px; width:92%;"><img src="${dataUrl}" style="width:100%;"></div><p style="color:white; margin:15px; font-weight:bold;">MANTÉN PULSADO PARA GUARDAR</p><button onclick="document.body.removeChild(this.parentElement)" style="padding:15px; background:#e74c3c; color:white; border:none; border-radius:8px; font-weight:bold; width:200px;">VOLVER</button>`;
+            document.body.appendChild(overlay);
+            
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    }
+    window.onload = calcular;
+</script>
+</body>
+</html>
