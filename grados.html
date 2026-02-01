@@ -367,16 +367,6 @@
 }
 .btn-fijar.active{ background: var(--primary-color); }
 
-/* --- LAYOUT FIJO (solo cuando está activado) --- */
-:root{ --dock-height: 46vh; }
-
-#scrollArea, #dockArea{ width: 100%; }
-
-body.dock-on{
-  margin: 0;
-  padding: 0;
-}
-
 /* Controles con scroll (zona superior) */
 body.dock-on #scrollArea{
   position: fixed;
@@ -472,9 +462,87 @@ h1 .ver{
   letter-spacing: 0.5px;
 }
 .export-back-btn:active{ transform: translateY(2px); }
+
+
+/* BOTÓN FIJAR (activar/desactivar vista fija abajo) */
+.btn-fijar{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #6b7280; /* gris (desactivado) */
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-fijar.active{ background: var(--primary-color); }
+
+/* Wrappers: en modo normal NO afectan al layout (evita desplazamientos en iPhone) */
+#scrollArea, #dockArea{
+  display: contents;
+}
+
+/* --- MODO FIJO (solo cuando está activado) --- */
+:root{ --dock-height: 46vh; }
+
+body.dock-on{
+  margin: 0;
+  padding: 0; /* en fijo, el padding pasa a #scrollArea */
+}
+
+/* Controles con scroll (zona superior) */
+body.dock-on #scrollArea{
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--dock-height);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 40px 20px; /* igual que el body original */
+  box-sizing: border-box;
+  background-color: var(--background-light);
+}
+
+/* Vista fija inferior */
+body.dock-on #dockArea{
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dock-height);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 20px 18px;
+  box-sizing: border-box;
+  background-color: var(--background-light);
+  border-top: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
+}
+
+/* Evita salto de ancho SOLO en escritorio (no iPhone) */
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  html { scrollbar-gutter: stable; }
+  body { overflow-y: scroll; }
+}
+
 </style>
 </head>
 <body>
+
+<div id="scrollArea">
 
 <div id="vista-diseno">
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
@@ -482,7 +550,7 @@ h1 .ver{
 
 
     
-<div id="scrollArea"><h1>GRADOS DE CORTE <span class="ver">V10</span></h1>
+<h1>GRADOS DE CORTE <span class="ver">V10</span></h1>
 
     <div class="controls">
         
@@ -564,6 +632,8 @@ h1 .ver{
 
     
 </div>
+
+</div>
 <div id="dockArea"><svg id="frameSVG" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet">
         <defs>
             <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -639,6 +709,11 @@ h1 .ver{
     <button type="button" class="export-back-btn" id="btnBackDesign">← VOLVER AL DISEÑO</button>
   </div>
 </div>
+
+
+</div>
+
+
 
 <script>
 (function(){
