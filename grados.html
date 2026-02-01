@@ -538,15 +538,34 @@ body.dock-on #dockArea{
   body { overflow-y: scroll; }
 }
 
+
+/* Evitar que los botones fijos tapen la vista exportada */
+#vista-exportar{ padding-top: 70px; }
+
+
+/* vista-exportar-overlay */
+#vista-exportar{
+  position: fixed;
+  inset: 0;
+  z-index: 10000; /* por encima de todo */
+  background: var(--background-light);
+  padding: 60px 12px 20px; /* deja aire para botones fijos */
+  box-sizing: border-box;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#vista-exportar .export-card{ margin-top: 0; }
+
 </style>
 </head>
 <body>
 
 <div id="scrollArea">
-
-<div id="vista-diseno">
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
+
+<div id="vista-diseno">
+
 
 
     
@@ -700,6 +719,9 @@ body.dock-on #dockArea{
 </div>
 </div>
 
+
+</div>
+
 <!-- Vista de exportación PNG -->
 <div id="vista-exportar" style="display:none;">
   <div class="export-card">
@@ -708,12 +730,6 @@ body.dock-on #dockArea{
     <p class="export-hint">Mantén pulsada la imagen para guardarla</p>
     <button type="button" class="export-back-btn" id="btnBackDesign">← VOLVER AL DISEÑO</button>
   </div>
-</div>
-
-
-</div>
-
-
 
 <script>
 (function(){
@@ -1054,11 +1070,27 @@ body.dock-on #dockArea{
                 const imgOut = document.getElementById('exportImg');
                 if (imgOut) imgOut.src = pngUrl;
 
-                const vistaDiseno = document.getElementById('vista-diseno');
-                const vistaExport = document.getElementById('vista-exportar');
-                if (vistaDiseno) vistaDiseno.style.display = 'none';
-                if (vistaExport) vistaExport.style.display = 'block';
-                window.scrollTo(0,0);
+                
+const vistaDiseno = document.getElementById('vista-diseno');
+const vistaExport = document.getElementById('vista-exportar');
+
+// Guardar estado de FIJAR y DESACTIVARLO para exportar (evita que el export quede inaccesible)
+window.__wasDockOn = document.body.classList.contains('dock-on');
+document.body.classList.remove('dock-on');
+const btnF = document.getElementById('btnFijar');
+if (btnF) btnF.classList.remove('active');
+
+// Ocultar el diseño COMPLETO (scroll + dock) para que NO aparezcan contenedores antes del PNG
+const scrollArea = document.getElementById('scrollArea');
+const dockArea = document.getElementById('dockArea');
+if (scrollArea) scrollArea.style.display = 'none';
+if (dockArea) dockArea.style.display = 'none';
+if (vistaDiseno) vistaDiseno.style.display = 'none';
+
+// Mostrar la vista de exportación arriba (sin hacer scroll)
+if (vistaExport) vistaExport.style.display = 'block';
+window.scrollTo(0,0);
+
 // 12. Devolver la visibilidad a su estado original
                 if (!dimHidden) elements.dimensionesGroup.classList.remove('hidden');
                 if (!angHidden) elements.gradosCorteGroup.classList.remove('hidden');
@@ -1435,13 +1467,37 @@ body.dock-on #dockArea{
         elements.exportImageButton.addEventListener('click', exportSVGAsImage);
 
         // Botón para volver al diseño desde la vista de exportación
+        window.__wasDockOn = false;
         const btnBackDesign = document.getElementById('btnBackDesign');
         if (btnBackDesign) {
             btnBackDesign.addEventListener('click', () => {
+
                 const vistaDiseno = document.getElementById('vista-diseno');
                 const vistaExport = document.getElementById('vista-exportar');
-                if (vistaExport) vistaExport.style.display = 'none';
-                if (vistaDiseno) vistaDiseno.style.display = 'block';
+                
+if (vistaExport) vistaExport.style.display = 'none';
+if (vistaDiseno) vistaDiseno.style.display = 'block';
+
+// Volver a mostrar el diseño completo
+const scrollArea = document.getElementById('scrollArea');
+const dockArea = document.getElementById('dockArea');
+if (scrollArea) scrollArea.style.display = '';
+if (dockArea) dockArea.style.display = '';
+
+
+                // Restaurar estado de FIJAR tal y como estaba al exportar
+                if (window.__wasDockOn) {
+                    document.body.classList.add('dock-on');
+                    const btnF = document.getElementById('btnFijar');
+                    if (btnF) btnF.classList.add('active');
+                } else {
+                    document.body.classList.remove('dock-on');
+                    const btnF = document.getElementById('btnFijar');
+                    if (btnF) btnF.classList.remove('active');
+                }
+
+                window.scrollTo(0, 0);
+    
             }, {passive:true});
         }
 
