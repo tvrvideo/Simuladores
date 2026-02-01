@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Presupuestos Guardables</title>
+    <style>
+        body {
+            font-family: Arial black, sans-serif;
+            margin: 0; 
+            padding: 10px; 
+            background-color: #f4f4f4;
+            box-sizing: border-box; 
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 10px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #0061FE;
+            text-align: center;
+            border-bottom: 2px 
+solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .section h2, .medidas-comunes h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+        /* --- Estilos de la Tabla de Precios y Secciones --- */
+        #price_table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+            font-size: 1.2em;
+        }
+        #price_table th, #price_table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-break: break-word; 
+        }
+        #price_table th {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+        }
+        #price_table td:nth-child(2) {
+            text-align: right;
+        }
+        #price_table input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: right;
+            font-size: 0.9em;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            background-color: #CBB181;
+        }
+        
+        /* --- ESTILOS DE FONDOS --- */
+        .section-persiana { background-color: #CDE8B5; } 
+        .section-mosquitera { background-color: #FFB5AF; } 
+        .section-chapa { background-color: #FEE4A8; } 
+        .section-vidrio { background-color: #93E3FD; } 
+       
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; 
+        }
+        .input-group label {
+            width: 150px;
+            font-weight: bold;
+            display: block;
+            font-size: 1.2em;
+        }
+        .input-group input[type="number"]:not([id^="precio_"]), 
+        .input-group select {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            min-width: 100px; 
+        }
+        .input-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+            transform: scale(2.0); 
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            border: 2px solid #28a745;
+            background-color: #e6ffed;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #155724;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        /* NUEVO: Estilo para Advertencia */
+        .warning {
+            margin-top: 5px;
+            padding: 5px;
+            border: 2px solid #ffc107;
+            background-color: #fff3cd;
+            color: #856404;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px; 
+            margin-top: 10px;
+        }
+        .add-button, .add-irpf-button, .clear-button {
+            display: block;
+            width: 100%; 
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .add-button {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .add-button:hover {
+            background-color: #138496;
+        }
+        .add-irpf-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .add-irpf-button:hover {
+            background-color: #e0a800;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            margin-top: 10px;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+
+        /* --- Estilos para los botones de Importar/Exportar Precios --- */
+        .price-controls {
+            display: flex;
+            gap: 5px; 
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap; 
+        }
+        .price-controls button, .price-controls label {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em; 
+            flex-grow: 1;
+            box-sizing: border-box;
+            min-width: 100px; 
+            margin: 2px 0; 
+        }
+
+        #exportar_precios_json {
+            background-color: #4CAF50; 
+            color: white;
+        }
+        #exportar_precios_csv {
+            background-color: #FF9800; 
+            color: white;
+        }
+
+        #importar_precios_label {
+            background-color: #2196F3; 
+            color: white;
+            text-align: center;
+            line-height: normal; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            height: 40px; 
+        }
+
+        #importar_precios {
+            display: none; 
+        }
+        
+        .medidas-comunes {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border: 1px dashed #90caf9;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
+        /* --- Estilos de la Lista de Presupuestos Guardados --- */
+        #lista_presupuestos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed; 
+            font-size: 0.9em; 
+        }
+        #lista_presupuestos th, #lista_presupuestos td {
+            border: 1px solid #ccc;
+            padding: 4px; 
+            text-align: left;
+            word-break: break-word; 
+            white-space: normal;
+        }
+        #lista_presupuestos th {
+            background-color: #6c757d;
+            color: white;
+        }
+        #lista_presupuestos tfoot td {
+        font-weight: bold;
+        background-color: #f8f9fa;
+        }
+        
+        /* Ajuste de anchos de columna para 5 columnas (Producto, Medidas, Tipo, Precio, Eliminar) */
+        #lista_presupuestos thead tr th:nth-child(1) { width: 30%; } 
+        #lista_presupuestos thead tr th:nth-child(2) { width: 25%; text-align: center; } 
+        #lista_presupuestos thead tr th:nth-child(3) { width: 18%; text-align: center; } 
+        #lista_presupuestos thead tr th:nth-child(4) { width: 19%; text-align: center; } 
+        #lista_presupuestos thead tr th:nth-child(5) { width: 8%; text-align: center; } 
+
+        #lista_presupuestos tbody tr td:nth-child(2) { text-align: center; } 
+        #lista_presupuestos tbody tr td:nth-child(3) { text-align: center; } 
+        #lista_presupuestos tbody tr td:nth-child(4) { text-align: center; } 
+        #lista_presupuestos tbody tr td:nth-child(5) { text-align: center; } 
+        
+        /* ESTILO: Color de fondo diferente para las filas de la lista */
+        #lista_presupuestos tbody tr:nth-child(odd) {
+            background-color: #f5f5f5; /* Blanco Humo */
+        }
+        #lista_presupuestos tbody tr:nth-child(even) {
+            background-color: #e6e6e6; /* Gris muy claro */
+        }
+        
+        /* Estilos del nuevo botón de eliminar */
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 3px; 
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7em;
+            line-height: 1; 
+            width: auto;
+            box-sizing: border-box;
+        }
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Media Query para móviles/iPhone */
+        @media screen and (max-width: 600px) {
+            
+            body { padding: 5px; }
+            .container { padding: 10px; } 
+            
+            /* Ajuste de botones de precio */
+            .price-controls { 
+                flex-direction: row;
+                gap: 5px;
+            }
+            .price-controls button, .price-controls label { 
+                min-width: 48%; 
+                font-size: 0.8em;
+                padding: 8px;
+            }
+            #importar_precios_label { min-width: 100%; } 
+            
+            /* Ajuste de anchos de columna para móviles */
+            #lista_presupuestos thead tr th:nth-child(1) { width: 30%; } 
+            #lista_presupuestos thead tr th:nth-child(2) { width: 25%; } 
+            #lista_presupuestos thead tr th:nth-child(3) { width: 18%; } 
+            #lista_presupuestos thead tr th:nth-child(4) { width: 19%; } 
+            #lista_presupuestos thead tr th:nth-child(5) { width: 8%; } 
+            
+            #total_resultado { display: none; }
+        }
+
+
+/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+.btn-menu { 
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  z-index: 9999; 
+  padding: 10px 15px; 
+  border-radius: 20px; 
+  border: none; 
+  background: #e74c3c; 
+  color: white; 
+  font-weight: bold; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;      /* evita estilos globales */
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+</style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json"></head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+
+<div class="container">
+    <h1>PRESUPUESTOS</h1>
+    
+    <div class="section">
+        <h2>Precios m²</h2>
+        <table id="price_table">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Persiana Blanca</td><td><input type="number" id="precio_persiana_blanca_m2" value="60" min="0"></td></tr>
+                <tr><td>Persiana Color</td><td><input type="number" id="precio_persiana_color_m2" value="70" min="0"></td></tr>
+                <tr><td>Persiana Madera</td><td><input type="number" id="precio_persiana_madera_m2" value="80" min="0"></td></tr>
+                <tr><td>Mano de Obra Persiana</td><td><input type="number" id="precio_persiana_mo" value="60" min="0"></td></tr>
+                <tr><td>Guías Persiana Metro</td><td><input type="number" id="precio_guia_ml" value="10" min="0"></td></tr>
+                <tr><td>Eje Persiana Metro</td><td><input type="number" id="precio_eje_ml" value="15" min="0"></td></tr>
+                <tr><td>Motor 15 Nm</td><td><input type="number" id="precio_motor_15nm" value="95" min="0"></td></tr>
+                <tr><td>Motor 20 Nm</td><td><input type="number" id="precio_motor_20nm" value="115" min="0"></td></tr>
+                <tr><td>Motor 30 Nm</td><td><input type="number" id="precio_motor_30nm" value="145" min="0"></td></tr>
+                <tr><td>Mando a Distancia</td><td><input type="number" id="precio_mando_distancia" value="50" min="0"></td></tr>
+                <tr><td>Mosquitera Blanca</td><td><input type="number" id="precio_mosquitera_blanca_m2" value="60" min="0"></td></tr>
+                <tr><td>Mosquitera Color</td><td><input type="number" id="precio_mosquitera_color_m2" value="70" min="0"></td></tr>
+                <tr><td>Mosquitera Madera</td><td><input type="number" id="precio_mosquitera_madera_m2" value="90" min="0"></td></tr>
+                <tr><td>Mosquitera Plisada</td><td><input type="number" id="precio_mosquitera_plisada_m2" value="15" min="0"></td></tr>
+                <tr><td>Mano de Obra Mosquitera</td><td><input type="number" id="precio_mosquitera_mo" value="30" min="0"></td></tr>
+                <tr><td>Chapa Natural</td><td><input type="number" id="precio_chapa_natural_m2" value="65" min="0"></td></tr>
+                <tr><td>Chapa Blanca</td><td><input type="number" id="precio_chapa_blanca_m2" value="55" min="0"></td></tr>
+                <tr><td>Chapa Sándwich</td><td><input type="number" id="precio_chapa_sandwich_m2" value="70" min="0"></td></tr>
+                <tr><td>Mano de Obra Chapa</td><td><input type="number" id="precio_chapa_mo" value="30" min="0"></td></tr>
+                <tr><td>Vidrio Climalit</td><td><input type="number" id="precio_vidrio_climalit_m2" value="70" min="0"></td></tr>
+                <tr><td>Vidrio Bajo Emisivo</td><td><input type="number" id="precio_vidrio_bajo_emisivo_m2" value="80" min="0"></td></tr>
+                <tr><td>Mano de Obra Vidrio</td><td><input type="number" id="precio_vidrio_mo" value="30" min="0"></td></tr>
+                <tr><td>Mínimo m²</td><td><input type="number" id="area_minima" value="1" min="0.1" step="0.1"></td></tr>
+                <tr><td>Peso Persiana Alum. (kg/m²)</td><td><input type="number" id="peso_aluminio_m2" value="4" min="1" step="0.1"></td></tr>
+            </tbody>
+        </table>
+        
+        <div class="price-controls">
+            <button id="exportar_precios_json" onclick="exportarPreciosJSON()">⬇️ Exportar JSON</button>
+            <button id="exportar_precios_csv" onclick="exportarPreciosCSV()">⬇️ Exportar CSV</button>
+            
+            <label for="importar_precios" id="importar_precios_label">⬆️ Importar Precios</label>
+            <input type="file" id="importar_precios" accept=".json,.csv" onchange="cargarPrecios(event)"> 
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="medidas-comunes">
+        <h2>Medidas Comunes</h2>
+        <div class="input-group">
+            <label for="medida_ancho_mm">Ancho:</label>
+            <input type="number" id="medida_ancho_mm" value="1000" min="0">
+        </div>
+        <div class="input-group">
+            <label for="medida_alto_mm">Alto:</label>
+            <input type="number" id="medida_alto_mm" value="1000" min="0">
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="section section-persiana" id="seccion_persiana">
+        <h2>Persiana</h2>
+        <div class="input-group">
+            <label for="persiana_usar_comun">Medida Comun:</label>
+            <input type="checkbox" id="persiana_usar_comun" checked onchange="toggleMedidas('persiana')">
+        </div>
+        <div class="input-group">
+            <label for="persiana_ancho">Ancho (mm):</label>
+            <input type="number" id="persiana_ancho" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="persiana_alto">Alto (mm):</label>
+            <input type="number" id="persiana_alto" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="persiana_color">Color:</label>
+            <select id="persiana_color">
+                <option value="blanca">Blanca</option>
+                <option value="color">Color</option>
+                <option value="madera">Madera</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="persiana_guias">Incluir Guías:</label>
+            <input type="checkbox" id="persiana_guias">
+        </div>
+        <div class="input-group">
+            <label for="persiana_eje">Incluir Eje:</label>
+            <input type="checkbox" id="persiana_eje">
+        </div>
+        <div class="input-group">
+            <label for="persiana_motor">Incluir Motor:</label>
+            <input type="checkbox" id="persiana_motor" onchange="toggleMotor()">
+        </div>
+        <div class="input-group" id="grupo_motor_tipo" style="display: none;">
+            <label for="persiana_motor_tipo">Tipo Motor (Nm):</label>
+            <select id="persiana_motor_tipo">
+                <option value="15">15 Nm</option>
+                <option value="20">20 Nm</option>
+                <option value="30">30 Nm</option>
+            </select>
+        </div>
+        <div class="input-group" id="grupo_mando_distancia" style="display: none;">
+            <label for="persiana_mando">Mando a Distancia:</label>
+            <input type="checkbox" id="persiana_mando">
+        </div>
+        <div class="input-group">
+            <label for="persiana_mo">Incluir M.O.:</label>
+            <input type="checkbox" id="persiana_mo" checked>
+        </div>
+        <div class="result" id="persiana_resultado">
+            Presupuesto Persiana: 0.00 €
+        </div>
+        <div id="persiana_warning_motor"></div>
+        <div class="button-group">
+            <button class="add-button" onclick="agregarProductoALista('persiana', false)">Añadir a la Lista</button>
+            <button class="add-irpf-button" onclick="agregarProductoALista('persiana', true)">Añadir IRPF (20%)</button>
+        </div>
+    </div>
+
+    <div class="section section-mosquitera" id="seccion_mosquitera">
+        <h2>Mosquitera</h2>
+        <div class="input-group">
+            <label for="mosquitera_usar_comun">Medida Comun:</label>
+            <input type="checkbox" id="mosquitera_usar_comun" checked onchange="toggleMedidas('mosquitera')">
+        </div>
+        <div class="input-group">
+            <label for="mosquitera_ancho">Ancho:</label>
+            <input type="number" id="mosquitera_ancho" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="mosquitera_alto">Alto:</label>
+            <input type="number" id="mosquitera_alto" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="mosquitera_color">Color:</label>
+            <select id="mosquitera_color">
+                <option value="blanca">Blanca</option>
+                <option value="color">Color</option>
+                <option value="madera">Madera</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="mosquitera_plisada">Plisada (Extra):</label>
+            <input type="checkbox" id="mosquitera_plisada">
+        </div>
+        <div class="input-group">
+            <label for="mosquitera_mo">Incluir M.O.:</label>
+            <input type="checkbox" id="mosquitera_mo" checked>
+        </div>
+        <div class="result" id="mosquitera_resultado">
+            Presupuesto Mosquitera: 0.00 €
+        </div>
+        <div class="button-group">
+            <button class="add-button" onclick="agregarProductoALista('mosquitera', false)">Añadir a la Lista</button>
+            <button class="add-irpf-button" onclick="agregarProductoALista('mosquitera', true)">Añadir IRPF (20%)</button>
+        </div>
+    </div>
+
+    <div class="section section-chapa" id="seccion_chapa">
+        <h2>Chapa</h2>
+        <div class="input-group">
+            <label for="chapa_usar_comun">Medida Comun:</label>
+            <input type="checkbox" id="chapa_usar_comun" checked onchange="toggleMedidas('chapa')">
+        </div>
+        <div class="input-group">
+            <label for="chapa_ancho">Ancho:</label>
+            <input type="number" id="chapa_ancho" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="chapa_alto">Alto:</label>
+            <input type="number" id="chapa_alto" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="chapa_tipo">Tipo:</label>
+            <select id="chapa_tipo">
+                <option value="blanca">Blanca</option> <option value="natural">Natural</option>
+                <option value="sandwich">Sándwich</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="chapa_mo">Incluir M.O.:</label>
+            <input type="checkbox" id="chapa_mo" checked>
+        </div>
+        <div class="result" id="chapa_resultado">
+            Presupuesto Chapa: 0.00 €
+        </div>
+        <div class="button-group">
+            <button class="add-button" onclick="agregarProductoALista('chapa', false)">Añadir a la Lista</button>
+            <button class="add-irpf-button" onclick="agregarProductoALista('chapa', true)">Añadir IRPF (20%)</button>
+        </div>
+    </div>
+
+    <div class="section section-vidrio" id="seccion_vidrio">
+        <h2>Vidrio Climalit</h2>
+        <div class="input-group">
+            <label for="vidrio_usar_comun">Medida Comun:</label>
+            <input type="checkbox" id="vidrio_usar_comun" checked onchange="toggleMedidas('vidrio')">
+        </div>
+        <div class="input-group">
+            <label for="vidrio_ancho">Ancho:</label>
+            <input type="number" id="vidrio_ancho" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="vidrio_alto">Alto:</label>
+            <input type="number" id="vidrio_alto" value="1000" min="0" disabled>
+        </div>
+        <div class="input-group">
+            <label for="vidrio_tipo">Tipo:</label>
+            <select id="vidrio_tipo">
+                <option value="climalit">Climalit</option> 
+                <option value="bajo_emisivo">Bajo Emisivo</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="vidrio_mo">Incluir M.O.:</label>
+            <input type="checkbox" id="vidrio_mo" checked>
+        </div>
+        <div class="result" id="vidrio_resultado">
+            Presupuesto Vidrio: 0.00 €
+        </div>
+        <div class="button-group">
+            <button class="add-button" onclick="agregarProductoALista('vidrio', false)">Añadir a la Lista</button>
+            <button class="add-irpf-button" onclick="agregarProductoALista('vidrio', true)">Añadir IRPF</button>
+        </div>
+    </div>
+
+    <div class="result" id="total_resultado">TOTAL: 0.00 €</div>
+
+    <div class="section">
+        <h2>Lista de Presupuestos</h2>
+        <table id="lista_presupuestos">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Medidas</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>❌</th> </tr>
+            </thead>
+            <tbody id="lista_cuerpo">
+                </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="text-align: right;">TOTAL LISTADO:</td>
+                    <td id="total_listado" colspan="2">0.00 €</td> </tr>
+            </tfoot>
+        </table>
+        <button class="clear-button" onclick="borrarLista()">🗑️ Borrar Lista</button>
+    </div>
+
+</div>
+
+<script>
+    // ----------------------------------------------------------------------
+    // --- LÓGICA DE CÁLCULO GENERAL ---
+    // ----------------------------------------------------------------------
+    
+    // Función para obtener todos los precios
+    function getPrecios() {
+        return {
+            persiana: {
+                blanca_m2: parseFloat(document.getElementById('precio_persiana_blanca_m2').value) || 0,
+                color_m2: parseFloat(document.getElementById('precio_persiana_color_m2').value) || 0,
+                madera_m2: parseFloat(document.getElementById('precio_persiana_madera_m2').value) || 0,
+                mo: parseFloat(document.getElementById('precio_persiana_mo').value) || 0, 
+                guia_ml: parseFloat(document.getElementById('precio_guia_ml').value) || 0,
+                eje_ml: parseFloat(document.getElementById('precio_eje_ml').value) || 0,
+                // Precios de Motor
+                motor_15nm: parseFloat(document.getElementById('precio_motor_15nm').value) || 0,
+                motor_20nm: parseFloat(document.getElementById('precio_motor_20nm').value) || 0,
+                motor_30nm: parseFloat(document.getElementById('precio_motor_30nm').value) || 0,
+                // NUEVO: Precio del Mando
+                mando_distancia: parseFloat(document.getElementById('precio_mando_distancia').value) || 0,
+            },
+            mosquitera: {
+                blanca_m2: parseFloat(document.getElementById('precio_mosquitera_blanca_m2').value) || 0,
+                color_m2: parseFloat(document.getElementById('precio_mosquitera_color_m2').value) || 0,
+                madera_m2: parseFloat(document.getElementById('precio_mosquitera_madera_m2').value) || 0,
+                plisada_m2: parseFloat(document.getElementById('precio_mosquitera_plisada_m2').value) || 0, 
+                mo: parseFloat(document.getElementById('precio_mosquitera_mo').value) || 0
+            },
+            chapa: {
+                natural_m2: parseFloat(document.getElementById('precio_chapa_natural_m2').value) || 0,
+                blanca_m2: parseFloat(document.getElementById('precio_chapa_blanca_m2').value) || 0,
+                sandwich_m2: parseFloat(document.getElementById('precio_chapa_sandwich_m2').value) || 0,
+                mo: parseFloat(document.getElementById('precio_chapa_mo').value) || 0
+            },
+            vidrio: {
+                climalit_m2: parseFloat(document.getElementById('precio_vidrio_climalit_m2').value) || 0,
+                bajo_emisivo_m2: parseFloat(document.getElementById('precio_vidrio_bajo_emisivo_m2').value) || 0,
+                mo: parseFloat(document.getElementById('precio_vidrio_mo').value) || 0
+            },
+            min_m2: parseFloat(document.getElementById('area_minima').value) || 1,
+            // Peso de la persiana
+            peso_aluminio_m2: parseFloat(document.getElementById('peso_aluminio_m2').value) || 4 
+        };
+    }
+    
+    // Función para mostrar/ocultar el selector de tipo de motor Y Mando
+    function toggleMotor() {
+        const conMotor = document.getElementById('persiana_motor').checked;
+        document.getElementById('grupo_motor_tipo').style.display = conMotor ? 'flex' : 'none';
+        // NUEVO: Mostrar/Ocultar el grupo del mando a distancia
+        document.getElementById('grupo_mando_distancia').style.display = conMotor ? 'flex' : 'none';
+        calcularPresupuestoTotal();
+    }
+
+
+    // Función para alternar el uso de medidas comunes y obtener las medidas
+    function toggleMedidas(tipo) {
+        const usarComun = document.getElementById(`${tipo}_usar_comun`).checked;
+        document.getElementById(`${tipo}_ancho`).disabled = usarComun;
+        document.getElementById(`${tipo}_alto`).disabled = usarComun;
+        calcularPresupuestoTotal(); 
+    }
+
+    function getMedidas(tipo) {
+        const usarComun = document.getElementById(`${tipo}_usar_comun`).checked;
+        
+        if (usarComun) {
+            const ancho = parseFloat(document.getElementById('medida_ancho_mm').value) || 0;
+            const alto = parseFloat(document.getElementById('medida_alto_mm').value) || 0;
+            
+            // Sincronizar los campos individuales (aunque estén desactivados)
+            document.getElementById(`${tipo}_ancho`).value = ancho;
+            document.getElementById(`${tipo}_alto`).value = alto;
+
+            return { ancho, alto };
+        } else {
+            const ancho = parseFloat(document.getElementById(`${tipo}_ancho`).value) || 0;
+            const alto = parseFloat(document.getElementById(`${tipo}_alto`).value) || 0;
+            return { ancho, alto };
+        }
+    }
+
+    // Función para calcular el área mínima
+    function calcularArea(ancho_mm, alto_mm, min_m2) {
+        if (ancho_mm <= 0 || alto_mm <= 0) return 0;
+        const area_real = (ancho_mm / 1000) * (alto_mm / 1000);
+        return Math.max(area_real, min_m2);
+    }
+    
+    // Función auxiliar para calcular el área REAL (sin el mínimo)
+    function calcularAreaReal(ancho_mm, alto_mm) {
+        if (ancho_mm <= 0 || alto_mm <= 0) return 0;
+        return (ancho_mm / 1000) * (alto_mm / 1000);
+    }
+
+    // Calculadora para Persiana
+    function calcularPersiana(PRECIOS) {
+        const { ancho, alto } = getMedidas('persiana');
+        const color = document.getElementById('persiana_color').value;
+        const con_guias = document.getElementById('persiana_guias').checked;
+        const con_eje = document.getElementById('persiana_eje').checked;
+        const con_motor = document.getElementById('persiana_motor').checked; 
+        const motor_nm = con_motor ? parseInt(document.getElementById('persiana_motor_tipo').value) : 0;
+        const con_mando = con_motor ? document.getElementById('persiana_mando').checked : false; // NUEVO: Mando
+        const con_mo = document.getElementById('persiana_mo').checked; 
+        
+        const area_m2_min = calcularArea(ancho, alto, PRECIOS.min_m2);
+        const area_m2_real = calcularAreaReal(ancho, alto); // Área real para el cálculo de peso
+        let coste = 0;
+        let warningHTML = '';
+        let motorPrecio = 0;
+        let motorRecomendado = 0;
+
+        // Coste por m² (usando área_m2_min)
+        if (color === 'blanca') {
+            coste += area_m2_min * PRECIOS.persiana.blanca_m2;
+        } else if (color === 'color') { 
+            coste += area_m2_min * PRECIOS.persiana.color_m2;
+        } else if (color === 'madera') { 
+            coste += area_m2_min * PRECIOS.persiana.madera_m2;
+        }
+        
+        // Coste de Mano de Obra
+        if (con_mo) {
+            coste += PRECIOS.persiana.mo;
+        }
+        
+        // Coste de Guías (2 x alto en metros)
+        if (con_guias) {
+            const alto_m = alto / 1000;
+            const coste_guias = 2 * alto_m * PRECIOS.persiana.guia_ml;
+            coste += coste_guias;
+        }
+
+        // Coste de Eje (ancho + 20 cm en metros)
+        if (con_eje) {
+            const longitud_eje_m = (ancho + 200) / 1000; 
+            const coste_eje = longitud_eje_m * PRECIOS.persiana.eje_ml;
+            coste += coste_eje;
+        }
+        
+        // Lógica del Motor y Mando
+        if (con_motor) {
+            // 1. Cálculo de Peso y Recomendación
+            const peso_persiana = area_m2_real * PRECIOS.peso_aluminio_m2; // Peso en kg
+            
+            // 1 Nm por cada 2 Kg (estimación común)
+            const par_minimo_requerido = peso_persiana / 2;
+            
+            if (par_minimo_requerido > 20) {
+                motorRecomendado = 30;
+            } else if (par_minimo_requerido > 15) {
+                motorRecomendado = 20;
+            } else {
+                motorRecomendado = 15;
+            }
+            
+            // 2. Aplicar Precio de Motor
+            if (motor_nm === 15) {
+                motorPrecio = PRECIOS.persiana.motor_15nm;
+            } else if (motor_nm === 20) {
+                motorPrecio = PRECIOS.persiana.motor_20nm;
+            } else if (motor_nm === 30) {
+                motorPrecio = PRECIOS.persiana.motor_30nm;
+            }
+            coste += motorPrecio;
+            
+            // 3. Aplicar Precio de Mando (NUEVO)
+            let mandoDetalle = '';
+            if (con_mando) {
+                coste += PRECIOS.persiana.mando_distancia;
+                mandoDetalle = ' y Mando a Distancia';
+            }
+            
+            // 4. Advertencia de Motor Insuficiente
+            if (motor_nm < motorRecomendado) {
+                 warningHTML = `<div class="warning">⚠️ ADVERTENCIA: El motor seleccionado (${motor_nm} Nm) es INSUFICIENTE. Se recomienda un motor de **${motorRecomendado} Nm** para un peso de ${peso_persiana.toFixed(1)} kg.${mandoDetalle}</div>`;
+            } else {
+                 warningHTML = `<div class="warning">Motor **${motor_nm} Nm** seleccionado${mandoDetalle}. (Peso persiana: ${peso_persiana.toFixed(1)} kg. Requerido: ${motorRecomendado} Nm)</div>`;
+            }
+        }
+
+        document.getElementById('persiana_resultado').textContent = `Presupuesto Persiana: ${coste.toFixed(2)} €`;
+        document.getElementById('persiana_warning_motor').innerHTML = warningHTML; // Muestra la advertencia
+
+        // Devolvemos el motor seleccionado y el mando para el listado
+        const motorDetalle = con_motor ? `${motor_nm} Nm` : 'No';
+        
+        return { coste, color, con_mo, con_guias, con_eje, con_motor, motorDetalle, motorRecomendado, con_mando };
+    }
+
+    // Calculadora para Mosquitera (Sin cambios)
+    function calcularMosquitera(PRECIOS) {
+        const { ancho, alto } = getMedidas('mosquitera');
+        const color = document.getElementById('mosquitera_color').value;
+        const esPlisada = document.getElementById('mosquitera_plisada').checked; 
+        const con_mo = document.getElementById('mosquitera_mo').checked; 
+        
+        const area_m2 = calcularArea(ancho, alto, PRECIOS.min_m2);
+        let coste = 0;
+
+        if (color === 'blanca') {
+            coste += area_m2 * PRECIOS.mosquitera.blanca_m2;
+        } else if (color === 'color') { 
+            coste += area_m2 * PRECIOS.mosquitera.color_m2;
+        } else if (color === 'madera') { 
+            coste += area_m2 * PRECIOS.mosquitera.madera_m2;
+        }
+        
+        if (esPlisada) {
+            coste += area_m2 * PRECIOS.mosquitera.plisada_m2;
+        }
+
+        if (con_mo) {
+            coste += PRECIOS.mosquitera.mo;
+        }
+        
+        document.getElementById('mosquitera_resultado').textContent = `Presupuesto Mosquitera: ${coste.toFixed(2)} €`;
+
+        return { coste, color, esPlisada, con_mo };
+    }
+
+    // Calculadora para Chapa (Sin cambios)
+    function calcularChapa(PRECIOS) {
+        const { ancho, alto } = getMedidas('chapa');
+        const tipo = document.getElementById('chapa_tipo').value;
+        const con_mo = document.getElementById('chapa_mo').checked; 
+        
+        const area_m2 = calcularArea(ancho, alto, PRECIOS.min_m2);
+        let coste = 0;
+
+        if (tipo === 'natural') {
+            coste += area_m2 * PRECIOS.chapa.natural_m2;
+        } else if (tipo === 'blanca') { 
+            coste += area_m2 * PRECIOS.chapa.blanca_m2;
+        } else if (tipo === 'sandwich') { 
+            coste += area_m2 * PRECIOS.chapa.sandwich_m2;
+        }
+        
+        if (con_mo) {
+            coste += PRECIOS.chapa.mo;
+        }
+
+        document.getElementById('chapa_resultado').textContent = `Presupuesto Chapa: ${coste.toFixed(2)} €`;
+        
+        return { coste, tipo, con_mo };
+    }
+
+    // Calculadora para Vidrio Climalit (Sin cambios)
+    function calcularVidrio(PRECIOS) {
+        const { ancho, alto } = getMedidas('vidrio');
+        const tipo = document.getElementById('vidrio_tipo').value;
+        const con_mo = document.getElementById('vidrio_mo').checked; 
+        
+        const area_m2 = calcularArea(ancho, alto, PRECIOS.min_m2);
+        let coste = 0;
+
+        if (tipo === 'climalit') {
+            coste += area_m2 * PRECIOS.vidrio.climalit_m2;
+        } else if (tipo === 'bajo_emisivo') { 
+            coste += area_m2 * PRECIOS.vidrio.bajo_emisivo_m2;
+        }
+        
+        if (con_mo) {
+            coste += PRECIOS.vidrio.mo;
+        }
+
+        document.getElementById('vidrio_resultado').textContent = `Presupuesto Vidrio: ${coste.toFixed(2)} €`;
+        
+        return { coste, tipo, con_mo };
+    }
+
+    // Función principal para calcular el TOTAL
+    function calcularPresupuestoTotal() {
+        const PRECIOS = getPrecios();
+        
+        const persiana = calcularPersiana(PRECIOS);
+        const mosquitera = calcularMosquitera(PRECIOS);
+        const chapa = calcularChapa(PRECIOS); 
+        const vidrio = calcularVidrio(PRECIOS); 
+        
+        const total = persiana.coste + mosquitera.coste + chapa.coste + vidrio.coste;
+        
+        document.getElementById('total_resultado').textContent = `TOTAL: ${total.toFixed(2)} €`;
+    }
+
+    // ----------------------------------------------------------------------
+    // --- LÓGICA DE LISTADO Y TOTALIZACIÓN ---
+    // ----------------------------------------------------------------------
+
+    /**
+     * Agrega el producto calculado a la tabla de listado.
+     * @param {string} tipo - El tipo de producto ('persiana', 'mosquitera', etc.)
+     * @param {boolean} conIRPF - Si se debe aplicar el 20% de IRPF al coste.
+     */
+    function agregarProductoALista(tipo, conIRPF) {
+        const PRECIOS = getPrecios();
+        let resultado;
+        let productoNombre;
+        let detalle;
+
+        const { ancho, alto } = getMedidas(tipo);
+        const medidasTexto = `${ancho}x${alto}`; 
+        
+        if (tipo === 'persiana') {
+            resultado = calcularPersiana(PRECIOS);
+            let extras = [];
+            if (resultado.con_guias) extras.push('c/Guías');
+            if (resultado.con_eje) extras.push('c/Eje');
+            // Detalle del motor
+            if (resultado.con_motor) {
+                extras.push(`Motor ${resultado.motorDetalle}`);
+                if (resultado.con_mando) { // NUEVO: Mando a Distancia
+                    extras.push('c/Mando');
+                }
+                // Añadir advertencia si el motor no cumple con la recomendación
+                const motor_nm = parseInt(resultado.motorDetalle.replace(' Nm', ''));
+                if (motor_nm < resultado.motorRecomendado) {
+                    extras.push(`❗Rec: ${resultado.motorRecomendado}Nm`);
+                }
+            }
+            if (resultado.con_mo) extras.push('+M.O.');
+            productoNombre = 'Persiana' + (extras.length > 0 ? ' (' + extras.join(', ') + ')' : '');
+            detalle = resultado.color.charAt(0).toUpperCase() + resultado.color.slice(1);
+
+        } else if (tipo === 'mosquitera') {
+            resultado = calcularMosquitera(PRECIOS);
+            let extras = [];
+            if (resultado.esPlisada) extras.push('Plisada');
+            if (resultado.con_mo) extras.push('+M.O.');
+            productoNombre = 'Mosquitera' + (extras.length > 0 ? ' (' + extras.join(', ') + ')' : '');
+            detalle = resultado.color.charAt(0).toUpperCase() + resultado.color.slice(1);
+        
+        } else if (tipo === 'chapa') {
+            resultado = calcularChapa(PRECIOS);
+            productoNombre = 'Chapa' + (resultado.con_mo ? ' (+M.O.)' : '');
+            detalle = resultado.tipo.charAt(0).toUpperCase() + resultado.tipo.slice(1);
+        
+        } else if (tipo === 'vidrio') {
+            resultado = calcularVidrio(PRECIOS);
+            productoNombre = 'Vidrio' + (resultado.con_mo ? ' (+M.O.)' : '');
+            detalle = resultado.tipo.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        } else {
+            return;
+        }
+
+        let costeFinal = resultado.coste;
+        let nombreAdicional = "";
+
+        if (conIRPF) {
+            costeFinal = costeFinal * 1.20; // Añadir el 20%
+            nombreAdicional = " **(+20% IRPF)**";
+        }
+        
+        const listaCuerpo = document.getElementById('lista_cuerpo');
+        const nuevaFila = listaCuerpo.insertRow();
+        
+        nuevaFila.insertCell(0).innerHTML = productoNombre + nombreAdicional;
+        nuevaFila.insertCell(1).textContent = medidasTexto;
+        nuevaFila.insertCell(2).textContent = detalle;
+        
+        const precioCell = nuevaFila.insertCell(3);
+        precioCell.textContent = costeFinal.toFixed(2) + ' €'; 
+        precioCell.className = 'precio-item'; 
+        
+        // Botón de eliminar en la última celda
+        const deleteCell = nuevaFila.insertCell(4);
+        deleteCell.innerHTML = '<button class="delete-button" onclick="eliminarFila(this)">⚫️</button>';
+
+        recalcularTotalListado();
+    }
+    
+    /**
+     * Elimina una fila de la lista y recalcula el total.
+     * @param {HTMLElement} btn - El botón de eliminar que fue clicado.
+     */
+    function eliminarFila(btn) {
+        const fila = btn.closest('tr');
+        if (fila) {
+            fila.remove(); 
+            recalcularTotalListado(); 
+        }
+    }
+
+
+    /**
+     * Recalcula el total de todos los precios en la tabla de listado.
+     */
+    function recalcularTotalListado() {
+        const precios = document.querySelectorAll('#lista_cuerpo .precio-item');
+        let total = 0;
+        
+        precios.forEach(cell => {
+            const precioLimpio = cell.textContent.replace(' €', '');
+            total += parseFloat(precioLimpio) || 0;
+        });
+        
+        document.getElementById('total_listado').textContent = total.toFixed(2) + ' €';
+        calcularPresupuestoTotal(); 
+    }
+
+    /**
+     * Borra todas las filas de la lista de presupuestos.
+     */
+    function borrarLista() {
+        if (confirm("¿Estás seguro que deseas borrar todos los elementos de la lista de presupuestos?")) {
+            const listaCuerpo = document.getElementById('lista_cuerpo');
+            listaCuerpo.innerHTML = ''; 
+            recalcularTotalListado(); 
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // --- LÓGICA DE IMPORTACIÓN / EXPORTACIÓN DE PRECIOS (WEB SHARE API) ---
+    // ----------------------------------------------------------------------
+    
+    /**
+     * Genera un nombre de archivo dinámico con fecha y hora.
+     */
+    function generateFilename(extension) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        // Nombre de archivo con fecha y hora exacta
+        return `Lista precios_${year}-${month}-${day}_${hours}-${minutes}.${extension}`;
+    }
+
+    /**
+     * Función centralizada de EXPORTACIÓN usando Web Share API (para iOS) o Fallback.
+     */
+    async function exportarDatos(data, filename, mimeType) {
+        try {
+            const file = new File([data], filename, { type: mimeType });
+            
+            // 1. Intentar usar Web Share API (Método que funciona en iOS)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Configuración de Precios',
+                    text: 'Archivo de configuración de presupuestos exportado.'
+                });
+            } else {
+                // 2. Fallback: Usar el método de enlace temporal (funciona bien en muchos navegadores de escritorio)
+                console.warn('Web Share API no disponible. Usando fallback de descarga (a.click()).');
+                const dataURI = `data:${mimeType};charset=utf-8,${encodeURIComponent(data)}`;
+                const a = document.createElement('a');
+                a.href = dataURI;
+                a.download = filename;
+                
+                // Esconder el elemento
+                a.style.position = 'fixed'; 
+                a.style.top = '-100px'; 
+                a.style.left = '-100px'; 
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        } catch (error) {
+            console.error('Error al compartir/descargar el archivo:', error);
+            if (error.name !== 'AbortError') { 
+                 alert('Error al intentar exportar el archivo. Por favor, inténtalo de nuevo.');
+            }
+        }
+    }
+
+
+    /**
+     * Exporta la configuración actual de la tabla de precios a un archivo JSON.
+     */
+    function exportarPreciosJSON() {
+        const inputs = document.querySelectorAll('#price_table input[type="number"]');
+        const precios = {};
+        
+        inputs.forEach(input => {
+            precios[input.id] = input.value;
+        });
+
+        const dataStr = JSON.stringify(precios, null, 2);
+        const fileName = generateFilename('json');
+        
+        exportarDatos(
+            dataStr, 
+            fileName, 
+            'application/json'
+        );
+    }
+    
+    /**
+     * Exporta la configuración actual de la tabla de precios a un archivo CSV.
+     */
+    function exportarPreciosCSV() {
+        const inputs = document.querySelectorAll('#price_table input[type="number"]');
+        let csvContent = "id,precio\n"; 
+
+        inputs.forEach(input => {
+            csvContent += `${input.id},${input.value}\n`;
+        });
+        
+        const fileName = generateFilename('csv');
+
+        exportarDatos(
+            csvContent, 
+            fileName, 
+            'text/csv'
+        );
+    }
+
+
+    /**
+     * Carga la configuración de precios desde un archivo JSON o CSV.
+     * @param {Event} event - El evento de cambio del input file.
+     */
+    function cargarPrecios(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileContent = e.target.result;
+            let preciosCargados = {};
+            const format = file.name.split('.').pop().toLowerCase();
+            let count = 0;
+
+            try {
+                if (format === 'json') {
+                    preciosCargados = JSON.parse(fileContent);
+
+                } else if (format === 'csv') {
+                    const lines = fileContent.trim().split('\n');
+                    const dataLines = lines[0] && lines[0].toLowerCase().includes('id,') ? lines.slice(1) : lines; 
+
+                    dataLines.forEach(line => {
+                        const parts = line.split(','); 
+                        if (parts.length === 2) {
+                            const id = parts[0].trim();
+                            const value = parts[1].trim(); 
+                            if (id && !isNaN(parseFloat(value))) {
+                                preciosCargados[id] = value;
+                            }
+                        }
+                    });
+
+                } else {
+                    alert('Error: Formato de archivo no soportado. Usa .json o .csv.');
+                    return;
+                }
+
+                // Lógica de actualización común para JSON y CSV
+                document.querySelectorAll('#price_table input[type="number"]').forEach(input => {
+                    const id = input.id;
+                    if (preciosCargados.hasOwnProperty(id)) {
+                        input.value = preciosCargados[id];
+                        count++;
+                    }
+                });
+
+                if (count > 0) {
+                    alert(`Precios cargados correctamente desde ${format.toUpperCase()}. Se actualizaron ${count} campos.`);
+                    calcularPresupuestoTotal();
+                } else {
+                    alert(`Error: No se encontraron precios válidos para cargar en el archivo ${format.toUpperCase()}.`);
+                }
+            } catch (error) {
+                alert(`Error al procesar el archivo. Asegúrate de que sea un archivo ${format.toUpperCase()} de precios válido.`);
+                console.error('Error de parseo:', error);
+            }
+             event.target.value = '';
+        };
+
+        reader.readAsText(file);
+    }
+
+
+
+    // Inicialización y eventos
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inicializar todas las medidas 
+        toggleMedidas('persiana');
+        toggleMedidas('mosquitera');
+        toggleMedidas('chapa');
+        toggleMedidas('vidrio');
+
+        // Ejecutar un cálculo inicial
+        calcularPresupuestoTotal(); 
+
+        // Escuchar cambios en todos los inputs de control (precios, medidas, checkboxes, selectores)
+        const inputs = document.querySelectorAll('input[type="number"], select, input[type="checkbox"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', calcularPresupuestoTotal);
+            input.addEventListener('change', calcularPresupuestoTotal); 
+        });
+        
+        // Escuchar el cambio en el selector de motor y en el checkbox del motor
+        document.getElementById('persiana_motor_tipo').addEventListener('change', calcularPresupuestoTotal);
+        document.getElementById('persiana_motor').addEventListener('change', toggleMotor);
+
+        // NUEVO: Escuchar el cambio en el checkbox del mando
+        document.getElementById('persiana_mando').addEventListener('change', calcularPresupuestoTotal);
+    });
+
+</script>
+</body>
+</html>

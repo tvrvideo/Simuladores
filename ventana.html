@@ -1,0 +1,2928 @@
+<html lang="es"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Diseño Ventana - Táctil Pro (Matricial)</title>
+    <style>
+
+        body {
+       font-family: Arial, sans-serif;
+       background: #f4f4f4;
+       padding: 10px;
+       -webkit-tap-highlight-color: transparent; /* Mejora para iPhone */
+}
+
+        h1 {
+       text-align: center; }
+       label { display: block; 
+       margin-top: 10px;
+}
+       select, input[type="number"] {
+       width: 100px;
+       padding: 10px;
+       margin-top: 5px;
+}
+
+
+/* --- NUEVOS ESTILOS --- */
+
+.dimension-inputs-row {
+    display: flex;
+    gap: 5px; /* Espacio fijo entre columnas */
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Alinea al inicio para que las columnas coincidan */
+}
+
+.dimension-inputs-row > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    /* Calculamos el 25% exacto restando el proporcional de los huecos (gap) */
+    flex: 0 0 calc(25% - 4px); 
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.dimension-inputs-row label {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 5px;
+    width: 100%;
+    white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+}
+
+.dimension-inputs-row input[type="number"] {
+    width: 100%; 
+    font-size: 18px;
+    background-color: #FEFCDD;
+    text-align: center; 
+    padding: 8px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* --- FIN: NUEVOS ESTILOS --- */
+
+
+
+
+        #palette, #glass-palette {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap; }
+
+.color-option { 
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        border: 2px solid #EBEBEB;    
+        cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.5);
+}
+
+.color-option:hover { 
+        border-color: #00f;
+}
+
+.color-option:hover { 
+        border-color: #00f;
+}
+.color-option.selected-pincel {
+    border-color: #000;
+    box-shadow: 0 0 0 2px #0074D9;
+    transform: scale(1.1);
+    
+}
+
+        #hoja-options { margin-top: 10px; }
+
+.hoja-config { 
+        background: #fff; 
+        padding: 10px; 
+        margin-top: 10px; 
+        border-radius: 5px; 
+        box-shadow: 0 0 5px #ccc;
+}
+
+        .travesano-config {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-top: 5px;
+        padding: 5px;
+        background: #f9f9f9;
+        border-radius: 3px;
+        border: 1px solid #eee; }
+
+        .travesano-config label { 
+        margin: 0;
+        display: inline-block;    
+        width: auto;
+        flex-basis: 120px; }
+
+.travesano-config input[type="number"],
+
+.travesano-config select { 
+        width: 80px;
+        margin: 0;
+        flex-grow: 1;
+}
+ .travesano-config .color-picker-group
+{
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        flex-grow: 1;
+        margin-left: 10px;
+}
+
+.travesano-config .remove-button
+{
+        width: auto;
+        padding: 5px 10px;
+        font-size: 14px;
+        margin-top: 0;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer; }
+
+        .travesano-config .remove-button:hover { background: #c82333; }
+
+button { 
+        width: 100%;
+        padding: 10px;
+        background: #0074D9;
+        color: white;
+        border: none;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px; }
+
+.control-group { 
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 8px     
+        rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        text-align: center;
+}
+
+.button-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 10px; }
+
+.fixed-input-group {
+        display: flex;
+        flex-direction: column;  
+        gap: 5px;
+        margin-top: 10px;
+}
+
+        .fijo-travesanos-group { background: #e9e9e9; padding: 10px; margin-top: 10px; border-radius: 5px; }
+
+        canvas { 
+            width: 100%; 
+            height: auto; 
+            background: white; 
+            display: block; 
+            margin: 20px auto; 
+            border: 2px solid #ccc; 
+            cursor: crosshair; /* Indica que se puede tocar */
+            touch-action: yes; /* Evita scroll al tocar el canvas */
+        }
+        
+        .travesano-buttons { display: flex; gap: 5px; margin-top: 5px; }
+
+        .travesano-buttons button { width: auto; padding: 5px 10px; font-size: 14px; margin-top: 0; }
+
+        .hueco-color-option {
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 5px;
+            flex-shrink: 0;
+        }
+
+        .hueco-color-option.selected {
+            border: 2px solid #0074D9;
+        }
+        .fijo-color-palette {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .travesano-buttons-fijo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #toggleArcoBtn.active {
+            background-color: #28a745;
+        }
+        .hidden-input {
+            display: none;
+        }
+        .option-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .color-selector {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+        }
+.color-selector.selected {
+            border-color: #0074D9;
+        }
+
+.travesano-buttons-hoja {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .hoja-glass-palette {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+            align-items: center;
+        }
+
+        /* Estilo para el indicador de color activo */
+        .active-color-indicator {
+            background: #eef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #0074D9;
+        }
+
+.current-color-box {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    display: inline-block;
+    flex-shrink: 0;
+
+}
+
+
+/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+.btn-menu { 
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  z-index: 9999; 
+  padding: 10px 15px; 
+  border-radius: 20px; 
+  border: none; 
+  background: #e74c3c; 
+  color: white; 
+  font-weight: bold; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;      /* evita button{width:100%} */
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json"></head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+
+<h1>Diseño Ventana Pro V80</h1>
+
+<div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
+        </div>
+
+    <h3>Medidas</h3>
+
+    <div class="dimension-inputs-row">
+        <div>
+            <label for="ancho">Ancho:</label>
+            <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista()">
+        </div>
+        <div>
+            <label for="alto">Alto:</label>
+            <input type="number" id="alto" value="1400" onchange="ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
+        </div>
+        <div>
+            <label for="altoIzq">L Izq:</label>
+            <input type="number" id="altoIzq" value="1400" onchange="actualizarVista()">
+        </div>
+        <div>
+            <label for="altoDer">L Dcho:</label>
+            <input type="number" id="altoDer" value="1400" onchange="actualizarVista()">
+        </div>
+        <div>
+            <label for="marcoThickness">Marco:</label>
+            <input type="number" id="marcoThickness" value="40" onchange="marcoThickness = +this.value; recalcularAnchosHojas(); actualizarVista()">
+        </div>
+        <div>
+            <label for="hojaThickness">Hoja:</label>
+            <input type="number" id="hojaThickness" value="70" onchange="hojaThickness = +this.value; actualizarVista()">
+        </div>
+        <div>
+            <label for="travesanoThickness">Zanca</label>
+            <input type="number" id="travesanoThickness" value="70" onchange="travesanoThickness = +this.value; actualizarVista()">
+        </div>
+    </div>
+</div>
+
+
+<div class="control-group" style="background-color: #E6D4B8;">
+
+    <h3>Color ventana</h3>
+    <div id="palette">
+        <span class="color-option" style="background:#FFFFFF" onclick="cambiarColorMarco('#FFFFFF')"></span>
+        <span class="color-option" style="background:#F0F0F0" onclick="cambiarColorMarco('#F0F0F0')"></span>
+        <span class="color-option" style="background:#C0C0C0" onclick="cambiarColorMarco('#C0C0C0')"></span>
+        <span class="color-option" style="background:#808080" onclick="cambiarColorMarco('#808080')"></span>
+        <span class="color-option" style="background:#404040" onclick="cambiarColorMarco('#404040')"></span>
+        <span class="color-option" style="background:#373737" onclick="cambiarColorMarco('#373737')"></span>
+        <span class="color-option" style="background:#D4C49E" onclick="cambiarColorMarco('#D4C49E')"></span>
+        <span class="color-option" style="background:#F5DEB3" onclick="cambiarColorMarco('#F5DEB3')"></span>
+        <span class="color-option" style="background:#FFD700" onclick="cambiarColorMarco('#FFD700')"></span>
+        <span class="color-option" style="background:#B68B40" onclick="cambiarColorMarco('#B68B40')"></span>
+        <span class="color-option" style="background:#A0522D" onclick="cambiarColorMarco('#A0522D')"></span>
+        <span class="color-option" style="background:#653521" onclick="cambiarColorMarco('#653521')"></span>
+        <span class="color-option" style="background:#44322d" onclick="cambiarColorMarco('#44322d')"></span>
+        <span class="color-option" style="background:#654321" onclick="cambiarColorMarco('#654321')"></span>
+        <span class="color-option" style="background:#2ECC71" onclick="cambiarColorMarco('#2ECC71')"></span>
+        <span class="color-option" style="background:#006400" onclick="cambiarColorMarco('#006400')"></span>
+        <span class="color-option" style="background:#114232" onclick="cambiarColorMarco('#114232')"></span>
+        <span class="color-option" style="background:#0074D9" onclick="cambiarColorMarco('#0074D9')"></span>
+        <span class="color-option" style="background:#00008B" onclick="cambiarColorMarco('#00008B')"></span>
+        <span class="color-option" style="background:#FF4136" onclick="cambiarColorMarco('#FF4136')"></span>
+        <span class="color-option" style="background:#8B0000" onclick="cambiarColorMarco('#8B0000')"></span>
+        <span class="color-option" style="background:#000000" onclick="cambiarColorMarco('#000000')"></span>
+        <span class="color-option" style="background:#ff81e3" onclick="cambiarColorMarco('#ff81e3')"></span>
+        <span class="color-option" style="background:#ff8000" onclick="cambiarColorMarco('#ff8000')"></span>
+    </div>
+
+<br>
+
+        <div class="active-color-indicator">
+        <strong>PINCEL ACTIVO:</strong>
+        <span id="pincel-muestra" class="current-color-box" style="background: rgba(173, 216, 230, 1);"></span>
+        <span>Selecciona un color y toca el hueco del cristal</span>
+    </div>
+
+    <label>Color Pincel Cristal:</label>
+    <div id="glass-palette">
+        <span id="glass-color-match" class="color-option" style="background: rgb(255, 255, 255);" onclick="seleccionarColorPincel('#FFFFFF')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(220, 220, 220, 1) 0%, rgba(235, 235, 235, 1) 50%, rgba(220, 220, 220, 1) 100%); " onclick="seleccionarColorPincel('rgba(220, 220, 220, 1)')"></span>
+
+         <span class="color-option" style="background: linear-gradient(135deg, rgba(110, 245, 235, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(160, 234, 227, 1) 100%);" onclick="seleccionarColorPincel('rgba(160, 234, 227, 1)')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(194, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(194, 255, 255, 1) 100%);" onclick="seleccionarColorPincel('rgba(194, 255, 255, 1)')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(173, 216, 230, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(173, 216, 230, 1) 100%);" onclick="seleccionarColorPincel('rgba(173, 216, 230, 1)')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(100, 149, 237, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(100, 149, 237, 1) 100%);" onclick="seleccionarColorPincel('rgba(100, 149, 237, 1)')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(104, 124, 150, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(104, 124, 150, 1) 100%);" onclick="seleccionarColorPincel('rgba(104, 124, 150, 1)')"></span>
+
+        <span class="color-option" style="background: linear-gradient(135deg, rgba(229, 222, 183, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(229, 222, 183, 1) 100%);" onclick="seleccionarColorPincel('rgba(229, 222, 183, 1)')"></span>
+
+    </div>
+    <button onclick="aplicarPincelATodo()" style="margin-top:10px; background:#666;">Aplicar Pincel a Todo</button>
+</div>
+
+<div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
+        </div>
+
+    <h3>Configuración hojas</h3>
+    <select id="hojas" onchange="actualizarHojas(); actualizarVista()">
+        <option value="0">0 hojas (solo marco)</option>
+        <option value="1">1 hoja</option>
+        <option value="2" selected="">2 hojas</option>
+        <option value="3">3 hojas</option>
+        <option value="4">4 hojas</option>
+    </select>
+    <div id="hoja-options"></div>
+</div>
+
+<div class="control-group" style="background-color: #E6D4B8;">
+
+    <h3>Añadir Fijos</h3>
+
+<div class="control-group" style="background-color: #E1E2D6;">
+
+        <button onclick="toggleFijo('top')">Fijo Superior</button>
+        <button onclick="toggleFijo('bottom')">Fijo Inferior</button>
+    </div>
+
+
+    <div id="fixed-options" class="fixed-input-group"></div>
+</div>
+
+<div class="control-group" style="background-color: #E6D4B8; margin-top: 20px;">
+
+    <h3>Visualización</h3>
+    
+    <div style="background: #E1E2D6; padding: 15px; border-radius: 8px; border: 1px solid #ccc;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="togglePersiana()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Cajón persiana</button>
+            <button onclick="toggleMedidas()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Medidas</button>
+            <button onclick="toggleAltoTotalDer()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Alto Total</button>
+            
+            <button onclick="exportarPNG()" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 0; background-color: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                Exportar PNG (iPhone)
+            </button>
+        </div>
+    </div>
+</div>
+
+<canvas id="canvas" width="900" height="600" style="display: block; width: 100%; height: auto; margin: 20px auto; border: 2px solid #ccc; background: white;"></canvas>
+
+
+<script>
+    let colorMarco = "#FFFFFF", mostrarPersiana = true, mostrarMedidas = true;
+    let mostrarAltoTotalDer = true;
+
+    // Color activo para "pintar" al tocar
+    let colorActivo = "rgba(173, 216, 230, 1)";
+    let colorCristalGlobal = "rgba(173, 216, 230, 1)"; // Mantenemos referencia del global
+
+    let marcoThickness = 40;
+    let hojaThickness = 70;
+    let travesanoThickness = 70;
+    const glassPaddingInsideHoja = 12;
+    const cajonAlturaMM = 185;
+    const separacionHoja = 15;
+
+    let fijoSuperior = false;
+    let fijoInferior = false;
+    let altoFijoSuperiorMM = 400;
+    let altoFijoInferiorMM = 400;
+    let altoFijoSupIzqMM = 400;
+    let altoFijoSupDerMM = 400;
+    let altoFijoSupCenMM = 400;
+
+    // NUEVO: Matrices de colores para fijos (filas x columnas)
+    // Se inicializan dinámicamente según el número de travesaños
+    let matrixColoresFijoSup = []; // Array de arrays
+    let matrixColoresFijoInf = []; 
+
+    let modoArco = false;
+    let altoVentanaPrincipalBaseMM = 1400;
+    let altoVentanaPrincipalRealMM;
+    
+    let drawBorderTop = true;
+    let drawBorderBottom = true;
+
+    let travesanosSupHorizontales = [];
+    let travesanosSupVerticales = [];
+    let travesanosInfHorizontales = [];
+    let travesanosInfVerticales = [];
+    let travesanosHojas = [];
+    
+    let hojasData = [];
+    
+    // Almacenará las coordenadas de los cristales para detectar clics
+    let zonasInteractivas = [];
+
+    function toggleArco() {
+        modoArco = !modoArco;
+        const btn = document.getElementById('toggleArcoBtn');
+        btn.classList.toggle('active', modoArco);
+        btn.textContent = modoArco ? "Forma Arco" : "Forma Trapecio";
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+    
+    function toggleManilla(hojaIndex) {
+        hojasData[hojaIndex].manilla.enabled = !hojasData[hojaIndex].manilla.enabled;
+        toggleManillaVisibility(hojaIndex);
+        actualizarVista();
+    }
+    
+    function toggleBisagras(hojaIndex) {
+        hojasData[hojaIndex].bisagras.visible = !hojasData[hojaIndex].bisagras.visible;
+        actualizarVista();
+    }
+
+    function cambiarColorBisagras(hojaIndex, color) {
+        hojasData[hojaIndex].bisagras.color = color;
+        const container = document.getElementById(`bisagrasGroup${hojaIndex}`);
+        container.querySelectorAll('.color-selector').forEach(span => {
+            span.classList.remove('selected');
+        });
+        event.target.classList.add('selected');
+        actualizarVista();
+    }
+    
+    function toggleManillaVisibility(hojaIndex) {
+        const apertura = document.getElementById(`apertura${hojaIndex}`).value;
+        const manillaGroup = document.getElementById(`manillaGroup${hojaIndex}`);
+        const travesanoButtons = document.getElementById(`travesanoButtons${hojaIndex}`);
+        const manillaSideSelector = document.getElementById(`corredera-manilla-side${hojaIndex}`);
+
+        if (manillaGroup) {
+            if (apertura === 'fija' || apertura === 'fijo-con-travesano') {
+                manillaGroup.style.display = 'none';
+            } else {
+                manillaGroup.style.display = 'flex';
+            }
+        }
+        
+        if (manillaSideSelector) {
+            if (apertura === 'corredera' && hojasData[hojaIndex].manilla.enabled) {
+                manillaSideSelector.style.display = 'flex';
+            } else {
+                manillaSideSelector.style.display = 'none';
+            }
+        }
+        
+        if (travesanoButtons) {
+            travesanoButtons.innerHTML = `<button onclick="addTravesanoHoja(${hojaIndex}, 'horizontal')">Añadir Travesaño H.</button><button onclick="addTravesanoHoja(${hojaIndex}, 'vertical')">Añadir Travesaño V.</button>`;
+        }
+    }
+
+    function cambiarColorManillaHoja(hojaIndex, color) {
+        hojasData[hojaIndex].manilla.color = color;
+        const container = document.getElementById(`manillaGroup${hojaIndex}`);
+        container.querySelectorAll('.color-selector').forEach(span => {
+            span.classList.remove('selected');
+        });
+        event.target.classList.add('selected');
+        actualizarVista();
+    }
+
+// 1. Añadimos esta función auxiliar para oscurecer
+function oscurecerColor(hex, factor = 0.7) {
+    hex = hex.replace('#', '');
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+    r = Math.floor(r * factor);
+    g = Math.floor(g * factor);
+    b = Math.floor(b * factor);
+    const toHex = (c) => c.toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+// 2. Esta es la función principal modificada
+function cambiarColorMarco(c) {
+    colorMarco = c;
+    
+    // Calculamos el color oscuro (el 0.7 significa que es un 30% más oscuro)
+    const colorOscuro = oscurecerColor(c, 0.92);
+    
+    // Ahora aplicamos el color OSCURO al selector de cristal, no el del marco
+    document.getElementById('glass-color-match').style.background = colorOscuro;
+    
+    // Configuramos para que al hacer click use ese color oscuro
+    document.getElementById('glass-color-match').onclick = function() { 
+        seleccionarColorPincel(colorOscuro); 
+    };
+
+    actualizarHojas();
+    actualizarOpcionesFijos();
+    actualizarVista();
+}
+
+
+    function seleccionarColorPincel(c) {
+        colorActivo = c;
+        document.getElementById('pincel-muestra').style.background = c;
+        
+        const glassPalette = document.getElementById('glass-palette');
+        glassPalette.querySelectorAll('.color-option').forEach(opt => {
+             if (opt.style.background === c || (opt.id === 'glass-color-match' && c === colorMarco)) {
+                 opt.classList.add('selected-pincel');
+             } else {
+                 opt.classList.remove('selected-pincel');
+             }
+        });
+    }
+
+    function aplicarPincelATodo() {
+        colorCristalGlobal = colorActivo;
+        hojasData.forEach(hoja => {
+            hoja.colorCristal = colorActivo;
+        });
+        
+        // Reset matrices
+        initColorMatrix('superior');
+        initColorMatrix('inferior');
+        
+        travesanosHojas.forEach(hojaT => {
+            for(let i=0; i<hojaT.coloresHuecosH.length; i++) {
+                hojaT.coloresHuecosH[i] = colorActivo;
+            }
+        });
+
+        actualizarHojas();
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+
+    function cambiarColorCristalHoja(hojaIndex, c) {
+        hojasData[hojaIndex].colorCristal = c;
+        actualizarHojas(); 
+        actualizarVista();
+    }
+
+    function togglePersiana() { mostrarPersiana = !mostrarPersiana; actualizarVista(); }
+    function toggleMedidas() { mostrarMedidas = !mostrarMedidas; actualizarVista(); }
+    function toggleAltoTotalDer() {
+        mostrarAltoTotalDer = !mostrarAltoTotalDer;
+        actualizarVista(); }
+
+    function ajustarAltosConFijos() {
+        let altoTotalInput = +document.getElementById('alto').value;
+        let altosFijosCombinados = 0;
+        if (fijoSuperior) {
+            if (modoArco) {
+                altosFijosCombinados += Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM);
+            } else {
+                altosFijosCombinados += Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
+            }
+        }
+        if (fijoInferior) altosFijosCombinados += altoFijoInferiorMM;
+
+        altoVentanaPrincipalRealMM = altoTotalInput - altosFijosCombinados;
+        
+        if (altoVentanaPrincipalRealMM < 0) {
+            altoVentanaPrincipalRealMM = 0; 
+        }
+    }
+
+    // Inicializa la matriz de colores cuando cambia la estructura (añadir/quitar travesaños)
+    function initColorMatrix(position) {
+        // Filas = num travesaños horizontales + 1
+        // Columnas = num travesaños verticales + 1
+        let rows, cols;
+        if(position === 'superior') {
+            rows = travesanosSupHorizontales.length + 1;
+            cols = travesanosSupVerticales.length + 1;
+            // Preservar datos antiguos si es posible, o resetear si cambia dimensión drásticamente
+            // Para simplificar: Creamos nueva matriz y copiamos lo que quepa, el resto color activo
+            let newMatrix = [];
+            for(let r=0; r<rows; r++) {
+                let rowArr = [];
+                for(let c=0; c<cols; c++) {
+                    if(matrixColoresFijoSup[r] && matrixColoresFijoSup[r][c]) {
+                        rowArr.push(matrixColoresFijoSup[r][c]);
+                    } else {
+                        rowArr.push(colorActivo);
+                    }
+                }
+                newMatrix.push(rowArr);
+            }
+            matrixColoresFijoSup = newMatrix;
+        } else {
+            rows = travesanosInfHorizontales.length + 1;
+            cols = travesanosInfVerticales.length + 1;
+            let newMatrix = [];
+            for(let r=0; r<rows; r++) {
+                let rowArr = [];
+                for(let c=0; c<cols; c++) {
+                    if(matrixColoresFijoInf[r] && matrixColoresFijoInf[r][c]) {
+                        rowArr.push(matrixColoresFijoInf[r][c]);
+                    } else {
+                        rowArr.push(colorActivo);
+                    }
+                }
+                newMatrix.push(rowArr);
+            }
+            matrixColoresFijoInf = newMatrix;
+        }
+    }
+
+    function toggleFijo(position) {
+        let altoTotalInput = +document.getElementById('alto').value;
+        
+        if (position === 'top') {
+            fijoSuperior = !fijoSuperior;
+            if (fijoSuperior) {
+                altoTotalInput += altoFijoSuperiorMM;
+                altoFijoSupIzqMM = altoFijoSuperiorMM;
+                altoFijoSupDerMM = altoFijoSuperiorMM;
+                altoFijoSupCenMM = altoFijoSuperiorMM;
+                initColorMatrix('superior');
+            } else {
+                if(modoArco) {
+                    altoTotalInput -= Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM);
+                } else {
+                    altoTotalInput -= Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
+                }
+            }
+        } else if (position === 'bottom') {
+            fijoInferior = !fijoInferior;
+            if (fijoInferior) {
+                altoTotalInput += altoFijoInferiorMM;
+                initColorMatrix('inferior');
+            } else {
+                altoTotalInput -= altoFijoInferiorMM;
+            }
+        }
+        
+        if (!fijoSuperior) {
+            travesanosSupHorizontales = [];
+            travesanosSupVerticales = [];
+        }
+        if (!fijoInferior) {
+            travesanosInfHorizontales = [];
+            travesanosInfVerticales = [];
+        }
+
+        document.getElementById('alto').value = Math.max(0, altoTotalInput); 
+
+        ajustarAltosConFijos();
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+
+    function actualizarOpcionesFijos() {
+        let cont = document.getElementById('fixed-options');
+        cont.innerHTML = "";
+
+        if (fijoSuperior) {
+            let travesanosHtml = '';
+            travesanosSupHorizontales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño H. ${index + 1} (desde abajo):</label>
+                        <input type="number" id="travesanoSupH-${index}" value="${travesano.altura}" min="1" onchange="updateTravesanoFijo('superior', 'horizontal', ${index}, 'altura', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('superior', 'horizontal', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+            travesanosSupVerticales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño V. ${index + 1} (desde izq):</label>
+                        <input type="number" id="travesanoSupV-${index}" value="${travesano.posicion}" min="1" onchange="updateTravesanoFijo('superior', 'vertical', ${index}, 'posicion', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('superior', 'vertical', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+
+            cont.innerHTML += `
+                <div class="fijo-travesanos-group">
+                    <button id="toggleArcoBtn" class="${modoArco ? 'active' : ''}" onclick="toggleArco()">Forma ${modoArco ? 'Arco' : 'Trapecio'}</button>
+                    
+<div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px; gap: 40px;">
+    <div>
+        <label for="altoFijoSupIzq">Sup. Izq:</label>
+        <input type="number" id="altoFijoSupIzq" value="${altoFijoSupIzqMM}" onchange="altoFijoSupIzqMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+    </div>
+    <div>
+        <label for="altoFijoSupDer">Sup. Dcho:</label>
+        <input type="number" id="altoFijoSupDer" value="${altoFijoSupDerMM}" onchange="altoFijoSupDerMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+    </div>
+</div>
+
+
+                    <div id="altoFijoSupCenControl" class="${!modoArco ? 'hidden-input' : ''}">
+                        <label for="altoFijoSupCen">Alto Fijo Sup. Central:</label>
+                        <input type="number" id="altoFijoSupCen" value="${altoFijoSupCenMM}" onchange="altoFijoSupCenMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" id="chkDrawBorderTop" onchange="drawBorderTop = this.checked; actualizarVista()" ${drawBorderTop ? 'checked' : ''}>
+                        <label for="chkDrawBorderTop" style="display:inline; width:auto;">Borde Travesaños</label>
+                    </div>
+
+                    <div class="travesano-buttons">
+                        <button onclick="addTravesanoFijo('superior', 'horizontal')">Añadir Travesaño Horizontal</button>
+                        <button onclick="addTravesanoFijo('superior', 'vertical')">Añadir Travesaño Vertical</button>
+                    </div>
+                    ${travesanosHtml}
+                </div>
+            `;
+        }
+        if (fijoInferior) {
+            let travesanosHtml = '';
+            travesanosInfHorizontales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño H. ${index + 1} (desde abajo):</label>
+                        <input type="number" id="travesanoInfH-${index}" value="${travesano.altura}" min="1" onchange="updateTravesanoFijo('inferior', 'horizontal', ${index}, 'altura', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('inferior', 'horizontal', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+            travesanosInfVerticales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño V. ${index + 1} (desde izq):</label>
+                        <input type="number" id="travesanoInfV-${index}" value="${travesano.posicion}" min="1" onchange="updateTravesanoFijo('inferior', 'vertical', ${index}, 'posicion', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('inferior', 'vertical', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+
+            cont.innerHTML += `
+                <div class="fijo-travesanos-group">
+
+<div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
+    <div>
+        <label for="altoFijoInferior">Fijo Inf:</label>
+        <input type="number" id="altoFijoInferior" value="${altoFijoInferiorMM}" onchange="altoFijoInferiorMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+    </div>
+</div>
+
+                    
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" id="chkDrawBorderBottom" onchange="drawBorderBottom = this.checked; actualizarVista()" ${drawBorderBottom ? 'checked' : ''}>
+                        <label for="chkDrawBorderBottom" style="display:inline; width:auto;">Borde Travesaños</label>
+                    </div>
+
+                    <div class="travesano-buttons">
+                        <button onclick="addTravesanoFijo('inferior', 'horizontal')">Añadir Travesaño Horizontal</button>
+                        <button onclick="addTravesanoFijo('inferior', 'vertical')">Añadir Travesaño Vertical</button>
+                    </div>
+                    ${travesanosHtml}
+                </div>
+            `;
+        }
+    }
+
+    function calculatePositions(count, totalDimension) {
+        let positions = [];
+        if (count === 1) {
+            positions.push(Math.round(totalDimension / 2));
+        } else {
+            const spacing = totalDimension / (count + 1);
+            for (let i = 1; i <= count; i++) {
+                positions.push(Math.round(i * spacing));
+            }
+        }
+        return positions;
+    }
+
+    function addTravesanoFijo(position, orientation) {
+        let newCount, totalDimension;
+        
+        if (position === 'superior') {
+            if (orientation === 'horizontal') {
+                newCount = travesanosSupHorizontales.length + 1;
+                const altoFijoUtilizado = modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
+                totalDimension = altoFijoUtilizado - (2 * travesanoThickness);
+                const newAlturas = calculatePositions(newCount, totalDimension);
+                travesanosSupHorizontales = newAlturas.map(altura => ({ altura: altura }));
+            } else {
+                newCount = travesanosSupVerticales.length + 1;
+                totalDimension = +document.getElementById('ancho').value - (2 * marcoThickness);
+                const newPosiciones = calculatePositions(newCount, totalDimension);
+                travesanosSupVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
+            }
+        } else {
+            if (orientation === 'horizontal') {
+                newCount = travesanosInfHorizontales.length + 1;
+                totalDimension = altoFijoInferiorMM - (2 * travesanoThickness);
+                const newAlturas = calculatePositions(newCount, totalDimension);
+                travesanosInfHorizontales = newAlturas.map(altura => ({ altura: altura }));
+            } else {
+                newCount = travesanosInfVerticales.length + 1;
+                totalDimension = +document.getElementById('ancho').value - (2 * marcoThickness);
+                const newPosiciones = calculatePositions(newCount, totalDimension);
+                travesanosInfVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
+            }
+        }
+        initColorMatrix(position);
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+
+    function removeTravesanoFijo(position, orientation, index) {
+        if (position === 'superior') {
+            if (orientation === 'horizontal') {
+                travesanosSupHorizontales.splice(index, 1);
+            } else {
+                travesanosSupVerticales.splice(index, 1);
+            }
+        } else {
+            if (orientation === 'horizontal') {
+                travesanosInfHorizontales.splice(index, 1);
+            } else {
+                travesanosInfVerticales.splice(index, 1);
+            }
+        }
+        initColorMatrix(position);
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+
+    function updateTravesanoFijo(position, orientation, index, property, value) {
+        if (property === 'altura' || property === 'posicion') {
+            value = +value;
+        }
+
+        if (position === 'superior') {
+            if (orientation === 'horizontal') {
+                travesanosSupHorizontales[index][property] = value;
+            } else {
+                travesanosSupVerticales[index][property] = value;
+            }
+        } else {
+            if (orientation === 'horizontal') {
+                travesanosInfHorizontales[index][property] = value;
+            } else {
+                travesanosInfVerticales[index][property] = value;
+            }
+        }
+        actualizarVista();
+    }
+
+    function actualizarAltosLados() {
+        const altoIzqInput = document.getElementById('altoIzq');
+        const altoDerInput = document.getElementById('altoDer');
+        altoIzqInput.value = altoVentanaPrincipalRealMM;
+        altoDerInput.value = altoVentanaPrincipalRealMM;
+    }
+
+    function recalcularAnchosHojas() {
+        const n = +document.getElementById('hojas').value;
+        const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+        let anchoDisponible = anchoVentanaPrincipal;
+        if (n > 1) {
+            anchoDisponible -= (n - 1) * separacionHoja;
+        }
+        if (n > 0) {
+            const anchoHoja = Math.round(anchoDisponible / n);
+            for (let i = 0; i < n; i++) {
+                const anchoHojaElement = document.getElementById(`anchoHoja${i}`);
+                if (anchoHojaElement) {
+                    anchoHojaElement.value = anchoHoja;
+                }
+            }
+        }
+    }
+
+    function actualizarHojas() {
+        let n = +document.getElementById('hojas').value;
+        const countChanged = (hojasData.length !== n);
+
+        // Guardar estado actual de apertura y anchos antes de borrar
+        for(let i=0; i<hojasData.length; i++) {
+             const apEl = document.getElementById(`apertura${i}`);
+             if(apEl) hojasData[i].savedApertura = apEl.value;
+             
+             if (!countChanged) {
+                 const anchoEl = document.getElementById(`anchoHoja${i}`);
+                 if(anchoEl) hojasData[i].savedAncho = anchoEl.value;
+             } else {
+                 delete hojasData[i].savedAncho;
+             }
+        }
+
+        let cont = document.getElementById('hoja-options'); cont.innerHTML = "";
+        
+        while (hojasData.length < n) {
+            const isFirst = hojasData.length === 0;
+            hojasData.push({ 
+                manilla: { enabled: !isFirst, color: 'black', side: 'derecha' },
+                bisagras: { visible: true, color: 'black' },
+                colorCristal: colorCristalGlobal
+            });
+        }
+        hojasData.splice(n);
+        
+        while (travesanosHojas.length < n) {
+            travesanosHojas.push({ numH: 0, alturasH: [], coloresHuecosH: [], numV: 0, posicionesV: [] }); 
+        }
+        travesanosHojas.splice(n);
+
+        if (n > 0) {
+            const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+            let anchoDisponible = anchoVentanaPrincipal;
+            if (n > 1) {
+                anchoDisponible -= (n - 1) * separacionHoja;
+            }
+
+            for (let i = 0; i < n; i++) {
+                let aperturaSeleccionada = "fija";
+                
+                if (hojasData[i].savedApertura) {
+                    aperturaSeleccionada = hojasData[i].savedApertura;
+                } else if (i === 0 && n === 2) {
+                    aperturaSeleccionada = "izquierda";
+                } else if (i === 1 && n === 2) {
+                    aperturaSeleccionada = "der-ob";
+                } else if (n === 1) {
+                    aperturaSeleccionada = "izquierda"; 
+                } else if (n === 3) {
+                    if (i === 0) aperturaSeleccionada = "izquierda";
+                    else if (i === 1) aperturaSeleccionada = "derecha";
+                    else if (i === 2) aperturaSeleccionada = "fija";
+                } else if (n === 4) {
+                    if (i === 0 || i === 3) aperturaSeleccionada = "fija";
+                    else if (i === 1 || i === 2) aperturaSeleccionada = "corredera";
+                }
+
+                let travesanosHtml = ``;
+                for (let j = 0; j < travesanosHojas[i].numH; j++) {
+                    const currentColor = travesanosHojas[i].coloresHuecosH[j];
+
+                    travesanosHtml += `
+                        <div class="travesano-config">
+                            <label>Travesaño H. ${j + 1} (desde abajo):</label>
+                            <input type="number" id="travesanoAlto${i}-${j}" value="${travesanosHojas[i].alturasH[j] || 400}" min="1" onchange="actualizarTravesanoHoja(${i}, ${j}, 'altura', this.value);">
+                            <div class="color-picker-group">
+                                <span class="hueco-color-option" style="background:${currentColor}; border:2px solid black;"></span>
+                            </div>
+                            <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'horizontal')">Quitar</button>
+                        </div>
+                    `;
+                }
+                for (let j = 0; j < travesanosHojas[i].numV; j++) {
+                    travesanosHtml += `
+                        <div class="travesano-config">
+                            <label>Travesaño V. ${j + 1} (desde izq):</label>
+                            <input type="number" id="travesanoPosicionV${i}-${j}" value="${travesanosHojas[i].posicionesV[j] || 400}" min="1" onchange="actualizarTravesanoHoja(${i}, ${j}, 'posicionV', this.value);">
+                            <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'vertical')">Quitar</button>
+                        </div>
+                    `;
+                }
+
+                const manillaChecked = hojasData[i] && hojasData[i].manilla.enabled ? 'checked' : '';
+                const manillaColor = hojasData[i] ? hojasData[i].manilla.color : 'black';
+                const manillaSide = hojasData[i] ? hojasData[i].manilla.side : 'derecha';
+                const manillaColorWhiteSelected = manillaColor === 'white' ? 'selected' : '';
+                const manillaColorBlackSelected = manillaColor === 'black' ? 'selected' : '';
+                const manillaDisplay = (aperturaSeleccionada === 'fija' || aperturaSeleccionada === 'fijo-con-travesano') ? 'none' : 'flex';
+
+                const bisagrasChecked = hojasData[i] && hojasData[i].bisagras.visible ? 'checked' : '';
+                const bisagrasColor = hojasData[i] ? hojasData[i].bisagras.color : 'black';
+                const bisagrasColorWhiteSelected = bisagrasColor === 'white' ? 'selected' : '';
+                const bisagrasColorBlackSelected = bisagrasColor === 'black' ? 'selected' : '';
+
+                const travesanoButtonsDisplay = (aperturaSeleccionada === 'fijo-con-travesano') ? 'flex' : 'flex';
+                
+                const currentGlassColor = hojasData[i].colorCristal;
+                
+                cont.innerHTML += `
+                <div class="hoja-config" style="background-color: #E1E2D6;"> 
+
+                    <label>Apertura hoja ${i + 1}:</label>
+                    <select id="apertura${i}" onchange="ajustarAnchos(${i}); toggleManillaVisibility(${i}); actualizarVista();">
+                        <option value="izquierda" ${aperturaSeleccionada === 'izquierda' ? 'selected' : ''}>Izquierda</option>
+                        <option value="derecha" ${aperturaSeleccionada === 'derecha' ? 'selected' : ''}>Derecha</option>
+                        <option value="izq-ob" ${aperturaSeleccionada === 'izq-ob' ? 'selected' : ''}>Izquierda Oscilobatiente</option>
+                        <option value="der-ob" ${aperturaSeleccionada === 'der-ob' ? 'selected' : ''}>Derecha Oscilobatiente</option>
+                        <option value="proyectante" ${aperturaSeleccionada === 'proyectante' ? 'selected' : ''}>Proyectante</option>
+                        <option value="corredera" ${aperturaSeleccionada === 'corredera' ? 'selected' : ''}>Corredera</option>
+                        <option value="fija" ${aperturaSeleccionada === 'fija' ? 'selected' : ''}>Fija</option>
+                        <option value="fijo-con-travesano" ${aperturaSeleccionada === 'fijo-con-travesano' ? 'selected' : ''}>Fijo con travesaño</option>
+                    </select>
+                    
+                    <div class="option-group">
+                        <label>Color Cristal Hoja ${i+1}:</label>
+                         <span class="hueco-color-option" style="background:${currentGlassColor}; border:2px solid #000; width:50px; height:25px;"></span>
+                         <small style="color:#666; margin-left:5px;"</small>
+                    </div>
+
+                    <label>Ancho hoja ${i + 1}:</label>
+                    <input type="number" id="anchoHoja${i}" value="${hojasData[i].savedAncho || Math.round(anchoDisponible / n)}" onchange="ajustarAnchos(${i}); actualizarVista();">
+                    
+                    <div class="option-group" id="manillaGroup${i}" style="display:${manillaDisplay}">
+                        <input type="checkbox" id="manillaCheck${i}" ${manillaChecked} onchange="toggleManilla(${i});">
+                        <label for="manillaCheck${i}">Manilla</label>
+                        <span class="color-selector ${manillaColorBlackSelected}" style="background:black" onclick="cambiarColorManillaHoja(${i}, 'black');"></span>
+                        <span class="color-selector ${manillaColorWhiteSelected}" style="background:white" onclick="cambiarColorManillaHoja(${i}, 'white');"></span>
+                        <div id="corredera-manilla-side${i}" style="display: ${aperturaSeleccionada === 'corredera' && hojasData[i].manilla.enabled ? 'flex' : 'none'};">
+                            <label for="manillaSide${i}">Lado:</label>
+                            <select id="manillaSide${i}" onchange="hojasData[${i}].manilla.side = this.value; actualizarVista();">
+                                <option value="derecha" ${manillaSide === 'derecha' ? 'selected' : ''}>Derecha</option>
+                                <option value="izquierda" ${manillaSide === 'izquierda' ? 'selected' : ''}>Izquierda</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="option-group" id="bisagrasGroup${i}">
+                        <input type="checkbox" id="bisagrasCheck${i}" ${bisagrasChecked} onchange="toggleBisagras(${i});">
+                        <label for="bisagrasCheck${i}">Bisagras</label>
+                        <span class="color-selector ${bisagrasColorBlackSelected}" style="background:black" onclick="cambiarColorBisagras(${i}, 'black');"></span>
+                        <span class="color-selector ${bisagrasColorWhiteSelected}" style="background:white" onclick="cambiarColorBisagras(${i}, 'white');"></span>
+                    </div>
+
+                    <div class="travesano-buttons-hoja" id="travesanoButtons${i}" style="display:${travesanoButtonsDisplay}">
+                        <button onclick="addTravesanoHoja(${i}, 'horizontal')">Añadir Travesaño H.</button>
+                        <button onclick="addTravesanoHoja(${i}, 'vertical')">Añadir Travesaño V.</button>
+                    </div>
+
+                    <div id="travesanosOptions${i}">
+                        ${travesanosHtml}
+                    </div>
+                </div>`;
+            }
+        }
+        
+        document.querySelectorAll('.hoja-config').forEach((hojaEl, hojaIndex) => {
+            const apertura = document.getElementById(`apertura${hojaIndex}`).value;
+            const manillaGroup = document.getElementById(`manillaGroup${hojaIndex}`);
+            const travesanoButtons = document.getElementById(`travesanoButtons${hojaIndex}`);
+            const manillaSideSelector = document.getElementById(`corredera-manilla-side${hojaIndex}`);
+            
+            if (manillaGroup) {
+                if (apertura === 'fija' || apertura === 'fijo-con-travesano') {
+                    manillaGroup.style.display = 'none';
+                } else {
+                    manillaGroup.style.display = 'flex';
+                }
+            }
+
+            if (manillaSideSelector) {
+                if (apertura === 'corredera' && (hojasData[hojaIndex] && hojasData[hojaIndex].manilla.enabled)) {
+                    manillaSideSelector.style.display = 'flex';
+                } else {
+                    manillaSideSelector.style.display = 'none';
+                }
+            }
+            
+            if (travesanoButtons) {
+                travesanoButtons.innerHTML = `<button onclick="addTravesanoHoja(${hojaIndex}, 'horizontal')">Añadir Travesaño H.</button><button onclick="addTravesanoHoja(${hojaIndex}, 'vertical')">Añadir Travesaño V.</button>`;
+            }
+        });
+    }
+
+    function addTravesanoHoja(hojaIndex, orientation) {
+        if (!travesanosHojas[hojaIndex]) {
+             travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [colorActivo], numV: 0, posicionesV: [] };
+        }
+
+        if (orientation === 'horizontal') {
+            const totalHeight = altoVentanaPrincipalRealMM - (2 * hojaThickness);
+            let currentCount = travesanosHojas[hojaIndex].numH;
+            let newCount = currentCount + 1;
+            
+            // FIX: Equal Gaps Calculation (Bottom-aligned for horizontal bars)
+            const gapHeight = (totalHeight - (newCount * travesanoThickness)) / (newCount + 1);
+            let newAlturas = [];
+            let currentH = 0;
+            for(let k=0; k<newCount; k++) {
+                currentH += gapHeight;
+                newAlturas.push(Math.round(currentH));
+                currentH += travesanoThickness;
+            }
+            
+            travesanosHojas[hojaIndex].alturasH = newAlturas;
+            travesanosHojas[hojaIndex].numH = newCount;
+            
+            // FIX: Preserve Colors
+            let oldColors = travesanosHojas[hojaIndex].coloresHuecosH || [];
+            let newColors = [];
+            // Keep existing colors for existing gaps, add new color for new gap
+            for(let k=0; k < newCount + 1; k++) {
+                if(k < oldColors.length) newColors.push(oldColors[k]);
+                else newColors.push(hojasData[hojaIndex].colorCristal || colorActivo);
+            }
+            travesanosHojas[hojaIndex].coloresHuecosH = newColors;
+
+        } else if (orientation === 'vertical') {
+            const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
+            let currentCount = travesanosHojas[hojaIndex].numV;
+            let newCount = currentCount + 1;
+            
+            // Equal Gaps for Vertical (Center-aligned for vertical bars)
+            const gapWidthV = (totalWidth - (newCount * travesanoThickness)) / (newCount + 1);
+            let newPosiciones = [];
+            let currentWV = 0;
+            for(let k=0; k<newCount; k++) {
+                currentWV += gapWidthV;
+                newPosiciones.push(Math.round(currentWV + travesanoThickness/2));
+                currentWV += travesanoThickness;
+            }
+            
+            travesanosHojas[hojaIndex].posicionesV = newPosiciones;
+            travesanosHojas[hojaIndex].numV = newCount;
+        }
+        actualizarHojas();
+        actualizarVista();
+    }
+
+    function removeTravesanoHoja(hojaIndex, tIndex, orientation) {
+         if (!travesanosHojas[hojaIndex]) return;
+         const hojaData = travesanosHojas[hojaIndex];
+
+         if (orientation === 'horizontal') {
+            if (hojaData.numH > 0) {
+                hojaData.numH--;
+                hojaData.alturasH.splice(tIndex, 1);
+                
+                // Recalculate Equal Gaps
+                const totalHeight = altoVentanaPrincipalRealMM - (2 * hojaThickness);
+                const newCount = hojaData.numH;
+                if(newCount > 0) {
+                    const gapHeight = (totalHeight - (newCount * travesanoThickness)) / (newCount + 1);
+                    let newAlturas = [];
+                    let currentH = 0;
+                    for(let k=0; k<newCount; k++) {
+                        currentH += gapHeight;
+                        newAlturas.push(Math.round(currentH));
+                        currentH += travesanoThickness;
+                    }
+                    hojaData.alturasH = newAlturas;
+                } else {
+                    hojaData.alturasH = [];
+                }
+
+                // Remove color (preserve if possible)
+                if(hojaData.coloresHuecosH && hojaData.coloresHuecosH.length > 1) {
+                    hojaData.coloresHuecosH.splice(tIndex, 1);
+                }
+            }
+         } else if (orientation === 'vertical') {
+            if (hojaData.numV > 0) {
+                hojaData.numV--;
+                hojaData.posicionesV.splice(tIndex, 1);
+                
+                const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
+                const newCount = hojaData.numV;
+                 if(newCount > 0) {
+                    const gapWidthV = (totalWidth - (newCount * travesanoThickness)) / (newCount + 1);
+                    let newPosiciones = [];
+                    let currentWV = 0;
+                    for(let k=0; k<newCount; k++) {
+                        currentWV += gapWidthV;
+                        newPosiciones.push(Math.round(currentWV + travesanoThickness/2));
+                        currentWV += travesanoThickness;
+                    }
+                    hojaData.posicionesV = newPosiciones;
+                 } else {
+                    hojaData.posicionesV = [];
+                 }
+            }
+         }
+         actualizarHojas();
+         actualizarVista();
+    }
+
+    function actualizarTravesanoHoja(hojaIndex, travesanoIndex, propiedad, valor) {
+        if (propiedad === 'altura') {
+            travesanosHojas[hojaIndex].alturasH[travesanoIndex] = +valor;
+        } else if (propiedad === 'posicionV') {
+            travesanosHojas[hojaIndex].posicionesV[travesanoIndex] = +valor;
+        } else if (propiedad === 'colorHueco') {
+            travesanosHojas[hojaIndex].coloresHuecosH[travesanoIndex] = valor;
+        }
+        actualizarVista();
+    }
+
+    function ajustarAnchos(cambiada) {
+        let n = +document.getElementById('hojas').value;
+        const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+        let anchoDisponible = anchoVentanaPrincipal;
+        if (n > 1) {
+            anchoDisponible -= (n - 1) * separacionHoja;
+        }
+        
+        let nueva = +document.getElementById('anchoHoja' + cambiada).value;
+        
+        if (n === 3 && cambiada === 1) {
+            // Si hay 3 hojas y cambia la central (índice 1), repartimos el resto equitativamente entre las laterales
+            let restante = anchoDisponible - nueva;
+            if (restante < 2) restante = 2;
+            let anchoLateral = Math.round(restante / 2);
+            document.getElementById('anchoHoja0').value = anchoLateral;
+            document.getElementById('anchoHoja2').value = restante - anchoLateral;
+        } else {
+            // Comportamiento proporcional original para otros casos
+            let otras = 0;
+            for (let i = 0; i < n; i++) if (i != cambiada) otras += +document.getElementById('anchoHoja' + i).value;
+            let restante = anchoDisponible - nueva;
+            if (restante <= 0) restante = 1;
+            for (let i = 0; i < n; i++) if (i != cambiada) {
+                let prop = otras > 0 ? (+document.getElementById('anchoHoja' + i).value / otras) : (1 / (n - 1));
+                document.getElementById('anchoHoja' + i).value = Math.max(1, Math.round(restante * prop));
+            }
+        }
+    }
+    
+    // --- LÓGICA DE DIBUJO Y DETECCIÓN ---
+    
+    function pointInPolygon(point, vs) {
+        var x = point.x, y = point.y;
+        var inside = false;
+        for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+            var xi = vs[i].x, yi = vs[i].y;
+            var xj = vs[j].x, yj = vs[j].y;
+            var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    // Registra una zona para clic. 'data' ahora puede llevar {type, row, col}
+    function registrarZonaInteractiva(puntos, data) {
+        zonasInteractivas.push({ poly: puntos, data: data });
+    }
+
+    function dibujarCristalDegradado(ctx, x, y, w, h, baseColor, idData) {
+        if(idData) {
+            registrarZonaInteractiva([
+                {x:x, y:y}, 
+                {x:x+w, y:y}, 
+                {x:x+w, y:y+h}, 
+                {x:x, y:y+h}
+            ], idData);
+        }
+
+        dibujarRectanguloBase(ctx, x, y, w, h, baseColor);
+    }
+
+    function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
+        if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
+            ctx.fillStyle = baseColor;
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = "#0074D9"; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+            return;
+        }
+
+        if (baseColor.startsWith("rgba")) {
+            const rgbaMatch = baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+            if (!rgbaMatch) {
+                ctx.fillStyle = baseColor;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeStyle = "#0074D9"; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+                return;
+            }
+
+            let r = parseInt(rgbaMatch[1]);
+            let g = parseInt(rgbaMatch[2]);
+            let b = parseInt(rgbaMatch[3]);
+            let a = parseFloat(rgbaMatch[4]);
+            
+            // Usamos el efecto de cristal solicitado: Color -> Blanco(0.4) -> Color
+            // Diagonal (x,y) -> (x+w, y+h)
+            let gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+            gradient.addColorStop(0, baseColor);
+            gradient.addColorStop(0.5, "rgba(255, 255, 255, 1)"); // FIJO INFERIOR
+            gradient.addColorStop(1, baseColor);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = "#0074D9"; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+            return;
+        }
+        
+        ctx.fillStyle = baseColor;
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = "#0074D9"; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+    }
+
+    function dibujarCristalTrapecio(ctx, p1, p2, p3, p4, baseColor, idData) {
+        if(idData) {
+            registrarZonaInteractiva([p1, p2, p3, p4], idData);
+        }
+    
+        if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
+            ctx.fillStyle = baseColor;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.lineTo(p4.x, p4.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#0074D9";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            return;
+        }
+        
+        const rgbaMatch = baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        if (!rgbaMatch) {
+            ctx.fillStyle = baseColor;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.lineTo(p4.x, p4.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#0074D9";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            return;
+        }
+        
+        let r = parseInt(rgbaMatch[1]);
+        let g = parseInt(rgbaMatch[2]);
+        let b = parseInt(rgbaMatch[3]);
+        let a = parseFloat(rgbaMatch[4]);
+        
+        // Usamos el efecto de cristal solicitado: Color -> Blanco(0.4) -> Color
+        // Diagonal basada en bounding box
+        const minX = Math.min(p1.x, p4.x);
+        const minY = Math.min(p1.y, p2.y);
+        const maxX = Math.max(p2.x, p3.x);
+        const maxY = Math.max(p3.y, p4.y);
+
+        const gradient = ctx.createLinearGradient(minX, minY, maxX, maxY);
+        gradient.addColorStop(0, baseColor);
+        gradient.addColorStop(0.5, "rgba(255, 255, 255, 1)"); // HOJAS
+
+        gradient.addColorStop(1, baseColor);
+        ctx.fillStyle = gradient;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#0074D9";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    
+    // Función especial para dibujar celda con top curvo/inclinado
+    function dibujarCeldaSuperior(ctx, xL, xR, yB, funcYTop, baseColor, idData) {
+        // Muestreamos la curva para el borde superior
+        const steps = 5;
+        let points = [];
+        // Puntos borde superior (de izq a der)
+        for(let i=0; i<=steps; i++) {
+            let x = xL + (xR - xL) * (i/steps);
+            points.push({x: x, y: funcYTop(x)});
+        }
+        // Puntos restantes
+        points.push({x: xR, y: yB});
+        points.push({x: xL, y: yB});
+
+        if(idData) {
+            registrarZonaInteractiva(points, idData);
+        }
+
+        // Preparar degradado (usando min Y y max Y del bloque)
+        let minY = points[0].y;
+        let maxY = yB;
+        points.forEach(p => { if(p.y < minY) minY = p.y; });
+        
+        let fillStyle = baseColor;
+        if (baseColor.startsWith("rgba")) {
+            const rgbaMatch = baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+            if (rgbaMatch) {
+                 let r = parseInt(rgbaMatch[1]), g = parseInt(rgbaMatch[2]), b = parseInt(rgbaMatch[3]), a = parseFloat(rgbaMatch[4]);
+                 
+                 // Usamos el efecto de cristal solicitado: Color -> Blanco(0.4) -> Color
+                 let gradient = ctx.createLinearGradient(xL, minY, xR, maxY);
+                 gradient.addColorStop(0, baseColor);
+                 gradient.addColorStop(0.5, "rgba(255, 255, 255, 1)"); // FIJO SUPERIOR
+                 gradient.addColorStop(1, baseColor);
+                 fillStyle = gradient;
+            }
+        } else if (baseColor === '#FFFFFF' || baseColor === colorMarco) {
+             // Flat
+        }
+
+        ctx.fillStyle = fillStyle;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for(let i=1; i<points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#0074D9";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function getCurvedY(x, x0, y0, x1, y1, x2, y2) {
+        const t = (x - x0) / (x2 - x0);
+        // Curva cuadrática Bezier B(t) = (1-t)^2 P0 + 2(1-t)t P1 + t^2 P2
+        // Nota: El punto de control p1 no está en la curva, pero la función CSS/Canvas usa control point.
+        // Aquí aproximamos: x1,y1 es el punto de control.
+        
+        // Pero para simplificar y asegurar que pasa por el centro (alto central):
+        // Calculamos Y en funcion de X para una parabola o lineas
+        
+        // Si no es arco (Trapecio)
+        if (!modoArco) {
+             // Interpolacion lineal entre top-izq y top-der? 
+             // Ojo: Trapecio en ventana suele ser dos pendientes si hay central.
+             // Asumimos techo a dos aguas si hay central definido, o pendiente simple si no?
+             // El codigo original usaba un path simple. Asumamos pendiente simple entre extremos.
+             return y0 + (y2 - y0) * t;
+        }
+
+        // Para Arco cuadratico:
+        // P0=(x0,y0), P2=(x2,y2). P1=(x1,y1) es control.
+        const invT = 1 - t;
+        const y = (invT * invT * y0) + (2 * invT * t * y1) + (t * t * y2);
+        return y;
+    }
+    
+    function calcularLongitudArco(base, altura) {
+      return Math.sqrt(Math.pow(base, 2) + (16/3) * Math.pow(altura, 2));
+    }
+    
+    function dibujarManilla(ctx, manillaX, manillaY, color, verticalManilla, isSliding) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color === 'white' ? 'black' : 'white';
+        ctx.lineWidth = 1;
+
+        const manillaWidthMM = 50; 
+        const manillaHeightMM = 110;
+        const handleWidthMM = 30;
+        const handleLengthMM = 145;
+        
+        const manillaWidthEsc = manillaWidthMM * esc;
+        const manillaHeightEsc = manillaHeightMM * esc;
+        const handleWidthEsc = handleWidthMM * esc;
+        const handleLengthEsc = handleLengthMM * esc;
+        
+        if (isSliding) {
+            if (verticalManilla) {
+                // Dibuja solo el mango para corredera
+                ctx.beginPath();
+                ctx.moveTo(manillaX - handleWidthEsc/2, manillaY - handleLengthEsc / 2);
+                ctx.lineTo(manillaX - handleWidthEsc/2, manillaY + handleLengthEsc / 2);
+                ctx.lineTo(manillaX + handleWidthEsc/2, manillaY + handleLengthEsc / 2);
+                ctx.lineTo(manillaX + handleWidthEsc/2, manillaY - handleLengthEsc / 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                // Dibuja solo el mango horizontal para corredera
+                ctx.beginPath();
+                ctx.moveTo(manillaX - handleLengthEsc / 2, manillaY - handleWidthEsc / 2);
+                ctx.lineTo(manillaX + handleLengthEsc / 2, manillaY - handleWidthEsc / 2);
+                ctx.lineTo(manillaX + handleLengthEsc / 2, manillaY + handleWidthEsc / 2);
+                ctx.lineTo(manillaX - handleLengthEsc / 2, manillaY + handleWidthEsc / 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+        } else {
+            if (verticalManilla) {
+                ctx.fillRect(manillaX - manillaWidthEsc / 2, manillaY - manillaHeightEsc / 2, manillaWidthEsc, manillaHeightEsc);
+                ctx.strokeRect(manillaX - manillaWidthEsc / 2, manillaY - manillaHeightEsc / 2, manillaWidthEsc, manillaHeightEsc);
+
+                ctx.beginPath();
+                ctx.moveTo(manillaX - handleWidthEsc/2, manillaY - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15));
+                ctx.lineTo(manillaX - handleWidthEsc/2, manillaY - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15) + handleLengthEsc);
+                ctx.lineTo(manillaX + handleWidthEsc/2, manillaY - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15) + handleLengthEsc);
+                ctx.lineTo(manillaX + handleWidthEsc/2, manillaY - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15));
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+            } else {
+                ctx.fillRect(manillaX - manillaHeightEsc / 2, manillaY - manillaWidthEsc / 2, manillaHeightEsc, manillaWidthEsc);
+                ctx.strokeRect(manillaX - manillaHeightEsc / 2, manillaY - manillaWidthEsc / 2, manillaHeightEsc, manillaWidthEsc);
+                
+                ctx.beginPath();
+                ctx.moveTo(manillaX - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15), manillaY - handleWidthEsc/2);
+                ctx.lineTo(manillaX - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15) + handleLengthEsc, manillaY - handleWidthEsc/2);
+                ctx.lineTo(manillaX - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15) + handleLengthEsc, manillaY + handleWidthEsc/2);
+                ctx.lineTo(manillaX - manillaHeightEsc / 2 + (manillaHeightEsc * 0.15), manillaY + handleWidthEsc/2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+    }
+    
+    function dibujarBisagras(ctx, x, y, alto, lado, color) {
+        const bisagraWidthMM = 20;
+        const bisagraHeightMM = 100;
+        const marginMM = 70;
+
+        const bisagraWidthEsc = bisagraWidthMM * esc;
+        const bisagraHeightEsc = bisagraHeightMM * esc;
+        const marginEsc = marginMM * esc;
+
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color === 'white' ? 'black' : 'white';
+        ctx.lineWidth = 1;
+
+        if (lado === 'izquierda') {
+            const bisagraX = x - bisagraWidthEsc;
+            // Bisagra superior izquierda
+            ctx.fillRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
+            ctx.strokeRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
+
+            // Bisagra inferior izquierda
+            ctx.fillRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
+            ctx.strokeRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
+
+        } else if (lado === 'derecha') {
+            const bisagraX = x;
+             // Bisagra superior derecha
+            ctx.fillRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
+            ctx.strokeRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
+
+            // Bisagra inferior derecha
+            ctx.fillRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
+            ctx.strokeRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
+        }
+    }
+
+    function dibujar(mostrarMedidasFlag) {
+        const c = document.getElementById("canvas"), ctx = c.getContext("2d");
+        
+        // Limpiamos las zonas interactivas anteriores
+        zonasInteractivas = [];
+        
+        c.height = 700;
+        c.width = 900;
+        ctx.clearRect(0, 0, c.width, c.height);
+        
+// MEDIDAS CANVAS Y MARGEN
+
+        const margin = 70;
+        let anchoVentanaPrincipalMM = +document.getElementById("ancho").value;
+        let altoVentanaTotalMM = altoVentanaPrincipalRealMM + (fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0) + (fijoInferior ? altoFijoInferiorMM : 0);
+        
+        const altoIzqMM = +document.getElementById('altoIzq').value;
+        const altoDerMM = +document.getElementById('altoDer').value;
+        const hojas = +document.getElementById("hojas").value;
+
+        let anchosHojasMM = [], totalHojasMM = 0;
+        if (hojas > 0) {
+            for (let i = 0; i < hojas; i++) {
+                let a = +document.getElementById("anchoHoja" + i).value;
+                anchosHojasMM.push(a); totalHojasMM += a;
+            }
+        }
+        
+        let totalDrawingWidthMM = anchoVentanaPrincipalMM;
+        let maxAltoPrincipalSidesMM = Math.max(altoIzqMM, altoDerMM);
+        let maxAltoFijoSupMM = fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0;
+        let totalDrawingHeightMM = maxAltoPrincipalSidesMM + maxAltoFijoSupMM + (fijoInferior ? altoFijoInferiorMM : 0);
+
+        if (mostrarPersiana) {
+            totalDrawingHeightMM += cajonAlturaMM;
+        }
+        
+        const horizontalMeasureSpace = mostrarMedidasFlag ? 80 : 0;
+        const verticalMeasureSpace = mostrarMedidasFlag ? 80 : 0;
+
+        const availableWidth = c.width - (2 * margin);
+        const availableHeight = c.height - (2 * margin);
+
+        const scaleX = (availableWidth - horizontalMeasureSpace) / totalDrawingWidthMM;
+        const scaleY = (availableHeight - verticalMeasureSpace) / totalDrawingHeightMM;
+        esc = Math.min(scaleX, scaleY);
+
+        const cajonHEsc = cajonAlturaMM * esc;
+        const anchoVentanaPrincipalEsc = anchoVentanaPrincipalMM * esc;
+        const altoIzqEsc = altoIzqMM * esc;
+        const altoDerEsc = altoDerMM * esc;
+        const altoFijoSupIzqEsc = fijoSuperior ? altoFijoSupIzqMM * esc : 0;
+        const altoFijoSupDerEsc = fijoSuperior ? altoFijoSupDerMM * esc : 0;
+        const altoFijoSupCenEsc = fijoSuperior ? altoFijoSupCenMM * esc : 0;
+        const altoFijoInferiorEsc = fijoInferior ? altoFijoInferiorMM * esc : 0;
+        
+        const marcoThicknessEsc = marcoThickness * esc;
+        const hojaThicknessEsc = hojaThickness * esc;
+        const travesanoThicknessEsc = travesanoThickness * esc;
+        const glassPaddingInsideHojaEsc = glassPaddingInsideHoja * esc;
+        const separacionHojaEsc = separacionHoja * esc;
+
+        const drawingWidth = anchoVentanaPrincipalEsc;
+        const drawingHeight = (mostrarPersiana ? cajonHEsc : 0) + maxAltoFijoSupMM * esc + maxAltoPrincipalSidesMM * esc + (fijoInferior ? altoFijoInferiorEsc : 0);
+        
+        let x0 = margin + horizontalMeasureSpace / 2 + (availableWidth - horizontalMeasureSpace - drawingWidth) / 2;
+        let y0 = margin + verticalMeasureSpace / 2 + (availableHeight - verticalMeasureSpace - drawingHeight) / 2;
+
+        let currentY = y0;
+        let mainWinY0 = currentY;
+
+        if (mostrarPersiana) {
+            const cajonX0 = x0;
+            const cajonY0 = y0;
+            const cajonWidth = anchoVentanaPrincipalEsc;
+            const cajonHeight = cajonHEsc;
+
+            let persianaColor;
+            if (colorMarco === "#FFFFFF") {
+                persianaColor = "#D3D3D3";
+            } else {
+                persianaColor = mezclarColor(colorMarco, "#808080", 0.25);
+            }
+            
+            ctx.fillStyle = persianaColor;
+            ctx.fillRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
+            ctx.strokeStyle = "#666"; ctx.strokeRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
+            
+            const isDark = esColorOscuro(persianaColor);
+            const textColor = isDark ? "#FFFFFF" : "#000000";
+
+            const maxFontSize = 40;
+            const minFontSize = 10;
+            const fontScaleFactor = 0.5;
+            
+            let fontSize = Math.min(maxFontSize, Math.max(minFontSize, Math.min(cajonWidth, cajonHeight) * fontScaleFactor));
+            
+            ctx.fillStyle = textColor;
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = "center";
+            ctx.fillText("PERSIANA", cajonX0 + cajonWidth / 2, cajonY0 + cajonHeight / 2 + fontSize * 0.35);
+
+            mainWinY0 += cajonHEsc;
+        }
+
+        if (fijoSuperior) {
+            const fijoSupYBottom = mainWinY0 + maxAltoFijoSupMM * esc;
+            
+            // Dibujar Marco Fondo
+            ctx.fillStyle = colorMarco;
+            ctx.beginPath();
+            const p1 = { x: x0, y: fijoSupYBottom - altoFijoSupIzqEsc };
+            const p3 = { x: x0 + anchoVentanaPrincipalEsc, y: fijoSupYBottom - altoFijoSupDerEsc };
+            
+            if (modoArco) {
+                const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc };
+                ctx.moveTo(p1.x, p1.y);
+                ctx.quadraticCurveTo(p2.x, p2.y, p3.x, p3.y);
+            } else {
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p3.x, p3.y);
+            }
+            ctx.lineTo(p3.x, fijoSupYBottom);
+            ctx.lineTo(p1.x, fijoSupYBottom);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#333333";
+            ctx.stroke();
+
+            // --- LOGICA MATRICIAL PARA FIJO SUPERIOR ---
+            // Definir límites de celdas
+            const yBottomGlass = fijoSupYBottom - marcoThicknessEsc;
+            // Coordenadas Y de cortes horizontales (de abajo hacia arriba, en coordenadas de Canvas)
+            // OJO: travesanosSupHorizontales tiene altura desde abajo.
+            let hCuts = [];
+            let sortedH = [...travesanosSupHorizontales].sort((a,b) => a.altura - b.altura);
+            sortedH.forEach(t => {
+                hCuts.push(yBottomGlass - t.altura * esc - travesanoThicknessEsc);
+            });
+
+            // Coordenadas X de cortes verticales
+            const xLeftGlass = x0 + marcoThicknessEsc;
+            const xRightGlass = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+            let vCuts = [];
+            let sortedV = [...travesanosSupVerticales].sort((a,b) => a.posicion - b.posicion);
+            sortedV.forEach(t => {
+                vCuts.push(xLeftGlass + t.posicion * esc);
+            });
+
+            // Definir lineas grid (fronteras)
+            const gridYs = [yBottomGlass, ...hCuts]; // El tope superior es dinámico
+            const gridXs = [xLeftGlass, ...vCuts, xRightGlass];
+
+            // Iterar filas y columnas
+            // Fila 0 es la de más abajo (entre yBottomGlass y hCuts[0])
+            // Matriz colores: fila 0 corresponde al hueco inferior
+            for(let r = 0; r < gridYs.length; r++) {
+                for(let c = 0; c < gridXs.length - 1; c++) {
+                    const cellColor = (matrixColoresFijoSup[r] && matrixColoresFijoSup[r][c]) ? matrixColoresFijoSup[r][c] : colorActivo;
+                    
+                    const xL = gridXs[c];
+                    const xR = gridXs[c+1];
+                    const yB = gridYs[r];
+                    
+                    // Calcular yTop. Si es la última fila (la de más arriba), usamos la curva.
+                    // Si no, es el siguiente corte horizontal
+                    let yT;
+                    let esTope = false;
+                    
+                    if (r < gridYs.length - 1) {
+                         // Hay otro corte horizontal arriba, así que es un rectángulo (menos grosor travesaño)
+                         yT = gridYs[r+1] + travesanoThicknessEsc; // El corte es el centro/borde, el cristal acaba antes
+                    } else {
+                         // Es la fila superior
+                         esTope = true;
+                    }
+
+                    if(!esTope) {
+                        // Dibujar rectangulo simple
+                        // Ajustar por grosor de travesaños
+                        // Abajo: si r==0 es marco, si r>0 es travesaño
+                        let yBottomDraw = yB;
+                        
+                        // Arriba: yT es el borde inferior del travesaño de arriba
+                        let yTopDraw = gridYs[r+1] + travesanoThicknessEsc;
+                        
+                        // Izq/Der: si c>0 ajustar, si c<max ajustar
+                        let xLDraw = xL;
+                        if(c > 0) xLDraw += travesanoThicknessEsc/2;
+                        let xRDraw = xR;
+                        if(c < gridXs.length - 2) xRDraw -= travesanoThicknessEsc/2;
+
+                        dibujarCristalDegradado(ctx, xLDraw, yTopDraw, xRDraw - xLDraw, yBottomDraw - yTopDraw, cellColor, {type:'fijoSup', row:r, col:c});
+                    } else {
+                        // BLOQUE SUPERIOR (Tope curvo/inclinado)
+                        let yBottomDraw = yB;
+                        if(r > 0) yBottomDraw = yB; // Ya es el borde inferior del cristal (tope del travesaño de abajo)
+                        
+                        let xLDraw = xL;
+                        if(c > 0) xLDraw += travesanoThicknessEsc/2;
+                        let xRDraw = xR;
+                        if(c < gridXs.length - 2) xRDraw -= travesanoThicknessEsc/2;
+                        
+                        const yFunc = (xVal) => {
+                             // Definir curva marco superior interno
+                            if(modoArco) {
+                                const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
+                                const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
+                                const p3 = { x: x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
+                                return getCurvedY(xVal, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                            } else {
+                                const xStart = x0 + marcoThicknessEsc;
+                                const xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+                                const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
+                                const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
+                                const norm = (xVal - xStart)/(xEnd - xStart);
+                                return yStart + (yEnd - yStart)*norm;
+                            }
+                        };
+                        dibujarCeldaSuperior(ctx, xLDraw, xRDraw, yBottomDraw, yFunc, cellColor, {type:'fijoSup', row:r, col:c});
+                    }
+                }
+            }
+
+            // DIBUJAR TRAVESAÑOS (ENCIMA)
+            ctx.fillStyle = colorMarco;
+            ctx.strokeStyle = "#333";
+            
+            // Horizontales
+            sortedH.forEach((t, idx) => { 
+                const travesanoY = yBottomGlass - (t.altura * esc) - travesanoThicknessEsc;
+                
+                // Calculamos X inicial y final para que no pise el marco
+                let xStart = x0 + marcoThicknessEsc;
+                let xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+
+                // Restamos la mitad del grosor de los travesaños verticales que toquen los extremos
+                // En este caso el grid ya está definido por xLeftGlass y xRightGlass
+                
+                ctx.fillRect(xStart, travesanoY, xEnd - xStart, travesanoThicknessEsc);
+                if (drawBorderTop) ctx.strokeRect(xStart, travesanoY, xEnd - xStart, travesanoThicknessEsc);
+            });
+            
+            // Verticales
+            sortedV.forEach(vT => {
+                const xVal = xLeftGlass + vT.posicion * esc;
+                // Hay que calcular hasta dónde llega arriba el travesaño vertical
+                const yTopFunc = (xV) => {
+                    if(modoArco) {
+                        const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
+                        const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
+                        const p3 = { x: x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
+                        return getCurvedY(xV, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+                    } else {
+                        const xStart = x0 + marcoThicknessEsc;
+                        const xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+                        const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
+                        const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
+                        const norm = (xV - xStart)/(xEnd - xStart);
+                        return yStart + (yEnd - yStart)*norm;
+                    }
+                };
+                
+                let yTop = yTopFunc(xVal);
+                let heightV = (fijoSupYBottom - marcoThicknessEsc) - yTop;
+                
+                ctx.fillRect(xVal - travesanoThicknessEsc/2, yTop, travesanoThicknessEsc, heightV);
+                if (drawBorderTop) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yTop, travesanoThicknessEsc, heightV);
+            });
+
+            mainWinY0 += maxAltoFijoSupMM * esc;
+        }
+
+        ctx.fillStyle = colorMarco;
+        ctx.beginPath();
+        const marcoX0 = x0;
+        const marcoY0SuperiorIzq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
+        const marcoX1 = x0 + anchoVentanaPrincipalEsc;
+        const marcoY0SuperiorDer = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
+        const marcoY1Inferior = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+
+        ctx.moveTo(marcoX0, marcoY0SuperiorIzq);
+        ctx.lineTo(marcoX1, marcoY0SuperiorDer);
+        ctx.lineTo(marcoX1, marcoY1Inferior);
+        ctx.lineTo(marcoX0, marcoY1Inferior);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#333333"; ctx.lineWidth = 1;
+        ctx.stroke();
+
+        if (hojas > 1) {
+            ctx.strokeStyle = colorMarco;
+            ctx.beginPath();
+            let currentHojaXPosForTravesano = x0 + marcoThicknessEsc;
+            for (let i = 0; i < hojas - 1; i++) {
+                currentHojaXPosForTravesano += anchosHojasMM[i] * esc;
+                
+                const travesanoX = currentHojaXPosForTravesano + separacionHoja / 2 * esc - travesanoThicknessEsc / 2;
+
+                const y_top_frame = (x_absolute) => {
+                    const normalizedX = (x_absolute - marcoX0) / (marcoX1 - marcoX0);
+                    return marcoY0SuperiorIzq + (marcoY0SuperiorDer - marcoY0SuperiorIzq) * normalizedX;
+                };
+
+                const yTopTravesano = y_top_frame(travesanoX) + marcoThicknessEsc;
+                const yBottomTravesano = y_top_frame(travesanoX) + (altoVentanaPrincipalRealMM - 2 * hojaThickness) * esc + marcoThicknessEsc;
+
+                ctx.fillStyle = colorMarco;
+                ctx.fillRect(travesanoX, yTopTravesano, travesanoThicknessEsc, yBottomTravesano - yTopTravesano);
+
+                currentHojaXPosForTravesano += separacionHoja * esc;
+            }
+        } else if (hojas === 0) {
+            const y_top_frame_hoja = (x_absolute) => {
+                const normalizedX = (x_absolute - marcoX0) / (marcoX1 - marcoX0);
+                return marcoY0SuperiorIzq + (marcoY0SuperiorDer - marcoY0SuperiorIzq) * normalizedX;
+            };
+            
+            const glassPoints = [
+                { x: marcoX0 + marcoThicknessEsc, y: y_top_frame_hoja(marcoX0 + marcoThicknessEsc) + marcoThicknessEsc},
+                { x: marcoX1 - marcoThicknessEsc, y: y_top_frame_hoja(marcoX1 - marcoThicknessEsc) + marcoThicknessEsc},
+                { x: marcoX1 - marcoThicknessEsc, y: marcoY1Inferior - marcoThicknessEsc },
+                { x: marcoX0 + marcoThicknessEsc, y: marcoY1Inferior - marcoThicknessEsc }
+            ];
+            // Aquí usamos index 0 de hojasData aunque sea "marco solo" para consistencia si quisieramos guardar color
+            dibujarCristalTrapecio(ctx, glassPoints[0], glassPoints[1], glassPoints[2], glassPoints[3], colorCristalGlobal, {type: 'hoja', index: 0});
+        }
+
+        if (hojas > 0) {
+            let currentHojaXPos = x0 + marcoThicknessEsc;
+            
+            const y_top_frame = (x_absolute) => {
+                const normalizedX = (x_absolute - marcoX0) / (marcoX1 - marcoX0);
+                return marcoY0SuperiorIzq + (marcoY0SuperiorDer - marcoY0SuperiorIzq) * normalizedX;
+            };
+            
+            for (let i = 0; i < hojas; i++) {
+                let anchoHojaEsc = anchosHojasMM[i] * esc;
+                const ap = document.getElementById("apertura" + i).value;
+                const isFijo = (ap === 'fija' || ap === 'fijo-con-travesano');
+                
+                const hojaGlassColor = (hojasData[i] && hojasData[i].colorCristal) ? hojasData[i].colorCristal : colorCristalGlobal;
+
+                const xHojaLeft = currentHojaXPos;
+                const xHojaRight = currentHojaXPos + anchoHojaEsc;
+                const yHojaBottom = mainWinY0 + maxAltoPrincipalSidesMM * esc - marcoThicknessEsc;
+                
+                const yHojaTopLeft = y_top_frame(xHojaLeft) + marcoThicknessEsc;
+                const yHojaTopRight = y_top_frame(xHojaRight) + marcoThicknessEsc;
+
+                if (!isFijo) {
+                    ctx.strokeStyle = "#333333";
+                    ctx.lineWidth = 1;
+
+                    ctx.beginPath();
+                    ctx.moveTo(xHojaLeft, yHojaTopLeft);
+                    ctx.lineTo(xHojaRight, yHojaTopRight);
+                    ctx.lineTo(xHojaRight, yHojaBottom);
+                    ctx.lineTo(xHojaLeft, yHojaBottom);
+                    ctx.closePath();
+                    ctx.fillStyle = colorMarco;
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                const xGlassLeft = xHojaLeft + (isFijo ? 0 : hojaThicknessEsc);
+                const xGlassRight = xHojaRight - (isFijo ? 0 : hojaThicknessEsc);
+                const yGlassBottom = yHojaBottom - (isFijo ? 0 : hojaThicknessEsc);
+                
+                const yGlassTopLeft = y_top_frame(xGlassLeft) + marcoThicknessEsc + (isFijo ? 0 : hojaThicknessEsc);
+                const yGlassTopRight = y_top_frame(xGlassRight) + marcoThicknessEsc + (isFijo ? 0 : hojaThicknessEsc);
+
+                const hojaGlassPoints = [
+                    { x: xGlassLeft, y: yGlassTopLeft },
+                    { x: xGlassRight, y: yGlassTopRight },
+                    { x: xGlassRight, y: yGlassBottom },
+                    { x: xGlassLeft, y: yGlassBottom }
+                ];
+
+                // Dibujar travesaños horizontales HOJA
+                if (travesanosHojas[i] && travesanosHojas[i].numH > 0) {
+                    let sortedTravesanos = [];
+                    for (let j = 0; j < travesanosHojas[i].numH; j++) {
+                        sortedTravesanos.push({
+                            altura: travesanosHojas[i].alturasH[j],
+                            colorHueco: travesanosHojas[i].coloresHuecosH[j],
+                            originalIndex: j
+                        });
+                    }
+                    sortedTravesanos.sort((a, b) => a.altura - b.altura);
+
+                    let currentYGlassSection = hojaGlassPoints[3].y;
+
+                    for (let j = 0; j < sortedTravesanos.length; j++) {
+                        let travesanoAltoDesdeAbajoMM = sortedTravesanos[j].altura;
+                        let huecoColor = sortedTravesanos[j].colorHueco;
+                        
+                        let travesanoYposAbs = hojaGlassPoints[3].y - (travesanoAltoDesdeAbajoMM * esc);
+                        let huecoHeightEsc = currentYGlassSection - travesanoYposAbs;
+
+                        if (huecoHeightEsc > 0) {
+                            // Este es un hueco entre travesaños
+                            dibujarCristalDegradado(ctx, hojaGlassPoints[0].x, currentYGlassSection - huecoHeightEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, huecoHeightEsc, huecoColor, {type:'hojaTrav', index:i, subIndex: sortedTravesanos[j].originalIndex});
+                            currentYGlassSection -= huecoHeightEsc;
+                        }
+
+                        ctx.fillStyle = colorMarco;
+                        ctx.fillRect(hojaGlassPoints[0].x, currentYGlassSection - travesanoThicknessEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
+                        ctx.strokeStyle = "#333333";
+                        ctx.strokeRect(hojaGlassPoints[0].x, currentYGlassSection - travesanoThicknessEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
+                        
+                        currentYGlassSection -= travesanoThicknessEsc;
+                    }
+
+                    if (currentYGlassSection > hojaGlassPoints[0].y) {
+                        const remainingHeight = currentYGlassSection - hojaGlassPoints[0].y;
+                        
+                        let topColor = hojaGlassColor;
+                        if (travesanosHojas[i].coloresHuecosH && travesanosHojas[i].coloresHuecosH.length > travesanosHojas[i].numH) {
+                             topColor = travesanosHojas[i].coloresHuecosH[travesanosHojas[i].numH];
+                        }
+
+                        dibujarCristalDegradado(ctx, hojaGlassPoints[0].x, hojaGlassPoints[0].y, hojaGlassPoints[1].x - hojaGlassPoints[0].x, remainingHeight, topColor, {type:'hojaTrav', index:i, subIndex: travesanosHojas[i].numH});
+                    }
+                } else {
+                    dibujarCristalTrapecio(ctx, hojaGlassPoints[0], hojaGlassPoints[1], hojaGlassPoints[2], hojaGlassPoints[3], hojaGlassColor, {type:'hoja', index:i});
+                }
+
+                // Dibujar travesaños verticales HOJA
+                if (travesanosHojas[i] && travesanosHojas[i].numV > 0) {
+                    const sortedVerticales = [...travesanosHojas[i].posicionesV].sort((a,b) => a - b);
+                    sortedVerticales.forEach(posicion => {
+                        const travesanoX = hojaGlassPoints[0].x + posicion * esc;
+                        ctx.fillStyle = colorMarco;
+                        ctx.fillRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
+                        ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
+                    });
+                }
+                
+
+                ctx.lineWidth = 1.5;
+                const p1 = hojaGlassPoints[0];
+                const p2 = hojaGlassPoints[1];
+                const p3 = hojaGlassPoints[2];
+                const p4 = hojaGlassPoints[3];
+
+                const centerXGlass = (p1.x + p2.x) / 2;
+                const centerYGlassTopLine = (p1.y + p2.y) / 2;
+                const centerYGlassBottomLine = (p3.y + p4.y) / 2;
+                const centerYGlassMid = (centerYGlassTopLine + centerYGlassBottomLine) / 2;
+
+                if (ap === "izquierda" || ap === "izq-ob") {
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, centerYGlassMid);
+                    ctx.lineTo(p4.x, p4.y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+                if (ap === "derecha" || ap === "der-ob") {
+                    ctx.beginPath();
+                    ctx.moveTo(p2.x, p2.y);
+                    ctx.lineTo(p1.x, centerYGlassMid);
+                    ctx.lineTo(p3.x, p3.y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+                if (ap === "proyectante") {
+                    ctx.beginPath();
+                    ctx.moveTo(centerXGlass, p4.y);
+                    ctx.lineTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+                if (ap === "izq-ob" || ap === "der-ob") {
+                    ctx.strokeStyle = "red";
+                    ctx.beginPath();
+                    ctx.moveTo(centerXGlass, centerYGlassTopLine);
+                    ctx.lineTo(p4.x, p4.y);
+                    ctx.lineTo(p3.x, p3.y);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.strokeStyle = "#0074D9";
+                }
+                
+                if (ap === "corredera") {
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x + (anchoHojaEsc * 0.1), centerYGlassMid);
+                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1), centerYGlassMid);
+
+                    ctx.moveTo(p2.x - (anchoHojaEsc * 0.1) - 10, centerYGlassMid - 5);
+                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1), centerYGlassMid);
+                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1) - 10, centerYGlassMid + 5);
+
+                    ctx.moveTo(p1.x + (anchoHojaEsc * 0.1) + 10, centerYGlassMid - 5);
+                    ctx.lineTo(p1.x + (anchoHojaEsc * 0.1), centerYGlassMid);
+                    ctx.lineTo(p1.x + (anchoHojaEsc * 0.1) + 10, centerYGlassMid + 5);
+
+                    ctx.stroke();
+                }
+                
+                if (ap === "fija" || ap === "fijo-con-travesano") {
+                    ctx.strokeStyle = "#000";
+                    let cx = centerXGlass;
+                    let cy = centerYGlassMid;
+                    let s = Math.min(anchoHojaEsc, (p4.y - p1.y)) / 4;
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx - s, cy - s); ctx.lineTo(cx + s, cy + s);
+                    ctx.moveTo(cx + s, cy - s); ctx.lineTo(cx - s, cy + s);
+                    ctx.stroke();
+                    ctx.strokeStyle = "#0074D9";
+                }
+                
+                if (hojasData[i] && hojasData[i].manilla.enabled) {
+                    const manillaColor = hojasData[i].manilla.color;
+                    
+                    let manillaX, manillaY, verticalManilla = true;
+                    let isSlidingManilla = false;
+
+                    if (ap === "izquierda" || ap === "izq-ob") {
+                        manillaX = xHojaRight - hojaThicknessEsc / 2;
+                        manillaY = yHojaTopRight + (yHojaBottom - yHojaTopRight) / 2;
+                    } else if (ap === "derecha" || ap === "der-ob") {
+                        manillaX = xHojaLeft + hojaThicknessEsc / 2;
+                        manillaY = yHojaTopLeft + (yHojaBottom - yHojaTopLeft) / 2;
+                    } else if (ap === "proyectante") {
+                        manillaX = xHojaLeft + anchoHojaEsc / 2;
+                        manillaY = yHojaBottom - hojaThicknessEsc / 2;
+                        verticalManilla = false;
+                    } else if (ap === "corredera") {
+                        isSlidingManilla = true;
+                        const manillaSide = document.getElementById(`manillaSide${i}`).value;
+                        if (manillaSide === 'izquierda') {
+                            manillaX = xHojaLeft + hojaThicknessEsc / 2;
+                            manillaY = yHojaTopLeft + (yHojaBottom - yHojaTopLeft) / 2;
+                        } else { // derecha
+                            manillaX = xHojaRight - hojaThicknessEsc / 2;
+                            manillaY = yHojaTopRight + (yHojaBottom - yHojaTopRight) / 2;
+                        }
+                    }
+                    if (manillaX && manillaY) {
+                        dibujarManilla(ctx, manillaX, manillaY, manillaColor, verticalManilla, isSlidingManilla);
+                    }
+                }
+                
+                if (hojasData[i] && hojasData[i].bisagras.visible) {
+                    const bisagrasColor = hojasData[i].bisagras.color;
+                    if (ap === "izquierda" || ap === "izq-ob") {
+                        dibujarBisagras(ctx, xHojaLeft, yHojaTopLeft, yHojaBottom - yHojaTopLeft, 'izquierda', bisagrasColor);
+                    } else if (ap === "derecha" || ap === "der-ob") {
+                        dibujarBisagras(ctx, xHojaRight, yHojaTopRight, yHojaBottom - yHojaTopRight, 'derecha', bisagrasColor);
+                    }
+                }
+
+                currentHojaXPos += anchoHojaEsc;
+                if (i < hojas - 1) {
+                    currentHojaXPos += separacionHojaEsc;
+                }
+            }
+        }
+
+        if (fijoInferior) {
+            const fijoInfX0 = x0;
+            const fijoInfY0 = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+            const fijoInfWidth = anchoVentanaPrincipalEsc;
+            const fijoInfHeight = altoFijoInferiorEsc;
+
+            ctx.fillStyle = colorMarco;
+            ctx.fillRect(fijoInfX0, fijoInfY0, fijoInfWidth, fijoInfHeight);
+            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(fijoInfX0, fijoInfY0, fijoInfWidth, fijoInfHeight);
+            
+            // --- LOGICA MATRICIAL PARA FIJO INFERIOR ---
+            const xGlassLeft = fijoInfX0 + marcoThicknessEsc;
+            const xGlassRight = fijoInfX0 + fijoInfWidth - marcoThicknessEsc;
+            const yGlassTop = fijoInfY0 + marcoThicknessEsc;
+            const yGlassBottom = fijoInfY0 + fijoInfHeight - marcoThicknessEsc;
+
+            let hCuts = [];
+            let sortedH = [...travesanosInfHorizontales].sort((a,b) => a.altura - b.altura);
+            sortedH.forEach(t => {
+                hCuts.push(yGlassBottom - t.altura * esc);
+            });
+
+            let vCuts = [];
+            let sortedV = [...travesanosInfVerticales].sort((a,b) => a.posicion - b.posicion);
+            sortedV.forEach(t => {
+                vCuts.push(xGlassLeft + t.posicion * esc);
+            });
+
+            const gridYs = [yGlassBottom, ...hCuts, yGlassTop]; // Aqui sí es rectangular puro
+            const gridXs = [xGlassLeft, ...vCuts, xGlassRight];
+
+            for(let r = 0; r < gridYs.length - 1; r++) {
+                for(let c = 0; c < gridXs.length - 1; c++) {
+                    const cellColor = (matrixColoresFijoInf[r] && matrixColoresFijoInf[r][c]) ? matrixColoresFijoInf[r][c] : colorActivo;
+                    
+                    const xL = gridXs[c];
+                    const xR = gridXs[c+1];
+                    // gridYs va de abajo a arriba en Y canvas
+                    const yB = gridYs[r];
+                    const yT = gridYs[r+1]; // El siguiente corte arriba
+
+                    // Ajustes de dibujo
+                    let yB_draw = yB;
+                    if(r > 0) yB_draw -= travesanoThicknessEsc;
+                    
+                    let yT_draw = yT; // En el último tramo es yGlassTop
+                    if(r < gridYs.length - 2) yT_draw += 0; // travesaños pintados encima, ok.
+
+                    let xL_draw = xL;
+                    if(c > 0) xL_draw += travesanoThicknessEsc/2;
+                    let xR_draw = xR;
+                    if(c < gridXs.length - 2) xR_draw -= travesanoThicknessEsc/2;
+
+                    dibujarCristalDegradado(ctx, xL_draw, yT, xR_draw - xL_draw, yB_draw - yT, cellColor, {type:'fijoInf', row:r, col:c});
+                }
+            }
+
+            // DIBUJAR TRAVESAÑOS (ENCIMA)
+            ctx.fillStyle = colorMarco;
+            ctx.strokeStyle = "#333";
+            
+            sortedH.forEach(t => {
+                 const yVal = yGlassBottom - t.altura * esc - travesanoThicknessEsc;
+                 ctx.fillRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+                 if (drawBorderBottom) ctx.strokeRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+            });
+            sortedV.forEach(t => {
+                 const xVal = xGlassLeft + t.posicion * esc;
+                 ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                 if (drawBorderBottom) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+            });
+        }
+        
+        // DIBUJO DE MEDIDAS       
+        // MEDIDAS ALTO MARCO
+
+        if (mostrarMedidasFlag) {
+            ctx.strokeStyle = "black"; ctx.lineWidth = 1;
+            ctx.fillStyle = "black";
+            ctx.font = "90px Arial";
+            ctx.textAlign = "center";
+            
+            const arrowSize = 8;
+            const verticalMeasureXLeft = x0 - 15;
+            const verticalMeasureXRight = x0 + anchoVentanaPrincipalEsc + 15;
+
+            let mx_altura_ventana_principal = verticalMeasureXLeft;
+            let y_top_ventana_med_izq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
+            let y_bottom_ventana_med = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+
+            ctx.beginPath(); ctx.moveTo(mx_altura_ventana_principal, y_top_ventana_med_izq); ctx.lineTo(mx_altura_ventana_principal, y_bottom_ventana_med); ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(mx_altura_ventana_principal - arrowSize, y_top_ventana_med_izq + arrowSize);
+            ctx.lineTo(mx_altura_ventana_principal, y_top_ventana_med_izq);
+            ctx.moveTo(mx_altura_ventana_principal + arrowSize, y_top_ventana_med_izq + arrowSize);
+            ctx.lineTo(mx_altura_ventana_principal, y_top_ventana_med_izq);
+            
+            ctx.moveTo(mx_altura_ventana_principal - arrowSize, y_bottom_ventana_med - arrowSize);
+            ctx.lineTo(mx_altura_ventana_principal, y_bottom_ventana_med);
+            ctx.moveTo(mx_altura_ventana_principal + arrowSize, y_bottom_ventana_med - arrowSize);
+            ctx.lineTo(mx_altura_ventana_principal, y_bottom_ventana_med);
+            ctx.stroke();
+
+            ctx.save(); ctx.translate(mx_altura_ventana_principal - 15, y_top_ventana_med_izq + (y_bottom_ventana_med - y_top_ventana_med_izq) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(altoIzqMM.toString(), 0, 0); ctx.restore();
+
+// MEDIDA DCHA SOLO MARCO
+
+            if (mostrarPersiana) {
+                ctx.strokeStyle = "blue"; ctx.lineWidth = 1;
+                let mx_cajon = verticalMeasureXLeft;
+                
+                const cajonY0Abs = y0;
+                const cajonY1Abs = y0 + cajonHEsc;
+
+                ctx.beginPath();
+                ctx.moveTo(mx_cajon, cajonY1Abs);
+                ctx.lineTo(mx_cajon, cajonY0Abs);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(mx_cajon - arrowSize, cajonY1Abs - arrowSize);
+                ctx.lineTo(mx_cajon, cajonY1Abs);
+                ctx.moveTo(mx_cajon + arrowSize, cajonY1Abs - arrowSize);
+                ctx.lineTo(mx_cajon, cajonY1Abs);
+                
+                ctx.moveTo(mx_cajon - arrowSize, cajonY0Abs + arrowSize);
+                ctx.lineTo(mx_cajon, cajonY0Abs);
+                ctx.moveTo(mx_cajon + arrowSize, cajonY0Abs + arrowSize);
+                ctx.lineTo(mx_cajon, cajonY0Abs);
+                ctx.stroke();
+
+// MEDIDA PERSIANA
+
+                ctx.fillStyle = "blue";
+                ctx.font = "40px Arial";
+                ctx.textAlign = "center";
+                ctx.save();
+                ctx.translate(mx_cajon - 15, cajonY0Abs + cajonHEsc / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(cajonAlturaMM.toString(), 0, 0);
+                ctx.restore();
+            }
+
+            if (altoIzqMM !== altoDerMM) {
+                let mx_altura_der = verticalMeasureXRight;
+                let y_top_der_med = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
+
+                ctx.beginPath(); ctx.moveTo(mx_altura_der, y_top_der_med); ctx.lineTo(mx_altura_der, y_bottom_ventana_med); ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(mx_altura_der - arrowSize, y_top_der_med + arrowSize); ctx.lineTo(mx_altura_der, y_top_der_med);
+                ctx.moveTo(mx_altura_der + arrowSize, y_top_der_med + arrowSize); ctx.lineTo(mx_altura_der, y_top_der_med);
+                
+                ctx.moveTo(mx_altura_der - arrowSize, y_bottom_ventana_med - arrowSize); ctx.lineTo(mx_altura_der, y_bottom_ventana_med);
+                ctx.moveTo(mx_altura_der + arrowSize, y_bottom_ventana_med - arrowSize); ctx.lineTo(mx_altura_der, y_bottom_ventana_med);
+                ctx.stroke();
+
+//DASPLZAZA MEDIDA DCHA AZUL
+
+                ctx.save(); ctx.translate(mx_altura_der + 15, y_top_der_med + (y_bottom_ventana_med - y_top_der_med) / 3); ctx.rotate(Math.PI / 2); ctx.fillText(altoDerMM.toString(), 0, 0); ctx.restore();
+            }
+            
+            if (hojas > 0) {
+                let currentHojaXPos = x0 + marcoThicknessEsc;
+                const fixedSpaceBelowWindow = 15;
+                my = mainWinY0 + maxAltoPrincipalSidesMM * esc + (fijoInferior ? altoFijoInferiorEsc : 0) + fixedSpaceBelowWindow;
+ 
+// MEDIDA ANCHO HOJAS
+               
+                ctx.fillStyle = "blue";
+                ctx.font = "70px Arial";
+                ctx.textAlign = "center";
+                for (let i = 0; i < hojas; i++) {
+                    let anchoHojaEsc = anchosHojasMM[i] * esc;
+                    ctx.beginPath();
+                    ctx.moveTo(currentHojaXPos, my);
+                    ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(currentHojaXPos + 6, my - 5); ctx.lineTo(currentHojaXPos, my);
+                    ctx.moveTo(currentHojaXPos + 6, my + 5); ctx.lineTo(currentHojaXPos, my);
+                    
+                    ctx.moveTo(currentHojaXPos + anchoHojaEsc - 6, my - 5); ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
+                    ctx.moveTo(currentHojaXPos + anchoHojaEsc - 6, my + 5); ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
+                    ctx.stroke();
+
+// MOVER ALTURA ANCHO HOJAS
+                    ctx.fillText(anchosHojasMM[i], currentHojaXPos + anchoHojaEsc / 2, my + 60);
+                    currentHojaXPos += anchoHojaEsc;
+                    if (i < hojas - 1) {
+                        currentHojaXPos += separacionHojaEsc;
+                    }
+                }
+            }
+
+            let my_ancho_total_ventana_principal;
+            if (mostrarPersiana) {
+                my_ancho_total_ventana_principal = y0 - 10;
+            } else {
+                if (fijoSuperior) {
+                    const fijoSupYTopAbs = y0 + (mostrarPersiana ? cajonHEsc : 0);
+                    my_ancho_total_ventana_principal = fijoSupYTopAbs - 20;
+                } else {
+
+// MOVER ALTURA ANCHO MARCO
+               
+my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorDer) - 10;
+                }
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(x0, my_ancho_total_ventana_principal);
+            ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
+            ctx.strokeStyle = "black"; ctx.stroke(); // FLECHA SUPERIOR
+
+            ctx.beginPath();
+            ctx.moveTo(x0 + 8, my_ancho_total_ventana_principal - 5); ctx.lineTo(x0, my_ancho_total_ventana_principal);
+            ctx.moveTo(x0 + 8, my_ancho_total_ventana_principal + 5); ctx.lineTo(x0, my_ancho_total_ventana_principal);
+            ctx.moveTo(x0 + anchoVentanaPrincipalEsc - 8, my_ancho_total_ventana_principal - 5); ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
+            ctx.moveTo(x0 + anchoVentanaPrincipalEsc - 8, my_ancho_total_ventana_principal + 5); ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
+            ctx.stroke();
+
+// MEDIDA ANCHO MARCO
+
+            ctx.fillStyle = "#333333";
+            ctx.font = "90px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(anchoVentanaPrincipalMM.toString(), (x0 + x0 + anchoVentanaPrincipalEsc) / 2, my_ancho_total_ventana_principal - 15);
+        
+            if (altoIzqMM !== altoDerMM) {
+                const diffAlto = Math.abs(altoIzqMM - altoDerMM);
+                const diagonalReal = Math.sqrt(Math.pow(anchoVentanaPrincipalMM, 2) + Math.pow(diffAlto, 2));
+                const diagonalTexto = diagonalReal.toFixed(0);
+
+// NEDIDA DIAGONAL MARCO
+
+                ctx.strokeStyle = "red";
+                ctx.fillStyle = "red";
+                ctx.font = "90px Arial";
+                
+                const offsetY = -11;
+
+                const measureLineStartX = marcoX0;
+                const measureLineStartY = marcoY0SuperiorIzq - offsetY;
+                const measureLineEndX = marcoX1;
+                const measureLineEndY = marcoY0SuperiorDer - offsetY;
+                
+                const angle = Math.atan2(measureLineEndY - measureLineStartY, measureLineEndX - measureLineStartX);
+                
+                ctx.beginPath();
+                ctx.moveTo(measureLineStartX, measureLineStartY);
+                ctx.lineTo(measureLineEndX, measureLineEndY);
+                ctx.stroke();
+
+                const arrowLength = 8;
+                const arrowAngle = Math.PI / 6;
+                
+                ctx.beginPath();
+                ctx.moveTo(measureLineStartX, measureLineStartY);
+                ctx.lineTo(measureLineStartX + arrowLength * Math.cos(angle + arrowAngle), measureLineStartY + arrowLength * Math.sin(angle + arrowAngle));
+                ctx.moveTo(measureLineStartX, measureLineStartY);
+                ctx.lineTo(measureLineStartX + arrowLength * Math.cos(angle - arrowAngle), measureLineStartY + arrowLength * Math.sin(angle - arrowAngle));
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(measureLineEndX, measureLineEndY);
+                ctx.lineTo(measureLineEndX - arrowLength * Math.cos(angle + arrowAngle), measureLineEndY - arrowLength * Math.sin(angle + arrowAngle));
+                ctx.moveTo(measureLineEndX, measureLineEndY);
+                ctx.lineTo(measureLineEndX - arrowLength * Math.cos(angle - arrowAngle), measureLineEndY - arrowLength * Math.sin(angle - arrowAngle));
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate((measureLineStartX + measureLineEndX) / 2, (measureLineStartY + measureLineEndY) / 2 - 8);
+                ctx.rotate(angle);
+                ctx.fillText(diagonalTexto, 0, 0);
+                ctx.restore();
+            }
+            
+            if (fijoSuperior && (modoArco || altoFijoSupIzqMM !== altoFijoSupDerMM)) {
+                let diagonalFijoMM;
+                if (modoArco) {
+                    const anchoBase = anchoVentanaPrincipalMM;
+                    const alturaArco = Math.abs(Math.max(altoFijoSupIzqMM, altoFijoSupDerMM) - altoFijoSupCenMM);
+                    diagonalFijoMM = calcularLongitudArco(anchoBase, alturaArco);
+                } else {
+                    const diffAlto = Math.abs(altoFijoSupIzqMM - altoFijoSupDerMM);
+                    diagonalFijoMM = Math.sqrt(Math.pow(anchoVentanaPrincipalMM, 2) + Math.pow(diffAlto, 2));
+                }
+                const diagonalFijoTexto = diagonalFijoMM.toFixed(0);
+
+// MEDIDA DIAGONAL FIJO SUPERIOR
+
+                ctx.strokeStyle = "red";
+                ctx.fillStyle = "red";
+                ctx.font = "90px Arial";
+                
+                let yOffsetMedida = - 65;
+                const fijoSupYBottom = y0 + (mostrarPersiana ? cajonHEsc : 0) + maxAltoFijoSupMM * esc;
+                const fijoSupYTopIzq = fijoSupYBottom - altoFijoSupIzqEsc;
+                const fijoSupYTopDer = fijoSupYBottom - altoFijoSupDerEsc;
+                
+                if (modoArco) {
+                    const fijoSupYTopCen = fijoSupYBottom - altoFijoSupCenEsc;
+
+                    const p1 = { x: x0, y: fijoSupYTopIzq };
+                    const p3 = { x: x0 + anchoVentanaPrincipalEsc, y: fijoSupYTopDer };
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y - yOffsetMedida);
+                    ctx.lineTo(p3.x, p3.y - yOffsetMedida);
+                    ctx.stroke();
+
+                    const angle = Math.atan2((p3.y - yOffsetMedida) - (p1.y - yOffsetMedida), p3.x - p1.x);
+                    const arrowLength = 8;
+                    const arrowAngle = Math.PI / 6;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y - yOffsetMedida);
+                    ctx.lineTo(p1.x + arrowLength * Math.cos(angle + arrowAngle), (p1.y - yOffsetMedida) + arrowLength * Math.sin(angle + arrowAngle));
+                    ctx.moveTo(p1.x, p1.y - yOffsetMedida);
+                    ctx.lineTo(p1.x + arrowLength * Math.cos(angle - arrowAngle), (p1.y - yOffsetMedida) + arrowLength * Math.sin(angle - arrowAngle));
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(p3.x, p3.y - yOffsetMedida);
+                    ctx.lineTo(p3.x - arrowLength * Math.cos(angle + arrowAngle), (p3.y - yOffsetMedida) - arrowLength * Math.sin(angle + arrowAngle));
+                    ctx.moveTo(p3.x, p3.y - yOffsetMedida);
+                    ctx.lineTo(p3.x - arrowLength * Math.cos(angle - arrowAngle), (p3.y - yOffsetMedida) - arrowLength * Math.sin(angle - arrowAngle));
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.translate((p1.x + p3.x) / 2, (p1.y + p3.y) / 2 - yOffsetMedida);
+                    ctx.rotate(angle);
+                    ctx.fillText(diagonalFijoTexto, 0, -8);
+                    ctx.restore();
+
+                } else {
+                    const lineX1 = x0;
+                    const lineY1 = fijoSupYTopIzq - yOffsetMedida;
+                    const lineX2 = x0 + anchoVentanaPrincipalEsc;
+                    const lineY2 = fijoSupYTopDer - yOffsetMedida;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lineX1, lineY1);
+                    ctx.lineTo(lineX2, lineY2);
+                    ctx.stroke();
+                    
+                    const angle = Math.atan2(lineY2 - lineY1, lineX2 - lineX1);
+                    const arrowLength = 8;
+                    const arrowAngle = Math.PI / 6;
+
+                    ctx.beginPath();
+                    ctx.moveTo(lineX1, lineY1);
+                    ctx.lineTo(lineX1 + arrowLength * Math.cos(angle + arrowAngle), lineY1 + arrowLength * Math.sin(angle + arrowAngle));
+                    ctx.moveTo(lineX1, lineY1);
+                    ctx.lineTo(lineX1 + arrowLength * Math.cos(angle - arrowAngle), lineY1 + arrowLength * Math.sin(angle - arrowAngle));
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(lineX2, lineY2);
+                    ctx.lineTo(lineX2 - arrowLength * Math.cos(angle + arrowAngle), lineY2 - arrowLength * Math.sin(angle + arrowAngle));
+                    ctx.moveTo(lineX2, lineY2);
+                    ctx.lineTo(lineX2 - arrowLength * Math.cos(angle - arrowAngle), lineY2 - arrowLength * Math.sin(angle - arrowAngle));
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.translate((lineX1 + lineX2) / 2, (lineY1 + lineY2) / 2 - 8);
+                    ctx.rotate(angle);
+                    ctx.fillText(diagonalFijoTexto, 0, 0);
+                    ctx.restore();
+                }
+            }
+
+
+            ctx.strokeStyle = "green"; ctx.fillStyle = "green";
+            
+            const fixedMeasureX = verticalMeasureXLeft;
+
+            if (fijoSuperior) {
+                const fijoSupYTop = y0 + (mostrarPersiana ? cajonHEsc : 0);
+                const fijoSupYBottom = fijoSupYTop + maxAltoFijoSupMM * esc;
+
+                ctx.beginPath();
+                const fijoSupLeftYTop = fijoSupYTop + (maxAltoFijoSupMM * esc - altoFijoSupIzqEsc);
+                ctx.moveTo(fixedMeasureX, fijoSupLeftYTop);
+                ctx.lineTo(fixedMeasureX, fijoSupYBottom);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(fixedMeasureX - arrowSize, fijoSupLeftYTop + arrowSize); ctx.lineTo(fixedMeasureX, fijoSupLeftYTop);
+                ctx.moveTo(fixedMeasureX + arrowSize, fijoSupLeftYTop + arrowSize); ctx.lineTo(fixedMeasureX, fijoSupLeftYTop);
+                ctx.moveTo(fixedMeasureX - arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureX, fijoSupYBottom);
+                ctx.moveTo(fixedMeasureX + arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureX, fijoSupYBottom);
+                ctx.stroke();
+                
+                ctx.save();
+                ctx.translate(fixedMeasureX - 15, fijoSupLeftYTop + (fijoSupYBottom - fijoSupLeftYTop) / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(altoFijoSupIzqMM.toString(), 0, 0);
+                ctx.restore();
+                
+                if (altoFijoSupIzqMM !== altoFijoSupDerMM) {
+                    const fixedMeasureXRight = verticalMeasureXRight;
+                    const fijoSupRightYTop = fijoSupYTop + (maxAltoFijoSupMM * esc - altoFijoSupDerEsc);
+
+                    ctx.beginPath();
+                    ctx.moveTo(fixedMeasureXRight, fijoSupRightYTop);
+                    ctx.lineTo(fixedMeasureXRight, fijoSupYBottom);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(fixedMeasureXRight - arrowSize, fijoSupRightYTop + arrowSize); ctx.lineTo(fixedMeasureXRight, fijoSupRightYTop);
+                    ctx.moveTo(fixedMeasureXRight + arrowSize, fijoSupRightYTop + arrowSize); ctx.lineTo(fixedMeasureXRight, fijoSupRightYTop);
+                    ctx.moveTo(fixedMeasureXRight - arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureXRight, fijoSupYBottom);
+                    ctx.moveTo(fixedMeasureXRight + arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureXRight, fijoSupYBottom);
+                    ctx.stroke();
+                    
+                    ctx.save();
+                    ctx.translate(fixedMeasureXRight + 15, fijoSupRightYTop + (fijoSupYBottom - fijoSupRightYTop) / 2);
+                    ctx.rotate(Math.PI / 2);
+                    ctx.fillText(altoFijoSupDerMM.toString(), 0, 0);
+                    ctx.restore();
+                }
+            }
+
+            if (fijoInferior) {
+                const fijoInfY0Abs = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+                const fijoInfY1Abs = fijoInfY0Abs + altoFijoInferiorEsc;
+
+                ctx.beginPath();
+                ctx.moveTo(fixedMeasureX, fijoInfY0Abs);
+                ctx.lineTo(fixedMeasureX, fijoInfY1Abs);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(fixedMeasureX - arrowSize, fijoInfY0Abs + arrowSize); ctx.lineTo(fixedMeasureX, fijoInfY0Abs);
+                ctx.moveTo(fixedMeasureX + arrowSize, fijoInfY0Abs + arrowSize); ctx.lineTo(fixedMeasureX, fijoInfY0Abs);
+                ctx.moveTo(fixedMeasureX - arrowSize, fijoInfY1Abs - arrowSize); ctx.lineTo(fixedMeasureX, fijoInfY1Abs);
+                ctx.moveTo(fixedMeasureX + arrowSize, fijoInfY1Abs - arrowSize); ctx.lineTo(fixedMeasureX, fijoInfY1Abs);
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(fixedMeasureX - 15, fijoInfY0Abs + (fijoInfY1Abs - fijoInfY0Abs) / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(altoFijoInferiorMM.toString(), 0, 0);
+                ctx.restore();
+            }
+            
+            let alturaTotalSinPersianaMM = Math.max(altoIzqMM, altoDerMM) + (fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0) + (fijoInferior ? altoFijoInferiorMM : 0);
+            const endYTotal = y0 + (mostrarPersiana ? cajonHEsc : 0) + (fijoSuperior ? maxAltoFijoSupMM*esc : 0) + Math.max(altoIzqEsc, altoDerEsc) + (fijoInferior ? altoFijoInferiorEsc : 0);
+
+if (mostrarAltoTotalDer) {
+            
+            if (mostrarPersiana || fijoSuperior || fijoInferior || altoIzqMM !== altoDerMM) {
+                let mx_altura_total_completa = x0 + anchoVentanaPrincipalEsc + 25;
+                
+                let startYTotal = y0 + (mostrarPersiana ? cajonHEsc : 0);
+                
+                ctx.strokeStyle = "black";
+                ctx.fillStyle = "black";
+
+                ctx.beginPath();
+                ctx.moveTo(mx_altura_total_completa, startYTotal);
+                ctx.lineTo(mx_altura_total_completa, endYTotal);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(mx_altura_total_completa - 5, startYTotal + arrowSize); ctx.lineTo(mx_altura_total_completa, startYTotal);
+                ctx.moveTo(mx_altura_total_completa + 5, startYTotal + arrowSize); ctx.lineTo(mx_altura_total_completa, startYTotal);
+                ctx.moveTo(mx_altura_total_completa - 5, endYTotal - arrowSize); ctx.lineTo(mx_altura_total_completa, endYTotal);
+                ctx.moveTo(mx_altura_total_completa + 5, endYTotal - arrowSize); ctx.lineTo(mx_altura_total_completa, endYTotal);
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(mx_altura_total_completa + 15, (startYTotal + endYTotal) / 2);
+                ctx.rotate(Math.PI / 2);
+                 ctx.fillText(alturaTotalSinPersianaMM.toString(), 0, 10);
+                ctx.restore();
+            }
+        }
+    }
+}
+
+    // --- EVENTO CLIC EN CANVAS PARA PINTAR ---
+    
+    document.getElementById('canvas').addEventListener('click', function(evt) {
+        const rect = this.getBoundingClientRect();
+        const scaleX = this.width / rect.width;
+        const scaleY = this.height / rect.height;
+        
+        const x = (evt.clientX - rect.left) * scaleX;
+        const y = (evt.clientY - rect.top) * scaleY;
+        
+        // Buscar si el clic cae en alguna zona
+        let zonaEncontrada = null;
+        for (let i = zonasInteractivas.length - 1; i >= 0; i--) {
+            if (pointInPolygon({x:x, y:y}, zonasInteractivas[i].poly)) {
+                zonaEncontrada = zonasInteractivas[i].data;
+                break;
+            }
+        }
+        
+        if (zonaEncontrada) {
+            aplicarColorAZona(zonaEncontrada, colorActivo);
+        }
+    });
+    
+    function aplicarColorAZona(data, color) {
+        if (data.type === 'fijoSup') {
+            // Data tiene row y col
+            if(!matrixColoresFijoSup[data.row]) matrixColoresFijoSup[data.row] = [];
+            matrixColoresFijoSup[data.row][data.col] = color;
+
+        } else if (data.type === 'fijoInf') {
+            if(!matrixColoresFijoInf[data.row]) matrixColoresFijoInf[data.row] = [];
+            matrixColoresFijoInf[data.row][data.col] = color;
+
+        } else if (data.type === 'hoja') {
+            hojasData[data.index].colorCristal = color;
+        } else if (data.type === 'hojaTrav') {
+            travesanosHojas[data.index].coloresHuecosH[data.subIndex] = color;
+        }
+        
+        actualizarOpcionesFijos(); // No muy necesario para colores ahora, pero si para refresh general
+        actualizarHojas();
+        actualizarVista();
+    }
+
+
+    function mezclarColor(c1, c2, factor) {
+        let hex = x => parseInt(x, 16), toHex = x => ('0' + x.toString(16)).slice(-2).toUpperCase();
+        
+        if (c1.startsWith('rgba')) {
+            const rgbaMatch1 = c1.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+            if (!rgbaMatch1) return c1;
+
+            let r1 = parseInt(rgbaMatch1[1]);
+            let g1 = parseInt(rgbaMatch1[2]);
+            let b1 = parseInt(rgbaMatch1[3]);
+            let a1 = parseFloat(rgbaMatch1[4]);
+
+            const hexMatch2 = c2.replace('#', '');
+            let r2 = hex(hexMatch2.substring(0, 2));
+            let g2 = hex(hexMatch2.substring(2, 4));
+            let b2 = hex(hexMatch2.substring(4, 6));
+
+            let r = Math.round((1 - factor) * r1 + factor * r2);
+            let g = Math.round((1 - factor) * g1 + factor * g2);
+            let b = Math.round((1 - factor) * b1 + factor * b2);
+
+            return `rgba(${r}, ${g}, ${b}, ${a1.toFixed(2)})`;
+        }
+
+        c1 = c1.replace('#', '');
+        c2 = c2.replace('#', '');
+        let r = Math.round((1 - factor) * hex(c1.substring(0, 2)) + factor * hex(c2.substring(0, 2)));
+        let g = Math.round((1 - factor) * hex(c1.substring(2, 4)) + factor * hex(c2.substring(2, 4)));
+        let b = Math.round((1 - factor) * hex(c1.substring(4, 6)) + factor * hex(c2.substring(4, 6)));
+        return "#" + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    function esColorOscuro(hexColor) {
+        if (!hexColor || hexColor.startsWith("rgba")) {
+            return false;
+        }
+        const hex = hexColor.replace('#', '');
+        const c_r = parseInt(hex.substring(0, 2), 16);
+        const c_g = parseInt(hex.substring(2, 4), 16);
+        const c_b = parseInt(hex.substring(4, 6), 16);
+        const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
+        return brightness < 128;
+    }
+
+    function actualizarVista() {
+        dibujar(mostrarMedidas);
+    }
+
+    function exportarPNG() {
+        const canvas = document.getElementById('canvas');
+        
+        // Para iOS es mejor abrir en una pestaña nueva o usar un método que permita "Guardar en Fotos"
+        try {
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.download = `diseno-ventana-${Date.now()}.png`;
+            link.href = dataUrl;
+            
+            // En iOS, a veces el "download" falla, así que mostramos la imagen para que el usuario mantenga pulsado
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            
+            if (isIOS) {
+                const newTab = window.open();
+                newTab.document.write('<img src="' + dataUrl + '" style="width:100%;">');
+                newTab.document.write('<p style="text-align:center;font-family:sans-serif;">Manten pulsada la imagen para "Guardar en Fotos"</p>');
+                newTab.document.close();
+            } else {
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        } catch (err) {
+            alert('Error al exportar: ' + err.message);
+        }
+    }
+
+    function exportarPNG() {
+        const canvas = document.getElementById('canvas');
+        
+        try {
+            // Aseguramos que el canvas esté actualizado antes de capturar
+            actualizarVista();
+            
+            // Usamos un pequeño delay para asegurar que el canvas se haya redibujado
+            setTimeout(() => {
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                
+                if (isIOS) {
+                    // Crear un modal o superposición con la imagen para que sea fácil de guardar
+                    const overlay = document.createElement('div');
+                    overlay.id = 'export-overlay';
+                    overlay.style.position = 'fixed';
+                    overlay.style.top = '0';
+                    overlay.style.left = '0';
+                    overlay.style.width = '100%';
+                    overlay.style.height = '100%';
+                    overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                    overlay.style.zIndex = '10000';
+                    overlay.style.display = 'flex';
+                    overlay.style.flexDirection = 'column';
+                    overlay.style.alignItems = 'center';
+                    overlay.style.justifyContent = 'center';
+                    overlay.style.padding = '20px';
+                    overlay.style.boxSizing = 'border-box';
+
+                    // En iOS, a veces es mejor usar un objeto Blob para dataUrls muy grandes
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '70%';
+                    img.style.border = '2px solid white';
+                    img.style.borderRadius = '8px';
+                    img.style.boxShadow = '0 0 20px rgba(255,255,255,0.2)';
+
+                    const text = document.createElement('p');
+                    text.innerHTML = '<span style="font-size:1.2em; color:#ffd700;">¡DISEÑO LISTO!</span><br><br>1. Mantén pulsada la imagen<br>2. Selecciona <b>"Guardar en Fotos"</b>';
+                    text.style.color = 'white';
+                    text.style.textAlign = 'center';
+                    text.style.marginTop = '20px';
+                    text.style.fontFamily = 'sans-serif';
+                    text.style.lineHeight = '1.5';
+
+                    const closeBtn = document.createElement('button');
+                    closeBtn.innerText = 'VOLVER AL DISEÑO';
+                    closeBtn.style.marginTop = '30px';
+                    closeBtn.style.padding = '12px 25px';
+                    closeBtn.style.background = '#444';
+                    closeBtn.style.color = 'white';
+                    closeBtn.style.border = '1px solid #666';
+                    closeBtn.style.borderRadius = '5px';
+                    closeBtn.style.fontSize = '16px';
+                    closeBtn.style.fontWeight = 'bold';
+                    closeBtn.onclick = () => document.body.removeChild(overlay);
+
+                    overlay.appendChild(img);
+                    overlay.appendChild(text);
+                    overlay.appendChild(closeBtn);
+                    document.body.appendChild(overlay);
+                } else {
+                    const link = document.createElement('a');
+                    link.download = `diseno-ventana-${Date.now()}.png`;
+                    link.href = dataUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }, 100);
+        } catch (err) {
+            alert('Error al exportar: ' + err.message);
+        }
+    }
+
+    window.onload = () => {
+        document.getElementById('ancho').value = "1200";
+        document.getElementById('alto').value = "1300";
+        document.getElementById('hojas').value = "2";
+        
+        cambiarColorMarco(colorMarco);
+        seleccionarColorPincel(colorActivo); // Inicializar pincel
+        
+        ajustarAltosConFijos();
+        actualizarAltosLados();
+        actualizarHojas();
+        // Inicializar matrices vacias
+        initColorMatrix('superior');
+        initColorMatrix('inferior');
+        
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
+</script>
+</body></html>

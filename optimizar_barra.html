@@ -1,0 +1,1059 @@
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Corte de Barras - SVG</title>
+<style>
+  /* --- ESTILOS GENERALES Y DE FORMULARIO (Mantenidos) --- */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 2em;
+  }
+  h2 {
+    color: #34495e;
+    border-bottom: 2px solid #a3cef1;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+  .section {
+    flex: 1;
+    min-width: 300px;
+    margin-bottom: 20px;
+  }
+  .input-grid {
+    display: grid;
+    grid-template-columns: auto auto 1fr; 
+    gap: 10px 15px;
+    align-items: end;
+  }
+  .input-grid label {
+    font-weight: bold;
+    color: #555;
+    text-align: left;
+    padding-bottom: 0;
+  }
+  .input-grid input[type="number"],
+  .input-grid input[type="text"],
+  .input-grid select { 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 80px;
+    box-sizing: border-box;
+  }
+  .input-grid input[type="text"] {
+    width: 150px;
+  }
+  .input-grid button {
+    grid-column: 3; 
+    justify-self: start;
+    width: auto;
+    margin-left: 0;
+  }
+  button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px auto;
+    width: fit-content;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .button-group button {
+    background-color: #007bff;
+  }
+  .button-group button:hover {
+    background-color: #0056b3;
+  }
+  .button-group button#exportBtn {
+    background-color: #6c757d;
+  }
+  .button-group button#exportBtn:hover {
+    background-color: #5a6268;
+  }
+  .button-group select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    height: fit-content;
+  }
+  .item-list {
+    margin-top: 15px;
+    border: 1px solid #eee;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fafafa;
+  }
+  .item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0;
+    color: #444;
+  }
+  .item:last-child {
+    border-bottom: none;
+  }
+  .item .action-buttons {
+    display: flex;
+    gap: 5px;
+  }
+  .item .remove-btn, .item .remove-all-btn, .item .edit-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+    white-space: nowrap;
+  }
+  .item .remove-btn:hover, .item .remove-all-btn:hover {
+    background-color: #c82333;
+  }
+  .item .edit-btn {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  .item .edit-btn:hover {
+    background-color: #e0a800;
+  }
+  #resultInfo {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-left: 5px solid #007bff;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    border-radius: 4px;
+  }
+  /* --- ESTILOS PARA LA VISUALIZACIÓN SVG (ANCHO COMPLETO) --- */
+  .canvas-container { width: 100%; }
+  .canvas-group-wrapper {
+      background: #ffffff;
+      border: 1px solid #a3cef1;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+      width: 100%; 
+      box-sizing: border-box;
+  }
+  .canvas-group-wrapper h3 {
+      text-align: center;
+      color: #34495e;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      border-bottom: 1px dashed #e0e0e0;
+      padding-bottom: 10px;
+  }
+  .bar-svg-wrapper {
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 5px; 
+      border-radius: 4px;
+      position: relative;
+  }
+  .bar-info {
+      font-size: 0.95em;
+      margin-bottom: 5px;
+      padding: 0 5px;
+  }
+  .bar-info strong { color: #007bff; }
+  .legend {
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      width: 100%;
+      text-align: left;
+      font-size: 0.95em; 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+  }
+  .legend-item { display: flex; align-items: center; margin-bottom: 5px; flex-shrink: 0; }
+  .legend-color-box { width: 14px; height: 14px; border: 1px solid #888; margin-right: 8px; flex-shrink: 0; }
+
+  /* Estilos SVG */
+  .bar-svg { display: block; width: 100%; }
+  .bar-background { fill: #f0f0f0; stroke: #2c3e50; stroke-width: 1; }
+  .cut-piece { stroke: #000000; stroke-width: 0.5; }
+  .allowance { fill: #c0392b; stroke: #000000; stroke-width: 0.5; }
+  .offcut { fill: #e74c3c; stroke: #a33; stroke-width: 1; }
+  .offcut-text { fill: #fff; font-size: 14px; text-anchor: middle; pointer-events: none; font-weight: bold; }
+  .dim-line { stroke: #000000; stroke-width: 1; fill: none; }
+  .dim-arrow { stroke: #000000; fill: #000000; stroke-width: 1; }
+  .dim-text { font-size: 30px; fill: #333; text-anchor: middle; pointer-events: none; font-weight: bold; }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .section { min-width: unset; width: 100%; }
+    .input-grid { grid-template-columns: 1fr; gap: 5px; }
+    .input-grid label, .input-grid input, .input-grid button, .input-grid select { width: 100%; box-sizing: border-box; }
+    .input-grid button { grid-column: 1; justify-self: stretch; }
+    .button-group { flex-direction: column; gap: 10px; align-items: center; }
+    .item { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .item .action-buttons { width: 100%; justify-content: flex-start; margin-top: 5px; }
+    .canvas-group-wrapper { width: 100%; box-sizing: border-box; }
+    .legend { flex-direction: column; gap: 5px; }
+  }
+
+
+/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+.btn-menu { 
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  z-index: 9999; 
+  padding: 10px 15px; 
+  border-radius: 20px; 
+  border: none; 
+  background: #e74c3c; 
+  color: white; 
+  font-weight: bold; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;      /* evita button{width:100%} */
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+</style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json"></head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+
+<h1>Corte de Barras - Optimizador SVG</h1>
+
+<div class="container">
+  <div class="section">
+    <h2>Barras en Almacén</h2>
+    <div class="input-grid">
+      <label for="barName">Nombre:</label>
+      <input type="text" id="barName" placeholder="Ej: Barra 6m Extruido" value="Barras">
+      
+      <label for="barLength">Longitud (mm):</label>
+      <input type="number" id="barLength" min="1" value="6600" placeholder="Ej: 6000">
+      
+      <label for="barQty">Cantidad:</label>
+      <input type="number" id="barQty" min="1" value="999">
+      
+      <button id="addOrUpdateBarBtn">Añadir</button>
+    </div>
+    <div id="barList" class="item-list"><div class="item">
+        <span>Barras - 6600 mm - Cantidad: 999</span>
+        <div class="action-buttons">
+            <button class="edit-btn" data-key="Barras - 6600 mm">Editar</button>
+            <button class="remove-btn" data-key="Barras - 6600 mm">Eliminar 1</button>
+            <button class="remove-all-btn" data-key="Barras - 6600 mm">Eliminar Todas</button>
+        </div>
+      </div></div>
+  </div>
+
+  <div class="section">
+    <h2>Cortes a Realizar</h2>
+    <div class="input-grid">
+      <label for="cutLength">Longitud (mm):</label>
+      <input type="number" id="cutLength" min="1" placeholder="Ej: 1250">
+      
+      <label for="cutQty">Cantidad:</label>
+      <input type="number" id="cutQty" min="1" value="1">
+
+      <label for="cutTargetBar">Para Barra:</label>
+      <select id="cutTargetBar"><option value="">Corte Global (cualquier barra)</option><option value="Barras - 6600 mm">Barras - 6600 mm</option></select>
+      
+      <button id="addCutBtn">Añadir</button>
+    </div>
+    <div id="cutList" class="item-list"></div>
+  </div>
+</div>
+
+<div class="button-group">
+  <button id="optimizeAllBtn">Optimizar Todos los Tipos de Barras</button>
+  <button id="exportBtn">Exportar Gráficos a PNG</button>
+</div>
+
+<div id="resultInfo">Añada cortes y haga clic en "Optimizar Todos los Tipos de Barras" para ver los resultados.</div>
+
+<div id="resultsContainer" class="canvas-container"></div>
+
+<script>
+  // --- Datos y configuración global ---
+  const bars = new Map(); 
+  const cuts = []; 
+  const cuttingAllowance = 3; 
+  let lastOptimizedBarsData = []; 
+  
+  let editingBarKey = null;
+  
+  // Constantes de diseño SVG
+  const BAR_SVG_FIXED_WIDTH = 1000; 
+  const PADDING_X = 20; 
+  const INNER_WIDTH = BAR_SVG_FIXED_WIDTH - PADDING_X * 2;
+  const BAR_HEIGHT_SVG = 70; 
+  const DIMENSION_OFFSET = 10; 
+  const DIMENSION_HEIGHT = 15; 
+  const BAR_Y_START = 45; 
+  
+  // Altura total calculada para una única barra SVG (incluyendo títulos y cotas)
+  // CORRECCIÓN CLAVE: Reducir esta altura a la mínima necesaria (antes 260)
+  const HEIGHT_PER_BAR = 175; // Altura mínima para contener el título, barra y cotas.
+  
+  // Espacio vertical entre barras en la imagen combinada
+  const VERTICAL_SPACING = 1; 
+
+  // --- Referencias DOM (Mantenidas) ---
+  const barNameInput = document.getElementById('barName');
+  const barLengthInput = document.getElementById('barLength');
+  const barQtyInput = document.getElementById('barQty');
+  const addOrUpdateBarBtn = document.getElementById('addOrUpdateBarBtn');
+  const barList = document.getElementById('barList');
+
+  const cutLengthInput = document.getElementById('cutLength');
+  const cutQtyInput = document.getElementById('cutQty');
+  const addCutBtn = document.getElementById('addCutBtn');
+  const cutList = document.getElementById('cutList');
+  const cutTargetBarSelect = document.getElementById('cutTargetBar'); 
+
+  const optimizeAllBtn = document.getElementById('optimizeAllBtn'); 
+  const exportBtn = document.getElementById('exportBtn');
+  const resultInfo = document.getElementById('resultInfo');
+  const resultsContainer = document.getElementById('resultsContainer');
+
+  // Cache para los colores de los cortes
+  const cutColorCache = {};
+
+  // --- Funciones de Utilidad (Mantenidas) ---
+  function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function validateInput(value, name = 'Valor', min = 1) {
+    if (typeof value === 'string' && value.trim() === '') {
+      alert(`Por favor, introduce un valor para ${name}.`);
+      return false;
+    }
+    if (typeof value === 'number' && (isNaN(value) || value <= 0)) {
+      alert(`Por favor, introduce un valor numérico válido y positivo para ${name} (mínimo ${min}).`);
+      return false;
+    }
+    return true;
+  }
+
+  function getColorForCut(length) {
+    const key = `${length}`;
+    if (cutColorCache[key]) {
+      return cutColorCache[key];
+    }
+
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+        hash = key.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const h = hash % 360;
+    const s = 60 + (hash % 20); 
+    const l = 50 + (hash % 10); 
+
+    const color = `hsl(${h}, ${s}%, ${l}%)`;
+    cutColorCache[key] = color;
+    return color;
+  }
+
+  function createSVGElement(name, attributes = {}) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+    for (const key in attributes) {
+        el.setAttribute(key, attributes[key]);
+    }
+    return el;
+  }
+  
+  /**
+   * Genera una URL Blob a partir de una cadena SVG.
+   */
+  function getBlobURL(svgString) {
+      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      return URL.createObjectURL(blob);
+  }
+
+
+  // --- Gestión de Barras en Almacén (Funciones mantenidas) ---
+  addOrUpdateBarBtn.onclick = () => {
+    const name = barNameInput.value.trim();
+    const length = parseInt(barLengthInput.value);
+    const qty = parseInt(barQtyInput.value);
+
+    if (!validateInput(name, 'nombre de barra') || !validateInput(length, 'longitud de barra') || !validateInput(qty, 'cantidad de barras')) return;
+
+    const key = `${name} - ${length} mm`;
+
+    if (editingBarKey) {
+        if (editingBarKey !== key) {
+            bars.delete(editingBarKey);
+        }
+        bars.set(key, { name: name, length: length, qty: qty });
+        editingBarKey = null;
+        addOrUpdateBarBtn.textContent = 'Añadir'; 
+        barNameInput.value = "Barras";
+        barLengthInput.value = "6600";
+        barQtyInput.value = "1";
+    } else {
+        if (bars.has(key)) {
+            const existingBar = bars.get(key);
+            existingBar.qty += qty;
+            bars.set(key, existingBar);
+        } else {
+            bars.set(key, { name: name, length: length, qty: qty });
+        }
+        barQtyInput.value = '1';
+    }
+    updateBarList();
+    updateCutTargetBarSelectOptions(); 
+  };
+
+  function updateBarList() {
+    barList.innerHTML = '';
+
+    bars.forEach((barData, key) => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <span>${barData.name} - ${barData.length} mm - Cantidad: ${barData.qty}</span>
+        <div class="action-buttons">
+            <button class="edit-btn" data-key="${key}">Editar</button>
+            <button class="remove-btn" data-key="${key}">Eliminar 1</button>
+            <button class="remove-all-btn" data-key="${key}">Eliminar Todas</button>
+        </div>
+      `;
+      barList.appendChild(div);
+    });
+  }
+
+  function updateCutTargetBarSelectOptions() {
+    cutTargetBarSelect.innerHTML = '<option value="">Corte Global (cualquier barra)</option>';
+    bars.forEach((barData, key) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = `${barData.name} - ${barData.length} mm`;
+        cutTargetBarSelect.appendChild(option);
+    });
+  }
+
+  // --- Gestión de Cortes y Funcionalidad de Eliminar/Editar (Funciones mantenidas) ---
+  addCutBtn.onclick = () => {
+    const cutLengthValue = cutLengthInput.value;
+    const cutQtyValue = cutQtyInput.value;
+    const targetBarKey = cutTargetBarSelect.value; 
+
+    if (!validateInput(cutLengthValue, 'longitud de corte')) return;
+    if (!validateInput(cutQtyValue, 'cantidad de cortes')) return;
+
+    const length = parseInt(cutLengthValue);
+    const qty = parseInt(cutQtyValue);
+
+    if (!validateInput(length, 'longitud de corte') || !validateInput(qty, 'cantidad de cortes')) return;
+
+    for(let i = 0; i < qty; i++) {
+      cuts.push({ id: generateId(), length: length, targetBarKey: targetBarKey });
+    }
+    updateCutList();
+    cutLengthInput.value = '';
+    cutQtyInput.value = '1';
+    cutTargetBarSelect.value = ''; 
+  };
+
+  function updateCutList() {
+    cutList.innerHTML = '';
+    const counts = {};
+    cuts.forEach(c => {
+      const barInfo = c.targetBarKey ? ` (para ${c.targetBarKey.split(' - ')[0]})` : ' (Global)';
+      const key = `${c.length} mm${barInfo}`;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+
+    for (const key in counts) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <span>${key} - Cantidad: ${counts[key]}</span>
+        <div class="action-buttons">
+            <button class="remove-btn" data-type="cut" data-key="${key}">Eliminar 1</button>
+            <button class="remove-all-btn" data-type="cut" data-key="${key}">Eliminar Todas</button>
+        </div>
+      `;
+      cutList.appendChild(div);
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-btn') && event.target.dataset.type === 'bar') {
+        const key = event.target.dataset.key;
+        const barData = bars.get(key);
+        if (barData && barData.qty > 1) { barData.qty--; bars.set(key, barData); } else { bars.delete(key); }
+        updateBarList();
+        updateCutTargetBarSelectOptions(); 
+    } else if (event.target.classList.contains('remove-all-btn') && event.target.dataset.type === 'bar') { 
+        bars.delete(event.target.dataset.key);
+        updateBarList();
+        updateCutTargetBarSelectOptions(); 
+    } else if (event.target.classList.contains('remove-btn') && event.target.dataset.type === 'cut') {
+        const key = event.target.dataset.key;
+        const match = key.match(/(\d+) mm(?:\s+\(para\s+(.+)\))?/);
+        if (!match) return;
+        const targetLength = parseInt(match[1]);
+        const targetBarNameForCut = match[2] ? `${match[2]} - ${targetLength} mm` : ''; 
+        const index = cuts.findIndex(c => c.length === targetLength && ((c.targetBarKey === '' && targetBarNameForCut === '') || c.targetBarKey === targetBarNameForCut));
+        if (index !== -1) { cuts.splice(index, 1); }
+        updateCutList();
+    } else if (event.target.classList.contains('remove-all-btn') && event.target.dataset.type === 'cut') { 
+        const key = event.target.dataset.key;
+        const match = key.match(/(\d+) mm(?:\s+\(para\s+(.+)\))?/);
+        if (!match) return;
+        const targetLength = parseInt(match[1]);
+        const targetBarNameForCut = match[2] ? `${match[2]} - ${targetLength} mm` : ''; 
+        const newCuts = cuts.filter(c => !(c.length === targetLength && ((c.targetBarKey === '' && targetBarNameForCut === '') || c.targetBarKey === targetBarNameForCut)));
+        cuts.length = 0; 
+        cuts.push(...newCuts); 
+        updateCutList();
+    } else if (event.target.classList.contains('edit-btn')) {
+        const keyToEdit = event.target.dataset.key;
+        const barToEdit = bars.get(keyToEdit);
+        if (barToEdit) {
+            barNameInput.value = barToEdit.name;
+            barLengthInput.value = barToEdit.length;
+            barQtyInput.value = barToEdit.qty;
+            addOrUpdateBarBtn.textContent = 'Guardar Cambios';
+            editingBarKey = keyToEdit;
+        }
+    }
+  });
+
+
+  // --- Lógica de Optimización (Mantenida) ---
+  function optimizeLinearCutsForBarType(selectedBarTypeKey) {
+    const selectedBarData = bars.get(selectedBarTypeKey);
+    if (!selectedBarData || selectedBarData.qty === 0) {
+        return { optimizedBars: [], unplacedCuts: [] };
+    }
+
+    const cutsForOptimization = cuts.filter(c => 
+        c.targetBarKey === '' || c.targetBarKey === selectedBarTypeKey
+    );
+
+    if (cutsForOptimization.length === 0) {
+        return { optimizedBars: [], unplacedCuts: [] };
+    }
+
+    const barsForOptimization = [];
+    for(let i = 0; i < selectedBarData.qty; i++) {
+        barsForOptimization.push({
+            id: generateId(),
+            name: selectedBarData.name,
+            length: selectedBarData.length
+        });
+    }
+
+    let cutsToPlace = cutsForOptimization.map(c => ({ ...c, placed: false }))
+                          .sort((a, b) => b.length - a.length);
+
+    const availableBars = barsForOptimization.map(b => ({
+      id: b.id,
+      name: b.name,
+      originalLength: b.length,
+      remainingLength: b.length,
+      usedCuts: []
+    }));
+
+    let unplacedCutsCount = cutsToPlace.length;
+    const usedBarsData = [];
+
+    for (let i = 0; i < cutsToPlace.length; i++) {
+      let currentCut = cutsToPlace[i];
+      if (currentCut.placed) continue;
+
+      let placedInExistingBar = false;
+
+      for (let j = 0; j < availableBars.length; j++) {
+        let bar = availableBars[j];
+
+        const spaceNeeded = bar.usedCuts.length === 0 ? currentCut.length : currentCut.length + cuttingAllowance;
+
+        if (bar.remainingLength >= spaceNeeded) {
+          bar.usedCuts.push({
+            id: currentCut.id,
+            originalLength: currentCut.length,
+            length: currentCut.length,
+            startPos: bar.originalLength - bar.remainingLength 
+          });
+          bar.remainingLength -= spaceNeeded;
+          currentCut.placed = true;
+          unplacedCutsCount--;
+          placedInExistingBar = true;
+          break;
+        }
+      }
+
+      if (!placedInExistingBar && unplacedCutsCount > 0) {
+        const newBarIndex = availableBars.findIndex(b => b.usedCuts.length === 0 && b.originalLength >= currentCut.length);
+
+        if (newBarIndex !== -1) {
+          let newBar = availableBars[newBarIndex];
+          newBar.usedCuts.push({
+            id: currentCut.id,
+            originalLength: currentCut.length,
+            length: currentCut.length,
+            startPos: 0
+          });
+          newBar.remainingLength -= currentCut.length;
+          currentCut.placed = true;
+          unplacedCutsCount--;
+        }
+      }
+    }
+
+    usedBarsData.push(...availableBars.filter(b => b.usedCuts.length > 0));
+
+    usedBarsData.forEach(bar => {
+      const totalCutLength = bar.usedCuts.reduce((sum, cut) => sum + cut.length, 0);
+      const totalAllowanceUsed = bar.usedCuts.length > 0 ? (bar.usedCuts.length - 1) * cuttingAllowance : 0;
+      const actualUsedLength = totalCutLength + totalAllowanceUsed;
+      
+      bar.utilization = (actualUsedLength / bar.originalLength) * 100;
+      bar.offcut = bar.originalLength - actualUsedLength; 
+      if (bar.offcut < 0) bar.offcut = 0;
+    });
+
+    const remainingCuts = cutsToPlace.filter(c => !c.placed);
+
+    return { optimizedBars: usedBarsData, unplacedCuts: remainingCuts };
+  }
+
+
+  // --- FUNCIÓN: Genera la cadena SVG para una sola barra (incluyendo estilos) ---
+  function generateBarSVGString(barData, barIndex) {
+    const scale = INNER_WIDTH / barData.originalLength; 
+    let svgContent = '';
+    
+    // 1. Definición de estilos dentro del SVG (necesario para la exportación a Canvas)
+    const styleContent = `
+        .bar-background{fill:#f0f0f0;stroke:#2c3e50;stroke-width:1;}
+        .cut-piece{stroke:#000;stroke-width:0.5;}
+        .allowance{fill:#c0392b;stroke:#000;stroke-width:0.5;}
+        .offcut{fill:#e74c3c;stroke:#a33;stroke-width:1;}
+        .offcut-text{fill:#fff;font-size:14px;text-anchor:middle;pointer-events:none;font-weight:bold;}
+        .dim-line{stroke:#000;stroke-width:1;fill:none;}
+        .dim-arrow{stroke:#000;fill:#000;stroke-width:1;}
+        .dim-text{font-size:30px;fill:#333;text-anchor:middle;pointer-events:none;font-weight:bold;}
+    `;
+    svgContent += `<style>${styleContent}</style>`;
+    
+    // 2. Información de la barra (Título)
+    const infoTextY = BAR_Y_START - 5; 
+    const infoText = `Barra ${barIndex + 1}: ${barData.name} (${barData.originalLength} mm) - Aprovechamiento: ${(barData.utilization).toFixed(1)}%`;
+    svgContent += `<text x="${PADDING_X}" y="${infoTextY}" fill="#333" font-size="24px" font-weight="bold">${infoText}</text>`;
+    
+    // 3. Fondo y barra completa
+    svgContent += `<rect x="${PADDING_X}" y="${BAR_Y_START}" width="${INNER_WIDTH}" height="${BAR_HEIGHT_SVG}" class="bar-background"/>`;
+
+    let currentPosPx = 0; 
+    let cutStartPx = PADDING_X; 
+
+    barData.usedCuts.forEach((cut, index) => {
+        const widthPx = cut.length * scale;
+        const color = getColorForCut(cut.originalLength);
+        
+        // Pieza de corte
+        svgContent += `<rect x="${cutStartPx}" y="${BAR_Y_START}" width="${widthPx}" height="${BAR_HEIGHT_SVG}" fill="${color}" class="cut-piece"/>`;
+        
+        // Texto de longitud del corte
+        svgContent += `<text x="${cutStartPx + widthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 8}" fill="#000" font-size="25px" font-weight="bold" text-anchor="middle">${cut.originalLength}</text>`; 
+        
+        currentPosPx += widthPx;
+        cutStartPx += widthPx;
+        
+        if (index < barData.usedCuts.length - 1) { 
+            const allowanceWidthPx = cuttingAllowance * scale;
+            
+            // Margen de corte
+            svgContent += `<rect x="${cutStartPx}" y="${BAR_Y_START}" width="${allowanceWidthPx}" height="${BAR_HEIGHT_SVG}" class="allowance"/>`;
+            
+            // Texto de margen
+            if (allowanceWidthPx > 15) {
+                svgContent += `<text x="${cutStartPx + allowanceWidthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 3}" fill="#fff" font-size="10px" text-anchor="middle">-${cuttingAllowance}mm</text>`;
+            }
+            
+            // Línea de corte
+            svgContent += `<line x1="${cutStartPx}" y1="${BAR_Y_START}" x2="${cutStartPx}" y2="${BAR_Y_START + BAR_HEIGHT_SVG}" stroke="#000" stroke-width="1"/>`;
+
+            currentPosPx += allowanceWidthPx;
+            cutStartPx += allowanceWidthPx; 
+        }
+    });
+
+    // Desperdicio (Offcut)
+    const offcutWidthPx = barData.offcut * scale;
+    const offcutStartX = PADDING_X + INNER_WIDTH - offcutWidthPx;
+    
+    svgContent += `<rect x="${offcutStartX}" y="${BAR_Y_START}" width="${offcutWidthPx}" height="${BAR_HEIGHT_SVG}" class="offcut"/>`;
+    
+    // Texto de desperdicio
+    if (barData.offcut > 0 && offcutWidthPx > 20) { 
+        svgContent += `<text x="${offcutStartX + offcutWidthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 3}" class="offcut-text">${barData.offcut.toFixed(0)} mm</text>`;
+    }
+
+    // Cota de dimensión total
+    const totalDimY = BAR_Y_START + BAR_HEIGHT_SVG + DIMENSION_OFFSET;
+    const arrowSize = 4;
+    const textOffset = 35;
+    
+    // Línea de cota
+    svgContent += `<line x1="${PADDING_X}" y1="${totalDimY}" x2="${PADDING_X + INNER_WIDTH}" y2="${totalDimY}" class="dim-line"/>`;
+    // Flechas
+    svgContent += `<polygon points="${PADDING_X},${totalDimY} ${PADDING_X + arrowSize},${totalDimY - arrowSize} ${PADDING_X + arrowSize},${totalDimY + arrowSize}" class="dim-arrow"/>`;
+    svgContent += `<polygon points="${PADDING_X + INNER_WIDTH},${totalDimY} ${PADDING_X + INNER_WIDTH - arrowSize},${totalDimY - arrowSize} ${PADDING_X + INNER_WIDTH - arrowSize},${totalDimY + arrowSize}" class="dim-arrow"/>`;
+
+    // Texto de cota
+    const textY = totalDimY + textOffset;
+    svgContent += `<text x="${(PADDING_X + PADDING_X + INNER_WIDTH) / 2}" y="${textY}" class="dim-text">Total: ${barData.originalLength} mm</text>`;
+
+    // Se envuelve el contenido en el SVG padre con dimensiones fijas
+    const svgWrapper = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${BAR_SVG_FIXED_WIDTH} ${HEIGHT_PER_BAR}" width="${BAR_SVG_FIXED_WIDTH}" height="${HEIGHT_PER_BAR}">
+        ${svgContent}
+    </svg>`;
+
+    return svgWrapper;
+}
+
+
+  // --- Funciones de Dibujo en SVG (Mantenidas) ---
+
+  function drawBarOnSVG(barData, barIndex) {
+    const barWrapperDiv = document.createElement('div');
+    barWrapperDiv.className = 'bar-svg-wrapper';
+    
+    const infoHTML = `
+        <div class="bar-info">
+            <strong>Barra ${barIndex + 1}:</strong> ${barData.name} (${barData.originalLength} mm) | 
+            Aprovechamiento: <strong>${(barData.utilization).toFixed(1)}%</strong> | 
+            Desperdicio: ${barData.offcut.toFixed(0)} mm
+        </div>
+    `;
+    barWrapperDiv.innerHTML = infoHTML;
+
+    // Generar el SVG string y convertirlo a elemento DOM para la visualización en pantalla
+    const svgString = generateBarSVGString(barData, barIndex);
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+    svgElement.classList.add('bar-svg');
+    svgElement.removeAttribute('width'); 
+    svgElement.removeAttribute('height'); // Para que el CSS controle el tamaño
+    
+    barWrapperDiv.appendChild(svgElement);
+    return barWrapperDiv;
+  }
+
+  function drawResultSVG(allOptimizedResults) { 
+    resultsContainer.innerHTML = ''; 
+    lastOptimizedBarsData = []; 
+
+    if (allOptimizedResults.length === 0) {
+      resultInfo.textContent = 'No se encontraron optimizaciones para los tipos de barras disponibles.';
+      return;
+    }
+
+    let totalBarsOptimized = 0;
+    let totalGroupsCreated = 0;
+
+    allOptimizedResults.forEach(resultForBarType => {
+        const { barTypeName, optimizedBars, unplacedCuts } = resultForBarType;
+
+        if (optimizedBars.length === 0) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'result-group-info';
+            infoDiv.style.padding = '10px';
+            infoDiv.style.marginTop = '15px';
+            infoDiv.style.border = '1px dashed #ccc';
+            infoDiv.style.borderRadius = '5px';
+            infoDiv.textContent = `No se pudieron optimizar cortes para la barra: ${barTypeName}. No hay cortes asignados o suficientes barras.`;
+            resultsContainer.appendChild(infoDiv);
+            return;
+        }
+
+        totalBarsOptimized += optimizedBars.length;
+        totalGroupsCreated++;
+
+        lastOptimizedBarsData.push(...optimizedBars);
+
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'canvas-group-wrapper';
+        groupWrapper.innerHTML = `<h3>Optimización para: ${barTypeName}</h3>`;
+        
+        const svgBarContainer = document.createElement('div');
+        svgBarContainer.className = 'svg-bar-container';
+
+        optimizedBars.forEach((bar, barIdx) => {
+            // Se usa el índice global de todas las barras optimizadas
+            const globalBarIndex = lastOptimizedBarsData.findIndex(d => d.id === bar.id); 
+            const barSVGWrapper = drawBarOnSVG(bar, globalBarIndex);
+            svgBarContainer.appendChild(barSVGWrapper);
+        });
+        
+        groupWrapper.appendChild(svgBarContainer);
+        
+        // ... Lógica de Leyenda y mensajes de cortes no colocados (Mantenida)
+        const groupUniqueCuts = {}; 
+        optimizedBars.forEach(bar => {
+            bar.usedCuts.forEach(cut => {
+                const key = `${cut.originalLength} mm`;
+                if (!groupUniqueCuts[key]) {
+                    groupUniqueCuts[key] = {
+                        color: getColorForCut(cut.originalLength),
+                        dimensions: key
+                    };
+                }
+            });
+        });
+
+        let groupLegendHTML = '<strong>Leyenda de Cortes:</strong>';
+        
+        const sortedLegendKeys = Object.keys(groupUniqueCuts).sort((a, b) => {
+            const numA = parseInt(a);
+            const numB = parseInt(b);
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return numA - numB;
+            }
+            return a.localeCompare(b);
+        });
+
+
+        sortedLegendKeys.forEach(key => {
+            const item = groupUniqueCuts[key];
+            groupLegendHTML += `
+                <div class="legend-item">
+                    <div class="legend-color-box" style="background-color: ${item.color};"></div>
+                    <span>${item.dimensions}</span>
+                </div>
+            `;
+        });
+        
+        const groupLegendDiv = document.createElement('div');
+        groupLegendDiv.className = 'legend';
+        groupLegendDiv.innerHTML = groupLegendHTML;
+        groupWrapper.appendChild(groupLegendDiv);
+
+
+        resultsContainer.appendChild(groupWrapper);
+
+        if (unplacedCuts.length > 0) {
+            const remainingCutsMap = {};
+            unplacedCuts.forEach(c => {
+                const key = `${c.length} mm`;
+                remainingCutsMap[key] = (remainingCutsMap[key] || 0) + 1;
+            });
+
+            let remainingMessage = `¡Atención! Para la barra "${barTypeName}", los siguientes cortes no pudieron ser colocados:\n`;
+            for (const key in remainingCutsMap) {
+                remainingMessage += `- ${key}: ${remainingCutsMap[key]} unidad(es)\n`;
+            }
+            const alertDiv = document.createElement('div');
+            alertDiv.style.color = '#dc3545';
+            alertDiv.style.fontWeight = 'bold';
+            alertDiv.style.padding = '10px';
+            alertDiv.style.marginTop = '10px';
+            alertDiv.style.border = '1px solid #dc3545';
+            alertDiv.style.borderRadius = '4px';
+            alertDiv.style.backgroundColor = '#f8d7da';
+            alertDiv.style.whiteSpace = 'pre-wrap';
+            alertDiv.textContent = remainingMessage;
+            groupWrapper.appendChild(alertDiv);
+        }
+    });
+
+    if (totalBarsOptimized > 0) {
+        resultInfo.textContent = `Se optimizaron y utilizaron ${totalBarsOptimized} barra(s) en total, distribuidas en ${totalGroupsCreated} grupo(s) de tipos de barras.`;
+    } else {
+        resultInfo.textContent = 'No se pudo generar ninguna optimización. Por favor, asegúrese de tener barras en almacén y cortes para realizar.';
+    }
+  }
+
+  // --- Evento de Optimizar Todos (Mantenido) ---
+  optimizeAllBtn.onclick = () => {
+    resultsContainer.innerHTML = ''; 
+    lastOptimizedBarsData = []; 
+
+    if (bars.size === 0) {
+        alert('Por favor, añada barras en almacén antes de intentar optimizar.');
+        resultInfo.textContent = 'Añada barras en almacén para poder optimizar.';
+        return;
+    }
+    if (cuts.length === 0) {
+        alert('Por favor, añada cortes a realizar antes de intentar optimizar.');
+        resultInfo.textContent = 'Añada cortes a realizar para poder optimizar.';
+        return;
+    }
+
+    const allOptimizedResults = [];
+    bars.forEach((barData, barKey) => {
+        const { optimizedBars, unplacedCuts } = optimizeLinearCutsForBarType(barKey);
+        allOptimizedResults.push({
+            barTypeName: barKey,
+            optimizedBars: optimizedBars,
+            unplacedCuts: unplacedCuts
+        });
+    });
+    
+    drawResultSVG(allOptimizedResults); 
+  };
+
+  // --- MÉTODO DE EXPORTACIÓN (Espaciado Mínimo) ---
+  exportBtn.onclick = () => {
+    if (lastOptimizedBarsData.length === 0) {
+      alert('Primero realiza una optimización para generar gráficos a exportar.');
+      return;
+    }
+
+    const totalBars = lastOptimizedBarsData.length;
+    
+    // 1. Calcular el tamaño del Canvas final
+    // Altura total: (número de barras * altura de cada barra) + (espacios entre barras) + margen
+    const totalHeight = (totalBars * HEIGHT_PER_BAR) + ((totalBars - 1) * VERTICAL_SPACING) + 20; 
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = BAR_SVG_FIXED_WIDTH;
+    canvas.height = totalHeight;
+    context.fillStyle = '#ffffff'; // Fondo blanco
+    context.fillRect(0, 0, BAR_SVG_FIXED_WIDTH, totalHeight); 
+
+    let currentY = 10; 
+    const loadPromises = [];
+
+    // 2. Iterar y dibujar cada barra SVG en el Canvas
+    lastOptimizedBarsData.forEach((barData, idx) => {
+        // Usamos la nueva función para obtener el SVG de la barra
+        const svgString = generateBarSVGString(barData, idx);
+        const blobUrl = getBlobURL(svgString);
+
+        const promise = new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous'; 
+
+            img.onload = function() {
+                try {
+                    // Dibujar el SVG de la barra en la posición Y actual
+                    context.drawImage(img, 0, currentY, BAR_SVG_FIXED_WIDTH, HEIGHT_PER_BAR);
+                    currentY += HEIGHT_PER_BAR + VERTICAL_SPACING; // Mover Y para la siguiente barra
+                    resolve(true);
+                } catch (e) {
+                    reject(`Error al dibujar barra ${idx + 1} en Canvas: ${e.message}`);
+                } finally {
+                    URL.revokeObjectURL(blobUrl);
+                }
+            };
+            
+            img.onerror = function(err) {
+                URL.revokeObjectURL(blobUrl);
+                reject(`Error al cargar la fuente SVG para barra ${idx + 1}.`);
+            }
+
+            img.src = blobUrl;
+        });
+
+        loadPromises.push(promise);
+    });
+
+    // 3. Esperar a que todas las imágenes se dibujen y exportar el Canvas
+    Promise.all(loadPromises).then(() => {
+        const dataURL = canvas.toDataURL('image/png'); // Generar el PNG
+        
+        // Abrir en nueva pestaña (método compatible con iOS)
+        const win = window.open(dataURL, '_blank');
+
+        if (!win) {
+            alert('Falló la exportación. El navegador bloqueó la ventana emergente. Desactiva el bloqueador e inténtalo de nuevo.');
+        } else {
+            alert('¡Exportación exitosa! Se abrió una nueva pestaña con la **imagen combinada**. Por favor, **mantén pulsada la imagen** para guardarla en tu dispositivo.');
+        }
+    }).catch(error => {
+        console.error("Error en Promise.all:", error);
+        alert(`Ocurrió un error al combinar los gráficos: ${error}`);
+    });
+  };
+
+
+  // --- Inicialización (Mantenida) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    barNameInput.value = "Barras";
+    barLengthInput.value = "6600";
+    barQtyInput.value = "999";
+
+    const defaultBarName = barNameInput.value;
+    const defaultBarLength = parseInt(barLengthInput.value);
+    const defaultBarQty = parseInt(barQtyInput.value);
+    const defaultKey = `${defaultBarName} - ${defaultBarLength} mm`;
+
+    bars.set(defaultKey, { name: defaultBarName, length: defaultBarLength, qty: defaultBarQty });
+    
+    updateBarList();
+    updateCutTargetBarSelectOptions(); 
+
+    resultInfo.textContent = 'Añada cortes y haga clic en "Optimizar Todos los Tipos de Barras" para ver los resultados.';
+  });
+</script>
+
+</body>
+</html>

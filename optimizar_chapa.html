@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corte de Chapa - SVG</title>
+    <style>
+      :root {
+          /* Variable CSS para controlar el zoom visual de los contenedores de gráficos */
+          --wrapper-scale: 1.0; 
+      }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 10px;
+        background: #f4f7f6;
+        color: #333;
+        line-height: 1.6;
+      }
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        font-size: 2em;
+      }
+      h2 {
+        color: #34495e;
+        border-bottom: 2px solid #a3cef1;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+      }
+      .section {
+        flex: 1;
+        min-width: 300px;
+        margin-bottom: 20px;
+      }
+      
+      /* DISEÑO COMPACTO DE CHAPAS (Mantenido del paso anterior) */
+      .input-grid-sheet {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr); 
+          gap: 5px 10px; 
+          align-items: center;
+          margin-bottom: 15px;
+      }
+      .input-grid-sheet label {
+          text-align: center;
+          font-weight: bold;
+          color: #555;
+          padding-bottom: 0;
+          font-size: 0.9em;
+      }
+      .input-grid-sheet input[type="number"] {
+          grid-row: 2; 
+          width: 100%;
+          box-sizing: border-box;
+      }
+      .input-grid-sheet input[type="number"]:nth-child(2) {
+          grid-column: 1; 
+      }
+      .input-grid-sheet input[type="number"]:nth-child(4) {
+          grid-column: 2; 
+      }
+      .input-grid-sheet input[type="number"]:nth-child(6) {
+          grid-column: 3; 
+      }
+      
+      /* --- DISEÑO COMPACTO DE PIEZAS (NUEVO) --- */
+      
+      /* 1. Dimensiones de Pieza: Ancho1, Ancho2, Alto */
+      .input-grid-piece-dims {
+          display: grid;
+          /* Tres columnas de igual ancho para los 3 campos */
+          grid-template-columns: repeat(3, 1fr); 
+          gap: 5px 10px; 
+          align-items: center;
+          margin-bottom: 5px; 
+      }
+      .input-grid-piece-dims label {
+          text-align: center;
+          font-weight: bold;
+          color: #555;
+          padding-bottom: 0;
+          font-size: 0.9em;
+      }
+      .input-grid-piece-dims input[type="number"] {
+          grid-row: 2; /* Los inputs van en la segunda fila */
+          width: 100%;
+          box-sizing: border-box;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+      }
+      
+      /* 2. Cantidad y Botón de Añadir */
+      .input-group-qty-btn {
+          display: grid;
+          /* Etiqueta, Input, Botón en una sola línea horizontal */
+          grid-template-columns: 1fr 1fr 1fr; 
+          gap: 5px 10px;
+          align-items: center; 
+          margin-bottom: 15px;
+      }
+      .input-group-qty-btn label {
+          text-align: left;
+          font-weight: bold;
+          color: #555;
+          font-size: 0.9em;
+          grid-column: 1;
+      }
+      .input-group-qty-btn input[type="number"] {
+          grid-column: 2; 
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          width: 100%;
+          box-sizing: border-box;
+      }
+      .input-group-qty-btn button {
+          grid-column: 3; 
+          width: 100%;
+          margin-top: 0; /* Asegurar alineación vertical con la fila */
+      }
+      /* --- FIN DISEÑO COMPACTO DE PIEZAS --- */
+      
+      
+      /* Estilo general del botón */
+      button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
+        width: 100%;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      
+      /* Ajuste para el botón de "Añadir" en la sección de chapas */
+      .section:first-child button {
+          margin-top: 10px;
+      }
+
+      .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px auto;
+        width: fit-content;
+        flex-wrap: wrap;
+      }
+      .button-group button {
+        background-color: #007bff;
+        width: auto; 
+      }
+      .button-group button:hover {
+        background-color: #0056b3;
+      }
+      .button-group button#exportAllBtn {
+        background-color: #00a08e; 
+      }
+      .button-group button#exportAllBtn:hover {
+        background-color: #007c6f;
+      }
+      .item-list {
+        margin-top: 15px;
+        border: 1px solid #eee;
+        max-height: 150px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #fafafa;
+      }
+      .item {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e0e0e0;
+        color: #444;
+      }
+      .item:last-child {
+        border-bottom: none;
+      }
+      .item .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap; 
+        justify-content: flex-end; 
+      }
+      .item .remove-btn, .item .remove-all-btn, 
+      .item .add-one-btn, .item .remove-one-btn { 
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.8em;
+        white-space: nowrap;
+        margin-top: 5px; 
+        width: auto;
+      }
+      .item .add-one-btn {
+          background-color: #28a745; 
+      }
+      .item .remove-one-btn {
+          background-color: #ffc107; 
+          color: #333;
+      }
+      .item .add-one-btn:hover { background-color: #218838; }
+      .item .remove-one-btn:hover { background-color: #e0a800; }
+      .item .remove-btn:hover, .item .remove-all-btn:hover {
+        background-color: #c82333;
+      }
+      .section:first-child .item .action-buttons button {
+          margin-top: 0; 
+      }
+      
+      #resultInfo {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e9ecef;
+        border-left: 5px solid #007bff;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        border-radius: 4px;
+      }
+      /* Estilos para los SVG individuales */
+      .canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+        max-width: 100%;
+        padding: 0 5px;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .canvas-wrapper {
+        background: #ffffff;
+        border: 1px solid #a3cef1;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        border-radius: 5px;
+        padding: 10px; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        max-width: calc(400px * var(--wrapper-scale, 1.0)); 
+        min-width: 300px;
+      }
+      .canvas-wrapper svg {
+          display: block;
+          max-width: 100%; 
+          height: auto;
+      }
+
+      /* Estilos para la leyenda de las piezas */
+      .legend {
+          margin-top: 15px; 
+          padding-top: 5px;
+          border-top: 1px solid #eee;
+          width: 100%;
+          text-align: left;
+          font-size: 0.85em; 
+          line-height: 1.5;
+      }
+      .legend strong {
+          font-size: 1.1em;
+          display: block;
+          margin-bottom: 5px;
+      }
+      .legend-item {
+          display: flex;
+          justify-content: flex-start; 
+          gap: 5px; 
+          align-items: center;
+          margin-bottom: 4px;
+          padding: 2px 0;
+      }
+      .legend-color-box {
+          width: 12px;
+          height: 12px;
+          border: 1px solid #888;
+          margin-right: 8px; 
+          flex-shrink: 0;
+      }
+      
+      .optimization-options {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 0;
+        align-items: flex-start;
+        padding: 5px 0;
+      }
+      .optimization-options label {
+        font-size: 0.95em;
+        color: #555;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+      .optimization-options input[type="radio"] {
+        margin-right: 8px;
+        transform: scale(1.1);
+      }
+      .export-options-general {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #eaf3f7;
+      }
+      .export-options-general label {
+        font-size: 0.95em;
+        color: #555;
+        font-weight: bold;
+      }
+      .export-options-general select,
+      .export-options-general input[type="number"] {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      .export-options-general button {
+        background-color: #00a08e;
+      }
+      .export-options-general button:hover {
+        background-color: #007c6f;
+      }
+      .export-individual-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+      }
+      .export-individual-btn:hover {
+        background-color: #218838;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        body {
+            padding: 5px;
+        }
+        .container {
+          flex-direction: column;
+          padding: 10px;
+        }
+        .export-options-general {
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .export-options-general select,
+        .export-options-general button {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .export-options-general label {
+            width: 100%;
+            text-align: left;
+            margin-top: 5px;
+        }
+        .canvas-wrapper {
+            width: 100%;
+            max-width: 100% !important; 
+            min-width: unset;
+        }
+      }
+
+
+/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+.btn-menu { 
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  z-index: 9999; 
+  padding: 10px 15px; 
+  border-radius: 20px; 
+  border: none; 
+  background: #e74c3c; 
+  color: white; 
+  font-weight: bold; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;      /* evita button{width:100%} */
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+</style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json"></head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+
+    <h1>Corte de Chapa</h1>
+
+    <div class="container">
+        <div class="section">
+            <h2>Chapas en almacén</h2>
+            <div class="input-grid-sheet">
+                <label for="sheetWidth">Ancho</label>
+                <label for="sheetHeight">Alto</label>
+                <label for="sheetQty">Cantidad</label>
+
+                <input type="number" id="sheetWidth" min="1" value="3000" placeholder="3000">
+                <input type="number" id="sheetHeight" min="1" value="1250" placeholder="1250">
+                <input type="number" id="sheetQty" min="1" value="999">
+            </div>
+            <button id="addSheetBtn">Añadir Chapa(s)</button> 
+            
+            <div id="sheetList" class="item-list">
+                </div>
+        </div>
+
+        <div class="section">
+            <h2>Piezas a cortar</h2> <div class="input-grid-piece-dims">
+                <label for="pieceWidth1">Ancho 1</label>
+                <label for="pieceWidth2">Ancho 2</label>
+                <label for="pieceHeight">Alto</label>
+
+                <input type="number" id="pieceWidth1" min="1" placeholder="Ej: 250">
+                <input type="number" id="pieceWidth2" min="1" placeholder="Ej: 250">
+                <input type="number" id="pieceHeight" min="1" placeholder="Ej: 150">
+            </div>
+            
+            <div class="input-group-qty-btn">
+                <label for="pieceQty">Cantidad</label>
+                <input type="number" id="pieceQty" min="1" value="1">
+                <button id="addPieceBtn">Añadir</button>
+            </div>
+
+            <div id="pieceList" class="item-list">
+                </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <div class="optimization-options">
+            <label>
+                <input type="radio" name="optimizationType" value="standard" checked=""> Optimización Estándar
+            </label>
+            <label>
+                <input type="radio" name="optimizationType" value="guillotine"> Optimización por Guillotina
+            </label>
+        </div>
+        <button id="optimizeBtn">Optimizar Corte</button>
+
+        <div class="export-options-general">
+            <label for="imageFormat">Formato:</label>
+            <select id="imageFormat">
+                <option value="image/svg+xml">SVG (Vectorial)</option>
+            </select>
+            
+            <button id="exportAllBtn">Exportar Todos los Gráficos (Combinados)</button>
+        </div>
+    </div>
+
+
+    <div id="resultInfo">Añada chapas y piezas, luego haga clic en "Optimizar Corte".</div>
+
+    <div id="resultsContainer" class="canvas-container">
+        </div>
+
+
+    <script>
+      // --- Datos y configuración global (Modificados) ---
+      const sheets = [];
+      const pieces = [];
+      const cuttingAllowance = 3; // Espacio de corte entre piezas en mm (grosor del disco)
+      let lastOptimizedSheetsData = []; // Para almacenar el resultado de la última optimización
+      
+      // Variables de escala de texto
+      const defaultTextSizeMM = 30; // Tamaño de fuente base en mm 
+      // Factor de escala para los recortes (Piezas)
+      const initialPieceTextScale = 3.0; 
+      // Tamaño de fuente para las cotas de la chapa y el texto de info.
+      const dimensionFontSizeMM = 90; 
+      const infoFontSizeMM = 50; 
+      
+      // Cache para los colores de las piezas
+      const pieceColorCache = {};
+
+      // --- Referencias DOM (Elementos HTML) ---
+      const sheetWidthInput = document.getElementById('sheetWidth');
+      const sheetHeightInput = document.getElementById('sheetHeight');
+      const sheetQtyInput = document.getElementById('sheetQty');
+      const addSheetBtn = document.getElementById('addSheetBtn');
+      const sheetList = document.getElementById('sheetList');
+
+      const pieceWidth1Input = document.getElementById('pieceWidth1'); 
+      const pieceWidth2Input = document.getElementById('pieceWidth2'); 
+      const pieceHeightInput = document.getElementById('pieceHeight');
+      const pieceQtyInput = document.getElementById('pieceQty');
+      const addPieceBtn = document.getElementById('addPieceBtn');
+
+      const pieceList = document.getElementById('pieceList');
+
+      const optimizeBtn = document.getElementById('optimizeBtn');
+      const exportAllBtn = document.getElementById('exportAllBtn'); 
+      const resultInfo = document.getElementById('resultInfo');
+      const resultsContainer = document.getElementById('resultsContainer'); 
+
+      const imageFormatSelect = document.getElementById('imageFormat');
+      
+      
+
+      // --- Funciones de Utilidad y Persistencia (NUEVAS) ---
+      function generateId() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+      }
+
+      function validatePieceInput(width1, width2, height, qty) {
+        if (!width1 || !width2 || !height || !qty || width1 <= 0 || width2 <= 0 || height <= 0 || qty <= 0) {
+          alert('Por favor, introduce valores numéricos válidos y positivos (ancho 1, ancho 2, alto, cantidad).');
+          return false;
+        }
+        return true;
+      }
+      
+      function validateSheetInput(width, height, qty) {
+          if (!width || !height || !qty || width <= 0 || height <= 0 || qty <= 0) {
+            alert('Por favor, introduce valores numéricos válidos y positivos (ancho, alto, cantidad).');
+            return false;
+          }
+          return true;
+      }
+
+      function getColorForPiece(width1, width2, height) {
+        const key = `${width1}/${width2}x${height}`; 
+        if (pieceColorCache[key]) {
+          return pieceColorCache[key];
+        }
+
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+          hash = key.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        const hue = Math.abs(hash % 360); 
+        const saturation = 70 + (Math.abs(hash) % 30); 
+        const lightness = 85 + (Math.abs(hash) % 10); // Ligeramente más claro
+
+        const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        
+        pieceColorCache[key] = color;
+        return color;
+      }
+
+      function getPieceDimensionString(width1, width2, height) {
+          // Normaliza la clave para rectángulos (ancho1 = ancho2)
+          return (width1 === width2) ? `${width1}x${height}` : `${width1}/${width2}x${height}`;
+      }
+      
+      // Función para obtener las dimensiones w1, w2, h a partir de la clave (string)
+      function parsePieceKey(key) {
+          const parts = key.split('x');
+          const height = parseInt(parts[1]);
+          const widthsStr = parts[0];
+          
+          let width1, width2;
+          if (widthsStr.includes('/')) {
+              [width1, width2] = widthsStr.split('/').map(Number);
+          } else {
+              width1 = parseInt(widthsStr);
+              width2 = parseInt(widthsStr); 
+          }
+          return { width1, width2, height };
+      }
+
+      // *** PERSISTENCIA DE DATOS ***
+      const STORAGE_KEY_SHEETS = 'cutting_sheets_data';
+      const STORAGE_KEY_PIECES = 'cutting_pieces_data';
+
+      function saveState() {
+          try {
+              localStorage.setItem(STORAGE_KEY_SHEETS, JSON.stringify(sheets));
+              localStorage.setItem(STORAGE_KEY_PIECES, JSON.stringify(pieces));
+              // console.log('Estado guardado.');
+          } catch (e) {
+              console.error('Error al guardar en localStorage', e);
+          }
+      }
+
+      function loadState() {
+          try {
+              const savedSheets = localStorage.getItem(STORAGE_KEY_SHEETS);
+              const savedPieces = localStorage.getItem(STORAGE_KEY_PIECES);
+
+              if (savedSheets) {
+                  sheets.length = 0;
+                  sheets.push(...JSON.parse(savedSheets));
+              }
+
+              if (savedPieces) {
+                  pieces.length = 0;
+                  pieces.push(...JSON.parse(savedPieces));
+              }
+              
+              // Solo si hay piezas o chapas guardadas
+              if (sheets.length > 0 || pieces.length > 0) {
+                  updateSheetList();
+                  updatePieceList();
+                  resultInfo.textContent = 'Datos cargados automáticamente. Haga clic en "Optimizar Corte" para continuar.';
+                  return true;
+              }
+              return false;
+
+          } catch (e) {
+              console.warn('No se pudo cargar el estado guardado (datos corruptos o no existen).', e);
+              return false;
+          }
+      }
+      // *****************************
+
+
+      // --- Gestión de Listas ---
+      addSheetBtn.onclick = () => {
+        const w = parseInt(sheetWidthInput.value);
+        const h = parseInt(sheetHeightInput.value);
+        const qty = parseInt(sheetQtyInput.value);
+
+        if (!validateSheetInput(w, h, qty)) return;
+
+        for(let i = 0; i < qty; i++) {
+          sheets.push({ id: generateId(), width: w, height: h });
+        }
+        updateSheetList();
+        saveState(); // Guardar estado
+        sheetQtyInput.value = '1'; 
+      };
+
+      function updateSheetList() {
+        sheetList.innerHTML = '';
+        const counts = {};
+        sheets.forEach(s => {
+          const key = `${s.width}x${s.height}`;
+          counts[key] = (counts[key] || 0) + 1;
+        });
+
+        for (const key in counts) {
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.innerHTML = `
+            <span>${key} mm - Cantidad: ${counts[key]}</span>
+            <div class="action-buttons">
+                <button class="remove-one-btn" data-type="sheet" data-key="${key}">Quitar 1</button>
+                <button class="add-one-btn" data-type="sheet" data-key="${key}">Añadir 1</button>
+                <button class="remove-all-btn" data-type="sheet" data-key="${key}">Eliminar Todas</button>
+            </div>
+          `;
+          sheetList.appendChild(div);
+        }
+      }
+      
+      // MODIFICACIÓN en addPieceBtn: Usar Math.max(w1, w2) para el ancho envolvente
+      addPieceBtn.onclick = () => {
+        const w1 = parseInt(pieceWidth1Input.value);
+        const w2 = parseInt(pieceWidth2Input.value);
+        const h = parseInt(pieceHeightInput.value);
+        const qty = parseInt(pieceQtyInput.value);
+
+        if (!validatePieceInput(w1, w2, h, qty)) return;
+
+        for(let i = 0; i < qty; i++) {
+          // El 'width' aquí se usa para la ordenación y el algoritmo
+          pieces.push({ id: generateId(), width1: w1, width2: w2, height: h, width: Math.max(w1, w2) });
+        }
+        updatePieceList();
+        saveState(); // Guardar estado
+        pieceWidth1Input.value = '';
+        pieceWidth2Input.value = '';
+        pieceHeightInput.value = '';
+        pieceQtyInput.value = '1';
+      };
+
+      function updatePieceList() {
+        pieceList.innerHTML = '';
+        const counts = {};
+        pieces.forEach(p => {
+          // La clave para la lista es la representación de las dimensiones originales
+          const key = getPieceDimensionString(p.width1, p.width2, p.height); 
+          counts[key] = (counts[key] || 0) + 1;
+        });
+
+        for (const key in counts) {
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.innerHTML = `
+            <span>${key} - Cantidad: ${counts[key]}</span>
+            <div class="action-buttons">
+                <button class="remove-one-btn" data-type="piece" data-key="${key}">Quitar 1</button>
+                <button class="add-one-btn" data-type="piece" data-key="${key}">Añadir 1</button>
+                <button class="remove-all-btn" data-type="piece" data-key="${key}">Eliminar Todas</button>
+            </div>
+          `;
+          pieceList.appendChild(div);
+        }
+      }
+      
+      // Función de modificación de cantidades (NUEVA/CORREGIDA)
+      function adjustList(type, key, action) {
+            const list = type === 'sheet' ? sheets : pieces;
+            const originalLength = list.length;
+            
+            let target;
+            if (type === 'sheet') {
+                const [widthStr, heightStr] = key.split('x');
+                const targetWidth = parseInt(widthStr);
+                const targetHeight = parseInt(heightStr);
+                target = { width: targetWidth, height: targetHeight };
+                
+                if (action === 'add') {
+                     // Añadir una hoja
+                    list.push({ id: generateId(), width: targetWidth, height: targetHeight });
+                } else if (action === 'remove') {
+                    // Quitar una hoja
+                    const index = list.findIndex(s => s.width === targetWidth && s.height === targetHeight);
+                    if (index !== -1) list.splice(index, 1);
+                } else if (action === 'removeAll') {
+                    // Eliminar todas las hojas
+                    const newList = list.filter(s => !(s.width === targetWidth && s.height === targetHeight));
+                    list.length = 0; 
+                    list.push(...newList);
+                }
+            } else if (type === 'piece') {
+                const { width1, width2, height } = parsePieceKey(key);
+                target = { width1, width2, height };
+                
+                if (action === 'add') {
+                    // Añadir una pieza
+                    list.push({ id: generateId(), width1, width2, height, width: Math.max(width1, width2) });
+                } else if (action === 'remove') {
+                    // Quitar una pieza
+                    const index = list.findIndex(p => p.width1 === width1 && p.width2 === width2 && p.height === height);
+                    if (index !== -1) list.splice(index, 1);
+                } else if (action === 'removeAll') {
+                    // Eliminar todas las piezas
+                    const newList = list.filter(p => !(p.width1 === width1 && p.width2 === width2 && p.height === height));
+                    list.length = 0; 
+                    list.push(...newList);
+                }
+            }
+
+            if (type === 'sheet') updateSheetList();
+            else if (type === 'piece') updatePieceList();
+            
+            saveState(); // Guardar estado después de cualquier ajuste
+
+            // Si la lista de piezas se vacía, limpiar el resultado de la optimización
+            if (type === 'piece' && list.length === 0) {
+                lastOptimizedSheetsData = [];
+                drawResult([]);
+                resultInfo.textContent = 'Añada chapas y piezas, luego haga clic en "Optimizar Corte".';
+            } else if (originalLength !== list.length && lastOptimizedSheetsData.length > 0) {
+                 // Si se modificó una lista que ya se usó para optimizar, advertir que se re-optimice
+                 resultInfo.textContent += ' (¡ATENCIÓN! La lista fue modificada. ¡Debe Optimizar Corte de nuevo!)';
+            }
+      }
+
+      // --- Lógica de Optimización (sin cambios) ---
+      function optimizeStandard() {
+        if (sheets.length === 0 || pieces.length === 0) {
+          alert('Por favor, añade chapas y piezas antes de intentar optimizar.');
+          return [];
+        }
+
+        let availableSheets = sheets.map(s => ({ ...s, originalId: s.id }));
+        let piecesToPlace = pieces.map(p => ({ ...p, placed: false }))
+                                   .sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+        const usedSheetsData = [];
+        let unplacedPiecesCount = piecesToPlace.length;
+
+        for (const sheet of availableSheets) {
+          if (unplacedPiecesCount === 0) break;
+
+          let freeRectangles = [{ x: 0, y: 0, width: sheet.width, height: sheet.height }];
+          const piecesPlacedInThisSheet = [];
+
+          freeRectangles.sort((a, b) => (a.width * a.height) - (b.width * a.height));
+
+          for (let i = 0; i < piecesToPlace.length; i++) {
+            let piece = piecesToPlace[i];
+            if (piece.placed) continue;
+
+            let bestFitRectIndex = -1;
+            let bestFitX = -1;
+            let bestFitY = -1;
+            let bestFitRotated = false;
+            let minWastedArea = Infinity;
+
+            const orientations = [
+              { w: piece.width, h: piece.height, rotated: false },
+              { w: piece.height, h: piece.width, rotated: true }
+            ];
+
+            for (const orientation of orientations) {
+              const pieceWWithCut = orientation.w + cuttingAllowance;
+              const pieceHWithCut = orientation.h + cuttingAllowance;
+
+              if (pieceWWithCut > sheet.width || pieceHWithCut > sheet.height) {
+                  continue;
+              }
+
+              for (let j = 0; j < freeRectangles.length; j++) {
+                const rect = freeRectangles[j];
+
+                if (pieceWWithCut <= rect.width && pieceHWithCut <= rect.height) {
+                  const wastedArea = (rect.width * rect.height) - (pieceWWithCut * pieceHWithCut);
+
+                  if (wastedArea < minWastedArea) {
+                    minWastedArea = wastedArea;
+                    bestFitRectIndex = j;
+                    bestFitX = rect.x;
+                    bestFitY = rect.y;
+                    bestFitRotated = orientation.rotated;
+                  }
+                }
+              }
+            }
+
+            if (bestFitRectIndex !== -1) {
+              const rectToUse = freeRectangles[bestFitRectIndex];
+              const placedPieceW = bestFitRotated ? piece.height : piece.width;
+              const placedPieceH = bestFitRotated ? piece.width : piece.height;
+
+              piecesPlacedInThisSheet.push({
+                id: piece.id,
+                originalWidth1: piece.width1, 
+                originalWidth2: piece.width2,
+                originalHeight: piece.height,
+                width: placedPieceW, 
+                height: placedPieceH,
+                x: bestFitX,
+                y: bestFitY,
+                rotated: bestFitRotated 
+              });
+
+              const originalPieceIndex = piecesToPlace.findIndex(p => p.id === piece.id);
+              if (originalPieceIndex !== -1) {
+                piecesToPlace[originalPieceIndex].placed = true;
+                unplacedPiecesCount--;
+              }
+
+              freeRectangles.splice(bestFitRectIndex, 1);
+
+              const remainingRight = {
+                x: bestFitX + placedPieceW + cuttingAllowance,
+                y: bestFitY,
+                width: rectToUse.width - (placedPieceW + cuttingAllowance),
+                height: placedPieceH + cuttingAllowance
+              };
+              if (remainingRight.width > 0 && remainingRight.height > 0) {
+                freeRectangles.push(remainingRight);
+              }
+
+              const remainingBottom = {
+                x: bestFitX,
+                y: bestFitY + placedPieceH + cuttingAllowance,
+                width: rectToUse.width,
+                height: rectToUse.height - (placedPieceH + cuttingAllowance)
+              };
+              if (remainingBottom.width > 0 && remainingBottom.height > 0) {
+                freeRectangles.push(remainingBottom);
+              }
+
+              freeRectangles.sort((a, b) => (a.x - b.x) || (a.y - b.y));
+            }
+          }
+
+          if (piecesPlacedInThisSheet.length > 0) {
+            const usedArea = piecesPlacedInThisSheet.reduce((sum, p) => {
+                return sum + p.width * p.height; 
+            }, 0);
+            const totalArea = sheet.width * sheet.height;
+            const utilization = (totalArea > 0) ? (usedArea / totalArea) * 100 : 0;
+
+            usedSheetsData.push({
+              width: sheet.width,
+              height: sheet.height,
+              pieces: piecesPlacedInThisSheet,
+              utilization: utilization,
+              originalSheetId: sheet.originalId
+            });
+          }
+        }
+
+        if (unplacedPiecesCount > 0) {
+          const remainingPiecesMap = {};
+          piecesToPlace.forEach(p => {
+            if (!p.placed) {
+              const key = getPieceDimensionString(p.width1, p.width2, p.height);
+              remainingPiecesMap[key] = (remainingPiecesMap[key] || 0) + 1;
+            }
+          });
+
+          let remainingMessage = 'Las siguientes piezas no pudieron ser colocadas:\n';
+          for (const key in remainingPiecesMap) {
+            remainingMessage += `- ${key}: ${remainingPiecesMap[key]} unidad(es)\n`;
+          }
+          alert(`¡Atención! Quedan piezas sin colocar. No hay chapas suficientes o de tamaño adecuado.\n\n${remainingMessage}`);
+        }
+
+        return usedSheetsData;
+      }
+      
+      function optimizeGuillotine() {
+        if (sheets.length === 0 || pieces.length === 0) {
+          alert('Por favor, añade chapas y piezas antes de intentar optimizar.');
+          return [];
+        }
+
+        let availableSheets = sheets.map(s => ({ ...s, originalId: s.id }));
+        let piecesToPlace = pieces.map(p => ({ ...p, placed: false }))
+                                   .sort((a, b) => (b.width * b.height) - (a.width * a.height)); 
+
+        const usedSheetsData = [];
+        let unplacedPiecesCount = piecesToPlace.length;
+
+        function guillotineRecursivePlace(rect, currentPieces) {
+            const placedItems = [];
+
+            if (rect.width <= 0 || rect.height <= 0 || currentPieces.filter(p => !p.placed).length === 0) {
+                return [];
+            }
+
+            let bestPieceForRect = null;
+            let bestOrientation = null;
+            let minWastedSpace = Infinity; 
+
+            for (let i = 0; i < currentPieces.length; i++) {
+                const piece = currentPieces[i];
+                if (piece.placed) continue;
+
+                const orientations = [
+                    { w: piece.width, h: piece.height, rotated: false },
+                    { w: piece.height, h: piece.width, rotated: true }
+                ];
+
+                for (const orient of orientations) {
+                    const pieceWCut = orient.w + cuttingAllowance;
+                    const pieceHCut = orient.h + cuttingAllowance;
+
+                    if (pieceWCut <= rect.width && pieceHCut <= rect.height) {
+                        const wastedSpace = (rect.width * rect.height) - (pieceWCut * pieceHCut);
+                        
+                        if (wastedSpace < minWastedSpace) {
+                            minWastedSpace = wastedSpace;
+                            bestPieceForRect = piece;
+                            bestOrientation = orient;
+                        }
+                    }
+                }
+            }
+
+            if (!bestPieceForRect) {
+                return [];
+            }
+
+            const placedPieceW = bestOrientation.w;
+            const placedPieceH = bestOrientation.h;
+            const placedRotated = bestOrientation.rotated;
+
+            placedItems.push({
+                id: bestPieceForRect.id,
+                originalWidth1: bestPieceForRect.width1, 
+                originalWidth2: bestPieceForRect.width2,
+                originalHeight: bestPieceForRect.height,
+                width: placedPieceW, 
+                height: placedPieceH,
+                x: rect.x,
+                y: rect.y,
+                rotated: placedRotated 
+            });
+            bestPieceForRect.placed = true; 
+            unplacedPiecesCount--;
+            
+            const nextToPieceH = {
+                x: rect.x + placedPieceW + cuttingAllowance,
+                y: rect.y,
+                width: rect.width - (placedPieceW + cuttingAllowance),
+                height: placedPieceH + cuttingAllowance 
+            };
+
+            const belowPieceV = {
+                x: rect.x,
+                y: rect.y + placedPieceH + cuttingAllowance,
+                width: rect.width, 
+                height: rect.height - (placedPieceH + cuttingAllowance)
+            };
+            
+            if (belowPieceV.width > 0 && belowPieceV.height > 0) {
+                placedItems.push(...guillotineRecursivePlace(belowPieceV, currentPieces));
+            }
+            if (nextToPieceH.width > 0 && nextToPieceH.height > 0) {
+                placedItems.push(...guillotineRecursivePlace(nextToPieceH, currentPieces));
+            }
+
+            return placedItems;
+        }
+
+
+        for (const sheet of availableSheets) {
+            if (unplacedPiecesCount === 0) break;
+
+            const sheetRect = { x: 0, y: 0, width: sheet.width, height: sheet.height };
+            
+            const piecesPlacedInThisSheet = guillotineRecursivePlace(sheetRect, piecesToPlace);
+
+            if (piecesPlacedInThisSheet.length > 0) {
+                const usedArea = piecesPlacedInThisSheet.reduce((sum, p) => {
+                    return sum + p.width * p.height; 
+                }, 0);
+                const totalArea = sheet.width * sheet.height;
+                const utilization = (totalArea > 0) ? (usedArea / totalArea) * 100 : 0;
+
+                usedSheetsData.push({
+                    width: sheet.width,
+                    height: sheet.height,
+                    pieces: piecesPlacedInThisSheet,
+                    utilization: utilization,
+                    originalSheetId: sheet.originalId
+                });
+            }
+        }
+
+        if (unplacedPiecesCount > 0) {
+          const remainingPiecesMap = {};
+          piecesToPlace.forEach(p => {
+            if (!p.placed) {
+              const key = getPieceDimensionString(p.width1, p.width2, p.height);
+              remainingPiecesMap[key] = (remainingPiecesMap[key] || 0) + 1;
+            }
+          });
+
+          let remainingMessage = 'Las siguientes piezas no pudieron ser colocadas:\n';
+          for (const key in remainingPiecesMap) {
+            remainingMessage += `- ${key}: ${remainingPiecesMap[key]} unidad(es)\n`;
+          }
+          alert(`¡Atención! Quedan piezas sin colocar. No hay chapas suficientes o de tamaño adecuado.\n\n${remainingMessage}`);
+        }
+
+        return usedSheetsData;
+      }
+
+
+      // --- Funciones de Dibujo en SVG (Texto sin escalado manual) ---
+
+      function drawSheetOnSVG(sheetData, sheetIndex) {
+        const sheetOriginalWidth = sheetData.width;
+        const sheetOriginalHeight = sheetData.height;
+
+        let displaySheetWidth = sheetOriginalWidth;
+        let displaySheetHeight = sheetOriginalHeight;
+        let sheetRotatedInDisplay = false;
+
+        // Decidir si rotar la chapa 90 grados para que el lado más largo sea el ancho
+        if (sheetOriginalWidth < sheetOriginalHeight) {
+            displaySheetWidth = sheetOriginalHeight;
+            displaySheetHeight = sheetOriginalWidth;
+            sheetRotatedInDisplay = true;
+        }
+
+        // Márgenes en unidades de MM para dejar espacio al dibujo de las cotas y el texto
+        const marginForArrows = 140; 
+        const textSpaceTop = 60; 
+        
+        // Dimensiones totales del viewBox (en MM)
+        const viewBoxWidth = displaySheetWidth + marginForArrows + 10;
+        const viewBoxHeight = displaySheetHeight + marginForArrows + textSpaceTop + 10;
+        
+        // Offset de dibujo para posicionar la chapa dentro del viewBox
+        const drawOffsetX = marginForArrows;
+        const drawOffsetY = textSpaceTop + marginForArrows;
+
+        let svgContent = '';
+
+        // Contenedor principal de la chapa
+        svgContent += `<rect x="${drawOffsetX}" y="${drawOffsetY}" width="${displaySheetWidth}" height="${displaySheetHeight}" 
+                        fill="#f0f0f0" stroke="#2c3e50" stroke-width="2" />`;
+
+        // Dibujar las piezas colocadas
+        sheetData.pieces.forEach(piece => {
+            let pieceDisplayX, pieceDisplayY, pieceDisplayW, pieceDisplayH;
+
+            if (sheetRotatedInDisplay) {
+                // Si la chapa se giró para la visualización, las coordenadas y dimensiones de la pieza deben girarse
+                // Las X originales se mapean al ALTO del display, las Y originales al ANCHO del display (invertido)
+                pieceDisplayX = drawOffsetX + piece.y; 
+                pieceDisplayY = drawOffsetY + (sheetOriginalWidth - (piece.x + piece.width)); // Nuevo Y = Max_W_Original - (X_Original + W_Pieza_Original)
+                pieceDisplayW = piece.height; // Nuevo ancho = Alto original de la pieza
+                pieceDisplayH = piece.width;  // Nuevo alto = Ancho original de la pieza
+            } else {
+                pieceDisplayX = drawOffsetX + piece.x;
+                pieceDisplayY = drawOffsetY + piece.y;
+                pieceDisplayW = piece.width;
+                pieceDisplayH = piece.height;
+            }
+
+            const pieceColor = getColorForPiece(piece.originalWidth1, piece.originalWidth2, piece.originalHeight);
+            const pieceText = getPieceDimensionString(piece.originalWidth1, piece.originalWidth2, piece.originalHeight);
+
+            // 1. Dibujar el rectángulo envolvente
+            svgContent += `<rect x="${pieceDisplayX}" y="${pieceDisplayY}" width="${pieceDisplayW}" height="${pieceDisplayH}" 
+                            fill="${pieceColor}" stroke="#27ae60" stroke-width="1"
+                            data-piece-dims="${pieceText}" data-original-x="${piece.x}" data-original-y="${piece.y}" />`;
+
+            // 2. Dibujar las marcas de corte (separación de 3mm)
+            const cuttingColor = '#c0392b';
+            
+            // Corte vertical a la derecha
+            if (pieceDisplayX + pieceDisplayW + cuttingAllowance <= drawOffsetX + displaySheetWidth + 0.1) {
+                svgContent += `<rect x="${pieceDisplayX + pieceDisplayW}" y="${pieceDisplayY}" width="${cuttingAllowance}" height="${pieceDisplayH + cuttingAllowance}" fill="${cuttingColor}" opacity="0.7" />`;
+            }
+
+            // Corte horizontal debajo
+            if (pieceDisplayY + pieceDisplayH + cuttingAllowance <= drawOffsetY + displaySheetHeight + 0.1) {
+                svgContent += `<rect x="${pieceDisplayX}" y="${pieceDisplayY + pieceDisplayH}" width="${pieceDisplayW + cuttingAllowance}" height="${cuttingAllowance}" fill="${cuttingColor}" opacity="0.7" />`;
+            }
+            
+            // 3. Dibujar las medidas de la pieza (Texto de recorte)
+            const textX = pieceDisplayX + pieceDisplayW / 2;
+            const textY = pieceDisplayY + pieceDisplayH / 2;
+            
+            // ESCALA FIJA (initialPieceTextScale = 3.0 para 300%)
+            let pieceFontSize = defaultTextSizeMM * initialPieceTextScale; 
+            
+            let transform = '';
+            let constraintW = pieceDisplayW;
+            let constraintH = pieceDisplayH;
+            
+            // Decidir si rotar el texto para que quepa mejor (si el alto es mucho mayor que el ancho)
+            const shouldRotateText = pieceDisplayH > pieceDisplayW * 1.2;
+
+            if (shouldRotateText) {
+                transform = `transform="rotate(-90 ${textX} ${textY})"`;
+                // Invertir restricciones de tamaño: la altura del texto (font size) se limita por el ANCHO de la pieza.
+                constraintW = pieceDisplayH; 
+                constraintH = pieceDisplayW; 
+            }
+            
+            // 1. Límite de altura del texto (font size)
+            pieceFontSize = Math.min(pieceFontSize, constraintH * 0.9);
+            
+            // 2. Límite de ancho del texto (basado en la heurística)
+            const estimatedWidthBasedOnTextLength = pieceText.length * (pieceFontSize / 2); 
+
+            if (estimatedWidthBasedOnTextLength > constraintW * 0.9) {
+                pieceFontSize *= (constraintW * 0.9) / estimatedWidthBasedOnTextLength;
+            }
+
+            // Aplicar tamaño mínimo (después de todos los ajustes).
+            pieceFontSize = Math.max(10, pieceFontSize); 
+
+            
+            svgContent += `<text x="${textX}" y="${textY}" font-family="Arial" font-size="${pieceFontSize}" 
+                            fill="#000" text-anchor="middle" dominant-baseline="middle" ${transform}>
+                            ${pieceText}
+                        </text>`;
+        });
+
+
+        // --- Dibuja las medidas de la chapa en el borde con flechas (Cotas) ---
+        const arrowLength = 5; 
+        const arrowOffset = 5; 
+        const textOffset = 8; 
+        const lineColor = '#000000';
+        const strokeWidth = 1;
+        const dimensionFontSize = dimensionFontSizeMM; // 90
+
+        
+        function drawArrowHead(x, y, angle) {
+            return `
+                <line x1="${x}" y1="${y}" x2="${x + Math.cos(angle - Math.PI/6) * arrowLength}" y2="${y + Math.sin(angle - Math.PI/6) * arrowLength}" stroke="${lineColor}" stroke-width="${strokeWidth}"/>
+                <line x1="${x}" y1="${y}" x2="${x + Math.cos(angle + Math.PI/6) * arrowLength}" y2="${y + Math.sin(angle + Math.PI/6) * arrowLength}" stroke="${lineColor}" stroke-width="${strokeWidth}"/>
+            `;
+        }
+        function drawExtensionLine(x1, y1, x2, y2) {
+             return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${lineColor}" stroke-width="${strokeWidth * 0.5}"/>`;
+        }
+
+
+        // Medida del ancho de la chapa (horizontal, encima)
+        const startX = drawOffsetX;
+        const endX = drawOffsetX + displaySheetWidth;
+        const lineY = drawOffsetY - arrowOffset - arrowLength / 2;
+        const textY = lineY - textOffset; 
+
+        svgContent += drawExtensionLine(startX, drawOffsetY, startX, lineY - arrowLength);
+        svgContent += drawExtensionLine(endX, drawOffsetY, endX, lineY - arrowLength);
+        
+        svgContent += `<line x1="${startX}" y1="${lineY}" x2="${endX}" y2="${lineY}" stroke="${lineColor}" stroke-width="${strokeWidth}"/>`;
+        
+        svgContent += drawArrowHead(startX, lineY, Math.PI); 
+        svgContent += drawArrowHead(endX, lineY, 0); 
+
+        svgContent += `<text x="${startX + displaySheetWidth / 2}" y="${textY}" font-family="Arial" font-size="${dimensionFontSize}" 
+                        fill="#000" text-anchor="middle" dominant-baseline="auto">
+                        ${displaySheetWidth} mm
+                      </text>`;
+
+        // Medida del alto de la chapa (vertical, izquierda)
+        const startY = drawOffsetY;
+        const endY = drawOffsetY + displaySheetHeight;
+        const lineX = drawOffsetX - arrowOffset - arrowLength / 2;
+        const textX = lineX - textOffset; 
+
+        svgContent += drawExtensionLine(drawOffsetX, startY, lineX - arrowLength, startY);
+        svgContent += drawExtensionLine(drawOffsetX, endY, lineX - arrowLength, endY);
+        
+        svgContent += `<line x1="${lineX}" y1="${startY}" x2="${lineX}" y2="${endY}" stroke="${lineColor}" stroke-width="${strokeWidth}"/>`;
+        
+        svgContent += drawArrowHead(lineX, startY, -Math.PI / 2); 
+        svgContent += drawArrowHead(lineX, endY, Math.PI / 2); 
+
+        svgContent += `<text x="${textX}" y="${startY + displaySheetHeight / 2}" font-family="Arial" font-size="${dimensionFontSize}" 
+                        fill="#000" text-anchor="middle" dominant-baseline="auto" transform="rotate(-90, ${textX}, ${startY + displaySheetHeight / 2})">
+                        ${displaySheetHeight} mm
+                      </text>`;
+        
+        // Información de la chapa y aprovechamiento (Texto superior, escalado)
+        const wastePct = (100 - sheetData.utilization).toFixed(1);
+        const utilPct = sheetData.utilization.toFixed(1);
+        const infoFontSize = infoFontSizeMM; // 50
+
+        svgContent += `<text x="${drawOffsetX}" y="${textSpaceTop / 2}" font-family="Arial" font-size="${infoFontSize}" 
+                        fill="#333" text-anchor="start" dominant-baseline="middle">
+                        Chapa ${sheetIndex + 1} (${sheetOriginalWidth}x${sheetOriginalHeight} mm) - Aprovechamiento: ${utilPct}% - Desperdicio: ${wastePct}%
+                      </text>`;
+
+        // Envolver el contenido en el tag SVG
+        // **IMPORTANTE**: Devolvemos el contenido con el viewBox (sin el tag <svg>) para la combinación
+        return {
+            svgContent: svgContent,
+            viewBoxWidth: viewBoxWidth,
+            viewBoxHeight: viewBoxHeight
+        };
+      }
+
+      function createLegendHTML(sheetData) {
+          // Crear la leyenda para esta chapa
+          let legendHTML = '<div class="legend"><strong>Leyenda de Piezas:</strong>';
+
+          const uniquePieces = {};
+          sheetData.pieces.forEach(piece => {
+              const key = getPieceDimensionString(piece.originalWidth1, piece.originalWidth2, piece.originalHeight); 
+              if (!uniquePieces[key]) {
+                  uniquePieces[key] = {
+                      color: getColorForPiece(piece.originalWidth1, piece.originalWidth2, piece.originalHeight),
+                      dimensions: key
+                  };
+              }
+          });
+
+          for (const key in uniquePieces) {
+              // La estructura se mantiene, pero el CSS ahora las agrupa
+              legendHTML += `
+                  <div class="legend-item" data-piece-key="${key}">
+                      <div class="legend-color-box" style="background-color: ${uniquePieces[key].color};"></div>
+                      <span>${uniquePieces[key].dimensions}</span>
+                  </div>
+              `; 
+          }
+          legendHTML += '</div>';
+          return legendHTML;
+      }
+
+
+      function drawResult(sheetsUsed) {
+        resultsContainer.innerHTML = ''; 
+        lastOptimizedSheetsData = sheetsUsed; 
+
+        if (sheetsUsed.length === 0) {
+          resultInfo.textContent = 'No se utilizaron chapas para el corte.';
+          return;
+        }
+
+        sheetsUsed.forEach((sheet, idx) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'canvas-wrapper';
+          
+          const svgData = drawSheetOnSVG(sheet, idx); 
+          const svgString = `<svg id="svg_sheet_${idx}" width="100%" height="auto" viewBox="0 0 ${svgData.viewBoxWidth} ${svgData.viewBoxHeight}" 
+                                   style="max-width: 100%; height: auto;">${svgData.svgContent}</svg>`;
+
+          wrapper.innerHTML += svgString; 
+
+          const legendHTML = createLegendHTML(sheet);
+          wrapper.innerHTML += legendHTML;
+
+          const exportIndividualBtn = document.createElement('button');
+          exportIndividualBtn.className = 'export-individual-btn';
+          exportIndividualBtn.textContent = 'Exportar esta chapa';
+          exportIndividualBtn.dataset.svgId = `svg_sheet_${idx}`; 
+          exportIndividualBtn.dataset.sheetWidth = sheet.width; 
+          exportIndividualBtn.dataset.sheetHeight = sheet.height; 
+          wrapper.appendChild(exportIndividualBtn);
+
+          resultsContainer.appendChild(wrapper);
+        });
+
+        resultInfo.textContent = `Se utilizaron ${sheetsUsed.length} chapa(s) en la optimización.`;
+      }
+      
+      // --- Función NUEVA para combinar todos los SVGs ---
+      function combineAndExportAllSVGs() {
+          if (lastOptimizedSheetsData.length === 0) {
+              alert('Primero realiza una optimización para generar gráficos a exportar.');
+              return;
+          }
+
+          let combinedSVGContent = '';
+          let currentY = 0;
+          let maxViewBoxWidth = 0;
+          const spacing = 150; // Espacio entre chapas en el SVG combinado (en unidades de MM)
+
+          lastOptimizedSheetsData.forEach((sheet, idx) => {
+              const sheetData = drawSheetOnSVG(sheet, idx);
+              const viewBoxWidth = sheetData.viewBoxWidth;
+              const viewBoxHeight = sheetData.viewBoxHeight;
+              
+              // 1. Calcular el ancho máximo
+              maxViewBoxWidth = Math.max(maxViewBoxWidth, viewBoxWidth);
+
+              // 2. Mover el contenido de esta chapa al siguiente nivel Y
+              // Utilizamos un <g> (grupo) para mover el contenido.
+              const movedContent = `<g transform="translate(0, ${currentY})">${sheetData.svgContent}</g>`;
+              combinedSVGContent += movedContent;
+
+              // 3. Actualizar la posición Y para el próximo gráfico
+              currentY += viewBoxHeight + spacing;
+          });
+
+          // Determinar el viewBox final
+          const finalViewBox = `0 0 ${maxViewBoxWidth} ${currentY > 0 ? currentY - spacing : 0}`;
+          
+          let finalSVG = `
+              <svg xmlns="http://www.w3.org/2000/svg" 
+                   xmlns:xlink="http://www.w3.org/1999/xlink" 
+                   width="100%" height="auto" 
+                   viewBox="${finalViewBox}">
+                  <style>
+                      /* Replicar estilos necesarios para el SVG externo */
+                      .legend { display: none; } /* La leyenda es HTML, se oculta aquí */
+                  </style>
+                  ${combinedSVGContent}
+              </svg>
+          `;
+
+          // Generar la descarga
+          const blob = new Blob([finalSVG], { type: 'image/svg+xml;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          
+          link.download = `corte_chapas_combinado_${lastOptimizedSheetsData.length}_hojas.svg`;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click(); 
+          
+          setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+          }, 100);
+      }
+      
+      
+      // --- Eventos (CORREGIDOS/MODIFICADOS) ---
+      
+      // Event listener centralizado para botones de lista y botones de texto
+      document.addEventListener('click', (event) => {
+        
+        // 1. Botones de Eliminar/Añadir/Quitar (Hoja/Pieza)
+        if (event.target.classList.contains('remove-one-btn') || 
+            event.target.classList.contains('add-one-btn') ||
+            event.target.classList.contains('remove-all-btn')) 
+        {
+            const type = event.target.dataset.type;
+            // datasetKey está obsoleto, usando dataset.key
+            const key = event.target.dataset.key; 
+
+            let action;
+            if (event.target.classList.contains('add-one-btn')) {
+                action = 'add';
+            } else if (event.target.classList.contains('remove-one-btn')) {
+                action = 'remove';
+            } else if (event.target.classList.contains('remove-all-btn')) {
+                action = 'removeAll';
+            }
+            
+            if (action) {
+                adjustList(type, key, action);
+            }
+        }
+        
+        // 2. Botones de Exportación Individual
+        if (event.target.classList.contains('export-individual-btn')) {
+            const svgId = event.target.dataset.svgId;
+            const sheetWidth = event.target.dataset.sheetWidth;
+            const sheetHeight = event.target.dataset.sheetHeight;
+            exportSVG(svgId, sheetWidth, sheetHeight);
+        }
+      });
+
+
+      // Evento de Optimizar (sin cambios)
+      optimizeBtn.onclick = () => {
+        pieces.forEach(p => p.placed = false); 
+        
+        let usedSheets = [];
+        const selectedOptimizationType = document.querySelector('input[name="optimizationType"]:checked').value;
+
+        if (selectedOptimizationType === 'standard') {
+            usedSheets = optimizeStandard();
+        } else { 
+            usedSheets = optimizeGuillotine();
+        }
+        
+        drawResult(usedSheets);
+      };
+
+      // --- Función para exportar un SVG específico (sin cambios) ---
+      function exportSVG(svgId, sheetWidth, sheetHeight) {
+          const svgElement = document.getElementById(svgId);
+          if (svgElement) {
+              let svgData = new XMLSerializer().serializeToString(svgElement);
+              
+              if (!svgData.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+                  svgData = svgData.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+              }
+              if (!svgData.startsWith('<?xml')) {
+                  svgData = '<?xml version="1.0" standalone="no"?>\r\n' + svgData;
+              }
+
+              const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              
+              link.download = `corte_chapa_${svgId.replace('svg_sheet_', '')}_${sheetWidth}x${sheetHeight}.svg`;
+              link.href = url;
+              document.body.appendChild(link);
+              // Usamos un pequeño timeout para dar tiempo a que el navegador gestione la descarga
+              // sin que el cleanup interfiera, aunque LocalStorage es la solución principal.
+              link.click(); 
+              
+              setTimeout(() => {
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+              }, 100);
+
+          } else {
+              alert(`No se encontró el SVG con ID: ${svgId}`);
+          }
+      }
+
+
+      // --- Evento de Exportar Todos los Gráficos (MODIFICADO) ---
+      exportAllBtn.onclick = () => {
+        // En lugar de exportar individualmente, llamamos a la función de combinación.
+        combineAndExportAllSVGs();
+      };
+
+
+      // Sincronizar Ancho 2 con Ancho 1 (sin cambios)
+      pieceWidth1Input.addEventListener('input', () => {
+        pieceWidth2Input.value = pieceWidth1Input.value;
+      });
+
+
+      // --- Inicialización: Añadir chapas por defecto y actualizar listas al cargar la página ---
+      document.addEventListener('DOMContentLoaded', () => {
+        // 1. Intentar cargar estado guardado
+        const loaded = loadState(); 
+
+        // 2. Si no se pudo cargar, inicializar con valores por defecto
+        if (!loaded) {
+            const defaultSheetWidth = parseInt(sheetWidthInput.value);
+            const defaultSheetHeight = parseInt(sheetHeightInput.value);
+            const defaultSheetQty = parseInt(sheetQtyInput.value);
+
+            sheets.length = 0; 
+            for(let i = 0; i < defaultSheetQty; i++) {
+              sheets.push({ id: generateId(), width: defaultSheetWidth, height: defaultSheetHeight });
+            }
+            updateSheetList();
+            updatePieceList(); // Inicialmente vacía, pero actualiza el DOM
+            
+            resultInfo.textContent = 'Añada chapas y piezas, luego haga clic en "Optimizar Corte".';
+        }
+      });
+    </script>
+
+
+</body>
+</html>

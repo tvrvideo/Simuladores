@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title id="mainTitle">Diseño Reja</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 10px;
+    background: #f0f0f0;
+    text-align: center;
+    color: #012F7B;
+    font-size: 22px;
+  }
+  .controls-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 15px 10px;
+    background: #f0f0f0;
+    border-radius: 12px;
+  }
+
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0; 
+  }
+
+  label {
+    
+    display: block;
+    width: auto;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #444;
+    margin-bottom: 5px; 
+    text-align: center;
+    white-space: nowrap; 
+  }
+
+  input[type=number] {
+    font-size: 1.4rem;
+    width: 70px;
+    padding: 10px;
+    margin-bottom: 0;
+    border-radius: 8px; 
+    border: 3px solid #c0c0c0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); 
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+  }
+
+  input[type=number]:focus {
+    border-color: #007bff;
+    box-shadow: inset 0 2px 4px rgba(0,123,255,0.2), 0 0 8px rgba(0,123,255,0.6);
+    outline: none;
+  }
+
+  #color-buttons {
+    margin: 15px 0 20px;
+  }
+  #color-buttons button {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #444;
+    margin: 0 6px 8px 6px;
+    cursor: pointer;
+    border-radius: 6px; 
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  #color-buttons button.selected {
+    border: 3px solid #007bff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.4);
+  }
+
+  .action-buttons-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px; 
+    margin-top: 20px;
+    margin-bottom: 25px;
+    padding: 15px 0;
+  }
+  .action-buttons-container button {
+    font-size: 0.95rem;
+    padding: 12px 20px;
+    border-radius: 10px; 
+    cursor: pointer;
+    border: none;
+    background: #012F7B;
+    color: white;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .action-buttons-container button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 15px rgba(0,123,255,0.5);
+    transform: translateY(-2px);
+  }
+  
+  /* Estilo para el botón 'Forzar tubo central' */
+  #forceCenterTubeBtn {
+    background: #ffc107;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(255,193,7,0.4);
+  }
+  #forceCenterTubeBtn:hover {
+    background: #e0a800;
+    box-shadow: 0 6px 15px rgba(255,193,7,0.6);
+  }
+
+  canvas {
+    background: white;
+    border: 1px solid #999;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  }
+
+  /* Estilos de información */
+  #info {
+    margin-top: 25px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2c3e50;
+    padding: 12px;
+    background: #e9f2fb;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  #info strong {
+    color: #007bff;
+  }
+  #tube-positions-info {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #555;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    text-align: left;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  #tube-positions-info h4 {
+    margin-top: 0;
+    color: #007bff;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  #tube-positions-info ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0;
+  }
+  #tube-positions-info li {
+    margin-bottom: 4px;
+  }
+
+
+
+/* FIX para evitar reglas generales de button */
+
+
+/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+.btn-menu { 
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  z-index: 9999; 
+  padding: 10px 15px; 
+  border-radius: 20px; 
+  border: none; 
+  background: #e74c3c; 
+  color: white; 
+  font-weight: bold; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;      /* evita estilos globales */
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* --- EXPORT PNG (vista separada) --- */
+.export-card{
+  max-width: 520px;
+  margin: 0 auto;
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 16px 14px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  border: 1px solid #d0d0d0;
+  box-sizing: border-box;
+}
+.export-title{
+  margin: 0 0 12px 0;
+  color: #012F7B;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.export-img{
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  background: white;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+}
+.export-hint{
+  margin: 10px 0 0;
+  color: #555;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.export-back-btn{
+  margin-top: 14px;
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  background: #012F7B;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.export-back-btn:active{ transform: translateY(2px); }
+
+/* Botón Exportar PNG (verde) */
+.action-buttons-container .btn-export{
+  background: #34A853;
+  box-shadow: 0 4px 10px rgba(52,168,83,0.35);
+}
+.action-buttons-container .btn-export:hover{
+  background: #2c8f47;
+  box-shadow: 0 6px 15px rgba(52,168,83,0.55);
+}
+</style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json"></head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+<div id="vista-diseno">
+
+
+
+
+
+<h1 id="mainHeading">Diseño Reja</h1>
+
+<div class="controls-container">
+  <div class="input-group">
+    <label for="anchoInput">Ancho:</label>
+    <input type="number" id="anchoInput" value="1000" placeholder="Ej: 1000">
+  </div>
+  <div class="input-group">
+    <label for="altoInput">Alto:</label>
+    <input type="number" id="altoInput" value="1200" placeholder="Ej: 1200">
+  </div>
+  <div class="input-group">
+    <label for="grosorInput">Grosor:</label>
+    <input type="number" id="grosorInput" value="20" placeholder="Ej: 20">
+  </div>
+  <div class="input-group" id="grosorLateralInputGroup" style="display: none;">
+    <label for="grosorLateralInput">Grosor tubos laterales:</label>
+    <input type="number" id="grosorLateralInput" value="70" placeholder="Ej: 70">
+  </div>
+</div>
+
+<div id="color-buttons" aria-label="Selector de colores"></div>
+
+<div class="action-buttons-container">
+  <button id="toggleMeasuresBtn">Ocultar medidas</button>
+  <button id="toggleCenterTubeBtn">Añadir travesaño horizontal</button>
+  <button id="toggleBalconModeBtn">Modo Balcón</button>
+  <button id="forceCenterTubeBtn" style="display: none;">Forzar tubo central</button>
+  <button id="btnExportPng" class="btn-export">Exportar PNG</button>
+
+</div>
+
+<canvas id="rejaCanvas" width="400" height="400"></canvas>
+
+<div id="info">Tubos: <strong>7</strong> | Hueco: <strong>103 mm</strong></div>
+<div id="tube-positions-info"><h4>Posición tubos desde exterior:</h4><ul><li>Tubo 1: 123 / 143</li><li>Tubo 2: 245 / 265</li><li>Tubo 3: 368 / 388</li><li>Tubo 4: 490 / 510</li><li>Tubo 5: 613 / 633</li><li>Tubo 6: 735 / 755</li><li>Tubo 7: 858 / 878</li></ul></div>
+
+</div>
+
+<div id="vista-exportar" style="display:none; padding:10px; text-align:center;">
+  <div class="export-card">
+    <h2 class="export-title">IMAGEN GENERADA</h2>
+    <img id="img-resultado" alt="PNG" class="export-img" />
+    <p class="export-hint">Mantén pulsada la imagen para guardarla</p>
+    <button type="button" class="export-back-btn" id="btnBackDesign">← VOLVER AL DISEÑO</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('rejaCanvas');
+  const ctx = canvas.getContext('2d');
+  const anchoInput = document.getElementById('anchoInput');
+  const altoInput = document.getElementById('altoInput');
+  const grosorInput = document.getElementById('grosorInput');
+  const grosorLateralInput = document.getElementById('grosorLateralInput');
+  const grosorLateralInputGroup = document.getElementById('grosorLateralInputGroup');
+  const colorButtonsDiv = document.getElementById('color-buttons');
+  const toggleMeasuresBtn = document.getElementById('toggleMeasuresBtn');
+  const toggleCenterTubeBtn = document.getElementById('toggleCenterTubeBtn');
+  const toggleBalconModeBtn = document.getElementById('toggleBalconModeBtn');
+  const forceCenterTubeBtn = document.getElementById('forceCenterTubeBtn');
+  const infoDiv = document.getElementById('info');
+  const tubePositionsInfoDiv = document.getElementById('tube-positions-info');
+  const mainTitle = document.getElementById('mainTitle');
+  const mainHeading = document.getElementById('mainHeading');
+
+  const colors = [
+    { name: 'Blanco', value: '#FFFFFF' },
+    { name: 'Negro', value: '#000000' },
+    { name: 'Antracita', value: '#36454F' },
+    { name: 'Gris Claro', value: '#BEBEBE' },
+    { name: 'Verde Claro', value: '#90EE90' },
+    { name: 'Verde Medio', value: '#4CAF50' },
+    { name: 'Verde Oscuro', value: '#0B3D0B' },
+    { name: 'Azul', value: '#0047AB' },
+    { name: 'Marrón Oscuro', value: '#5C4033' },
+    { name: 'Marrón Claro', value: '#A67B5B' },
+    { name: 'Rojo', value: '#B22222' },
+    { name: 'Naranja', value: '#FF8C00' },
+    { name: 'Amarillo', value: '#FFD700' },
+    { name: 'Azul Claro', value: '#87CEEB' }
+  ];
+
+  let selectedColor = colors[0].value;
+
+  let showMeasures = true;
+  let showCenterTube = false;
+  let balconMode = false;
+  let forceCenterTube = false;
+  const BALCON_OVERHANG = 100;
+  const REINFORCEMENT_WIDTH_THRESHOLD = 2500;
+
+  // Generar los botones de color
+  colors.forEach(({name, value}) => {
+    const btn = document.createElement('button');
+    btn.title = name;
+    btn.style.backgroundColor = value;
+    if(value === selectedColor) btn.classList.add('selected');
+    btn.addEventListener('click', () => {
+      selectedColor = value;
+      document.querySelectorAll('#color-buttons button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      draw();
+    });
+    colorButtonsDiv.appendChild(btn);
+  });
+
+  function drawDimensionArrow(x1, y1, x2, y2, text, vertical = false, textOffset = 0, textAbove = true) {
+    const arrowSize = 10;
+    ctx.strokeStyle = 'blue';
+    ctx.fillStyle = 'blue';
+    ctx.lineWidth = 2;
+    ctx.font = 'bold 16px Arial';
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    if (vertical) {
+      ctx.moveTo(x1 - arrowSize/2, y1 + arrowSize);
+      ctx.lineTo(x1, y1);
+      ctx.lineTo(x1 + arrowSize/2, y1 + arrowSize);
+      ctx.moveTo(x2 - arrowSize/2, y2 - arrowSize);
+      ctx.lineTo(x2, y2);
+      ctx.lineTo(x2 + arrowSize/2, y2 - arrowSize);
+    } else {
+      ctx.moveTo(x1 + arrowSize, y1 - arrowSize/2);
+      ctx.lineTo(x1, y1);
+      ctx.lineTo(x1 + arrowSize, y1 + arrowSize/2);
+      ctx.moveTo(x2 - arrowSize, y2 - arrowSize/2);
+      ctx.lineTo(x2, y2);
+      ctx.lineTo(x2 - arrowSize, y2 + arrowSize/2);
+    }
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if (vertical) {
+      ctx.translate(x1 + textOffset, (y1 + y2) / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.fillText(text.replace(' mm', ''), 0, 0);
+    } else {
+        const textY = textAbove ? y1 - 8 : y1 + 18;
+        ctx.fillText(text.replace(' mm', ''), (x1 + x2) / 2, textY);
+    }
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const ancho = Math.max(1, Number(anchoInput.value) || 1);
+    const alto = Math.max(1, Number(altoInput.value) || 1);
+    const grosor = Math.max(1, Number(grosorInput.value) || 1);
+    const grosorLateralBalcon = balconMode ? Math.max(1, Number(grosorLateralInput.value) || 1) : 0;
+
+    const marcoGrosorLateral = balconMode ? grosorLateralBalcon : 20;
+    const marcoGrosorSuperiorInferior = 20;
+
+    const totalAltoDibujo = balconMode ? alto + 2 * BALCON_OVERHANG : alto;
+
+    const margin = 80;
+    const scaleX = (canvas.width - 2 * margin) / Math.max(1, ancho);
+    const scaleY = (canvas.height - 2 * margin) / Math.max(1, totalAltoDibujo);
+    const scale = Math.min(scaleX, scaleY);
+
+    const startX = (canvas.width - ancho * scale) / 2;
+    const startY = (canvas.height - totalAltoDibujo * scale) / 2;
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = selectedColor;
+
+    // --- Dibujar la estructura de la reja/balcón ---
+
+    // Marco Superior
+    ctx.fillRect(startX, startY + (balconMode ? BALCON_OVERHANG : 0) * scale, ancho * scale, marcoGrosorSuperiorInferior * scale);
+    ctx.strokeRect(startX, startY + (balconMode ? BALCON_OVERHANG : 0) * scale, ancho * scale, marcoGrosorSuperiorInferior * scale);
+
+    // Marco Inferior
+    ctx.fillRect(startX, startY + (balconMode ? BALCON_OVERHANG + alto - marcoGrosorSuperiorInferior : alto - marcoGrosorSuperiorInferior) * scale, ancho * scale, marcoGrosorSuperiorInferior * scale);
+    ctx.strokeRect(startX, startY + (balconMode ? BALCON_OVERHANG + alto - marcoGrosorSuperiorInferior : alto - marcoGrosorSuperiorInferior) * scale, ancho * scale, marcoGrosorSuperiorInferior * scale);
+
+    // Tubos Laterales
+    ctx.fillRect(startX, startY, marcoGrosorLateral * scale, totalAltoDibujo * scale);
+    ctx.strokeRect(startX, startY, marcoGrosorLateral * scale, totalAltoDibujo * scale);
+
+    ctx.fillRect(startX + (ancho - marcoGrosorLateral) * scale, startY, marcoGrosorLateral * scale, totalAltoDibujo * scale);
+    ctx.strokeRect(startX + (ancho - marcoGrosorLateral) * scale, startY, marcoGrosorLateral * scale, totalAltoDibujo * scale);
+
+    let showCentralReinforcementTubeForDrawing = forceCenterTube || (balconMode && ancho >= REINFORCEMENT_WIDTH_THRESHOLD);
+    let centralReinforcementTubeX_mm = 0;
+    let centralReinforcementTubeW_mm = 0;
+
+    if (showCentralReinforcementTubeForDrawing) {
+        centralReinforcementTubeW_mm = grosorLateralBalcon;
+        centralReinforcementTubeX_mm = ancho / 2 - centralReinforcementTubeW_mm / 2;
+
+        ctx.fillRect(startX + centralReinforcementTubeX_mm * scale, startY, centralReinforcementTubeW_mm * scale, totalAltoDibujo * scale);
+        ctx.strokeRect(startX + centralReinforcementTubeX_mm * scale, startY, centralReinforcementTubeW_mm * scale, totalAltoDibujo * scale);
+    }
+
+    let huecosAnchosParaTubosVerticales = [];
+    if (showCentralReinforcementTubeForDrawing) {
+        huecosAnchosParaTubosVerticales.push(Math.max(0, (ancho / 2) - marcoGrosorLateral - (centralReinforcementTubeW_mm / 2)));
+        huecosAnchosParaTubosVerticales.push(Math.max(0, (ancho / 2) - marcoGrosorLateral - (centralReinforcementTubeW_mm / 2)));
+    } else {
+        huecosAnchosParaTubosVerticales.push(Math.max(0, ancho - 2 * marcoGrosorLateral));
+    }
+
+    let currentClearRectX = startX + marcoGrosorLateral * scale;
+    const clearRectY = startY + (balconMode ? BALCON_OVERHANG + marcoGrosorSuperiorInferior : marcoGrosorSuperiorInferior) * scale;
+    const clearRectH = Math.max(0, alto - 2 * marcoGrosorSuperiorInferior) * scale;
+
+    huecosAnchosParaTubosVerticales.forEach((huecoAnchoMM, index) => {
+        if (huecoAnchoMM > 0) {
+            ctx.clearRect(currentClearRectX, clearRectY, huecoAnchoMM * scale, clearRectH);
+            ctx.strokeRect(currentClearRectX, clearRectY, huecoAnchoMM * scale, clearRectH);
+        }
+        if (showCentralReinforcementTubeForDrawing && index === 0) {
+            currentClearRectX += huecoAnchoMM * scale + centralReinforcementTubeW_mm * scale;
+        } else {
+            currentClearRectX += huecoAnchoMM * scale;
+        }
+    });
+
+    const espacioMin = 100;
+    let totalNumTubos = 0;
+    let infoText = '';
+    const posicionesTubosMedidas = [];
+
+    let currentSectionStartX_mm_for_tubes = marcoGrosorLateral;
+
+    huecosAnchosParaTubosVerticales.forEach((sectionWidth_mm, sectionIndex) => {
+        let numTubosInSection = 0;
+        let espacioEntreTubosInSection = 0;
+
+        if (sectionWidth_mm >= grosor + (2 * espacioMin)) {
+            numTubosInSection = Math.floor((sectionWidth_mm - espacioMin) / (grosor + espacioMin));
+            numTubosInSection = Math.max(0, numTubosInSection);
+
+            if (numTubosInSection > 0) {
+                espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosor)) / (numTubosInSection + 1);
+                while (espacioEntreTubosInSection < espacioMin && numTubosInSection > 0) {
+                    numTubosInSection--;
+                    if (numTubosInSection === 0) {
+                        espacioEntreTubosInSection = sectionWidth_mm;
+                        break;
+                    }
+                    espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosor)) / (numTubosInSection + 1);
+                }
+            }
+        } else {
+            numTubosInSection = 0;
+            espacioEntreTubosInSection = sectionWidth_mm;
+        }
+
+        totalNumTubos += numTubosInSection;
+
+        if (numTubosInSection > 0) {
+            let posActualInternaSection = espacioEntreTubosInSection;
+            for (let i = 0; i < numTubosInSection; i++) {
+                const posicionInicioDesdeExterior = Math.round(currentSectionStartX_mm_for_tubes + posActualInternaSection);
+                const posicionFinDesdeExterior = Math.round(posicionInicioDesdeExterior + grosor);
+                posicionesTubosMedidas.push(`Tubo ${posicionesTubosMedidas.length + 1}: ${posicionInicioDesdeExterior} / ${posicionFinDesdeExterior}`);
+
+                const xDraw = startX + posicionInicioDesdeExterior * scale;
+                const wDraw = grosor * scale;
+
+                if (showCenterTube) {
+                    const centerTubeY_mm_inicio = alto / 2 - grosor / 2;
+                    const centerTubeY_scaled_start = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + centerTubeY_mm_inicio * scale;
+                    const hTravesano = grosor * scale;
+
+                    const yTopDraw = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + marcoGrosorSuperiorInferior * scale;
+                    const hTopDraw = (centerTubeY_mm_inicio - marcoGrosorSuperiorInferior) * scale;
+                    if (hTopDraw > 0) {
+                        ctx.fillRect(xDraw, yTopDraw, wDraw, hTopDraw);
+                        ctx.strokeRect(xDraw, yTopDraw, wDraw, hTopDraw);
+                    }
+
+                    const yBottomDraw = centerTubeY_scaled_start + hTravesano;
+                    const hBottomDraw = (alto - (centerTubeY_mm_inicio + grosor) - marcoGrosorSuperiorInferior) * scale;
+                    if (hBottomDraw > 0) {
+                        ctx.fillRect(xDraw, yBottomDraw, wDraw, hBottomDraw);
+                        ctx.strokeRect(xDraw, yBottomDraw, wDraw, hBottomDraw);
+                    }
+
+                } else {
+                    const yDraw = startY + (balconMode ? BALCON_OVERHANG + marcoGrosorSuperiorInferior : marcoGrosorSuperiorInferior) * scale;
+                    const hDraw = (alto - 2 * marcoGrosorSuperiorInferior) * scale;
+                    ctx.fillRect(xDraw, yDraw, wDraw, hDraw);
+                    ctx.strokeRect(xDraw, yDraw, wDraw, hDraw);
+                }
+
+                posActualInternaSection += grosor + espacioEntreTubosInSection;
+            }
+        }
+        currentSectionStartX_mm_for_tubes += sectionWidth_mm;
+        if (showCentralReinforcementTubeForDrawing && sectionIndex === 0) {
+            currentSectionStartX_mm_for_tubes += centralReinforcementTubeW_mm;
+        }
+    });
+
+    // Dibujar el travesaño horizontal si está activado
+    if (showCenterTube) {
+        const centerTubeY_mm_inicio = alto / 2 - grosor / 2;
+        const centerTubeY_scaled = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + centerTubeY_mm_inicio * scale;
+
+        let travesanoStartX = startX + marcoGrosorLateral * scale;
+        let travesanoWidth = (ancho - 2 * marcoGrosorLateral) * scale;
+
+        if (showCentralReinforcementTubeForDrawing) {
+            const centralReinforcementTubeX_scaled = startX + centralReinforcementTubeX_mm * scale;
+            const centralReinforcementTubeW_scaled = centralReinforcementTubeW_mm * scale;
+
+            ctx.fillRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosor * scale);
+            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosor * scale);
+
+            const rightSectionStartX = centralReinforcementTubeX_scaled + centralReinforcementTubeW_scaled;
+            ctx.fillRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosor * scale);
+            ctx.strokeRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosor * scale);
+        } else {
+            ctx.fillRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosor * scale);
+            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosor * scale);
+        }
+    }
+
+
+    // --- Mostrar Medidas ---
+    // NOTA: Se respeta la instrucción de recordar respetar los gráficos que indican las medidas con sus flechas
+    if(showMeasures){
+      // Medida de Ancho total
+      drawDimensionArrow(
+        startX,
+        startY - 20,
+        startX + ancho * scale,
+        startY - 20,
+        ancho + ' mm'
+      );
+      // Medida de Alto total (incluyendo el sobrepaso en modo balcón)
+      drawDimensionArrow(
+        startX - 20,
+        startY,
+        startX - 20,
+        startY + totalAltoDibujo * scale,
+        totalAltoDibujo + ' mm',
+        true,
+        -25
+      );
+
+      if (balconMode) {
+        // Medidas del sobrepaso y alto de la reja base en el lado derecho
+        ctx.strokeStyle = 'red';
+        ctx.fillStyle = 'red';
+        const rightArrowX = startX + ancho * scale + 20;
+
+        drawDimensionArrow(
+          rightArrowX,
+          startY,
+          rightArrowX,
+          startY + BALCON_OVERHANG * scale,
+          BALCON_OVERHANG + ' mm',
+          true,
+          25
+        );
+         drawDimensionArrow(
+          rightArrowX,
+          startY + (alto + BALCON_OVERHANG) * scale,
+          rightArrowX,
+          startY + totalAltoDibujo * scale,
+          BALCON_OVERHANG + ' mm',
+          true,
+          25
+        );
+        drawDimensionArrow(
+          rightArrowX,
+          startY + BALCON_OVERHANG * scale,
+          rightArrowX,
+          startY + (alto + BALCON_OVERHANG) * scale,
+          alto + ' mm',
+          true,
+          25
+        );
+
+        // Medidas de las divisiones cuando hay tubo central y modo balcón
+        if (showCentralReinforcementTubeForDrawing) {
+            ctx.strokeStyle = 'blue';
+            ctx.fillStyle = 'blue';
+            const yArrowPosition = startY + totalAltoDibujo * scale + 15;
+            
+            drawDimensionArrow(
+                startX,
+                yArrowPosition,
+                startX + centralReinforcementTubeX_mm * scale,
+                yArrowPosition,
+                Math.round(centralReinforcementTubeX_mm) + ' mm',
+                false, 0, false
+            );
+
+            drawDimensionArrow(
+                startX + (centralReinforcementTubeX_mm + centralReinforcementTubeW_mm) * scale,
+                yArrowPosition,
+                startX + ancho * scale,
+                yArrowPosition,
+                Math.round(ancho - (centralReinforcementTubeX_mm + centralReinforcementTubeW_mm)) + ' mm',
+                false, 0, false
+            );
+        }
+      }
+    }
+
+    // --- Actualizar Información de Tubos ---
+    if (totalNumTubos > 0) {
+        let displayEspacioEntreTubos = 0;
+        if (huecosAnchosParaTubosVerticales[0] >= grosor + (2 * espacioMin)) {
+            let tempNumTubos = Math.floor((huecosAnchosParaTubosVerticales[0] - espacioMin) / (grosor + espacioMin));
+            if (tempNumTubos > 0) {
+                 displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosor)) / (tempNumTubos + 1);
+                 while (displayEspacioEntreTubos < espacioMin && tempNumTubos > 0) {
+                    tempNumTubos--;
+                    if (tempNumTubos === 0) {
+                        displayEspacioEntreTubos = huecosAnchosParaTubosVerticales[0];
+                        break;
+                    }
+                    displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosor)) / (tempNumTubos + 1);
+                }
+            } else {
+                 displayEspacioEntreTubos = huecosAnchosParaTubosVerticales[0];
+            }
+        } else {
+             displayEspacioEntreTubos = huecosAnchosParaTubosVerticales[0];
+        }
+
+        infoText = `Tubos: <strong>${totalNumTubos}</strong> | Hueco: <strong>${Math.round(displayEspacioEntreTubos)} mm</strong>`;
+    } else {
+        const totalHuecoDisponible = huecosAnchosParaTubosVerticales.reduce((sum, current) => sum + current, 0);
+        infoText = `<strong>No caben tubos</strong> con la separación mínima. Hueco disponible: <strong>${Math.round(totalHuecoDisponible)} mm</strong>`;
+    }
+    infoDiv.innerHTML = infoText;
+
+    if (posicionesTubosMedidas.length > 0) {
+        let ulContent = '<h4>Posición tubos desde exterior:</h4><ul>';
+        posicionesTubosMedidas.forEach(pos => {
+            ulContent += `<li>${pos}</li>`;
+        });
+        ulContent += '</ul>';
+        tubePositionsInfoDiv.innerHTML = ulContent;
+    } else {
+        tubePositionsInfoDiv.innerHTML = '';
+    }
+    updateButtonVisibility();
+  }
+
+  function updateButtonVisibility() {
+      const ancho = Number(anchoInput.value) || 1;
+      const shouldShowForceTubeBtn = balconMode && ancho < REINFORCEMENT_WIDTH_THRESHOLD;
+      forceCenterTubeBtn.style.display = shouldShowForceTubeBtn ? 'inline-block' : 'none';
+
+      if (!shouldShowForceTubeBtn && forceCenterTube) {
+          forceCenterTube = false;
+          forceCenterTubeBtn.textContent = 'Forzar tubo central';
+      }
+      if (balconMode) {
+          mainTitle.textContent = 'Diseño Balcón';
+          mainHeading.textContent = 'Diseño Balcón';
+      } else {
+          mainTitle.textContent = 'Diseño Reja';
+          mainHeading.textContent = 'Diseño Reja';
+      }
+  }
+
+  [anchoInput, altoInput, grosorInput, grosorLateralInput].forEach(input => {
+    input.addEventListener('input', (event) => {
+        if (event.target === anchoInput) {
+            if (!balconMode && Number(anchoInput.value) >= REINFORCEMENT_WIDTH_THRESHOLD) {
+                balconMode = true;
+                toggleBalconModeBtn.textContent = 'Salir Modo Balcón';
+                grosorLateralInputGroup.style.display = 'block';
+            } else if (balconMode && Number(anchoInput.value) < REINFORCEMENT_WIDTH_THRESHOLD && !forceCenterTube) {
+                balconMode = false;
+                toggleBalconModeBtn.textContent = 'Modo Balcón';
+                grosorLateralInputGroup.style.display = 'none';
+            }
+        }
+        draw();
+    });
+    input.addEventListener('blur', () => {
+      if (isNaN(Number(input.value)) || Number(input.value) < 1) {
+          input.value = 1;
+      }
+      draw();
+    });
+  });
+
+  document.getElementById('toggleMeasuresBtn').addEventListener('click', () => {
+    showMeasures = !showMeasures;
+    document.getElementById('toggleMeasuresBtn').textContent = showMeasures ? 'Ocultar medidas' : 'Mostrar medidas';
+    draw();
+  });
+
+  document.getElementById('toggleCenterTubeBtn').addEventListener('click', () => {
+    showCenterTube = !showCenterTube;
+    document.getElementById('toggleCenterTubeBtn').textContent = showCenterTube ? 'Quitar travesaño horizontal' : 'Añadir travesaño horizontal';
+    draw();
+  });
+
+  document.getElementById('toggleBalconModeBtn').addEventListener('click', () => {
+    balconMode = !balconMode;
+    document.getElementById('toggleBalconModeBtn').textContent = balconMode ? 'Salir Modo Balcón' : 'Modo Balcón';
+    grosorLateralInputGroup.style.display = balconMode ? 'block' : 'none';
+    draw();
+  });
+
+  document.getElementById('forceCenterTubeBtn').addEventListener('click', () => {
+    forceCenterTube = !forceCenterTube;
+    forceCenterTubeBtn.textContent = forceCenterTube ? 'Desactivar forzado tubo central' : 'Forzar tubo central';
+    draw();
+  });
+
+
+  // --- EXPORTAR PNG ---
+  function exportarPNG(){
+    const srcCanvas = document.getElementById('rejaCanvas');
+    const imgOut = document.getElementById('img-resultado');
+    const vistaDiseno = document.getElementById('vista-diseno');
+    const vistaExport = document.getElementById('vista-exportar');
+
+    if(!srcCanvas || !imgOut || !vistaDiseno || !vistaExport){
+      alert('No se pudo generar la imagen.');
+      return;
+    }
+
+    // Crear canvas de salida con más calidad
+    const ratio = 2;
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = srcCanvas.width * ratio;
+    outCanvas.height = srcCanvas.height * ratio;
+
+    const octx = outCanvas.getContext('2d');
+    if(!octx){
+      alert('No se pudo generar la imagen.');
+      return;
+    }
+
+    // Fondo blanco
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+
+    // Dibujo escalado
+    octx.imageSmoothingEnabled = true;
+    octx.imageSmoothingQuality = 'high';
+    octx.drawImage(srcCanvas, 0, 0, outCanvas.width, outCanvas.height);
+
+    // Pasar a imagen
+    imgOut.src = outCanvas.toDataURL('image/png');
+
+    // Cambiar de vista
+    vistaDiseno.style.display = 'none';
+    vistaExport.style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  const btnExport = document.getElementById('btnExportPng');
+  const btnBack = document.getElementById('btnBackDesign');
+
+  if(btnExport) btnExport.addEventListener('click', exportarPNG, {passive:true});
+  if(btnBack) btnBack.addEventListener('click', () => {
+    document.getElementById('vista-exportar').style.display = 'none';
+    document.getElementById('vista-diseno').style.display = 'block';
+  }, {passive:true});
+
+  draw();
+
+})();
+</script>
+
+</body>
+</html>
