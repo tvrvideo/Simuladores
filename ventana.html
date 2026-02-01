@@ -314,6 +314,58 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+
+/* --- LAYOUT: CONTROLES CON SCROLL + VISTA FIJA ABAJO --- */
+html, body{
+  height: 100%;
+}
+body{
+  margin: 0;
+  padding: 0; /* el padding pasa al scrollArea */
+}
+
+/* Altura del contenedor fijo inferior (ajústalo si quieres más/menos) */
+:root{
+  --dock-height: 46vh;
+}
+
+#scrollArea{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--dock-height);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #f4f4f4;
+}
+
+/* Contenedor fijo del dibujo */
+#canvasDock{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dock-height);
+  padding: 10px;
+  box-sizing: border-box;
+  background: #f4f4f4;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ajuste del canvas dentro del dock */
+#canvasDock canvas{
+  display: block;
+  margin: 0 auto !important;
+  max-width: 100%;
+  height: auto !important;
+}
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -326,6 +378,8 @@ button {
 <body>
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+<div id="scrollArea">
 
 
 <h1>Diseño Ventana Pro V80</h1>
@@ -472,8 +526,16 @@ button {
         </div>
     </div>
 </div>
+</div>
 
+<div id="canvasDock">
 <canvas id="canvas" width="900" height="600" style="display: block; width: 100%; height: auto; margin: 20px auto; border: 2px solid #ccc; background: white;"></canvas>
+</div>
+
+
+
+
+
 
 
 <script>
