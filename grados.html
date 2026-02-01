@@ -269,7 +269,7 @@
         .calculated-values {
             width: 100%;
             max-width: 450px;
-            background-color: var(--background-paper);
+            background-color: #D4D4C4;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -342,13 +342,147 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;
             font-size: 0.9rem;
         }
+
+
+/* BOTÓN FIJAR (activar/desactivar vista fija abajo) */
+.btn-fijar{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #6b7280; /* gris (desactivado) */
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-fijar.active{ background: var(--primary-color); }
+
+/* --- LAYOUT FIJO (solo cuando está activado) --- */
+:root{ --dock-height: 46vh; }
+
+#scrollArea, #dockArea{ width: 100%; }
+
+body.dock-on{
+  margin: 0;
+  padding: 0;
+}
+
+/* Controles con scroll (zona superior) */
+body.dock-on #scrollArea{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--dock-height);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 40px 20px; /* igual que el body original */
+  box-sizing: border-box;
+  background-color: var(--background-light);
+}
+
+/* Vista fija inferior */
+body.dock-on #dockArea{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dock-height);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 20px 18px;
+  box-sizing: border-box;
+  background-color: var(--background-light);
+  border-top: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
+}
+
+/* Mantener el SVG adaptable dentro del dock */
+body.dock-on #dockArea svg{
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* Versión en el título (más pequeña) */
+h1{ white-space: nowrap; font-size: clamp(1.6em, 5vw, 2.2em); line-height: 1.1; }
+h1 .ver{
+  font-size: 0.55em;
+  font-weight: 700;
+  margin-left: 8px;
+  opacity: 0.75;
+}
+
+/* --- EXPORT PNG (vista separada) --- */
+#vista-exportar{ padding: 10px; text-align: center; }
+.export-card{
+  max-width: 520px;
+  margin: 70px auto 20px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 16px 14px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  border: 1px solid #d0d0d0;
+  box-sizing: border-box;
+}
+.export-title{
+  margin: 0 0 12px 0;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.export-img{
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  background: white;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+}
+.export-hint{
+  margin: 10px 0 0;
+  color: #555;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.export-back-btn{
+  margin-top: 14px;
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  background: var(--secondary-color);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.export-back-btn:active{ transform: translateY(2px); }
 </style>
 </head>
 <body>
 
+<div id="vista-diseno">
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
-    <h1>CORTE EN GRADOS</h1>
+
+    
+<div id="scrollArea"><h1>GRADOS DE CORTE <span class="ver">V10</span></h1>
 
     <div class="controls">
         
@@ -428,7 +562,9 @@
 
     </div>
 
-    <svg id="frameSVG" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet">
+    
+</div>
+<div id="dockArea"><svg id="frameSVG" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet">
         <defs>
             <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color: var(--glass-color); stop-opacity: 0.9" />
@@ -473,15 +609,13 @@
 </strong></p>
         <hr/>
 
-        <p>Corte Izq.: <strong><span id="calcCorteMI"></span>°</strong></p>
-
-        <p>Corte Dcho.: <strong><span id="calcCorteMD"></span>°</strong></p>
-
         <p>Corte Superior Izq): <strong><span id="calcCorteLSupI"></span>°</strong></p>
 
-
-
         <p>Corte Superior Dcho): <strong><span id="calcCorteLSupD"></span>°</strong></p>
+
+        <p>Corte inferior izquierdo: <strong><span id="calcCorteMI"></span>°</strong></p>
+
+        <p>Corte inferior derecho: <strong><span id="calcCorteMD"></span>°</strong></p>
         <hr/>
         <p style="background-color: #fce4e4; padding: 5px; border-radius: 5px;">
            Corte Sup. Montantes: 
@@ -492,7 +626,41 @@
         <p>Alto Máx. Montante: <strong><span id="calcAltoMaxMV"></span></strong></p>
     </div>
 
-    <script>
+    
+</div>
+</div>
+
+<!-- Vista de exportación PNG -->
+<div id="vista-exportar" style="display:none;">
+  <div class="export-card">
+    <h2 class="export-title">IMAGEN GENERADA</h2>
+    <img id="exportImg" alt="PNG" class="export-img">
+    <p class="export-hint">Mantén pulsada la imagen para guardarla</p>
+    <button type="button" class="export-back-btn" id="btnBackDesign">← VOLVER AL DISEÑO</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('btnFijar');
+  if(!btn) return;
+
+  function setDock(on){
+    document.body.classList.toggle('dock-on', on);
+    btn.classList.toggle('active', on);
+  }
+
+  // Por defecto: desactivado (gris)
+  setDock(false);
+
+  btn.addEventListener('click', () => {
+    const on = !btn.classList.contains('active');
+    setDock(on);
+  }, {passive:true});
+})();
+</script>
+
+<script>
         // INPUTS (se han simplificado, ya no hay gapListInput)
         const inputs = ['anchoInput', 'altoTotalInput', 'altoIzqInput', 'altoDchoInput', 'grosorPerfilInput', 'grosorMontanteInput']; 
         const colorInputs = ['colorMarcoInput', 'colorBordeExteriorInput', 'colorBordeInteriorInput', 'colorCristalInput'];
@@ -722,8 +890,8 @@
             const dimHidden = elements.dimensionesGroup.classList.contains('hidden');
             const angHidden = elements.gradosCorteGroup.classList.contains('hidden');
             
-            if (!dimHidden) elements.dimensionesGroup.classList.add('hidden');
-            if (!angHidden) elements.gradosCorteGroup.classList.add('hidden');
+            // (export) no ocultamos dimensiones
+            // (export) no ocultamos grados
 
             const svgElement = elements.frameSVG;
             
@@ -807,15 +975,16 @@
                 // 10. Generar el enlace de descarga (PNG Data URL)
                 const pngUrl = canvas.toDataURL('image/png'); 
                 
-                // 11. Método compatible con iOS: Abrir el PNG Data URL en una nueva pestaña
-                const win = window.open(pngUrl, '_blank');
-                if (win) {
-                    win.focus();
-                } else {
-                    alert('Por favor, permite ventanas emergentes para exportar la imagen.');
-                }
-                
-                // 12. Devolver la visibilidad a su estado original
+                // 11. Mostrar el PNG en la propia app (sin window.open)
+                const imgOut = document.getElementById('exportImg');
+                if (imgOut) imgOut.src = pngUrl;
+
+                const vistaDiseno = document.getElementById('vista-diseno');
+                const vistaExport = document.getElementById('vista-exportar');
+                if (vistaDiseno) vistaDiseno.style.display = 'none';
+                if (vistaExport) vistaExport.style.display = 'block';
+                window.scrollTo(0,0);
+// 12. Devolver la visibilidad a su estado original
                 if (!dimHidden) elements.dimensionesGroup.classList.remove('hidden');
                 if (!angHidden) elements.gradosCorteGroup.classList.remove('hidden');
             };
@@ -1127,8 +1296,8 @@
             }
             
             document.getElementById('calcAlpha').textContent = alphaRealDeg.toFixed(1); 
-            document.getElementById('calcCorteMI').textContent = corteMontanteIzqFinal.toFixed(1); 
-            document.getElementById('calcCorteMD').textContent = corteMontanteDchoFinal.toFixed(1); 
+            document.getElementById('calcCorteMI').textContent = (45).toFixed(1); 
+            document.getElementById('calcCorteMD').textContent = (45).toFixed(1); 
             document.getElementById('calcCorteLSupI').textContent = corteLSupIFinal.toFixed(1); 
             document.getElementById('calcCorteLSupD').textContent = corteLSupDFinal.toFixed(1); 
             
@@ -1189,6 +1358,18 @@
 
         // Listener para el nuevo botón de Exportar
         elements.exportImageButton.addEventListener('click', exportSVGAsImage);
+
+        // Botón para volver al diseño desde la vista de exportación
+        const btnBackDesign = document.getElementById('btnBackDesign');
+        if (btnBackDesign) {
+            btnBackDesign.addEventListener('click', () => {
+                const vistaDiseno = document.getElementById('vista-diseno');
+                const vistaExport = document.getElementById('vista-exportar');
+                if (vistaExport) vistaExport.style.display = 'none';
+                if (vistaDiseno) vistaDiseno.style.display = 'block';
+            }, {passive:true});
+        }
+
 
         // Inicialización
         updateHeightsFromSides(); 
