@@ -315,6 +315,33 @@ button {
 }
 
 
+
+/* BOTÓN FIJAR (activar/desactivar canvas fijo) */
+.btn-fijar{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #6b7280; /* gris (desactivado) */
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-fijar.active{
+  background: #e74c3c; /* rojo (activado) */
+}
+
+
 /* --- LAYOUT: CONTROLES CON SCROLL + VISTA FIJA ABAJO --- */
 html, body{
   height: 100%;
@@ -366,6 +393,34 @@ body{
   height: auto !important;
 }
 
+
+/* --- MODO NO FIJO (por defecto) --- */
+body.dock-off{
+  padding: 10px !important;
+}
+body.dock-off #scrollArea{
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+body.dock-off #canvasDock{
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -375,9 +430,11 @@ body{
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="manifest" href="manifest.json"></head>
-<body>
+<body class="dock-off">
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+<button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 <div id="scrollArea">
 
@@ -2987,4 +3044,29 @@ if (mostrarAltoTotalDer) {
         actualizarVista();
     }
 </script>
+
+<script>
+  (function(){
+    const btn = document.getElementById('btnFijar');
+    if(!btn) return;
+
+    function setDockEnabled(enabled){
+      document.body.classList.toggle('dock-off', !enabled);
+      btn.classList.toggle('active', enabled);
+    }
+
+    // Por defecto: DESACTIVADO (gris)
+    setDockEnabled(false);
+
+    btn.addEventListener('click', () => {
+      const enabled = !btn.classList.contains('active');
+      setDockEnabled(enabled);
+      if(enabled){
+        const dock = document.getElementById('canvasDock');
+        if(dock) dock.scrollIntoView({block:'end'});
+      }
+    }, {passive:true});
+  })();
+</script>
+
 </body></html>
