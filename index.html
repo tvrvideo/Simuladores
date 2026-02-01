@@ -23,13 +23,12 @@
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #d8cfc4; /* champán */
+            background: #d8cfc4;
             height: 100vh;
             overflow: hidden;
             color: #2b2b2b;
         }
 
-        /* BLOQUEO */
         #lock {
             position: fixed;
             inset: 0;
@@ -71,15 +70,14 @@
             border: none;
             font-size: 1em;
             font-weight: 700;
-            background: #e6c98a; /* dorado suave */
+            background: #e6c98a;
             color: #3a2a00;
         }
 
-        /* CABECERA */
         header {
             padding: 45px 20px 25px;
             text-align: center;
-            background: #2f343a; /* gris antracita */
+            background: #2f343a;
             color: #ffffff;
             border-bottom-left-radius: 22px;
             border-bottom-right-radius: 22px;
@@ -89,7 +87,6 @@
         header .titulo { font-size: 1.4em; font-weight: 700; }
         header .subtitulo { margin-top: 6px; font-size: 0.85em; opacity: 0.7; }
 
-        /* MENÚ */
         #menu {
             height: calc(100vh - 160px);
             padding: 24px;
@@ -104,7 +101,7 @@
             padding: 20px;
             border-radius: 16px;
             border: none;
-            background: #efe7da; /* beige suave */
+            background: #efe7da;
             color: #3b3328;
             display: flex;
             align-items: center;
@@ -185,6 +182,15 @@
         setTimeout(() => visor.src = url, 10);
         document.getElementById('cabecera').style.display = 'none';
         document.getElementById('menu').style.display = 'none';
+    }
+
+    // ÚNICA ADICIÓN PARA QUE LOS DEMOS FUNCIONEN
+    function volverMenu() {
+        const visor = document.getElementById('visor');
+        visor.src = 'about:blank';
+        visor.style.display = 'none';
+        document.getElementById('cabecera').style.display = 'block';
+        document.getElementById('menu').style.display = 'flex';
     }
 </script>
 
