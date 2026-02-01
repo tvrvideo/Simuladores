@@ -36,9 +36,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 48px;
-            box-sizing: border-box;
+            justify-content: center;
             color: #2b2b2b;
             z-index: 10000;
             text-align: center;
@@ -143,12 +141,12 @@
         }
     
         #lockLogo{
-            width: 190px;
-            max-width: 72vw;
+            width: 120px;
+            max-width: 55vw;
             height: auto;
-            margin-bottom: 22px;
-            border-radius: 22px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.20);
+            margin-bottom: 18px;
+            border-radius: 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
         }
 </style>
 </head>
@@ -222,6 +220,16 @@
         document.getElementById('cabecera').style.display = 'block';
         document.getElementById('menu').style.display = 'flex';
     }
+</script>
+
+
+<script>
+  // Service Worker (offline)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
 </script>
 
 </body>
