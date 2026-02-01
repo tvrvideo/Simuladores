@@ -204,11 +204,70 @@
       font-weight: 800;
     }
     #btnExportPng:active{ transform: translateY(2px); box-shadow: 0 3px 7px rgba(0,0,0,0.35); }
-    </style>
+    
+    /* --- LAYOUT: CONTROLES CON SCROLL + VISTA (SVG) FIJA ABAJO --- */
+    html, body { height: 100%; }
+    body {
+      padding: 0;               /* el padding pasa a #controls */
+    }
+
+    /* Controles: scroll */
+    #controls {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      /* deja hueco para el panel fijo */
+      padding-bottom: calc(48vh + 30px);
+    }
+
+    /* Panel fijo inferior: vista */
+    #preview {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #FDFDFB;
+      border-top: 1px solid #d1d5db;
+      box-shadow: 0 -10px 24px rgba(0,0,0,0.12);
+      padding: 10px 15px 15px;
+      box-sizing: border-box;
+      max-height: 48vh;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 5000; /* por debajo del menú (9999) */
+    }
+
+    #preview-inner{
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #preview svg{
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+    }
+    #preview .stats{
+      width: 100%;
+      max-width: 600px;
+    }
+
+</style>
 </head>
 <body>
 
 <div id="vista-diseno">
+
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
 
@@ -275,9 +334,15 @@
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
 </form>
+</div>
+
+<div id="preview"><div id="preview-inner">
 
 <svg id="canvas" viewBox="0 0 900 800"></svg>
 <div class="stats" id="stats"></div>
+</div></div>
+
+<div id="controls">
 
 </div>
 
