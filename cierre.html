@@ -223,8 +223,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       /* deja hueco para el panel fijo */
-      padding-bottom: calc(48vh + 30px);
-    }
+      }
 
     /* Panel fijo inferior: vista */
     #preview {
@@ -262,16 +261,140 @@
       max-width: 600px;
     }
 
+
+/* Versión en el título (más pequeña) */
+h1 .ver{
+  font-size: 0.55em;
+  font-weight: 700;
+  margin-left: 8px;
+  opacity: 0.75;
+}
+
+/* BOTÓN FIJAR (activar/desactivar vista fija abajo) */
+.btn-fijar{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #6b7280; /* gris (desactivado) */
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-fijar.active{ background: #e74c3c; } /* rojo activado */
+
+/* Wrappers: en modo normal no afectan (como en Grados) */
+/* --- MODO FIJO (solo cuando FIJAR está activado) --- */
+:root{ --dock-height: 48vh; }
+
+body.dock-on{
+  margin: 0;
+  padding: 0;
+}
+
+/* zona superior (controles) */
+body.dock-on #scrollArea{
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--dock-height);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 15px;
+  box-sizing: border-box;
+  background: #FDFDFB;
+}
+
+/* zona inferior (dibujo) */
+body.dock-on #dockArea{
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dock-height);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 15px 15px;
+  box-sizing: border-box;
+  background: #FDFDFB;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
+  z-index: 5000; /* por debajo del menú */
+}
+body.dock-on #dockArea #preview{ width: 100%; }
+body.dock-on #dockArea #preview-inner{ max-width: 600px; margin: 0 auto; }
+
+/* Export: overlay para que no haya que hacer scroll */
+#vista-exportar{
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 60px 12px 20px;
+  box-sizing: border-box;
+  background: #FDFDFB;
+}
+
+
+/* --- MODO NORMAL (FIJAR desactivado): todo en flujo normal, SIN panel fijo --- */
+#scrollArea{
+  position: static;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#dockArea{
+  position: static;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* El preview NO debe ser fijo por defecto (evita bloquear pantalla) */
+#preview{
+  position: static !important;
+  inset: auto !important;
+  max-height: none !important;
+  box-shadow: none !important;
+  border-top: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  z-index: auto !important;
+}
+
+
+/* Cuando FIJAR está activo, dejamos un poco de aire al final de los controles */
+body.dock-on #controls{
+  padding-bottom: 20px;
+}
+
 </style>
 </head>
 <body>
 
-<div id="vista-diseno">
+<div id="scrollArea"><div id="vista-diseno">
 
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
-<h1>Cierre con lamas</h1>
+
+<h1>Cierre con lamas <span class="ver">V16</span></h1>
 
 <form id="form">
     <div class="dimensions-group">
@@ -334,8 +457,9 @@
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
 </form>
-</div>
+</div></div>
 
+<div id="dockArea">
 <div id="preview"><div id="preview-inner">
 
 <svg id="canvas" viewBox="0 0 900 800"></svg>
@@ -344,6 +468,7 @@
 
 <div id="controls">
 
+</div>
 </div>
 
 <div id="vista-exportar" style="display:none; width:100%; max-width:600px;">
@@ -579,6 +704,13 @@
 
             document.getElementById('img-resultado').src = canvas.toDataURL('image/png');
 
+            // Guardar estado de FIJAR y desactivarlo para exportar
+            window.__cierreWasDockOn = document.body.classList.contains('dock-on');
+            setDockCierre(false);
+            const _scrollArea = document.getElementById('scrollArea');
+            const _dockArea = document.getElementById('dockArea');
+            if(_scrollArea) _scrollArea.style.display = 'none';
+            if(_dockArea) _dockArea.style.display = 'none';
             document.getElementById('vista-diseno').style.display = 'none';
             document.getElementById('vista-exportar').style.display = 'block';
 
@@ -594,8 +726,37 @@
     document.getElementById('btnExportPng').addEventListener('click', exportarPNG, {passive:true});
     document.getElementById('btnBackDesign').addEventListener('click', () => {
         document.getElementById('vista-exportar').style.display = 'none';
+        // Mostrar diseño completo
+        const _scrollArea = document.getElementById('scrollArea');
+        const _dockArea = document.getElementById('dockArea');
+        if(_scrollArea) _scrollArea.style.display = '';
+        if(_dockArea) _dockArea.style.display = '';
         document.getElementById('vista-diseno').style.display = 'block';
+
+        // Restaurar FIJAR si estaba activado
+        if (window.__cierreWasDockOn) {
+          setDockCierre(true);
+        }
     }, {passive:true});
+
+
+// --- FIJAR (Cierre) ---
+function setDockCierre(on){
+  document.body.classList.toggle('dock-on', on);
+  const btn = document.getElementById('btnFijar');
+  if(btn) btn.classList.toggle('active', on);
+}
+
+// Por defecto: desactivado (gris)
+setDockCierre(false);
+
+const __btnFijar = document.getElementById('btnFijar');
+if(__btnFijar){
+  __btnFijar.addEventListener('click', () => {
+    const on = !__btnFijar.classList.contains('active');
+    setDockCierre(on);
+  }, {passive:true});
+}
 
 </script>
 </body>
