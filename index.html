@@ -2,73 +2,191 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simuladores</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- PWA / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
+
+    <title>Simuladores técnicos</title>
+
+    <!-- ICONOS -->
+    <link rel="icon" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- MANIFEST -->
     <link rel="manifest" href="manifest.json">
-    
+
     <style>
-        body { margin: 0; font-family: -apple-system, sans-serif; background: #f2f2f2; height: 100vh; overflow: hidden; }
-        header { background: #e74c3c; color: white; padding: 40px 15px 20px; text-align: center; font-weight: bold; font-size: 1.2em; }
-        #menu { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        
-        button { 
-            padding: 20px; font-size: 1.1em; border-radius: 15px; border: none; 
-            background: white; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #d8cfc4; /* champán */
+            height: 100vh;
+            overflow: hidden;
+            color: #2b2b2b;
         }
 
-        /* Visor optimizado para iOS */
-        #visor { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; height: 100vh; 
-            border: none; 
-            display: none; 
-            background: white; 
+        /* BLOQUEO */
+        #lock {
+            position: fixed;
+            inset: 0;
+            background: #d1c7bb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #2b2b2b;
+            z-index: 10000;
+            text-align: center;
+        }
+
+        #lock .empresa {
+            font-size: 1.1em;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        #lock h1 { font-size: 1.4em; margin-bottom: 6px; }
+        #lock p { font-size: 0.9em; opacity: 0.7; margin-bottom: 20px; }
+
+        #lock input {
+            font-size: 1.2em;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #b7aa9c;
+            text-align: center;
+            width: 120px;
+            letter-spacing: 6px;
+            background: #f5f1ec;
+        }
+
+        #lock button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1em;
+            font-weight: 700;
+            background: #e6c98a; /* dorado suave */
+            color: #3a2a00;
+        }
+
+        /* CABECERA */
+        header {
+            padding: 45px 20px 25px;
+            text-align: center;
+            background: #2f343a; /* gris antracita */
+            color: #ffffff;
+            border-bottom-left-radius: 22px;
+            border-bottom-right-radius: 22px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+
+        header .titulo { font-size: 1.4em; font-weight: 700; }
+        header .subtitulo { margin-top: 6px; font-size: 0.85em; opacity: 0.7; }
+
+        /* MENÚ */
+        #menu {
+            height: calc(100vh - 160px);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        button.menu-btn {
+            padding: 20px;
+            border-radius: 16px;
+            border: none;
+            background: #efe7da; /* beige suave */
+            color: #3b3328;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.05em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .icon { font-size: 1.7em; }
+
+        .texto {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .subtitulo-btn {
+            font-size: 0.82em;
+            color: #6a5f52;
+            font-weight: 400;
+        }
+
+        #visor {
+            position: fixed;
+            inset: 0;
+            border: none;
+            display: none;
+            background: white;
             z-index: 9999;
         }
     </style>
 </head>
 <body>
 
-    <header id="cabecera">SIMULADORES TÉCNICOS</header>
+<div id="lock">
+    <div class="empresa">Ventanas Rey</div>
+    <h1>Simuladores técnicos</h1>
+    <p>Introduce el código de acceso</p>
+    <input id="pin" type="password" inputmode="numeric" maxlength="4">
+    <button onclick="unlock()">Entrar</button>
+</div>
 
-    <div id="menu">
-        <button onclick="abrir('./rejilla.html')">🪟 Rejilla Ventilación</button>
-        <button onclick="abrir('./poligono.html')">📐 Polígono / Modulación</button>
-    </div>
+<header id="cabecera">
+    <div class="titulo">Simuladores técnicos</div>
+    <div class="subtitulo">Ventanas Rey</div>
+</header>
 
-    <iframe id="visor" name="visor" src="about:blank"></iframe>
+<div id="menu">
+    <button class="menu-btn" onclick="abrir('rejilla.html')"><div class="icon">🪟</div><div class="texto"><div>Rejilla de ventilación</div><div class="subtitulo-btn">Cálculo y simulación</div></div></button>
+    <button class="menu-btn" onclick="abrir('poligono.html')"><div class="icon">📐</div><div class="texto"><div>Polígono / Modulación</div><div class="subtitulo-btn">Geometría y medidas</div></div></button>
+    <button class="menu-btn" onclick="abrir('cierre.html')"><div class="icon">🔒</div><div class="texto"><div>Cierre</div><div class="subtitulo-btn">Selección y cálculo</div></div></button>
+    <button class="menu-btn" onclick="abrir('guillotina.html')"><div class="icon">✂️</div><div class="texto"><div>Guillotina</div><div class="subtitulo-btn">Corte y medidas</div></div></button>
+    <button class="menu-btn" onclick="abrir('estructura.html')"><div class="icon">🏗️</div><div class="texto"><div>Estructura</div><div class="subtitulo-btn">Configuración técnica</div></div></button>
+    <button class="menu-btn" onclick="abrir('grados.html')"><div class="icon">📏</div><div class="texto"><div>Grados de corte</div><div class="subtitulo-btn">Ángulos y precisión</div></div></button>
+    <button class="menu-btn" onclick="abrir('paleta.html')"><div class="icon">🎨</div><div class="texto"><div>Paleta de color</div><div class="subtitulo-btn">Acabados y referencias</div></div></button>
+</div>
 
-    <script>
-        function abrir(url) {
-            const visor = document.getElementById('visor');
-            const cabecera = document.getElementById('cabecera');
-            const menu = document.getElementById('menu');
+<iframe id="visor" src="about:blank"></iframe>
 
-            // Primero mostramos el contenedor
-            visor.style.display = 'block';
-            
-            // Cargamos la URL con un pequeño retraso para asegurar que el iframe está listo en iOS
-            setTimeout(() => {
-                visor.src = url;
-            }, 10);
+<script>
+    const PIN_CORRECTO = "1234";
 
-            // Ocultamos el resto
-            cabecera.style.display = 'none';
-            menu.style.display = 'none';
+    function unlock() {
+        const pin = document.getElementById("pin").value;
+        if (pin === PIN_CORRECTO) {
+            document.getElementById("lock").style.display = "none";
+        } else {
+            alert("Código incorrecto");
         }
+    }
 
-        function volverMenu() {
-            const visor = document.getElementById('visor');
-            visor.src = 'about:blank';
-            visor.style.display = 'none';
-            
-            document.getElementById('cabecera').style.display = 'block';
-            document.getElementById('menu').style.display = 'flex';
-        }
-    </script>
+    function abrir(url) {
+        const visor = document.getElementById('visor');
+        visor.style.display = 'block';
+        setTimeout(() => visor.src = url, 10);
+        document.getElementById('cabecera').style.display = 'none';
+        document.getElementById('menu').style.display = 'none';
+    }
+</script>
+
 </body>
 </html>

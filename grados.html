@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora de Cortes para Marco Inclinado</title>
+    <style>
+        /* Variables CSS para colores */
+        :root {
+            /* Colores Modernos: Énfasis Rojo-Coral y Fondos Suaves (Greige) */
+            --primary-color: #e74c3c;    /* Énfasis: Rojo-Coral */
+            --primary-hover: #c0392b;    /* Hover de énfasis */
+            --secondary-color: #34495e;  /* NUEVO: Dark Charcoal Blue para cotas de montantes y botones TOGGLE */
+            --secondary-hover: #2c3e50;  /* Hover del color secundario */
+            
+            /* Fondos: */
+            --background-light: #fafafa; /* Fondo del body: Blanco Roto Suave (Greige) */
+            --background-paper: #DEDDCE; /* Controles y Cálculos: Blanco puro */
+            
+            /* Color del input (Dorado Discreto) */
+            --input-background: #FFFCE6;
+            
+            /* Texto y líneas */
+            --text-color: #444; /* Gris oscuro para mayor legibilidad */
+            
+            /* Colores de SVG (Mantenidos) */
+            --frame-color: #FFFFFF;
+            --outer-border-color: #666666;
+            --inner-border-color: #999999;
+            --glass-color: #87CEEB; 
+            --svg-background: #ffffff; 
+            --dimension-line-color: #333;
+        }
+
+        body {
+            touch-action: manipulation;
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px; 
+            background-color: var(--background-light);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--primary-color); 
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            background-color: var(--background-paper);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            width: 100%; 
+            max-width: 700px; 
+            box-sizing: border-box;
+            display: grid;
+            gap: 15px; 
+            grid-template-columns: 1fr;
+            border-top: 5px solid var(--primary-color);
+        }
+        
+        /* Contenedor de Inputs reorganizado */
+        .input-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px;
+            margin-bottom: 10px;
+            /* La línea divisoria se mantiene */
+            border-bottom: 1px dashed #ddd; 
+            padding-bottom: 15px;
+        }
+        
+        .controls label {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            font-weight: 600; 
+            font-size: 0.95em;
+            color: #555;
+            padding: 0;
+        }
+
+        .controls input[type="number"] {
+            width: 100%;
+            padding: 12px; 
+            margin-top: 6px;
+            border: 1px solid #ddd; 
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1.2em;
+            transition: border-color 0.3s, box-shadow 0.5s;
+            background-color: var(--input-background);
+            -moz-appearance: textfield; 
+            text-align: center; 
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); 
+        }
+
+        .controls input[type="number"]::-webkit-outer-spin-button,
+        .controls input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .controls input:not([type="color"]):focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); 
+            background-color: var(--background-paper);
+            outline: none;
+        }
+        
+        /* Contenedor de inputs dinámicos */
+        .manual-gap-control {
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+            margin-top: 0; 
+            grid-column: 1 / -1; 
+        }
+        
+        .dynamic-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 10px;
+            margin-top: 0; 
+            margin-bottom: 10px; /* Añadido un margen inferior para no pegar demasiado el mensaje de error */
+        }
+
+        .dynamic-inputs-grid label {
+            font-weight: normal;
+        }
+        
+        .dynamic-inputs-grid input[readonly] {
+            background-color: #f7f7f7;
+            border: 1px solid #e0e0e0;
+        }
+
+
+        /* --- NUEVO: Selectores de Color como Botones --- */
+        .color-picker-container {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px; /* Más espacio */
+            padding: 15px 0;
+            border-top: 1px dashed #ccc; /* CAMBIO: Separador que antes estaba en .larguero-controls */
+            flex-wrap: wrap; 
+        }
+        
+        .color-picker-button {
+            flex: 1 1 20%; 
+            min-width: 150px;
+            height: 40px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .color-picker-button:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+        }
+        
+        .color-picker-button input[type="color"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; 
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+
+
+        /* --- CONTROLES DE VISIBILIDAD, LARGueros Y EXPORTAR (Botones) --- */
+        .button-group-row {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            padding-top: 15px; /* Espaciado por defecto */
+        }
+        
+        /* ESPECÍFICO: Ajuste para acercar los botones de Larguero a los inputs dinámicos */
+        .larguero-controls.button-group-row {
+            padding-top: 5px; /* ¡REDUCIDO! Menos separación de los inputs de huecos */
+            padding-bottom: 10px; /* Espacio antes del siguiente separador (Colores) */
+        }
+
+        .visibility-controls {
+            border-top: 1px solid #eee;
+        }
+
+        /* Eliminado el border-top de .larguero-controls ya que lo hemos movido y queremos pegarlo al input */
+        /* .larguero-controls { border-top: 1px dashed #ccc; } */ 
+
+        /* NUEVO: Controles de Exportación */
+        .export-controls {
+            border-top: 1px dashed #ccc; 
+        }
+
+        .button-group-row button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            color: white;
+            flex-grow: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Estilo para los botones de larguero */
+        .larguero-controls button {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+        }
+        
+        .larguero-controls button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Estilo para los botones de visibilidad */
+        .visibility-controls button {
+            background-color: var(--secondary-color);
+            box-shadow: 0 4px 6px rgba(52, 73, 94, 0.3);
+        }
+
+        .visibility-controls button:hover {
+            background-color: var(--secondary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(52, 73, 94, 0.4);
+        }
+
+        /* Estilo para el botón de exportación (Verde, con sombreado bonito) */
+        .export-controls button {
+            background-color: #2ecc71; 
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.4);
+        }
+        
+        .export-controls button:hover {
+            background-color: #27ae60; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(46, 204, 113, 0.6);
+        }
+
+        
+        /* --- SECCIÓN DE CÁLCULOS --- */
+        .calculated-values {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--background-paper);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid var(--primary-color);
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+
+        .calculated-values p {
+            margin: 8px 0;
+            line-height: 1.5;
+            font-size: 1.0em;
+        }
+        
+        .calculated-values strong {
+            color: var(--primary-color); 
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        
+        .calculated-values hr {
+            border: none;
+            border-top: 1px dashed #ddd;
+            margin: 15px 0;
+        }
+        
+        /* SVG Container */
+        #frameSVG {
+            background-color: var(--svg-background); 
+            border-radius: 5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 100%; 
+            max-width: 800px;
+            height: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos específicos para SVG */
+        .frame-material { fill: var(--frame-color); }
+        .frame-hole { fill: var(--svg-background); } 
+        .montante-vertical { fill: var(--frame-color); } 
+        .frame-stroke-outer { stroke: var(--outer-border-color); stroke-width: 2; fill: none; }
+        .frame-stroke-inner { stroke: var(--inner-border-color); stroke-width: 1.5; fill: none; }
+        
+        /* Degradado del cristal */
+        .glass-base { fill: url(#glassGradient); } 
+
+        /* Clases de texto y líneas */
+        .dimension-text { fill: #333; font-size: 50px; text-anchor: middle; font-weight: 300; }
+
+        .angle-text { fill: var(--primary-color); font-size: 50px; text-anchor: middle; font-weight: 300; }
+        
+        /* Clase para el texto de medida en el montante (Ahora en Dark Charcoal Blue) */
+
+        .montante-text-center { fill: var(--secondary-color); font-size: 40px; text-anchor: middle; font-weight: 300; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>CORTE EN GRADOS</h1>
+
+    <div class="controls">
+        
+        <div class="input-grid-container">
+            <label>
+                Ancho:
+                <input type="number" id="anchoInput" value="3127" min="100">
+            </label>
+            <label>
+                Alto:
+                <input type="number" id="altoTotalInput" value="1000" min="100"> 
+            </label>
+            <label>
+                Marco:
+                <input type="number" id="grosorPerfilInput" value="40" min="10">
+            </label>
+        </div>
+        
+        <div class="input-grid-container">
+            <label>
+                Alto Izq:
+                <input type="number" id="altoIzqInput" value="665" min="100"> 
+            </label>
+            <label>
+                Alto Dcho:
+                <input type="number" id="altoDchoInput" value="397" min="100"> 
+            </label>
+            <label>
+                Larguero:
+                <input type="number" id="grosorMontanteInput" value="40" min="10" step="1">
+            </label>
+        </div>
+
+        <div class="manual-gap-control">
+            <div id="dynamicGapInputs" class="dynamic-inputs-grid">
+                </div>
+            <p id="gapListError" style="color: var(--primary-color); font-size: 0.9em; margin-top: 5px; display: none;">Error</p>
+        </div>
+        
+        <div class="larguero-controls button-group-row">
+            <button id="addLarguero">Añadir Larguero</button>
+            <button id="removeLarguero">Quitar Larguero</button>
+        </div>
+
+        <div class="color-picker-container">
+            <div class="color-picker-button" id="marcoButton" style="background-color: #FFFFFF;">
+
+                <span style="color: black;">Color Marco</span>
+                <input type="color" id="colorMarcoInput" value="#FFFFFF">
+            </div>
+
+            <div class="color-picker-button" id="cristalButton" style="background-color: #87CEEB;">
+                <span style="color: black;">Color Cristal</span>
+                <input type="color" id="colorCristalInput" value="#87CEEB">
+            </div>
+
+            <div class="color-picker-button" id="bordeExteriorButton" style="background-color: #666666;">
+                <span style="color: white;">Borde Exterior</span>
+                <input type="color" id="colorBordeExteriorInput" value="#666666">
+            </div>
+            <div class="color-picker-button" id="bordeInteriorButton" style="background-color: #999999;">
+                <span style="color: white;">Borde Interior</span>
+                <input type="color" id="colorBordeInteriorInput" value="#999999">
+            </div>
+
+        </div>
+
+        
+        <div class="visibility-controls button-group-row">
+            <button id="toggleDimensions">Ocultar Medidas</button>
+            <button id="toggleAngles">Ocultar Grados</button>
+        </div>
+
+        <div class="export-controls button-group-row">
+            <button id="exportImageButton">Exportar Gráfico (PNG)</button>
+        </div>
+
+    </div>
+
+    <svg id="frameSVG" viewBox="0 0 900 800" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color: var(--glass-color); stop-opacity: 0.9" />
+                <stop offset="50%" style="stop-color: white; stop-opacity: 0.4" />
+                <stop offset="100%" style="stop-color: var(--glass-color); stop-opacity: 0.9" />
+            </linearGradient>
+            <marker id='arrowhead' markerWidth='10' markerHeight='7' refX='0' refY='3.5' orient='auto'>
+                <polygon points='0 0, 10 3.5, 0 7' fill='#333' />
+            </marker>
+             <marker id='montanteArrowhead' markerWidth='10' markerHeight='7' refX='0' refY='3.5' orient='auto'>
+                <polygon points='0 0, 10 3.5, 0 7' fill='var(--secondary-color)' />
+            </marker>
+        </defs>
+        
+        <polygon id="outerFrameFill" class="frame-material" points="" />
+        
+        <g id="glassAndMontants"> 
+            <polygon id="glassAreaRecess" class="frame-hole" points="" />
+        </g>
+
+        <g id="glassGroup">
+            <polygon id="glassPolygonBase" class="glass-base" points="" />
+        </g>
+        
+        <g id="montantesGroup"></g>
+
+
+        <polygon id="outerFrameStroke" class="frame-stroke-outer" points="" />
+        <polygon id="innerFrameStroke" class="frame-stroke-inner" points="" />
+
+        <g id="dimensiones"></g> 
+        <g id="gradosCorte"></g>
+    </svg>
+
+    <div class="calculated-values">
+        <p><strong>CÁLCULOS DE CORTE:</strong></p>
+        <p>Pendiente: <span id="calcAlpha"></span></p>
+        <p>Diagonal: <span id="calcDiagonal"></span></p>
+        <hr/>
+        <p>Montantes Añadidos: <strong><span id="calcNumMontantes"></span></strong></p>
+        <p>Hueco Base: <strong><span id="calcGapResultante"></span>
+</strong></p>
+        <hr/>
+
+        <p>Corte Izq.: <strong><span id="calcCorteMI"></span>°</strong></p>
+
+        <p>Corte Dcho.: <strong><span id="calcCorteMD"></span>°</strong></p>
+
+        <p>Corte Superior Izq): <strong><span id="calcCorteLSupI"></span>°</strong></p>
+
+
+
+        <p>Corte Superior Dcho): <strong><span id="calcCorteLSupD"></span>°</strong></p>
+        <hr/>
+        <p style="background-color: #fce4e4; padding: 5px; border-radius: 5px;">
+           Corte Sup. Montantes: 
+           <strong style="font-size: 1.3em;">
+                <span id="calcCorteMV"></span>°
+           </strong>
+        </p>
+        <p>Alto Máx. Montante: <strong><span id="calcAltoMaxMV"></span></strong></p>
+    </div>
+
+    <script>
+        // INPUTS (se han simplificado, ya no hay gapListInput)
+        const inputs = ['anchoInput', 'altoTotalInput', 'altoIzqInput', 'altoDchoInput', 'grosorPerfilInput', 'grosorMontanteInput']; 
+        const colorInputs = ['colorMarcoInput', 'colorBordeExteriorInput', 'colorBordeInteriorInput', 'colorCristalInput'];
+        
+        // Estado para guardar las medidas de los huecos (persistencia)
+        let customGapWidths = [];
+        
+        // Valores fijos
+        const topAngleDist = 30;
+        const bottomAngleDist = 60;
+        const minGap = 50; // Mínimo gap para reparto
+        const gapTextGlassBottomMargin = 15; 
+        const TOLERANCE = 0.5; // Tolerancia para la suma de huecos
+
+        let numMontantes = 1; // Control manual de largueros - PREDETERMINADO A 1
+
+        const elements = {};
+        inputs.forEach(id => elements[id] = document.getElementById(id));
+        colorInputs.forEach(id => elements[id] = document.getElementById(id));
+
+        // Elementos SVG y Botones
+        elements.frameSVG = document.getElementById('frameSVG');
+        elements.dimensionesGroup = document.getElementById('dimensiones');
+        elements.gradosCorteGroup = document.getElementById('gradosCorte');
+        elements.montantesGroup = document.getElementById('montantesGroup'); 
+        elements.toggleDimensions = document.getElementById('toggleDimensions');
+        elements.toggleAngles = document.getElementById('toggleAngles');
+        elements.addLarguero = document.getElementById('addLarguero');
+        elements.removeLarguero = document.getElementById('removeLarguero');
+        elements.gapInputsContainer = document.getElementById('dynamicGapInputs');
+        elements.gapListError = document.getElementById('gapListError');
+        
+        // Elementos y Outputs 
+        elements.calcDiagonalOutput = document.getElementById('calcDiagonal'); 
+        elements.calcGapResultante = document.getElementById('calcGapResultante'); // Output para el gap base repartido
+        const calculatedOutputs = ['calcAlpha', 'calcCorteMI', 'calcCorteMD', 'calcCorteLSupI', 'calcCorteLSupD', 'calcCorteMV', 'calcAltoMaxMV', 'calcNumMontantes']; 
+        calculatedOutputs.forEach(id => elements[id] = document.getElementById(id));
+        
+        // NUEVOS ELEMENTOS DE BOTÓN DE COLOR Y EXPORTACIÓN
+        elements.marcoButton = document.getElementById('marcoButton');
+        elements.bordeExteriorButton = document.getElementById('bordeExteriorButton');
+        elements.bordeInteriorButton = document.getElementById('bordeInteriorButton');
+        elements.cristalButton = document.getElementById('cristalButton');
+        elements.exportImageButton = document.getElementById('exportImageButton'); 
+
+        // Dimensiones del ViewBox y escalado 
+        const viewBoxWidth = 900; 
+        const viewBoxHeight = 800; 
+        const svgPadding = 130; 
+        
+        // dimGap ahora solo controla la separación LATERAL (Alturas)
+        const dimGap = 30; // Separación horizontal (Alturas Laterales)
+        
+        // NUEVA CONSTANTE: Controla la separación VERTICAL (Ancho)
+        const dimGapAncho = 50; // <-- ESTE VALOR MUEVE LA COTA DE ANCHO ARRIBA/ABAJO
+        
+        // NUEVA CONSTANTE: Controla el desplazamiento horizontal de la medida del montante
+        const montanteLateralDist = -35; // <-- MODIFICAR AQUÍ
+
+        // ***** CORRECCIÓN DE LA MEDIDA DIAGONAL *****
+        const diagDistScaled = -90; 
+        
+        // --- LÓGICA DE ACTUALIZACIÓN DE LARGueros ---
+
+        function calculateMaxPossibleMontantes() {
+            const ancho = parseFloat(elements.anchoInput.value);
+            const grosorPerfil = parseFloat(elements.grosorPerfilInput.value);
+            const grosorMontante = parseFloat(elements.grosorMontanteInput.value);
+            
+            if (isNaN(ancho) || isNaN(grosorPerfil) || isNaN(grosorMontante) || grosorMontante <= 0) return 0;
+
+            const availableWidth = ancho - (grosorPerfil * 2);
+            
+            // availableWidth >= N * grosorMontante + (N + 1) * minGap
+            const maxMontantes = Math.floor((availableWidth - minGap) / (grosorMontante + minGap));
+            
+            return Math.max(0, maxMontantes); 
+        }
+
+        // FUNCIÓN CLAVE: Chequea largueros, ajusta huecos si es necesario y actualiza el SVG
+        function checkLarguerosAndUpdate() {
+            const maxMontantes = calculateMaxPossibleMontantes();
+            if (numMontantes > maxMontantes) {
+                numMontantes = maxMontantes;
+                customGapWidths = []; 
+            } else if (numMontantes + 1 < customGapWidths.length) {
+                 customGapWidths = [];
+            }
+            updateSVG(); // Llama a la función principal de dibujo
+        }
+
+        function addLarguero() {
+            const maxMontantes = calculateMaxPossibleMontantes();
+            const oldNumMontantes = numMontantes;
+            numMontantes = Math.min(numMontantes + 1, maxMontantes);
+            
+            // Si el número de montantes cambió, forzamos la recalculación de los huecos (reparto uniforme)
+            if (numMontantes !== oldNumMontantes) {
+                customGapWidths = []; 
+            }
+            updateSVG();
+        }
+
+        function removeLarguero() {
+            const oldNumMontantes = numMontantes;
+            numMontantes = Math.max(numMontantes - 1, 0);
+            
+            if (numMontantes !== oldNumMontantes) {
+                customGapWidths = [];
+            }
+            updateSVG();
+        }
+
+        // --- FUNCIÓN CLAVE PARA EL ALTO TOTAL (SIN isUpdating) ---
+        function updateHeightsFromTotal() {
+            const total = parseFloat(elements.altoTotalInput.value);
+            if (!isNaN(total) && total >= 100) {
+                // Sincroniza ambos lados con el total
+                elements.altoIzqInput.value = total.toFixed(0); 
+                elements.altoDchoInput.value = total.toFixed(0);
+            }
+            checkLarguerosAndUpdate(); // El gráfico se actualiza aquí
+        }
+
+        // --- FUNCIÓN CLAVE PARA LOS ALTOS LATERALES (SIN isUpdating) ---
+        function updateHeightsFromSides() {
+            const altoIzq = parseFloat(elements.altoIzqInput.value);
+            const altoDcho = parseFloat(elements.altoDchoInput.value);
+
+            // Si son iguales, sincroniza el alto total. Si no, lo deja como está.
+            if (!isNaN(altoIzq) && !isNaN(altoDcho)) {
+                if (altoIzq === altoDcho) {
+                    elements.altoTotalInput.value = altoIzq.toFixed(0);
+                } 
+            }
+            
+            checkLarguerosAndUpdate(); // El gráfico se actualiza aquí
+        }
+
+        // FUNCIÓN PRINCIPAL DE MANIPULACIÓN: Se dispara al cambiar un valor de hueco
+
+        function updateManualGapsAndSVG(event) {
+            const input = event.target;
+            const index = parseInt(input.getAttribute('data-index'));
+            const N = numMontantes;
+            const numGaps = N + 1;
+            
+            let newValue = parseFloat(input.value);
+            
+            // 1. CÁLCULO DE ESPACIO TOTAL DISPONIBLE
+            const ancho = parseFloat(elements.anchoInput.value);
+            const grosorPerfil = parseFloat(elements.grosorPerfilInput.value);
+            const grosorMontante = parseFloat(elements.grosorMontanteInput.value);
+            const availableWidthReal = ancho - (grosorPerfil * 2); 
+            const totalGrosorMontantes = N * grosorMontante;
+            const totalWidthForGaps = availableWidthReal - totalGrosorMontantes;
+
+            // Si el valor no es un número o es menor que el mínimo, ignorar el cambio por ahora
+            if (isNaN(newValue) || newValue < minGap) {
+                 elements.gapListError.textContent = `Error: El valor del Hueco ${index + 1} debe ser mayor o igual a ${minGap} mm.`;
+                 elements.gapListError.style.display = 'block';
+                 input.value = customGapWidths[index] ? customGapWidths[index].toFixed(0) : minGap;
+                 return; 
+            } else {
+                 elements.gapListError.style.display = 'none';
+            }
+            
+            // 2. LÓGICA DEL HUECO FINAL FLEXIBLE
+            let tempGaps = [...customGapWidths];
+            tempGaps[index] = newValue; // Aplicar el cambio del usuario
+
+            // Calcular el ancho fijo consumido (todos menos el último)
+            const consumedByFixed = tempGaps.slice(0, numGaps - 1).reduce((a, b) => a + b, 0);
+            const remainingForLastGap = totalWidthForGaps - consumedByFixed;
+            
+            if (numGaps > 0) {
+                 if (remainingForLastGap >= minGap || numGaps === 1) { // numGaps === 1 maneja el caso de N=0
+                      // 3. ACEPTAR EL CAMBIO: El último hueco absorbe la diferencia
+                      tempGaps[numGaps - 1] = remainingForLastGap;
+                      customGapWidths = tempGaps;
+                      
+                      // Actualizar el valor en el último input field visualmente
+                      const lastInput = document.getElementById(`gapInput_${numGaps - 1}`);
+                      if(lastInput) lastInput.value = remainingForLastGap.toFixed(0);
+                      
+                 } else {
+                      // 4. RECHAZAR EL CAMBIO: El hueco modificado es demasiado grande
+                      elements.gapListError.textContent = `Error: El Hueco ${index + 1} es demasiado grande. Deja un mínimo de ${minGap} mm para el hueco final.`;
+                      elements.gapListError.style.display = 'block';
+                      
+                      // Revertir el campo de entrada a su valor anterior
+                      input.value = customGapWidths[index].toFixed(0);
+                      return; 
+                 }
+            } else {
+                // Caso N=0, debería ser gestionado por el if de arriba si numGaps=1
+                customGapWidths = [availableWidthReal];
+            }
+            
+            updateSVG(); // Redibujar con la nueva configuración de huecos
+        }
+        
+        // --- NUEVA FUNCIÓN: Lógica para cambiar el color del texto en el botón ---
+        function getContrastYiq(hexcolor){
+            if (!hexcolor) return 'black'; // Seguridad
+            const hex = hexcolor.startsWith('#') ? hexcolor.slice(1) : hexcolor;
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            // Retorna negro si yiq es mayor o igual a 128 (color claro), blanco si es menor (color oscuro)
+            return (yiq >= 128) ? 'black' : 'white';
+        }
+
+        function updateColorButton(inputElement, buttonElement) {
+            const newColor = inputElement.value;
+            const textColor = getContrastYiq(newColor);
+            
+            buttonElement.style.backgroundColor = newColor;
+            buttonElement.querySelector('span').style.color = textColor;
+            updateSVG(); // Llama a la función principal para redibujar el SVG
+        }
+
+        // --- FUNCIÓN CORREGIDA FINAL: Exportar SVG a PNG (Método compatible con iOS y CSS incrustado) ---
+        function exportSVGAsImage() {
+            // 1. Ocultar elementos de dimensiones/grados si están visibles ANTES de tomar la imagen
+            const dimHidden = elements.dimensionesGroup.classList.contains('hidden');
+            const angHidden = elements.gradosCorteGroup.classList.contains('hidden');
+            
+            if (!dimHidden) elements.dimensionesGroup.classList.add('hidden');
+            if (!angHidden) elements.gradosCorteGroup.classList.add('hidden');
+
+            const svgElement = elements.frameSVG;
+            
+            // 2. Clonar el SVG para modificarlo sin afectar el original
+            const tempSvg = svgElement.cloneNode(true);
+            tempSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            tempSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink'); 
+
+            // 3. Obtener los valores de las variables CSS de color actuales
+            const style = getComputedStyle(document.documentElement);
+            const frameColor = style.getPropertyValue('--frame-color').trim() || '#FFFFFF';
+            const outerColor = style.getPropertyValue('--outer-border-color').trim() || '#666666';
+            const innerColor = style.getPropertyValue('--inner-border-color').trim() || '#999999';
+            const glassColor = style.getPropertyValue('--glass-color').trim() || '#87CEEB';
+            const svgBackground = style.getPropertyValue('--svg-background').trim() || '#ffffff';
+            const primaryColor = style.getPropertyValue('--primary-color').trim() || '#e74c3c';
+            const secondaryColor = style.getPropertyValue('--secondary-color').trim() || '#34495e';
+
+            // 4. Asegurar el fondo: Añadir un rectángulo de fondo al SVG clonado
+            const rectBackground = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rectBackground.setAttribute('width', '100%');
+            rectBackground.setAttribute('height', '100%');
+            rectBackground.setAttribute('fill', svgBackground);
+            tempSvg.prepend(rectBackground); 
+
+            // 5. Modificar el DEFS del clon para inyectar estilos fijos
+            const defs = tempSvg.querySelector('defs');
+            
+            if (defs) {
+                 // 5a. Modificar el degradado (el degradado usa variables CSS)
+                const gradientStops = defs.querySelectorAll('#glassGradient stop');
+                if (gradientStops.length >= 2) {
+                    gradientStops[0].style.setProperty('stop-color', glassColor);
+                    gradientStops[gradientStops.length - 1].style.setProperty('stop-color', glassColor);
+                }
+
+                // 5b. Crear el bloque de estilos con las CLASES usando colores fijos
+                const embeddedStyles = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                // Usamos !important para asegurar que sobreescriba cualquier estilo inline si fuera necesario, 
+                // aunque las clases deberían ser suficientes.
+                embeddedStyles.textContent = `
+                    .frame-material { fill: ${frameColor}; }
+                    .frame-hole { fill: ${svgBackground}; } 
+                    .montante-vertical { fill: ${frameColor}; } 
+                    .frame-stroke-outer { stroke: ${outerColor}; stroke-width: 2; fill: none; }
+                    .frame-stroke-inner { stroke: ${innerColor}; stroke-width: 1.5; fill: none; }
+                    .glass-base { fill: url(#glassGradient); } 
+                    .dimension-text { fill: #333; font-size: 50px; text-anchor: middle; font-weight: 300; }
+                    .angle-text { fill: ${primaryColor}; font-size: 50px; text-anchor: middle; font-weight: 300; }
+                    .montante-text-center { fill: ${secondaryColor}; font-size: 40px; text-anchor: middle; font-weight: 300; }
+                    marker polygon { fill: ${secondaryColor}; }
+                    #arrowhead polygon { fill: #333; }
+                    #montanteArrowhead polygon { fill: ${secondaryColor}; }
+                `;
+                defs.prepend(embeddedStyles);
+            }
+            
+            // 6. Serializar el SVG
+            let svgData = new XMLSerializer().serializeToString(tempSvg);
+            
+            // 7. Codificar el SVG como Data URL
+            const encodedSvg = encodeURIComponent(svgData);
+            const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodedSvg;
+
+            // 8. Crear un elemento Canvas para la conversión a PNG
+            const canvas = document.createElement('canvas');
+            const viewBoxWidth = 900; 
+            const viewBoxHeight = 800; 
+            const qualityScale = 2; 
+            canvas.width = viewBoxWidth * qualityScale;
+            canvas.height = viewBoxHeight * qualityScale;
+            const ctx = canvas.getContext('2d');
+
+            // 9. Crear una imagen a partir del Data URL del SVG
+            const img = new Image();
+            
+            img.onload = function() {
+                // Dibujar la imagen SVG en el canvas, escalando
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // 10. Generar el enlace de descarga (PNG Data URL)
+                const pngUrl = canvas.toDataURL('image/png'); 
+                
+                // 11. Método compatible con iOS: Abrir el PNG Data URL en una nueva pestaña
+                const win = window.open(pngUrl, '_blank');
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Por favor, permite ventanas emergentes para exportar la imagen.');
+                }
+                
+                // 12. Devolver la visibilidad a su estado original
+                if (!dimHidden) elements.dimensionesGroup.classList.remove('hidden');
+                if (!angHidden) elements.gradosCorteGroup.classList.remove('hidden');
+            };
+            
+            img.onerror = function() {
+                if (!dimHidden) elements.dimensionesGroup.classList.remove('hidden');
+                if (!angHidden) elements.gradosCorteGroup.classList.remove('hidden');
+                alert("Error al intentar exportar la imagen. Verifique la consola para detalles. Puede ser un problema de carga de recursos del SVG.");
+            };
+
+            // 13. Asignar el Data URL (IMPORTANTE: Debe estar después de onload)
+            img.src = dataUrl;
+        }
+
+
+        
+        // --- FUNCIÓN PRINCIPAL DE DIBUJO Y CÁLCULO ---
+
+        function updateSVG() {
+            const ancho = parseFloat(elements.anchoInput.value);
+            const altoIzq = parseFloat(elements.altoIzqInput.value);
+            const altoDcho = parseFloat(elements.altoDchoInput.value);
+            let grosorPerfil = parseFloat(elements.grosorPerfilInput.value);
+            const grosorMontante = parseFloat(elements.grosorMontanteInput.value);
+            
+            if (isNaN(ancho) || isNaN(altoIzq) || isNaN(altoDcho) || ancho <= 0 || altoIzq <= 0 || altoDcho <= 0 || isNaN(grosorMontante)) return;
+            
+            const N = numMontantes; 
+            const availableWidthReal = ancho - (grosorPerfil * 2); 
+            const numGaps = N + 1; 
+
+            // --- 1. CÁLCULO DE HUECOS Y GESTIÓN DE INPUTS DINÁMICOS ---
+            const totalGrosorMontantes = N * grosorMontante;
+            const totalWidthForGaps = availableWidthReal - totalGrosorMontantes;
+            let gapRepartido = numGaps > 0 ? totalWidthForGaps / numGaps : availableWidthReal;
+            
+            if (customGapWidths.length !== numGaps || customGapWidths.some(isNaN) || (numGaps > 0 && totalWidthForGaps < (numGaps * minGap) - TOLERANCE)) {
+                // Si el espacio no es suficiente para la distribución actual, o se añadió/quitó un montante, reset a uniforme.
+                if (totalWidthForGaps >= numGaps * minGap - TOLERANCE) {
+                    customGapWidths = Array(numGaps).fill(parseFloat(gapRepartido.toFixed(2)));
+                } else {
+                    // Si no cabe, reseteamos a 0 montantes
+                    if (N > 0) {
+                         numMontantes = 0;
+                         // RECALCULAR numGaps y availableWidthReal
+                         const availableWidthReal_N0 = ancho - (grosorPerfil * 2);
+                         customGapWidths = [availableWidthReal_N0];
+                         elements.gapListError.textContent = `El ancho es insuficiente para ${N} montantes. Espacio mín. por hueco: ${minGap} mm. Se ha reseteado a 0 montantes.`;
+                         elements.gapListError.style.display = 'block';
+                         // Recalcular el número de huecos con el nuevo N=0
+                         gapRepartido = availableWidthReal_N0;
+                    } else if (numGaps === 1) {
+                         // Caso de un solo hueco pero el ancho es menor al minGap (debería ser imposible por los min/max de los inputs)
+                         customGapWidths = [availableWidthReal];
+                         elements.gapListError.textContent = `Advertencia: El ancho disponible de ${availableWidthReal.toFixed(0)} mm es menor al mínimo recomendado de ${minGap} mm.`;
+                         elements.gapListError.style.display = 'block';
+                    }
+                }
+            } else {
+                elements.gapListError.style.display = 'none'; // Clear error if logic passes
+            }
+
+            // DIBUJO de Inputs Dinámicos
+            elements.gapInputsContainer.innerHTML = '';
+            
+            // Usar los huecos custom para el dibujo 
+            const actualGaps = customGapWidths;
+            
+            // Si hay montantes, mostrar los inputs de control
+            if (numMontantes > 0) {
+                 customGapWidths.forEach((gap, index) => {
+                     const gapId = `gapInput_${index}`;
+                     const isLast = index === numGaps - 1;
+                     
+                     const readonly = isLast ? 'readonly' : ''; 
+                     const placeholderText = isLast ? 'FLEXIBLE' : 'mm';
+                     
+                     const inputHTML = `
+                         <label>
+                             Hueco ${index + 1} (${isLast ? 'Final' : 'Fijo'}):
+                             <input type="number" id="${gapId}" class="gap-input-field" value="${gap.toFixed(0)}" 
+                                min="${minGap}" data-index="${index}" ${readonly} placeholder="${placeholderText}">
+                         </label>
+                     `;
+                     elements.gapInputsContainer.innerHTML += inputHTML;
+                 });
+                 
+                 // Añadir listeners a los campos que NO son el último (porque el último es readonly)
+                 document.querySelectorAll('.gap-input-field:not([readonly])').forEach(input => {
+                      // Importante: usar 'change' aquí para estabilidad de los gaps
+                      input.addEventListener('change', updateManualGapsAndSVG);
+                 });
+            } else {
+                 elements.gapInputsContainer.innerHTML = `<p style="text-align: center; color: #777;">Un único hueco: ${availableWidthReal.toFixed(0)} mm</p>`;
+            }
+            
+            // Actualizar output del Hueco Base (muestra el valor de reparto uniforme original)
+            elements.calcGapResultante.textContent = gapRepartido.toFixed(0);
+            
+            // --- CÁLCULOS GEOMÉTRICOS Y ESCALADO (Sin cambios) ---
+            
+            const diffAlturas = altoIzq - altoDcho; 
+            const absDiffAlturas = Math.abs(diffAlturas);
+            const alphaRealRad = Math.atan(absDiffAlturas / ancho);
+            const alphaRealDeg = alphaRealRad * 180 / Math.PI; // ÁNGULO DE LA PENDIENTE (el valor que pide tu máquina)
+            const mReal = diffAlturas / ancho; 
+            const maxAlto = Math.max(altoIzq, altoDcho);
+            const isLeftHigher = altoIzq > altoDcho;
+            const diagonalSuperior = Math.sqrt(ancho * ancho + absDiffAlturas * absDiffAlturas); 
+            const isTrapezoid = absDiffAlturas > 0;
+            
+            const alphaEfectiva = alphaRealDeg / 2;
+            const corteMontanteIzqFinal = isLeftHigher ? (45 + alphaEfectiva) : (45 - alphaEfectiva);
+            const corteMontanteDchoFinal = isLeftHigher ? (45 - alphaEfectiva) : (45 + alphaEfectiva);
+            const corteLSupIFinal = 90 - corteMontanteDchoFinal;
+            const corteLSupDFinal = 90 - corteMontanteIzqFinal;
+            
+            const maxWidthForScale = viewBoxWidth - svgPadding * 2;
+            const maxHeightForScale = viewBoxHeight - svgPadding * 2;
+            let scale = Math.min(maxWidthForScale / ancho, maxHeightForScale / maxAlto);
+
+            const scaledAncho = ancho * scale;
+            const scaledAltoIzq = altoIzq * scale;
+            const scaledAltoDcho = altoDcho * scale;
+            let G = grosorPerfil * scale; // Grosor Perfil Escalado (Marco)
+            
+            const minVerticalScaled = Math.min(scaledAltoIzq, scaledAltoDcho);
+            if (G * 2 >= minVerticalScaled) { G = minVerticalScaled / 3; if (G < 5) G = 5; }
+            
+            const frameHeightScaled = maxAlto * scale; 
+            const translateY = (viewBoxHeight - frameHeightScaled) / 2; 
+            const baseY = viewBoxHeight - translateY; 
+            const baseX = (viewBoxWidth - scaledAncho) / 2; 
+            
+            const outerPointsScaled = [
+                {x: baseX, y: baseY}, {x: baseX, y: baseY - scaledAltoIzq},                      
+                {x: baseX + scaledAncho, y: baseY - scaledAltoDcho}, {x: baseX + scaledAncho, y: baseY}                         
+            ];
+            const P1_outer = outerPointsScaled[1]; 
+            const P2_outer = outerPointsScaled[2]; 
+            const m = (P2_outer.y - P1_outer.y) / (P2_outer.x - P1_outer.x); 
+            const alphaRad = Math.abs(alphaRealRad); 
+            let delta_Y_Line = G; 
+            if (alphaRad > 0.001) { delta_Y_Line = G / Math.cos(alphaRad); }
+            const glassLeftX = baseX + G;
+            const glassRightX = baseX + scaledAncho - G;
+            const glassBottomY = baseY - G; 
+            const glassP1Y = P1_outer.y + (m * G) + delta_Y_Line; 
+            const glassP2Y = P2_outer.y - (m * G) + delta_Y_Line; 
+            
+            const glassPointsScaled = [
+                {x: glassLeftX, y: glassBottomY}, {x: glassLeftX, y: glassP1Y},                   
+                {x: glassRightX, y: glassP2Y}, {x: glassRightX, y: glassBottomY}              
+            ];
+            
+            elements.dimensionesGroup.innerHTML = '';
+            elements.gradosCorteGroup.innerHTML = '';
+            elements.montantesGroup.innerHTML = '';
+
+            let maxAltoMontanteReal = 0;
+            let currentXReal = grosorPerfil; 
+            let montanteDimensionsSVG = ''; 
+            let montanteAnglesSVG = ''; 
+            
+            // --- BUCLE DE DIBUJO: Iterar sobre los GAPS ---
+            for (let i = 0; i < actualGaps.length; i++) {
+                
+                let currentGap = actualGaps[i];
+                
+                // 1. DIBUJAR COTA DEL HUECO (Gap i)
+                // CORRECCIÓN: Solo dibujar las cotas de hueco si hay montantes (N > 0)
+                if (N > 0) {
+                    const gapStartReal = currentXReal;
+                    const gapEndReal = gapStartReal + currentGap;
+                    
+                    const gapMidXReal = (gapStartReal + gapEndReal) / 2;
+                    const gapMidXScaled = (gapMidXReal * scale) + baseX;
+                    const gapTextY = glassBottomY - gapTextGlassBottomMargin; 
+                    
+                    // Mostrar el hueco real calculado/introducido
+                    montanteDimensionsSVG += `
+                        <text x="${gapMidXScaled}" y="${gapTextY}" class="montante-text-center">${currentGap.toFixed(0)}</text>
+                    `;
+                }
+                
+                currentXReal += currentGap;
+                
+                // 2. DIBUJAR EL MONTANTE (si no es el último hueco)
+                if (i < N) {
+                     const montantLeftXReal = currentXReal; 
+                     const H_top_left_real = altoIzq - mReal * montantLeftXReal;
+                     const H_top_right_real = altoIzq - mReal * (montantLeftXReal + grosorMontante);
+                     maxAltoMontanteReal = Math.max(maxAltoMontanteReal, H_top_left_real, H_top_right_real);
+                     
+                     const Gm = grosorMontante * scale;
+                     const montantLeftX_Scaled = (montantLeftXReal * scale) + baseX;
+                     const montantTopLeftY = baseY - (H_top_left_real * scale);
+                     const montantTopRightY = baseY - (H_top_right_real * scale);
+                     
+                     const montantPoints = [
+                         {x: montantLeftX_Scaled, y: glassBottomY},        
+                         {x: montantLeftX_Scaled, y: montantTopLeftY},     
+                         {x: montantLeftX_Scaled + Gm, y: montantTopRightY},   
+                         {x: montantLeftX_Scaled + Gm, y: glassBottomY}        
+                     ].map(p => `${p.x},${p.y}`).join(' ');
+ 
+                     elements.montantesGroup.innerHTML += `
+                         <polygon class="montante-vertical" points="${montantPoints}" />
+                         <polygon points="${montantPoints}" fill="none" class="frame-stroke-inner" />
+                     `;
+ 
+                     // DIBUJAMOS LA ALTURA Y EL ÁNGULO PARA CADA MONTANTE
+                     const midMontantXScaled = montantLeftX_Scaled + Gm / 2;
+                     const Y_mid_top_edge = (montantTopLeftY + montantTopRightY) / 2; 
+                     const Y_center_montante = (glassBottomY + Y_mid_top_edge) / 2;
+                     
+                     // APLICACIÓN DE LA NUEVA CONSTANTE: Desplaza la cota vertical
+                     const textXPosition = midMontantXScaled + montanteLateralDist; 
+                     
+                     // Usamos el promedio de altura para la cota
+                     const heightValue = ((H_top_left_real + H_top_right_real) / 2).toFixed(0);
+ 
+                     montanteDimensionsSVG += `
+                         <text x="${textXPosition}" y="${Y_center_montante + 6}" 
+                             transform="rotate(-90 ${textXPosition} ${Y_center_montante})" 
+                             class="montante-text-center" dominant-baseline="central">${heightValue}</text>
+                     `;
+                     
+                     // Usamos alphaRealDeg (Ángulo de la Pendiente)
+                     // Modificado a -30 para subir el texto de los grados de corte
+                     const angleTextY = Y_mid_top_edge - 30; 
+                     montanteAnglesSVG += `
+                         <text x="${midMontantXScaled}" y="${angleTextY}" class="angle-text">${alphaRealDeg.toFixed(1)}°</text>
+                     `;
+                     
+                     currentXReal += grosorMontante;
+                }
+            }
+
+            // --- DIBUJO DEL MARCO Y COTAS PRINCIPALES (Aplicación de dimGapAncho) ---
+            
+            elements.frameSVG.style.setProperty('--frame-color', elements.colorMarcoInput.value);
+            elements.frameSVG.style.setProperty('--outer-border-color', elements.colorBordeExteriorInput.value);
+            elements.frameSVG.style.setProperty('--inner-border-color', elements.colorBordeInteriorInput.value);
+            elements.frameSVG.style.setProperty('--glass-color', elements.colorCristalInput.value);
+
+            const outerPoints = outerPointsScaled.map(p => `${p.x},${p.y}`).join(' ');
+            const glassPoints = glassPointsScaled.map(p => `${p.x},${p.y}`).join(' ');
+
+            document.getElementById('outerFrameFill').setAttribute('points', outerPoints);
+            document.getElementById('glassAreaRecess').setAttribute('points', glassPoints); 
+            document.getElementById('glassPolygonBase').setAttribute('points', glassPoints);
+            document.getElementById('outerFrameStroke').setAttribute('points', outerPoints);
+            document.getElementById('innerFrameStroke').setAttribute('points', glassPoints);
+            
+            let mainDimensionsSVG = `
+                <text x="${(outerPointsScaled[0].x + outerPointsScaled[3].x) / 2}" y="${baseY + dimGapAncho}" class="dimension-text">${ancho.toFixed(0)}</text>
+                
+                <text x="${baseX - dimGap}" y="${(outerPointsScaled[0].y + outerPointsScaled[1].y) / 2 + 6}" transform="rotate(-90 ${baseX - dimGap} ${(outerPointsScaled[0].y + outerPointsScaled[1].y) / 2})" class="dimension-text">${altoIzq.toFixed(0)}</text>
+            `;
+            
+            if (isTrapezoid) {
+                const altoDchoMidY = (outerPointsScaled[3].y + outerPointsScaled[2].y) / 2;
+                
+                // Usa dimGap para la cota de Alto Derecho
+                mainDimensionsSVG += `
+                    <text x="${outerPointsScaled[3].x + dimGap}" y="${altoDchoMidY + 6}" transform="rotate(90 ${outerPointsScaled[3].x + dimGap} ${altoDchoMidY})" class="dimension-text">${altoDcho.toFixed(0)}</text>
+                `;
+                
+                const p1 = outerPointsScaled[1];
+                const p2 = outerPointsScaled[2];
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+                const angleText = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+                const anglePerpendicular = angleText + 90;
+                const dx = diagDistScaled * Math.cos(anglePerpendicular * Math.PI / 180);
+                const dy = diagDistScaled * Math.sin(anglePerpendicular * Math.PI / 180);
+
+                // Posición de la cota diagonal corregida
+                mainDimensionsSVG += `
+                    <text x="${midX + dx}" y="${midY + dy + 6}" transform="rotate(${angleText}, ${midX + dx}, ${midY + dy})" class="dimension-text">${diagonalSuperior.toFixed(0)}</text>
+                `;
+            }
+
+            elements.dimensionesGroup.innerHTML = mainDimensionsSVG + montanteDimensionsSVG;
+
+            let mainAnglesSVG = ''; 
+            function drawAngleTextOutside(cx, cy, text, isTop) {
+                const dist = isTop ? topAngleDist : bottomAngleDist;
+                let textY = isTop ? cy - dist : cy + dist;
+                return `<text x="${cx}" y="${textY}" class="angle-text">${text}°</text>`;
+            }
+
+            mainAnglesSVG += drawAngleTextOutside(outerPointsScaled[1].x, outerPointsScaled[1].y, corteLSupIFinal.toFixed(1), true); 
+            mainAnglesSVG += drawAngleTextOutside(outerPointsScaled[2].x, outerPointsScaled[2].y, corteLSupDFinal.toFixed(1), true); 
+            mainAnglesSVG += drawAngleTextOutside(outerPointsScaled[0].x, outerPointsScaled[0].y, '45.0', false);
+            mainAnglesSVG += drawAngleTextOutside(outerPointsScaled[3].x, outerPointsScaled[3].y, '45.0', false);
+
+            elements.gradosCorteGroup.innerHTML = mainAnglesSVG + montanteAnglesSVG;
+
+            // --- ACTUALIZAR CÁLCULOS MOSTRADOS ---
+            const diagonalParent = elements.calcDiagonalOutput.parentNode;
+            if (isTrapezoid) {
+                 elements.calcDiagonalOutput.textContent = diagonalSuperior.toFixed(0); 
+                 diagonalParent.style.display = 'block';
+            } else {
+                 elements.calcDiagonalOutput.textContent = ancho.toFixed(0); 
+                 diagonalParent.style.display = 'none';
+            }
+            
+            document.getElementById('calcAlpha').textContent = alphaRealDeg.toFixed(1); 
+            document.getElementById('calcCorteMI').textContent = corteMontanteIzqFinal.toFixed(1); 
+            document.getElementById('calcCorteMD').textContent = corteMontanteDchoFinal.toFixed(1); 
+            document.getElementById('calcCorteLSupI').textContent = corteLSupIFinal.toFixed(1); 
+            document.getElementById('calcCorteLSupD').textContent = corteLSupDFinal.toFixed(1); 
+            
+            // Output de máquina (Ángulo de la Pendiente)
+            document.getElementById('calcCorteMV').textContent = alphaRealDeg.toFixed(1); 
+            
+            document.getElementById('calcAltoMaxMV').textContent = maxAltoMontanteReal > 0 ? maxAltoMontanteReal.toFixed(0) : 'N/A';
+            document.getElementById('calcNumMontantes').textContent = numMontantes.toFixed(0);
+            
+            // --- ACTUALIZACIÓN DE BOTONES DE COLOR AL INICIO ---
+            updateColorButton(elements.colorMarcoInput, elements.marcoButton);
+            updateColorButton(elements.colorBordeExteriorInput, elements.bordeExteriorButton);
+            updateColorButton(elements.colorBordeInteriorInput, elements.bordeInteriorButton);
+            updateColorButton(elements.colorCristalInput, elements.cristalButton);
+        }
+        
+        // --- FUNCIÓN DE VISIBILIDAD DE GRUPOS (Sin cambios) ---
+        function toggleVisibility(groupElement, buttonElement, type) {
+            const isHidden = groupElement.classList.toggle('hidden');
+            if (isHidden) {
+                buttonElement.textContent = `Mostrar ${type}`;
+            } else {
+                buttonElement.textContent = `Ocultar ${type}`;
+            }
+        }
+
+        // --- Configuración de Event Listeners ---
+        
+        // Al cambiar el alto total, actualizamos los lados (instantáneo).
+        elements.altoTotalInput.addEventListener('input', updateHeightsFromTotal);
+        
+        // Al cambiar un lado, actualizamos el total (si son iguales) y redibujamos (instantáneo).
+        elements.altoIzqInput.addEventListener('input', updateHeightsFromSides);
+        elements.altoDchoInput.addEventListener('input', updateHeightsFromSides);
+        
+        // Al cambiar ANCHO o GROSOR, se deben re-validar los largueros y redibujar (instantáneo).
+        // checkLarguerosAndUpdate() llama a updateSVG() internamente.
+        elements.anchoInput.addEventListener('input', checkLarguerosAndUpdate);
+        elements.grosorPerfilInput.addEventListener('input', checkLarguerosAndUpdate); 
+        elements.grosorMontanteInput.addEventListener('input', checkLarguerosAndUpdate); 
+        
+        // Los selectores de color SÍ deben usar 'input' para feedback instantáneo
+        elements.colorMarcoInput.addEventListener('input', () => updateColorButton(elements.colorMarcoInput, elements.marcoButton));
+        elements.colorBordeExteriorInput.addEventListener('input', () => updateColorButton(elements.colorBordeExteriorInput, elements.bordeExteriorButton));
+        elements.colorBordeInteriorInput.addEventListener('input', () => updateColorButton(elements.colorBordeInteriorInput, elements.bordeInteriorButton));
+        elements.colorCristalInput.addEventListener('input', () => updateColorButton(elements.colorCristalInput, elements.cristalButton));
+        
+        // Listeners para los botones de largueros
+        elements.addLarguero.addEventListener('click', addLarguero);
+        elements.removeLarguero.addEventListener('click', removeLarguero);
+        
+        elements.toggleDimensions.addEventListener('click', () => {
+             toggleVisibility(elements.dimensionesGroup, elements.toggleDimensions, 'Medidas');
+        });
+        elements.toggleAngles.addEventListener('click', () => {
+            toggleVisibility(elements.gradosCorteGroup, elements.toggleAngles, 'Grados');
+        });
+
+        // Listener para el nuevo botón de Exportar
+        elements.exportImageButton.addEventListener('click', exportSVGAsImage);
+
+        // Inicialización
+        updateHeightsFromSides(); 
+    </script>
+
+</body>
+</html>

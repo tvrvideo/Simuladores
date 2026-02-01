@@ -1,0 +1,958 @@
+<html lang="es"><head>
+  <meta charset="utf-8">
+  <title>Cierre con lamas</title>
+  <style>
+    body{
+      touch-action: manipulation;
+      margin:0;
+      font-family:sans-serif;
+      background:#FDFDFB;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:20px;
+      gap:20px;
+      font-size: 16px; 
+    }
+    h1{margin:0; font-size:90px; color:#0061FE;} 
+    form{
+      display:flex;
+      flex-direction: column;
+      gap: 20px;
+      background:#E9E0D2;
+      padding:24px;
+      border:1px solid #d1d5db;
+      border-radius:8px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 12px 15px rgba(0,0,0,0.4); 
+    }
+    .input-row {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .input-row > div {
+        flex: 1;
+        min-width: 200px;
+    }
+    label{
+        font-size: 40px; 
+        display:block;
+        margin-bottom:8px;
+        font-weight: 600;
+        text-align: center;
+    }
+    input, select{
+      width:100%; 
+      padding:12px 16px; 
+      border:5px solid #000; 
+      border-radius:12px; 
+      font-size: 40px; 
+      text-align: center; 
+      background-color: #fffacd;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.7); 
+      transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    }
+    input:focus {
+        border-color: #3b82f6; 
+        box-shadow: 0 0 15px rgba(59, 130, 246, 1);
+        outline: none;
+        background-color: #ffffff;
+    }
+    #color-selectors-container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .color-picker-button {
+        flex: 1;
+        padding: 20px 10px;
+        font-size: 45px;
+        border: 3px solid
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 200px;
+        box-shadow: 0 8px 12px rgba(0,0,0,0.3); 
+        position: relative; 
+        overflow: hidden; 
+        background-color: white;
+    }
+    .color-picker-button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 15px rgba(0,0,0,0.4); 
+    }
+    .color-picker-button input[type="color"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        padding: 0; 
+        margin: 0; 
+        border: none;
+        z-index: 10;
+    }
+    .dimensions-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px; 
+    }
+    .dimensions-labels-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 columnas iguales */
+        gap: 20px;
+        text-align: center;
+        margin-bottom: 0;
+    }
+    .dimensions-labels-row label {
+        margin-bottom: 0;
+        line-height: 1.2;
+    }
+    .dimensions-inputs-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+    }
+    svg{
+      border:1px solid #9ca3af;
+      background:#fff;
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+
+// TEXTO FINAL 
+
+    }
+    .stats{
+        font-size: 40px;
+        color:#374151;
+        text-align: center;
+        width: 100%;
+        max-width: 900px;
+    }
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    button {
+
+// BOTONES AZULES ABAJO
+
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      background-color: #fff;
+      color: #374151;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 43px;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: none; 
+      border-color: #1e3a8a;
+    }
+    button:hover {
+      background-color: #e0eaff;
+      border-color: #93c5fd;
+      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+    .button-row button {
+        background-color: #1e3a8a;
+        color: #fff;
+        border-color: #1e3a8a;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.7); 
+    }
+    .button-row button.active {
+      background-color: #e0eaff;
+      color: #374151;
+      border-color: #93c5fd;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.4); 
+    }
+    .button-row button:hover {
+
+        box-shadow: 0 12px 20px rgba(0,0,0,0.8); 
+        opacity: 0.9; 
+    }
+    .ral-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    .ral-buttons-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 20px;
+      width: 100%;
+      padding: 0;
+    }
+    .ral-button {
+      cursor: pointer;
+      padding: 14px 18px;
+      border-radius: 12px; 
+      font-size: 35px;
+      text-align: center;
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 5px solid #000; 
+      box-shadow: 0 10px 15px rgba(0,0,0,0.7); 
+    }
+    .ral-button.selected {
+
+      border: 6px solid #007bff;
+      box-shadow: 0 0 15px rgba(0,123,255,1);
+      transform: scale(1.08); 
+    }
+    .ral-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.8); 
+      opacity: 1; 
+    }
+    .ral-button span:first-child {
+        font-size: 30px;
+        font-weight: bold;
+    }
+    .ral-button span:last-child {
+        font-size: 40px;
+        font-weight: normal;
+        margin-top: -5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cierre con lamas</h1>
+  <form id="form">
+    <div class="dimensions-group">
+        <div class="dimensions-labels-row">
+            <label for="ancho">Ancho</label>
+            <label for="alto">Alto</label>
+            <label for="altoLama">Lama</label>
+            <label for="marco">Marco</label>
+            <label for="sep">Hueco</label>
+        </div>
+        <div class="dimensions-inputs-row">
+            <input type="number" id="ancho" value="2000" min="100">
+            <input type="number" id="alto" value="900" min="100">
+            <input type="number" id="altoLama" value="200" min="5">
+            <input type="number" id="marco" value="50" min="0">
+            <input type="number" id="sep" value="20" min="0" step="0.5">
+        </div>
+    </div>
+    
+    <div class="input-row" id="color-selectors-container">
+        <button type="button" id="selectMarcoColor" class="color-picker-button">
+            Color Marco
+            <input type="color" id="colorMarcoPicker" value="#4b5563">
+        </button>
+        <button type="button" id="selectLamaColor" class="color-picker-button">
+            Color Lama
+            <input type="color" id="colorLamaPicker" value="#4b5563">
+        </button>
+    </div>
+    <div class="input-row">
+      <div class="ral-container">
+        <label>Colores RAL</label>
+        <div class="ral-buttons-container" id="ral-buttons">
+            <button type="button" class="ral-button" data-color="#2b2c7c" data-ral="5010"><span>RAL</span><span>5010</span></button>            
+<button type="button" class="ral-button" data-color="#1c1c1c" data-ral="9005"><span>RAL</span><span>9005</span></button>
+            <button type="button" class="ral-button" data-color="#374447" data-ral="7016"><span>RAL</span><span>7016</span></button>
+            <button type="button" class="ral-button" data-color="#6c7074" data-ral="7043"><span>RAL</span><span>7043</span></button>
+            <button type="button" class="ral-button" data-color="#e4e6e7" data-ral="9010"><span>RAL</span><span>9010</span></button>
+            <button type="button" class="ral-button" data-color="#44322d" data-ral="8017"><span>RAL</span><span>8017</span></button>
+            <button type="button" class="ral-button" data-color="#543c2c" data-ral="8014"><span>RAL</span><span>8014</span></button>
+            <button type="button" class="ral-button" data-color="#92886f" data-ral="2004"><span>RAL</span><span>7034</span></button>
+            <button type="button" class="ral-button" data-color="#d0b084" data-ral="1001"><span>RAL</span><span>1001</span></button>
+            <button type="button" class="ral-button" data-color="#F7B500" data-ral="2004"><span>RAL</span><span>1023</span></button>
+            <button type="button" class="ral-button" data-color="#1b542c" data-ral="6009"><span>RAL</span><span>6009</span></button>
+            <button type="button" class="ral-button" data-color="#28713e" data-ral="6005"><span>RAL</span><span>6005</span></button>
+            <button type="button" class="ral-button" data-color="#48a43f" data-ral="2004"><span>RAL</span><span>6018</span></button>
+            <button type="button" class="ral-button" data-color="#8d1d2c" data-ral="3005"><span>RAL</span><span>3005</span></button>
+            <button type="button" class="ral-button" data-color="#e86b16" data-ral="2004"><span>RAL</span><span>2004</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div>
+        <label for="altoUtillamas">Alto lamas</label>
+        <input type="number" id="altoUtillamas" value="" min="100">
+      </div>
+    </div>
+
+    <div class="button-row">
+        <button type="button" id="toggleDistrMode">Variar huecos</button>
+        <button type="button" class="action-button" id="toggleWidthCota">Ocultar ancho</button>
+        <button type="button" class="action-button" id="toggleHeightCota">Ocultar alto</button>
+        <button type="button" class="action-button" id="toggleRedCota">Mostrar cota roja</button>
+        <button type="button" class="action-button" id="toggleMarco">Ocultar marco</button>
+        <button type="button" class="action-button" id="toggleOrientation">Cambiar horizontal</button>
+        <button type="button" class="action-button" id="toggleLarguero">Añadir larguero</button>
+        <button type="button" class="action-button" id="togglePoste">Añadir poste</button>
+    </div>
+  </form>
+
+  <svg id="canvas" viewBox="0 0 900 800" width="100%" height="auto"></svg>
+  <div class="stats" id="stats">Lamas: 3 | Alto útil: 700 mm | Alto de lama: 200 mm | Hueco: 50 mm</div>
+
+  <script>
+    let showWidthCota = true;
+    let showHeightCota = true;
+    let showRedCota = true;
+    let showMarco = true;
+    let isVertical = false;
+    let isLamaMode = false;
+    let updatingFromDraw = false;
+    let originalAltoLama = 200;
+    let showLarguero = false;
+    let showPoste = false;
+    
+    // Función de utilidad para encontrar el color de contraste (blanco o negro)
+    function getContrastColor(hexcolor) {
+        const r = parseInt(hexcolor.substring(1, 3), 16);
+        const g = parseInt(hexcolor.substring(3, 5), 16);
+        const b = parseInt(hexcolor.substring(5, 7), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness > 125 ? '#000' : '#fff';
+    }
+    
+    // -------------------------------------------------------------------
+    // Funciones de utilidad SVG
+    // -------------------------------------------------------------------
+    let scale = 1;
+
+    function createRect(x, y, w, h, fill, stroke = "none", strokeWidth = 0) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", x);
+        rect.setAttribute("y", y);
+        rect.setAttribute("width", w);
+        rect.setAttribute("height", h);
+        rect.setAttribute("fill", fill);
+        rect.setAttribute("stroke", stroke);
+        if (strokeWidth > 0) {
+             // El stroke-width se divide por scale para mantener un grosor constante en píxeles de pantalla
+             rect.setAttribute("stroke-width", strokeWidth / scale); 
+        }
+        return rect;
+    }
+    
+    function createLine(x1, y1, x2, y2, stroke, strokeWidth) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("stroke", stroke);
+        line.setAttribute("stroke-width", strokeWidth / scale);
+        return line;
+    }
+
+    // -------------------------------------------------------------------
+    // FUNCIÓN PRINCIPAL DE DIBUJO (SVG)
+    // -------------------------------------------------------------------
+    function drawCierre(){
+      const vals = computeValues();
+      const svg = document.getElementById("canvas");
+
+      // 1. Limpiar el SVG
+      svg.innerHTML = '';
+
+      const canvasWidth = 900;
+      const canvasHeight = 800;
+      
+      // canvasPadding REVERTIDO a 150
+      const canvasPadding = 150; 
+      
+      // Configurar el viewBox (para que el SVG mantenga proporciones)
+      svg.setAttribute('viewBox', `0 0 ${canvasWidth} ${canvasHeight}`);
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', 'auto');
+
+      // Cálculo de escala (mantenido del canvas)
+      const scaleX = (canvasWidth - 2 * canvasPadding) / vals.ancho;
+      const scaleY = (canvasHeight - 2 * canvasPadding) / vals.alto;
+      scale  = Math.min(scaleX, scaleY);
+      
+      const offsetX = (canvasWidth - vals.ancho * scale)/2;
+      const offsetY = (canvasHeight - vals.alto * scale)/2;
+      
+      // 2. Crear grupo de transformación (simula ctx.translate y ctx.scale)
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.setAttribute("transform", `translate(${offsetX}, ${offsetY}) scale(${scale}, ${scale})`);
+      svg.appendChild(g);
+      
+      // -------------------------------------------------------------------
+      // DIBUJO DEL MARCO
+      // -------------------------------------------------------------------
+      const r_marco = parseInt(vals.colorMarco.substring(1, 3), 16);
+      const g_marco = parseInt(vals.colorMarco.substring(3, 5), 16);
+      const b_marco = parseInt(vals.colorMarco.substring(5, 7), 16);
+      const brightness_marco = (r_marco * 299 + g_marco * 587 + b_marco * 114) / 1000;
+      const strokeStyleMarco = brightness_marco > 125 ? '#000000' : '#d1d5db';
+
+      if(showMarco) {
+          // Marco exterior
+          g.appendChild(createRect(0, 0, vals.ancho, vals.alto, vals.colorMarco, strokeStyleMarco, 1));
+          
+          // Área interior (parte de lamas)
+          const innerRect = createRect(vals.marco, vals.marco,
+                       vals.ancho-2*vals.marco, vals.alto-2*vals.marco, 
+                       "#fff", strokeStyleMarco, 1);
+          g.appendChild(innerRect);
+          
+          // Repite el borde interior para que se vea como en Canvas
+          g.appendChild(createRect(vals.marco, vals.marco,
+                       vals.ancho-2*vals.marco, vals.alto-2*vals.marco, 
+                       "none", strokeStyleMarco, 1));
+      }
+      
+      let n, espacioEntreLamas, cotaUtilLamas, anchoUtil, altoUtil, nuevoAltoLama;
+
+      if (isVertical) {
+          anchoUtil = vals.ancho - 2 * vals.marco;
+          if (isLamaMode) {
+              const huecoTotal = anchoUtil;
+              const nLamas = Math.round(huecoTotal / (vals.altoLama + vals.sep));
+              if (nLamas > 0) {
+                  nuevoAltoLama = (huecoTotal - (nLamas + 1) * vals.sep) / nLamas;
+                  n = nLamas;
+                  espacioEntreLamas = vals.sep;
+              } else {
+                  n = 0;
+                  nuevoAltoLama = 0;
+                  espacioEntreLamas = 0;
+              }
+              if (!updatingFromDraw) {
+                  document.getElementById("altoLama").value = Math.round(nuevoAltoLama);
+              }
+          } else { // Variar huecos
+              n = Math.floor(anchoUtil / (vals.altoLama + vals.sep));
+              const espacioTotal = anchoUtil - n * vals.altoLama;
+              espacioEntreLamas = n > 0 ? espacioTotal / (n + 1) : 0;
+              nuevoAltoLama = vals.altoLama;
+          }
+          cotaUtilLamas = (n > 0) ? (n * nuevoAltoLama) + ((n - 1) * espacioEntreLamas) : 0;
+      } else { // Horizontal
+          altoUtil = vals.alto - 2 * vals.marco;
+          if (isLamaMode) {
+              const huecoTotal = altoUtil;
+              const nLamas = Math.round(huecoTotal / (vals.altoLama + vals.sep));
+              if (nLamas > 0) {
+                  nuevoAltoLama = (huecoTotal - (nLamas + 1) * vals.sep) / nLamas;
+                  n = nLamas;
+                  espacioEntreLamas = vals.sep;
+              } else {
+                  n = 0;
+                  nuevoAltoLama = 0;
+                  espacioEntreLamas = 0;
+              }
+              if (!updatingFromDraw) {
+                  document.getElementById("altoLama").value = Math.round(nuevoAltoLama);
+              }
+          } else { // Variar huecos
+              n = Math.floor(altoUtil / (vals.altoLama + vals.sep));
+              const espacioTotal = altoUtil - n * vals.altoLama;
+              espacioEntreLamas = n > 0 ? espacioTotal / (n + 1) : 0;
+              nuevoAltoLama = vals.altoLama;
+          }
+          cotaUtilLamas = (n > 0) ? (n * nuevoAltoLama) + ((n - 1) * espacioEntreLamas) : 0;
+      }
+      
+      const altoUtillamasInput = document.getElementById("altoUtillamas");
+      if (!updatingFromDraw) {
+        altoUtillamasInput.value = Math.round(cotaUtilLamas);
+      }
+
+      // -------------------------------------------------------------------
+      // DIBUJO DE LAMAS
+      // -------------------------------------------------------------------
+      const r = parseInt(vals.colorLama.substring(1, 3), 16);
+      const gLama = parseInt(vals.colorLama.substring(3, 5), 16);
+      const b = parseInt(vals.colorLama.substring(5, 7), 16);
+      const brightness = (r * 299 + gLama * 587 + b * 114) / 1000;
+      const strokeStyleLama = brightness > 125 ? '#000000' : '#d1d5db';
+      
+      for(let i=0; i<n; i++){
+        if (isVertical) {
+            const x = vals.marco + espacioEntreLamas + i * (nuevoAltoLama + espacioEntreLamas);
+            g.appendChild(createRect(x, vals.marco, nuevoAltoLama, vals.alto - 2 * vals.marco, vals.colorLama, strokeStyleLama, 1));
+        } else {
+            const y = vals.marco + espacioEntreLamas + i * (nuevoAltoLama + espacioEntreLamas);
+            g.appendChild(createRect(vals.marco, y, vals.ancho - 2 * vals.marco, nuevoAltoLama, vals.colorLama, strokeStyleLama, 1));
+        }
+      }
+      
+      // -------------------------------------------------------------------
+      // DIBUJO DE LARGUERO Y POSTE
+      // -------------------------------------------------------------------
+
+      if (showLarguero && vals.ancho > 1000) {
+          const largueroWidth = vals.marco;
+          const largueroGap = 5; 
+          const totalLargueroWidth = 2 * largueroWidth + largueroGap;
+          
+          const xLarguero1 = vals.ancho / 2 - totalLargueroWidth / 2;
+          const xLarguero2 = xLarguero1 + largueroWidth + largueroGap;
+          
+          // Primer larguero
+          g.appendChild(createRect(xLarguero1, 0, largueroWidth, vals.alto, vals.colorMarco, "#ffffff", 0.5));
+          
+          // Segundo larguero
+          g.appendChild(createRect(xLarguero2, 0, largueroWidth, vals.alto, vals.colorMarco, "#ffffff", 0.5));
+          
+          // Línea blanca en el centro entre los largueros
+          const xLineaBlanca = xLarguero1 + largueroWidth;
+          g.appendChild(createLine(xLineaBlanca, 0, xLineaBlanca, vals.alto, "#ffffff", 2));
+      }
+      
+      if (showPoste) {
+          let posteX, posteY, posteWidth, posteHeight;
+          if (isVertical) {
+              posteHeight = vals.marco;
+              posteY = vals.alto / 2 - posteHeight / 2;
+              posteWidth = vals.ancho;
+              posteX = 0;
+          } else {
+              posteWidth = vals.marco;
+              posteX = vals.ancho / 2 - posteWidth / 2;
+              posteHeight = vals.alto;
+              posteY = 0;
+          }
+          
+          // Dibujar el poste
+          g.appendChild(createRect(posteX, posteY, posteWidth, posteHeight, vals.colorMarco, "#4b5563", 0.5));
+      }
+
+      // -------------------------------------------------------------------
+      // DIBUJO DE COTAS (ADAPTADO A SVG)
+      // -------------------------------------------------------------------
+      const cotaColor = "#1d4ed8";
+      const cotaColorSpecial = "#ef4444";
+      
+      // *** AJUSTE CLAVE 2: Valores fijos deseados en PÍXELES de pantalla para acercar al dibujo ***
+      const COTA_OFFSET_LINE_PX = - 15;      // Distancia de la línea de cota al dibujo (AÚN MÁS CERCANA: 1px)
+      const COTA_OFFSET_TEXT_PX = 35;     // Distancia del texto a la línea de cota (REDUCIDO: 15px)
+      const COTA_SEPARACION_PX = 15;      // Separación entre niveles de cota (MÁS JUNTOS: 15px)
+      
+      // Convertir a unidades de dibujo (mm) dividiendo por el factor de escala
+      const cotaOffsetLine = COTA_OFFSET_LINE_PX / scale;
+      const cotaOffsetText = COTA_OFFSET_TEXT_PX / scale;
+      const cotaSeparacion = COTA_SEPARACION_PX / scale;
+      
+      function drawDimLineSVG(x1, y1, x2, y2, text, vertical, level = 1, color = cotaColor, alignRight = false, invertText = false, textBelowLine = false) {
+          
+          // Distancia de la línea de cota al marco
+          const lineOffset = cotaOffsetLine + (level - 1) * cotaSeparacion;
+          // Distancia del texto al marco (es la posición del texto)
+          const totalOffset = lineOffset + cotaOffsetText;
+
+          const arrowSize = 5 / scale;
+          const fontSize = 55 / scale;
+          
+          let textX, textY, lineStartX, lineStartY, lineEndX, lineEndY;
+          let textTransform = "";
+          
+          if (vertical) {
+              // Cotas Verticales (Derecha/Izquierda)
+              if (alignRight) { // Derecha del dibujo
+                  lineStartX = x1 + lineOffset;
+                  lineEndX = x1 + lineOffset;
+                  textX = x1 + totalOffset;
+              } else { // Izquierda del dibujo
+                  lineStartX = x1 - lineOffset;
+                  lineEndX = x1 - lineOffset;
+                  textX = x1 - totalOffset;
+              }
+              lineStartY = y1;
+              lineEndY = y2;
+              textY = (y1 + y2) / 2;
+              
+              const rotation = invertText ? -90 : 90;
+              textTransform = `rotate(${rotation} ${textX} ${textY})`;
+              
+              // Línea de cota principal
+              g.appendChild(createLine(lineStartX, lineStartY, lineEndX, lineEndY, color, 1));
+              
+              // Líneas de extensión
+              const offsetLineExtension = 15 / scale;
+              if (alignRight) {
+                  g.appendChild(createLine(x1, y1, x1 + offsetLineExtension, y1, color, 1));
+                  g.appendChild(createLine(x1, y2, x1 + offsetLineExtension, y2, color, 1));
+              } else {
+                  g.appendChild(createLine(x1, y1, x1 - offsetLineExtension, y1, color, 1));
+                  g.appendChild(createLine(x1, y2, x1 - offsetLineExtension, y2, color, 1));
+              }
+              
+              // Puntas de flecha (usando polilínea para la flecha en forma de V)
+              const arrowPointsStart = alignRight 
+                  ? `${lineStartX - arrowSize},${lineStartY + arrowSize} ${lineStartX},${lineStartY} ${lineStartX + arrowSize},${lineStartY + arrowSize}`
+                  : `${lineStartX + arrowSize},${lineStartY + arrowSize} ${lineStartX},${lineStartY} ${lineStartX - arrowSize},${lineStartY + arrowSize}`;
+              const arrowPointsEnd = alignRight 
+                  ? `${lineEndX - arrowSize},${lineEndY - arrowSize} ${lineEndX},${lineEndY} ${lineEndX + arrowSize},${lineEndY - arrowSize}`
+                  : `${lineEndX + arrowSize},${lineEndY - arrowSize} ${lineEndX},${lineEndY} ${lineEndX - arrowSize},${lineEndY - arrowSize}`;
+
+              const createArrow = (points) => {
+                  const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                  polyline.setAttribute("points", points);
+                  polyline.setAttribute("fill", "none");
+                  polyline.setAttribute("stroke", color);
+                  polyline.setAttribute("stroke-width", 1 / scale);
+                  return polyline;
+              };
+
+              g.appendChild(createArrow(arrowPointsStart));
+              g.appendChild(createArrow(arrowPointsEnd));
+
+              
+          } else { // Horizontal
+              // Cotas Horizontales (Arriba/Abajo)
+              lineStartX = x1;
+              lineEndX = x2;
+              textX = (x1 + x2) / 2;
+              
+              if (textBelowLine) { // Abajo del dibujo
+                  lineStartY = y1 + lineOffset;
+                  lineEndY = y1 + lineOffset;
+                  textY = y1 + totalOffset;
+              } else { // Arriba del dibujo
+                  lineStartY = y1 - lineOffset;
+                  lineEndY = y1 - lineOffset;
+                  textY = y1 - totalOffset;
+              }
+              
+              // Línea de cota principal
+              g.appendChild(createLine(lineStartX, lineStartY, lineEndX, lineEndY, color, 1));
+              
+              // Líneas de extensión
+              const offsetLineExtension = 15 / scale;
+              if (textBelowLine) {
+                  g.appendChild(createLine(x1, y1, x1, y1 + offsetLineExtension, color, 1));
+                  g.appendChild(createLine(x2, y2, x2, y2 + offsetLineExtension, color, 1));
+              } else {
+                  g.appendChild(createLine(x1, y1, x1, y1 - offsetLineExtension, color, 1));
+                  g.appendChild(createLine(x2, y2, x2, y2 - offsetLineExtension, color, 1));
+              }
+              
+              // Puntas de flecha
+              const arrowPointsStart = textBelowLine 
+                  ? `${lineStartX + arrowSize},${lineStartY - arrowSize} ${lineStartX},${lineStartY} ${lineStartX + arrowSize},${lineStartY + arrowSize}`
+                  : `${lineStartX + arrowSize},${lineStartY + arrowSize} ${lineStartX},${lineStartY} ${lineStartX + arrowSize},${lineStartY - arrowSize}`;
+              const arrowPointsEnd = textBelowLine
+                  ? `${lineEndX - arrowSize},${lineEndY - arrowSize} ${lineEndX},${lineEndY} ${lineEndX - arrowSize},${lineEndY + arrowSize}`
+                  : `${lineEndX - arrowSize},${lineEndY + arrowSize} ${lineEndX},${lineEndY} ${lineEndX - arrowSize},${lineEndY - arrowSize}`;
+
+              const createArrow = (points) => {
+                  const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                  polyline.setAttribute("points", points);
+                  polyline.setAttribute("fill", "none");
+                  polyline.setAttribute("stroke", color);
+                  polyline.setAttribute("stroke-width", 1 / scale);
+                  return polyline;
+              };
+
+              g.appendChild(createArrow(arrowPointsStart));
+              g.appendChild(createArrow(arrowPointsEnd));
+          }
+          
+          // Texto
+          const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          textElement.setAttribute("x", textX);
+          textElement.setAttribute("y", textY);
+          textElement.setAttribute("fill", color);
+          textElement.setAttribute("font-size", `${fontSize}px`);
+          textElement.setAttribute("text-anchor", "middle"); 
+          
+          // Ajuste vertical para el texto
+          if (vertical) {
+              textElement.setAttribute("dominant-baseline", "middle");
+          } else if (textBelowLine) {
+              textElement.setAttribute("dominant-baseline", "hanging"); 
+          } else {
+              textElement.setAttribute("dominant-baseline", "alphabetic"); 
+          }
+          
+          if (textTransform) {
+              textElement.setAttribute("transform", textTransform);
+          }
+          textElement.textContent = text;
+          g.appendChild(textElement);
+      }
+      
+      let anchoCota = showMarco ? vals.ancho : vals.ancho - 2 * vals.marco;
+      let anchoStartX = showMarco ? 0 : vals.marco;
+      let anchoEndX = showMarco ? vals.ancho : vals.ancho - vals.marco;
+
+      if(showWidthCota) {
+        // Nivel 3 para ancho total (arriba)
+        drawDimLineSVG(anchoStartX, 0, anchoEndX, 0, `${Math.round(anchoCota)} mm`, false, 3);
+      }
+      
+      if(showHeightCota) {
+        // Nivel 3 para alto total (izquierda)
+        drawDimLineSVG(0, 0, 0, vals.alto, `${Math.round(vals.alto)} mm`, true, 3, cotaColor, false, true);
+      }
+      
+      if (showRedCota) {
+          if (n > 0) {
+              if (isVertical) {
+                  const xStartCotaRoja = vals.marco + espacioEntreLamas; 
+                  const xEndCotaRoja = xStartCotaRoja + cotaUtilLamas;
+                  
+                  // Nivel 4 para cota roja (abajo, horizontal)
+                  drawDimLineSVG(vals.alto, vals.alto, xEndCotaRoja, vals.alto, `${Math.round(cotaUtilLamas)} mm`, false, 4, cotaColorSpecial, false, false, true);
+              } else {
+                  const yStartCotaRoja = vals.marco + espacioEntreLamas;
+                  const yEndCotaRoja = yStartCotaRoja + cotaUtilLamas;
+                  
+                  // Nivel 4 para cota roja (derecha, vertical)
+                  drawDimLineSVG(vals.ancho, yStartCotaRoja, vals.ancho, yEndCotaRoja, `${Math.round(cotaUtilLamas)} mm`, true, 4, cotaColorSpecial, true, true);
+              }
+          }
+      }
+
+      let statsText = "";
+      let altoLamaActual = isLamaMode ? nuevoAltoLama : vals.altoLama;
+      let sepActual = isLamaMode ? vals.sep : espacioEntreLamas;
+
+      if (isVertical) {
+          statsText = `Lamas: ${n} | Ancho útil: ${Math.round(anchoUtil)} mm | ` +
+                      `Ancho de lama: ${Math.round(altoLamaActual)} mm | ` + 
+                      `Hueco: ${Math.round(sepActual)} mm`;
+      } else {
+          statsText = `Lamas: ${n} | Alto útil: ${Math.round(altoUtil)} mm | ` +
+                      `Alto de lama: ${Math.round(altoLamaActual)} mm | ` + 
+                      `Hueco: ${Math.round(sepActual)} mm`;
+      }
+      document.getElementById("stats").textContent = statsText;
+    }
+
+    function computeValues(){
+        return {
+            ancho: +document.getElementById("ancho").value,
+            alto: +document.getElementById("alto").value,
+            altoLama: +document.getElementById("altoLama").value,
+            marco: +document.getElementById("marco").value,
+            sep: +document.getElementById("sep").value,
+            // Leer los valores de color de los inputs de color que están transparentes
+            colorMarco: document.getElementById("colorMarcoPicker").value,
+            colorLama: document.getElementById("colorLamaPicker").value,
+        };
+    }
+
+    function updateTotalDimensionFromLamas() {
+        const altoUtillamasInput = document.getElementById("altoUtillamas");
+        const altoLamas = +altoUtillamasInput.value;
+        
+        if (altoUtillamasInput.value.trim() === '' || isNaN(altoLamas)) {
+            return;
+        }
+
+        const marco = +document.getElementById("marco").value;
+        const altoLama = +document.getElementById("altoLama").value;
+        const sep = +document.getElementById("sep").value;
+        
+        const n = Math.floor(altoLamas / (altoLama + sep));
+        if (n <= 0) {
+            if (isVertical) {
+              document.getElementById("ancho").value = 2 * marco;
+            } else {
+              document.getElementById("alto").value = 2 * marco;
+            }
+            return;
+        }
+
+        const espacioTotal = altoLamas - (n * altoLama);
+        const espacioEntreLamas = espacioTotal / (n + 1);
+        
+        const nuevoTotal = (n * altoLama) + ((n + 1) * espacioEntreLamas) + (2 * marco);
+
+        if (isVertical) {
+            document.getElementById("ancho").value = Math.round(nuevoTotal);
+        } else {
+            document.getElementById("alto").value = Math.round(nuevoTotal);
+        }
+    }
+    
+    // Mapeo de selectores para la nueva funcionalidad
+    const selectMarcoButton = document.getElementById("selectMarcoColor");
+    const selectLamaButton = document.getElementById("colorLamaPicker");
+    const colorMarcoPicker = document.getElementById("colorMarcoPicker");
+    const colorLamaPicker = document.getElementById("colorLamaPicker");
+    const ralButtonsContainer = document.getElementById("ral-buttons");
+    const ralButtons = ralButtonsContainer.querySelectorAll(".ral-button");
+    
+    function updateButtonAppearance(button, color) {
+        button.style.backgroundColor = color;
+        button.style.color = getContrastColor(color);
+    }
+    
+    function setupColorListeners() {
+        
+        // 1. Listeners para actualizar color cuando cambia el picker de Marco
+        colorMarcoPicker.addEventListener("input", (event) => {
+            updatingFromDraw = false;
+            const newColor = event.target.value;
+            updateButtonAppearance(selectMarcoButton, newColor);
+            ralButtons.forEach(btn => btn.classList.remove('selected'));
+            drawCierre();
+        });
+
+        // 2. Listeners para actualizar color cuando cambia el picker de Lama
+        colorLamaPicker.addEventListener("input", (event) => {
+            updatingFromDraw = false;
+            const newColor = event.target.value;
+            updateButtonAppearance(document.getElementById("selectLamaColor"), newColor);
+            ralButtons.forEach(btn => btn.classList.remove('selected'));
+            drawCierre();
+        });
+
+        // 3. Event listener para los botones RAL (Cambia AMBOS)
+        ralButtonsContainer.addEventListener("click", (event) => {
+            const target = event.target;
+            const button = target.closest('.ral-button');
+            if (button) {
+                const newColor = button.getAttribute('data-color');
+
+                // A. Cambiar los valores de los pickers transparentes (independientes)
+                colorMarcoPicker.value = newColor;
+                colorLamaPicker.value = newColor;
+                
+                // B. Actualizar la apariencia de AMBOS botones visibles
+                updateButtonAppearance(selectMarcoButton, newColor);
+                updateButtonAppearance(document.getElementById("selectLamaColor"), newColor);
+
+                // C. Seleccionar visualmente el botón RAL
+                ralButtons.forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                
+                updatingFromDraw = false;
+                drawCierre();
+            }
+        });
+
+        // 4. Listeners para otros inputs (mantenido)
+        const inputs = document.querySelectorAll("#form input:not([type='color'])");
+        inputs.forEach(el => {
+            if (el.id === "altoUtillamas") {
+                el.addEventListener("input", () => {
+                    updatingFromDraw = true;
+                    updateTotalDimensionFromLamas();
+                    drawCierre();
+                });
+                el.addEventListener("blur", () => {
+                    updatingFromDraw = false;
+                    if (el.value.trim() === '') {
+                        drawCierre();
+                    }
+                });
+            } else {
+                el.addEventListener("input", () => {
+                    updatingFromDraw = false;
+                    drawCierre();
+                });
+            }
+        });
+
+
+        // 5. Inicialización de colores y botones de destino
+        updateButtonAppearance(selectMarcoButton, colorMarcoPicker.value);
+        updateButtonAppearance(document.getElementById("selectLamaColor"), colorLamaPicker.value);
+
+        // Inicializar colores de botones RAL
+        ralButtons.forEach(btn => {
+            const color = btn.getAttribute('data-color');
+            btn.style.backgroundColor = color;
+            btn.style.color = getContrastColor(color);
+        });
+        
+    }
+    
+    // Función para manejar el estado de los botones de acción
+    function setupActionButtons() {
+        // Manejar los botones de acción
+        const actionBtns = document.querySelectorAll(".button-row button");
+        actionBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                btn.classList.toggle("active");
+            });
+        });
+    }
+
+
+    document.getElementById("toggleDistrMode").addEventListener("click", () => {
+        isLamaMode = !isLamaMode;
+        if (!isLamaMode) {
+             document.getElementById("altoLama").value = originalAltoLama;
+        } else {
+             originalAltoLama = +document.getElementById("altoLama").value;
+        }
+        document.getElementById("toggleDistrMode").textContent = isLamaMode ? "Variar lamas" : "Variar huecos";
+        
+        drawCierre();
+    });
+
+    document.getElementById("toggleWidthCota").addEventListener("click", () => {
+        showWidthCota = !showWidthCota;
+        document.getElementById("toggleWidthCota").textContent = showWidthCota ? "Ocultar ancho" : "Mostrar ancho";
+        drawCierre();
+    });
+
+    document.getElementById("toggleHeightCota").addEventListener("click", () => {
+        showHeightCota = !showHeightCota;
+        document.getElementById("toggleHeightCota").textContent = showHeightCota ? "Ocultar alto" : "Mostrar alto";
+        drawCierre();
+    });
+
+    document.getElementById("toggleRedCota").addEventListener("click", () => {
+        showRedCota = !showRedCota;
+        document.getElementById("toggleRedCota").textContent = showRedCota ? "Ocultar cota roja" : "Mostrar cota roja";
+        drawCierre();
+    });
+    
+    document.getElementById("toggleMarco").addEventListener("click", () => {
+        showMarco = !showMarco;
+        document.getElementById("toggleMarco").textContent = showMarco ? "Ocultar marco" : "Mostrar marco";
+        drawCierre();
+    });
+
+    document.getElementById("toggleOrientation").addEventListener("click", () => {
+        isVertical = !isVertical;
+        document.getElementById("toggleOrientation").textContent = isVertical ? "Cambiar a horizontal" : "Cambiar a vertical";
+        
+        const altoUtillamasLabel = document.querySelector('label[for="altoUtillamas"]');
+        if (isVertical) {
+            altoUtillamasLabel.textContent = "Ancho lamas (mm)";
+        } else {
+            altoUtillamasLabel.textContent = "Alto lamas (mm)";
+        }
+        
+        drawCierre();
+    });
+    
+    document.getElementById("toggleLarguero").addEventListener("click", () => {
+        showLarguero = !showLarguero;
+        document.getElementById("toggleLarguero").textContent = showLarguero ? "Ocultar larguero" : "Añadir larguero";
+        drawCierre();
+    });
+
+    document.getElementById("togglePoste").addEventListener("click", () => {
+        showPoste = !showPoste;
+        document.getElementById("togglePoste").textContent = showPoste ? "Ocultar poste" : "Añadir poste";
+        drawCierre();
+    });
+
+    setupColorListeners();
+    setupActionButtons();
+    drawCierre();
+  </script>
+</body>
+</html>

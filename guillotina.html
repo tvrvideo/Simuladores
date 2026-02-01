@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diseño Ventana de Guillotina con Persiana</title>
+    <style>
+      body { touch-action: manipulation;
+ font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+      h1 { text-align: center; }
+      label { display: block; margin-top: 10px; }
+      select, input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; }
+      #palette, #glass-palette { margin-top: 10px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+      .color-option { width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ccc; cursor: pointer; }
+      .color-option.active { border-color: #000; }
+      .color-option:hover { border-color: #000; }
+      .control-group { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+      canvas { max-width: 100%; height: auto; background: white; display: block; margin: 20px auto; border: 2px solid #000; }
+
+      /* Estilos para los botones de control */
+      .control-buttons { text-align: center; margin-top: 20px; }
+      .control-buttons button {
+          padding: 12px 25px; /* Más grande */
+          background-color: #007bff; /* Azul */
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px; /* Texto más grande */
+          margin: 10px 5px;
+          transition: background-color 0.3s ease; /* Efecto suave al pasar el ratón */
+      }
+      .control-buttons button:hover {
+          background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+      }
+    </style>
+</head>
+<body>
+<h1>Diseño Ventana de Guillotina con Persiana</h1>
+
+<div class="control-group">
+    <label for="ancho">Ancho total ventana (mm):</label>
+    <input type="number" id="ancho" value="700" onchange="actualizarVista()">
+    <label for="alto">Alto total ventana (mm):</label>
+    <input type="number" id="alto" value="1000" onchange="actualizarVista()">
+
+    <label>Color del marco:</label>
+    <div id="palette">
+        <span class="color-option" style="background:#FFFFFF" onclick="cambiarColorMarco('#FFFFFF')"></span>
+        <span class="color-option" style="background:#F0F0F0" onclick="cambiarColorMarco('#F0F0F0')"></span>
+        <span class="color-option" style="background:#C0C0C0" onclick="cambiarColorMarco('#C0C0C0')"></span>
+        <span class="color-option" style="background:#808080" onclick="cambiarColorMarco('#808080')"></span>
+        <span class="color-option" style="background:#404040" onclick="cambiarColorMarco('#404040')"></span>
+        <span class="color-option" style="background:#F5DEB3" onclick="cambiarColorMarco('#F5DEB3')"></span>
+        <span class="color-option" style="background:#FFD700" onclick="cambiarColorMarco('#FFD700')"></span>
+        <span class="color-option" style="background:#B68B40" onclick="cambiarColorMarco('#B68B40')"></span>
+        <span class="color-option" style="background:#A0522D" onclick="cambiarColorMarco('#A0522D')"></span>
+        <span class="color-option" style="background:#654321" onclick="cambiarColorMarco('#654321')"></span>
+        <span class="color-option" style="background:#2ECC71" onclick="cambiarColorMarco('#2ECC71')"></span>
+        <span class="color-option" style="background:#006400" onclick="cambiarColorMarco('#006400')"></span>
+        <span class="color-option" style="background:#114232" onclick="cambiarColorMarco('#114232')"></span>
+        <span class="color-option" style="background:#0074D9" onclick="cambiarColorMarco('#0074D9')"></span>
+        <span class="color-option" style="background:#00008B" onclick="cambiarColorMarco('#00008B')"></span>
+        <span class="color-option" style="background:#FF4136" onclick="cambiarColorMarco('#FF4136')"></span>
+        <span class="color-option" style="background:#8B0000" onclick="cambiarColorMarco('#8B0000')"></span>
+        <span class="color-option" style="background:#000000" onclick="cambiarColorMarco('#000000')"></span>
+        <span class="color-option" style="background:#ff81e3" onclick="cambiarColorMarco('#ff81e3')"></span>
+        <span class="color-option" style="background:#ff8000" onclick="cambiarColorMarco('#ff8000')"></span>
+    </div>
+
+    <label>Color base del cristal:</label>
+    <div id="glass-palette">
+      <span id="first-glass-option" class="color-option" style="background: rgb(255, 128, 0);" onclick="cambiarColorCristal('#ff8000')"></span>
+      <span class="color-option" style="background:rgba(173, 216, 230, 0.9)" onclick="cambiarColorCristal('rgba(173, 216, 230, 0.9)')"></span>
+      <span class="color-option" style="background:rgba(0, 0, 139, 0.9)" onclick="cambiarColorCristal('rgba(0, 0, 139, 0.9)')"></span>
+      <span class="color-option" style="background:#5d85a0" onclick="cambiarColorCristal('#5d85a0')"></span>
+    </div>
+</div>
+
+<div class="control-buttons">
+    <button onclick="togglePersiana()">Persiana</button>
+    <button onclick="toggleMedidas()">Medidas</button>
+</div>
+<canvas id="canvas" width="600" height="600"></canvas>
+
+<script>
+    let colorMarco = "#FFFFFF", mostrarMedidas = true, mostrarPersiana = true;
+    let colorCristal = "rgba(173, 216, 230, 0.9)"; // Color de cristal por defecto (azul claro)
+    const marcoThickness = 40;
+    const hojaThickness = 40;
+    const cajonAlturaMM = 185;
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const PADDING = 60;
+
+    // 🔧 Ajustes de espacio para medidas
+    const EXTRA_BOTTOM = 140;  
+    const EXTRA_LEFT   = 140;  
+
+    // Función para convertir HEX a RGBA
+    function hexToRgba(hex, alpha = 0.9) {
+        let r = 0, g = 0, b = 0;
+        // 3 digits
+        if (hex.length === 4) {
+            r = parseInt(hex[1] + hex[1], 16);
+            g = parseInt(hex[2] + hex[2], 16);
+            b = parseInt(hex[3] + hex[3], 16);
+        }
+        // 6 digits
+        else if (hex.length === 7) {
+            r = parseInt(hex.substring(1, 3), 16);
+            g = parseInt(hex.substring(3, 5), 16);
+            b = parseInt(hex.substring(5, 7), 16);
+        }
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function cambiarColorMarco(c) {
+        // Verifica si el color de cristal actual es el mismo que el color de marco anterior
+        if (colorCristal === colorMarco) {
+            colorCristal = c; // Si es así, actualiza el color de cristal
+        }
+        colorMarco = c;
+
+        const firstGlassOption = document.getElementById('first-glass-option');
+        if (firstGlassOption) {
+            firstGlassOption.style.background = c;
+            firstGlassOption.setAttribute('onclick', `cambiarColorCristal('${c}')`);
+        }
+
+        actualizarVista();
+    }
+
+    function cambiarColorCristal(c) {
+        colorCristal = c;
+        actualizarVista();
+    }
+
+    function toggleMedidas() {
+        mostrarMedidas = !mostrarMedidas;
+        actualizarVista();
+    }
+
+    function togglePersiana() {
+        mostrarPersiana = !mostrarPersiana;
+        actualizarVista();
+    }
+
+    // Funciones para modificar el color
+    function hex(c) {
+        let hex = c.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    }
+
+    function toHex(c) {
+        let hex = Math.round(c).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    }
+
+    function shadeColor(color, percent) {
+      if (!color || typeof color !== 'string') {
+        return color;
+      }
+      if (color.startsWith('rgba')) {
+        const parts = color.match(/\d+/g).map(Number);
+        const r = parts[0];
+        const g = parts[1];
+        const b = parts[2];
+        const newR = Math.min(255, Math.max(0, r + (r * percent)));
+        const newG = Math.min(255, Math.max(0, g + (g * percent)));
+        const newB = Math.min(255, Math.max(0, b + (b * percent)));
+        return `rgba(${newR}, ${newG}, ${newB}, ${parts[3] !== undefined ? parts[3] : 0.9})`;
+      }
+
+      let f=parseInt(color.slice(1),16),t=percent<0?0:255,p=Math.abs(percent),R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+      let newR, newG, newB;
+
+      // Lógica de sombreado ajustada para colores claros y oscuros
+      if (percent < 0) { // Oscurecer
+        newR = R + (t-R) * p;
+        newG = G + (t-G) * p;
+        newB = B + (t-B) * p;
+      } else { // Aclarar
+        newR = R + (t-R) * p;
+        newG = G + (t-G) * p;
+        newB = B + (t-B) * p;
+      }
+      return "#" + toHex(newR) + toHex(newG) + toHex(newB);
+    }
+
+    // Función para el degradado del cristal o color sólido
+    function getGlassColor(ctx, x1, y1, x2, y2, baseColor) {
+        // Si el color es un HEX, devuelve el color sólido con sombreado
+        if (baseColor.startsWith('#')) {
+            return shadeColor(baseColor, 0.3); // Aclara el color un 30%
+        }
+
+        // Si es RGBA, crea un degradado con transparencia
+        let grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        let baseRGB = baseColor.match(/\d+/g);
+        if (!baseRGB || baseRGB.length < 3) {
+            return 'rgba(0,0,0,0)'; // Fallback
+        }
+
+        let darkRGB = baseRGB.map(c => Math.max(0, c * 0.8));
+        let lightRGB = baseRGB.map(c => Math.min(255, c * 1.2));
+        
+        grad.addColorStop(0, `rgba(${lightRGB[0]}, ${lightRGB[1]}, ${lightRGB[2]}, 0.9)`); 
+        grad.addColorStop(0.5, baseColor);                     
+        grad.addColorStop(1, `rgba(${darkRGB[0]}, ${darkRGB[1]}, ${darkRGB[2]}, 0.9)`); 
+        return grad;
+    }
+    
+    // Función para dibujar una manilla más grande y ajustada a la hoja
+    function drawHandle(ctx, x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = shadeColor(colorMarco, -0.2); // Sombra la manilla un 20%
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2; 
+
+        // Base de la manilla
+        ctx.fillRect(-size / 2, -size / 4, size, size / 2);
+        ctx.strokeRect(-size / 2, -size / 4, size, size / 2);
+
+        // Agarre
+        ctx.beginPath();
+        ctx.arc(0, 0, size / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+    
+    // Función para dibujar una X en el cristal fijo
+    function drawX(ctx, x, y, width, height) {
+        ctx.save();
+        ctx.strokeStyle = "#FF0000";
+        ctx.lineWidth = 4;
+        const xSize = 80;
+
+        ctx.beginPath();
+        ctx.moveTo(x + (width - xSize) / 2, y + (height - xSize) / 2);
+        ctx.lineTo(x + (width + xSize) / 2, y + (height + xSize) / 2);
+        ctx.moveTo(x + (width + xSize) / 2, y + (height - xSize) / 2);
+        ctx.lineTo(x + (width - xSize) / 2, y + (height + xSize) / 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // Función para dibujar una única flecha de apertura en el centro
+    function drawOpeningArrow(ctx, x, y, width, height) {
+        ctx.save();
+        ctx.strokeStyle = "#0000FF";
+        ctx.lineWidth = 2;
+        const arrowSize = 15;
+        const lineLength = height / 2;
+
+        ctx.beginPath();
+        // Dibuja la línea vertical
+        ctx.moveTo(x + width / 2, y + height / 2 - lineLength / 2);
+        ctx.lineTo(x + width / 2, y + height / 2 + lineLength / 2);
+
+        // Punta de flecha superior
+        ctx.moveTo(x + width / 2, y + height / 2 - lineLength / 2);
+        ctx.lineTo(x + width / 2 - arrowSize / 2, y + height / 2 - lineLength / 2 + arrowSize);
+        ctx.moveTo(x + width / 2, y + height / 2 - lineLength / 2);
+        ctx.lineTo(x + width / 2 + arrowSize / 2, y + height / 2 - lineLength / 2 + arrowSize);
+
+        // Punta de flecha inferior
+        ctx.moveTo(x + width / 2, y + height / 2 + lineLength / 2);
+        ctx.lineTo(x + width / 2 - arrowSize / 2, y + height / 2 + lineLength / 2 - arrowSize);
+        ctx.moveTo(x + width / 2, y + height / 2 + lineLength / 2);
+        ctx.lineTo(x + width / 2 + arrowSize / 2, y + height / 2 + lineLength / 2 - arrowSize);
+
+        ctx.stroke();
+        ctx.restore();
+    }
+    
+    // Función para dibujar el cajón de la persiana
+    function drawPersiana(ctx, x, y, width, alto) {
+        if (!mostrarPersiana) return;
+
+        const cajonAlturaScaled = cajonAlturaMM;
+        
+        ctx.save();
+        ctx.translate(x, y);
+
+        let persianaColor;
+        if (colorMarco.toUpperCase() === '#000000') {
+            persianaColor = shadeColor(colorMarco, 0.3); // Tono más claro para el negro
+        } else if (colorMarco.toUpperCase() === '#FFFFFF') {
+            persianaColor = shadeColor(colorMarco, -0.15); // Tono más oscuro para el blanco
+        } else {
+            persianaColor = shadeColor(colorMarco, -0.2); // Tono más oscuro para el resto
+        }
+
+        // Dibujar solo el rectángulo del cajón
+        ctx.fillStyle = persianaColor;
+        ctx.fillRect(0, 0, width, cajonAlturaScaled);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, width, cajonAlturaScaled);
+
+        // Dibujar lamas de persiana si se está mostrando
+        const lamaHeight = 20;
+        const lamasTotal = Math.floor((alto) / lamaHeight);
+        
+        ctx.fillStyle = persianaColor;
+        let startY = cajonAlturaScaled;
+        
+        for (let i = 0; i < lamasTotal; i++) {
+            const currentY = startY + i * lamaHeight;
+            if (currentY + lamaHeight > cajonAlturaScaled + alto) break; 
+            ctx.fillRect(0, currentY, width, lamaHeight - 2); 
+            ctx.strokeRect(0, currentY, width, lamaHeight - 2); 
+        }
+        ctx.restore();
+    }
+    
+    // Función para dibujar las medidas del cajón de la persiana
+    function drawMedidasPersiana(ctx, x, y, scaledWidth, scaledHeight) {
+        if (!mostrarMedidas || !mostrarPersiana) return;
+
+        ctx.save();
+        ctx.strokeStyle = "#0000FF";
+        ctx.fillStyle = "#0000FF";
+        ctx.lineWidth = 2;
+        ctx.font = "40px Arial";
+        const arrowSize = 20;
+        const margin = 20;
+
+        const yPos = y + scaledHeight / 2;
+        const xPos = x - margin;
+        
+        ctx.beginPath();
+        ctx.moveTo(xPos, y);
+        ctx.lineTo(xPos, y + scaledHeight);
+
+        ctx.moveTo(xPos, y);
+        ctx.lineTo(xPos - arrowSize / 2, y + arrowSize);
+        ctx.moveTo(xPos, y);
+        ctx.lineTo(xPos + arrowSize / 2, y + arrowSize);
+
+        ctx.moveTo(xPos, y + scaledHeight);
+        ctx.lineTo(xPos - arrowSize / 2, y + scaledHeight - arrowSize);
+        ctx.moveTo(xPos, y + scaledHeight);
+        ctx.lineTo(xPos + arrowSize / 2, y + scaledHeight - arrowSize);
+
+        ctx.stroke();
+
+        const textOffset = 10;
+        ctx.textAlign = 'center';
+        ctx.save();
+        ctx.translate(xPos - textOffset, yPos);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(`${cajonAlturaMM}`, 0, 0); 
+        ctx.restore();
+
+        ctx.restore();
+    }
+
+    function actualizarVista() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const anchoMM = +document.getElementById('ancho').value;
+        const altoMM = +document.getElementById('alto').value;
+        const persianaAltoMM = mostrarPersiana ? cajonAlturaMM : 0;
+
+        const totalDrawingWidth = anchoMM + (mostrarMedidas ? EXTRA_LEFT : 0);
+        const totalDrawingHeight = altoMM + persianaAltoMM + (mostrarMedidas ? EXTRA_BOTTOM : 0);
+
+        const maxDimension = Math.max(totalDrawingWidth, totalDrawingHeight);
+        const scaleFactor = (Math.min(canvas.width, canvas.height) - PADDING) / maxDimension;
+        
+        const scaledAncho = anchoMM * scaleFactor;
+        const scaledAlto = altoMM * scaleFactor;
+        const scaledPersianaAlto = persianaAltoMM * scaleFactor;
+        const scaledTotalWidth = totalDrawingWidth * scaleFactor;
+        const scaledTotalHeight = totalDrawingHeight * scaleFactor;
+        
+        const offsetX = (canvas.width - scaledTotalWidth) / 2 + (mostrarMedidas ? EXTRA_LEFT * scaleFactor : 0);
+        const offsetY = (canvas.height - scaledTotalHeight) / 2;
+
+        ctx.save();
+        ctx.translate(offsetX, offsetY);
+        ctx.scale(scaleFactor, scaleFactor);
+
+        // Dibuja el cajón de la persiana
+        if (mostrarPersiana) {
+            drawPersiana(ctx, 0, 0, anchoMM, altoMM);
+        }
+
+        // Marco exterior de la ventana
+        ctx.fillStyle = colorMarco;
+        ctx.fillRect(0, persianaAltoMM, anchoMM, altoMM);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, persianaAltoMM, anchoMM, altoMM);
+
+        const innerAncho = anchoMM - (2 * marcoThickness);
+        const innerAlto = altoMM - (2 * marcoThickness);
+        const hojaTotalHeight = (innerAlto + hojaThickness) / 2;
+
+        // Hojas
+        ctx.fillStyle = colorMarco;
+        ctx.fillRect(marcoThickness, persianaAltoMM + marcoThickness, innerAncho, hojaTotalHeight);
+        ctx.strokeRect(marcoThickness, persianaAltoMM + marcoThickness, innerAncho, hojaTotalHeight);
+        ctx.fillRect(marcoThickness, persianaAltoMM + altoMM - marcoThickness - hojaTotalHeight, innerAncho, hojaTotalHeight);
+        ctx.strokeRect(marcoThickness, persianaAltoMM + altoMM - marcoThickness - hojaTotalHeight, innerAncho, hojaTotalHeight);
+
+        // Cristal superior
+        const glassTopX = marcoThickness + hojaThickness;
+        const glassTopY = persianaAltoMM + marcoThickness + hojaThickness;
+        const glassTopWidth = innerAncho - (2 * hojaThickness);
+        const glassTopHeight = hojaTotalHeight - (2 * hojaThickness);
+        ctx.fillStyle = getGlassColor(ctx, 0, glassTopY, 0, glassTopY + glassTopHeight, colorCristal);
+        ctx.fillRect(glassTopX, glassTopY, glassTopWidth, glassTopHeight);
+        ctx.strokeStyle = '#00008B';
+        ctx.strokeRect(glassTopX, glassTopY, glassTopWidth, glassTopHeight);
+        drawX(ctx, glassTopX, glassTopY, glassTopWidth, glassTopHeight); // Dibuja la X en el cristal superior
+
+        // Cristal inferior
+        const glassBottomX = marcoThickness + hojaThickness;
+        const glassBottomY = persianaAltoMM + altoMM - marcoThickness - hojaTotalHeight + hojaThickness;
+        const glassBottomWidth = innerAncho - (2 * hojaThickness);
+        const glassBottomHeight = hojaTotalHeight - (2 * hojaThickness);
+        ctx.fillStyle = getGlassColor(ctx, 0, glassBottomY, 0, glassBottomY + glassBottomHeight, colorCristal);
+        ctx.fillRect(glassBottomX, glassBottomY, glassBottomWidth, glassBottomHeight);
+        ctx.strokeRect(glassBottomX, glassBottomY, glassBottomWidth, glassBottomHeight);
+        drawOpeningArrow(ctx, glassBottomX, glassBottomY, glassBottomWidth, glassBottomHeight); // Dibuja una única flecha en el cristal inferior
+
+        // Perfil central
+        ctx.fillStyle = colorMarco;
+        ctx.fillRect(marcoThickness, persianaAltoMM + altoMM - marcoThickness - hojaTotalHeight, innerAncho, hojaThickness);
+
+        // Manillas en las esquinas inferiores de la hoja inferior
+        const handleSize = 40; 
+        const handleOffset = hojaThickness; 
+        const handleY = persianaAltoMM + altoMM - marcoThickness - hojaTotalHeight + hojaTotalHeight - (hojaThickness / 2);
+        drawHandle(ctx, marcoThickness + handleOffset, handleY, handleSize); 
+        drawHandle(ctx, anchoMM - marcoThickness - handleOffset, handleY, handleSize); 
+        
+
+        ctx.restore();
+        
+        if (mostrarMedidas) {
+            drawMeasurement(ctx, offsetX, offsetY + scaledPersianaAlto, scaledAncho, scaledAlto, 'ancho', anchoMM);
+            drawMeasurement(ctx, offsetX, offsetY + scaledPersianaAlto, scaledAncho, scaledAlto, 'alto', altoMM);
+            if (mostrarPersiana) {
+                drawMedidasPersiana(ctx, offsetX, offsetY, scaledAncho, scaledPersianaAlto);
+            }
+        }
+    }
+
+    function drawMeasurement(ctx, offsetX, offsetY, scaledAncho, scaledAlto, label, dimensionMM) {
+        ctx.save();
+        ctx.strokeStyle = "#0000FF";
+        ctx.fillStyle = "#0000FF";
+        ctx.lineWidth = 2;
+        ctx.font = "40px Arial";
+        const arrowSize = 20;
+        const margin = 20;
+
+        if (label === 'ancho') {
+            const yPos = offsetY + scaledAlto + margin;
+            ctx.beginPath();
+            ctx.moveTo(offsetX, yPos);
+            ctx.lineTo(offsetX + scaledAncho, yPos);
+
+            // Flechas
+            ctx.moveTo(offsetX, yPos);
+            ctx.lineTo(offsetX + arrowSize, yPos - arrowSize / 2);
+            ctx.moveTo(offsetX, yPos);
+            ctx.lineTo(offsetX + arrowSize, yPos + arrowSize / 2);
+
+            ctx.moveTo(offsetX + scaledAncho, yPos);
+            ctx.lineTo(offsetX + scaledAncho - arrowSize, yPos - arrowSize / 2);
+            ctx.moveTo(offsetX + scaledAncho, yPos);
+            ctx.lineTo(offsetX + scaledAncho - arrowSize, yPos + arrowSize / 2);
+
+            ctx.stroke();
+            ctx.textAlign = 'center';
+            ctx.fillText(`${dimensionMM} mm`, offsetX + scaledAncho / 2, yPos + 40);
+        } else {
+            const xPos = offsetX - margin;
+            ctx.beginPath();
+            ctx.moveTo(xPos, offsetY);
+            ctx.lineTo(xPos, offsetY + scaledAlto);
+
+            // Flechas
+            ctx.moveTo(xPos, offsetY);
+            ctx.lineTo(xPos - arrowSize / 2, offsetY + arrowSize);
+            ctx.moveTo(xPos, offsetY);
+            ctx.lineTo(xPos + arrowSize / 2, offsetY + arrowSize);
+
+            ctx.moveTo(xPos, offsetY + scaledAlto);
+            ctx.lineTo(xPos - arrowSize / 2, offsetY + scaledAlto - arrowSize);
+            ctx.moveTo(xPos, offsetY + scaledAlto);
+            ctx.lineTo(xPos + arrowSize / 2, offsetY + scaledAlto - arrowSize);
+
+            ctx.stroke();
+
+            const textOffset = 10;
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(xPos - textOffset, offsetY + scaledAlto / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(`${dimensionMM} mm`, 0, 0);
+            ctx.restore();
+        }
+        ctx.restore();
+    }
+
+    window.onload = actualizarVista;
+</script>
+
+</body></html>

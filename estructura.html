@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+<title>Marco fijo</title>
+<style>
+  :root { --gap: 10px; }
+  body {
+    touch-action: manipulation;
+
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+  }
+  h1 { font-size: 35px; margin: 0 0 8px; text-align: center; padding: 16px 0 8px; }
+
+  .wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 16px;
+  }
+
+  .controls {
+    display: grid;
+    gap: 12px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  fieldset { border: 1px solid #155eef; border-radius: 8-px; padding: 12px; }
+  fieldset legend { padding: 0 6px; font-weight: 600; font-size: 20px; }
+  label { font-size: 18px; color: #333; }
+  input[type="number"], select { width: 100%; padding: 6px 8px; box-sizing: border-box; font-size: 18px; }
+
+  /* Estilo para los inputs de tipo color */
+  .color-picker-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  /* Botón de color con texto */
+  .color-picker-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* El color inicial del texto se establecerá dinámicamente con JavaScript */
+    font-size: 18px;
+    pointer-events: none; /* Permite hacer clic en el input de color debajo */
+    white-space: nowrap; /* Evita que el texto se parta en varias líneas */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Sombra para mejorar la legibilidad en colores claros */
+  }
+
+  input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 40px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+  }
+  input[type="color"]::-moz-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 4px;
+  }
+
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    padding: 8px 10px;
+    border: 1px solid #155eef;
+    border-radius: 6px;
+    background: #155eef;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  button.danger { background-color: #dc3545; border-color: #dc3545; }
+
+
+  #canvas {
+    border: 1px dashed #bbb;
+    background: #fff;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 16px auto;
+  }
+  .table-wrap { max-height: 260px; overflow: auto; border: 1px solid #e5e5e5; border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 18px; }
+  th, td { border-bottom: 1px solid #eee; padding: 6px 8px; text-align: left; }
+  #tablaLargueros td:first-child, #tablaLargueros th:first-child {
+    white-space: nowrap;
+  }
+  tfoot td { font-weight: 600; }
+  /* Nuevos estilos para la distribución en Medidas generales */
+  .general-measures-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    margin-bottom: var(--gap);
+  }
+  .general-buttons-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+  .inline { display: flex; align-items: center; gap: 8px; }
+
+  /* Estilo para los botones de largueros */
+  .larguero-buttons-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+  .larguero-controls-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+
+  /* Estilo para los botones de travesaños */
+  .travesano-buttons-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+  .travesano-controls-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+  .selector-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap);
+  }
+  .travesano-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .travesano-actions button {
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+
+  /* Estilos para Hojas */
+  .hoja-buttons-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
+  }
+  .hoja-controls-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    align-items: end;
+  }
+  /* Contenedor del selector de color de cristal */
+  .crystal-color-container {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+  }
+  .crystal-color-container .color-picker-wrapper {
+    flex-grow: 1;
+  }
+
+  @media (min-width: 768px) {
+    .wrap {
+      grid-template-columns: 420px 1fr;
+      max-width: 1200px;
+      margin: 16px auto;
+    }
+    .controls {
+      max-width: 400px;
+    }
+    #canvas {
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1>Marco fijo</h1>
+  <div class="wrap">
+    <div class="controls">
+      <fieldset>
+        <legend>Medidas</legend>
+        <div class="general-measures-row">
+          <div>
+            <label>Ancho</label>
+            <input id="ancho" type="number" min="1" step="1" value="1200">
+          </div>
+          <div>
+            <label>Alto</label>
+            <input id="alto" type="number" min="1" step="1" value="1000">
+          </div>
+          <div>
+            <label>Grosor</label>
+            <input id="grosorTubo" type="number" min="1" step="1" value="40">
+          </div>
+        </div>
+        <div class="general-buttons-row">
+          <div class="color-picker-wrapper">
+            <input id="colorTubo" type="color" value="#dddddd">
+            <label for="colorTubo" class="color-picker-label" style="color: rgb(51, 51, 51); text-shadow: rgba(255, 255, 255, 0.7) 1px 1px 2px;">Color marco</label>
+          </div>
+          <div class="inline">
+            <button id="btnToggleCotas" style="width: 100%;">Mostrar cotas</button>
+          </div>
+        </div>
+        <div class="general-buttons-row">
+          <div class="color-picker-wrapper">
+            <input id="colorCristal" type="color" value="#4169e1">
+            <label for="colorCristal" class="color-picker-label" style="color: rgb(238, 238, 238); text-shadow: rgba(0, 0, 0, 0.7) 1px 1px 2px;">Color cristal</label>
+          </div>
+          <div class="inline">
+            <button id="btnToggleCristales" style="width: 100%;">Ocultar cristales</button>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Largueros</legend>
+        <div class="larguero-buttons-row">
+          <button id="btnAdd">Añadir</button>
+          <button id="btnRemove">Quitar</button>
+          <button id="btnRepartir">Repartir</button>
+        </div>
+        <div class="larguero-controls-row">
+          <div class="color-picker-wrapper">
+            <input id="colorLarguero" type="color" value="#dddddd">
+            <label for="colorLarguero" class="color-picker-label" style="color: rgb(51, 51, 51); text-shadow: rgba(255, 255, 255, 0.7) 1px 1px 2px;">Color larguero</label>
+          </div>
+          <div>
+            <label>Grosor</label>
+            <input id="grosorLarguero" type="number" min="1" step="1" value="40">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tablaLargueros">
+            <thead>
+              <tr><th>Hueco</th><th>Tamaño (mm)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Travesaños</legend>
+        <div class="selector-row">
+            <div>
+                <label for="selectorHuecos">Hueco vertical</label>
+                <select id="selectorHuecos"></select>
+            </div>
+        </div>
+        <div class="travesano-buttons-row">
+          <button id="btnAddTravesano">Añadir</button>
+          <button id="btnRepartirTravesanos">Repartir</button>
+        </div>
+        <div class="travesano-controls-row">
+          <div class="color-picker-wrapper">
+            <input id="colorTravesano" type="color" value="#dddddd">
+            <label for="colorTravesano" class="color-picker-label" style="color: rgb(51, 51, 51); text-shadow: rgba(255, 255, 255, 0.7) 1px 1px 2px;">Color travesaño</label>
+          </div>
+          <div>
+            <label>Grosor</label>
+            <input id="grosorTravesano" type="number" min="1" step="1" value="40">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tablaTravesanos">
+            <thead>
+              <tr><th>Hueco</th><th>Tamaño (mm)</th><th>Acciones</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </fieldset>
+      
+      <fieldset>
+        <legend>Hojas</legend>
+        <div class="selector-row">
+          <div>
+            <label for="selectorHuecoHoja">Hueco para hoja</label>
+            <select id="selectorHuecoHoja"></select>
+          </div>
+        </div>
+        <div class="hoja-controls-row">
+          <div>
+            <label for="aperturaHoja">Apertura</label>
+            <select id="aperturaHoja">
+              <option value="derecha">Derecha</option>
+              <option value="izquierda">Izquierda</option>
+              <option value="proyectante">Proyectante</option>
+              <option value="basculante">Basculante</option>
+            </select>
+          </div>
+          <div class="color-picker-wrapper">
+            <input id="colorHoja" type="color" value="#dddddd">
+            <label for="colorHoja" class="color-picker-label" style="color: rgb(51, 51, 51); text-shadow: rgba(255, 255, 255, 0.7) 1px 1px 2px;">Color hoja</label>
+          </div>
+          <div>
+            <label>Grosor</label>
+            <input id="grosorHoja" type="number" min="1" step="1" value="40">
+          </div>
+        </div>
+        <div class="hoja-buttons-row">
+          <button id="btnAddHoja">Añadir hoja</button>
+          <button id="btnRemoveHoja" class="danger" disabled="">Quitar hoja</button>
+        </div>
+      </fieldset>
+
+    </div>
+
+    <div>
+      <canvas id="canvas" width="900" height="800" aria-label="Plano de tubo con largueros"></canvas>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // --- Constantes de lienzo ---
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const CANVAS_W = 900, CANVAS_H = 800;
+  const MARGEN_CANVAS = 40;
+  const FONT_SIZE_CANVAS = 45;
+  const REMONTE_HOJA_MM = 6;
+  
+  const ESPACIO_COTAS_H = 100;
+  const ESPACIO_COTAS_V = 100;
+  const OFFSET_COTAS_V = -50;
+
+  // --- Controles ---
+  const $ = id => document.getElementById(id);
+  const ancho = $('ancho');
+  const alto  = $('alto');
+  const grosorTubo = $('grosorTubo');
+  const colorTubo = $('colorTubo');
+  const grosorLarguero = $('grosorLarguero');
+  const colorLarguero = $('colorLarguero');
+  const btnAdd = $('btnAdd');
+  const btnRemove = $('btnRemove');
+  const btnRepartir = $('btnRepartir');
+  const btnToggleCotas = $('btnToggleCotas');
+  const btnToggleCristales = $('btnToggleCristales');
+  const tablaLargueros = $('tablaLargueros').querySelector('tbody');
+  const colorTuboLabel = document.querySelector('.color-picker-label[for="colorTubo"]');
+  const colorLargueroLabel = document.querySelector('.color-picker-label[for="colorLarguero"]');
+
+  // --- Nuevos controles para travesaños ---
+  const grosorTravesano = $('grosorTravesano');
+  const colorTravesano = $('colorTravesano');
+  const btnAddTravesano = $('btnAddTravesano');
+  const btnRepartirTravesanos = $('btnRepartirTravesanos');
+  const tablaTravesanos = $('tablaTravesanos').querySelector('tbody');
+  const selectorHuecos = $('selectorHuecos');
+  const colorTravesanoLabel = document.querySelector('.color-picker-label[for="colorTravesano"]');
+
+  // --- Nuevos controles para hojas ---
+  const selectorHuecoHoja = $('selectorHuecoHoja');
+  const aperturaHoja = $('aperturaHoja');
+  const colorHoja = $('colorHoja');
+  const grosorHoja = $('grosorHoja');
+  const btnAddHoja = $('btnAddHoja');
+  const btnRemoveHoja = $('btnRemoveHoja');
+  const colorHojaLabel = document.querySelector('.color-picker-label[for="colorHoja"]');
+
+  // --- Nuevo control para el cristal ---
+  const colorCristal = $('colorCristal');
+  const colorCristalLabel = document.querySelector('.color-picker-label[for="colorCristal"]');
+  
+  // Estado del dibujo
+  let largueros = [];
+  let travesanos = {};
+  let hojas = {};
+  let mostrarCotas = true;
+  let mostrarCristales = true;
+  let selectedHuecoIndex = 0;
+  let huecosBbox = [];
+  let focusedInput = null;
+  
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function calcEscala(aMm, hMm) {
+    const sx = (CANVAS_W - 2 * MARGEN_CANVAS - ESPACIO_COTAS_H - 100) / aMm;
+    const sy = (CANVAS_H - 2 * MARGEN_CANVAS - ESPACIO_COTAS_V) / hMm;
+    return Math.min(sx, sy);
+  }
+  
+  // Se inicializa el estado con 2 largueros y 2 travesaños por defecto
+  function inicializarEstado() {
+    largueros = [{ posicion: 0 }, { posicion: 0 }, { posicion: 0 }];
+    travesanos = {
+      0: [{posicion: 0}, {posicion: 0}, {posicion: 0}],
+      1: [{posicion: 0}, {posicion: 0}, {posicion: 0}],
+      2: [{posicion: 0}, {posicion: 0}, {posicion: 0}]
+    };
+    hojas = {};
+    generarLarguerosRepartidos();
+  }
+
+  function generarLarguerosRepartidos() {
+    const A = +ancho.value;
+    const tPer = +grosorTubo.value;
+    const tLar = +grosorLarguero.value;
+    const anchoInterior = A - 2 * tPer;
+    const nLargueros = largueros.length -1;
+    
+    if (largueros.length > 1) {
+        const espacioTotal = anchoInterior - nLargueros * tLar;
+        const nHuecos = largueros.length;
+        const espacioPorHueco = Math.floor(espacioTotal / nHuecos);
+        const espacioRestante = espacioTotal - (espacioPorHueco * nHuecos);
+        for (let i = 0; i < nHuecos - 1; i++) {
+            largueros[i].posicion = espacioPorHueco;
+        }
+        largueros[nHuecos - 1].posicion = espacioPorHueco + espacioRestante;
+    } else {
+        largueros[0].posicion = anchoInterior;
+    }
+    
+    repartirTodosTravesanos();
+
+    actualizarTablaLargueros();
+    updateHuecoSelectors();
+    updateTablaTravesanos();
+    render();
+  }
+  
+  function onEditarLarguero(index, nuevoValor) {
+    const valorFlotante = parseFloat(nuevoValor);
+    if (isNaN(valorFlotante) || valorFlotante < 0) {
+      return;
+    }
+    
+    const A = +ancho.value;
+    const tPer = +grosorTubo.value;
+    const tLar = +grosorLarguero.value;
+    const anchoInterior = A - 2 * tPer;
+    const nLargueros = largueros.length - 1;
+    
+    let totalPosicionesExceptEdited = 0;
+    for (let i = 0; i < largueros.length; i++) {
+        if (i !== largueros.length - 1 && i !== index) {
+            totalPosicionesExceptEdited += largueros[i].posicion;
+        }
+    }
+    
+    const maxNuevoValor = anchoInterior - (nLargueros * tLar) - totalPosicionesExceptEdited;
+    const valorClamped = clamp(valorFlotante, 0, maxNuevoValor);
+    
+    largueros[index].posicion = valorClamped;
+    
+    if (largueros.length > 1) {
+        const totalOcupado = largueros.slice(0, largueros.length - 1).reduce((acc, curr) => acc + curr.posicion, 0) + (largueros.length - 1) * tLar;
+        largueros[largueros.length - 1].posicion = anchoInterior - totalOcupado;
+        largueros[largueros.length - 1].posicion = Math.max(0, largueros[largueros.length - 1].posicion);
+    }
+    
+    repartirTodosTravesanos();
+    render();
+    actualizarTablaLargueros();
+    updateHuecoSelectors();
+    updateTablaTravesanos();
+  }
+  
+  function getLargueroAbsPos(index) {
+      const tLar = +grosorLarguero.value;
+      let posAbs = 0;
+      for (let i = 0; i < index; i++) {
+          posAbs += largueros[i].posicion;
+          posAbs += tLar;
+      }
+      return posAbs;
+  }
+
+  function actualizarTablaLargueros() {
+    const nHuecos = largueros.length;
+    const focusedIndex = focusedInput && focusedInput.dataset.type === 'larguero' ? focusedInput.dataset.index : null;
+    tablaLargueros.innerHTML = '';
+    for (let i = 0; i < nHuecos; i++) {
+        const tr = document.createElement('tr');
+        const td1 = document.createElement('td');
+        td1.textContent = `Hueco ${i + 1}`;
+        const td2 = document.createElement('td');
+        const inp = document.createElement('input');
+        inp.type = 'number'; inp.step = '1'; inp.min = '0';
+        inp.value = Math.round(largueros[i].posicion);
+        inp.setAttribute('data-index', i);
+        inp.setAttribute('data-type', 'larguero');
+        inp.addEventListener('input', (e) => onEditarLarguero(i, e.target.value));
+        inp.addEventListener('focus', (e) => focusedInput = e.target);
+        inp.addEventListener('blur', () => focusedInput = null);
+        td2.appendChild(inp);
+        tr.appendChild(td1); tr.appendChild(td2);
+        tablaLargueros.appendChild(tr);
+    }
+    if (focusedIndex !== null) {
+      const newFocusedInput = tablaLargueros.querySelector(`input[data-index="${focusedIndex}"]`);
+      if (newFocusedInput) newFocusedInput.focus();
+    }
+  }
+  
+  function generarTravesanosRepartidos() {
+      const huecoLargueroIndex = parseInt(selectorHuecos.value, 10);
+      const H = +alto.value;
+      const tPer = +grosorTubo.value;
+      const tTrav = +grosorTravesano.value;
+      const altoInterior = H - 2 * tPer;
+      
+      const travesanosEnHueco = travesanos[huecoLargueroIndex] || [];
+      const nTravesanos = travesanosEnHueco.length - 1;
+      const nHuecos = travesanosEnHueco.length;
+  
+      if (nHuecos <= 1) {
+        travesanosEnHueco[0].posicion = altoInterior;
+      } else {
+        const espacioTotal = altoInterior - nTravesanos * tTrav;
+        const espacioPorHueco = Math.floor(espacioTotal / nHuecos);
+        
+        for (let i = 0; i < nHuecos - 1; i++) {
+            travesanosEnHueco[i].posicion = espacioPorHueco;
+        }
+        travesanosEnHueco[nHuecos - 1].posicion = espacioTotal - (espacioPorHueco * (nHuecos - 1));
+      }
+  }
+  
+  function repartirTodosTravesanos() {
+    for (const huecoLargueroIndex in travesanos) {
+        const H = +alto.value;
+        const tPer = +grosorTubo.value;
+        const tTrav = +grosorTravesano.value;
+        const altoInterior = H - 2 * tPer;
+        
+        const travesanosEnHueco = travesanos[huecoLargueroIndex] || [];
+        const nTravesanos = travesanosEnHueco.length - 1;
+        const nHuecos = travesanosEnHueco.length;
+        
+        if (nHuecos <= 1) {
+          travesanosEnHueco[0].posicion = altoInterior;
+        } else {
+            const espacioTotal = altoInterior - nTravesanos * tTrav;
+            const espacioPorHueco = Math.floor(espacioTotal / nHuecos);
+            
+            for (let i = 0; i < nHuecos - 1; i++) {
+                travesanosEnHueco[i].posicion = espacioPorHueco;
+            }
+            travesanosEnHueco[nHuecos - 1].posicion = espacioTotal - (espacioPorHueco * (nHuecos - 1));
+        }
+    }
+  }
+
+  function onEditarTravesano(index, nuevoValor) {
+    const valorFlotante = parseFloat(nuevoValor);
+    if (isNaN(valorFlotante) || valorFlotante < 0) {
+      return;
+    }
+    
+    const H = +alto.value;
+    const tPer = +grosorTubo.value;
+    const tTrav = +grosorTravesano.value;
+    const altoInterior = H - 2 * tPer;
+    const huecoLargueroIndex = selectorHuecos.value;
+    const travesanosEnHueco = travesanos[huecoLargueroIndex] || [];
+    const nTravesanos = travesanosEnHueco.length - 1;
+    
+    let totalOcupadoPorOtros = 0;
+    for (let i = 0; i < travesanosEnHueco.length; i++) {
+        if (i !== travesanosEnHueco.length - 1 && i !== index) {
+            totalOcupadoPorOtros += travesanosEnHueco[i].posicion;
+        }
+    }
+    
+    const maxNuevoValor = altoInterior - (nTravesanos * tTrav) - totalOcupadoPorOtros;
+    const valorClamped = clamp(valorFlotante, 0, maxNuevoValor);
+    
+    travesanosEnHueco[index].posicion = valorClamped;
+    
+    if (travesanosEnHueco.length > 1) {
+        const totalOcupado = travesanosEnHueco.slice(0, travesanosEnHueco.length - 1).reduce((acc, curr) => acc + curr.posicion, 0) + (travesanosEnHueco.length - 1) * tTrav;
+        travesanosEnHueco[travesanosEnHueco.length - 1].posicion = altoInterior - totalOcupado;
+        travesanosEnHueco[travesanosEnHueco.length - 1].posicion = Math.max(0, travesanosEnHueco[travesanosEnHueco.length - 1].posicion);
+    }
+    
+    render();
+    updateTablaTravesanos();
+  }
+  
+  function onRemoveTravesano(index) {
+    const huecoLargueroIndex = selectorHuecos.value;
+    if (travesanos[huecoLargueroIndex] && travesanos[huecoLargueroIndex].length > 1) {
+      travesanos[huecoLargueroIndex].splice(index, 1);
+      generarTravesanosRepartidos();
+      updateTablaTravesanos();
+      render();
+    }
+  }
+
+  function updateHuecoSelectors() {
+      const nLargueros = largueros.length;
+      const huecoLargueroOptions = Array.from({ length: nLargueros }, (_, i) => `<option value="${i}">Hueco ${i + 1}</option>`).join('');
+      
+      const travesanoOptions = `
+          <optgroup label="Huecos verticales">
+              ${huecoLargueroOptions}
+          </optgroup>
+      `;
+
+      selectorHuecos.innerHTML = travesanoOptions;
+      
+      let hojaOptions = '';
+      let globalHuecoIndex = 0;
+      for (let i = 0; i < nLargueros; i++) {
+        const travesanosEnLarguero = travesanos[i] || [];
+        if (travesanosEnLarguero.length > 0) {
+            hojaOptions += `<optgroup label="Hueco ${i + 1}">`;
+            for (let j = 0; j < travesanosEnLarguero.length; j++) {
+                hojaOptions += `<option value="${globalHuecoIndex}">${i+1}.${j+1}</option>`;
+                globalHuecoIndex++;
+            }
+            hojaOptions += `</optgroup>`;
+        } else {
+            hojaOptions += `<option value="${globalHuecoIndex}">Hueco ${i + 1}</option>`;
+            globalHuecoIndex++;
+        }
+      }
+
+      selectorHuecoHoja.innerHTML = hojaOptions;
+      
+      selectorHuecos.value = selectedHuecoIndex;
+      selectorHuecoHoja.value = selectedHuecoIndex;
+      updateTablaTravesanos();
+      updateHojaControls();
+  }
+  
+  function getHuecoInfoByIndex(index) {
+      let globalHuecoIndex = 0;
+      const nLargueros = largueros.length;
+      for (let i = 0; i < nLargueros; i++) {
+          const nTravesanos = (travesanos[i] || []).length;
+          if (nTravesanos > 0) {
+              for (let j = 0; j < nTravesanos; j++) {
+                  if (globalHuecoIndex === index) {
+                      return { largueroIndex: i, travesanoIndex: j };
+                  }
+                  globalHuecoIndex++;
+              }
+          } else {
+              if (globalHuecoIndex === index) {
+                  return { largueroIndex: i, travesanoIndex: -1 };
+              }
+              globalHuecoIndex++;
+          }
+      }
+      return null;
+  }
+
+  function updateTablaLargueros() {
+      const nHuecos = largueros.length;
+      const focusedIndex = focusedInput && focusedInput.dataset.type === 'larguero' ? focusedInput.dataset.index : null;
+      tablaLargueros.innerHTML = '';
+      for (let i = 0; i < nHuecos; i++) {
+          const tr = document.createElement('tr');
+          const td1 = document.createElement('td');
+          td1.textContent = `Hueco ${i + 1}`;
+          const td2 = document.createElement('td');
+          const inp = document.createElement('input');
+          inp.type = 'number'; inp.step = '1'; inp.min = '0';
+          inp.value = Math.round(largueros[i].posicion);
+          inp.setAttribute('data-index', i);
+          inp.setAttribute('data-type', 'larguero');
+          inp.addEventListener('input', (e) => {
+              onEditarLarguero(i, e.target.value);
+              focusedInput = e.target;
+          });
+          inp.addEventListener('focus', (e) => {
+              focusedInput = e.target;
+          });
+          inp.addEventListener('blur', () => {
+              focusedInput = null;
+          });
+          td2.appendChild(inp);
+          tr.appendChild(td1); tr.appendChild(td2);
+          tablaLargueros.appendChild(tr);
+      }
+      if (focusedIndex !== null) {
+          const newFocusedInput = tablaLargueros.querySelector(`input[data-index="${focusedIndex}"]`);
+          if (newFocusedInput) {
+              const cursorPos = focusedInput.selectionStart;
+              newFocusedInput.focus();
+              newFocusedInput.setSelectionRange(cursorPos, cursorPos);
+          }
+      }
+  }
+
+  function updateTablaTravesanos() {
+      const huecoLargueroIndex = parseInt(selectorHuecos.value, 10);
+      const travesanosEnHueco = travesanos[huecoLargueroIndex] || [];
+      const nHuecos = travesanosEnHueco.length;
+      const focusedIndex = focusedInput && focusedInput.dataset.type === 'travesano' ? focusedInput.dataset.index : null;
+      
+      tablaTravesanos.innerHTML = '';
+      
+      for (let i = 0; i < nHuecos; i++) {
+          const tr = document.createElement('tr');
+          const td1 = document.createElement('td');
+          const td2 = document.createElement('td');
+          const inp = document.createElement('input');
+          const td3 = document.createElement('td');
+          const btnQuitar = document.createElement('button');
+
+          td1.textContent = `Hueco ${huecoLargueroIndex + 1}.${i + 1}`;
+          
+          inp.type = 'number'; inp.step = '1'; inp.min = '0';
+          const value = (travesanosEnHueco[i] && travesanosEnHueco[i].posicion) ? travesanosEnHueco[i].posicion : 0;
+          inp.value = Math.round(value);
+          inp.setAttribute('data-index', i);
+          inp.setAttribute('data-type', 'travesano');
+          inp.addEventListener('input', (e) => {
+              onEditarTravesano(i, e.target.value);
+              focusedInput = e.target;
+          });
+          inp.addEventListener('focus', (e) => {
+              focusedInput = e.target;
+          });
+          inp.addEventListener('blur', () => {
+              focusedInput = null;
+          });
+          td2.appendChild(inp);
+
+          if (i < travesanosEnHueco.length - 1) {
+            btnQuitar.className = 'danger';
+            btnQuitar.textContent = 'Quitar';
+            btnQuitar.addEventListener('click', () => onRemoveTravesano(i));
+          } else {
+            btnQuitar.disabled = true;
+            btnQuitar.style.opacity = '0';
+          }
+          
+          td3.appendChild(btnQuitar);
+
+          tr.appendChild(td1);
+          tr.appendChild(td2);
+          tr.appendChild(td3);
+          tablaTravesanos.appendChild(tr);
+      }
+      if (focusedIndex !== null) {
+          const newFocusedInput = tablaTravesanos.querySelector(`input[data-index="${focusedIndex}"]`);
+          if (newFocusedInput) {
+              const cursorPos = focusedInput.selectionStart;
+              newFocusedInput.focus();
+              newFocusedInput.setSelectionRange(cursorPos, cursorPos);
+          }
+      }
+  }
+
+  function updateHojaControls() {
+      const hojaExistente = hojas[selectedHuecoIndex];
+      if (hojaExistente) {
+          aperturaHoja.value = hojaExistente.apertura;
+          colorHoja.value = hojaExistente.color;
+          grosorHoja.value = hojaExistente.grosor;
+          btnAddHoja.textContent = "Actualizar hoja";
+          btnRemoveHoja.disabled = false;
+          aperturaHoja.onchange = updateHoja;
+          colorHoja.oninput = updateHoja;
+          grosorHoja.oninput = updateHoja;
+      } else {
+          aperturaHoja.value = 'derecha';
+          grosorHoja.value = '40';
+          colorHoja.value = colorTubo.value;
+          btnAddHoja.textContent = "Añadir hoja";
+          btnRemoveHoja.disabled = true;
+          aperturaHoja.onchange = null;
+          colorHoja.oninput = null;
+          grosorHoja.oninput = null;
+      }
+      updateColorLabel(colorHoja, colorHojaLabel);
+  }
+  
+  function updateHoja() {
+      if (hojas[selectedHuecoIndex]) {
+          hojas[selectedHuecoIndex] = {
+              apertura: aperturaHoja.value,
+              color: colorHoja.value,
+              grosor: +grosorHoja.value
+          };
+          render();
+      }
+  }
+
+  function drawCota(x1, y1, x2, y2, offset, texto) {
+    const isHorizontal = (y1 === y2);
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#155eef';
+    ctx.fillStyle = '#155eef';
+    ctx.font = `${FONT_SIZE_CANVAS}px system-ui, Arial`;
+    const offsetDirection = offset > 0 ? 1 : -1;
+    const a = 6; // Flecha de la cota
+
+    if (isHorizontal) {
+      const y = y1 + offset;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x1, y1 + offsetDirection * a * 2);
+      ctx.moveTo(x2, y2); ctx.lineTo(x2, y2 + offsetDirection * a * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x1, y); ctx.lineTo(x2, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x1, y); ctx.lineTo(x1 + a, y - a);
+      ctx.moveTo(x1, y); ctx.lineTo(x1 + a, y + a);
+      ctx.moveTo(x2, y); ctx.lineTo(x2 - a, y - a);
+      ctx.moveTo(x2, y); ctx.lineTo(x2 - a, y + a);
+      ctx.stroke();
+      const tw = ctx.measureText(texto).width;
+      ctx.fillText(texto, (x1 + x2)/2 - tw/2, y - 6);
+    } else {
+      const x = x1 + offset;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1); ctx.lineTo(x1 + offsetDirection * a * 2, y1);
+      ctx.moveTo(x2, y2); ctx.lineTo(x2 + offsetDirection * a * 2, y2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y1); ctx.lineTo(x, y2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y1); ctx.lineTo(x - a, y1 + a);
+      ctx.moveTo(x, y1); ctx.lineTo(x + a, y1 + a);
+      ctx.moveTo(x, y2); ctx.lineTo(x - a, y2 - a);
+      ctx.moveTo(x, y2); ctx.lineTo(x + a, y2 - a);
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(x - 4, (y1 + y2)/2);
+      ctx.rotate(-Math.PI/2);
+      const tw = ctx.measureText(texto).width;
+      ctx.fillText(texto, -tw/2, -6);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  
+  function drawHoja(x, y, w, h, apertura, color, grosorHojaMm) {
+    const escala = calcEscala(+ancho.value, +alto.value);
+    const remontePx = REMONTE_HOJA_MM * escala;
+    const grosorHojaPx = grosorHojaMm * escala;
+    
+    const hojaX = x - remontePx;
+    const hojaY = y - remontePx;
+    const hojaW = w + 2 * remontePx;
+    const hojaH = h + 2 * remontePx;
+
+    ctx.save();
+    
+    ctx.fillStyle = color;
+    ctx.fillRect(hojaX, hojaY, hojaW, grosorHojaPx);
+    ctx.fillRect(hojaX, hojaY + hojaH - grosorHojaPx, hojaW, grosorHojaPx);
+    ctx.fillRect(hojaX, hojaY + grosorHojaPx, grosorHojaPx, hojaH - 2 * grosorHojaPx);
+    ctx.fillRect(hojaX + hojaW - grosorHojaPx, hojaY + grosorHojaPx, grosorHojaPx, hojaH - 2 * grosorHojaPx);
+    
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(hojaX, hojaY, hojaW, hojaH);
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(hojaX + grosorHojaPx, hojaY + grosorHojaPx, hojaW - 2 * grosorHojaPx, hojaH - 2 * grosorHojaPx);
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    
+    ctx.beginPath();
+    switch (apertura) {
+        case 'derecha':
+            ctx.moveTo(hojaX + hojaW, hojaY);
+            ctx.lineTo(hojaX + hojaW, hojaY + hojaH);
+            ctx.lineTo(hojaX, hojaY + hojaH / 2);
+            break;
+        case 'izquierda':
+            ctx.moveTo(hojaX, hojaY);
+            ctx.lineTo(hojaX, hojaY + hojaH);
+            ctx.lineTo(hojaX + hojaW, hojaY + hojaH / 2);
+            break;
+        case 'proyectante':
+            ctx.moveTo(hojaX, hojaY + hojaH);
+            ctx.lineTo(hojaX + hojaW, hojaY + hojaH);
+            ctx.lineTo(hojaX + hojaW / 2, hojaY);
+            break;
+        case 'basculante':
+            ctx.moveTo(hojaX, hojaY);
+            ctx.lineTo(hojaX + hojaW, hojaY);
+            ctx.lineTo(hojaX + hojaW / 2, hojaY + hojaH);
+            break;
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function hexToRgb(hex) {
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) {
+      r = parseInt(hex[1] + hex[1], 16);
+      g = parseInt(hex[2] + hex[2], 16);
+      b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length === 7) {
+      r = parseInt(hex.substring(1, 3), 16);
+      g = parseInt(hex.substring(3, 5), 16);
+      b = parseInt(hex.substring(5, 7), 16);
+    }
+    return { r, g, b };
+  }
+  
+  function hexToRgbNormalized(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      return { r: r / 255, g: g / 255, b: b / 255 };
+  }
+
+  function getLuminance(r, g, b) {
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  }
+  
+  function hslToRgb(h, s, l) {
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+    };
+  }
+
+  function rgbToHsl(r, g, b) {
+      r /= 255, g /= 255, b /= 255;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+          h = s = 0;
+      } else {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+              case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+              case g: h = (b - r) / d + 2; break;
+              case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+      }
+      return { h, s, l };
+  }
+
+  function updateColorLabel(input, label) {
+    const hexColor = input.value;
+    const { r, g, b } = hexToRgb(hexColor);
+    const luminance = getLuminance(r, g, b);
+
+    if (luminance > 0.5) {
+      label.style.color = '#333';
+      label.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.7)';
+    } else {
+      label.style.color = '#eee';
+      label.style.textShadow = '1px 1px 2px rgba(0, 0, 0, 0.7)';
+    }
+  }
+
+  function render() {
+    ctx.clearRect(0,0, CANVAS_W, CANVAS_H);
+
+    const A = +ancho.value;
+    const H = +alto.value;
+    const tPer = +grosorTubo.value;
+    const tLar = +grosorLarguero.value;
+    const tTrav = +grosorTravesano.value;
+
+    if (A <= 0 || H <= 0 || tPer <= 0) return;
+
+    const escala = calcEscala(A, H);
+    const Wpx = A * escala;
+    const Hpx = H * escala;
+
+    const anchoDibujoTotal = Wpx + (mostrarCotas ? ESPACIO_COTAS_H + OFFSET_COTAS_V : 0);
+    const altoDibujoTotal = Hpx + (mostrarCotas ? ESPACIO_COTAS_V : 0);
+
+    const areaX = (CANVAS_W - anchoDibujoTotal) / 2 + (mostrarCotas ? ESPACIO_COTAS_H : 0);
+    const areaY = (CANVAS_H - altoDibujoTotal) / 2;
+    const frameY = areaY + (mostrarCotas ? ESPACIO_COTAS_V : 0);
+    
+    const tPerPx = tPer * escala;
+    const tLarPx = tLar * escala;
+    const tTravPx = tTrav * escala;
+
+    ctx.save();
+    ctx.fillStyle = colorTubo.value;
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.fillRect(areaX, frameY, Wpx, Hpx);
+    ctx.strokeRect(areaX + 0.5, frameY + 0.5, Wpx - 1, Hpx - 1);
+
+    const innerX = areaX + tPerPx;
+    const innerY = frameY + tPerPx;
+    const innerW = Wpx - 2 * tPerPx;
+    const innerH = Hpx - 2 * tPerPx;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillRect(innerX, innerY, innerW, innerH);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(innerX + 0.5, innerY + 0.5, innerW - 1, innerH - 1);
+    ctx.restore();
+
+    huecosBbox = [];
+    let globalHuecoIndex = 0;
+    const nLargueros = largueros.length;
+    let currentX = innerX;
+    
+    for (let i = 0; i < nLargueros; i++) {
+      let huecoWidth = largueros[i].posicion;
+      const huecoWidthPx = huecoWidth * escala;
+      const travesanosEnHueco = travesanos[i] || [];
+      const nTravesanos = travesanosEnHueco.length;
+      
+      let currentY = innerY;
+      
+      for (let j = 0; j < nTravesanos; j++) {
+        let huecoHeight = travesanosEnHueco[j].posicion;
+        
+        const huecoHeightPx = huecoHeight * escala;
+        
+        huecosBbox.push({ x: currentX, y: currentY, width: huecoWidthPx, height: huecoHeightPx, index: globalHuecoIndex });
+        globalHuecoIndex++;
+        
+        if (j < nTravesanos - 1) {
+            const yPos = currentY + huecoHeightPx;
+            ctx.fillStyle = colorTravesano.value;
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.fillRect(currentX, yPos, huecoWidthPx, tTravPx);
+            ctx.strokeRect(currentX + 0.5, yPos + 0.5, huecoWidthPx - 1, tTravPx - 1);
+            currentY = yPos + tTravPx;
+        }
+      }
+
+      if (mostrarCotas && nTravesanos > 1) {
+          const cotaX = currentX + huecoWidthPx + 5;
+          let lastPosPx = innerY;
+          for(let k = 0; k < nTravesanos; k++) {
+              let nextPosPx = lastPosPx + travesanosEnHueco[k].posicion * escala;
+              drawCota(cotaX, lastPosPx, cotaX, nextPosPx, OFFSET_COTAS_V, `${Math.round(travesanosEnHueco[k].posicion)}`);
+              if(k < nTravesanos - 1) {
+                lastPosPx = nextPosPx + tTravPx;
+              }
+          }
+      }
+
+      if (i < nLargueros - 1) {
+          const largueroX = currentX + huecoWidthPx;
+          
+          ctx.fillStyle = colorLarguero.value;
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 1;
+          ctx.fillRect(largueroX, innerY, tLarPx, innerH);
+          ctx.strokeRect(largueroX + 0.5, innerY + 0.5, tLarPx - 1, innerH - 1);
+
+          if (mostrarCotas) {
+              drawCota(currentX, innerY, largueroX, innerY, -40, `${Math.round(huecoWidth)}`);
+          }
+          currentX = largueroX + tLarPx;
+      } else {
+          if (mostrarCotas && nLargueros > 1) {
+              drawCota(currentX, innerY, currentX + huecoWidthPx, innerY, -40, `${Math.round(huecoWidth)}`);
+          }
+      }
+    }
+
+    if (mostrarCotas) {
+      drawCota(areaX, frameY, areaX + Wpx, frameY, -70, `${Math.round(A)}`);
+      drawCota(areaX, frameY, areaX, frameY + Hpx, -40, `${Math.round(H)}`);
+    }
+
+    huecosBbox.forEach(bbox => {
+      if (mostrarCristales) {
+          const hex = colorCristal.value;
+          const {r, g, b} = hexToRgb(hex);
+          const {h, s, l} = rgbToHsl(r, g, b);
+          const gradient = ctx.createLinearGradient(bbox.x, bbox.y, bbox.x + bbox.width, bbox.y + bbox.height);
+          
+          const startRgb = hslToRgb(h, Math.min(1, s + 0.1), Math.min(1, l + 0.2));
+          const midRgb = hslToRgb(h, Math.max(0, s - 0.1), Math.max(0, l - 0.2));
+          const endRgb = hslToRgb(h, s, l);
+          
+          gradient.addColorStop(0, `rgba(${startRgb.r}, ${startRgb.g}, ${startRgb.b}, 0.5)`);
+          gradient.addColorStop(0.4, `rgba(${midRgb.r}, ${midRgb.g}, ${midRgb.b}, 0.3)`);
+          gradient.addColorStop(1, `rgba(${endRgb.r}, ${endRgb.g}, ${endRgb.b}, 0.5)`);
+          
+          ctx.fillStyle = gradient;
+          ctx.fillRect(bbox.x, bbox.y, bbox.width, bbox.height);
+      }
+    });
+
+    huecosBbox.forEach(bbox => {
+        const hojaExistente = hojas[bbox.index];
+        if (hojaExistente) {
+            drawHoja(bbox.x, bbox.y, bbox.width, bbox.height, hojaExistente.apertura, hojaExistente.color, hojaExistente.grosor);
+        }
+    });
+  }
+
+  btnAdd.addEventListener('click', () => {
+    if (largueros.length < 10) {
+      largueros.push({ posicion: 0 });
+      const newHuecoIndex = largueros.length - 1;
+      travesanos[newHuecoIndex] = [{ posicion: 0 }];
+      generarLarguerosRepartidos();
+      render();
+    }
+  });
+
+  btnRemove.addEventListener('click', () => {
+    if (largueros.length > 1) {
+      largueros.pop();
+      delete travesanos[largueros.length];
+      generarLarguerosRepartidos();
+      render();
+    }
+  });
+  
+  btnRepartir.addEventListener('click', () => {
+    if (largueros.length > 0) {
+      generarLarguerosRepartidos();
+      render();
+    }
+  });
+
+  btnToggleCotas.addEventListener('click', () => {
+    mostrarCotas = !mostrarCotas;
+    btnToggleCotas.textContent = mostrarCotas ? 'Ocultar cotas' : 'Mostrar cotas';
+    render();
+  });
+
+  btnToggleCristales.addEventListener('click', () => {
+    mostrarCristales = !mostrarCristales;
+    btnToggleCristales.textContent = mostrarCristales ? 'Ocultar cristales' : 'Mostrar cristales';
+    render();
+  });
+
+  [ancho, alto, grosorTubo, grosorLarguero].forEach(el => {
+    el.addEventListener('input', () => {
+        generarLarguerosRepartidos();
+        render();
+    });
+  });
+
+  colorTubo.addEventListener('input', () => {
+    const nuevoColor = colorTubo.value;
+    colorLarguero.value = nuevoColor;
+    colorTravesano.value = nuevoColor;
+    updateColorLabel(colorLarguero, colorLargueroLabel);
+    updateColorLabel(colorTravesano, colorTravesanoLabel);
+    const hojaExistente = hojas[selectedHuecoIndex];
+    if (hojaExistente) {
+      hojaExistente.color = nuevoColor;
+    }
+    colorHoja.value = nuevoColor;
+    updateColorLabel(colorHoja, colorHojaLabel);
+    render();
+    updateColorLabel(colorTubo, colorTuboLabel);
+  });
+  
+  colorCristal.addEventListener('input', () => {
+    render();
+    updateColorLabel(colorCristal, colorCristalLabel);
+  });
+
+  colorLarguero.addEventListener('input', () => {
+    render();
+    updateColorLabel(colorLarguero, colorLargueroLabel);
+  });
+  
+  btnAddTravesano.addEventListener('click', () => {
+    const huecoLargueroIndex = parseInt(selectorHuecos.value, 10);
+    travesanos[huecoLargueroIndex] = travesanos[huecoLargueroIndex] || [];
+    travesanos[huecoLargueroIndex].push({ posicion: 0 });
+    generarTravesanosRepartidos();
+    updateTablaTravesanos();
+    render();
+  });
+  
+  btnRepartirTravesanos.addEventListener('click', () => {
+    const huecoLargueroIndex = parseInt(selectorHuecos.value, 10);
+    if (travesanos[huecoLargueroIndex] && travesanos[huecoLargueroIndex].length > 1) {
+      generarTravesanosRepartidos();
+      updateTablaTravesanos();
+      render();
+    }
+  });
+
+  grosorTravesano.addEventListener('input', () => {
+    repartirTodosTravesanos();
+    updateTablaTravesanos();
+    render();
+  });
+  
+  colorTravesano.addEventListener('input', () => {
+    render();
+    updateColorLabel(colorTravesano, colorTravesanoLabel);
+  });
+  
+  selectorHuecos.addEventListener('change', (e) => {
+    const huecoLargueroIndex = parseInt(e.target.value, 10);
+    let globalIndex = 0;
+    for (let i = 0; i < huecoLargueroIndex; i++) {
+        globalIndex += (travesanos[i] || []).length;
+    }
+    if (travesanos[huecoLargueroIndex]) {
+        selectedHuecoIndex = globalIndex;
+    }
+    selectorHuecoHoja.value = selectedHuecoIndex;
+    updateTablaTravesanos();
+    updateHojaControls();
+    render();
+  });
+
+  selectorHuecoHoja.addEventListener('change', (e) => {
+      selectedHuecoIndex = parseInt(e.target.value, 10);
+      
+      const nLargueros = largueros.length;
+      let globalIndex = 0;
+      let largueroIndex = 0;
+      for (let i = 0; i < nLargueros; i++) {
+          const nTravesanos = (travesanos[i] || []).length;
+          const nextGlobalIndex = globalIndex + nTravesanos;
+          if (selectedHuecoIndex < nextGlobalIndex) {
+              largueroIndex = i;
+              break;
+          }
+          globalIndex = nextGlobalIndex;
+      }
+      
+      selectorHuecos.value = largueroIndex;
+      updateTablaTravesanos();
+      updateHojaControls();
+      render();
+  });
+  
+  btnAddHoja.addEventListener('click', () => {
+      hojas[selectedHuecoIndex] = {
+          apertura: aperturaHoja.value,
+          color: colorHoja.value,
+          grosor: +grosorHoja.value
+      };
+      updateHojaControls();
+      render();
+  });
+
+  btnRemoveHoja.addEventListener('click', () => {
+      delete hojas[selectedHuecoIndex];
+      updateHojaControls();
+      render();
+  });
+  
+  aperturaHoja.addEventListener('change', () => {
+    if(hojas[selectedHuecoIndex]) updateHoja();
+  });
+  
+  colorHoja.addEventListener('input', () => {
+    updateColorLabel(colorHoja, colorHojaLabel);
+    if(hojas[selectedHuecoIndex]) updateHoja();
+  });
+  
+  grosorHoja.addEventListener('input', () => {
+    if(hojas[selectedHuecoIndex]) updateHoja();
+  });
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+    
+    const clickedHueco = huecosBbox.findIndex(bbox => 
+      mouseX >= bbox.x && mouseX <= bbox.x + bbox.width &&
+      mouseY >= bbox.y && mouseY <= bbox.y + bbox.height
+    );
+    
+    if (clickedHueco !== -1) {
+      selectedHuecoIndex = clickedHueco;
+      
+      const nLargueros = largueros.length;
+      let globalIndex = 0;
+      let largueroIndex = 0;
+      for (let i = 0; i < nLargueros; i++) {
+          const nTravesanos = (travesanos[i] || []).length;
+          const nextGlobalIndex = globalIndex + nTravesanos;
+          if (selectedHuecoIndex < nextGlobalIndex) {
+              largueroIndex = i;
+              break;
+          }
+          globalIndex = nextGlobalIndex;
+      }
+      
+      selectorHuecos.value = largueroIndex;
+      selectorHuecoHoja.value = selectedHuecoIndex;
+      updateTablaTravesanos();
+      updateHojaControls();
+      render();
+    }
+  });
+
+  inicializarEstado();
+  updateColorLabel(colorTubo, colorTuboLabel);
+  updateColorLabel(colorLarguero, colorLargueroLabel);
+  updateColorLabel(colorTravesano, colorTravesanoLabel);
+  updateColorLabel(colorHoja, colorHojaLabel);
+  updateColorLabel(colorCristal, colorCristalLabel);
+})();
+</script>
+</body></html>
