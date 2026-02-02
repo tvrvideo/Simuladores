@@ -168,8 +168,8 @@
 </header>
 
 <div id="menu">
-    <button class="menu-btn" onclick="abrir('factura.html')"><div class="icon">🧾</div><div class="texto"><div>Facturación Pro</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
-<button class="menu-btn" onclick="abrir('factura.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño V80</div></div></button>
+    <button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧾</div><div class="texto"><div>Facturación Pro</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
+<button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño V80</div></div></button>
 <button class="menu-btn" onclick="abrir('presupuestos.html')"><div class="icon">💶</div><div class="texto"><div>Presupuestos</div><div class="subtitulo-btn">Cálculo guardable</div></div></button>
 <button class="menu-btn" onclick="abrir('cierre.html')"><div class="icon">🔒</div><div class="texto"><div>Cierre</div><div class="subtitulo-btn">Selección y cálculo</div></div></button>
 <button class="menu-btn" onclick="abrir('poligono.html')"><div class="icon">📐</div><div class="texto"><div>Polígono / Modulación</div><div class="subtitulo-btn">Geometría y medidas</div></div></button>
@@ -196,10 +196,12 @@
         const pin = document.getElementById("pin").value;
         if (pin === PIN_CORRECTO) {
             document.getElementById("lock").style.display = "none";
+        // Abrir Facturación Pro automáticamente tras el código
+        abrir('factura.html');
+
         
         // Abrir Ventana Pro automáticamente tras el código
-        abrir('factura.html');
-    } else {
+} else {
             alert("Código incorrecto");
         }
     }
