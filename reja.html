@@ -260,6 +260,111 @@
   background: #2c8f47;
   box-shadow: 0 6px 15px rgba(52,168,83,0.55);
 }
+
+
+/* ====== V4 + BOTÓN FIJAR + LAYOUT FIJO ====== */
+
+/* Título: que no se corte en móvil/PC */
+h1{
+  font-size: clamp(1.4em, 4.8vw, 2.1em);
+  line-height: 1.1;
+  padding: 0 10px;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+#mainHeading::after{
+  content: " V4";
+  font-size: 0.55em;
+  font-weight: 800;
+  opacity: 0.75;
+  margin-left: 8px;
+}
+
+/* BOTÓN FIJAR */
+.btn-fijar{
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: none;
+  background: #6b7280; /* gris (OFF) */
+  color: #ffffff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-fijar.active{ background: #e74c3c; } /* rojo (ON) */
+
+/* Modo normal: flujo normal (sin blanco ni panel fijo) */
+#scrollArea, #dockArea{
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Modo fijo: controles arriba con scroll + canvas abajo fijo */
+:root{ --dock-height: 48vh; }
+
+body.dock-on{
+  margin: 0;
+  padding: 0;
+}
+
+body.dock-on #scrollArea{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--dock-height);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 60px 10px 15px; /* deja sitio para botones fijos */
+  box-sizing: border-box;
+  background: #f0f0f0;
+}
+
+body.dock-on #dockArea{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--dock-height);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 10px 15px;
+  box-sizing: border-box;
+  background: #f0f0f0;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
+}
+
+/* Canvas visible y adaptable dentro del dock */
+#rejaCanvas{
+  max-width: 100%;
+  height: auto;
+}
+
+/* Exportación como overlay (para evitar duplicados y scroll) */
+#vista-exportar{
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #f0f0f0;
+  padding: 60px 12px 20px;
+  box-sizing: border-box;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -271,8 +376,10 @@
 <body>
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 <div id="vista-diseno">
+<div id="scrollArea">
 
 
 
@@ -310,11 +417,15 @@
 
 </div>
 
-<canvas id="rejaCanvas" width="400" height="400"></canvas>
+
+</div>
+<div id="dockArea"><canvas id="rejaCanvas" width="400" height="400"></canvas>
 
 <div id="info">Tubos: <strong>7</strong> | Hueco: <strong>103 mm</strong></div>
 <div id="tube-positions-info"><h4>Posición tubos desde exterior:</h4><ul><li>Tubo 1: 123 / 143</li><li>Tubo 2: 245 / 265</li><li>Tubo 3: 368 / 388</li><li>Tubo 4: 490 / 510</li><li>Tubo 5: 613 / 633</li><li>Tubo 6: 735 / 755</li><li>Tubo 7: 858 / 878</li></ul></div>
 
+
+</div>
 </div>
 
 <div id="vista-exportar" style="display:none; padding:10px; text-align:center;">
@@ -806,7 +917,11 @@
 
   // --- EXPORTAR PNG ---
   function exportarPNG(){
-    const srcCanvas = document.getElementById('rejaCanvas');
+    // Guardar estado de FIJAR y desactivarlo para exportar
+    window.__rejaWasDockOn = document.body.classList.contains('dock-on');
+    if(window.__rejaWasDockOn){ document.body.classList.remove('dock-on'); const bf=document.getElementById('btnFijar'); if(bf) bf.classList.remove('active'); }
+
+const srcCanvas = document.getElementById('rejaCanvas');
     const imgOut = document.getElementById('img-resultado');
     const vistaDiseno = document.getElementById('vista-diseno');
     const vistaExport = document.getElementById('vista-exportar');
@@ -853,7 +968,34 @@
   if(btnBack) btnBack.addEventListener('click', () => {
     document.getElementById('vista-exportar').style.display = 'none';
     document.getElementById('vista-diseno').style.display = 'block';
+
+    // Restaurar FIJAR si estaba activado
+    if(window.__rejaWasDockOn){
+      document.body.classList.add('dock-on');
+      const bf=document.getElementById('btnFijar');
+      if(bf) bf.classList.add('active');
+      draw();
+    }
   }, {passive:true});
+
+
+  // --- FIJAR (como en Grados) ---
+  const btnFijar = document.getElementById('btnFijar');
+  function setDock(on){
+    document.body.classList.toggle('dock-on', on);
+    if(btnFijar) btnFijar.classList.toggle('active', on);
+    // Redibujar por si el tamaño visible cambia
+    draw();
+  }
+  // Por defecto: OFF
+  setDock(false);
+
+  if(btnFijar){
+    btnFijar.addEventListener('click', () => {
+      const on = !btnFijar.classList.contains('active');
+      setDock(on);
+    }, {passive:true});
+  }
 
   draw();
 
