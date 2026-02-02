@@ -2,320 +2,156 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diseño Modular de Ventana de Corredera - V3 Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Próximamente</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f9; }
-        .controls { margin-bottom: 10px; padding: 5px; border: 1px solid #ddd; border-radius: 5px; background-color: #ffffff; }
-        .controls button { padding: 8px 12px; margin-right: 5px; margin-bottom: 5px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; }
-        .controls label { font-weight: bold; margin-right: 15px; color: #333; }
-        .legend { margin-top: 15px; padding: 10px; border: 1px solid #ddd; background-color: #eaf2ff; }
-        .legend p { margin: 5px 0; }
-        .svg-container { 
-            border: 2px solid #333; 
-            margin-top: 20px; 
-            max-width: 100%; /* Ajuste para iPhone */
-            height: auto; 
-            display: block;  
+        :root {
+            --bg-color: #000000;
+            --accent-color: #ffffff;
+            --text-secondary: #888888;
         }
 
-        /* Grosores de Perfiles para Referencia Visual */
-        :root {
-            --color-marco: #006400; /* Verde Oscuro */
-            --color-zanca: #3CB371; /* Verde Medio */
-            --color-vidrio-fijo: #4682B4; /* Azul Medio */
-            --color-vidrio-hoja: #87CEEB; /* Azul Claro */
-            --grosor-junquillo: 14;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-    </style>
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Contenedor principal con padding para el notch del iPhone */
+        .container {
+            padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #333, #111);
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 280px;
+            margin: 0 auto 40px;
+            line-height: 1.4;
+        }
+
+        .loader {
+            width: 40px;
+            height: 2px;
+            background: #333;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loader::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: var(--accent-color);
+            animation: slide 1.5s infinite ease-in-out;
+        }
+
+        @keyframes slide {
+            0% { left: -20px; }
+            100% { left: 40px; }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: calc(30px + env(safe-area-inset-bottom));
+            font-size: 0.8rem;
+            color: #444;
+            letter-spacing: 0.1em;
+        }
+
+
+        /* BOTÓN MENÚ (igual que el resto de apps) */
+        .btn-menu{
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 9999;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            background: #e74c3c;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: auto !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .btn-menu:active{ transform: translateY(1px); }
+
+</style>
+
+    <link rel="icon" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <h1>Diseño de Ventana Modular (Ancho: 2000mm | Alto: 2200mm)</h1>
-    <p>Versión estable. Corregido el fallo de espacio en blanco entre corredera y fijo inferior.</p>
+<button class="btn-menu" type="button" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
 
-    <div class="controls">
-        <label>Marco:</label>
-        <button onclick="toggleFijo('superior')">Toggle Fijo Superior (AFS: 400)</button>
-        <button onclick="toggleFijo('inferior')">Toggle Fijo Inferior (AFI: 500)</button>
-    </div>
-    
-    <div class="controls">
-        <label>Fijo Superior (Zancas):</label>
-        <button onclick="toggleZanca('superior', 'vertical')">Toggle Zanca Vertical (55mm)</button>
-    </div>
-    <div class="controls">
-        <label>Fijo Inferior (Zancas):</label>
-        <button onclick="toggleZanca('inferior', 'vertical')">Toggle Zanca Vertical (55mm)</button>
-        <button onclick="toggleZanca('inferior', 'horizontal')">Toggle Zanca Horizontal (55mm)</button>
+
+    <div class="container">
+        <div class="logo-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+        </div>
+        
+        <h1>PRÓXIMAMENTE</h1>
+        <p>Estamos puliendo los últimos detalles de la experiencia.</p>
+        
+        <div class="loader"></div>
     </div>
 
-    <div class="legend">
-        <p>Grosor Zanca: **55mm** | Marco Lat: **33mm**</p>
+    <div class="footer">
+        PROYECTO 2026
     </div>
 
-    <svg id="ventana-svg" viewBox="0 0 2000 2200" class="svg-container">
-        
-        <rect x="0" y="0" width="33" height="2200" fill="var(--color-marco)"/>
-        <rect x="1967" y="0" width="33" height="2200" fill="var(--color-marco)"/>
-        <rect x="0" y="2151" width="2000" height="49" fill="var(--color-marco)" id="marco-inf"/>
-        
-        <rect x="0" y="0" width="2000" height="49" fill="var(--color-marco)" id="marco-sup"/>
-
-        <g id="fijo-superior-group">
-            <rect x="33" y="49" width="1934" height="400" fill="var(--color-vidrio-fijo)" stroke="#000" stroke-width="2" id="vidrio-fijo-sup"/>
-            
-            <rect x="972.5" y="49" width="55" height="400" fill="var(--color-zanca)" id="zanca-vert-sup"/>
-            
-            <rect x="33" y="435" width="939.5" height="14" fill="#6B8E23" id="junq-h-sup-izq"/>
-            <rect x="1027.5" y="435" width="939.5" height="14" fill="#6B8E23" id="junq-h-sup-der"/>
-
-            <rect x="0" y="449" width="2000" height="38" fill="var(--color-marco)" id="mainel-sup"/>
-        </g>
-        
-        <g id="seccion-corredera">
-            <rect x="33" y="487" width="967" height="1164" fill="var(--color-vidrio-hoja)" stroke="var(--color-marco)" stroke-width="5" opacity="0.8" id="hoja-izq"/>
-            <rect x="1000" y="487" width="967" height="1164" fill="var(--color-vidrio-hoja)" stroke="var(--color-marco)" stroke-width="5" opacity="0.8" id="hoja-der"/>
-
-            <rect x="972.5" y="487" width="55" height="1164" fill="var(--color-marco)" stroke="#000" stroke-width="2" id="montante-central"/>
-        </g>
-
-
-        <g id="fijo-inferior-group">
-            <rect x="0" y="1651" width="2000" height="38" fill="var(--color-marco)" id="mainel-inf"/>
-
-            <rect x="33" y="1689" width="1934" height="500" fill="var(--color-vidrio-fijo)" stroke="#000" stroke-width="2" id="vidrio-fijo-inf"/>
-            
-            <rect x="33" y="1939" width="1934" height="55" fill="var(--color-zanca)" id="zanca-horiz-inf"/>
-
-            <rect x="972.5" y="1689" width="55" height="500" fill="var(--color-zanca)" id="zanca-vert-inf"/>
-            
-            <rect x="33" y="2187" width="939.5" height="14" fill="#6B8E23" id="junq-h-inf-izq"/>
-            <rect x="1027.5" y="2187" width="939.5" height="14" fill="#6B8E23" id="junq-h-inf-der"/>
-        </g>
-        
-    </svg>
-
-    <script>
-        // --- VARIABLES GLOBALES DE MEDIDAS Y GROSORES ---
-        const ALT = 2200;
-        const AFS = 400; // Alto Fijo Superior
-        const AFI = 500; // Alto Fijo Inferior
-        
-        // Grosores de Perfiles
-        const G_MARCO_SUP_C_FIJO = 49; 
-        const G_MARCO_SUP_S_FIJO = 35; 
-        const G_MAINEL = 38;
-        const G_MARCO_INF = 49; 
-        const G_ZANCA = 55; // Grosor de zanca vertical/horizontal
-        const G_JUNQUILLO = 14; 
-        const G_MARCO_LAT = 33;
-
-        // --- ESTADO INICIAL ---
-        let tieneFijoSuperior = true;
-        let tieneFijoInferior = true;
-        let tieneZancaVertSup = true;
-        let tieneZancaHorizInf = true;
-        let tieneZancaVertInf = true;
-
-        // --- REFERENCIAS SVG ---
-        const marcoSup = document.getElementById('marco-sup');
-        const fijoSupGroup = document.getElementById('fijo-superior-group');
-        const mainelSup = document.getElementById('mainel-sup');
-        const fijoInfGroup = document.getElementById('fijo-inferior-group');
-        const mainelInf = document.getElementById('mainel-inf');
-        const hojaIzq = document.getElementById('hoja-izq');
-        const hojaDer = document.getElementById('hoja-der');
-        const montanteCentral = document.getElementById('montante-central');
-
-        // Referencias de Zancas/Junquillos
-        const vidrioFijoInf = document.getElementById('vidrio-fijo-inf');
-        const zancaVertSup = document.getElementById('zanca-vert-sup');
-        const junqHSupIzq = document.getElementById('junq-h-sup-izq');
-        const junqHSupDer = document.getElementById('junq-h-sup-der');
-        const zancaHorizInf = document.getElementById('zanca-horiz-inf');
-        const zancaVertInf = document.getElementById('zanca-vert-inf');
-        const junqHInfIzq = document.getElementById('junq-h-inf-izq');
-        const junqHInfDer = document.getElementById('junq-h-inf-der');
-
-        
-        // Función para cambiar el estado de los fijos (que afecta a la altura de la corredera)
-        function toggleFijo(posicion) {
-            if (posicion === 'superior') {
-                tieneFijoSuperior = !tieneFijoSuperior;
-            } else if (posicion === 'inferior') {
-                tieneFijoInferior = !tieneFijoInferior;
-            }
-            redrawSVG();
-        }
-
-        // Función para cambiar el estado de las zancas (que afecta a la división interna)
-        function toggleZanca(fijo, orientacion) {
-            if (fijo === 'superior' && orientacion === 'vertical') {
-                tieneZancaVertSup = !tieneZancaVertSup;
-            } else if (fijo === 'inferior' && orientacion === 'vertical') {
-                tieneZancaVertInf = !tieneZancaVertInf;
-            } else if (fijo === 'inferior' && orientacion === 'horizontal') {
-                tieneZancaHorizInf = !tieneZancaHorizInf;
-            }
-            redrawSVG();
-        }
-
-
-        // Función principal para recalcular y redibujar el SVG
-        function redrawSVG() {
-            let alto_corredera_hueco; // Alto que se usa para el cálculo del despiece
-            let alto_dibujo_corredera; // Alto que se usa para dibujar las hojas
-            let y_inicio_corredera = 0;
-            let grosor_marco_sup_usado;
-            
-            // 1. LÓGICA DE FIJOS (ALTURA)
-            
-            if (tieneFijoSuperior) {
-                grosor_marco_sup_usado = G_MARCO_SUP_C_FIJO;
-                fijoSupGroup.style.display = 'block';
-            } else {
-                grosor_marco_sup_usado = G_MARCO_SUP_S_FIJO;
-                fijoSupGroup.style.display = 'none';
-            }
-            
-            let altura_perfiles_fijos = grosor_marco_sup_usado; // Marco Superior
-
-            if (tieneFijoSuperior) {
-                altura_perfiles_fijos += AFS + G_MAINEL; // AFS + Mainel separador
-            }
-
-            if (tieneFijoInferior) {
-                altura_perfiles_fijos += G_MAINEL + AFI; // Mainel separador + AFI
-                fijoInfGroup.style.display = 'block';
-            } else {
-                fijoInfGroup.style.display = 'none';
-            }
-            
-            altura_perfiles_fijos += G_MARCO_INF; // Marco Inferior
-            
-            // 2. CALCULAR ALTO Y POSICIÓN DE CORREDERA
-            
-            alto_corredera_hueco = ALT - altura_perfiles_fijos; // Alto del hueco entre perfiles
-            
-            // La altura de dibujo debe incluir la superposición sobre el mainel inferior
-            // La hoja de corredera debe cubrir el espacio desde la cara superior de la guía inferior (mainel/marco) hasta la cara inferior de la guía superior (marco/mainel).
-            // Si hay Mainel inferior, la hoja se superpone un poco sobre él.
-
-            let grosor_guia_sup = tieneFijoSuperior ? G_MAINEL : grosor_marco_sup_usado;
-            let grosor_guia_inf = tieneFijoInferior ? G_MAINEL : G_MARCO_INF;
-            
-            y_inicio_corredera = grosor_marco_sup_usado;
-            if (tieneFijoSuperior) {
-                y_inicio_corredera += AFS + G_MAINEL;
-            }
-            
-            // Cálculo del alto DIBUJADO (para evitar el hueco blanco):
-            // Desde y_inicio_corredera hasta el inicio del Marco Inferior (ALT - G_MARCO_INF)
-            alto_dibujo_corredera = ALT - G_MARCO_INF - y_inicio_corredera;
-            
-            // El alto usado para el despiece (AHC) es el alto_dibujo_corredera menos el grosor del mainel/marco inferior que solapa
-            alto_corredera_hueco = alto_dibujo_corredera;
-
-
-            // 3. AJUSTAR ELEMENTOS DE CORREDERA
-            marcoSup.setAttribute('height', grosor_marco_sup_usado);
-
-            hojaIzq.setAttribute('y', y_inicio_corredera); 
-            hojaIzq.setAttribute('height', alto_dibujo_corredera); // CORRECCIÓN CLAVE
-            hojaDer.setAttribute('y', y_inicio_corredera); 
-            hojaDer.setAttribute('height', alto_dibujo_corredera); // CORRECCIÓN CLAVE
-            montanteCentral.setAttribute('y', y_inicio_corredera);
-            montanteCentral.setAttribute('height', alto_dibujo_corredera); // CORRECCIÓN CLAVE
-
-            // Ajuste de posición de los Fijos (si están activos)
-            if (tieneFijoInferior) {
-                const y_fijo_inf = ALT - G_MARCO_INF - AFI - G_MAINEL; // Posición Y del mainel inferior
-                // Ajustar posición del grupo completo
-                const y_offset = y_fijo_inf - (mainelInf.getAttribute('y') * 1); // 1651 es el Y inicial del mainel
-                fijoInfGroup.setAttribute('transform', `translate(0, ${y_offset})`);
-            }
-
-
-            // 4. LÓGICA DE ZANCAS EN FIJO SUPERIOR (Sin cambios, es estable)
-            if (tieneZancaVertSup) {
-                zancaVertSup.style.display = 'block';
-                junqHSupIzq.setAttribute('width', (1934 - G_ZANCA) / 2);
-                junqHSupDer.setAttribute('x', 33 + (1934 - G_ZANCA) / 2 + G_ZANCA); 
-                junqHSupDer.setAttribute('width', (1934 - G_ZANCA) / 2);
-            } else {
-                zancaVertSup.style.display = 'none';
-                junqHSupIzq.setAttribute('width', 1934); 
-                junqHSupDer.setAttribute('width', 0); 
-                junqHSupDer.setAttribute('x', 0);
-            }
-
-            // 5. LÓGICA DE ZANCAS EN FIJO INFERIOR (Sin cambios en lógica, solo ajuste de posición con el grupo)
-            
-            if (tieneFijoInferior) {
-                zancaVertInf.style.display = tieneZancaVertInf ? 'block' : 'none';
-                zancaHorizInf.style.display = tieneZancaHorizInf ? 'block' : 'none';
-
-                if (tieneZancaVertInf) {
-                    junqHInfIzq.setAttribute('width', (1934 - G_ZANCA) / 2); 
-                    junqHInfDer.setAttribute('x', 33 + (1934 - G_ZANCA) / 2 + G_ZANCA); 
-                    junqHInfDer.setAttribute('width', (1934 - G_ZANCA) / 2);
-                    junqHInfIzq.style.display = 'block';
-                    junqHInfDer.style.display = 'block';
-                } else {
-                    junqHInfIzq.setAttribute('width', 1934); 
-                    junqHInfDer.setAttribute('width', 0); 
-                    junqHInfDer.setAttribute('x', 0);
-                    junqHInfIzq.style.display = 'block';
-                    junqHInfDer.style.display = 'none';
-                }
-
-                if (tieneZancaHorizInf) {
-                    // Si hay zanca horizontal, ajustamos la posición de la zanca para centrarla en el hueco del fijo
-                    const y_zanca_h = (vidrioFijoInf.getAttribute('y') * 1) + (AFI / 2) - (G_ZANCA / 2);
-                    zancaHorizInf.setAttribute('y', y_zanca_h);
-                }
-            }
-
-
-            // 6. ACTUALIZAR DESPIECE (Corte de Hoja Vertical)
-            // El alto del hueco (AHC) es la altura de las hojas de corte antes del descuento final
-            // Usamos el alto_dibujo_corredera para el cálculo del despiece de hoja vertical.
-            const descuento_hoja = 68;
-            const alto_corte_hoja = alto_dibujo_corredera - descuento_hoja;
-
-            document.getElementById('alto-corredera-display').textContent = `${alto_dibujo_corredera.toFixed(0)} mm`;
-            document.getElementById('corte-alto-hoja').textContent = `${alto_corte_hoja.toFixed(0)} mm`;
-        }
-
-        // Cargar el diseño inicial
-        redrawSVG();
-    </script>
-    
-    <hr>
-    
-    <h2>Cálculo de Despiece de Corte (Dinámico)</h2>
-    <p>Las medidas de la hoja se actualizan según la configuración de los fijos. (Para 2 hojas correderas y descuento de **$-68$ mm**).</p>
-    
-    <h3>Hoja Corredera (Verticales) - 4 unidades de Hoja Lateral/Central</h3>
-    <ul>
-        <li>**Alto del Hueco de la Corredera (AHC):** <span id="alto-corredera-display"></span></li>
-        <li>**Alto de Corte (Hoja Vertical):** <strong id="corte-alto-hoja"></strong> (AHC - 68 mm)</li>
-    </ul>
-
-    <h3>Hoja Corredera (Horizontales) - 4 unidades de Hoja Central/Ruletas</h3>
-    <ul>
-        <li>**Ancho de Corte (Horizontal):** $990$ mm ($\frac{2000}{2} - 10$ mm)</li>
-    </ul>
-
----
-
-## ⏭️ Próximo Paso
-
-La representación visual ya es correcta y el cálculo de la altura de la hoja también es preciso.
-
-Ahora que el diseño está estable, podemos proceder con la parte más importante para la fabricación: el **Cálculo de Vidrios**.
-
-1.  **Cálculo de Vidrios:** Determinar las medidas exactas de los vidrios (Ancho y Alto) con los descuentos de junquillos ($14$ mm) y zancas ($55$ mm) en todas las configuraciones posibles.
-
-¿Deseas que preparemos las tablas de cálculo de vidrios?
+</body>
+</html>
