@@ -1,5 +1,5 @@
 /* Ventanas Rey - Service Worker (offline completo, cache seguro) */
-const CACHE_VERSION = 'vr-v1.2.0';
+const CACHE_VERSION = 'vr-v1.2.1';
 const PRECACHE_URLS = [
   "./",
   "./index.html",
