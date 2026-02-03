@@ -148,6 +148,15 @@
             border-radius: 18px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.18);
         }
+
+
+/* PIN: teclado iPhone fiable (type=tel) pero con ocultación tipo password */
+#lock input#pin{
+  -webkit-text-security: disc;
+  text-security: disc;
+  pointer-events: auto;
+}
+
 </style>
 </head>
 <body>
@@ -158,7 +167,7 @@
     <div class="empresa">Ventanas Rey</div>
     <h1>Simuladores técnicos</h1>
     <p>Introduce el código de acceso</p>
-    <input id="pin" type="password" inputmode="numeric" maxlength="4">
+    <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button onclick="unlock()">Entrar</button>
 </div>
 
@@ -191,10 +200,40 @@
 <script>
     const PIN_CORRECTO = "1234";
 
-    function unlock() {
+    
+    // iPhone: asegurar que el teclado aparezca al tocar el campo PIN
+    window.addEventListener('load', () => {
+        const pinEl = document.getElementById('pin');
+        const lockEl = document.getElementById('lock');
+        if(!pinEl || !lockEl) return;
+
+        // Si tocan la pantalla del bloqueo, enfocamos el PIN
+        const focusPin = () => {
+            try { pinEl.focus({preventScroll:true}); } catch(e) { pinEl.focus(); }
+        };
+
+        lockEl.addEventListener('click', (e) => {
+            // Evitar que un click en el botón "Entrar" interfiera
+            if(e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'button') return;
+            focusPin();
+        }, {passive:true});
+
+        pinEl.addEventListener('touchend', () => { focusPin(); }, {passive:true});
+        pinEl.addEventListener('click', () => { focusPin(); }, {passive:true});
+
+        // Enter / Done -> entrar
+        pinEl.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter'){
+                e.preventDefault();
+                unlock();
+            }
+        });
+    });
+function unlock() {
         const pin = document.getElementById("pin").value;
         if (pin === PIN_CORRECTO) {
-            document.getElementById("lock").style.display = "none";
+            try{document.getElementById('pin').blur();}catch(e){}
+        document.getElementById("lock").style.display = "none";
         
         // Abrir Facturación Pro automáticamente tras el código
         abrir('factura.html');
