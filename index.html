@@ -271,35 +271,7 @@ function unlock() {
 </script>
 
 
-<script>
-(function(){
-  const pin = document.getElementById('pin');
-  const lock = document.getElementById('lock');
-  const PIN_LEN = pin ? pin.maxLength || 4 : 4;
 
-  function iniciarApp(){
-    lock.style.display = 'none';
-  }
-
-  if(pin){
-    pin.addEventListener('input', () => {
-      if(pin.value.length >= PIN_LEN){
-        iniciarApp();
-      }
-    });
-  }
-
-  if(window.visualViewport){
-    visualViewport.addEventListener('resize', () => {
-      const desplazamiento = Math.max(
-        0,
-        (window.innerHeight - visualViewport.height) / 2
-      );
-      lock.style.transform = `translateY(-${desplazamiento}px)`;
-    });
-  }
-})();
-</script>
 
 
 <script>
@@ -308,71 +280,85 @@ function unlock() {
   const pin  = document.getElementById('pin');
   if(!lock || !pin) return;
 
-  // Mantener EXACTAMENTE el flujo del botón "Entrar" (abre Facturación como siempre)
-  const btnEntrar = lock.querySelector('button');
-
+  const btnEntrar = lock.querySelector('button[onclick*="unlock"]') || lock.querySelector('button');
   const PIN_LEN = Number(pin.getAttribute('maxlength')) || 4;
 
-  function ejecutarEntradaOriginal(){
-    if(btnEntrar && typeof btnEntrar.click === 'function'){
-      btnEntrar.click();
-      return;
-    }
-    if(typeof window.unlock === 'function'){
-      window.unlock();
-    }
+  let entrando = false;
+
+  function limpiarYReintentar(){
+    // Mantener lock visible, limpiar pin y reenfocar
+    try { pin.value = ''; } catch(e) {}
+    try { pin.focus({preventScroll:true}); } catch(e) { try{pin.focus();}catch(e2){} }
   }
 
-  // Auto-entrar al completar el PIN
+  // Envolver unlock para que al PIN incorrecto no "escape" al menú
+  if(typeof window.unlock === 'function' && !window.__unlock_wrapped){
+    const originalUnlock = window.unlock;
+    window.unlock = function(){
+      const valor = String(pin.value || '');
+      if(valor !== String(window.PIN_CORRECTO || '1234')){
+        // llama al original para que muestre su alert
+        const r = originalUnlock.apply(this, arguments);
+        // después del alert (bloqueante), limpiamos y pedimos de nuevo
+        limpiarYReintentar();
+        return r;
+      }
+      return originalUnlock.apply(this, arguments);
+    };
+    window.__unlock_wrapped = true;
+  }
+
+  function ejecutarEntradaOriginal(){
+    if(entrando) return;
+    entrando = true;
+    // dispara EXACTAMENTE lo mismo que el botón
+    if(btnEntrar && typeof btnEntrar.click === 'function'){
+      btnEntrar.click();
+    } else if(typeof window.unlock === 'function'){
+      window.unlock();
+    }
+    setTimeout(()=>{ entrando = false; }, 250);
+  }
+
+  // Auto-entrar al completar PIN -> ejecuta unlock (no ocultar lock por nuestra cuenta)
   pin.addEventListener('input', () => {
-    if(pin.value.length >= PIN_LEN){
+    if(String(pin.value || '').length >= PIN_LEN){
       setTimeout(ejecutarEntradaOriginal, 0);
     }
   }, {passive:true});
 
-  // ---- Teclado: subir como en la versión "antigua", pero robusto en iPhone/PWA ----
-  // Problema típico: en iPhone a veces window.innerHeight también cambia, y diff queda 0.
-  // Solución: guardar la altura "base" al cargar y usarla como referencia.
+  // Teclado: subida tipo "antigua" pero fiable en iPhone/PWA (baseInnerHeight)
   const baseInnerHeight = window.innerHeight;
 
   function ajustarTecladoSubir(){
     if(!window.visualViewport) return;
 
     const vv = window.visualViewport;
-
-    // Altura aproximada del teclado usando referencia fija
     const diff = Math.max(0, baseInnerHeight - vv.height);
 
-    // Subida estilo "antiguo" (suave y limitada)
-    const maxShift = 120;       // tope máximo
-    const factor   = 0.35;      // porcentaje del teclado
+    const maxShift = 120;
+    const factor   = 0.35;
     let shiftUp = Math.min(maxShift, diff * factor);
 
-    // Asegurar que el input no quede tapado (si hiciera falta, subir un poco más)
     const margen = 14;
     const rect = pin.getBoundingClientRect();
-    const visibleBottom = vv.height;
-    const tapado = (rect.bottom + margen) - visibleBottom;
-
+    const tapado = (rect.bottom + margen) - vv.height;
     if(tapado > 0){
-      // Necesitamos subir al menos 'tapado' (pero sin pasarnos del tope)
       shiftUp = Math.min(maxShift, Math.max(shiftUp, tapado));
     }
 
     lock.style.transform = `translateY(-${shiftUp}px)`;
   }
 
-  function resetTeclado(){
-    lock.style.transform = 'translateY(0px)';
-  }
+  function resetTeclado(){ lock.style.transform = 'translateY(0px)'; }
 
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', ajustarTecladoSubir);
     window.visualViewport.addEventListener('scroll', ajustarTecladoSubir);
   }
-
   pin.addEventListener('focus', () => setTimeout(ajustarTecladoSubir, 0), {passive:true});
-  pin.addEventListener('blur',  () => resetTeclado(), {passive:true});
+  pin.addEventListener('blur', resetTeclado, {passive:true});
+
 })();
 </script>
 
