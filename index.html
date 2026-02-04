@@ -270,5 +270,36 @@ function unlock() {
   }
 </script>
 
+
+<script>
+(function(){
+  const pin = document.getElementById('pin');
+  const lock = document.getElementById('lock');
+  const PIN_LEN = pin ? pin.maxLength || 4 : 4;
+
+  function iniciarApp(){
+    lock.style.display = 'none';
+  }
+
+  if(pin){
+    pin.addEventListener('input', () => {
+      if(pin.value.length >= PIN_LEN){
+        iniciarApp();
+      }
+    });
+  }
+
+  if(window.visualViewport){
+    visualViewport.addEventListener('resize', () => {
+      const desplazamiento = Math.max(
+        0,
+        (window.innerHeight - visualViewport.height) / 2
+      );
+      lock.style.transform = `translateY(-${desplazamiento}px)`;
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
