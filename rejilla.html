@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora Rejilla</title>
+    <title>Rejilla Ventilación V5</title>
     <style>
         :root { 
             --primary: #e74c3c; 
@@ -84,14 +84,68 @@
             gap: 10px 20px; width: 100%; max-width: 600px; padding: 20px 0; 
         }
         .medida-item { font-size: 1rem; font-weight: bold; color: #333; border-left: 5px solid var(--primary); padding-left: 10px; background: rgba(255,255,255,0.5); padding-top: 5px; padding-bottom: 5px; }
-    </style>
+
+
+        /* BOTÓN FIJAR (gris OFF / rojo ON) */
+        .btn-fijar{
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: auto !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .btn-fijar.off{ background:#6f7682; }
+        .btn-fijar.on{ background:#c0392b; }
+
+        /* Modo FIJAR: SOLO fija el dibujo (no la lista de lamas). */
+        :root{ --dock-h: 0px; }
+
+        body.fijar-on .display-area{
+            /* reserva espacio para el dibujo fijo y evita que se superponga con el scroll */
+            padding-bottom: calc(var(--dock-h) + 16px);
+        }
+
+        body.fijar-on .canvas-container{
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: calc(10px + env(safe-area-inset-bottom));
+            z-index: 5000;
+            width: calc(100% - 20px);
+            max-width: 950px;
+            max-height: 46vh;
+            margin: 0;
+        }
+
+        body.fijar-on .canvas-container svg{
+            width: 100%;
+            height: 100%;
+            max-height: 46vh;
+        }
+    
+</style>
 </head>
 <body>
 
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 
 <div class="container">
-    <h1>Rejilla Ventilación</h1>
+    <h1>Rejilla Ventilación <span style="font-size:0.9rem; font-weight:900;">V5</span></h1>
     <div class="controls">
         <div class="input-group"><label>ANCHO</label><input type="number" id="anchoTotal" value="480" oninput="calcular()"></div>
         <div class="input-group"><label>ALTO</label><input type="number" id="altoTotal" value="820" oninput="calcular()"></div>
@@ -106,13 +160,28 @@
         </div>
     </div>
     
-    <div class="btn-group"><button class="btn-export" onclick="exportarSoloSVG()">Exportar Rejilla (PNG)</button></div>
+    <div class="btn-group">
+        <button class="btn-export" onclick="exportarSoloSVG()">Exportar Rejilla (PNG)</button>
+    </div>
+    <div class="btn-group">
+        <button class="btn-export" style="background-color:#2980b9;" onclick="exportarMedidasLamas()">Exportar medidas (Lamas)</button>
+    </div>
+    <div class="btn-group">
+        <button class="btn-export" style="background-color:#111827;" onclick="exportarMedidasPDFEditable()">Exportar medidas (PDF Editable)</button>
+    </div>
     
     <div class="display-area">
-        <div id="frase-resumen" class="resumen-texto">Cargando...</div>
-        <div class="canvas-container"><svg id="disenoSvg" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"></svg></div>
+
+        <div id="scrollArea">
+<div id="frase-resumen" class="resumen-texto">Cargando...</div>
+        
         <div id="lista-medidas"></div>
-    </div>
+        </div>
+        <div id="dockArea">
+<div class="canvas-container"><svg id="disenoSvg" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        </div>
+
+</div>
 </div>
 
 <script>
@@ -195,6 +264,455 @@
         img.src = url;
     }
     window.onload = calcular;
+
+    // ====== FIJAR ======
+    (function(){
+        const btnFijar = document.getElementById('btnFijar');
+        if(!btnFijar) return;
+
+        const canvasBox = document.querySelector('.canvas-container');
+        const displayArea = document.querySelector('.display-area');
+
+        function updateDockPadding(){
+            if(!canvasBox || !displayArea) return;
+            // Solo medimos cuando está fijado
+            if(!document.body.classList.contains('fijar-on')){
+                displayArea.style.removeProperty('--dock-h');
+                return;
+            }
+            const r = canvasBox.getBoundingClientRect();
+            // Un mínimo razonable para evitar que el contenido quede oculto
+            const h = Math.max(120, Math.round(r.height));
+            displayArea.style.setProperty('--dock-h', h + 'px');
+        }
+
+        function setFijar(on){
+            document.body.classList.toggle('fijar-on', on);
+            btnFijar.classList.toggle('on', on);
+            btnFijar.classList.toggle('off', !on);
+            // Actualizar separación inferior para que no se esconda contenido
+            // (esperamos un frame para que aplique position:fixed)
+            requestAnimationFrame(updateDockPadding);
+        }
+        setFijar(false);
+
+        btnFijar.addEventListener('click', (ev)=> {
+            ev.preventDefault();
+            setFijar(!document.body.classList.contains('fijar-on'));
+        }, {passive:false});
+
+        // Mantener el padding correcto al girar pantalla / cambiar tamaño
+        let t;
+        window.addEventListener('resize', ()=>{
+            clearTimeout(t);
+            t = setTimeout(updateDockPadding, 120);
+        }, {passive:true});
+        window.addEventListener('orientationchange', ()=>{
+            clearTimeout(t);
+            t = setTimeout(updateDockPadding, 180);
+        }, {passive:true});
+    })();
+
+    // ====== Exportar medidas de lamas (lista) ======
+    function exportarMedidasLamas(){
+        // Asegurar datos calculados
+        if(!lamasData || !lamasData.length){
+            try{ calcular(); }catch(e){}
+        }
+
+        const H = parseInt(document.getElementById('altoTotal').value) || 0;
+        const W = parseInt(document.getElementById('anchoTotal').value) || 0;
+        const G = parseInt(document.getElementById('grosorLama').value) || 0;
+        const GM = parseInt(document.getElementById('grosorMarco').value) || 0;
+        const inicio = parseInt(document.getElementById('distInicio').value) || 0;
+        const fin = parseInt(document.getElementById('distFinal').value) || 0;
+        const Smax = parseInt(document.getElementById('sepMaxima').value) || 0;
+
+        const lines = [];
+        lines.push("REJILLA VENTILACIÓN - MEDIDAS DE LAMAS");
+        lines.push("--------------------------------------");
+        lines.push(`Ancho total: ${W} mm`);
+        lines.push(`Alto total: ${H} mm`);
+        lines.push(`Grosor lama: ${G} mm`);
+        lines.push(`Grosor marco: ${GM} mm`);
+        lines.push(`Inicio: ${inicio} mm`);
+        lines.push(`Final: ${fin} mm`);
+        lines.push(`Separación máxima: ${Smax} mm`);
+        lines.push("");
+        lines.push(`Cantidad de lamas: ${lamasCount}`);
+        lines.push(`Largo de cada lama: ${largoLama} mm`);
+        lines.push("");
+        lines.push("Posiciones (mm desde arriba / inicio):");
+        lamasData.forEach((pos, i) => lines.push(`Lama ${i+1}: ${pos} mm`));
+
+        const text = lines.join("\n");
+
+        // Overlay estilo iPhone (igual que PNG)
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;';
+        overlay.innerHTML = `
+          <div style="background:white; padding:12px; border-radius:10px; width:92%; max-width:720px; box-sizing:border-box;">
+            <div style="font-weight:900; margin:4px 0 10px; color:#333; text-align:center;">MEDIDAS DE LAMAS</div>
+            <textarea readonly style="width:100%; height:45vh; font-size:14px; line-height:1.35; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; white-space:pre;">${text}</textarea>
+            <div style="display:flex; gap:10px; margin-top:10px; justify-content:center; flex-wrap:wrap;">
+              <button id="btnCopiarMedidas" style="padding:14px 16px; background:#2980b9; color:white; border:none; border-radius:8px; font-weight:bold; min-width:200px;">COPIAR</button>
+              <button id="btnCerrarMedidas" style="padding:14px 16px; background:#e74c3c; color:white; border:none; border-radius:8px; font-weight:bold; min-width:200px;">VOLVER</button>
+            </div>
+            <div id="txtCopiado" style="margin-top:10px; text-align:center; color:#27ae60; font-weight:900; display:none;">COPIADO ✅</div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const btnCopiar = overlay.querySelector('#btnCopiarMedidas');
+        const btnCerrar = overlay.querySelector('#btnCerrarMedidas');
+        const txtCopiado = overlay.querySelector('#txtCopiado');
+
+        btnCerrar.onclick = () => { try{ document.body.removeChild(overlay); }catch(e){} };
+
+        btnCopiar.onclick = async () => {
+            try{
+                if(navigator.clipboard && navigator.clipboard.writeText){
+                    await navigator.clipboard.writeText(text);
+                }else{
+                    const ta = overlay.querySelector('textarea');
+                    ta.focus();
+                    ta.select();
+                    document.execCommand('copy');
+                    ta.setSelectionRange(0,0);
+                }
+                txtCopiado.style.display = 'block';
+                setTimeout(()=>{ txtCopiado.style.display = 'none'; }, 1200);
+            }catch(e){
+                alert("No se pudo copiar. Mantén pulsado y copia manualmente.");
+            }
+        };
+    }
+
+
+
+    // ====== Exportar medidas (PDF Editable) ======
+    function exportarMedidasPDFEditable(){
+        // Asegurar datos calculados
+        if(!lamasData || !lamasData.length){
+            try{ calcular(); }catch(e){}
+        }
+        if(!lamasData || !lamasData.length){
+            alert('No hay medidas para exportar.');
+            return;
+        }
+
+        // Si FIJAR está activo, lo desactivamos temporalmente para evitar comportamientos raros de scroll/posición en iPhone
+        var wasFijar = document.body.classList.contains('fijar-on');
+        if(wasFijar){
+            try{ _setFijar(false); }catch(e){}
+        }
+
+        try{
+            _showPdfBusy('Generando PDF editable…');
+
+            // Datos
+            const H = parseInt(document.getElementById('altoTotal').value) || 0;
+            const W = parseInt(document.getElementById('anchoTotal').value) || 0;
+            const inicio = parseInt(document.getElementById('distInicio').value) || 0;
+            const fin = parseInt(document.getElementById('distFinal').value) || 0;
+            const Smax = parseInt(document.getElementById('sepMaxima').value) || 44;
+            const G = parseInt(document.getElementById('grosorLama').value) || 0;
+            const GM = parseInt(document.getElementById('grosorMarco').value) || 0;
+
+            const titulo = 'REJILLA VENTILACIÓN V5';
+            const resumen = (lamasCount || lamasData.length) + ' lamas de ' + (largoLama || 0) + ' mm';
+            const fecha = new Date();
+            const fechaTxt = fecha.toLocaleString('es-ES');
+
+            // Construir líneas de texto para el PDF
+            var lines = [];
+            lines.push(titulo);
+            lines.push('Fecha: ' + fechaTxt);
+            lines.push('Medidas: Ancho ' + W + ' mm  |  Alto ' + H + ' mm');
+            lines.push('Marco ' + GM + ' mm  |  Lama ' + G + ' mm  |  Inicio ' + inicio + ' mm  |  Final ' + fin + ' mm  |  Sep. Máx. ' + Smax + ' mm');
+            lines.push('Resumen: ' + resumen);
+            lines.push(''); // separador
+            lines.push('LISTA DE LAMAS (posición desde arriba en mm):');
+
+            for(var i=0;i<lamasData.length;i++){
+                lines.push('Lama ' + (i+1) + ': ' + lamasData[i] + ' mm');
+            }
+
+            // PDF A4 points
+            var pageW = 595.28;
+            var pageH = 841.89;
+            var marginL = 48;
+            var marginR = 48;
+            var topY = pageH - 60;
+            var bottomY = 60;
+
+            // Fuente adaptable según cantidad de líneas
+            var baseFont = 12;
+            if(lines.length > 60) baseFont = 10;
+            if(lines.length > 90) baseFont = 9;
+            if(lines.length > 120) baseFont = 8;
+
+            var lineH = Math.round(baseFont * 1.35);
+
+            // Paginación
+            var maxLinesPerPage = Math.max(10, Math.floor((topY - bottomY) / lineH));
+            var pages = [];
+            for(var idx=0; idx<lines.length; idx += maxLinesPerPage){
+                pages.push(lines.slice(idx, idx + maxLinesPerPage));
+            }
+
+            // Construir contenido por página
+            function pdfNum(n){ return (Math.round(n*1000)/1000).toString(); }
+            function pdfTextString(txt){
+                // escapar \ ( ) para PDF
+                var safe = String(txt).replace(/[\(\)\\]/g, '\\$&');
+                return '(' + safe + ')';
+            }
+
+            function makePageContent(pageLines, pageIndex, pageCount){
+                var ops = '';
+                // Fondo blanco
+                ops += '0 0 0 RG\n0 0 0 rg\n';
+
+                // Cabecera (línea superior)
+                var headerY = pageH - 40;
+                ops += '1 w\n';
+                ops += pdfNum(marginL) + ' ' + pdfNum(headerY) + ' m ' + pdfNum(pageW - marginR) + ' ' + pdfNum(headerY) + ' l S\n';
+
+                // Pie de página
+                var footer = 'Página ' + (pageIndex+1) + ' / ' + pageCount;
+                ops += 'BT\n/F1 9 Tf\n' + pdfNum(pageW - marginR - 80) + ' ' + pdfNum(35) + ' Td\n' + pdfTextString(footer) + ' Tj\nET\n';
+
+                var y = topY;
+                for(var k=0;k<pageLines.length;k++){
+                    var txt = pageLines[k];
+
+                    // Títulos en negrita: primera línea y el título de lista
+                    var isBold = (pageIndex===0 && k===0) || (txt === 'LISTA DE LAMAS (posición desde arriba en mm):');
+                    var font = isBold ? '/F2' : '/F1';
+                    var size = isBold ? Math.min(baseFont + 2, 16) : baseFont;
+
+                    // Saltos extra si es separador vacío
+                    if(txt === ''){
+                        y -= Math.round(lineH * 0.6);
+                        continue;
+                    }
+
+                    // Texto
+                    ops += 'BT\n' + font + ' ' + pdfNum(size) + ' Tf\n' + pdfNum(marginL) + ' ' + pdfNum(y) + ' Td\n' + pdfTextString(txt) + ' Tj\nET\n';
+                    y -= lineH;
+                }
+                return ops;
+            }
+
+            // Convertir contenidos a Uint8Array
+            function asciiBytes(str){
+                var out = new Uint8Array(str.length);
+                for(var i=0;i<str.length;i++){ out[i] = str.charCodeAt(i) & 0xFF; }
+                return out;
+            }
+
+            var contentPages = pages.map(function(pl, pi){ return asciiBytes(makePageContent(pl, pi, pages.length)); });
+
+            var pdfBytes = _buildPdfBinaryMulti(contentPages, pageW, pageH);
+
+            // Exportación
+            var blob = new Blob([pdfBytes], {type:'application/pdf'});
+            var file = new File([blob], 'rejilla_medidas_v5_' + Date.now() + '.pdf', {type:'application/pdf'});
+
+            _hidePdfBusy();
+
+            // restaurar fijar si estaba activo
+            if(wasFijar){
+                try{ _setFijar(true); }catch(e){}
+            }
+
+            if(navigator.share && (!navigator.canShare || (function(){ try{return navigator.canShare({files:[file]});}catch(e){return true;} })())){
+                navigator.share({ files:[file], title:'Medidas Rejilla (PDF)' })
+                  .catch(function(err){
+                    console.error(err);
+                    // Fallback: abrir PDF
+                    try{
+                        var url = URL.createObjectURL(blob);
+                        window.location.href = url;
+                    }catch(e2){
+                        alert('No se pudo compartir ni abrir el PDF.');
+                    }
+                  });
+            } else {
+                // Fallback escritorio
+                var url2 = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url2;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+        }catch(e){
+            console.error(e);
+            try{ _hidePdfBusy(); }catch(e2){}
+            // restaurar fijar si estaba activo
+            if(wasFijar){
+                try{ _setFijar(true); }catch(e3){}
+            }
+            alert('Error generando PDF: ' + (e && e.message ? e.message : e));
+        }
+    }
+
+    // PDF builder multipágina A4 (texto editable con fuentes estándar)
+    function _buildPdfBinaryMulti(contentPages, pageW, pageH){
+        var parts = [];
+        var offsets = [0]; // 0 dummy
+        var cursor = 0;
+
+        function addBytes(u8){ parts.push(u8); cursor += u8.length; }
+        function addStr(s){
+            // ASCII
+            var u8 = new Uint8Array(s.length);
+            for(var i=0;i<s.length;i++){ u8[i] = s.charCodeAt(i) & 0xFF; }
+            addBytes(u8);
+        }
+        function mark(n){ offsets[n] = cursor; }
+
+        var N = contentPages.length;
+        var font1Obj = 3 + N;       // Helvetica
+        var font2Obj = 4 + N;       // Helvetica-Bold
+        var firstContentObj = 5 + N;
+
+        addStr('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+
+        // 1 Catalog
+        mark(1);
+        addStr('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+        // 2 Pages
+        mark(2);
+        var kids = '';
+        for(var i=0;i<N;i++){ kids += (3+i) + ' 0 R '; }
+        addStr('2 0 obj\n<< /Type /Pages /Kids [ ' + kids + '] /Count ' + N + ' >>\nendobj\n');
+
+        // Page objects
+        for(var p=0;p<N;p++){
+            var pageObj = 3 + p;
+            var contentObj = firstContentObj + p;
+            mark(pageObj);
+            addStr(pageObj + ' 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pageW + ' ' + pageH + '] ' +
+                   '/Resources << /Font << /F1 ' + font1Obj + ' 0 R /F2 ' + font2Obj + ' 0 R >> >> ' +
+                   '/Contents ' + contentObj + ' 0 R >>\nendobj\n');
+        }
+
+        // Fonts
+        mark(font1Obj);
+        addStr(font1Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n');
+
+        mark(font2Obj);
+        addStr(font2Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n');
+
+        // Content streams
+        for(var p2=0;p2<N;p2++){
+            var objN = firstContentObj + p2;
+            var bytes = contentPages[p2] || new Uint8Array(0);
+            mark(objN);
+            addStr(objN + ' 0 obj\n<< /Length ' + bytes.length + ' >>\nstream\n');
+            addBytes(bytes);
+            addStr('\nendstream\nendobj\n');
+        }
+
+        // XREF
+        var totalObjs = font2Obj + 1 + N; // max obj number
+        var xrefPos = cursor;
+        addStr('xref\n0 ' + (totalObjs + 1) + '\n');
+        addStr('0000000000 65535 f \n');
+
+        for(var o=1;o<=totalObjs;o++){
+            var off = offsets[o] || 0;
+            var offStr = String(off);
+            while(offStr.length < 10) offStr = '0' + offStr;
+            addStr(offStr + ' 00000 n \n');
+        }
+
+        addStr('trailer\n<< /Size ' + (totalObjs + 1) + ' /Root 1 0 R >>\nstartxref\n' + xrefPos + '\n%%EOF');
+
+        // Concat
+        var size = cursor;
+        var out = new Uint8Array(size);
+        var pos = 0;
+        for(var k=0;k<parts.length;k++){
+            out.set(parts[k], pos);
+            pos += parts[k].length;
+        }
+        return out;
+    }
+
+    function _showPdfBusy(msg){
+        var ov = document.getElementById('pdfBusyOverlay');
+        var tx = document.getElementById('pdfBusyText');
+        if(tx) tx.textContent = msg || 'Generando PDF...';
+        if(ov) ov.style.display = 'flex';
+    }
+    function _hidePdfBusy(){
+        var ov = document.getElementById('pdfBusyOverlay');
+        if(ov) ov.style.display = 'none';
+    }
+
+    // Forzar estado del modo FIJAR sin depender del click (para exportar)
+    function _setFijar(on){
+        var btn = document.getElementById('btnFijar');
+        if(on){
+            document.body.classList.add('fijar-on');
+            if(btn){ btn.classList.remove('off'); btn.classList.add('on'); btn.textContent = 'FIJAR'; }
+        } else {
+            document.body.classList.remove('fijar-on');
+            if(btn){ btn.classList.remove('on'); btn.classList.add('off'); btn.textContent = 'FIJAR'; }
+        }
+    }
+
+
+
+function _pdfTextString(txt){
+      // Convierte el texto a bytes WinAnsi / CP1252 y lo escribe como string PDF con escapes.
+      // Esto evita que se "pierdan" acentos (áéíóúñÜ…) en iPhone/GitHub.
+      function toCp1252Byte(cp){
+        if(cp <= 0xFF) return cp;
+        if(cp === 0x20AC) return 0x80; // €
+        const map = {
+          0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,
+          0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,
+          0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,
+          0x00BF:0xBF,0x00A1:0xA1
+        };
+        return map[cp] ?? 0x3F; // '?'
+      }
+      let out = '';
+      for(let i=0;i<txt.length;i++){
+        const cp = txt.charCodeAt(i);
+        const b = toCp1252Byte(cp);
+
+        // Escapes obligatorios en literales PDF
+        if(b === 0x28) { out += '\\(' ; continue; } // (
+        if(b === 0x29) { out += '\\)' ; continue; } // )
+        if(b === 0x5C) { out += '\\\\'; continue; } // \
+
+        // Para bytes fuera de ASCII imprimible, usamos escape octal \ddd
+        if(b < 0x20 || b >= 0x7F){
+          const oct = b.toString(8).padStart(3,'0');
+          out += '\\' + oct;
+        } else {
+          out += String.fromCharCode(b);
+        }
+      }
+      return '(' + out + ')';
+    }
+
 </script>
+
+
+<div id="pdfBusyOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999; justify-content:center; align-items:center; color:white; font-weight:bold; flex-direction:column; gap:12px; text-align:center; padding:20px; box-sizing:border-box;">
+  <div style="font-size:30px;">⚙️</div>
+  <div id="pdfBusyText">Generando PDF...</div>
+</div>
+
 </body>
 </html>
