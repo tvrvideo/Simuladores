@@ -81,15 +81,98 @@
         svg { width: 900px; height: 700px; max-width: 100%; height: auto; background: #fff; }
 
         #img-resultado { max-width: 100%; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    </style>
+
+
+        /* BOTÓN FIJAR (gris OFF / rojo ON) */
+        .btn-fijar{
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: auto !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .btn-fijar.off{ background:#6f7682; }
+        .btn-fijar.on{ background:#c0392b; }
+
+        /* Título + versión V4 (sin romper estilos inline) */
+        #mainHeading::after{
+            content: "  V4";
+            font-size: 0.55em;
+            font-weight: 900;
+            color: rgba(0,0,0,0.45);
+            margin-left: 10px;
+        }
+
+        /* ====== Layout FIJAR ====== */
+        #scrollArea, #dockArea{
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+
+        body.fijar-on #scrollArea{
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 52vh;          /* espacio reservado para el dibujo */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 60px 15px 15px; /* deja sitio para botones fijos */
+            display: block;
+        }
+
+        body.fijar-on #dockArea{
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 52vh;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 10px 15px 15px;
+            background: transparent;
+            box-sizing: border-box;
+        }
+
+        /* En modo normal: flujo natural */
+        body:not(.fijar-on) #scrollArea{
+            position: static;
+            overflow: visible;
+            padding: 0;
+        }
+        body:not(.fijar-on) #dockArea{
+            position: static;
+            height: auto;
+            overflow: visible;
+            padding: 0;
+        }
+
+</style>
 </head>
 <body>
 
 <button class="btn-menu" onclick="parent.volverMenu()">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 
 <div class="container">
     <div id="vista-diseno">
-        <h1 style="text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.5em;">SISTEMA DE MODULACIÓN</h1>
+<div id="scrollArea">
+        <h1 style="text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.5em;" id="mainHeading">SISTEMA DE MODULACIÓN</h1>
         
         <div class="panel-controles">
             <div class="seccion-label">Medidas de Lados (mm)</div>
@@ -137,7 +220,9 @@
             <button class="btn-export" id="btnExport">Exportar imagen PNG</button>
         </div>
 
-        <div class="canvas-card">
+        
+</div>
+<div id="dockArea"><div class="canvas-card">
             <svg id="mainSVG" viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg">
                 <style>
                     .cota-line { stroke: #333; stroke-width: 3; }
@@ -162,6 +247,7 @@
             </svg>
         </div>
     </div>
+</div>
 
     <div id="vista-exportar">
         <h1 style="color: #27ae60;">IMAGEN GENERADA</h1>
@@ -378,6 +464,60 @@
     };
 
     window.onload = () => { igualar('base'); };
+
+    // ====== FIJAR (V4) ======
+    (function(){
+        const btnFijar = document.getElementById('btnFijar');
+        if(!btnFijar) return;
+
+        function setFijar(on){
+            document.body.classList.toggle('fijar-on', on);
+            btnFijar.classList.toggle('on', on);
+            btnFijar.classList.toggle('off', !on);
+
+            // asegurar que al activar se vea el dibujo (evita "blanco" por scroll interno)
+            if(on){
+                try{
+                    const sa = document.getElementById('scrollArea');
+                    const da = document.getElementById('dockArea');
+                    window.scrollTo(0,0);
+                    if(sa) sa.scrollTop = 0;
+                    if(da) da.scrollTop = 0;
+                }catch(e){}
+            }
+        }
+
+        // Por defecto: OFF
+        setFijar(false);
+
+        btnFijar.addEventListener('click', ()=> {
+            const on = !document.body.classList.contains('fijar-on');
+            setFijar(on);
+        }, {passive:true});
+
+        // Si exportamos, desactivar fijar para evitar duplicados/scroll raro y restaurar al volver
+        const btnExport = document.getElementById('btnExport');
+        const btnBack = document.getElementById('btnBack');
+        if(btnExport){
+            const original = btnExport.onclick;
+            btnExport.onclick = function(ev){
+                window.__wasFijar = document.body.classList.contains('fijar-on');
+                if(window.__wasFijar) setFijar(false);
+                if(typeof original === 'function') return original.call(this, ev);
+            };
+        }
+        if(btnBack){
+            const originalBack = btnBack.onclick;
+            btnBack.onclick = function(ev){
+                if(typeof originalBack === 'function') originalBack.call(this, ev);
+                if(window.__wasFijar){
+                    setTimeout(()=>setFijar(true), 50);
+                    window.__wasFijar = false;
+                }
+            };
+        }
+    })();
+
 </script>
 </body>
 </html>
