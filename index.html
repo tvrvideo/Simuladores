@@ -301,5 +301,80 @@ function unlock() {
 })();
 </script>
 
+
+<script>
+(function(){
+  const lock = document.getElementById('lock');
+  const pin  = document.getElementById('pin');
+  if(!lock || !pin) return;
+
+  // Mantener EXACTAMENTE el flujo del botón "Entrar" (abre Facturación como siempre)
+  const btnEntrar = lock.querySelector('button');
+
+  const PIN_LEN = Number(pin.getAttribute('maxlength')) || 4;
+
+  function ejecutarEntradaOriginal(){
+    if(btnEntrar && typeof btnEntrar.click === 'function'){
+      btnEntrar.click();
+      return;
+    }
+    if(typeof window.unlock === 'function'){
+      window.unlock();
+    }
+  }
+
+  // Auto-entrar al completar el PIN
+  pin.addEventListener('input', () => {
+    if(pin.value.length >= PIN_LEN){
+      setTimeout(ejecutarEntradaOriginal, 0);
+    }
+  }, {passive:true});
+
+  // ---- Teclado: subir como en la versión "antigua", pero robusto en iPhone/PWA ----
+  // Problema típico: en iPhone a veces window.innerHeight también cambia, y diff queda 0.
+  // Solución: guardar la altura "base" al cargar y usarla como referencia.
+  const baseInnerHeight = window.innerHeight;
+
+  function ajustarTecladoSubir(){
+    if(!window.visualViewport) return;
+
+    const vv = window.visualViewport;
+
+    // Altura aproximada del teclado usando referencia fija
+    const diff = Math.max(0, baseInnerHeight - vv.height);
+
+    // Subida estilo "antiguo" (suave y limitada)
+    const maxShift = 120;       // tope máximo
+    const factor   = 0.35;      // porcentaje del teclado
+    let shiftUp = Math.min(maxShift, diff * factor);
+
+    // Asegurar que el input no quede tapado (si hiciera falta, subir un poco más)
+    const margen = 14;
+    const rect = pin.getBoundingClientRect();
+    const visibleBottom = vv.height;
+    const tapado = (rect.bottom + margen) - visibleBottom;
+
+    if(tapado > 0){
+      // Necesitamos subir al menos 'tapado' (pero sin pasarnos del tope)
+      shiftUp = Math.min(maxShift, Math.max(shiftUp, tapado));
+    }
+
+    lock.style.transform = `translateY(-${shiftUp}px)`;
+  }
+
+  function resetTeclado(){
+    lock.style.transform = 'translateY(0px)';
+  }
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', ajustarTecladoSubir);
+    window.visualViewport.addEventListener('scroll', ajustarTecladoSubir);
+  }
+
+  pin.addEventListener('focus', () => setTimeout(ajustarTecladoSubir, 0), {passive:true});
+  pin.addEventListener('blur',  () => resetTeclado(), {passive:true});
+})();
+</script>
+
 </body>
 </html>
