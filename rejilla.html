@@ -287,11 +287,31 @@
         }
 
         function setFijar(on){
+            const wasOn = document.body.classList.contains('fijar-on');
             document.body.classList.toggle('fijar-on', on);
             btnFijar.classList.toggle('on', on);
             btnFijar.classList.toggle('off', !on);
+
+            // Forzar repintado del SVG al salir de FIJAR (iPhone/Safari puede dejarlo "en blanco")
+            if(wasOn && !on){
+                try{
+                    const svg = document.getElementById('disenoSvg');
+                    if(svg){
+                        // truco de reflow + reattach para asegurar que vuelve a renderizarse en scroll
+                        svg.style.display = 'none';
+                        svg.getBoundingClientRect(); // force reflow
+                        svg.style.display = '';
+                    }
+                    if(canvasBox && canvasBox.parentNode){
+                        const p = canvasBox.parentNode;
+                        const next = canvasBox.nextSibling;
+                        p.removeChild(canvasBox);
+                        p.insertBefore(canvasBox, next);
+                    }
+                }catch(e){}
+            }
+
             // Actualizar separación inferior para que no se esconda contenido
-            // (esperamos un frame para que aplique position:fixed)
             requestAnimationFrame(updateDockPadding);
         }
         setFijar(false);
@@ -605,10 +625,10 @@
 
         // Fonts
         mark(font1Obj);
-        addStr(font1Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n');
+        addStr(font1Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n');
 
         mark(font2Obj);
-        addStr(font2Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n');
+        addStr(font2Obj + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n');
 
         // Content streams
         for(var p2=0;p2<N;p2++){
