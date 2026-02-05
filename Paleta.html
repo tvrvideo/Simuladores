@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buscador RAL con Cámara</title>
+    <style>
+        /* --- ESTILOS GENERALES (Tu diseño original) --- */
+        body {
+            touch-action: manipulation;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px 10px;
+            background-color: #f4f4f9;
+            color: #333;
+            overscroll-behavior: none; /* Evita rebotes en iOS */
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #EBEBEB;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            display: block; /* Visible por defecto */
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            font-size: 1.9em;
+            margin-bottom: 20px;
+        }
+        
+        /* Botón de Menú */
+        :root { 
+            --primary: #e74c3c; 
+            --ios-blue: #007AFF;
+        }
+
+        .btn-menu { 
+            position: fixed; top: 10px; left: 10px; z-index: 9999; 
+            padding: 8px 15px; border-radius: 20px; border: none; 
+            background: var(--primary); color: white; font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* --- BOTÓN NUEVO PARA CÁMARA --- */
+        .btn-camera-launch {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--ios-blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,122,255,0.3);
+        }
+        .btn-camera-launch:active { transform: scale(0.98); }
+
+        /* --- SELECTORES Y INPUTS (Originales) --- */
+        .color-picker-group {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; padding: 15px; border: 1px solid #ddd;
+            border-radius: 8px; background-color: #f9f9f9;
+        }
+        #colorWheelInput {
+            width: 70px; height: 40px; border: none; padding: 0;
+            border-radius: 6px; cursor: pointer; background: none;
+        }
+        .hex-display-input {
+            flex-grow: 1; margin-left: 15px; padding: 10px;
+            border: 1px solid #ced4da; border-radius: 8px;
+            font-size: 16px; text-transform: uppercase; width: 100%;
+        }
+        .selector-group { margin-bottom: 15px; position: relative; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; color: #555; }
+        input[type="text"] {
+            width: 100%; padding: 12px; margin-bottom: 10px;
+            border: 1px solid #ced4da; border-radius: 8px;
+            font-size: 16px; background-color: #fff; box-sizing: border-box;
+        }
+
+        /* Custom Select (RAL) */
+        .custom-select { position: relative; width: 100%; margin-bottom: 10px; font-size: 16px; }
+        .select-selected {
+            background-color: #fff; padding: 12px; border: 1px solid #ced4da;
+            border-radius: 8px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .select-selected::after {
+            content: ""; width: 0; height: 0; border: 6px solid transparent;
+            border-color: #555 transparent transparent transparent; margin-left: 10px;
+        }
+        .select-items {
+            position: absolute; background-color: #fff; top: 100%; left: 0; right: 0;
+            z-index: 99; border: 1px solid #ced4da; border-radius: 0 0 8px 8px;
+            max-height: 250px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .select-items div {
+            padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #eee;
+            display: flex; align-items: center;
+        }
+        .select-hide { display: none; }
+        .option-swatch {
+            width: 20px; height: 20px; border: 1px solid #ccc;
+            border-radius: 4px; margin-right: 10px; flex-shrink: 0;
+        }
+        
+        /* Display Resultado */
+        #color-display {
+            width: 100%; height: 120px; border: 1px solid #ccc;
+            margin-top: 20px; border-radius: 8px; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            font-size: 1.1em; font-weight: bold; color: #fff;
+            text-shadow: 0 0 5px rgba(0,0,0,0.7); transition: background 0.3s;
+        }
+        .code-info { margin: 5px 0; padding: 2px 8px; border-radius: 4px; background-color: rgba(0,0,0,0.2); }
+
+        /* --- INTERFAZ DE CÁMARA (Oculta por defecto) --- */
+        #camera-app {
+            display: none; /* Oculto inicialmente */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 10000;
+            flex-direction: column;
+        }
+
+        #viewport-container {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+        video, #uploaded-image {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        #uploaded-image { display: none; }
+
+        /* Punto de mira */
+        #crosshair {
+            position: absolute; top: 50%; left: 50%;
+            width: 30px; height: 30px;
+            border: 2px solid rgba(255,255,255,0.9);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        #crosshair::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 4px; background: red;
+            transform: translate(-50%, -50%); border-radius: 50%;
+        }
+
+        /* Panel de control Cámara */
+        #camera-controls {
+            background: white; padding: 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .cam-info-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px; background: #f0f0f2; border-radius: 10px;
+        }
+        .preview-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ddd; }
+        .cam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-cam {
+            padding: 12px; border-radius: 10px; border: none;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-confirm { background: var(--ios-blue); color: white; grid-column: span 2; }
+        .btn-sec { background: #E5E5EA; color: black; }
+        .btn-close { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(0,0,0,0.5); color: white; 
+            border: none; padding: 8px 15px; border-radius: 20px; z-index: 10001;
+        }
+
+    </style>
+</head>
+<body>
+
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+
+<div class="container" id="main-app">
+    <h1>Generador colores</h1>
+
+    <button class="btn-camera-launch" onclick="openCameraApp()">
+        📷 Escanear Color Real
+    </button>
+
+    <div class="color-picker-group">
+        <label for="colorWheelInput">1 Paleta colores</label>
+        <input type="color" id="colorWheelInput" value="#36454F" oninput="selectColorFromWheel(this.value)">
+        <input type="text" id="hexDisplay" class="hex-display-input" readonly value="#36454F" placeholder="#HEX">
+    </div>
+    
+    <div class="selector-group">
+        <label for="customRalSelector">2 Selecciona RAL</label>
+        <div id="customRalSelector" class="custom-select">
+            <div class="select-selected" data-ral="" data-hex="">Elige código RAL</div>
+            <div class="select-items select-hide"></div>
+        </div>
+    </div>
+
+    <div class="selector-group">
+        <label for="codeInput">3. Introducir RAL o HEX</label>
+        <input type="text" id="codeInput" placeholder="Ej: 7016 o #CC0605" oninput="convertColorFromInput()">
+    </div>
+    
+    <div id="color-display" style="background-color: #36454F;">
+        <span class="code-info">RAL 7016 (Gris Antracita)</span>
+        <span class="code-info">#36454F</span>
+    </div>
+</div>
+
+<div id="camera-app">
+    <button class="btn-close" onclick="closeCameraApp()">✕ Cerrar</button>
+    
+    <div id="viewport-container">
+        <video id="video" autoplay muted playsinline></video>
+        <img id="uploaded-image" alt="Imagen cargada">
+        <div id="crosshair"></div>
+    </div>
+
+    <div id="camera-controls">
+        <div class="cam-info-row">
+            <div id="cam-preview" class="preview-circle" style="background: #000;"></div>
+            <div style="text-align: right;">
+                <div id="cam-hex" style="font-family:monospace; font-weight:bold; font-size: 1.2em;">#000000</div>
+                <div id="cam-ral-match" style="font-size: 0.9em; color: #666;">Buscando...</div>
+            </div>
+        </div>
+        
+        <div class="cam-actions">
+            <button id="freeze-btn" class="btn-cam btn-sec">❄️ Congelar</button>
+            <label class="btn-cam btn-sec" style="margin:0;">
+                🖼️ Galería
+                <input type="file" id="file-upload" accept="image/*" style="display:none;">
+            </label>
+            <button id="confirm-color-btn" class="btn-cam btn-confirm">✅ USAR ESTE COLOR</button>
+        </div>
+    </div>
+    <canvas id="canvas" style="display:none;"></canvas>
+</div>
+
+
+<script>
+    // ** BASE DE DATOS DE COLORES RAL CLASSIC (COMPLETA) **
+    const ralToHexMap = {
+        "1000": { hex: "#BEBD7F", name: "Beige verdoso" }, "1001": { hex: "#C2B078", name: "Beige" },
+        "1002": { hex: "#C6A664", name: "Amarillo arena" }, "1003": { hex: "#E5BE01", name: "Amarillo señal" },
+        "1004": { hex: "#CDA434", name: "Amarillo oro" }, "1005": { hex: "#A98307", name: "Amarillo miel" },
+        "1006": { hex: "#E4A010", name: "Amarillo maíz" }, "1007": { hex: "#DC9D00", name: "Amarillo narciso" },
+        "1011": { hex: "#8A6642", name: "Beige marrón" }, "1012": { hex: "#C7B446", name: "Amarillo limón" },
+        "1013": { hex: "#EAE6CA", name: "Blanco perla" }, "1014": { hex: "#E1CC4F", name: "Marfil" },
+        "1015": { hex: "#E6D690", name: "Marfil claro" }, "1016": { hex: "#EDFF21", name: "Amarillo azufre" },
+        "1017": { hex: "#F5D033", name: "Amarillo azafrán" }, "1018": { hex: "#F8F32B", name: "Amarillo zinc" },
+        "1019": { hex: "#9E9764", name: "Beige grisáceo" }, "1020": { hex: "#999950", name: "Amarillo oliva" },
+        "1021": { hex: "#F3DA0B", name: "Amarillo colza" }, "1023": { hex: "#FAD201", name: "Amarillo tráfico" },
+        "1024": { hex: "#AEA04B", name: "Amarillo ocre" }, "1026": { hex: "#FFFF00", name: "Amarillo brillante" },
+        "1027": { hex: "#9D9101", name: "Curry" }, "1028": { hex: "#F4A900", name: "Amarillo melón" },
+        "1032": { hex: "#D6AE01", name: "Amarillo retama" }, "1033": { hex: "#F3A505", name: "Amarillo dalia" },
+        "1034": { hex: "#EFA94A", name: "Amarillo pastel" }, "1035": { hex: "#6A5D4D", name: "Beige perla" },
+        "1036": { hex: "#705335", name: "Oro perla" }, "1037": { hex: "#F39F18", name: "Amarillo sol" },
+        "2000": { hex: "#ED760E", name: "Naranja amarillento" }, "2001": { hex: "#C93C20", name: "Naranja rojizo" },
+        "2002": { hex: "#CB2821", name: "Bermellón" }, "2003": { hex: "#FF7514", name: "Naranja pastel" },
+        "2004": { hex: "#F44611", name: "Naranja puro" }, "2005": { hex: "#FF2301", name: "Naranja brillante" },
+        "2007": { hex: "#FFA420", name: "Naranja claro" }, "2008": { hex: "#F75E25", name: "Rojo naranja claro" },
+        "2009": { hex: "#F54021", name: "Naranja tráfico" }, "2010": { hex: "#D84B20", name: "Naranja señal" },
+        "2011": { hex: "#EC7C26", name: "Naranja intenso" }, "2012": { hex: "#E55137", name: "Naranja salmón" },
+        "2013": { hex: "#C35831", name: "Naranja perla" }, "3000": { hex: "#AF2B1E", name: "Rojo fuego" },
+        "3001": { hex: "#A52019", name: "Rojo señal" }, "3002": { hex: "#A2231D", name: "Rojo carmín" },
+        "3003": { hex: "#9B111E", name: "Rojo rubí" }, "3004": { hex: "#75151E", name: "Rojo púrpura" },
+        "3005": { hex: "#5E2129", name: "Rojo vino" }, "3007": { hex: "#412227", name: "Rojo negruzco" },
+        "3009": { hex: "#642424", name: "Rojo óxido" }, "3011": { hex: "#781F19", name: "Rojo parduzco" },
+        "3012": { hex: "#C1876B", name: "Rojo beige" }, "3013": { hex: "#A12312", name: "Rojo tomate" },
+        "3014": { hex: "#D36E70", name: "Rosa antiguo" }, "3015": { hex: "#EA899A", name: "Rosa claro" },
+        "3016": { hex: "#B32821", name: "Rojo coral" }, "3017": { hex: "#E63244", name: "Rosa" },
+        "3018": { hex: "#D53032", name: "Rojo fresa" }, "3020": { hex: "#CC0605", name: "Rojo tráfico" },
+        "3022": { hex: "#D95030", name: "Rojo salmón" }, "3024": { hex: "#F80000", name: "Rojo brillante" },
+        "3026": { hex: "#FE0000", name: "Rojo claro" }, "3027": { hex: "#C51D34", name: "Rojo frambuesa" },
+        "3028": { hex: "#CB3234", name: "Rojo puro" }, "3031": { hex: "#B32428", name: "Rojo oriental" },
+        "3032": { hex: "#721422", name: "Rojo rubí perla" }, "3033": { hex: "#B44C43", name: "Rosa perla" },
+        "4001": { hex: "#6D3F5B", name: "Lila rojizo" }, "4002": { hex: "#922B3E", name: "Violeta rojizo" },
+        "4003": { hex: "#DE4C8A", name: "Violeta brezo" }, "4004": { hex: "#641C34", name: "Violeta clarete" },
+        "4005": { hex: "#685D7F", name: "Azul lila" }, "4006": { hex: "#922B38", name: "Violeta tráfico" },
+        "4007": { hex: "#4A192C", name: "Violeta púrpura" }, "4008": { hex: "#932036", name: "Violeta señal" },
+        "4009": { hex: "#9C7989", name: "Violeta pastel" }, "4010": { hex: "#A50053", name: "Violeta Telmageta" },
+        "5000": { hex: "#004B6D", name: "Azul violeta" }, "5001": { hex: "#00304E", name: "Azul verdoso" },
+        "5002": { hex: "#002851", name: "Azul ultramar" }, "5003": { hex: "#1D334A", name: "Azul zafiro" },
+        "5004": { hex: "#2B3842", name: "Azul negruzco" }, "5005": { hex: "#005387", name: "Azul señal" },
+        "5007": { hex: "#476C82", name: "Azul brillante" }, "5008": { hex: "#32444B", name: "Azul grisáceo" },
+        "5009": { hex: "#00475E", name: "Azul de cielo" }, "5010": { hex: "#00477D", name: "Azul genciana" },
+        "5011": { hex: "#003248", name: "Azul acero" }, "5012": { hex: "#0076A8", name: "Azul luminoso" },
+        "5013": { hex: "#003855", name: "Azul cobalto" }, "5014": { hex: "#5C7688", name: "Azul paloma" },
+        "5015": { hex: "#006282", name: "Azul cielo" }, "5017": { hex: "#005689", name: "Azul tráfico" },
+        "5018": { hex: "#00838A", name: "Azul turquesa" }, "5019": { hex: "#004D79", name: "Azul capri" },
+        "5020": { hex: "#00474F", name: "Azul mar" }, "5021": { hex: "#006F79", name: "Azul agua" },
+        "5022": { hex: "#002D43", name: "Azul noche" }, "5023": { hex: "#477891", name: "Azul lejano" },
+        "5024": { hex: "#6D93A8", name: "Azul pastel" }, "5025": { hex: "#2A454B", name: "Azul genciana perla" },
+        "5026": { hex: "#00434F", name: "Azul noche perla" }, "6000": { hex: "#386548", name: "Verde pálido" },
+        "6001": { hex: "#4E6D38", name: "Verde esmeralda" }, "6002": { hex: "#385232", name: "Verde hoja" },
+        "6003": { hex: "#575B49", name: "Verde oliva" }, "6004": { hex: "#004B41", name: "Verde azulado" },
+        "6005": { hex: "#0A3B21", name: "Verde musgo" }, "6006": { hex: "#434B3B", name: "Verde grisáceo" },
+        "6007": { hex: "#4B4C3F", name: "Verde botella" }, "6008": { hex: "#3F4031", name: "Verde pardo" },
+        "6009": { hex: "#2A3A2C", name: "Verde abeto" }, "6010": { hex: "#4B7C4C", name: "Verde grama" },
+        "6011": { hex: "#6C8A73", name: "Verde reseda" }, "6012": { hex: "#434C48", name: "Verde negruzco" },
+        "6013": { hex: "#7B775F", name: "Verde oliva parduzco" }, "6014": { hex: "#5D5745", name: "Verde oliva amarillo" },
+        "6015": { hex: "#48534C", name: "Verde oliva negruzco" }, "6016": { hex: "#006950", name: "Verde turquesa" },
+        "6017": { hex: "#4B7A58", name: "Verde mayo" }, "6018": { hex: "#52B75E", name: "Verde amarillo" },
+        "6019": { hex: "#B8D4B4", name: "Verde claro pastel" }, "6020": { hex: "#34432E", name: "Verde cromo" },
+        "6021": { hex: "#8EA98E", name: "Verde pálido" }, "6022": { hex: "#4A4538", name: "Verde oliva parduzco" },
+        "6024": { hex: "#008365", name: "Verde tráfico" }, "6025": { hex: "#4C894B", name: "Verde helecho" },
+        "6026": { hex: "#006450", name: "Verde ópalo" }, "6027": { hex: "#8DA79D", name: "Verde claro" },
+        "6028": { hex: "#2A7256", name: "Verde pino" }, "6029": { hex: "#006F5D", name: "Verde menta" },
+        "6032": { hex: "#007A50", name: "Verde señal" }, "6033": { hex: "#5C736F", name: "Verde menta pastel" },
+        "6034": { hex: "#73A0AD", name: "Verde pastel" }, "6035": { hex: "#1A4D33", name: "Verde perla" },
+        "6036": { hex: "#2F503A", name: "Verde ópalo perla" }, "6037": { hex: "#467D48", name: "Verde puro" },
+        "6038": { hex: "#00FF00", name: "Verde brillante" }, "7000": { hex: "#8F9FA7", name: "Gris ardilla" },
+        "7001": { hex: "#A8B4C0", name: "Gris plata" }, "7002": { hex: "#7B7E6F", name: "Gris oliva" },
+        "7003": { hex: "#8C8C7E", name: "Gris musgo" }, "7004": { hex: "#9AA0A6", name: "Gris señal" },
+        "7005": { hex: "#63686C", name: "Gris ratón" }, "7006": { hex: "#847A6B", name: "Gris beige" },
+        "7008": { hex: "#746A58", name: "Gris kaki" }, "7009": { hex: "#5F655D", name: "Gris verdoso" },
+        "7010": { hex: "#5D6260", name: "Gris lona" }, "7011": { hex: "#5E6C74", name: "Gris hierro" },
+        "7012": { hex: "#5E646D", name: "Gris basalto" }, "7013": { hex: "#57524A", name: "Gris pardo" },
+        "7015": { hex: "#5F656B", name: "Gris pizarra" }, "7016": { hex: "#36454F", name: "Gris Antracita" },
+        "7021": { hex: "#2D343A", name: "Gris negruzco" }, "7022": { hex: "#4B4D46", name: "Gris sombra" },
+        "7023": { hex: "#8A8D81", name: "Gris hormigón" }, "7024": { hex: "#4E565B", name: "Gris grafito" },
+        "7026": { hex: "#394348", name: "Gris granito" }, "7030": { hex: "#94948C", name: "Gris piedra" },
+        "7031": { hex: "#5C6C75", name: "Gris azulado" }, "7032": { hex: "#B1AE9E", name: "Gris guijarro" },
+        "7033": { hex: "#7A8270", name: "Gris cemento" }, "7034": { hex: "#9D957C", name: "Gris amarillo" },
+        "7035": { hex: "#D1D5D5", name: "Gris luminoso" }, "7036": { hex: "#88888C", name: "Gris platino" },
+        "7037": { hex: "#7B7D7D", name: "Gris polvoriento" }, "7038": { hex: "#B5B7B7", name: "Gris ágata" },
+        "7039": { hex: "#5A574E", name: "Gris cuarzo" }, "7040": { hex: "#9B9E9F", name: "Gris ventana" },
+        "7042": { hex: "#8C9295", name: "Gris tráfico A" }, "7043": { hex: "#63686A", name: "Gris tráfico B" },
+        "7044": { hex: "#BDBBB0", name: "Gris seda" }, "7045": { hex: "#969698", name: "Gris tele 1" },
+        "7046": { hex: "#84888C", name: "Gris tele 2" }, "7047": { hex: "#D4D5D9", name: "Gris tele 4" },
+        "7048": { hex: "#858788", name: "Gris perla ratón" }, "8000": { hex: "#896F4B", name: "Marrón verdoso" },
+        "8001": { hex: "#7C5D40", name: "Marrón ocre" }, "8002": { hex: "#6F4F42", name: "Marrón señal" },
+        "8003": { hex: "#89684F", name: "Marrón arcilla" }, "8004": { hex: "#7E5848", name: "Marrón cobre" },
+        "8007": { hex: "#61493A", name: "Marrón ciervo" }, "8008": { hex: "#7D5D3B", name: "Marrón oliva" },
+        "8011": { hex: "#684838", name: "Marrón nuez" }, "8012": { hex: "#633B32", name: "Marrón rojizo" },
+        "8014": { hex: "#5C463F", name: "Marrón sepia" }, "8015": { hex: "#744B4C", name: "Marrón castaño" },
+        "8016": { hex: "#5C3A33", name: "Marrón caoba" }, "8017": { hex: "#5C4033", name: "Marrón chocolate" },
+        "8019": { hex: "#4C4646", name: "Marrón grisáceo" }, "8022": { hex: "#292727", name: "Marrón negruzco" },
+        "8023": { hex: "#976C4B", name: "Marrón naranja" }, "8024": { hex: "#7B5945", name: "Marrón beige" },
+        "8025": { hex: "#897163", name: "Marrón pálido" }, "8028": { hex: "#6F5C51", name: "Marrón tierra" },
+        "8029": { hex: "#7B4D45", name: "Cobre perla" }, "9001": { hex: "#FDF4E3", name: "Blanco crema" },
+        "9002": { hex: "#EBE6D8", name: "Gris blanco" }, "9003": { hex: "#ECECEC", name: "Blanco señal" },
+        "9004": { hex: "#2B2B2E", name: "Negro señal" }, "9005": { hex: "#0A0A0A", name: "Negro intenso" },
+        "9006": { hex: "#A8A9AD", name: "Aluminio blanco" }, "9007": { hex: "#8A8C8A", name: "Aluminio gris" },
+        "9010": { hex: "#F0F0E8", name: "Blanco puro" }, "9011": { hex: "#252528", name: "Negro grafito" },
+        "9016": { hex: "#F6F7EE", name: "Blanco tráfico" }, "9017": { hex: "#222222", name: "Negro tráfico" },
+        "9018": { hex: "#AFAFB0", name: "Blanco pálido" }, "9022": { hex: "#7C7F7C", name: "Gris perla claro" },
+        "9023": { hex: "#707274", name: "Gris perla oscuro" }, "9024": { hex: "#63676B", name: "Gris perla" }
+    };
+    
+    // --- LÓGICA ORIGINAL DEL SELECTOR DE COLORES ---
+    function isLightColor(hex) {
+        const c = hex.substring(1);
+        const rgb = parseInt(c, 16);
+        const r = (rgb >> 16) & 0xff;
+        const g = (rgb >> 8) & 0xff;
+        const b = (rgb >> 0) & 0xff;
+        return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 180;
+    }
+    
+    function getRalFromHex(hex) {
+        const normalizedHex = hex.toUpperCase(); 
+        for (const ral in ralToHexMap) {
+            if (ralToHexMap[ral].hex.toUpperCase() === normalizedHex) return ral;
+        }
+        return null;
+    }
+
+    function displayColorInfo(ralCode, hexCode) {
+        const displayElement = document.getElementById('color-display');
+        let finalHex = hexCode.startsWith('#') ? hexCode : '#' + hexCode;
+        displayElement.style.backgroundColor = finalHex;
+        displayElement.style.color = isLightColor(finalHex) ? '#000' : '#fff';
+        let ralInfoText = 'Color personalizado';
+        if (ralCode && ralToHexMap[ralCode]) ralInfoText = `RAL ${ralCode} (${ralToHexMap[ralCode].name})`;
+        else if (ralCode) ralInfoText = `RAL ${ralCode}`;
+        displayElement.innerHTML = `<span class="code-info">${ralInfoText}</span><span class="code-info">${finalHex.toUpperCase()}</span>`;
+    }
+    
+    function selectColorFromWheel(hexValue) {
+        const finalHex = hexValue.toUpperCase();
+        document.getElementById('hexDisplay').value = finalHex;
+        document.getElementById('codeInput').value = '';
+        const selectedDiv = document.querySelector('.custom-select .select-selected');
+        selectedDiv.innerHTML = "Elige código RAL";
+        selectedDiv.dataset.ral = "";
+        displayColorInfo(getRalFromHex(finalHex), finalHex);
+    }
+    
+    function convertColorFromInput() {
+        let inputValue = document.getElementById('codeInput').value.trim().toUpperCase();
+        let resultRal = null, resultHex = null;
+        const selectedDiv = document.querySelector('.custom-select .select-selected');
+        selectedDiv.innerHTML = "Elige código RAL";
+        selectedDiv.dataset.ral = "";
+        
+        if (!inputValue) return;
+        
+        if (/^\d{4}$/.test(inputValue) && ralToHexMap[inputValue]) {
+            resultRal = inputValue;
+            resultHex = ralToHexMap[inputValue].hex;
+            selectedDiv.innerHTML = `RAL ${resultRal} - ${ralToHexMap[resultRal].name}`;
+            selectedDiv.dataset.ral = resultRal;
+        } else {
+            let tempHex = inputValue.startsWith('#') ? inputValue.substring(1) : inputValue;
+            if (/[0-9A-F]{6}$/.test(tempHex) && tempHex.length === 6) {
+                resultHex = `#${tempHex}`;
+                resultRal = getRalFromHex(resultHex);
+            } else if (/[0-9A-F]{3}$/.test(tempHex) && tempHex.length === 3) {
+                resultHex = `#${tempHex[0]}${tempHex[0]}${tempHex[1]}${tempHex[1]}${tempHex[2]}${tempHex[2]}`;
+                resultRal = getRalFromHex(resultHex);
+            }
+        }
+        
+        if (resultHex) {
+            document.getElementById('hexDisplay').value = resultHex.toUpperCase();
+            document.getElementById('colorWheelInput').value = resultHex;
+            displayColorInfo(resultRal, resultHex);
+        }
+    }
+
+    // --- LÓGICA DEL SELECTOR PERSONALIZADO ---
+    function initCustomSelect() {
+        const customSelect = document.getElementById('customRalSelector');
+        const selectedElement = customSelect.querySelector('.select-selected');
+        const itemsContainer = customSelect.querySelector('.select-items');
+        const sortedRals = Object.keys(ralToHexMap).sort();
+        
+        itemsContainer.innerHTML = ''; 
+        sortedRals.forEach(ralCode => {
+            const colorData = ralToHexMap[ralCode];
+            const optionDiv = document.createElement('div');
+            optionDiv.dataset.ral = ralCode;
+            optionDiv.dataset.hex = colorData.hex;
+            
+            optionDiv.innerHTML = `<span class="option-swatch" style="background-color:${colorData.hex}"></span><span class="option-text">RAL ${ralCode} - ${colorData.name}</span>`;
+            itemsContainer.appendChild(optionDiv);
+
+            optionDiv.addEventListener('click', function() {
+                updateAppWithColor(this.dataset.ral, this.dataset.hex);
+                closeAllSelect();
+            });
+        });
+        
+        selectedElement.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeAllSelect(this);
+            itemsContainer.classList.toggle('select-hide');
+            this.classList.toggle('select-arrow-active');
+        });
+        
+        document.addEventListener("click", closeAllSelect);
+
+        // Inicializar
+        const defaultHex = document.getElementById('colorWheelInput').value;
+        const defaultRal = getRalFromHex(defaultHex);
+        if(defaultRal) updateAppWithColor(defaultRal, defaultHex);
+    }
+
+    function closeAllSelect(elmnt) {
+        const selectElements = document.getElementsByClassName("select-items");
+        const selectedElements = document.getElementsByClassName("select-selected");
+        for (let i = 0; i < selectedElements.length; i++) {
+            if (elmnt != selectedElements[i]) selectedElements[i].classList.remove("select-arrow-active");
+        }
+        for (let i = 0; i < selectElements.length; i++) selectElements[i].classList.add("select-hide");
+    }
+
+    // Actualiza TODA la App con un color dado
+    function updateAppWithColor(ral, hex) {
+        // Update inputs
+        document.getElementById('hexDisplay').value = hex.toUpperCase();
+        document.getElementById('colorWheelInput').value = hex;
+        document.getElementById('codeInput').value = '';
+        
+        // Update Selector UI
+        const selectedElement = document.querySelector('.custom-select .select-selected');
+        if (ral && ralToHexMap[ral]) {
+            selectedElement.innerHTML = `RAL ${ral} - ${ralToHexMap[ral].name}`;
+            selectedElement.dataset.ral = ral;
+        } else {
+            selectedElement.innerHTML = "RAL aproximado (Sin coincidencia exacta)";
+            selectedElement.dataset.ral = "";
+        }
+        
+        // Update Display
+        displayColorInfo(ral, hex);
+    }
+
+    // ======================================================
+    // === LÓGICA DE LA CÁMARA Y DETECCIÓN DE RAL ===
+    // ======================================================
+    
+    // Variables de cámara
+    let stream = null;
+    let isFrozen = false;
+    let camMode = 'camera'; 
+    let pickX = 0.5, pickY = 0.5;
+    let currentDetectedHex = "#000000";
+    let currentClosestRal = null;
+
+    const video = document.getElementById('video');
+    const imgElement = document.getElementById('uploaded-image');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const crosshair = document.getElementById('crosshair');
+    const viewportContainer = document.getElementById('viewport-container');
+
+    function openCameraApp() {
+        document.getElementById('main-app').style.display = 'none';
+        document.getElementById('camera-app').style.display = 'flex';
+        initCamera();
+    }
+
+    function closeCameraApp() {
+        if(stream) stream.getTracks().forEach(track => track.stop());
+        document.getElementById('camera-app').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+    }
+
+    async function initCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            });
+            video.srcObject = stream;
+            video.play();
+            camMode = 'camera';
+            isFrozen = false;
+            imgElement.style.display = 'none';
+            video.style.display = 'block';
+            document.getElementById('freeze-btn').innerText = "❄️ Congelar";
+            requestAnimationFrame(camLoop);
+        } catch (err) {
+            alert("No se pudo acceder a la cámara. Intenta subir una foto.");
+        }
+    }
+
+    function camLoop() {
+        if (document.getElementById('camera-app').style.display === 'none') return;
+        if (camMode === 'camera' && !isFrozen) {
+            analyzeFrame(video);
+            requestAnimationFrame(camLoop);
+        }
+    }
+
+    function analyzeFrame(source) {
+        if (!source.videoWidth && !source.naturalWidth) return;
+        const w = source.videoWidth || source.naturalWidth;
+        const h = source.videoHeight || source.naturalHeight;
+        
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(source, 0, 0, w, h);
+        
+        const px = Math.floor(pickX * w);
+        const py = Math.floor(pickY * h);
+        
+        const p = ctx.getImageData(px, py, 1, 1).data;
+        const r = p[0], g = p[1], b = p[2];
+        
+        // Hexadecimal
+        const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        currentDetectedHex = hex;
+
+        // Actualizar UI pequeña de cámara
+        document.getElementById('cam-preview').style.backgroundColor = hex;
+        document.getElementById('cam-hex').innerText = hex;
+        
+        // ** ALGORITMO: BUSCAR RAL MÁS CERCANO **
+        const closest = findClosestRal(r, g, b);
+        currentClosestRal = closest.ral;
+        document.getElementById('cam-ral-match').innerText = `RAL más cercano: ${closest.ral}`;
+    }
+
+    // Algoritmo de distancia Euclidiana RGB
+    function findClosestRal(r, g, b) {
+        let minDist = Infinity;
+        let closestRal = null;
+        
+        for (const ral in ralToHexMap) {
+            const h = ralToHexMap[ral].hex;
+            // Hex a RGB
+            const cr = parseInt(h.substring(1,3), 16);
+            const cg = parseInt(h.substring(3,5), 16);
+            const cb = parseInt(h.substring(5,7), 16);
+            
+            // Distancia simple
+            const dist = Math.sqrt((r-cr)**2 + (g-cg)**2 + (b-cb)**2);
+            
+            if (dist < minDist) {
+                minDist = dist;
+                closestRal = ral;
+            }
+        }
+        return { ral: closestRal, dist: minDist };
+    }
+
+    // --- INTERACCIÓN CÁMARA (Toque, Congelar, Galería) ---
+    function moveCrosshair(e) {
+        const rect = viewportContainer.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        let x = (clientX - rect.left) / rect.width;
+        let y = (clientY - rect.top) / rect.height;
+        x = Math.max(0, Math.min(1, x));
+        y = Math.max(0, Math.min(1, y));
+        
+        pickX = x; pickY = y;
+        crosshair.style.left = (x * 100) + '%';
+        crosshair.style.top = (y * 100) + '%';
+        
+        if (camMode === 'image' || isFrozen) analyzeFrame(camMode === 'camera' ? video : imgElement);
+    }
+    
+    viewportContainer.addEventListener('touchstart', moveCrosshair);
+    viewportContainer.addEventListener('touchmove', (e) => { e.preventDefault(); moveCrosshair(e); }, { passive: false });
+    viewportContainer.addEventListener('mousedown', (e) => {
+        moveCrosshair(e);
+        viewportContainer.addEventListener('mousemove', moveCrosshair);
+    });
+    window.addEventListener('mouseup', () => viewportContainer.removeEventListener('mousemove', moveCrosshair));
+
+    document.getElementById('freeze-btn').addEventListener('click', () => {
+        if (camMode !== 'camera') return;
+        isFrozen = !isFrozen;
+        if (isFrozen) {
+            video.pause();
+            document.getElementById('freeze-btn').innerText = "▶ Reanudar";
+            analyzeFrame(video);
+        } else {
+            video.play();
+            document.getElementById('freeze-btn').innerText = "❄️ Congelar";
+            camLoop();
+        }
+    });
+
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                imgElement.src = evt.target.result;
+                imgElement.onload = () => {
+                    camMode = 'image';
+                    video.style.display = 'none';
+                    imgElement.style.display = 'block';
+                    document.getElementById('freeze-btn').style.display = 'none';
+                    analyzeFrame(imgElement);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // --- USAR COLOR DETECTADO ---
+    document.getElementById('confirm-color-btn').addEventListener('click', () => {
+        // Actualizar la app principal con los datos detectados
+        updateAppWithColor(currentClosestRal, currentDetectedHex);
+        closeCameraApp();
+    });
+
+    // Iniciar App Principal
+    document.addEventListener('DOMContentLoaded', initCustomSelect);
+
+</script>
+</body>
+</html>
