@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Tensor muelles v2.1</title>
+  <title>Calculadoras - Menú</title>
 
   <style>
     :root{
@@ -24,11 +24,23 @@
       --inputText:#131a2a;
       --focus: rgba(255, 214, 102, .35);
 
-      /* Destacado vueltas */
+      /* Destacados */
       --accent: #6ee7ff;
       --accent2:#a78bfa;
-    }
 
+      /* Botón */
+      --btn: #e74c3c;
+      --btnText: #fff;
+      --bg2:#0b2b1d;
+      --menuCard0: rgba(116, 204, 255, .16);
+      --menuCard1: rgba(73, 126, 255, .10);
+      --titlePearl: rgba(255, 208, 233, .98);   /* rosa perla */
+      --calcName: rgba(255, 198, 140, .98); /* naranja pálido */
+      --commentPastelBlue: rgba(170, 219, 255, .95); /* azul pastel */
+      --calc0: rgba(255, 231, 208, .22);
+      --calc1: rgba(255, 214, 246, .12);
+      --calc2: rgba(196, 255, 235, .10);
+    }
     *{ box-sizing:border-box; }
     html, body { height:100%; }
     body{
@@ -44,19 +56,74 @@
       -moz-osx-font-smoothing: grayscale;
       -webkit-text-size-adjust: 100%;
       touch-action: manipulation;
+      overflow-x:hidden;
     }
 
     .wrap{
-      max-width: 680px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 54px 6px 28px;
     }
 
+    .topbar{
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 9999;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content: space-between;
+      pointer-events:none; /* para que solo los botones capten interacción */
+    }
+    .topbar .left, .topbar .right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      pointer-events:auto;
+    }
+
+    .btn{
+      border: none;
+      border-radius: 20px;
+      padding: 10px 14px;
+      font-weight: 950;
+      letter-spacing: .2px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn-primary{
+      background: var(--btn);
+      color: var(--btnText);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    }
+    .btn-ghost{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.20);
+    }
+
     .title{
+      color: var(--text);
       font-size: 20px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: .2px;
       margin: 4px 6px 14px;
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .title small{
+      font-size: 12px;
+      opacity:.75;
+      font-weight: 900;
+      letter-spacing:.2px;
     }
 
     .card{
@@ -67,16 +134,94 @@
       overflow:hidden;
     }
 
-    .inner{
-      padding: 16px;
+    .inner{ padding: 16px; }
+
+    /* Menú */
+    .menuGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 560px){
+      .menuGrid{ grid-template-columns: 1fr 1fr; }
     }
 
+    .menuItem{
+      position:relative;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(0,0,0,.10);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      min-height: 92px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .menuItem:hover{ border-color: rgba(255,255,255,.18); }
+    .menuItem:active{ transform: translateY(1px); }
+
+    .miTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .miTitle{
+      font-weight: 950;
+      letter-spacing:.2px;
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+    .miDesc{
+      margin: 8px 0 0;
+      font-size: 12.5px;
+      color: var(--commentPastelBlue);
+      letter-spacing:.2px;
+      line-height: 1.25;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid rgba(110,231,255,.22);
+      background:
+        radial-gradient(220px 120px at 30% 20%, rgba(110,231,255,.18), transparent 60%),
+        linear-gradient(135deg, rgba(110,231,255,.12), rgba(167,139,250,.10));
+      color: var(--text);
+      white-space:nowrap;
+      flex: 0 0 auto;
+    }
+
+    .miFooter{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 12px;
+    }
+    .miHint{
+      font-size: 12px;
+      color: rgba(238,243,255,.60);
+      font-weight: 800;
+      letter-spacing:.15px;
+    }
+
+    /* Calculadora (reutiliza look & feel original) */
     .grid{
       display:grid;
       grid-template-columns: 1fr;
       gap: 12px;
     }
-
     @media (min-width: 560px){
       .grid{ grid-template-columns: 1fr 1fr; }
     }
@@ -87,7 +232,6 @@
       padding: 12px;
       background: rgba(0,0,0,.10);
     }
-
     label{
       display:block;
       font-weight: 800;
@@ -105,14 +249,13 @@
       color: var(--inputText);
       padding: 12px 12px;
       font-size: 18px; /* >=16 para iOS */
-      font-weight: 800;
+      font-weight: 900;
       outline:none;
       -webkit-appearance: none;
       appearance:none;
       touch-action: manipulation;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.10);
     }
-
     input[type="number"]:focus{
       box-shadow: inset 0 0 0 1px rgba(255,214,102,.55), 0 0 0 3px var(--focus);
     }
@@ -123,14 +266,12 @@
       padding: 14px 16px 16px;
       text-align:center;
     }
-
     .resultLabel{
       margin: 0 0 8px;
       font-size: 12.5px;
       color: var(--muted);
       letter-spacing:.2px;
     }
-
     .resultRow{
       display:flex;
       justify-content:center;
@@ -138,7 +279,6 @@
       gap: 14px;
       flex-wrap: wrap;
     }
-
     .vueltas{
       display:inline-flex;
       align-items:baseline;
@@ -150,39 +290,34 @@
         radial-gradient(220px 120px at 30% 20%, rgba(110,231,255,.18), transparent 60%),
         linear-gradient(135deg, rgba(110,231,255,.12), rgba(167,139,250,.10));
     }
-
     .vueltas .num{
       font-size: 42px;
       font-weight: 950;
       letter-spacing:.4px;
       line-height: 1;
     }
-
     .vueltas .unit{
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--muted);
     }
-
     .circ{
       padding: 10px 12px;
       border-radius: 14px;
       border: 1px solid var(--border);
       background: rgba(0,0,0,.10);
       color: var(--muted);
-      font-weight: 800;
+      font-weight: 900;
       font-size: 13px;
       letter-spacing:.2px;
     }
-
     .circ strong{
       color: var(--text);
       font-weight: 950;
     }
-
     .error{
       color: #fb7185;
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .sr-only{
@@ -193,8 +328,52 @@
       white-space:nowrap; border:0;
     }
 
+    /* Rutas */
+    .view{ display:none; }
+    .view.active{ display:block; }
 
-    /* BOTÓN MENÚ (rojo, estilo unificado) */
+    .subhead{
+      margin: 10px 6px 14px;
+      font-size: 13px;
+      color: var(--commentPastelBlue);
+      font-weight: 800;
+      letter-spacing:.15px;
+      line-height: 1.25;
+    }
+
+    /* Separador sutil */
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+      border:0;
+    }
+  
+    /* Contenedor MENÚ: más claro y azul */
+    
+    /* Contenedor de CALCULADORA: fondo pastel marrón claro (como pediste) */
+    
+    /* Items del menú con el mismo rollo pastel “marrón claro” */
+    .menuItem{
+      background:
+        radial-gradient(380px 200px at 20% 20%, rgba(255, 231, 208, .20), transparent 60%),
+        radial-gradient(380px 200px at 80% 30%, rgba(255, 214, 246, .12), transparent 62%),
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(0,0,0,.06));
+      border-color: rgba(255,255,255,.14);
+    }
+
+    /* Títulos y descripciones del menú con colores pedidos */
+    .miTitle{ color: var(--calcName); }
+    .miDesc{ color: var(--commentPastelBlue); opacity: .92; }
+
+    /* Título de vistas (nombre calculadora) en rosa perla */
+    .title{ color: var(--text); }
+
+    /* Comentarios/subhead en azul pastel */
+    .subhead{ color: var(--commentPastelBlue); opacity: .92; }
+
+
+    /* BOTÓN MENÚ (rojo, estilo original) */
     .btn-menu{
       position: fixed;
       top: 10px;
@@ -203,8 +382,8 @@
       padding: 10px 15px;
       border-radius: 20px;
       border: none;
-      background: #e74c3c;
-      color: #fff;
+      background: var(--btn);
+      color: var(--btnText);
       font-weight: 900;
       box-shadow: 0 2px 5px rgba(0,0,0,0.25);
       cursor: pointer;
@@ -215,64 +394,392 @@
       white-space: nowrap;
     }
 
+    /* Casa en esquina derecha */
+    .btn-home{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+    }
+
+    /* Topbar ya no necesita layout */
+    .topbar{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .topbar > *{ pointer-events: auto; }
+
+
+#viewTensor .title{ color: var(--calcName); }
+
+    /* Topbar limpio */
+    .topbar{
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .topbar > *{ pointer-events: auto; }
+
+    /* Casa a la derecha (solo cuando toque) */
+    .btn-home{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+    }
+
+
+    /* Botón pequeño (reset) */
+    .btn-mini{
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      font-weight: 950;
+      letter-spacing: .15px;
+    }
+
+
+    /* ===== Ajustes para que IVA quepa sin scroll ===== */
+    #viewIVA .inner{ padding: 12px; }
+    #viewIVA .grid{ gap: 10px; }
+    #viewIVA .field{ padding: 10px; }
+    #viewIVA label{ margin-bottom: 6px; }
+
+    /* En móviles, forzamos 2 columnas para % y Taxa para ahorrar altura */
+    @media (max-width: 559px){
+      #viewIVA .grid{ grid-template-columns: 1fr 1fr; }
+      #viewIVA .field.full{ grid-column: 1 / -1; }
+    }
+
+    /* Total con tono verdoso claro */
+    #ivaTotal{
+      background: linear-gradient(180deg, rgba(202, 255, 226, .95), rgba(168, 245, 209, .92)) !important;
+    }
+
+    /* ===== Resultado siempre visible abajo (dock) ===== */
+    .resultDock{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 10px);
+      z-index: 9998;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 44px rgba(0,0,0,.45);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px 12px;
+      display:none;
+    }
+    .resultDock .resultRow{ gap: 10px; }
+    .resultDock .vueltas .num{ font-size: 34px; }
+    .resultDock .vueltas{ padding: 8px 12px; }
+    .resultDock .circ{ padding: 8px 10px; }
+
+    /* Espacio inferior para no tapar contenidos cuando el dock está visible */
+    body.hasDock .wrap{ padding-bottom: 150px; }
+
+    /* Oculta el bloque resultado "normal" dentro de la tarjeta cuando usamos dock */
+    body.hasDock .card .result{ display:none; }
+
 </style>
 </head>
 
 <body>
-  <button class="btn-menu" type="button"
-    onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+  <div class="topbar" aria-hidden="false">
+    <!-- Botón rojo MENÚ: se mantiene tal cual el original -->
+    <button class="btn-menu" type="button"
+      onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+    <!-- Casa: solo para volver al menú de calculadoras (se mostrará solo dentro de calculadoras) -->
+    <button id="btnHome" class="btn btn-ghost btn-home" type="button" title="Ir al menú">🏠</button>
+  </div>
+</div>
 
   <main class="wrap">
-    <div class="title">Tensor muelles <span style="font-size:0.75em; font-weight:900; opacity:0.75;">V2.1</span></div>
+    <!-- MENÚ -->
+    <section id="viewMenu" class="view active" aria-label="Menú de calculadoras">
+      <div class="title">Calculadoras <small>v1.1</small></div>
+      <section class="card card-menu" aria-label="Listado de calculadoras">
+        <div class="inner">
+          <div class="menuGrid" role="list">
+            <!-- Tensor muelles -->
+            <div class="menuItem" role="listitem" data-route="tensor">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Tensor muelles</p>
+                  <p class="miDesc">Cálculo de vueltas recomendadas según altura, eje y pretensión.</p>
+                </div>
+                <span class="badge">Disponible</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
+              </div>
+            </div>
+            <!-- IVA -->
+            <div class="menuItem" role="listitem" data-route="iva">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">IVA</p>
+                  <p class="miDesc">Calcula base, tasa y total. Cambia cualquier campo y se actualiza el resto.</p>
+                </div>
+                <span class="badge">Disponible</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
+              </div>
+            </div>
 
-    <section class="card" aria-label="Calculadora">
-      <div class="inner">
-        <div class="grid">
-          <div class="field">
-            <label for="alto">Altura de la cortina (mm)</label>
-            <input id="alto" type="number" inputmode="decimal" min="1" step="1" value="1400" aria-describedby="ayudaAlto" />
-            <div id="ayudaAlto" class="sr-only">Introduce la altura en milímetros.</div>
+
+            <!-- Placeholder 1 -->
+            <div class="menuItem" role="listitem" data-route="proximamente-1" aria-disabled="true" style="opacity:.55; cursor:not-allowed;">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Calculadora (próximamente)</p>
+                  <p class="miDesc">Hueco reservado para la siguiente calculadora del menú.</p>
+                </div>
+                <span class="badge" style="border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06);">Pronto</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Sin activar</span>
+                <span class="miHint">—</span>
+              </div>
+            </div>
+
+            <!-- Placeholder 2 -->
+            <div class="menuItem" role="listitem" data-route="proximamente-2" aria-disabled="true" style="opacity:.55; cursor:not-allowed;">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Calculadora (próximamente)</p>
+                  <p class="miDesc">Hueco reservado para otra calculadora futura.</p>
+                </div>
+                <span class="badge" style="border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06);">Pronto</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Sin activar</span>
+                <span class="miHint">—</span>
+              </div>
+            </div>
           </div>
 
-          <div class="field">
-            <label for="eje">Diámetro del eje (mm)</label>
-            <input id="eje" type="number" inputmode="decimal" min="1" step="1" value="25" aria-describedby="ayudaEje" />
-            <div id="ayudaEje" class="sr-only">Introduce el diámetro del eje en milímetros.</div>
           </div>
+      </section>
+    </section>
 
-          <div class="field" style="grid-column: 1 / -1;">
-            <label for="pretension">Vueltas pretensión</label>
-            <input id="pretension" type="number" inputmode="decimal" min="0" step="1" value="7" aria-describedby="ayudaPre" />
-            <div id="ayudaPre" class="sr-only">Introduce las vueltas de pretensión.</div>
+    <!-- TENSOR MUELLES -->
+    <section id="viewTensor" class="view" aria-label="Calculadora Tensor muelles">
+      <div class="title">Tensor muelles <small>V2.1</small></div>
+
+      <section class="card card-calc" aria-label="Calculadora">
+        <div class="inner">
+          <div class="grid">
+            <div class="field">
+              <label for="alto">Altura de la cortina (mm)</label>
+              <input id="alto" type="number" inputmode="decimal" min="1" step="1" value="1400" aria-describedby="ayudaAlto" />
+              <div id="ayudaAlto" class="sr-only">Introduce la altura en milímetros.</div>
+            </div>
+
+            <div class="field">
+              <label for="eje">Diámetro del eje (mm)</label>
+              <input id="eje" type="number" inputmode="decimal" min="1" step="1" value="25" aria-describedby="ayudaEje" />
+              <div id="ayudaEje" class="sr-only">Introduce el diámetro del eje en milímetros.</div>
+            </div>
+
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="pretension">Vueltas pretensión</label>
+              <input id="pretension" type="number" inputmode="decimal" min="0" step="1" value="7" aria-describedby="ayudaPre" />
+              <div id="ayudaPre" class="sr-only">Introduce las vueltas de pretensión.</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="result" role="status" aria-live="polite">
-        <p class="resultLabel">Resultado</p>
+        <div class="result" role="status" aria-live="polite">
+          <p class="resultLabel">Resultado</p>
 
-        <div class="resultRow" id="resultRow">
+          <div class="resultRow" id="resultRow">
+            <div class="vueltas" aria-label="Vueltas recomendadas">
+              <span class="num" id="vueltasNum">—</span>
+              <span class="unit">vueltas</span>
+            </div>
+
+            <div class="circ" aria-label="Circunferencia">
+              Circunferencia: <strong id="circVal">—</strong> mm
+            </div>
+          </div>
+
+          <div id="errorBox" class="error" style="display:none; margin-top:10px;">
+            Introduce valores válidos
+          </div>
+        </div>
+      </section>
+
+      <div id="dockTensor" class="resultDock" role="status" aria-live="polite" aria-label="Resultado fijo Tensor muelles">
+        <div class="resultRow">
           <div class="vueltas" aria-label="Vueltas recomendadas">
-            <span class="num" id="vueltasNum">—</span>
+            <span class="num" id="dockVueltasNum">—</span>
             <span class="unit">vueltas</span>
           </div>
-
           <div class="circ" aria-label="Circunferencia">
-            Circunferencia: <strong id="circVal">—</strong> mm
+            Circunferencia: <strong id="dockCircVal">—</strong> mm
+          </div>
+        </div>
+        <div id="dockErrorTensor" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
+      </div>
+
+      <div class="subhead" style="margin-top:14px;">
+        Nota: el cálculo redondea las vueltas hacia arriba (ceil) y suma la pretensión (redondeada).
+      </div>
+    </section>
+
+
+    <!-- IVA -->
+    <section id="viewIVA" class="view" aria-label="Calculadora IVA">
+      <div class="title">IVA <small>v1.0</small></div>
+
+      
+      <div style="display:flex; justify-content:flex-end; padding: 0 6px 10px;">
+        <button id="ivaReset" class="btn btn-ghost btn-mini" type="button" aria-label="Reset IVA">Reset</button>
+      </div>
+<section class="card" aria-label="Calculadora IVA">
+        <div class="inner">
+          <div class="grid">
+            <div class="field full" style="grid-column: 1 / -1;">
+              <label for="ivaBase">Valor (sin IVA)</label>
+              <input id="ivaBase" type="number" placeholder="0,00" inputmode="decimal" step="0.01" value="" aria-describedby="ayudaIvaBase" />
+              <div id="ayudaIvaBase" class="sr-only">Introduce el precio sin IVA.</div>
+            </div>
+
+            <div class="field">
+              <label for="ivaPorc">IVA %</label>
+              <input id="ivaPorc" type="number" inputmode="decimal" step="0.01" value="21" aria-describedby="ayudaIvaPorc" />
+              <div id="ayudaIvaPorc" class="sr-only">Porcentaje de IVA. Por defecto 21.</div>
+            </div>
+
+            <div class="field">
+              <label for="ivaTaxa">Taxa</label>
+              <input id="ivaTaxa" type="number" placeholder="0,00" inputmode="decimal" step="0.01" value="" aria-describedby="ayudaIvaTaxa" />
+              <div id="ayudaIvaTaxa" class="sr-only">Importe de IVA (tasa).</div>
+            </div>
+
+            <div class="field full" style="grid-column: 1 / -1;">
+              <label for="ivaTotal">Total</label>
+              <input id="ivaTotal" type="number" placeholder="0,00" inputmode="decimal" step="0.01" value="" aria-describedby="ayudaIvaTotal" />
+              <div id="ayudaIvaTotal" class="sr-only">Total con IVA incluido.</div>
+            </div>
           </div>
         </div>
 
-        <div id="errorBox" class="error" style="display:none; margin-top:10px;">
-          Introduce valores válidos
+        <div class="result" role="status" aria-live="polite">
+          <p class="resultLabel">Resultado</p>
+          <div class="resultRow">
+            <div class="vueltas" aria-label="Total con IVA">
+              <span class="num" id="ivaTotalBig">—</span>
+              <span class="unit">total</span>
+            </div>
+            <div class="circ" aria-label="IVA aplicado">
+              IVA: <strong id="ivaTaxaSmall">—</strong>
+            </div>
+          </div>
+
+          <div id="ivaError" class="error" style="display:none; margin-top:10px;">
+            Introduce valores válidos
+          </div>
         </div>
+      </section>
+
+      <div id="dockIVA" class="resultDock" role="status" aria-live="polite" aria-label="Resultado fijo IVA">
+        <div class="resultRow">
+          <div class="vueltas" aria-label="Total con IVA">
+            <span class="num" id="dockIvaTotalBig">—</span>
+            <span class="unit">total</span>
+          </div>
+          <div class="circ" aria-label="IVA aplicado">
+            IVA %: <strong id="dockIvaPorcVal">—</strong>
+          </div>
+        </div>
+        <div id="dockErrorIVA" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
+      </div>
+
+      <div class="subhead" style="margin-top:14px;">
+        Puedes editar cualquier campo. El cálculo mantiene el último campo editado y recalcula los demás.
       </div>
     </section>
+
   </main>
 
   <script>
     (function () {
       "use strict";
 
+      // --- Router (hash) ---
+      const views = {
+        menu: document.getElementById("viewMenu"),
+        tensor: document.getElementById("viewTensor"),
+        iva: document.getElementById("viewIVA"),
+      };      const btnHome = document.getElementById("btnHome");
+
+
+      // Home se muestra solo cuando estás dentro de una calculadora
+      function setView(name){
+        Object.keys(views).forEach(k => {
+          views[k].classList.toggle("active", k === name);
+        });
+        const isMenu = (name === "menu");
+        btnHome.style.display = isMenu ? "none" : "inline-flex";
+        // Dock de resultado: solo en calculadoras
+        document.body.classList.toggle("hasDock", !isMenu);
+        const dockTensor = document.getElementById("dockTensor");
+        const dockIVA = document.getElementById("dockIVA");
+        if(dockTensor) dockTensor.style.display = (name === "tensor") ? "block" : "none";
+        if(dockIVA) dockIVA.style.display = (name === "iva") ? "block" : "none";
+        /* Botón rojo reservado (GitHub): siempre visible */
+        // Mantener el scroll en top al cambiar de vista (suave pero seguro)
+        window.scrollTo(0, 0);
+      }
+
+      function routeFromHash(){
+        const h = (location.hash || "#menu").replace("#","").trim();
+        if (h === "tensor") setView("tensor");
+        else if (h === "iva") setView("iva");
+        else setView("menu");
+      }
+
+      function goMenu(){
+        // Evita historia “infinita” en webviews
+        location.hash = "#menu";
+      }
+      function goTensor(){
+        location.hash = "#tensor";
+      }
+      function goIVA(){
+        location.hash = "#iva";
+      }
+
+      // Menú items
+      function onMenuTap(e){
+        const item = e.target.closest(".menuItem");
+        if(!item) return;
+        const route = item.getAttribute("data-route") || "";
+        if(route === "tensor") goTensor();
+        if(route === "iva") goIVA();
+      }
+
+      // Click/touch friendly
+      views.menu.addEventListener("click", onMenuTap, { passive: true });      btnHome.addEventListener("click", goMenu, { passive: true });
+
+      window.addEventListener("hashchange", routeFromHash, { passive: true });
+
+      // --- Tensor muelles (lógica original) ---
       const $alto = document.getElementById("alto");
       const $eje = document.getElementById("eje");
       const $pret = document.getElementById("pretension");
@@ -294,7 +801,7 @@
         $errorBox.style.display = on ? "block" : "none";
       }
 
-      function calcular() {
+      function calcularTensor() {
         const alto = toNumber($alto.value);      // mm
         const eje  = toNumber($eje.value);       // mm
         const pre  = toNumber($pret.value);      // vueltas
@@ -303,10 +810,18 @@
           setError(true);
           $vueltasNum.textContent = "—";
           $circVal.textContent = "—";
+          const dV = document.getElementById("dockVueltasNum");
+          const dC = document.getElementById("dockCircVal");
+          const dE = document.getElementById("dockErrorTensor");
+          if(dV) dV.textContent = "—";
+          if(dC) dC.textContent = "—";
+          if(dE) dE.style.display = "block";
           return;
         }
 
         setError(false);
+        const dE = document.getElementById("dockErrorTensor");
+        if(dE) dE.style.display = "none";
 
         // Circunferencia en mm
         const circ = Math.PI * eje;
@@ -317,16 +832,206 @@
 
         $vueltasNum.textContent = String(vueltas);
         $circVal.textContent = fmt(circ, 2);
+        const dV = document.getElementById("dockVueltasNum");
+        const dC = document.getElementById("dockCircVal");
+        if(dV) dV.textContent = String(vueltas);
+        if(dC) dC.textContent = fmt(circ, 2);
       }
 
-      // iOS/WebView friendly listeners
       ["input","change"].forEach(evt => {
-        $alto.addEventListener(evt, calcular, { passive: true });
-        $eje.addEventListener(evt, calcular, { passive: true });
-        $pret.addEventListener(evt, calcular, { passive: true });
+        $alto.addEventListener(evt, calcularTensor, { passive: true });
+        $eje.addEventListener(evt, calcularTensor, { passive: true });
+        $pret.addEventListener(evt, calcularTensor, { passive: true });
       });
 
-      calcular();
+      // init
+      routeFromHash();
+      calcularTensor();
+
+
+      // --- IVA (auto-cálculo bidireccional) ---
+      const $ivaBase  = document.getElementById("ivaBase");
+      const $ivaPorc  = document.getElementById("ivaPorc");
+      const $ivaTaxa  = document.getElementById("ivaTaxa");
+      const $ivaTotal = document.getElementById("ivaTotal");
+
+      const $ivaTotalBig  = document.getElementById("ivaTotalBig");
+      const $ivaTaxaSmall = document.getElementById("ivaTaxaSmall");
+      const $ivaError     = document.getElementById("ivaError");
+
+      let ivaLastEdited = "base"; // base | porc | taxa | total
+      let ivaLock = false;
+
+      function ivaSetError(on){
+        if($ivaError) $ivaError.style.display = on ? "block" : "none";
+        const dE = document.getElementById("dockErrorIVA");
+        if(dE) dE.style.display = on ? "block" : "none";
+      }
+
+      function ivaFmt(n){
+        return Number.isFinite(n) ? n.toFixed(2) : "—";
+      }
+
+      function ivaSyncUI(base, porc, taxa, total){
+        // Actualiza inputs sin romper edición (se llama en respuesta a input)
+        if(document.activeElement !== $ivaBase)  $ivaBase.value  = ivaFmt(base);
+        if(document.activeElement !== $ivaPorc)  $ivaPorc.value  = ivaFmt(porc);
+        if(document.activeElement !== $ivaTaxa)  $ivaTaxa.value  = ivaFmt(taxa);
+        if(document.activeElement !== $ivaTotal) $ivaTotal.value = ivaFmt(total);
+
+        if($ivaTotalBig)  $ivaTotalBig.textContent  = ivaFmt(total);
+        if($ivaTaxaSmall) $ivaTaxaSmall.textContent = ivaFmt(taxa);
+        const dTot = document.getElementById("dockIvaTotalBig");
+        const dPor = document.getElementById("dockIvaPorcVal");
+        if(dTot) dTot.textContent = ivaFmt(total);
+        if(dPor) dPor.textContent = ivaFmt(porc);
+      }
+
+      function ivaRead(){
+        const base  = toNumber($ivaBase.value);
+        const porc  = toNumber($ivaPorc.value);
+        const taxa  = toNumber($ivaTaxa.value);
+        const total = toNumber($ivaTotal.value);
+        return { base, porc, taxa, total };
+      }
+
+      function ivaCompute(){
+        if(ivaLock) return;
+        ivaLock = true;
+
+        const { base, porc, taxa, total } = ivaRead();
+        // % siempre debe ser válido (>=0). Si está vacío, no forzamos error: esperamos.
+        if (!Number.isFinite(porc) || porc < 0) {
+          ivaSetError(false);
+          // No recalculamos nada si % no es válido aún
+          if($ivaTotalBig)  $ivaTotalBig.textContent  = "—";
+          if($ivaTaxaSmall) $ivaTaxaSmall.textContent = "—";
+          const dTot = document.getElementById("dockIvaTotalBig");
+          const dPor = document.getElementById("dockIvaPorcVal");
+          if(dTot) dTot.textContent = "—";
+          if(dPor) dPor.textContent = "—";
+          ivaLock = false;
+          return;
+        }
+        const p = porc / 100;
+
+        // Helpers para limpiar sin “error” cuando faltan datos
+        function clearFrom(mode){
+          if(mode === "base" || mode === "porc"){
+            if(document.activeElement !== $ivaTaxa)  $ivaTaxa.value  = "";
+            if(document.activeElement !== $ivaTotal) $ivaTotal.value = "";
+          } else if(mode === "taxa"){
+            if(document.activeElement !== $ivaBase)  $ivaBase.value  = "";
+            if(document.activeElement !== $ivaTotal) $ivaTotal.value = "";
+          } else if(mode === "total"){
+            if(document.activeElement !== $ivaBase)  $ivaBase.value  = "";
+            if(document.activeElement !== $ivaTaxa)  $ivaTaxa.value  = "";
+          }
+          if($ivaTotalBig)  $ivaTotalBig.textContent  = "—";
+          if($ivaTaxaSmall) $ivaTaxaSmall.textContent = "—";
+          const dTot = document.getElementById("dockIvaTotalBig");
+          const dPor = document.getElementById("dockIvaPorcVal");
+          if(dTot) dTot.textContent = "—";
+          if(dPor) dPor.textContent = "—";
+          ivaSetError(false);
+        }
+
+        let b = base, t = taxa, tot = total;
+
+        if (ivaLastEdited === "total") {
+          if (!Number.isFinite(tot) || tot < 0) {
+            clearFrom("total");
+            ivaLock = false;
+            return;
+          }
+          if (p === 0) {
+            b = tot;
+            t = 0;
+          } else {
+            b = tot / (1 + p);
+            t = tot - b;
+          }
+        } else if (ivaLastEdited === "taxa") {
+          if (!Number.isFinite(t) || t < 0 || !(p > 0)) {
+            clearFrom("taxa");
+            ivaLock = false;
+            return;
+          }
+          b = t / p;
+          tot = b + t;
+        } else {
+          // base o porc
+          if (!Number.isFinite(b) || b < 0) {
+            clearFrom("base");
+            ivaLock = false;
+            return;
+          }
+          t = b * p;
+          tot = b + t;
+        }
+
+        ivaSetError(false);
+        ivaSyncUI(b, porc, t, tot);
+        ivaLock = false;
+      }
+
+      function ivaBind(el, which){
+        if(!el) return;
+        el.addEventListener("focus", () => { ivaLastEdited = which; }, { passive: true });
+        ["input","change"].forEach(evt => {
+          el.addEventListener(evt, () => { ivaLastEdited = which; ivaCompute(); }, { passive: true });
+        });
+      }
+
+
+      // Al tocar un input con valor, lo vaciamos para escribir sin borrar dígito a dígito
+      function ivaClearOnFocus(el){
+        if(!el) return;
+        const clear = () => {
+          // Solo si hay algo escrito
+          if(String(el.value || "").length > 0){
+            el.value = "";
+            // Dispara recálculo coherente
+            ivaLastEdited = (el === $ivaBase) ? "base" :
+                            (el === $ivaPorc) ? "porc" :
+                            (el === $ivaTaxa) ? "taxa" : "total";
+            ivaCompute();
+          }
+        };
+        // iOS: mejor cubrir focus y touchstart
+        el.addEventListener("focus", clear, { passive: true });
+        el.addEventListener("touchstart", clear, { passive: true });
+        el.addEventListener("mousedown", clear, { passive: true });
+      }
+
+      ivaClearOnFocus($ivaBase);
+      ivaClearOnFocus($ivaTaxa);
+      ivaClearOnFocus($ivaTotal);
+
+      ivaBind($ivaBase,  "base");
+      ivaBind($ivaPorc,  "porc");
+      ivaBind($ivaTaxa,  "taxa");
+      ivaBind($ivaTotal, "total");
+
+      // Reset IVA (deja 21% y limpia el resto)
+      const $ivaReset = document.getElementById("ivaReset");
+      function ivaReset(){
+        ivaLock = true;
+        $ivaBase.value = "";
+        $ivaTaxa.value = "";
+        $ivaTotal.value = "";
+        $ivaPorc.value = "21";
+        ivaLastEdited = "base";
+        ivaLock = false;
+        ivaCompute();
+      }
+      if($ivaReset){
+        $ivaReset.addEventListener("click", ivaReset, { passive: true });
+      }
+
+      // init IVA
+      ivaReset();
+
     })();
   </script>
 </body>
