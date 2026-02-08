@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Puerta telefonillo / Nicho V3.2</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel: rgba(255,255,255,.06);
+      --line: rgba(255,255,255,.10);
+      --text:#ecf2ff;
+      --muted: rgba(236,242,255,.65);
+      --accent:#6dd6ff;
+      --accent2:#7cffc4;
+      --warn:#ffd66d;
+      --radius:18px;
+      --shadow: 0 18px 44px rgba(0,0,0,.40);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background: linear-gradient(180deg, #070b12, #0b1220 35%, #070b12);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:54px 14px 22px;
+    }
+    header{
+      padding:10px 2px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+      font-weight:900;
+    }
+    .ver{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-top:6px;
+    }
+    .segWrap{
+      margin:6px 0 12px;
+      display:flex;
+      justify-content:flex-start;
+    }
+    .seg{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding:8px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      background: rgba(0,0,0,.14);
+      box-shadow: 0 12px 26px rgba(0,0,0,.25);
+    }
+    .seg button{
+      border:1px solid rgba(109,214,255,.25);
+      background: rgba(109,214,255,.10);
+      color:var(--text);
+      font-weight:900;
+      font-size:13px;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    .seg button[aria-pressed="true"]{
+      border:none;
+      color:#041018;
+      background: linear-gradient(90deg, #6dd6ff, #7cffc4);
+      box-shadow: 0 10px 24px rgba(124,255,196,.35);
+    }
+    #btnPestana{
+      margin:0 auto;
+      display:block;
+      min-width:260px;
+      background: linear-gradient(180deg, rgba(180,180,180,.25), rgba(120,120,120,.18));
+      border:1px solid rgba(255,255,255,.18);
+      color:#f0f0f0;
+      font-weight:900;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    #btnPestana[aria-pressed="true"]{
+      border:none;
+      color:#2b0b0b;
+      background: linear-gradient(90deg, #ff9f6d, #ff6d6d);
+      box-shadow: 0 10px 26px rgba(255,110,90,.45);
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding:12px 12px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.16);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .cardHead .t{
+      font-size:12px;
+      letter-spacing:.28px;
+      text-transform:uppercase;
+      color: rgba(236,242,255,.86);
+      font-weight:900;
+    }
+    .small{ font-size:12px; color:var(--muted); font-weight:800; }
+    .cardBody{ padding:12px; }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      align-items:end;
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+      text-align:center;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    input{
+      width:100%;
+      border:1px solid rgba(180,220,160,.45);
+      background: linear-gradient(180deg, rgba(190,255,200,.35), rgba(255,245,180,.18));
+      padding:12px 14px;
+      border-radius:14px;
+      font-size:16px;
+      outline:none;
+      font-weight:900;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -1px 0 rgba(0,0,0,.25);
+      color: #0b2a18 !important;
+      text-align: center;
+    }
+    input:focus{
+      border-color: rgba(109,214,255,.55);
+      box-shadow: 0 0 0 2px rgba(109,214,255,.18), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    input.cristal{
+      background: linear-gradient(180deg, rgba(180,210,255,.35), rgba(150,180,255,.18));
+      border-color: rgba(140,170,220,.55);
+    }
+    input.hueco-input{
+      border-color: rgba(255, 214, 109, 0.6);
+      background: linear-gradient(180deg, rgba(255, 245, 180, 0.4), rgba(255, 214, 109, 0.15));
+    }
+    input[readonly]{
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      color:var(--text) !important;
+      font-weight:700;
+    }
+    .svgWrap{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .svgBar{
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.16);
+    }
+    .pill{
+      display:inline-block;
+      font-size:11px;
+      border-radius:999px;
+      padding:3px 8px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(236,242,255,.86);
+      white-space:nowrap;
+    }
+    .pill.ok{ border-color: rgba(124,255,196,.28); background: rgba(124,255,196,.10); }
+    .pill.warn{ border-color: rgba(255,214,109,.28); background: rgba(255,214,109,.10); }
+    .hint{ margin-top:10px; color:var(--muted); font-size:12px; line-height:1.35; text-align: center; }
+    footer{ max-width:980px; margin:0 auto; padding:10px 14px 18px; color:var(--muted); font-size:12px; font-weight:800; text-align:right; }
+    .toast{
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background: rgba(8,12,18,.92); border:1px solid rgba(109,214,255,.24);
+      color:var(--text); padding:10px 12px; border-radius:999px;
+      box-shadow: 0 16px 36px rgba(0,0,0,.45); display:none; z-index: 9999;
+      max-width: 92vw; text-align:center; font-size:13px;
+    }
+    .toast.show{ display:block; }
+  
+    /* Input colors (iPhone safe) */
+    /* Marco inputs (W/H): light orange to mark as entry */
+    #w, #h{
+      color:#ffd199 !important;
+      -webkit-text-fill-color:#ffd199;
+      caret-color:#ffd199;
+    }
+
+    /* Hueco inputs (Nicho): light green */
+    #hw, #hh{
+      color:#7cffc4 !important;
+      -webkit-text-fill-color:#7cffc4;
+      caret-color:#7cffc4;
+    }
+
+  
+    /* V2.0 Esquema Canvas + Export (keeps existing button colors) */
+    .schemaCard{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .schemaBar{
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.16);
+    }
+    .schemaBody{ padding:12px; }
+    #schemaCanvas{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:12px;
+      background: rgba(0,0,0,.06);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .schemaActions{
+      padding:10px 12px 12px;
+      display:flex;
+      justify-content:center;
+    }
+    .btnGhost{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(236,242,255,.92);
+      font-weight:900;
+      font-size:13px;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    .btnGhost:active{ transform: scale(.99); }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:14px;
+      z-index:9999;
+    }
+    .modal.show{ display:flex; }
+    .modalInner{
+      width:min(980px, 96vw);
+      max-height: 92vh;
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(16,22,34,.98), rgba(10,14,22,.98));
+      box-shadow: 0 18px 44px rgba(0,0,0,.50);
+    }
+    .modalBar{
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.18);
+    }
+    .modalBody{
+      padding:12px;
+      text-align:center;
+    }
+    #pngImg{
+      max-width:100%;
+      height:auto;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+    }
+
+  
+    /* BOTÓN MENÚ (rojo, estilo unificado) */
+    .btn-menu{
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 9999;
+      padding: 10px 15px;
+      border-radius: 20px;
+      border: none;
+      background: #e74c3c;
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      cursor: pointer;
+      font-size: 0.9rem;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+
+    /* BOTÓN FIJAR (gris OFF / rojo ON) */
+    .btn-fijar{
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      padding: 10px 15px;
+      border-radius: 20px;
+      border: none;
+      color: white;
+      font-weight: 900;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      cursor: pointer;
+      font-size: 0.9rem;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn-fijar.off{ background:#6f7682; }
+    .btn-fijar.on{ background:#c0392b; }
+
+    /* Modo FIJAR: mantiene visible el gráfico (schemaCard) abajo */
+    :root{ --dockH: 52vh; }
+
+    body.fijar-on .wrap{
+      /* espacio para que el scroll no quede tapado por el gráfico fijo */
+      padding-bottom: calc(var(--dockH) + 22px);
+    }
+
+    body.fijar-on .schemaCard{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(10px + env(safe-area-inset-bottom));
+      width: calc(100% - 28px);
+      max-width: 980px;
+      max-height: var(--dockH);
+      z-index: 6000;
+    }
+
+    body.fijar-on .schemaBody{
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.fijar-on #schemaCanvas{
+      max-height: calc(var(--dockH) - 90px);
+    }
+
+</style>
+</head>
+
+<body>
+  <button class="btn-menu" type="button" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+  <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
+
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Puerta telefonillo / Nicho</h1>
+        <div class="ver">V3.2</div>
+      </div>
+    </header>
+
+    <div class="segWrap">
+      <div class="seg" role="tablist">
+        <button id="btnTel" type="button" aria-pressed="true">Telefonillo</button>
+        <button id="btnNicho" type="button" aria-pressed="false">Nicho</button>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="cardHead">
+        <div class="t">Medidas</div>
+        <div class="small" id="status">Listo</div>
+      </div>
+      <div class="cardBody">
+        <div class="grid2">
+          <div>
+            <label for="w">Ancho Marco</label>
+            <input id="w" inputmode="decimal" autocomplete="off" />
+          </div>
+          <div>
+            <label for="h">Alto Marco</label>
+            <input id="h" inputmode="decimal" autocomplete="off" />
+          </div>
+        </div>
+
+        <div id="nichoExtras" style="display:none; margin-top:12px;">
+          <div class="grid2" style="margin-bottom: 12px;">
+            <div>
+              <label for="hw" style="color:var(--warn)">Ancho Hueco</label>
+              <input id="hw" class="hueco-input" inputmode="decimal" autocomplete="off" />
+            </div>
+            <div>
+              <label for="hh" style="color:var(--warn)">Alto Hueco</label>
+              <input id="hh" class="hueco-input" inputmode="decimal" autocomplete="off" />
+            </div>
+          </div>
+          
+          <div class="seg" style="justify-content:center; background:none; border:none; box-shadow:none;">
+            <button id="btnPestana" type="button" aria-pressed="false">Cortar pestaña inferior</button>
+          </div>
+          
+          <div class="hint" id="pestanaInfo" style="color:#ffcc66; font-weight:800; margin-top:10px;"></div>
+          <div class="hint" id="huecoInfo" style="color:#ffcc66; font-weight:800; margin-top:4px;"></div>
+        </div>
+
+        <hr style="border:none;border-top:2px solid rgba(255,255,255,.22); margin:16px 0;">
+
+        <div class="grid2" style="margin-top:14px">
+          <div><label>Ancho hoja</label><input id="rHojaW" readonly /></div>
+          <div><label>Alto hoja</label><input id="rHojaH" readonly /></div>
+        </div>
+
+        <div class="grid2" style="margin-top:18px">
+          <div><label>Ancho cristal</label><input id="rCristalW" readonly class="cristal" /></div>
+          <div><label>Alto cristal</label><input id="rCristalH" readonly class="cristal" /></div>
+        </div>
+
+        <div style="margin-top:20px; text-align:center;">
+          <label>Apertura de la hoja</label>
+          <div class="seg" style="justify-content:center; margin-top:5px;">
+            <button id="btnIzq" type="button" class="btnApertura" data-val="izq" aria-pressed="true">Izquierda</button>
+            <button id="btnDer" type="button" class="btnApertura" data-val="der" aria-pressed="false">Derecha</button>
+          </div>
+        </div>
+
+        <div class="schemaCard" id="schemaCard">
+          <div class="schemaBar">
+            <span class="pill ok">Esquema</span>
+            <div class="small" id="schemaHint">Telefonillo</div>
+          </div>
+
+          <div class="schemaBody">
+            <canvas id="schemaCanvas" width="900" height="560" aria-label="Esquema de puerta" role="img"></canvas>
+          </div>
+
+          <div class="schemaActions">
+            <button id="btnExport" type="button" class="btnGhost">Exportar PNG</button>
+          </div>
+
+          <div class="hint" id="exportHint" style="text-align:center;"></div>
+        </div>
+
+        <div class="modal" id="pngModal" aria-hidden="true">
+          <div class="modalInner">
+            <div class="modalBar">
+              <div class="small" style="font-weight:900;">PNG</div>
+              <button id="btnClosePng" type="button" class="btnGhost">Cerrar</button>
+            </div>
+            <div class="modalBody">
+              <img id="pngImg" alt="PNG exportado" />
+              <div class="hint" style="text-align:center;margin-top:10px;">
+                En iPhone: mantén pulsado sobre la imagen para Guardar en Fotos.
+              </div>
+              <a id="pngLink" class="btnGhost" href="#" download="esquema.png" style="display:inline-block;margin-top:10px;text-decoration:none;text-align:center;">
+                Descargar (si tu navegador lo permite)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hint" id="warn" style="font-weight:800;"></div>
+      </div>
+    </section>
+  </div>
+  <footer>App V3.1</footer>
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+
+  var mode = "telefonillo";
+  var pestanaCortada = false;
+  var apertura = "izq"; // Estado de apertura
+
+  var exportMode = false;
+  var lastDraw = { modeName:"telefonillo", Wm:1, Hm:1, Wc:1, Hc:1 };
+  var state = {
+    telefonillo: { w: "180", h: "300" },
+    nicho: { w: "750", h: "600", hw: "725", hh: "575", pestana: false }
+  };
+
+  function toNum(v, fallback){
+    if (fallback === undefined) fallback = 0;
+    var s = (v === null || v === undefined) ? "" : String(v);
+    s = s.trim().replace(",", ".");
+    var n = parseFloat(s);
+    return isFinite(n) ? n : fallback;
+  }
+
+  function fmt(n){
+    if (!isFinite(n) || n === 0) return "-";
+    return (Math.round(n * 10) / 10).toString();
+  }
+
+  function toast(msg){
+    var el = $("toast");
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    if (toast._t) clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ el.classList.remove("show"); }, 1200);
+  }
+
+  function escapeHtml(s){
+    s = String(s);
+    return s.replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  
+  function drawCanvas(modeName, Wm, Hm, Wc, Hc){
+    var c = $("schemaCanvas");
+    if(!c) return;
+    var ctx = c.getContext("2d");
+    if(!ctx) return;
+
+    var CW = c.width, CH = c.height;
+    ctx.clearRect(0,0,CW,CH);
+
+    ctx.fillStyle = "rgba(0,0,0,0)";
+    ctx.fillRect(0,0,CW,CH);
+
+    Wm = Math.max(1, Wm);
+    Hm = Math.max(1, Hm);
+    Wc = Math.max(1, Wc);
+    Hc = Math.max(1, Hc);
+
+    var marcoMm = (modeName === "nicho") ? 30 : 0;
+    var hojaMm = 20;
+
+    var pad = 120;
+    var scale = Math.min((CW - pad*2)/Wm, (CH - pad*2)/Hm);
+
+    var x0 = (CW - Wm*scale)/2;
+    var y0 = (CH - Hm*scale)/2;
+    var w0 = Wm*scale;
+    var h0 = Hm*scale;
+
+    var marcoPx = Math.round(marcoMm * scale);
+    var hojaPx  = Math.round(hojaMm  * scale);
+    marcoPx = Math.max(0, Math.min(marcoPx, 64));
+    hojaPx  = Math.max(10, Math.min(hojaPx, 56));
+
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.55)";
+    ctx.shadowBlur = 26;
+    ctx.shadowOffsetY = 12;
+
+    var outerGrad = ctx.createLinearGradient(x0, y0, x0, y0+h0);
+    if(modeName === "nicho"){
+      outerGrad.addColorStop(0, "rgba(215,200,165,0.96)");
+      outerGrad.addColorStop(1, "rgba(198,180,145,0.96)");
+    }else{
+      outerGrad.addColorStop(0, "rgba(215,215,215,0.96)");
+      outerGrad.addColorStop(1, "rgba(190,190,190,0.96)");
+    }
+    ctx.fillStyle = outerGrad;
+    ctx.strokeStyle = "rgba(0,0,0,0.45)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(x0,y0,w0,h0);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    var x1 = x0 + marcoPx;
+    var y1 = y0 + marcoPx;
+    var w1 = w0 - marcoPx*2;
+    var h1 = h0 - marcoPx*2;
+
+    ctx.strokeStyle = "rgba(0,0,0,0.38)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x1,y1,w1,h1);
+
+    var gx = x1 + hojaPx;
+    var gy = y1 + hojaPx;
+    var gw = w1 - hojaPx*2;
+    var gh = h1 - hojaPx*2;
+
+    var glassGrad = ctx.createLinearGradient(gx, gy, gx+gw, gy+gh);
+    glassGrad.addColorStop(0, "rgba(95,150,255,0.65)");
+    glassGrad.addColorStop(0.45, "rgba(245,250,255,0.90)");
+    glassGrad.addColorStop(1, "rgba(80,140,255,0.70)");
+    ctx.fillStyle = glassGrad;
+    ctx.strokeStyle = "rgba(0,110,255,0.95)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(gx,gy,gw,gh);
+    ctx.fill();
+    ctx.stroke();
+    
+    // Lógica de dibujo de APERTURA (Integrada de Telefonillo botones)
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,95,255,0.95)"; // Color azul intenso
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]); // Línea discontinua como en los botones
+    ctx.beginPath();
+    
+    var my = gy + gh / 2; // Punto medio altura
+    
+    if(apertura === "izq"){
+        // Bisagras a la izquierda, el pico apunta a la derecha
+        ctx.moveTo(gx, gy); 
+        ctx.lineTo(gx + gw, my);
+        ctx.lineTo(gx, gy + gh);
+    } else {
+        // Bisagras a la derecha, el pico apunta a la izquierda
+        ctx.moveTo(gx + gw, gy);
+        ctx.lineTo(gx, my);
+        ctx.lineTo(gx + gw, gy + gh);
+    }
+    ctx.stroke();
+    ctx.restore();
+    // Fin lógica apertura
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    if(exportMode){
+      // Export: only marco measures in black (no cristal measures)
+      ctx.fillStyle = "rgba(0,0,0,0.92)";
+      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Wm)), x0 + w0/2, y0 - 54);
+
+      ctx.save();
+      ctx.translate(x0 - 58, y0 + h0/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillStyle = "rgba(0,0,0,0.92)";
+      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Hm)), 0, 0);
+      ctx.restore();
+    }else{
+      ctx.fillStyle = "rgba(220,220,220,0.45)";
+      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Wm)), x0 + w0/2, y0 - 54);
+
+      ctx.fillStyle = "rgba(0,40,255,0.95)";
+      ctx.font = "900 78px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Wc)), x0 + w0/2, y0 + h0 + 62);
+
+      ctx.save();
+      ctx.translate(x0 - 58, y0 + h0/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillStyle = "rgba(220,220,220,0.45)";
+      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Hm)), 0, 0);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(x0 + w0 + 58, y0 + h0/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillStyle = "rgba(0,40,255,0.95)";
+      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText(String(Math.round(Hc)), 0, 0);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.90)";
+    ctx.font = "900 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    ctx.textAlign = "left";
+    ctx.fillText("MARCO/HOJA", x0 + 10, y0 + 20);
+    ctx.fillText("CRISTAL", gx + 10, gy + 20);
+  }
+
+
+  function render(source){
+    // Read inputs
+    var wVal = toNum($("w").value, 0);
+    var hVisible = toNum($("h").value, 0);
+
+    var hwVal = $("hw") ? toNum($("hw").value, 0) : 0;
+    var hhVal = $("hh") ? toNum($("hh").value, 0) : 0;
+
+    // Outputs
+    var Wh = 0, Hh = 0, Wc = 0, Hc = 0;
+    var hint = "";
+    var warns = [];
+
+    // Toggle extras visibility
+    var ne = $("nichoExtras");
+    if(ne) ne.style.display = (mode === "nicho") ? "block" : "none";
+
+    if(mode === "nicho"){
+      var extra = pestanaCortada ? 12 : 0;
+
+      // baseH is "alto hueco final" (the number shown in the info text)
+      var baseH = pestanaCortada ? (hVisible - 12) : hVisible;
+      if(!isFinite(baseH)) baseH = 0;
+
+      if(source === "hueco"){
+        // user typed hueco -> compute marco
+        wVal = hwVal + 25;
+        baseH = hhVal + 25;
+
+        $("w").value = wVal ? String(wVal) : "";
+        $("h").value = baseH ? String(baseH + extra) : "";
+      }else{
+        // user typed marco -> compute hueco from baseH
+        hwVal = (wVal > 0) ? (wVal - 25) : 0;
+        hhVal = (baseH > 0) ? (baseH - 25) : 0;
+
+        if($("hw")) $("hw").value = hwVal ? String(hwVal) : "";
+        if($("hh")) $("hh").value = hhVal ? String(hhVal) : "";
+
+        if(baseH > 0) $("h").value = String(baseH + extra);
+      }
+
+      // Marco real height for cutting
+      var Hm = (baseH > 0) ? (baseH + extra) : 0;
+
+      // Nicho calculations
+      Wh = wVal - 60;
+      Hh = (baseH - 60) + extra;
+      Wc = wVal - 115;
+      Hc = Hm - 115;
+
+      hint = "Nicho";
+
+      if(!(wVal > 0 && baseH > 0)) warns.push("Introduce medidas.");
+      if(Wh <= 0 || Hh <= 0) warns.push("Hoja <= 0.");
+      if(Wc <= 0 || Hc <= 0) warns.push("Cristal <= 0.");
+
+      // Texts
+      if($("huecoInfo")){
+        $("huecoInfo").textContent = (hwVal > 0 && hhVal > 0) ? ("Medida del hueco nicho " + hwVal + " X " + hhVal) : "";
+      }
+      if($("pestanaInfo")){
+        $("pestanaInfo").textContent = (pestanaCortada && baseH > 0) ? ("Al cortar pestana inferior queda " + baseH) : "";
+      }
+
+      // Save state (store baseH)
+      state.nicho.w = wVal ? String(wVal) : "";
+      state.nicho.h = baseH ? String(baseH) : "";
+      state.nicho.hw = hwVal ? String(hwVal) : "";
+      state.nicho.hh = hhVal ? String(hhVal) : "";
+      state.nicho.pestana = pestanaCortada;
+
+      // Update marco outputs if present
+      if($("rMarcoW")) $("rMarcoW").value = fmt(wVal);
+      if($("rMarcoH")) $("rMarcoH").value = fmt(Hm);
+
+      lastDraw = { modeName: mode, Wm: wVal, Hm: Hm, Wc: Wc, Hc: Hc };
+      drawCanvas(mode, wVal, Hm, Wc, Hc);
+    } else {
+      // Telefonillo (NO TOCAR reglas)
+      Wh = wVal;
+      Hh = hVisible;
+      Wc = wVal - 23;
+      Hc = hVisible - 10;
+      hint = "Telefonillo: Cristal = (-23 / -10)";
+
+      if($("huecoInfo")) $("huecoInfo").textContent = "";
+      if($("pestanaInfo")) $("pestanaInfo").textContent = "";
+
+      if(!(wVal > 0 && hVisible > 0)) warns.push("Introduce medidas.");
+      if(Wc <= 0 || Hc <= 0) warns.push("Cristal <= 0.");
+
+      if($("rMarcoW")) $("rMarcoW").value = fmt(wVal);
+      if($("rMarcoH")) $("rMarcoH").value = fmt(hVisible);
+
+      lastDraw = { modeName: mode, Wm: wVal, Hm: hVisible, Wc: Wc, Hc: Hc };
+      drawCanvas(mode, wVal, hVisible, Wc, Hc);
+      state.telefonillo.w = $("w").value;
+      state.telefonillo.h = $("h").value;
+    }
+
+    // Output fields
+    if($("rHojaW")) $("rHojaW").value = fmt(Wh);
+    if($("rHojaH")) $("rHojaH").value = fmt(Hh);
+    if($("rCristalW")) $("rCristalW").value = fmt(Wc);
+    if($("rCristalH")) $("rCristalH").value = fmt(Hc);
+    if($("schemaHint")) $("schemaHint").textContent = hint;
+
+    var warnEl = $("warn");
+    if(warnEl){
+      if(warns.length){
+        warnEl.innerHTML = '<span class="pill warn">Aviso</span> ' + escapeHtml(warns.join(" "));
+      }else{
+        warnEl.innerHTML = '<span class="pill ok">OK</span>';
+      }
+    }
+    if($("status")) $("status").textContent = "Calculado";
+  }
+
+  function setMode(next){
+    // Save current visible values
+    if(mode === "telefonillo"){
+      state.telefonillo.w = $("w").value;
+      state.telefonillo.h = $("h").value;
+    }else{
+      // store baseH for nicho
+      var hVisible = toNum($("h").value, 0);
+      var baseH = pestanaCortada ? (hVisible - 12) : hVisible;
+      state.nicho.w = $("w").value;
+      state.nicho.h = baseH ? String(baseH) : $("h").value;
+      state.nicho.hw = $("hw").value;
+      state.nicho.hh = $("hh").value;
+      state.nicho.pestana = pestanaCortada;
+    }
+
+    mode = next;
+
+    // Update selector state
+    $("btnTel").setAttribute("aria-pressed", mode === "telefonillo" ? "true" : "false");
+    $("btnNicho").setAttribute("aria-pressed", mode === "nicho" ? "true" : "false");
+
+    // Restore values
+    if(mode === "telefonillo"){
+      pestanaCortada = false;
+      $("btnPestana").setAttribute("aria-pressed", "false");
+      $("w").value = state.telefonillo.w || "180";
+      $("h").value = state.telefonillo.h || "300";
+    }else{
+      pestanaCortada = !!state.nicho.pestana;
+      $("btnPestana").setAttribute("aria-pressed", pestanaCortada ? "true" : "false");
+
+      var bw = toNum(state.nicho.w, 0) || 750;
+      var bh = toNum(state.nicho.h, 0) || 600;
+      var extra = pestanaCortada ? 12 : 0;
+
+      $("w").value = String(bw);
+      $("h").value = String(bh + extra);
+
+      $("hw").value = state.nicho.hw || String(bw - 25);
+      $("hh").value = state.nicho.hh || String(bh - 25);
+    }
+
+    toast(mode.toUpperCase());
+    render();
+  }
+
+  function init(){
+    // Initial values Telefonillo
+    $("w").value = state.telefonillo.w;
+    $("h").value = state.telefonillo.h;
+
+    // Events
+    $("btnTel").addEventListener("pointerup", function(){ setMode("telefonillo"); }, {passive:true});
+    $("btnNicho").addEventListener("pointerup", function(){ setMode("nicho"); }, {passive:true});
+
+    // EVENTOS APERTURA (Integrados de Telefonillo botones)
+    var btnsAp = document.querySelectorAll(".btnApertura");
+    btnsAp.forEach(function(btn){
+        function handler(){
+            apertura = btn.getAttribute("data-val");
+            // Actualizar botones UI
+            btnsAp.forEach(function(b){ b.setAttribute("aria-pressed", "false"); });
+            btn.setAttribute("aria-pressed", "true");
+            // Redibujar
+            render("apertura");
+        }
+        // Soporte dual click/pointerup para iPhone
+        btn.addEventListener("pointerup", handler, {passive:true});
+        btn.addEventListener("click", handler, {passive:true});
+    });
+
+    $("btnPestana").addEventListener("pointerup", function(){
+      if(mode !== "nicho") return;
+
+      // keep baseH and adjust visible marco height
+      var hVisible = toNum($("h").value, 0);
+      var baseH = pestanaCortada ? (hVisible - 12) : hVisible;
+
+      pestanaCortada = !pestanaCortada;
+      state.nicho.pestana = pestanaCortada;
+
+      $("btnPestana").setAttribute("aria-pressed", pestanaCortada ? "true" : "false");
+
+      if(baseH > 0){
+        $("h").value = pestanaCortada ? String(baseH + 12) : String(baseH);
+      }
+      render("marco");
+    }, {passive:true});
+
+    // Marco inputs
+    $("w").addEventListener("input", function(){ render("marco"); }, {passive:true});
+    $("h").addEventListener("input", function(){ render("marco"); }, {passive:true});
+
+    // Hueco inputs (exist but hidden in telefonillo)
+    if($("hw")) $("hw").addEventListener("input", function(){ render("hueco"); }, {passive:true});
+    if($("hh")) $("hh").addEventListener("input", function(){ render("hueco"); }, {passive:true});
+
+    render();
+  }
+
+  init();
+
+  // Export PNG (iPhone safe): open modal with image for long-press save
+  (function(){
+    var btn = $("btnExport");
+    if(!btn) return;
+
+    function openPng(){
+      var c = $("schemaCanvas");
+      if(!c) return;
+
+      // draw export style (marco measures black, no cristal measures)
+      exportMode = true;
+      drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
+
+      var dataUrl = "";
+      try{
+        dataUrl = c.toDataURL("image/png");
+      }catch(e){
+        exportMode = false;
+        drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
+        var eh = $("exportHint");
+        if(eh) eh.textContent = "No se puede exportar PNG en este navegador.";
+        return;
+      }
+
+      // restore screen style
+      exportMode = false;
+      drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
+
+      var img = $("pngImg");
+      var link = $("pngLink");
+      if(img) img.src = dataUrl;
+      if(link){
+        link.href = dataUrl;
+        try{
+          link.setAttribute("download", (mode==="nicho" ? "esquema_nicho.png" : "esquema_telefonillo.png"));
+        }catch(_e){}
+      }
+
+      var modal = $("pngModal");
+      if(modal){
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden","false");
+      }
+    }
+
+    // Use pointerup/touchend for iPhone reliability
+    btn.addEventListener("pointerup", function(){ openPng(); }, {passive:true});
+    btn.addEventListener("touchend", function(){ openPng(); }, {passive:true});
+    btn.addEventListener("click", function(){ openPng(); }, {passive:true});
+
+    var close = $("btnClosePng");
+    if(close){
+      close.addEventListener("pointerup", function(){
+        var modal = $("pngModal");
+        if(modal){
+          modal.classList.remove("show");
+          modal.setAttribute("aria-hidden","true");
+        }
+      }, {passive:true});
+      close.addEventListener("click", function(){
+        var modal = $("pngModal");
+        if(modal){
+          modal.classList.remove("show");
+          modal.setAttribute("aria-hidden","true");
+        }
+      }, {passive:true});
+    }
+
+    var modal2 = $("pngModal");
+    if(modal2){
+      modal2.addEventListener("pointerup", function(ev){
+        if(ev.target === modal2){
+          modal2.classList.remove("show");
+          modal2.setAttribute("aria-hidden","true");
+        }
+      }, {passive:true});
+      modal2.addEventListener("click", function(ev){
+        if(ev.target === modal2){
+          modal2.classList.remove("show");
+          modal2.setAttribute("aria-hidden","true");
+        }
+      }, {passive:true});
+    }
+  })();
+
+
+})();
+
+
+    // ====== TOGGLE_FIJAR_SCHEMA ======
+    (function(){
+      const btn = document.getElementById('btnFijar');
+      if(!btn) return;
+
+      function setFijar(on){
+        document.body.classList.toggle('fijar-on', on);
+        btn.classList.toggle('on', on);
+        btn.classList.toggle('off', !on);
+
+        // Forzar repintado del canvas al cambiar de modo (iPhone/Safari)
+        try{
+          const c = document.getElementById('schemaCanvas');
+          if(c){
+            c.style.display = 'none';
+            c.getBoundingClientRect(); // reflow
+            c.style.display = 'block';
+          }
+        }catch(e){}
+      }
+
+      // Por defecto: OFF
+      setFijar(false);
+
+      btn.addEventListener('click', function(){
+        const on = !document.body.classList.contains('fijar-on');
+        setFijar(on);
+      }, {passive:true});
+    })();
+
+</script>
+</body>
+</html>
