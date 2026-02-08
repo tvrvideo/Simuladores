@@ -2,251 +2,511 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Selector de Color Avanzado y RAL - Personalizado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Generador colores v9</title>
     <style>
-        /* Estilos CSS - Mantenemos los estilos generales */
-        body {
-            touch-action: manipulation;
+    :root{
+        --primary: #e74c3c;
 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 2;
-            padding: 20px 10px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            max-width: 400px;
-            margin: 2 auto;
-            padding: 20px;
-            background-color: #EBEBEB;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 12px;
-        }
-        h1 {
-            color: #007bff;
-            text-align: center;
-            font-size: 1.9em;
-            margin-bottom: 20px;
-        }
-        
-        /* --- SELECTOR DE COLOR AVANZADO --- */
-        .color-picker-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        #colorWheelInput {
-            width: 70px;
-            height: 40px;
-            border: none;
-            padding: 0;
-            border-radius: 6px;
-            cursor: pointer;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background: none;
-        }
-        #colorWheelInput::-webkit-color-swatch {
-            border-radius: 6px;
-            border: 2px solid #ccc;
-        }
-        #colorWheelInput::-webkit-color-swatch-wrapper {
-            padding: 0;
-        }
-        .hex-display-input {
-            flex-grow: 1;
-            margin-left: 15px;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            text-transform: uppercase;
-        }
+        --bg0: #050711;
+        --bg1: #0a0f1c;
+        --panel: rgba(255,255,255,0.06);
+        --panel2: rgba(255,255,255,0.04);
+        --border: rgba(255,255,255,0.10);
+        --text: #eef3ff;
+        --muted: rgba(238,243,255,.72);
+        --shadow: 0 18px 44px rgba(0,0,0,.45);
 
-        /* --- ESTILOS DE LA LISTA Y EL INPUT MANUAL --- */
-        .selector-group {
-            margin-bottom: 15px;
-            /* Añadido para el posicionamiento del desplegable personalizado */
-            position: relative; 
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9em;
-            color: #555;
-        }
-        
-        /* Estilo general para inputs de texto */
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 30px 12px 12px;
-            margin-bottom: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-            background-color: #fff;
-        }
-        
-        /* --- ESTILOS DEL SELECTOR PERSONALIZADO (RAL) --- */
-        .custom-select {
-            position: relative;
-            width: 100%;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        /* Caja visible del selector (similar a un input) */
-        .select-selected {
-            background-color: #fff;
-            padding: 12px 30px 12px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        /* Flecha del selector */
-        .select-selected::after {
-            position: absolute;
-            content: "";
-            top: 20px;
-            right: 15px;
-            width: 0;
-            height: 0;
-            border: 6px solid transparent;
-            border-color: #555555 transparent transparent transparent;
-        }
+        --accent: #007AFF;   /* iOS blue */
+        --accent2:#a78bfa;
+        --good: #34C759;
 
-        /* Estilo cuando el selector está abierto */
-        .select-selected.select-arrow-active:after {
-            border-color: transparent transparent #555555 transparent;
-            top: 15px; /* Ajuste para la flecha */
-        }
+        --btnText: #ffffff;
+        --radius: 16px;
+        --radius2: 14px;
+    }
 
-        /* Contenedor de las opciones (la lista desplegable) */
-        .select-items {
-            position: absolute;
-            background-color: #fff;
-            top: 100%; /* Posiciona debajo de .select-selected */
-            left: 0;
-            right: 0;
-            z-index: 99;
-            border: 1px solid #ced4da;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px; /* Limita la altura para scroll */
-            overflow-y: auto; /* Habilita el scroll */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+    body {
+        touch-action: manipulation;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
+        background:
+          radial-gradient(900px 520px at 20% 10%, rgba(114, 214, 255, .14), transparent 58%),
+          radial-gradient(800px 480px at 85% 20%, rgba(167, 139, 250, .12), transparent 60%),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        color: var(--text);
+        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-text-size-adjust: 100%;
+    }
 
-        /* Opciones individuales */
-        .select-items div {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            /* Propiedades para la vista previa */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    .container {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 18px;
+        background: linear-gradient(180deg, var(--panel), var(--panel2));
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        display: block;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
 
-        /* Estilo al pasar el ratón (vista previa) */
-        .select-items div:hover, .same-as-selected {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Ocultar elementos */
-        .select-hide {
-            display: none;
-        }
+    /* Encabezado más actual */
+    .app-title{
+        text-align: center;
+        font-size: 1.6em;
+        margin: 52px 0 18px;
+        letter-spacing: .2px;
+        font-weight: 950;
+        line-height: 1.1;
+        color: var(--primary);
+    }
+    .app-title .ver{
+        display: inline-block;
+        font-size: .62em;
+        font-weight: 900;
+        color: var(--muted);
+        margin-left: 8px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,.16);
+        vertical-align: middle;
+    }
 
-        /* Contenedor del swatch de color dentro de la opción */
-        .option-swatch {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-            display: inline-block;
-        }
-        
-        .option-text {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-        }
+    /* Botón menú fijo */
+    .btn-menu {
+        position: fixed; top: calc(env(safe-area-inset-top) + 10px); left: 10px; z-index: 9999;
+        padding: 9px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.16);
+        background: var(--primary);
+        color: var(--text);
+        font-weight: 900;
+        box-shadow: 0 10px 22px rgba(0,0,0,.28);
+        cursor: pointer;
+        font-size: 0.9rem;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .btn-menu:active { transform: translateY(1px); }
 
+    /* Botón principal (seleccionar imagen) */
+    .btn-camera-launch {
+        width: 100%;
+        padding: 14px 14px;
+        background: linear-gradient(135deg, rgba(52,199,89,.95), rgba(52,199,89,.70));
+        color: var(--btnText);
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 14px;
+        font-size: 1.05em;
+        font-weight: 900;
+        margin-bottom: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 16px 30px rgba(52,199,89,0.18);
+        -webkit-tap-highlight-color: transparent;
+    }
+    .btn-camera-launch:active { transform: scale(0.985); }
 
-        /* --- ESTILOS DEL RESULTADO --- */
-        #color-display {
-            width: 100%;
-            height: 120px;
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 5px rgba(0,0,0,0.7);
-            transition: background-color 0.5s;
-        }
-        .code-info {
-            margin: 5px 0;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background-color: rgba(0,0,0,0.2);
-        }
-    
-:root { 
-            --primary: #e74c3c; 
-            --background-paper: #DEDDCE; 
-            --input-bg: #FFFCE6; 
-        }
+    .color-picker-group {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 14px; padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius2);
+        background: rgba(0,0,0,.10);
+    }
+    .color-picker-group label{
+        margin: 0;
+        font-weight: 900;
+        font-size: 0.95em;
+        color: var(--muted);
+    }
 
-.btn-menu { 
-            position: fixed; top: 10px; left: 10px; z-index: 9999; 
-            padding: 10px 15px; border-radius: 20px; border: none; 
-            background: var(--primary); color: white; font-weight: bold; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer;
-            font-size: 0.9rem;
-        }
-</style>
+    #colorWheelInput {
+        width: 72px; height: 42px; border: none; padding: 0;
+        border-radius: 10px; cursor: pointer; background: none;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+    }
+
+    .hex-display-input {
+        flex-grow: 1; margin-left: 12px; padding: 11px 12px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 12px;
+        font-size: 16px;
+        text-transform: uppercase;
+        width: 100%;
+        background: rgba(255,255,255,.07);
+        color: var(--text);
+        outline: none;
+    }
+
+    .selector-group { margin-bottom: 12px; position: relative; }
+
+    label {
+        display: block;
+        margin-bottom: 7px;
+        font-weight: 900;
+        font-size: 0.9em;
+        color: var(--muted);
+        letter-spacing: .15px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 12px;
+        font-size: 16px; /* iOS friendly */
+        background: rgba(255,255,255,.07);
+        color: var(--text);
+        box-sizing: border-box;
+        outline: none;
+    }
+    input[type="text"]:focus,
+    .hex-display-input:focus{
+        box-shadow: 0 0 0 3px rgba(110,231,255,.18);
+        border-color: rgba(110,231,255,.35);
+    }
+
+    /* Custom select (se usa como botón que abre modal) */
+    .custom-select { position: relative; width: 100%; margin-bottom: 10px; font-size: 16px; }
+    .select-selected {
+        background: rgba(255,255,255,.07);
+        padding: 12px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text);
+        font-weight: 900;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .select-selected::after {
+        content: "";
+        width: 0; height: 0;
+        border: 6px solid transparent;
+        border-color: var(--muted) transparent transparent transparent;
+        margin-left: 10px;
+        opacity: .9;
+    }
+
+    /* Se mantiene por compatibilidad aunque no se use el dropdown clásico */
+    .select-items { position: absolute; background-color: #fff; top: 100%; left: 0; right: 0;
+        z-index: 99; border: 1px solid #ced4da; border-radius: 0 0 8px 8px;
+        max-height: 250px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .select-items div { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #eee; display:flex; align-items:center; }
+    .select-hide { display: none; }
+    .option-swatch { width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 4px; margin-right: 10px; flex-shrink: 0; }
+
+    #color-display {
+        width: 100%;
+        height: 120px;
+        border: 1px solid rgba(255,255,255,.16);
+        margin-top: 16px;
+        border-radius: var(--radius2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05em;
+        font-weight: 900;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(0,0,0,0.7);
+        transition: background 0.25s;
+        overflow:hidden;
+        position: relative;
+    }
+    #color-display::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background: radial-gradient(500px 180px at 20% 0%, rgba(255,255,255,.16), transparent 60%);
+        pointer-events:none;
+        opacity:.8;
+    }
+    .code-info {
+        margin: 6px 0;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background-color: rgba(0,0,0,0.22);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        position: relative;
+        z-index: 1;
+    }
+
+    /* =========================
+       Cámara (modo pantalla completa)
+       ========================= */
+    #camera-app {
+        display: none;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 10000;
+        flex-direction: column;
+    }
+
+    #viewport-container {
+        touch-action: none;
+        overscroll-behavior: none;
+        position: relative;
+        flex-grow: 1;
+        width: 100%;
+        overflow: hidden;
+        background: #000;
+    }
+    video, #uploaded-image {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    #uploaded-image { display: none; }
+
+    #crosshair {
+        position: absolute; top: 50%; left: 50%;
+        width: 30px; height: 30px;
+        border: 2px solid rgba(255,255,255,0.9);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    #crosshair::after {
+        content: ''; position: absolute; top: 50%; left: 50%;
+        width: 4px; height: 4px; background: #ff3b30;
+        transform: translate(-50%, -50%); border-radius: 50%;
+    }
+
+    /* Panel controles cámara en oscuro */
+    #camera-controls {
+        background: linear-gradient(180deg, rgba(14,22,48,.98), rgba(10,15,28,.98));
+        border-top: 1px solid rgba(255,255,255,.10);
+        padding: 16px;
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        color: var(--text);
+    }
+    .cam-info-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 14px;
+    }
+    .preview-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,.14); }
+
+    #cam-ral-match {
+        font-weight: 950;
+        font-size: 1.15em;
+        color: var(--text);
+        line-height: 1.15;
+    }
+    #cam-hex {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-weight: 800;
+        font-size: 0.95em;
+        color: var(--muted);
+        margin-top: 6px;
+    }
+
+    .cam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .btn-cam {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,.14);
+        font-size: 16px;
+        font-weight: 950;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,.08);
+        color: var(--text);
+        -webkit-tap-highlight-color: transparent;
+    }
+    .btn-cam:active { transform: scale(0.985); }
+
+    .btn-confirm {
+        background: linear-gradient(135deg, rgba(0,122,255,.95), rgba(167,139,250,.70));
+        color: white;
+        grid-column: span 2;
+        box-shadow: 0 14px 26px rgba(0,122,255,.18);
+    }
+    .btn-sec { background: rgba(255,255,255,.08); color: var(--text); }
+
+    .btn-close {
+        position: absolute; top: calc(env(safe-area-inset-top) + 14px); right: 14px;
+        background: rgba(0,0,0,0.55);
+        color: white;
+        border: 1px solid rgba(255,255,255,.14);
+        padding: 9px 14px;
+        border-radius: 999px;
+        z-index: 10001;
+        font-weight: 950;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .btn-close:active { transform: translateY(1px); }
+
+    #zoom-loupe {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,.95);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+        overflow: hidden;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        background: #000;
+        z-index: 10002;
+        display: none;
+    }
+    #zoom-canvas { width: 100%; height: 100%; }
+
+    /* =========================
+       Selector RAL a pantalla completa (oscuro)
+       ========================= */
+    .ral-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        z-index: 20000;
+        display: none;
+        overscroll-behavior: none;
+    }
+    .ral-modal.show { display: flex; }
+
+    .ral-sheet {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(14,22,48,.98), rgba(10,15,28,.98));
+        display: flex;
+        flex-direction: column;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        color: var(--text);
+    }
+    .ral-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 14px 10px 14px;
+        border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .ral-title {
+        font-weight: 950;
+        font-size: 1.05rem;
+        color: var(--text);
+        letter-spacing: .2px;
+    }
+    .ral-close {
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(255,255,255,.10);
+        color: var(--text);
+        font-weight: 950;
+        padding: 10px 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .ral-close:active { transform: scale(0.98); }
+
+    .ral-search-wrap {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #ral-search {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 12px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 14px;
+        font-size: 16px;
+        outline: none;
+        background: rgba(255,255,255,.07);
+        color: var(--text);
+    }
+    #ral-search:focus{
+        box-shadow: 0 0 0 3px rgba(110,231,255,.18);
+        border-color: rgba(110,231,255,.35);
+    }
+
+    .ral-list {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px 10px 16px 10px;
+    }
+    .ral-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 10px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 14px;
+        margin: 8px 4px;
+        background: rgba(255,255,255,.06);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .ral-item:active { background: rgba(255,255,255,.10); }
+    .ral-swatch {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.18);
+        flex-shrink: 0;
+    }
+    .ral-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .ral-code { font-weight: 950; color: var(--text); }
+    .ral-name { font-size: 0.95em; color: var(--muted); margin-top: 3px; }
+
+    body.modal-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    </style>
 </head>
 <body>
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
 
-<div class="container">
-    <h1>Generador colores</h1>
+<button type="button" class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}"><- MENÚ</button>
+
+<div class="container" id="main-app">
+    <h1 class="app-title">Generador de colores <span class="ver">v9</span></h1>
+
+    <!-- Solo botón verde -->
+    <button type="button"
+            class="btn-camera-launch"
+            
+            onclick="openGalleryDirect()">
+         Seleccionar imagen
+    </button>
 
     <div class="color-picker-group">
         <label for="colorWheelInput">1 Paleta colores</label>
         <input type="color" id="colorWheelInput" value="#36454F" oninput="selectColorFromWheel(this.value)">
         <input type="text" id="hexDisplay" class="hex-display-input" readonly value="#36454F" placeholder="#HEX">
     </div>
-    
+
     <div class="selector-group">
         <label for="customRalSelector">2 Selecciona RAL</label>
         <div id="customRalSelector" class="custom-select">
-            <div class="select-selected">Elige codigo RAL</div>
-            <div class="select-items select-hide">
-                </div>
+            <div class="select-selected" data-ral="" data-hex="">Elige código RAL</div>
+            <div class="select-items select-hide"></div>
         </div>
     </div>
 
@@ -254,492 +514,868 @@
         <label for="codeInput">3. Introducir RAL o HEX</label>
         <input type="text" id="codeInput" placeholder="Ej: 7016 o #CC0605" oninput="convertColorFromInput()">
     </div>
-    
+
     <div id="color-display" style="background-color: #36454F;">
         <span class="code-info">RAL 7016 (Gris Antracita)</span>
         <span class="code-info">#36454F</span>
     </div>
 </div>
 
+<div id="camera-app">
+    <button type="button" class="btn-close" onclick="closeCameraApp()">X Cerrar</button>
+
+    <div id="viewport-container">
+        <video id="video" autoplay muted playsinline></video>
+        <img id="uploaded-image" alt="Imagen cargada">
+        <div id="crosshair"></div>
+
+        <div id="zoom-loupe">
+            <canvas id="zoom-canvas"></canvas>
+        </div>
+    </div>
+
+    <div id="camera-controls">
+        <div class="cam-info-row">
+            <div id="cam-preview" class="preview-circle" style="background: #000;"></div>
+            <div style="text-align:right; flex:1; margin-left:12px;">
+                <div id="cam-ral-match">Buscando...</div>
+                <div id="cam-hex">#000000</div>
+            </div>
+        </div>
+
+        <div class="cam-actions">
+            <button type="button" id="freeze-btn" class="btn-cam btn-sec"> Congelar</button>
+            <label class="btn-cam btn-sec" style="margin:0;">
+                Galería
+                <input type="file" id="file-upload" accept="image/*" style="display:none;">
+            </label>
+            <button type="button" id="confirm-color-btn" class="btn-cam btn-confirm"> USAR ESTE COLOR</button>
+        </div>
+    </div>
+    <canvas id="canvas" style="display:none;"></canvas>
+</div>
+
 <script>
-    // ** LISTA COMPLETA DE 213 COLORES RAL CLASSIC **
-    const ralToHexMap = {
-        // AMARILLOS Y BEIGE (Grupo 1xxx)
-        "1000": { hex: "#BEBD7F", name: "Beige verdoso" },
-        "1001": { hex: "#C2B078", name: "Beige" },
-        "1002": { hex: "#C6A664", name: "Amarillo arena" },
-        "1003": { hex: "#E5BE01", name: "Amarillo señal" },
-        "1004": { hex: "#CDA434", name: "Amarillo oro" },
-        "1005": { hex: "#A98307", name: "Amarillo miel" },
-        "1006": { hex: "#E4A010", name: "Amarillo maíz" },
-        "1007": { hex: "#DC9D00", name: "Amarillo narciso" },
-        "1011": { hex: "#8A6642", name: "Beige marrón" },
-        "1012": { hex: "#C7B446", name: "Amarillo limón" },
-        "1013": { hex: "#EAE6CA", name: "Blanco perla" },
-        "1014": { hex: "#E1CC4F", name: "Marfil" },
-        "1015": { hex: "#E6D690", name: "Marfil claro" },
-        "1016": { hex: "#EDFF21", name: "Amarillo azufre" },
-        "1017": { hex: "#F5D033", name: "Amarillo azafrán" },
-        "1018": { hex: "#F8F32B", name: "Amarillo zinc" },
-        "1019": { hex: "#9E9764", name: "Beige grisáceo" },
-        "1020": { hex: "#999950", name: "Amarillo oliva" },
-        "1021": { hex: "#F3DA0B", name: "Amarillo colza" },
-        "1023": { hex: "#FAD201", name: "Amarillo tráfico" },
-        "1024": { hex: "#AEA04B", name: "Amarillo ocre" },
-        "1026": { hex: "#FFFF00", name: "Amarillo brillante" },
-        "1027": { hex: "#9D9101", name: "Curry" },
-        "1028": { hex: "#F4A900", name: "Amarillo melón" },
-        "1032": { hex: "#D6AE01", name: "Amarillo retama" },
-        "1033": { hex: "#F3A505", name: "Amarillo dalia" },
-        "1034": { hex: "#EFA94A", name: "Amarillo pastel" },
-        "1035": { hex: "#6A5D4D", name: "Beige perla" }, 
-        "1036": { hex: "#705335", name: "Oro perla" }, 
-        "1037": { hex: "#F39F18", name: "Amarillo sol" },
+/* =========================
+   RAL MAP (tu base completa)
+   ========================= */
+const ralToHexMap = {
+    "1000": { hex: "#BEBD7F", name: "Beige verdoso" }, "1001": { hex: "#C2B078", name: "Beige" },
+    "1002": { hex: "#C6A664", name: "Amarillo arena" }, "1003": { hex: "#E5BE01", name: "Amarillo señal" },
+    "1004": { hex: "#CDA434", name: "Amarillo oro" }, "1005": { hex: "#A98307", name: "Amarillo miel" },
+    "1006": { hex: "#E4A010", name: "Amarillo maíz" }, "1007": { hex: "#DC9D00", name: "Amarillo narciso" },
+    "1011": { hex: "#8A6642", name: "Beige marrón" }, "1012": { hex: "#C7B446", name: "Amarillo limón" },
+    "1013": { hex: "#EAE6CA", name: "Blanco perla" }, "1014": { hex: "#E1CC4F", name: "Marfil" },
+    "1015": { hex: "#E6D690", name: "Marfil claro" }, "1016": { hex: "#EDFF21", name: "Amarillo azufre" },
+    "1017": { hex: "#F5D033", name: "Amarillo azafrán" }, "1018": { hex: "#F8F32B", name: "Amarillo zinc" },
+    "1019": { hex: "#9E9764", name: "Beige grisáceo" }, "1020": { hex: "#999950", name: "Amarillo oliva" },
+    "1021": { hex: "#F3DA0B", name: "Amarillo colza" }, "1023": { hex: "#FAD201", name: "Amarillo tráfico" },
+    "1024": { hex: "#AEA04B", name: "Amarillo ocre" }, "1026": { hex: "#FFFF00", name: "Amarillo brillante" },
+    "1027": { hex: "#9D9101", name: "Curry" }, "1028": { hex: "#F4A900", name: "Amarillo melón" },
+    "1032": { hex: "#D6AE01", name: "Amarillo retama" }, "1033": { hex: "#F3A505", name: "Amarillo dalia" },
+    "1034": { hex: "#EFA94A", name: "Amarillo pastel" }, "1035": { hex: "#6A5D4D", name: "Beige perla" },
+    "1036": { hex: "#705335", name: "Oro perla" }, "1037": { hex: "#F39F18", name: "Amarillo sol" },
+    "2000": { hex: "#ED760E", name: "Naranja amarillento" }, "2001": { hex: "#C93C20", name: "Naranja rojizo" },
+    "2002": { hex: "#CB2821", name: "Bermellón" }, "2003": { hex: "#FF7514", name: "Naranja pastel" },
+    "2004": { hex: "#F44611", name: "Naranja puro" }, "2005": { hex: "#FF2301", name: "Naranja brillante" },
+    "2007": { hex: "#FFA420", name: "Naranja claro" }, "2008": { hex: "#F75E25", name: "Rojo naranja claro" },
+    "2009": { hex: "#F54021", name: "Naranja tráfico" }, "2010": { hex: "#D84B20", name: "Naranja señal" },
+    "2011": { hex: "#EC7C26", name: "Naranja intenso" }, "2012": { hex: "#E55137", name: "Naranja salmón" },
+    "2013": { hex: "#C35831", name: "Naranja perla" }, "3000": { hex: "#AF2B1E", name: "Rojo fuego" },
+    "3001": { hex: "#A52019", name: "Rojo señal" }, "3002": { hex: "#A2231D", name: "Rojo carmín" },
+    "3003": { hex: "#9B111E", name: "Rojo rubí" }, "3004": { hex: "#75151E", name: "Rojo púrpura" },
+    "3005": { hex: "#5E2129", name: "Rojo vino" }, "3007": { hex: "#412227", name: "Rojo negruzco" },
+    "3009": { hex: "#642424", name: "Rojo óxido" }, "3011": { hex: "#781F19", name: "Rojo parduzco" },
+    "3012": { hex: "#C1876B", name: "Rojo beige" }, "3013": { hex: "#A12312", name: "Rojo tomate" },
+    "3014": { hex: "#D36E70", name: "Rosa antiguo" }, "3015": { hex: "#EA899A", name: "Rosa claro" },
+    "3016": { hex: "#B32821", name: "Rojo coral" }, "3017": { hex: "#E63244", name: "Rosa" },
+    "3018": { hex: "#D53032", name: "Rojo fresa" }, "3020": { hex: "#CC0605", name: "Rojo tráfico" },
+    "3022": { hex: "#D95030", name: "Rojo salmón" }, "3024": { hex: "#F80000", name: "Rojo brillante" },
+    "3026": { hex: "#FE0000", name: "Rojo claro" }, "3027": { hex: "#C51D34", name: "Rojo frambuesa" },
+    "3028": { hex: "#CB3234", name: "Rojo puro" }, "3031": { hex: "#B32428", name: "Rojo oriental" },
+    "3032": { hex: "#721422", name: "Rojo rubí perla" }, "3033": { hex: "#B44C43", name: "Rosa perla" },
+    "4001": { hex: "#6D3F5B", name: "Lila rojizo" }, "4002": { hex: "#922B3E", name: "Violeta rojizo" },
+    "4003": { hex: "#DE4C8A", name: "Violeta brezo" }, "4004": { hex: "#641C34", name: "Violeta clarete" },
+    "4005": { hex: "#685D7F", name: "Azul lila" }, "4006": { hex: "#922B38", name: "Violeta tráfico" },
+    "4007": { hex: "#4A192C", name: "Violeta púrpura" }, "4008": { hex: "#932036", name: "Violeta señal" },
+    "4009": { hex: "#9C7989", name: "Violeta pastel" }, "4010": { hex: "#A50053", name: "Violeta Telmageta" },
+    "5000": { hex: "#004B6D", name: "Azul violeta" }, "5001": { hex: "#00304E", name: "Azul verdoso" },
+    "5002": { hex: "#002851", name: "Azul ultramar" }, "5003": { hex: "#1D334A", name: "Azul zafiro" },
+    "5004": { hex: "#2B3842", name: "Azul negruzco" }, "5005": { hex: "#005387", name: "Azul señal" },
+    "5007": { hex: "#476C82", name: "Azul brillante" }, "5008": { hex: "#32444B", name: "Azul grisáceo" },
+    "5009": { hex: "#00475E", name: "Azul de cielo" }, "5010": { hex: "#00477D", name: "Azul genciana" },
+    "5011": { hex: "#003248", name: "Azul acero" }, "5012": { hex: "#0076A8", name: "Azul luminoso" },
+    "5013": { hex: "#003855", name: "Azul cobalto" }, "5014": { hex: "#5C7688", name: "Azul paloma" },
+    "5015": { hex: "#006282", name: "Azul cielo" }, "5017": { hex: "#005689", name: "Azul tráfico" },
+    "5018": { hex: "#00838A", name: "Azul turquesa" }, "5019": { hex: "#004D79", name: "Azul capri" },
+    "5020": { hex: "#00474F", name: "Azul mar" }, "5021": { hex: "#006F79", name: "Azul agua" },
+    "5022": { hex: "#002D43", name: "Azul noche" }, "5023": { hex: "#477891", name: "Azul lejano" },
+    "5024": { hex: "#6D93A8", name: "Azul pastel" }, "5025": { hex: "#2A454B", name: "Azul genciana perla" },
+    "5026": { hex: "#00434F", name: "Azul noche perla" }, "6000": { hex: "#386548", name: "Verde pálido" },
+    "6001": { hex: "#4E6D38", name: "Verde esmeralda" }, "6002": { hex: "#385232", name: "Verde hoja" },
+    "6003": { hex: "#575B49", name: "Verde oliva" }, "6004": { hex: "#004B41", name: "Verde azulado" },
+    "6005": { hex: "#0A3B21", name: "Verde musgo" }, "6006": { hex: "#434B3B", name: "Verde grisáceo" },
+    "6007": { hex: "#4B4C3F", name: "Verde botella" }, "6008": { hex: "#3F4031", name: "Verde pardo" },
+    "6009": { hex: "#2A3A2C", name: "Verde abeto" }, "6010": { hex: "#4B7C4C", name: "Verde grama" },
+    "6011": { hex: "#6C8A73", name: "Verde reseda" }, "6012": { hex: "#434C48", name: "Verde negruzco" },
+    "6013": { hex: "#7B775F", name: "Verde oliva parduzco" }, "6014": { hex: "#5D5745", name: "Verde oliva amarillo" },
+    "6015": { hex: "#48534C", name: "Verde oliva negruzco" }, "6016": { hex: "#006950", name: "Verde turquesa" },
+    "6017": { hex: "#4B7A58", name: "Verde mayo" }, "6018": { hex: "#52B75E", name: "Verde amarillo" },
+    "6019": { hex: "#B8D4B4", name: "Verde claro pastel" }, "6020": { hex: "#34432E", name: "Verde cromo" },
+    "6021": { hex: "#8EA98E", name: "Verde pálido" }, "6022": { hex: "#4A4538", name: "Verde oliva parduzco" },
+    "6024": { hex: "#008365", name: "Verde tráfico" }, "6025": { hex: "#4C894B", name: "Verde helecho" },
+    "6026": { hex: "#006450", name: "Verde ópalo" }, "6027": { hex: "#8DA79D", name: "Verde claro" },
+    "6028": { hex: "#2A7256", name: "Verde pino" }, "6029": { hex: "#006F5D", name: "Verde menta" },
+    "6032": { hex: "#007A50", name: "Verde señal" }, "6033": { hex: "#5C736F", name: "Verde menta pastel" },
+    "6034": { hex: "#73A0AD", name: "Verde pastel" }, "6035": { hex: "#1A4D33", name: "Verde perla" },
+    "6036": { hex: "#2F503A", name: "Verde ópalo perla" }, "6037": { hex: "#467D48", name: "Verde puro" },
+    "6038": { hex: "#00FF00", name: "Verde brillante" }, "7000": { hex: "#8F9FA7", name: "Gris ardilla" },
+    "7001": { hex: "#A8B4C0", name: "Gris plata" }, "7002": { hex: "#7B7E6F", name: "Gris oliva" },
+    "7003": { hex: "#8C8C7E", name: "Gris musgo" }, "7004": { hex: "#9AA0A6", name: "Gris señal" },
+    "7005": { hex: "#63686C", name: "Gris ratón" }, "7006": { hex: "#847A6B", name: "Gris beige" },
+    "7008": { hex: "#746A58", name: "Gris kaki" }, "7009": { hex: "#5F655D", name: "Gris verdoso" },
+    "7010": { hex: "#5D6260", name: "Gris lona" }, "7011": { hex: "#5E6C74", name: "Gris hierro" },
+    "7012": { hex: "#5E646D", name: "Gris basalto" }, "7013": { hex: "#57524A", name: "Gris pardo" },
+    "7015": { hex: "#5F656B", name: "Gris pizarra" }, "7016": { hex: "#36454F", name: "Gris Antracita" },
+    "7021": { hex: "#2D343A", name: "Gris negruz	login" }, "7022": { hex: "#4B4D46", name: "Gris sombra" },
+    "7023": { hex: "#8A8D81", name: "Gris hormigón" }, "7024": { hex: "#4E565B", name: "Gris grafito" },
+    "7026": { hex: "#394348", name: "Gris granito" }, "7030": { hex: "#94948C", name: "Gris piedra" },
+    "7031": { hex: "#5C6C75", name: "Gris azulado" }, "7032": { hex: "#B1AE9E", name: "Gris guijarro" },
+    "7033": { hex: "#7A8270", name: "Gris cemento" }, "7034": { hex: "#9D957C", name: "Gris amarillo" },
+    "7035": { hex: "#D1D5D5", name: "Gris luminoso" }, "7036": { hex: "#88888C", name: "Gris platino" },
+    "7037": { hex: "#7B7D7D", name: "Gris polvoriento" }, "7038": { hex: "#B5B7B7", name: "Gris ágata" },
+    "7039": { hex: "#5A574E", name: "Gris cuarzo" }, "7040": { hex: "#9B9E9F", name: "Gris ventana" },
+    "7042": { hex: "#8C9295", name: "Gris tráfico A" }, "7043": { hex: "#63686A", name: "Gris tráfico B" },
+    "7044": { hex: "#BDBBB0", name: "Gris seda" }, "7045": { hex: "#969698", name: "Gris tele 1" },
+    "7046": { hex: "#84888C", name: "Gris tele 2" }, "7047": { hex: "#D4D5D9", name: "Gris tele 4" },
+    "7048": { hex: "#858788", name: "Gris perla ratón" }, "8000": { hex: "#896F4B", name: "Marrón verdoso" },
+    "8001": { hex: "#7C5D40", name: "Marrón ocre" }, "8002": { hex: "#6F4F42", name: "Marrón señal" },
+    "8003": { hex: "#89684F", name: "Marrón arcilla" }, "8004": { hex: "#7E5848", name: "Marrón cobre" },
+    "8007": { hex: "#61493A", name: "Marrón ciervo" }, "8008": { hex: "#7D5D3B", name: "Marrón oliva" },
+    "8011": { hex: "#684838", name: "Marrón nuez" }, "8012": { hex: "#633B32", name: "Marrón rojizo" },
+    "8014": { hex: "#5C463F", name: "Marrón sepia" }, "8015": { hex: "#744B4C", name: "Marrón castaño" },
+    "8016": { hex: "#5C3A33", name: "Marrón caoba" }, "8017": { hex: "#5C4033", name: "Marrón chocolate" },
+    "8019": { hex: "#4C4646", name: "Marrón grisáceo" }, "8022": { hex: "#292727", name: "Marrón negruzco" },
+    "8023": { hex: "#976C4B", name: "Marrón naranja" }, "8024": { hex: "#7B5945", name: "Marrón beige" },
+    "8025": { hex: "#897163", name: "Marrón pálido" }, "8028": { hex: "#6F5C51", name: "Marrón tierra" },
+    "8029": { hex: "#7B4D45", name: "Cobre perla" }, "9001": { hex: "#FDF4E3", name: "Blanco crema" },
+    "9002": { hex: "#EBE6D8", name: "Gris blanco" }, "9003": { hex: "#ECECEC", name: "Blanco señal" },
+    "9004": { hex: "#2B2B2E", name: "Negro señal" }, "9005": { hex: "#0A0A0A", name: "Negro intenso" },
+    "9006": { hex: "#A8A9AD", name: "Aluminio blanco" }, "9007": { hex: "#8A8C8A", name: "Aluminio gris" },
+    "9010": { hex: "#F0F0E8", name: "Blanco puro" }, "9011": { hex: "#252528", name: "Negro grafito" },
+    "9016": { hex: "#F6F7EE", name: "Blanco tráfico" }, "9017": { hex: "#222222", name: "Negro tráfico" },
+    "9018": { hex: "#AFAFB0", name: "Blanco pálido" }, "9022": { hex: "#7C7F7C", name: "Gris perla claro" },
+    "9023": { hex: "#707274", name: "Gris perla oscuro" }, "9024": { hex: "#63676B", name: "Gris perla" }
+};
 
-        // NARANJAS (Grupo 2xxx)
-        "2000": { hex: "#ED760E", name: "Naranja amarillento" },
-        "2001": { hex: "#C93C20", name: "Naranja rojizo" },
-        "2002": { hex: "#CB2821", name: "Bermellón" },
-        "2003": { hex: "#FF7514", name: "Naranja pastel" },
-        "2004": { hex: "#F44611", name: "Naranja puro" },
-        "2005": { hex: "#FF2301", name: "Naranja brillante" },
-        "2007": { hex: "#FFA420", name: "Naranja claro brillante" },
-        "2008": { hex: "#F75E25", name: "Rojo naranja claro" },
-        "2009": { hex: "#F54021", name: "Naranja tráfico" },
-        "2010": { hex: "#D84B20", name: "Naranja señal" },
-        "2011": { hex: "#EC7C26", name: "Naranja intenso" },
-        "2012": { hex: "#E55137", name: "Naranja salmón" },
-        "2013": { hex: "#C35831", name: "Naranja perla" }, 
+/* =========================
+   Helpers color UI principal
+   ========================= */
+function isLightColor(hex) {
+    const c = hex.substring(1);
+    const rgb = parseInt(c, 16);
+    const r = (rgb >> 16) & 0xff;
+    const g = (rgb >> 8) & 0xff;
+    const b = (rgb >> 0) & 0xff;
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 180;
+}
 
-        // ROJOS (Grupo 3xxx)
-        "3000": { hex: "#AF2B1E", name: "Rojo fuego" },
-        "3001": { hex: "#A52019", name: "Rojo señal" },
-        "3002": { hex: "#A2231D", name: "Rojo carmín" },
-        "3003": { hex: "#9B111E", name: "Rojo rubí" },
-        "3004": { hex: "#75151E", name: "Rojo púrpura" },
-        "3005": { hex: "#5E2129", name: "Rojo vino" },
-        "3007": { hex: "#412227", name: "Rojo negruzco" },
-        "3009": { hex: "#642424", name: "Rojo óxido" },
-        "3011": { hex: "#781F19", name: "Rojo parduzco" },
-        "3012": { hex: "#C1876B", name: "Rojo beige" },
-        "3013": { hex: "#A12312", name: "Rojo tomate" },
-        "3014": { hex: "#D36E70", name: "Rosa antiguo" },
-        "3015": { hex: "#EA899A", name: "Rosa claro" },
-        "3016": { hex: "#B32821", name: "Rojo coral" },
-        "3017": { hex: "#E63244", name: "Rosa" },
-        "3018": { hex: "#D53032", name: "Rojo fresa" },
-        "3020": { hex: "#CC0605", name: "Rojo tráfico" },
-        "3022": { hex: "#D95030", name: "Rojo salmón" },
-        "3024": { hex: "#F80000", name: "Rojo brillante" },
-        "3026": { hex: "#FE0000", name: "Rojo claro brillante" },
-        "3027": { hex: "#C51D34", name: "Rojo frambuesa" },
-        "3028": { hex: "#CB3234", name: "Rojo puro" },
-        "3031": { hex: "#B32428", name: "Rojo oriental" },
-        "3032": { hex: "#721422", name: "Rojo rubí perla" }, 
-        "3033": { hex: "#B44C43", name: "Rosa perla" }, 
-
-        // VIOLETAS (Grupo 4xxx)
-        "4001": { hex: "#6D3F5B", name: "Lila rojizo" },
-        "4002": { hex: "#922B3E", name: "Violeta rojizo" },
-        "4003": { hex: "#DE4C8A", name: "Violeta brezo" },
-        "4004": { hex: "#641C34", name: "Violeta clarete" },
-        "4005": { hex: "#685D7F", name: "Azul lila" },
-        "4006": { hex: "#922B38", name: "Violeta tráfico" },
-        "4007": { hex: "#4A192C", name: "Violeta púrpura" },
-        "4008": { hex: "#932036", name: "Violeta señal" },
-        "4009": { hex: "#9C7989", name: "Violeta pastel" },
-        "4010": { hex: "#A50053", name: "Violeta Telmageta" },
-
-        // AZULES (Grupo 5xxx)
-        "5000": { hex: "#004B6D", name: "Azul violeta" },
-        "5001": { hex: "#00304E", name: "Azul verdoso" },
-        "5002": { hex: "#002851", name: "Azul ultramar" },
-        "5003": { hex: "#1D334A", name: "Azul zafiro" },
-        "5004": { hex: "#2B3842", name: "Azul negruzco" },
-        "5005": { hex: "#005387", name: "Azul señal" },
-        "5007": { hex: "#476C82", name: "Azul brillante" },
-        "5008": { hex: "#32444B", name: "Azul grisáceo" },
-        "5009": { hex: "#00475E", name: "Azul de cielo" },
-        "5010": { hex: "#00477D", name: "Azul genciana" },
-        "5011": { hex: "#003248", name: "Azul acero" },
-        "5012": { hex: "#0076A8", name: "Azul luminoso" },
-        "5013": { hex: "#003855", name: "Azul cobalto" },
-        "5014": { hex: "#5C7688", name: "Azul paloma" },
-        "5015": { hex: "#006282", name: "Azul cielo" },
-        "5017": { hex: "#005689", name: "Azul tráfico" },
-        "5018": { hex: "#00838A", name: "Azul turquesa" },
-        "5019": { hex: "#004D79", name: "Azul capri" },
-        "5020": { hex: "#00474F", name: "Azul mar" },
-        "5021": { hex: "#006F79", name: "Azul agua" },
-        "5022": { hex: "#002D43", name: "Azul noche" },
-        "5023": { hex: "#477891", name: "Azul lejano" },
-        "5024": { hex: "#6D93A8", name: "Azul pastel" },
-        "5025": { hex: "#2A454B", name: "Azul genciana perla" }, 
-        "5026": { hex: "#00434F", name: "Azul noche perla" }, 
-
-        // VERDES (Grupo 6xxx)
-        "6000": { hex: "#386548", name: "Verde pálido" },
-        "6001": { hex: "#4E6D38", name: "Verde esmeralda" },
-        "6002": { hex: "#385232", name: "Verde hoja" },
-        "6003": { hex: "#575B49", name: "Verde oliva" },
-        "6004": { hex: "#004B41", name: "Verde azulado" },
-        "6005": { hex: "#0A3B21", name: "Verde musgo" },
-        "6006": { hex: "#434B3B", name: "Verde grisáceo" },
-        "6007": { hex: "#4B4C3F", name: "Verde botella" },
-        "6008": { hex: "#3F4031", name: "Verde pardo" },
-        "6009": { hex: "#2A3A2C", name: "Verde abeto" },
-        "6010": { hex: "#4B7C4C", name: "Verde grama" },
-        "6011": { hex: "#6C8A73", name: "Verde reseda" },
-        "6012": { hex: "#434C48", name: "Verde negruzco" },
-        "6013": { hex: "#7B775F", name: "Verde oliva parduzco" },
-        "6014": { hex: "#5D5745", name: "Verde oliva amarillo" },
-        "6015": { hex: "#48534C", name: "Verde oliva negruzco" },
-        "6016": { hex: "#006950", name: "Verde turquesa" },
-        "6017": { hex: "#4B7A58", name: "Verde mayo" },
-        "6018": { hex: "#52B75E", name: "Verde amarillo" },
-        "6019": { hex: "#B8D4B4", name: "Verde claro pastel" },
-        "6020": { hex: "#34432E", name: "Verde cromo" },
-        "6021": { hex: "#8EA98E", name: "Verde pálido" },
-        "6022": { hex: "#4A4538", name: "Verde oliva parduzco" },
-        "6024": { hex: "#008365", name: "Verde tráfico" },
-        "6025": { hex: "#4C894B", name: "Verde helecho" },
-        "6026": { hex: "#006450", name: "Verde ópalo" },
-        "6027": { hex: "#8DA79D", name: "Verde claro" },
-        "6028": { hex: "#2A7256", name: "Verde pino" },
-        "6029": { hex: "#006F5D", name: "Verde menta" },
-        "6032": { hex: "#007A50", name: "Verde señal" },
-        "6033": { hex: "#5C736F", name: "Verde menta pastel" },
-        "6034": { hex: "#73A0AD", name: "Verde pastel" },
-        "6035": { hex: "#1A4D33", name: "Verde perla" }, 
-        "6036": { hex: "#2F503A", name: "Verde ópalo perla" }, 
-        "6037": { hex: "#467D48", name: "Verde puro" },
-        "6038": { hex: "#00FF00", name: "Verde brillante" },
-
-        // GRISES (Grupo 7xxx)
-        "7000": { hex: "#8F9FA7", name: "Gris ardilla" },
-        "7001": { hex: "#A8B4C0", name: "Gris plata" },
-        "7002": { hex: "#7B7E6F", name: "Gris oliva" },
-        "7003": { hex: "#8C8C7E", name: "Gris musgo" },
-        "7004": { hex: "#9AA0A6", name: "Gris señal" },
-        "7005": { hex: "#63686C", name: "Gris ratón" },
-        "7006": { hex: "#847A6B", name: "Gris beige" },
-        "7008": { hex: "#746A58", name: "Gris kaki" },
-        "7009": { hex: "#5F655D", name: "Gris verdoso" },
-        "7010": { hex: "#5D6260", name: "Gris lona" },
-        "7011": { hex: "#5E6C74", name: "Gris hierro" },
-        "7012": { hex: "#5E646D", name: "Gris basalto" },
-        "7013": { hex: "#57524A", name: "Gris pardo" },
-        "7015": { hex: "#5F656B", name: "Gris pizarra" },
-        "7016": { hex: "#36454F", name: "Gris Antracita" },
-        "7021": { hex: "#2D343A", name: "Gris negruzco" },
-        "7022": { hex: "#4B4D46", name: "Gris sombra" },
-        "7023": { hex: "#8A8D81", name: "Gris hormigón" },
-        "7024": { hex: "#4E565B", name: "Gris grafito" },
-        "7026": { hex: "#394348", name: "Gris granito" },
-        "7030": { hex: "#94948C", name: "Gris piedra" },
-        "7031": { hex: "#5C6C75", name: "Gris azulado" },
-        "7032": { hex: "#B1AE9E", name: "Gris guijarro" },
-        "7033": { hex: "#7A8270", name: "Gris cemento" },
-        "7034": { hex: "#9D957C", name: "Gris amarillo" },
-        "7035": { hex: "#D1D5D5", name: "Gris luminoso" },
-        "7036": { hex: "#88888C", name: "Gris platino" },
-        "7037": { hex: "#7B7D7D", name: "Gris polvoriento" },
-        "7038": { hex: "#B5B7B7", name: "Gris ágata" },
-        "7039": { hex: "#5A574E", name: "Gris cuarzo" },
-        "7040": { hex: "#9B9E9F", name: "Gris ventana" },
-        "7042": { hex: "#8C9295", name: "Gris tráfico A" },
-        "7043": { hex: "#63686A", name: "Gris tráfico B" },
-        "7044": { hex: "#BDBBB0", name: "Gris seda" },
-        "7045": { hex: "#969698", name: "Gris tele 1" },
-        "7046": { hex: "#84888C", name: "Gris tele 2" },
-        "7047": { hex: "#D4D5D9", name: "Gris tele 4" },
-        "7048": { hex: "#858788", name: "Gris perla ratón" }, 
-
-        // MARRONES (Grupo 8xxx)
-        "8000": { hex: "#896F4B", name: "Marrón verdoso" },
-        "8001": { hex: "#7C5D40", name: "Marrón ocre" },
-        "8002": { hex: "#6F4F42", name: "Marrón señal" },
-        "8003": { hex: "#89684F", name: "Marrón arcilla" },
-        "8004": { hex: "#7E5848", name: "Marrón cobre" },
-        "8007": { hex: "#61493A", name: "Marrón ciervo" },
-        "8008": { hex: "#7D5D3B", name: "Marrón oliva" },
-        "8011": { hex: "#684838", name: "Marrón nuez" },
-        "8012": { hex: "#633B32", name: "Marrón rojizo" },
-        "8014": { hex: "#5C463F", name: "Marrón sepia" },
-        "8015": { hex: "#744B4C", name: "Marrón castaño" },
-        "8016": { hex: "#5C3A33", name: "Marrón caoba" },
-        "8017": { hex: "#5C4033", name: "Marrón chocolate" },
-        "8019": { hex: "#4C4646", name: "Marrón grisáceo" },
-        "8022": { hex: "#292727", name: "Marrón negruzco" },
-        "8023": { hex: "#976C4B", name: "Marrón naranja" },
-        "8024": { hex: "#7B5945", name: "Marrón beige" },
-        "8025": { hex: "#897163", name: "Marrón pálido" },
-        "8028": { hex: "#6F5C51", name: "Marrón tierra" },
-        "8029": { hex: "#7B4D45", name: "Cobre perla" }, 
-
-        // BLANCOS Y NEGROS (Grupo 9xxx)
-        "9001": { hex: "#FDF4E3", name: "Blanco crema" },
-        "9002": { hex: "#EBE6D8", name: "Gris blanco" },
-        "9003": { hex: "#ECECEC", name: "Blanco señal" },
-        "9004": { hex: "#2B2B2E", name: "Negro señal" },
-        "9005": { hex: "#0A0A0A", name: "Negro intenso" },
-        "9006": { hex: "#A8A9AD", name: "Aluminio blanco" }, 
-        "9007": { hex: "#8A8C8A", name: "Aluminio gris" }, 
-        "9010": { hex: "#F0F0E8", name: "Blanco puro" },
-        "9011": { hex: "#252528", name: "Negro grafito" },
-        "9016": { hex: "#F6F7EE", name: "Blanco tráfico" },
-        "9017": { hex: "#222222", name: "Negro tráfico" },
-        "9018": { hex: "#AFAFB0", name: "Blanco pálido" },
-        "9022": { hex: "#7C7F7C", name: "Gris perla claro" }, 
-        "9023": { hex: "#707274", name: "Gris perla oscuro" }, 
-        "9024": { hex: "#63676B", name: "Gris perla" } 
-    };
-    
-    // Las funciones isLightColor, getRalFromHex y displayColorInfo no cambian y son correctas.
-    function isLightColor(hex) {
-        const c = hex.substring(1);
-        const rgb = parseInt(c, 16);
-        const r = (rgb >> 16) & 0xff;
-        const g = (rgb >> 8) & 0xff;
-        const b = (rgb >> 0) & 0xff;
-        const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; 
-        return luma > 180;
+function getRalFromHex(hex) {
+    const normalizedHex = hex.toUpperCase();
+    for (const ral in ralToHexMap) {
+        if (ralToHexMap[ral].hex.toUpperCase() === normalizedHex) return ral;
     }
-    
-    function getRalFromHex(hex) {
-        const normalizedHex = hex.toUpperCase(); 
-        for (const ral in ralToHexMap) {
-            if (ralToHexMap[ral].hex.toUpperCase() === normalizedHex) {
-                return ral;
-            }
+    return null;
+}
+
+function displayColorInfo(ralCode, hexCode) {
+    const displayElement = document.getElementById('color-display');
+    let finalHex = hexCode.startsWith('#') ? hexCode : '#' + hexCode;
+    displayElement.style.backgroundColor = finalHex;
+    displayElement.style.color = isLightColor(finalHex) ? '#000' : '#fff';
+    let ralInfoText = 'Color personalizado';
+    if (ralCode && ralToHexMap[ralCode]) ralInfoText = `RAL ${ralCode} (${ralToHexMap[ralCode].name})`;
+    else if (ralCode) ralInfoText = `RAL ${ralCode}`;
+    displayElement.innerHTML = `<span class="code-info">${ralInfoText}</span><span class="code-info">${finalHex.toUpperCase()}</span>`;
+}
+
+function selectColorFromWheel(hexValue) {
+    const finalHex = hexValue.toUpperCase();
+    document.getElementById('hexDisplay').value = finalHex;
+    document.getElementById('codeInput').value = '';
+    const selectedDiv = document.querySelector('.custom-select .select-selected');
+    selectedDiv.innerHTML = "Elige código RAL";
+    selectedDiv.dataset.ral = "";
+    displayColorInfo(getRalFromHex(finalHex), finalHex);
+}
+
+function convertColorFromInput() {
+    let inputValue = document.getElementById('codeInput').value.trim().toUpperCase();
+    let resultRal = null, resultHex = null;
+    const selectedDiv = document.querySelector('.custom-select .select-selected');
+    selectedDiv.innerHTML = "Elige código RAL";
+    selectedDiv.dataset.ral = "";
+
+    if (!inputValue) return;
+
+    if (/^\d{4}$/.test(inputValue) && ralToHexMap[inputValue]) {
+        resultRal = inputValue;
+        resultHex = ralToHexMap[inputValue].hex;
+        selectedDiv.innerHTML = `RAL ${resultRal} - ${ralToHexMap[resultRal].name}`;
+        selectedDiv.dataset.ral = resultRal;
+    } else {
+        let tempHex = inputValue.startsWith('#') ? inputValue.substring(1) : inputValue;
+        if (/[0-9A-F]{6}$/.test(tempHex) && tempHex.length === 6) {
+            resultHex = `#${tempHex}`;
+            resultRal = getRalFromHex(resultHex);
+        } else if (/[0-9A-F]{3}$/.test(tempHex) && tempHex.length === 3) {
+            resultHex = `#${tempHex[0]}${tempHex[0]}${tempHex[1]}${tempHex[1]}${tempHex[2]}${tempHex[2]}`;
+            resultRal = getRalFromHex(resultHex);
         }
-        return null;
     }
 
-    // Función principal para mostrar el resultado en la caja grande
-    function displayColorInfo(ralCode, hexCode) {
-        const displayElement = document.getElementById('color-display');
-        let finalHex = hexCode.startsWith('#') ? hexCode : '#' + hexCode;
+    if (resultHex) {
+        document.getElementById('hexDisplay').value = resultHex.toUpperCase();
+        document.getElementById('colorWheelInput').value = resultHex;
+        displayColorInfo(resultRal, resultHex);
+    }
+}
 
-        const isLight = isLightColor(finalHex);
-        const textColor = isLight ? '#000' : '#fff';
-        
-        displayElement.style.backgroundColor = finalHex;
-        displayElement.style.color = textColor;
-        
-        let ralInfoText = 'Color personalizado';
-        
-        if (ralCode && ralToHexMap[ralCode]) {
-            ralInfoText = `RAL ${ralCode} (${ralToHexMap[ralCode].name})`;
-        } else if (ralCode) {
-            // Este caso es para un RAL introducido manualmente que no está en la lista (aunque la lista está completa)
-            ralInfoText = `RAL ${ralCode} (Código introducido)`; 
-        }
+function initCustomSelect() {
+    const customSelect = document.getElementById('customRalSelector');
+    const selectedElement = customSelect.querySelector('.select-selected');
 
-        displayElement.innerHTML = `
-            <span class="code-info">${ralInfoText}</span>
-            <span class="code-info">${finalHex.toUpperCase()}</span>
+    // En móvil, lo hacemos a pantalla completa
+    selectedElement.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openRalModal();
+    }, { passive: false });
+
+    // Estado inicial
+    const defaultHex = document.getElementById('colorWheelInput').value;
+    const defaultRal = getRalFromHex(defaultHex);
+    if (defaultRal) updateAppWithColor(defaultRal, defaultHex);
+
+    // Construye lista 1 vez
+    buildRalModalList();
+}
+
+function closeAllSelect(elmnt) {
+    // Ya no usamos el dropdown clásico, pero lo dejamos por compatibilidad
+    const selectElements = document.getElementsByClassName("select-items");
+    for (let i = 0; i < selectElements.length; i++) selectElements[i].classList.add("select-hide");
+}
+
+function buildRalModalList() {
+    const list = document.getElementById('ral-list');
+    if (!list || list.dataset.built === "1") return;
+
+    const sortedRals = Object.keys(ralToHexMap).sort();
+    const frag = document.createDocumentFragment();
+
+    sortedRals.forEach(ralCode => {
+        const colorData = ralToHexMap[ralCode];
+        const row = document.createElement('div');
+        row.className = 'ral-item';
+        row.setAttribute('role', 'option');
+        row.dataset.ral = ralCode;
+        row.dataset.hex = colorData.hex;
+        row.dataset.search = (`${ralCode} ${colorData.name} ${colorData.hex}`).toLowerCase();
+
+        row.innerHTML = `
+            <div class="ral-swatch" style="background:${colorData.hex}"></div>
+            <div class="ral-text">
+                <div class="ral-code">RAL ${ralCode}</div>
+                <div class="ral-name">${colorData.name}</div>
+            </div>
         `;
+
+        row.addEventListener('click', () => {
+            updateAppWithColor(row.dataset.ral, row.dataset.hex);
+            closeRalModal();
+        }, { passive: true });
+
+        frag.appendChild(row);
+    });
+
+    list.appendChild(frag);
+    list.dataset.built = "1";
+}
+
+function filterRalList(query) {
+    const q = (query || '').trim().toLowerCase();
+    const list = document.getElementById('ral-list');
+    if (!list) return;
+    const items = list.children;
+    for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (!q) { it.style.display = ''; continue; }
+        it.style.display = (it.dataset.search && it.dataset.search.includes(q)) ? '' : 'none';
     }
-    
-    // --- MANEJO DE SELECTORES ---
+}
 
-    // 1. Selector de color avanzado (rueda de color)
-    function selectColorFromWheel(hexValue) {
-        const finalHex = hexValue.toUpperCase();
-        
-        // Sincronizar inputs
-        document.getElementById('hexDisplay').value = finalHex;
-        document.getElementById('codeInput').value = '';
-        
-        // Deseleccionar el selector RAL personalizado
-        const selectedDiv = document.querySelector('.custom-select .select-selected');
-        selectedDiv.innerHTML = "Elige codigo RAL";
-        selectedDiv.dataset.ral = "";
+function openRalModal() {
+    const modal = document.getElementById('ral-modal');
+    if (!modal) return;
 
-        const ralMatch = getRalFromHex(finalHex);
-        displayColorInfo(ralMatch, finalHex);
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+
+    const input = document.getElementById('ral-search');
+    if (input) {
+        input.value = '';
+        // Pequeño delay para iOS
+        setTimeout(() => { try { input.focus(); } catch(_) {} }, 50);
     }
-    
-    // 3. Entrada manual (RAL o HEX)
-    function convertColorFromInput() {
-        let inputValue = document.getElementById('codeInput').value.trim().toUpperCase();
-        const displayElement = document.getElementById('color-display');
-        let resultRal = null;
-        let resultHex = null;
-        
-        // Sincronizar el selector RAL personalizado (deseleccionar)
-        const selectedDiv = document.querySelector('.custom-select .select-selected');
-        selectedDiv.innerHTML = "Elige codigo RAL";
-        selectedDiv.dataset.ral = "";
-        
-        if (!inputValue) {
-            return; 
-        }
-        
-        // 1. Comprobar si es un código RAL (4 dígitos)
-        if (/^\d{4}$/.test(inputValue) && ralToHexMap[inputValue]) {
-            resultRal = inputValue;
-            resultHex = ralToHexMap[inputValue].hex;
-            
-            // Sincronizar el selector RAL personalizado con el valor si es un RAL válido
-            selectedDiv.innerHTML = `RAL ${resultRal} - ${ralToHexMap[resultRal].name}`;
-            selectedDiv.dataset.ral = resultRal;
-            
-        } 
-        // 2. Comprobar si es un código HEX
-        else {
-            let tempHex = inputValue.startsWith('#') ? inputValue.substring(1) : inputValue;
-            if (/[0-9A-F]{6}$/.test(tempHex) && tempHex.length === 6) {
-                resultHex = `#${tempHex}`;
-                resultRal = getRalFromHex(resultHex);
-            } else if (/[0-9A-F]{3}$/.test(tempHex) && tempHex.length === 3) {
-                resultHex = `#${tempHex[0]}${tempHex[0]}${tempHex[1]}${tempHex[1]}${tempHex[2]}${tempHex[2]}`;
-                resultRal = getRalFromHex(resultHex);
-            }
-        }
-        
-        if (resultHex) {
-            // Sincronizar el display principal
-            document.getElementById('hexDisplay').value = resultHex.toUpperCase();
-            document.getElementById('colorWheelInput').value = resultHex;
+    filterRalList('');
+}
 
-            displayColorInfo(resultRal, resultHex);
-        } else {
-            // Código no válido: Muestra un mensaje de error y no sincroniza otros selectores.
-            displayElement.style.backgroundColor = 'transparent';
-            displayElement.style.color = '#dc3545';
-            displayElement.innerHTML = 'CÓDIGO NO VÁLIDO o RAL no mapeado.';
-            document.getElementById('hexDisplay').value = ''; 
-        }
+function closeRalModal() {
+    const modal = document.getElementById('ral-modal');
+    if (!modal) return;
+
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+}
+
+
+function closeAllSelect(elmnt) {
+    const selectElements = document.getElementsByClassName("select-items");
+    const selectedElements = document.getElementsByClassName("select-selected");
+    for (let i = 0; i < selectedElements.length; i++) {
+        if (elmnt != selectedElements[i]) selectedElements[i].classList.remove("select-arrow-active");
     }
+    for (let i = 0; i < selectElements.length; i++) selectElements[i].classList.add("select-hide");
+}
 
+function updateAppWithColor(ral, hex) {
+    document.getElementById('hexDisplay').value = hex.toUpperCase();
+    document.getElementById('colorWheelInput').value = hex;
+    document.getElementById('codeInput').value = '';
 
-    // ----------------------------------------------------
-    // *** CÓDIGO PARA EL SELECTOR PERSONALIZADO (RAL) ***
-    // ----------------------------------------------------
-
-    let currentInitialHex = ''; // Variable para guardar el color inicial
-
-    function initCustomSelect() {
-        const customSelect = document.getElementById('customRalSelector');
-        const selectedElement = customSelect.querySelector('.select-selected');
-        const itemsContainer = customSelect.querySelector('.select-items');
-        const sortedRals = Object.keys(ralToHexMap).sort();
-        
-        itemsContainer.innerHTML = ''; // Limpiar opciones anteriores
-
-        // Crear opciones RAL personalizadas
-        sortedRals.forEach(ralCode => {
-            const colorData = ralToHexMap[ralCode];
-            const hexCode = colorData.hex;
-            const isLight = isLightColor(hexCode);
-            
-            const optionDiv = document.createElement('div');
-            optionDiv.dataset.ral = ralCode;
-            optionDiv.dataset.hex = hexCode;
-
-            // Elemento de color (swatch)
-            const swatch = document.createElement('span');
-            swatch.className = 'option-swatch';
-            swatch.style.backgroundColor = hexCode;
-            
-            // Texto de la opción
-            const textSpan = document.createElement('span');
-            textSpan.className = 'option-text';
-            textSpan.textContent = `RAL ${ralCode} - ${colorData.name}`;
-
-            optionDiv.appendChild(swatch);
-            optionDiv.appendChild(textSpan);
-            itemsContainer.appendChild(optionDiv);
-
-            // 1. VISTA PREVIA (HOVER/MOUSEOVER)
-            optionDiv.addEventListener('mouseover', function() {
-                const previewHex = this.dataset.hex;
-                const previewRal = this.dataset.ral;
-                // Guardar el color actual del display antes de la vista previa
-                currentInitialHex = document.getElementById('color-display').style.backgroundColor;
-                displayColorInfo(previewRal, previewHex);
-            });
-
-            // Restablecer la vista previa al salir del hover (si no se ha seleccionado)
-            optionDiv.addEventListener('mouseout', function() {
-                // Solo si no se ha hecho clic, restaurar al color que estaba
-                const currentRal = selectedElement.dataset.ral;
-                let ralToRestore = getRalFromHex(currentInitialHex) || currentRal;
-                displayColorInfo(ralToRestore, currentInitialHex);
-            });
-            
-            // 2. SELECCIÓN (CLICK)
-            optionDiv.addEventListener('click', function() {
-                const selectedRal = this.dataset.ral;
-                const selectedHex = this.dataset.hex;
-                const selectedName = colorData.name;
-                
-                // Actualizar la caja principal
-                displayColorInfo(selectedRal, selectedHex);
-
-                // Actualizar la caja visible del selector
-                selectedElement.innerHTML = `RAL ${selectedRal} - ${selectedName}`;
-                selectedElement.dataset.ral = selectedRal;
-                selectedElement.dataset.hex = selectedHex;
-                
-                // Sincronizar inputs
-                document.getElementById('hexDisplay').value = selectedHex.toUpperCase();
-                document.getElementById('colorWheelInput').value = selectedHex;
-                document.getElementById('codeInput').value = ''; // Limpiar el input manual
-
-                // Cerrar el desplegable
-                itemsContainer.classList.add('select-hide');
-                selectedElement.classList.remove('select-arrow-active');
-            });
-        });
-        
-        // 3. ABRIR/CERRAR EL DESPLEGABLE
-        selectedElement.addEventListener('click', function(e) {
-            e.stopPropagation();
-            closeAllSelect(this);
-            itemsContainer.classList.toggle('select-hide');
-            this.classList.toggle('select-arrow-active');
-            // Al abrir, guarda el color actual para restaurarlo al salir del hover
-            currentInitialHex = document.getElementById('color-display').style.backgroundColor;
-        });
-        
-        // 4. Cerrar el desplegable al hacer clic fuera
-        function closeAllSelect(elmnt) {
-            const arrNo = [];
-            const selectElements = document.getElementsByClassName("select-items");
-            const selectedElements = document.getElementsByClassName("select-selected");
-            
-            for (let i = 0; i < selectedElements.length; i++) {
-                if (elmnt == selectedElements[i]) {
-                    arrNo.push(i)
-                } else {
-                    selectedElements[i].classList.remove("select-arrow-active");
-                }
-            }
-            for (let i = 0; i < selectElements.length; i++) {
-                if (arrNo.indexOf(i)) {
-                    selectElements[i].classList.add("select-hide");
-                }
-            }
-        }
-        
-        document.addEventListener("click", closeAllSelect);
-
-        // Inicializar el color por defecto al cargar
-        const defaultHex = document.getElementById('colorWheelInput').value;
-        const defaultRal = getRalFromHex(defaultHex);
-        selectedElement.innerHTML = `RAL ${defaultRal} - ${ralToHexMap[defaultRal].name}`;
-        selectedElement.dataset.ral = defaultRal;
-        selectedElement.dataset.hex = defaultHex;
-        displayColorInfo(defaultRal, defaultHex);
+    const selectedElement = document.querySelector('.custom-select .select-selected');
+    if (ral && ralToHexMap[ral]) {
+        selectedElement.innerHTML = `RAL ${ral} - ${ralToHexMap[ral].name}`;
+        selectedElement.dataset.ral = ral;
+    } else {
+        selectedElement.innerHTML = "RAL aproximado (Sin coincidencia exacta)";
+        selectedElement.dataset.ral = "";
     }
 
-    // Inicializar todo
-    document.addEventListener('DOMContentLoaded', initCustomSelect);
+    displayColorInfo(ral, hex);
+}
 
+/* =========================
+   Cámara / Imagen
+   ========================= */
+let stream = null;
+let isFrozen = false;
+let camMode = 'camera';
+let pickSX = 0, pickSY = 0; // coordenadas en píxeles del SOURCE (imagen/video)
+let pickX = 0.5, pickY = 0.5; // coordenadas normalizadas del CONTENEDOR (solo para dibujar la cruz)
+let currentDetectedHex = "#000000";
+let currentClosestRal = null;
+
+const video = document.getElementById('video');
+const imgElement = document.getElementById('uploaded-image');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const crosshair = document.getElementById('crosshair');
+const viewportContainer = document.getElementById('viewport-container');
+
+function closeCameraApp() {
+    if (stream) { try { stream.getTracks().forEach(track => track.stop()); } catch(_) {} stream = null; }
+    document.getElementById('camera-app').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+}
+
+/* Abre directamente la galería */
+function openGalleryDirect() {
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('camera-app').style.display = 'flex';
+
+    camMode = 'image';
+    isFrozen = true;
+
+    if (stream) { try { stream.getTracks().forEach(t => t.stop()); } catch(_) {} stream = null; }
+
+    video.style.display = 'none';
+    imgElement.style.display = 'block';
+    document.getElementById('freeze-btn').style.display = 'none';
+
+    const input = document.getElementById('file-upload');
+    input.value = '';
+    input.click();
+}
+
+/* =========================
+   CORRECCIÓN CLAVE: mapeo cover
+   ========================= */
+/**
+ * Devuelve la geometría de cómo se está mostrando el source (video/img) dentro del contenedor
+ * con object-fit: cover.
+ */
+function getCoverGeometry(sourceEl) {
+    const rect = viewportContainer.getBoundingClientRect();
+    const cw = rect.width;
+    const ch = rect.height;
+
+    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
+    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
+
+    if (!sw || !sh || !cw || !ch) return null;
+
+    // cover => escala máxima para cubrir
+    const scale = Math.max(cw / sw, ch / sh);
+    const dw = sw * scale;
+    const dh = sh * scale;
+
+    // el exceso es lo que se recorta
+    const offsetX = (dw - cw) / 2;
+    const offsetY = (dh - ch) / 2;
+
+    return { cw, ch, sw, sh, scale, dw, dh, offsetX, offsetY };
+}
+
+/* Convierte coordenadas del contenedor (0..1) a coordenadas del source (px) */
+function containerToSourcePx(sourceEl, nx, ny) {
+    const g = getCoverGeometry(sourceEl);
+    if (!g) return null;
+
+    const cx = nx * g.cw;  // px en contenedor
+    const cy = ny * g.ch;
+
+    // dentro del "displayed image" (con recorte)
+    const dx = cx + g.offsetX;
+    const dy = cy + g.offsetY;
+
+    // a px del source
+    let sx = dx / g.scale;
+    let sy = dy / g.scale;
+
+    // clamp
+    sx = Math.max(0, Math.min(g.sw - 1, sx));
+    sy = Math.max(0, Math.min(g.sh - 1, sy));
+
+    return { sx, sy, g };
+}
+
+/* Convierte coordenadas del source (px) a coordenadas del contenedor (0..1) */
+function sourceToContainerNorm(sourceEl, sx, sy) {
+    const g = getCoverGeometry(sourceEl);
+    if (!g) return null;
+
+    const dx = sx * g.scale; // px en displayed
+    const dy = sy * g.scale;
+
+    const cx = dx - g.offsetX; // px en contenedor
+    const cy = dy - g.offsetY;
+
+    const nx = cx / g.cw;
+    const ny = cy / g.ch;
+
+    return {
+        nx: Math.max(0, Math.min(1, nx)),
+        ny: Math.max(0, Math.min(1, ny)),
+        g
+    };
+}
+
+function setPickToCenter(sourceEl) {
+    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
+    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
+    if (!sw || !sh) return;
+    pickSX = Math.floor(sw / 2);
+    pickSY = Math.floor(sh / 2);
+    syncPickNormFromSource(sourceEl);
+    drawCrosshair();
+}
+
+function syncPickNormFromSource(sourceEl) {
+    // Calcula pickX/pickY (normalizado en contenedor) a partir del píxel del source.
+    const back = sourceToContainerNorm(sourceEl, pickSX, pickSY);
+    if (!back) return;
+    pickX = back.nx;
+    pickY = back.ny;
+}
+
+function drawCrosshair() {
+    crosshair.style.left = (pickX * 100) + '%';
+    crosshair.style.top  = (pickY * 100) + '%';
+}
+
+/* =========================
+   Análisis (color) usando el mapeo correcto
+   ========================= */
+function analyzeFrame(sourceEl) {
+    // Asegura medidas
+    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
+    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
+    if (!sw || !sh) return;
+
+    // Si todavía no está inicializado, centra
+    if (pickSX === 0 && pickSY === 0) {
+        setPickToCenter(sourceEl);
+    }
+
+    // Clamp por seguridad
+    pickSX = Math.max(0, Math.min(sw - 1, Math.round(pickSX)));
+    pickSY = Math.max(0, Math.min(sh - 1, Math.round(pickSY)));
+
+    // Dibuja el source completo en canvas a resolución nativa
+    canvas.width = sw;
+    canvas.height = sh;
+    ctx.drawImage(sourceEl, 0, 0, sw, sh);
+
+    const p = ctx.getImageData(pickSX, pickSY, 1, 1).data;
+    const r = p[0], gg = p[1], b = p[2];
+
+    const hex = "#" + ((1 << 24) + (r << 16) + (gg << 8) + b).toString(16).slice(1).toUpperCase();
+    currentDetectedHex = hex;
+
+    document.getElementById('cam-preview').style.backgroundColor = hex;
+    document.getElementById('cam-hex').innerText = hex;
+
+    const closest = findClosestRal(r, gg, b);
+    currentClosestRal = closest.ral;
+
+    if (closest.ral && ralToHexMap[closest.ral]) {
+        document.getElementById('cam-ral-match').innerText = `RAL ${closest.ral} (${ralToHexMap[closest.ral].name})`;
+    } else if (closest.ral) {
+        document.getElementById('cam-ral-match').innerText = `RAL ${closest.ral}`;
+    } else {
+        document.getElementById('cam-ral-match').innerText = `RAL ---`;
+    }
+
+    // Actualiza cruz + lupa
+    syncPickNormFromSource(sourceEl);
+    drawCrosshair();
+    updateZoom(sourceEl);
+    positionLoupe();
+}
+
+function findClosestRal(r, g, b) {
+    let minDist = Infinity;
+    let closestRal = null;
+
+    for (const ral in ralToHexMap) {
+        const h = ralToHexMap[ral].hex;
+        const cr = parseInt(h.substring(1,3), 16);
+        const cg = parseInt(h.substring(3,5), 16);
+        const cb = parseInt(h.substring(5,7), 16);
+        const dist = Math.sqrt((r-cr)**2 + (g-cg)**2 + (b-cb)**2);
+        if (dist < minDist) { minDist = dist; closestRal = ral; }
+    }
+    return { ral: closestRal, dist: minDist };
+}
+
+/* =========================
+   Drag suave (sin saltos raros) en píxel REAL del source
+   ========================= */
+let dragging = false;
+let lastClientX = 0, lastClientY = 0;
+let pendingSX = 0, pendingSY = 0;
+let rafMove = 0;
+let rafAnalyze = 0;
+
+function scheduleAnalyze() {
+    if (rafAnalyze) return;
+    rafAnalyze = requestAnimationFrame(() => {
+        rafAnalyze = 0;
+        analyzeFrame(camMode === 'camera' ? video : imgElement);
+    });
+}
+
+function applyPendingMove() {
+    rafMove = 0;
+    if (!dragging) { pendingSX = 0; pendingSY = 0; return; }
+
+    const srcEl = (camMode === 'camera') ? video : imgElement;
+    const g = getCoverGeometry(srcEl);
+    if (!g) return;
+
+    // Convertimos el movimiento en pantalla a píxeles del source
+    // (en cover, 1px en pantalla = 1/scale px en source)
+    pickSX += pendingSX / g.scale;
+    pickSY += pendingSY / g.scale;
+    pendingSX = 0; pendingSY = 0;
+
+    // Snap final a píxel (pero en espacio del SOURCE, estable)
+    pickSX = Math.round(pickSX);
+    pickSY = Math.round(pickSY);
+
+    // Clamp
+    pickSX = Math.max(0, Math.min(g.sw - 1, pickSX));
+    pickSY = Math.max(0, Math.min(g.sh - 1, pickSY));
+
+    scheduleAnalyze();
+}
+
+function showLoupe() {
+    zoomLoupe.style.display = 'block';
+}
+
+function hideLoupe() {
+    zoomLoupe.style.display = 'none';
+}
+
+viewportContainer.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    dragging = true;
+    showLoupe();
+    try { viewportContainer.setPointerCapture(e.pointerId); } catch(_) {}
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
+}, { passive: false });
+
+viewportContainer.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    e.preventDefault();
+
+    const dxPx = (e.clientX - lastClientX);
+    const dyPx = (e.clientY - lastClientY);
+
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
+
+    pendingSX += dxPx;
+    pendingSY += dyPx;
+
+    if (!rafMove) rafMove = requestAnimationFrame(applyPendingMove);
+}, { passive: false });
+
+function endDrag() {
+    dragging = false;
+    pendingSX = 0; pendingSY = 0;
+    if (rafMove) { cancelAnimationFrame(rafMove); rafMove = 0; }
+    hideLoupe();
+}
+viewportContainer.addEventListener('pointerup', endDrag, { passive: true });
+viewportContainer.addEventListener('pointercancel', endDrag, { passive: true });
+window.addEventListener('blur', endDrag, { passive: true });
+
+/* =========================
+   Botones
+   ========================= */
+document.getElementById('freeze-btn').addEventListener('click', () => {
+    if (camMode !== 'camera') return;
+    isFrozen = !isFrozen;
+    if (isFrozen) {
+        video.pause();
+        document.getElementById('freeze-btn').innerText = " Reanudar";
+        analyzeFrame(video);
+    } else {
+        video.play();
+        document.getElementById('freeze-btn').innerText = " Congelar";
+        camLoop();
+    }
+}, { passive: true });
+
+document.getElementById('file-upload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+        imgElement.src = evt.target.result;
+        imgElement.onload = () => {
+            camMode = 'image';
+            video.style.display = 'none';
+            imgElement.style.display = 'block';
+            document.getElementById('freeze-btn').style.display = 'none';
+
+            // reinicia punto al centro (en píxeles reales)
+            pickSX = 0; pickSY = 0;
+            setPickToCenter(imgElement);
+
+            analyzeFrame(imgElement);
+            zoomLoupe.style.display = 'block';
+        };
+    };
+    reader.readAsDataURL(file);
+}, { passive: true });
+
+document.getElementById('confirm-color-btn').addEventListener('click', () => {
+    updateAppWithColor(currentClosestRal, currentDetectedHex);
+    closeCameraApp();
+}, { passive: true });
+
+/* =========================
+   Loop cámara (si algún día lo reactivas)
+   ========================= */
+async function initCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream;
+        await video.play();
+        camMode = 'camera';
+        isFrozen = false;
+        pickSX = 0; pickSY = 0;
+        setPickToCenter(video);
+        zoomLoupe.style.display = 'none';
+        imgElement.style.display = 'none';
+        video.style.display = 'block';
+        document.getElementById('freeze-btn').style.display = 'block';
+        document.getElementById('freeze-btn').innerText = " Congelar";
+        requestAnimationFrame(camLoop);
+    } catch (err) {
+        alert("No se pudo acceder a la cámara. Intenta subir una foto.");
+    }
+}
+
+function camLoop() {
+    if (document.getElementById('camera-app').style.display === 'none') return;
+    if (camMode === 'camera' && !isFrozen) {
+        analyzeFrame(video);
+        requestAnimationFrame(camLoop);
+    }
+}
+
+/* =========================
+   Lupa: usa el MISMO punto (con mapeo cover)
+   ========================= */
+const zoomLoupe = document.getElementById('zoom-loupe');
+const zoomCanvas = document.getElementById('zoom-canvas');
+const zoomCtx = zoomCanvas.getContext('2d');
+const ZOOM_FACTOR = 5;
+const ZOOM_SIZE = 26;
+
+function updateZoom(sourceEl) {
+    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
+    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
+    if (!sw || !sh) return;
+
+    const px = Math.max(0, Math.min(sw - 1, Math.round(pickSX)));
+    const py = Math.max(0, Math.min(sh - 1, Math.round(pickSY)));
+
+    // Suavizado: renderizamos al tamaño real de la lupa (con DPR) y con smoothing "high"
+    const LOUPE_PX = 120; // coincide con CSS
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+
+    zoomCanvas.style.width = LOUPE_PX + "px";
+    zoomCanvas.style.height = LOUPE_PX + "px";
+    zoomCanvas.width = Math.round(LOUPE_PX * dpr);
+    zoomCanvas.height = Math.round(LOUPE_PX * dpr);
+
+    zoomCtx.setTransform(1, 0, 0, 1, 0, 0);
+    zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+
+    zoomCtx.imageSmoothingEnabled = true;
+    try { zoomCtx.imageSmoothingQuality = "high"; } catch(_) {}
+
+    // Tamaño del recorte alrededor del píxel seleccionado (más pequeño = más zoom)
+    const ZOOM_SIZE = 28;
+
+    zoomCtx.drawImage(
+        sourceEl,
+        px - ZOOM_SIZE / 2,
+        py - ZOOM_SIZE / 2,
+        ZOOM_SIZE,
+        ZOOM_SIZE,
+        0,
+        0,
+        zoomCanvas.width,
+        zoomCanvas.height
+    );
+
+    // Retícula exacta del centro (alineada a píxel)
+    const cx = zoomCanvas.width / 2;
+    const cy = zoomCanvas.height / 2;
+
+    zoomCtx.strokeStyle = "red";
+    zoomCtx.lineWidth = 1 * dpr;
+    zoomCtx.beginPath();
+    zoomCtx.moveTo(Math.round(cx) + 0.5, 0);
+    zoomCtx.lineTo(Math.round(cx) + 0.5, zoomCanvas.height);
+    zoomCtx.moveTo(0, Math.round(cy) + 0.5);
+    zoomCtx.lineTo(zoomCanvas.width, Math.round(cy) + 0.5);
+    zoomCtx.stroke();
+}
+
+function positionLoupe() {
+    // La lupa va ENCIMA de la cruz. Si no cabe arriba, se pone debajo.
+    const rect = viewportContainer.getBoundingClientRect();
+    const loupeRect = zoomLoupe.getBoundingClientRect();
+    const radius = (loupeRect.width || 120) / 2;
+
+    const cx = pickX * rect.width;
+    const cy = pickY * rect.height;
+
+    const offset = radius + 18; // separación cómoda respecto a la cruz
+
+    let x = cx;
+    let y = cy - offset;
+
+    // Si toca arriba, baja
+    if (y - radius < 8) y = cy + offset;
+
+    // Clamp dentro del contenedor
+    x = Math.max(radius + 8, Math.min(rect.width - radius - 8, x));
+    y = Math.max(radius + 8, Math.min(rect.height - radius - 8, y));
+
+    zoomLoupe.style.left = x + "px";
+    zoomLoupe.style.top  = y + "px";
+}
+
+/* init */
+document.addEventListener('DOMContentLoaded', () => {
+    initCustomSelect();
+    drawCrosshair();
+
+    // Si cambia el tamaño (rotación iPhone), recalcula la posición de la cruz
+    window.addEventListener('resize', () => {
+        const srcEl = (camMode === 'camera') ? video : imgElement;
+        if (srcEl && (srcEl === video ? video.videoWidth : imgElement.naturalWidth)) {
+            syncPickNormFromSource(srcEl);
+            drawCrosshair();
+            positionLoupe();
+        }
+    }, { passive: true });
+    // Modal RAL: cerrar + buscar
+    const ralModal = document.getElementById('ral-modal');
+    const ralCloseBtn = document.getElementById('ral-close-btn');
+    const ralSearch = document.getElementById('ral-search');
+
+    if (ralCloseBtn) ralCloseBtn.addEventListener('click', closeRalModal, { passive: true });
+
+    // Tap fuera del panel (fondo) para cerrar
+    if (ralModal) {
+        ralModal.addEventListener('click', (e) => {
+            if (e.target === ralModal) closeRalModal();
+        }, { passive: true });
+    }
+
+    if (ralSearch) {
+        ralSearch.addEventListener('input', (e) => {
+            filterRalList(e.target.value);
+        }, { passive: true });
+    }
+
+    // Escape para teclados externos
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeRalModal();
+    }, { passive: true });
+
+});
 </script>
+
+
+<!-- Modal pantalla completa para selector RAL -->
+<div id="ral-modal" class="ral-modal" aria-hidden="true">
+  <div class="ral-sheet" role="dialog" aria-modal="true" aria-label="Selector RAL">
+    <div class="ral-header">
+      <button type="button" class="ral-close" id="ral-close-btn">Cerrar</button>
+      <div class="ral-title">Selecciona RAL</div>
+    </div>
+    <div class="ral-search-wrap">
+      <input id="ral-search" type="text" inputmode="search" placeholder="Buscar (ej: 7016 o gris)" autocomplete="off" />
+    </div>
+    <div class="ral-list" id="ral-list" role="listbox" aria-label="Lista RAL"></div>
+  </div>
+</div>
 
 </body>
 </html>
