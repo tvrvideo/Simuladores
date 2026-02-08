@@ -490,6 +490,18 @@
     /* Oculta el bloque resultado "normal" dentro de la tarjeta cuando usamos dock */
     body.hasDock .card .result{ display:none; }
 
+
+    /* ===== Ajustes compactos para Cinta persiana ===== */
+    #viewCinta .inner{ padding: 12px; }
+    #viewCinta .grid{ gap: 10px; }
+    #viewCinta .field{ padding: 10px; }
+    #viewCinta label{ margin-bottom: 6px; }
+
+    @media (max-width: 559px){
+      #viewCinta .grid{ grid-template-columns: 1fr 1fr; }
+      #viewCinta .field.full{ grid-column: 1 / -1; }
+    }
+
 </style>
 </head>
 
@@ -507,7 +519,7 @@
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menú de calculadoras">
-      <div class="title">Calculadoras <small>v1.1</small></div>
+      <div class="title">Calculadoras <small>v1.3.1</small></div>
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
           <div class="menuGrid" role="list">
@@ -540,6 +552,22 @@
               </div>
             </div>
 
+
+            
+            <!-- Cinta persiana -->
+            <div class="menuItem" role="listitem" data-route="cinta">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Cinta persiana</p>
+                  <p class="miDesc">Calcula la longitud de cinta según altura de ventana + cajón y diámetros.</p>
+                </div>
+                <span class="badge">Disponible</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
+              </div>
+            </div>
 
             <!-- Placeholder 1 -->
             <div class="menuItem" role="listitem" data-route="proximamente-1" aria-disabled="true" style="opacity:.55; cursor:not-allowed;">
@@ -709,9 +737,89 @@
         </div>
         <div id="dockErrorIVA" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
       </div>
+<div class="circ" aria-label="Cinta en mm">
+            <strong id="dockCintaMM">—</strong> mm
+          </div>
+        </div>
+        <div id="dockErrorCinta" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
+      </div>
 
       <div class="subhead" style="margin-top:14px;">
         Puedes editar cualquier campo. El cálculo mantiene el último campo editado y recalcula los demás.
+      </div>
+    </section>
+
+
+    <!-- CINTA PERSIANA -->
+    <section id="viewCinta" class="view" aria-label="Calculadora Cinta persiana">
+      <div class="title">Cinta persiana <small>v1.0</small></div>
+
+      <div style="display:flex; justify-content:flex-end; padding: 0 6px 10px;">
+        <button id="cintaReset" class="btn btn-ghost btn-mini" type="button" aria-label="Reset Cinta persiana">Reset</button>
+      </div>
+
+      <section class="card" aria-label="Calculadora Cinta persiana">
+        <div class="inner">
+          <div class="grid" id="cintaGrid">
+            <div class="field full" style="grid-column: 1 / -1;">
+              <label for="cintaAltVent">Altura ventana (mm)</label>
+              <input id="cintaAltVent" type="number" inputmode="decimal" step="1" placeholder="0" value="1400" aria-describedby="ayudaCintaAltVent" />
+              <div id="ayudaCintaAltVent" class="sr-only">Introduce la altura de la ventana en milímetros.</div>
+            </div></div>
+
+            <div class="field">
+              <label for="cintaEje">Ø eje lamas (mm)</label>
+              <input id="cintaEje" type="number" inputmode="decimal" step="1" value="60" aria-describedby="ayudaCintaEje" />
+              <div id="ayudaCintaEje" class="sr-only">Diámetro del eje donde se enrollan las lamas. Por defecto 60 mm.</div>
+            </div>
+
+            <div class="field">
+              <label for="cintaPolea">Ø polea cinta (mm)</label>
+              <input id="cintaPolea" type="number" inputmode="decimal" step="1" value="100" aria-describedby="ayudaCintaPolea" />
+              <div id="ayudaCintaPolea" class="sr-only">Diámetro de la polea del eje donde se enrolla la cinta. Por defecto 100 mm.</div>
+            </div>
+
+            <div class="field full" style="grid-column: 1 / -1;">
+              <label for="cintaMargen">Margen nudo/instalación (mm)</label>
+              <input id="cintaMargen" type="number" inputmode="decimal" step="1" value="2000" aria-describedby="ayudaCintaMargen" />
+              <div id="ayudaCintaMargen" class="sr-only">Margen extra para nudo e instalación. Por defecto 200 mm.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result" role="status" aria-live="polite">
+          <p class="resultLabel">Resultado</p>
+          <div class="resultRow">
+            <div class="vueltas" aria-label="Cinta total">
+              <span class="num" id="cintaTotalM">—</span>
+              <span class="unit">m</span>
+            </div>
+            <div class="circ" aria-label="Cinta en mm">
+              Longitud: <strong id="cintaTotalMM">—</strong> mm
+            </div>
+          </div>
+          <div id="cintaError" class="error" style="display:none; margin-top:10px;">
+            Introduce valores válidos
+          </div>
+        </div>
+      
+
+      <div id="dockCinta" class="resultDock" role="status" aria-live="polite" aria-label="Resultado fijo Cinta persiana">
+        <div class="resultRow">
+          <div class="vueltas" aria-label="Cinta total">
+            <span class="num" id="dockCintaM">—</span>
+            <span class="unit">m</span>
+          </div>
+          <div class="circ" aria-label="Cinta en mm">
+            <strong id="dockCintaMM">—</strong> mm
+          </div>
+        </div>
+        <div id="dockErrorCinta" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
+      </div>
+</section>
+
+      <div class="subhead" style="margin-top:14px;">
+        Cálculo: (altura_ventana + cajón) · (Ø polea / Ø eje) + extra recogedor + margen.
       </div>
     </section>
 
@@ -726,6 +834,7 @@
         menu: document.getElementById("viewMenu"),
         tensor: document.getElementById("viewTensor"),
         iva: document.getElementById("viewIVA"),
+        cinta: document.getElementById("viewCinta"),
       };      const btnHome = document.getElementById("btnHome");
 
 
@@ -742,6 +851,8 @@
         const dockIVA = document.getElementById("dockIVA");
         if(dockTensor) dockTensor.style.display = (name === "tensor") ? "block" : "none";
         if(dockIVA) dockIVA.style.display = (name === "iva") ? "block" : "none";
+        const dockCinta = document.getElementById("dockCinta");
+        if(dockCinta) dockCinta.style.display = (name === "cinta") ? "block" : "none";
         /* Botón rojo reservado (GitHub): siempre visible */
         // Mantener el scroll en top al cambiar de vista (suave pero seguro)
         window.scrollTo(0, 0);
@@ -751,6 +862,7 @@
         const h = (location.hash || "#menu").replace("#","").trim();
         if (h === "tensor") setView("tensor");
         else if (h === "iva") setView("iva");
+        else if (h === "cinta") setView("cinta");
         else setView("menu");
       }
 
@@ -764,6 +876,9 @@
       function goIVA(){
         location.hash = "#iva";
       }
+      function goCinta(){
+        location.hash = "#cinta";
+      }
 
       // Menú items
       function onMenuTap(e){
@@ -772,6 +887,7 @@
         const route = item.getAttribute("data-route") || "";
         if(route === "tensor") goTensor();
         if(route === "iva") goIVA();
+        if(route === "cinta") goCinta();
       }
 
       // Click/touch friendly
@@ -1031,6 +1147,91 @@
 
       // init IVA
       ivaReset();
+
+      // --- Cinta persiana ---
+      const $cAltVent = document.getElementById("cintaAltVent");
+      const $cEje     = document.getElementById("cintaEje");
+      const $cPolea   = document.getElementById("cintaPolea");
+      const $cMargen  = document.getElementById("cintaMargen");
+
+      const $cM  = document.getElementById("cintaTotalM");
+      const $cMM = document.getElementById("cintaTotalMM");
+      const $cErr = document.getElementById("cintaError");
+
+      function cintaSetError(on){
+        if($cErr) $cErr.style.display = on ? "block" : "none";
+        const dE = document.getElementById("dockErrorCinta");
+        if(dE) dE.style.display = on ? "block" : "none";
+      }
+
+      function cintaFmtMM(n){
+        return Number.isFinite(n) ? n.toFixed(0) : "—";
+      }
+
+      function calcCinta(){
+        const altVent = toNumber($cAltVent.value);
+        const eje     = toNumber($cEje.value);
+        const polea   = toNumber($cPolea.value);
+        const margen  = toNumber($cMargen.value);
+
+        if (!(altVent > 0) || !(eje > 0) || !(polea > 0) || !(margen >= 0)) {
+          cintaSetError(true);
+          if($cM)  $cM.textContent = "—";
+          if($cMM) $cMM.textContent = "—";
+          const dM = document.getElementById("dockCintaM");
+          const dMM = document.getElementById("dockCintaMM");
+          if(dM) dM.textContent = "—";
+          if(dMM) dMM.textContent = "—";
+          return;
+        }
+
+        cintaSetError(false);
+
+        const Lrec = altVent * (polea / eje);   // mm
+        const Ltot = Lrec + margen;             // mm
+
+        if($cM)  $cM.textContent  = (Ltot/1000).toFixed(2);
+        if($cMM) $cMM.textContent = cintaFmtMM(Ltot);
+
+        const dM = document.getElementById("dockCintaM");
+        const dMM = document.getElementById("dockCintaMM");
+        if(dM) dM.textContent = (Ltot/1000).toFixed(2);
+        if(dMM) dMM.textContent = cintaFmtMM(Ltot);
+      }
+
+      // Clear-on-focus: altura ventana
+      function clearOnFocus(el){
+        if(!el) return;
+        const clear = () => {
+          if(String(el.value || "").length > 0){
+            el.value = "";
+            calcCinta();
+          }
+        };
+        el.addEventListener("focus", clear, { passive: true });
+        el.addEventListener("touchstart", clear, { passive: true });
+        el.addEventListener("mousedown", clear, { passive: true });
+      }
+      clearOnFocus($cAltVent);
+
+      ["input","change"].forEach(evt => {
+        [$cAltVent,$cEje,$cPolea,$cMargen].forEach(el => {
+          if(el) el.addEventListener(evt, calcCinta, { passive: true });
+        });
+      });
+
+      const $cReset = document.getElementById("cintaReset");
+      function cintaReset(){
+        if($cAltVent) $cAltVent.value = "1400";
+        if($cEje) $cEje.value = "60";
+        if($cPolea) $cPolea.value = "150";
+        if($cMargen) $cMargen.value = "2000";
+        calcCinta();
+      }
+      if($cReset) $cReset.addEventListener("click", cintaReset, { passive: true });
+
+      // init Cinta
+      cintaReset();
 
     })();
   </script>
