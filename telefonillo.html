@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V3.2</title>
+  <title>Puerta telefonillo / Nicho V4.6</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -393,7 +393,250 @@
       max-height: calc(var(--dockH) - 90px);
     }
 
-</style>
+
+    
+
+    /* FIJAR ratio fix: evitar que el canvas se estire (900x700) */
+    #schemaCanvas{
+      aspect-ratio: 9 / 7;
+    }
+    body.fijar-on .schemaBody{
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    body.fijar-on #schemaCanvas{
+      width: 100%;
+      height: auto !important;
+      max-height: calc(var(--dockH) - 90px);
+    }
+
+/* Canvas export 900x700 */
+    #schemaCanvas{ background: transparent; }
+
+  
+    /* Color puerta (solo marco/hoja) */
+    .schemaActions{
+      flex-direction: column;
+      align-items:center;
+      gap:10px;
+    }
+    .colorRow{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      margin-top:2px;
+    }
+    .colorLabel{
+      font-size:12px;
+      color: rgba(236,242,255,.70);
+      font-weight:900;
+      letter-spacing:.2px;
+      text-align:center;
+    }
+    .colorBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:center;
+    }
+    .cBtn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(236,242,255,.92);
+      font-weight:900;
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cBtn[aria-pressed="true"]{
+      border:1px solid rgba(124,255,196,.35);
+      background: rgba(124,255,196,.18);
+      color: rgba(240,250,255,.98);
+      box-shadow: 0 10px 22px rgba(124,255,196,.12);
+    }
+    .cBtn:active{ transform: scale(.99); }
+
+  
+    /* Export button at top (more button-like) */
+    .btnExportTop{
+      border: 1px solid rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      color: rgba(236,242,255,.95);
+      font-weight: 900;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+    .btnExportTop:active{
+      transform: scale(.99);
+    }
+
+    /* Fijar: fondo blanco detras del canvas para ver mejor */
+    body.fijar-on #schemaCanvas{
+      background: #ffffff !important;
+    }
+
+  
+    /* Fix iOS: asegurar que botones de schemaBar siempre reciban tap */
+    .schemaBar{ position: relative; z-index: 2; }
+    .schemaBar button{ pointer-events: auto; }
+
+  
+    /* V4.2 FIJAR: evitar estiramiento en ancho (mantener proporciones) */
+    body.fijar-on .schemaBody{
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    body.fijar-on #schemaCanvas{
+      width: auto !important;
+      height: auto !important;
+      max-width: 100% !important;
+      max-height: calc(var(--dockH) - 90px) !important;
+      aspect-ratio: 9 / 7;
+    }
+
+  
+    /* Schema bar right side */
+    .schemaRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .btnMini{
+      padding:8px 12px !important;
+      font-size:12px !important;
+    }
+
+  
+    /* UI limpio en esquema */
+    .schemaBar .pill{ display:none !important; }
+    #schemaHint{ display:none !important; }
+    .schemaRight{ flex-wrap:nowrap !important; gap:8px !important; }
+
+    /* FIJAR: canvas con ratio correcto y sin recorte */
+    body.fijar-on .schemaBody{
+      padding: 10px !important;
+      overflow: hidden !important;
+      display:flex !important;
+      justify-content:center !important;
+      align-items:flex-start !important;
+    }
+    body.fijar-on #schemaCanvas{
+      /* Altura basada en espacio disponible y en el ancho (mantiene 9/7) */
+      height: min(calc(var(--dockH) - 66px), calc((100vw - 56px) * 7 / 9)) !important;
+      width: auto !important;
+      max-width: 100% !important;
+      max-height: calc(var(--dockH) - 66px) !important;
+      aspect-ratio: 9 / 7;
+      display:block;
+    }
+
+  
+    /* Color puerta (marco/hoja) */
+    .colorRow{
+      width:100%;
+      padding-top:8px;
+      display:flex;
+      justify-content:flex-end;
+    }
+    .colorBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    .cBtn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(236,242,255,.92);
+      font-weight:900;
+      font-size:11px;
+      padding:7px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cBtn[aria-pressed="true"]{
+      border:1px solid rgba(124,255,196,.35);
+      background: rgba(124,255,196,.22);
+      color: rgba(240,250,255,.98);
+      box-shadow: 0 10px 22px rgba(124,255,196,.12);
+    }
+
+  
+    /* Top controls: Telefonillo / Nicho / Exportar / Cristal */
+    .segWrap{ width:100%; }
+    .seg{
+      width:100%;
+      justify-content:space-between;
+    }
+    .seg button{
+      flex: 1 1 0;
+      min-width: 0;
+      text-align:center;
+    }
+    .segTool{
+      border:1px solid rgba(255,255,255,.20) !important;
+      background: rgba(255,255,255,.08) !important;
+      color: rgba(236,242,255,.95) !important;
+      font-weight: 900 !important;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .segTool[aria-pressed="true"]{
+      border:none !important;
+      color:#041018 !important;
+      background: linear-gradient(90deg, #6dd6ff, #7cffc4) !important;
+      box-shadow: 0 10px 24px rgba(124,255,196,.35) !important;
+    }
+
+  
+    /* Top tools next to Telefonillo/Nicho */
+    .segWrap{ width:100%; }
+    .seg{ width:100%; justify-content:space-between; }
+    .seg button{ flex: 1 1 0; min-width: 0; text-align:center; }
+    .segTool{
+      border:1px solid rgba(255,255,255,.20) !important;
+      background: rgba(255,255,255,.08) !important;
+      color: rgba(236,242,255,.95) !important;
+      font-weight: 900 !important;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .segTool:active{ transform: scale(.99); }
+    .segTool[aria-pressed="true"]{
+      border:none !important;
+      color:#041018 !important;
+      background: linear-gradient(90deg, #6dd6ff, #7cffc4) !important;
+      box-shadow: 0 10px 24px rgba(124,255,196,.35) !important;
+    }
+
+  
+    /* Fix: centrar texto botones superiores */
+    .seg button{
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      line-height:1.1 !important;
+      padding-top:10px !important;
+      padding-bottom:10px !important;
+    }
+
+  </style>
 </head>
 
 <body>
@@ -404,7 +647,7 @@
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V3.2</div>
+        <div class="ver">V4.6</div>
       </div>
     </header>
 
@@ -412,7 +655,10 @@
       <div class="seg" role="tablist">
         <button id="btnTel" type="button" aria-pressed="true">Telefonillo</button>
         <button id="btnNicho" type="button" aria-pressed="false">Nicho</button>
-      </div>
+        <button id="btnExport" type="button" class="segTool">PNG</button>
+
+        <button id="btnCristalMed" type="button" class="segTool" aria-pressed="false">Cristal</button>
+        </div>
     </div>
 
     <section class="card">
@@ -467,27 +713,33 @@
         <div style="margin-top:20px; text-align:center;">
           <label>Apertura de la hoja</label>
           <div class="seg" style="justify-content:center; margin-top:5px;">
-            <button id="btnIzq" type="button" class="btnApertura" data-val="izq" aria-pressed="true">Izquierda</button>
-            <button id="btnDer" type="button" class="btnApertura" data-val="der" aria-pressed="false">Derecha</button>
+            <button id="btnIzq" type="button" class="btnApertura" data-val="izq" aria-pressed="false">Izquierda</button>
+            <button id="btnDer" type="button" class="btnApertura" data-val="der" aria-pressed="true">Derecha</button>
           </div>
         </div>
+          
+          <div class="colorRow" aria-label="Color puerta">
+            <div class="colorBtns" role="group" aria-label="Seleccionar color puerta">
+              <button type="button" class="cBtn" data-color="default" aria-pressed="true">Default</button>
+              <button type="button" class="cBtn" data-color="#C3C3C3" aria-pressed="false">Gris</button>
+              <button type="button" class="cBtn" data-color="#D4C49E" aria-pressed="false">Inox</button>
+              <button type="button" class="cBtn" data-color="#373737" aria-pressed="false">Negro</button>
+              <button type="button" class="cBtn" data-color="#F0F0F0" aria-pressed="false">Blanco</button>
+              <button type="button" class="cBtn" data-color="#8A6642" aria-pressed="false">Bronce</button>
+              <button type="button" class="cBtn" data-color="#CDA434" aria-pressed="false">Oro</button>
+            </div>
+          </div>
 
+
+
+        
         <div class="schemaCard" id="schemaCard">
-          <div class="schemaBar">
-            <span class="pill ok">Esquema</span>
-            <div class="small" id="schemaHint">Telefonillo</div>
-          </div>
-
           <div class="schemaBody">
-            <canvas id="schemaCanvas" width="900" height="560" aria-label="Esquema de puerta" role="img"></canvas>
+            <canvas id="schemaCanvas" width="900" height="700" aria-label="Esquema de puerta" role="img"></canvas>
           </div>
-
-          <div class="schemaActions">
-            <button id="btnExport" type="button" class="btnGhost">Exportar PNG</button>
-          </div>
-
           <div class="hint" id="exportHint" style="text-align:center;"></div>
         </div>
+
 
         <div class="modal" id="pngModal" aria-hidden="true">
           <div class="modalInner">
@@ -511,7 +763,7 @@
       </div>
     </section>
   </div>
-  <footer>App V3.1</footer>
+  <footer>App V4.6</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -521,16 +773,24 @@
 
   var mode = "telefonillo";
   var pestanaCortada = false;
-  var apertura = "izq"; // Estado de apertura
+  var apertura = "der"; // Estado de apertura
 
-  var exportMode = false;
-  var lastDraw = { modeName:"telefonillo", Wm:1, Hm:1, Wc:1, Hc:1 };
+  
+  var doorColor = "default";
+var exportMode = false;
+  
+  var showCristalMed = false;
+var lastDraw = { modeName:"telefonillo", Wm:1, Hm:1, Wc:1, Hc:1 };
   var state = {
     telefonillo: { w: "180", h: "300" },
     nicho: { w: "750", h: "600", hw: "725", hh: "575", pestana: false }
   };
 
-  function toNum(v, fallback){
+  
+  
+  try{ var _scm = localStorage.getItem("showCristalMed"); if(_scm === "1") showCristalMed = true; }catch(e){}
+try{ var _dc = localStorage.getItem("doorColor"); if(_dc) doorColor = _dc; }catch(e){}
+function toNum(v, fallback){
     if (fallback === undefined) fallback = 0;
     var s = (v === null || v === undefined) ? "" : String(v);
     s = s.trim().replace(",", ".");
@@ -552,6 +812,39 @@
     toast._t = setTimeout(function(){ el.classList.remove("show"); }, 1200);
   }
 
+
+  function syncCristalBtn(){
+    var b = $("btnCristalMed");
+    if(!b) return;
+    b.setAttribute("aria-pressed", showCristalMed ? "true" : "false");
+    // Texto fijo
+    if(b.textContent !== "Cristal") b.textContent = "Cristal";
+  }
+
+  function toggleCristalMed(){
+    showCristalMed = !showCristalMed;
+    try{ localStorage.setItem("showCristalMed", showCristalMed ? "1" : "0"); }catch(e){}
+    syncCristalBtn();
+    render("cristalMed");
+  }
+
+
+  function syncDoorColor(){
+    var btns = document.querySelectorAll(".cBtn");
+    for(var i=0;i<btns.length;i++){
+      var b = btns[i];
+      var v = b.getAttribute("data-color") || "default";
+      b.setAttribute("aria-pressed", (v === doorColor) ? "true" : "false");
+    }
+  }
+
+  function setDoorColor(v){
+    doorColor = v || "default";
+    try{ localStorage.setItem("doorColor", doorColor); }catch(e){}
+    syncDoorColor();
+    render("doorColor");
+  }
+
   function escapeHtml(s){
     s = String(s);
     return s.replace(/[&<>"']/g, function(c){
@@ -569,7 +862,7 @@
     var CW = c.width, CH = c.height;
     ctx.clearRect(0,0,CW,CH);
 
-    ctx.fillStyle = "rgba(0,0,0,0)";
+    ctx.fillStyle = exportMode ? "#ffffff" : "rgba(0,0,0,0)";
     ctx.fillRect(0,0,CW,CH);
 
     Wm = Math.max(1, Wm);
@@ -606,7 +899,8 @@
       outerGrad.addColorStop(0, "rgba(215,215,215,0.96)");
       outerGrad.addColorStop(1, "rgba(190,190,190,0.96)");
     }
-    ctx.fillStyle = outerGrad;
+    var doorFill = (doorColor && doorColor !== "default") ? doorColor : null;
+    ctx.fillStyle = doorFill ? doorFill : outerGrad;
     ctx.strokeStyle = "rgba(0,0,0,0.45)";
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -633,7 +927,11 @@
     glassGrad.addColorStop(0, "rgba(95,150,255,0.65)");
     glassGrad.addColorStop(0.45, "rgba(245,250,255,0.90)");
     glassGrad.addColorStop(1, "rgba(80,140,255,0.70)");
-    ctx.fillStyle = glassGrad;
+        // Fondo blanco detras del cristal (evita mezcla con color puerta)
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(gx, gy, gw, gh);
+
+ctx.fillStyle = glassGrad;
     ctx.strokeStyle = "rgba(0,110,255,0.95)";
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -645,7 +943,8 @@
     ctx.save();
     ctx.strokeStyle = "rgba(0,95,255,0.95)"; // Color azul intenso
     ctx.lineWidth = 3;
-    ctx.setLineDash([10, 8]); // Línea discontinua como en los botones
+        ctx.setLineDash([]);
+    // Línea discontinua como en los botones
     ctx.beginPath();
     
     var my = gy + gh / 2; // Punto medio altura
@@ -668,8 +967,11 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
+    var fijarOn = false;
+    try{ fijarOn = !!(document.body && document.body.classList.contains("fijar-on")); }catch(e){}
+
     if(exportMode){
-      // Export: only marco measures in black (no cristal measures)
+      // Export: marco measures in black
       ctx.fillStyle = "rgba(0,0,0,0.92)";
       ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
       ctx.fillText(String(Math.round(Wm)), x0 + w0/2, y0 - 54);
@@ -681,38 +983,71 @@
       ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
       ctx.fillText(String(Math.round(Hm)), 0, 0);
       ctx.restore();
+
+      if(showCristalMed){
+        if(showCristalMed){
+      if(showCristalMed){
+      if(showCristalMed){
+      ctx.fillStyle = "rgba(0,40,255,0.95)";
+        ctx.font = "900 78px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(String(Math.round(Wc)), x0 + w0/2, y0 + h0 + 62);
+
+        }
+      }
+      }
+if(showCristalMed){
+      if(showCristalMed){
+      if(showCristalMed){
+      ctx.save();
+        ctx.translate(x0 + w0 + 58, y0 + h0/2);
+        ctx.rotate(-Math.PI/2);
+        ctx.fillStyle = "rgba(0,40,255,0.95)";
+        ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(String(Math.round(Hc)), 0, 0);
+        ctx.restore();
+      }
+      }
+      }
+}
     }else{
-      ctx.fillStyle = "rgba(220,220,220,0.45)";
+      // Screen: marco measures grey, but in FIJAR use black
+      ctx.fillStyle = fijarOn ? "rgba(0,0,0,0.92)" : "rgba(220,220,220,0.45)";
       ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
       ctx.fillText(String(Math.round(Wm)), x0 + w0/2, y0 - 54);
-
-      ctx.fillStyle = "rgba(0,40,255,0.95)";
-      ctx.font = "900 78px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillText(String(Math.round(Wc)), x0 + w0/2, y0 + h0 + 62);
 
       ctx.save();
       ctx.translate(x0 - 58, y0 + h0/2);
       ctx.rotate(-Math.PI/2);
-      ctx.fillStyle = "rgba(220,220,220,0.45)";
+      ctx.fillStyle = fijarOn ? "rgba(0,0,0,0.92)" : "rgba(220,220,220,0.45)";
       ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
       ctx.fillText(String(Math.round(Hm)), 0, 0);
       ctx.restore();
 
-      ctx.save();
-      ctx.translate(x0 + w0 + 58, y0 + h0/2);
-      ctx.rotate(-Math.PI/2);
-      ctx.fillStyle = "rgba(0,40,255,0.95)";
-      ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillText(String(Math.round(Hc)), 0, 0);
-      ctx.restore();
+      if(showCristalMed){
+        ctx.fillStyle = "rgba(0,40,255,0.95)";
+        ctx.font = "900 78px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(String(Math.round(Wc)), x0 + w0/2, y0 + h0 + 62);
+
+        ctx.save();
+        ctx.translate(x0 + w0 + 58, y0 + h0/2);
+        ctx.rotate(-Math.PI/2);
+        ctx.fillStyle = "rgba(0,40,255,0.95)";
+        ctx.font = "900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText(String(Math.round(Hc)), 0, 0);
+        ctx.restore();
+      }
     }
+
 
     ctx.fillStyle = "rgba(255,255,255,0.90)";
     ctx.font = "900 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
     ctx.textAlign = "left";
-    ctx.fillText("MARCO/HOJA", x0 + 10, y0 + 20);
-    ctx.fillText("CRISTAL", gx + 10, gy + 20);
-  }
+    if(!exportMode){
+      ctx.fillStyle = "rgba(255,255,255,0.90)";
+      ctx.font = "900 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillText("CRISTAL " + String(Math.round(Wc)) + " x " + String(Math.round(Hc)), x0 + 10, y0 + 20);
+    }
+}
 
 
   function render(source){
@@ -882,7 +1217,55 @@
   }
 
   function init(){
-    // Initial values Telefonillo
+    
+    
+    
+    // CLONE_BTNCRISTAL: evitar dobles listeners en iOS
+    (function(){
+      var b = $("btnCristalMed");
+      if(!b) return;
+      var c = b.cloneNode(true);
+      b.parentNode.replaceChild(c, b);
+      c.addEventListener("click", function(ev){
+        try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+        toggleCristalMed();
+      }, false);
+    })();
+    syncCristalBtn();
+// Toggle medidas cristal (anti doble evento iOS)
+    (function(){
+      var b = $("btnCristalMed");
+      if(!b) return;
+      var lastTap = 0;
+
+      function handler(ev){
+        var now = Date.now();
+        // Si viene un click justo despues de un pointerup/touchend, lo ignoramos
+        if(ev && ev.type === "click" && (now - lastTap) < 450) return;
+        lastTap = now;
+        toggleCristalMed();
+      }
+
+      // Preferimos click (mas estable), y protegemos doble disparo
+      b.addEventListener("click", handler, {passive:true});
+      b.addEventListener("pointerup", handler, {passive:true});
+      b.addEventListener("touchend", handler, {passive:true});
+      syncCristalBtn();
+    })();
+// Color puerta buttons
+    var cbtns = document.querySelectorAll(".cBtn");
+    for(var i=0;i<cbtns.length;i++){
+      (function(btn){
+        function handler(){
+          var v = btn.getAttribute("data-color") || "default";
+          setDoorColor(v);
+        }
+        btn.addEventListener("pointerup", handler, {passive:true});
+        btn.addEventListener("click", handler, {passive:true});
+      })(cbtns[i]);
+    }
+    syncDoorColor();
+// Initial values Telefonillo
     $("w").value = state.telefonillo.w;
     $("h").value = state.telefonillo.h;
 
