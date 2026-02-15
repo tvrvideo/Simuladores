@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras - Menú</title>
+  <title>Calculadoras v1.5</title>
 
   <style>
     :root{
@@ -372,7 +372,6 @@
     /* Comentarios/subhead en azul pastel */
     .subhead{ color: var(--commentPastelBlue); opacity: .92; }
 
-
     /* BOTÓN MENÚ (rojo, estilo original) */
     .btn-menu{
       position: fixed;
@@ -414,7 +413,6 @@
     }
     .topbar > *{ pointer-events: auto; }
 
-
 #viewTensor .title{ color: var(--calcName); }
 
     /* Topbar limpio */
@@ -435,7 +433,6 @@
       z-index: 9999;
     }
 
-
     /* Botón pequeño (reset) */
     .btn-mini{
       padding: 8px 12px;
@@ -444,7 +441,6 @@
       font-weight: 950;
       letter-spacing: .15px;
     }
-
 
     /* ===== Ajustes para que IVA quepa sin scroll ===== */
     #viewIVA .inner{ padding: 12px; }
@@ -490,7 +486,6 @@
     /* Oculta el bloque resultado "normal" dentro de la tarjeta cuando usamos dock */
     body.hasDock .card .result{ display:none; }
 
-
     /* ===== Ajustes compactos para Cinta persiana ===== */
     #viewCinta .inner{ padding: 12px; }
     #viewCinta .grid{ gap: 10px; }
@@ -500,6 +495,114 @@
     @media (max-width: 559px){
       #viewCinta .grid{ grid-template-columns: 1fr 1fr; }
       #viewCinta .field.full{ grid-column: 1 / -1; }
+    }
+
+    /* ===== OSCILOS / HERRAJES OB (scoped) ===== */
+    #viewOscilos .osCard{
+      background:
+        radial-gradient(460px 240px at 20% 20%, rgba(255, 231, 208, .18), transparent 62%),
+        radial-gradient(460px 240px at 80% 30%, rgba(196, 255, 235, .10), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-color: rgba(255,255,255,.14);
+    }
+    #viewOscilos .osInner{ padding: 12px; }
+    #viewOscilos .osGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 560px){
+      #viewOscilos .osGrid{ grid-template-columns: 1fr; }
+    }
+    #viewOscilos .osBrandWrap{ margin-top: 12px; display:flex; flex-direction:column; gap:8px; }
+    #viewOscilos .osBrandLabel{ font-weight:950; color: rgba(238,243,255,.72); letter-spacing:.15px; }
+
+    /* Botones marca: cuadrados y una linea */
+    #viewOscilos .brandRow{
+      display:flex;
+      flex-wrap:nowrap;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:8px;
+      width:100%;
+    }
+    #viewOscilos .btnReset{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.10);
+      color: rgba(238,243,255,.90);
+      padding: 12px 10px;
+      border-radius: 12px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    #viewOscilos .btnBrandActive{
+      background: rgba(20, 210, 140, .78) !important;
+      border-color: rgba(255, 235, 120, 1) !important;
+      box-shadow: 0 0 0 4px rgba(255,235,120,.18), 0 10px 26px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.06) !important;
+      color: rgba(255,255,255,.98) !important;
+    }
+    #viewOscilos .osSimWrap{
+      margin-top:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.10);
+      overflow:hidden;
+    }
+    #viewOscilos .osSimSvg{ width:100%; height:360px; display:block; }
+    @media (max-width: 560px){
+      #viewOscilos .osSimSvg{ height:340px; }
+    }
+
+    /* Dock Oscilos */
+    #viewOscilos .osDock{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 10px);
+      z-index: 9998;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 44px rgba(0,0,0,.45);
+      background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.10));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px 12px;
+      display:none;
+    }
+    #viewOscilos .osDockInner{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    #viewOscilos .osDockItem{
+      display:flex;
+      gap:8px;
+      align-items:baseline;
+      font-weight:950;
+      color: rgba(238,243,255,.90);
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+    #viewOscilos .osDockItem strong{
+      color: rgba(164,255,202,1);
+      font-size: 20px;
+    }
+
+    @media (max-width: 420px){
+      #viewOscilos .brandRow{ gap:6px; }
+      #viewOscilos .btnReset{ padding: 11px 8px; font-size: 13px; letter-spacing:.15px; }
+    }
+    @media (max-width: 360px){
+      #viewOscilos .btnReset{ padding: 10px 6px; font-size: 12px; }
     }
 
 </style>
@@ -518,17 +621,18 @@
 
   <main class="wrap">
     <!-- MENÚ -->
-    <section id="viewMenu" class="view active" aria-label="Menú de calculadoras">
-      <div class="title">Calculadoras <small>v1.3.1</small></div>
+    <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
+      <div class="title">Calculadoras <small>v1.5</small></div>
+
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
           <div class="menuGrid" role="list">
-            <!-- Tensor muelles -->
-            <div class="menuItem" role="listitem" data-route="tensor">
+
+            <div class="menuItem" role="listitem" data-route="oscilos">
               <div class="miTop">
                 <div>
-                  <p class="miTitle">Tensor muelles</p>
-                  <p class="miDesc">Cálculo de vueltas recomendadas según altura, eje y pretensión.</p>
+                  <p class="miTitle">Oscilos (Herraje OB)</p>
+                  <p class="miDesc">Simulador con descuentos y compas (Giesse, Baicha 95/PRO, Stac).</p>
                 </div>
                 <span class="badge">Disponible</span>
               </div>
@@ -537,7 +641,7 @@
                 <span class="miHint">›</span>
               </div>
             </div>
-            <!-- IVA -->
+
             <div class="menuItem" role="listitem" data-route="iva">
               <div class="miTop">
                 <div>
@@ -552,14 +656,11 @@
               </div>
             </div>
 
-
-            
-            <!-- Cinta persiana -->
             <div class="menuItem" role="listitem" data-route="cinta">
               <div class="miTop">
                 <div>
                   <p class="miTitle">Cinta persiana</p>
-                  <p class="miDesc">Calcula la longitud de cinta según altura de ventana + cajón y diámetros.</p>
+                  <p class="miDesc">Calcula la longitud de cinta segun altura de ventana y diametros.</p>
                 </div>
                 <span class="badge">Disponible</span>
               </div>
@@ -569,40 +670,25 @@
               </div>
             </div>
 
-            <!-- Placeholder 1 -->
-            <div class="menuItem" role="listitem" data-route="proximamente-1" aria-disabled="true" style="opacity:.55; cursor:not-allowed;">
+            <div class="menuItem" role="listitem" data-route="tensor">
               <div class="miTop">
                 <div>
-                  <p class="miTitle">Calculadora (próximamente)</p>
-                  <p class="miDesc">Hueco reservado para la siguiente calculadora del menú.</p>
+                  <p class="miTitle">Tensor muelles</p>
+                  <p class="miDesc">Calculo de vueltas recomendadas segun altura, eje y pretension.</p>
                 </div>
-                <span class="badge" style="border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06);">Pronto</span>
+                <span class="badge">Disponible</span>
               </div>
               <div class="miFooter">
-                <span class="miHint">Sin activar</span>
-                <span class="miHint">—</span>
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
               </div>
             </div>
 
-            <!-- Placeholder 2 -->
-            <div class="menuItem" role="listitem" data-route="proximamente-2" aria-disabled="true" style="opacity:.55; cursor:not-allowed;">
-              <div class="miTop">
-                <div>
-                  <p class="miTitle">Calculadora (próximamente)</p>
-                  <p class="miDesc">Hueco reservado para otra calculadora futura.</p>
-                </div>
-                <span class="badge" style="border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06);">Pronto</span>
-              </div>
-              <div class="miFooter">
-                <span class="miHint">Sin activar</span>
-                <span class="miHint">—</span>
-              </div>
-            </div>
           </div>
-
-          </div>
+        </div>
       </section>
     </section>
+
 
     <!-- TENSOR MUELLES -->
     <section id="viewTensor" class="view" aria-label="Calculadora Tensor muelles">
@@ -668,7 +754,6 @@
         Nota: el cálculo redondea las vueltas hacia arriba (ceil) y suma la pretensión (redondeada).
       </div>
     </section>
-
 
     <!-- IVA -->
     <section id="viewIVA" class="view" aria-label="Calculadora IVA">
@@ -749,7 +834,6 @@
       </div>
     </section>
 
-
     <!-- CINTA PERSIANA -->
     <section id="viewCinta" class="view" aria-label="Calculadora Cinta persiana">
       <div class="title">Cinta persiana <small>v1.0</small></div>
@@ -823,6 +907,62 @@
       </div>
     </section>
 
+  
+    <!-- OSCILOS / HERRAJES OB -->
+    <section id="viewOscilos" class="view" aria-label="Calculadora Herraje OB">
+      <div class="title">Herraje OB <small>v4.25</small></div>
+
+      <div style="display:flex; justify-content:flex-end; padding: 0 6px 10px;">
+        <button class="btn btn-ghost btn-mini" id="osResetBtn" type="button" aria-label="Reset Herraje OB">Reset</button>
+      </div>
+
+      <section class="card osCard" aria-label="Calculadora Herraje OB">
+        <div class="inner osInner">
+          <div class="grid osGrid">
+            <div class="field">
+              <label for="gAncho">Ancho hoja (mm)</label>
+              <input id="gAncho" type="number" inputmode="decimal" value="500" />
+            </div>
+            <div class="field">
+              <label for="gAlto">Alto hoja (mm)</label>
+              <input id="gAlto" type="number" inputmode="decimal" value="1200" />
+            </div>
+            <div class="field">
+              <label for="gManilla">Altura manilla (mm)</label>
+              <input id="gManilla" type="number" inputmode="decimal" value="450" />
+            </div>
+          </div>
+
+          <div class="osBrandWrap" aria-label="Marca herrajes">
+            <div class="osBrandLabel">Marca herrajes</div>
+            <div class="brandRow osBrandRow">
+              <button class="btnReset btnBrandActive" id="brandGiesse" type="button" aria-pressed="true">Giesse</button>
+              <button class="btnReset" id="brandBaicha95" type="button" aria-pressed="false">Baicha 95</button>
+              <button class="btnReset" id="brandBaichaPro" type="button" aria-pressed="false">Baicha PRO</button>
+              <button class="btnReset" id="brandStac" type="button" aria-pressed="false">Stac</button>
+            </div>
+          </div>
+
+          <div class="osSimWrap" aria-label="Dibujo de hojas con medidas">
+            <svg class="osSimSvg" id="gSvg" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+        </div>
+      </section>
+
+      <div class="osDock" id="dockOscilos" aria-label="Resultados Herraje OB">
+        <div class="osDockInner">
+          <div class="osDockItem"><span id="dockALabel">A</span> <strong id="dockAVal">-</strong></div>
+          <div class="osDockItem">Sup <strong id="dockSup">-</strong></div>
+          <div class="osDockItem">Inf <strong id="dockInf">-</strong></div>
+          <div class="osDockItem">Compas <strong id="dockCompas">-</strong></div>
+        </div>
+      </div>
+
+      <div class="subhead" style="margin-top:14px;">
+        Simulador de oscilobatiente: muestra descuentos y compas segun ancho/alto/manilla y marca seleccionada.
+      </div>
+    </section>
+
   </main>
 
   <script>
@@ -835,8 +975,8 @@
         tensor: document.getElementById("viewTensor"),
         iva: document.getElementById("viewIVA"),
         cinta: document.getElementById("viewCinta"),
+        oscilos: document.getElementById("viewOscilos"),
       };      const btnHome = document.getElementById("btnHome");
-
 
       // Home se muestra solo cuando estás dentro de una calculadora
       function setView(name){
@@ -853,6 +993,8 @@
         if(dockIVA) dockIVA.style.display = (name === "iva") ? "block" : "none";
         const dockCinta = document.getElementById("dockCinta");
         if(dockCinta) dockCinta.style.display = (name === "cinta") ? "block" : "none";
+        const dockOsc = document.getElementById("dockOscilos");
+        if(dockOsc) dockOsc.style.display = (name === "oscilos") ? "block" : "none";
         /* Botón rojo reservado (GitHub): siempre visible */
         // Mantener el scroll en top al cambiar de vista (suave pero seguro)
         window.scrollTo(0, 0);
@@ -863,6 +1005,7 @@
         if (h === "tensor") setView("tensor");
         else if (h === "iva") setView("iva");
         else if (h === "cinta") setView("cinta");
+        else if (h === "oscilos") setView("oscilos");
         else setView("menu");
       }
 
@@ -879,6 +1022,9 @@
       function goCinta(){
         location.hash = "#cinta";
       }
+      function goOscilos(){
+        location.hash = "#oscilos";
+      }
 
       // Menú items
       function onMenuTap(e){
@@ -888,6 +1034,7 @@
         if(route === "tensor") goTensor();
         if(route === "iva") goIVA();
         if(route === "cinta") goCinta();
+        if(route === "oscilos") goOscilos();
       }
 
       // Click/touch friendly
@@ -963,7 +1110,6 @@
       // init
       routeFromHash();
       calcularTensor();
-
 
       // --- IVA (auto-cálculo bidireccional) ---
       const $ivaBase  = document.getElementById("ivaBase");
@@ -1099,7 +1245,6 @@
         });
       }
 
-
       // Al tocar un input con valor, lo vaciamos para escribir sin borrar dígito a dígito
       function ivaClearOnFocus(el){
         if(!el) return;
@@ -1232,6 +1377,369 @@
 
       // init Cinta
       cintaReset();
+
+      // --- Oscilos / Herrajes OB ---
+      (function(){
+        function $(id){ return document.getElementById(id); }
+
+        var inW = $("gAncho");
+        var inH = $("gAlto");
+        var inM = $("gManilla");
+        var svg = $("gSvg");
+
+        if(!inW || !inH || !inM || !svg){ return; }
+
+        var currentBrand = "GIESSE";
+
+        function toNumber(v){
+          var s = String(v == null ? "" : v).replace(",", ".").trim();
+          if(s === "") return NaN;
+          var n = Number(s);
+          return (typeof n === "number" && isFinite(n)) ? n : NaN;
+        }
+
+        function svgEl(tag, attrs){
+          var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+          for(var k in attrs){
+            if(Object.prototype.hasOwnProperty.call(attrs, k)){
+              el.setAttribute(k, String(attrs[k]));
+            }
+          }
+          return el;
+        }
+
+        function setText(id, val){
+          var el = $(id);
+          if(el) el.textContent = val;
+        }
+
+        function clearSvg(){
+          while(svg.firstChild) svg.removeChild(svg.firstChild);
+        }
+
+        function valueBoxVertical(x, centerY, valStr, cDim, cBg){
+          var padX = 12;
+          var boxH = 34;
+          var str = String(valStr);
+          var w = Math.max(70, str.length * 10 + padX*2);
+
+          var gx = x;
+          var gy = centerY;
+
+          var g = svgEl("g", { transform: "rotate(-90 " + gx + " " + gy + ")" });
+
+          var rx = gx - (w/2);
+          var ry = gy - (boxH/2);
+
+          g.appendChild(svgEl("rect", { x: rx, y: ry, width: w, height: boxH, rx: 12, ry: 12,
+                                       fill: cBg, stroke: "rgba(164,255,202,.35)", "stroke-width": 1 }));
+
+          var t = svgEl("text", { x: rx + (w/2), y: ry + (boxH/2), "font-size": 20, "font-weight": 950,
+                                 fill: cDim, "text-anchor": "middle" });
+          t.setAttribute("dy", ".35em");
+          t.textContent = str;
+          g.appendChild(t);
+
+          svg.appendChild(g);
+        }
+
+        function valueBoxH(x, y, text, cDim, cBg){
+          var pad = 14;
+          var boxH = 34;
+          var w = Math.max(86, String(text).length * 10 + pad*2);
+
+          svg.appendChild(svgEl("rect",{x:x,y:y,width:w,height:boxH,rx:12,ry:12,fill:cBg,stroke:"rgba(164,255,202,.35)","stroke-width":1}));
+          var t = svgEl("text",{x:x + (w/2), y:y + (boxH/2), "font-size":20, "font-weight":950, fill:cDim, "text-anchor":"middle"});
+          t.setAttribute("dy",".35em");
+          t.textContent = String(text);
+          svg.appendChild(t);
+          return w;
+        }
+
+        function setBrand(brand){
+          currentBrand = brand;
+
+          var bG = $("brandGiesse");
+          var b95 = $("brandBaicha95");
+          var bPro = $("brandBaichaPro");
+          var bS = $("brandStac");
+
+          if(bG && b95 && bPro && bS){
+            bG.classList.remove("btnBrandActive");
+            b95.classList.remove("btnBrandActive");
+            bPro.classList.remove("btnBrandActive");
+            bS.classList.remove("btnBrandActive");
+
+            bG.setAttribute("aria-pressed","false");
+            b95.setAttribute("aria-pressed","false");
+            bPro.setAttribute("aria-pressed","false");
+            bS.setAttribute("aria-pressed","false");
+
+            if(brand === "GIESSE"){ bG.classList.add("btnBrandActive"); bG.setAttribute("aria-pressed","true"); }
+            if(brand === "BAICHA95"){ b95.classList.add("btnBrandActive"); b95.setAttribute("aria-pressed","true"); }
+            if(brand === "BAICHAPRO"){ bPro.classList.add("btnBrandActive"); bPro.setAttribute("aria-pressed","true"); }
+            if(brand === "STAC"){ bS.classList.add("btnBrandActive"); bS.setAttribute("aria-pressed","true"); }
+          }
+
+          draw();
+        }
+
+        var bG0 = $("brandGiesse");
+        var b950 = $("brandBaicha95");
+        var bPro0 = $("brandBaichaPro");
+        var bS0 = $("brandStac");
+        if(bG0) bG0.addEventListener("click", function(){ setBrand("GIESSE"); }, false);
+        if(b950) b950.addEventListener("click", function(){ setBrand("BAICHA95"); }, false);
+        if(bPro0) bPro0.addEventListener("click", function(){ setBrand("BAICHAPRO"); }, false);
+        if(bS0) bS0.addEventListener("click", function(){ setBrand("STAC"); }, false);
+
+        function draw(){
+          var w = toNumber(inW.value);
+          var h = toNumber(inH.value);
+          var mh = toNumber(inM.value);
+
+          clearSvg();
+
+          if(!(isFinite(w) && isFinite(h) && isFinite(mh))){
+            setText("dockALabel","A"); setText("dockAVal","-");
+            setText("dockSup","-"); setText("dockInf","-"); setText("dockCompas","-");
+            return;
+          }
+          if(!(w>0) || !(h>0) || mh<0 || mh>h){
+            setText("dockALabel","A"); setText("dockAVal","-");
+            setText("dockSup","-"); setText("dockInf","-");
+            setText("dockCompas","-");
+            return;
+          }
+
+          var brand = currentBrand || "GIESSE";
+          var hideRight = (brand === "STAC");
+          var leftNoMeasures = (brand === "BAICHA95");
+
+          var compas = "-";
+          var A = NaN;
+          var canOB = true;
+
+          if(brand === "BAICHA95"){
+            if(w < 375){ canOB=false; compas="No OB"; }
+            else if(w < 495){ compas="C-300"; A = w - 159; }
+            else if(w < 585){ compas="C-400"; A = w - 398; }
+            else if(w <= 1700){ compas="C-500"; A = w - 504; }
+            else { canOB=false; compas="Fuera rango"; }
+          } else if(brand === "BAICHAPRO"){
+            if(w < 375){ canOB=false; compas="No OB"; }
+            else if(w <= 470){ compas="C-300"; A = w - 158; }
+            else if(w >= 475 && w < 580){ compas="C-400"; A = w - 396; }
+            else if(w >= 580 && w <= 1700){ compas="C-500"; A = w - 502; }
+            else { canOB=false; compas="Fuera rango"; }
+          } else {
+            if(w < 375){ canOB=false; compas="No OB"; }
+            else if(w < 550){ compas="T1"; A = w - 355; }
+            else { compas="A2"; A = w - 510; }
+          }
+
+          var aLabel = ((brand === "BAICHA95") || (brand === "BAICHAPRO")) ? compas : ((compas === "A2") ? "A2" : "A1");
+
+          var pInf = NaN, pSup = NaN;
+          if(brand === "BAICHA95"){
+            pInf = mh - 153;
+            pSup = (h - mh) - 229;
+          } else if(brand === "BAICHAPRO"){
+            pInf = mh - 152;
+            pSup = (h - mh) - 187;
+          } else {
+            var k = 207;
+            pInf = mh - k;
+            pSup = (h - mh) - k;
+          }
+
+          var pInfL = NaN, pSupL = NaN;
+          if(brand === "STAC"){
+            pInfL = (h/2) - 12;
+            pSupL = (h/2) - 12;
+          } else if(brand === "BAICHAPRO"){
+            pInfL = mh - 315;
+            pSupL = (h - mh) - 91;
+          } else {
+            pInfL = (mh - 150) - 209;
+            pSupL = (h - mh + 150) - 209;
+          }
+
+          var hasErr = false;
+          if(!canOB) hasErr = true;
+          if(isFinite(A) && !(A >= 0)) hasErr = true;
+          if(!hideRight){
+            if(!(pInf >= 0) || !(pSup >= 0)) hasErr = true;
+          }
+
+          setText("dockCompas", compas);
+          setText("dockALabel", aLabel);
+
+          if(hasErr){
+            setText("dockAVal","-"); setText("dockSup","-"); setText("dockInf","-");
+          } else {
+            setText("dockAVal", isFinite(A) ? String(Math.round(A)) : "-");
+            if(hideRight){
+              setText("dockSup","-"); setText("dockInf","-");
+            } else {
+              setText("dockSup", String(Math.round(pSup*10)/10));
+              setText("dockInf", String(Math.round(pInf*10)/10));
+            }
+          }
+
+          var vbW = 420, vbH = 360;
+          var pad = 18;
+          var topSpace = 70;
+          var bottomSpace = 44;
+          var gapPx = 68;
+
+          var availW = vbW - pad*2;
+          var availH = vbH - topSpace - bottomSpace;
+
+          var s = Math.min(availH / h, (availW - gapPx) / (2 * w));
+          var dw = w * s;
+          var dh = h * s;
+
+          var totalW = (dw * 2) + gapPx;
+          var xL = (vbW - totalW) / 2;
+          var y0 = topSpace + (availH - dh) / 2;
+          var xR = xL + dw + gapPx;
+
+          var cDim = "rgba(164,255,202,1)";
+          var cDimBg = "rgba(20,60,45,.60)";
+
+          svg.appendChild(svgEl("rect",{x:8,y:8,width:vbW-16,height:vbH-16,rx:16,ry:16,fill:"rgba(0,0,0,.08)",stroke:"rgba(255,255,255,.10)"}));
+
+          function drawLeaf(x0){
+            svg.appendChild(svgEl("rect",{
+              x:x0, y:y0, width:dw, height:dh,
+              rx:0, ry:0,
+              fill:"rgba(255,255,255,.95)",
+              stroke:"rgba(0,0,0,.18)",
+              "stroke-width":2
+            }));
+            var inset = 20;
+            svg.appendChild(svgEl("rect",{
+              x:(x0+inset), y:(y0+inset), width:(dw-inset*2), height:(dh-inset*2),
+              rx:0, ry:0,
+              fill:"rgba(120, 185, 255, .40)",
+              stroke:"rgba(0,0,0,.10)",
+              "stroke-width":1
+            }));
+          }
+
+          drawLeaf(xL);
+          drawLeaf(xR);
+
+          var cy = y0 + dh - (mh * s);
+          var plateW = 14, plateH = 26;
+          var plateX = xR + 6;
+          var plateY = cy - (plateH/2);
+          svg.appendChild(svgEl("rect",{x:plateX,y:plateY,width:plateW,height:plateH,rx:6,ry:6,fill:"rgba(245,245,245,.95)",stroke:"rgba(0,0,0,.18)","stroke-width":1}));
+          var armW = 32, armH = 8;
+          svg.appendChild(svgEl("rect",{x:plateX+6,y:cy-(armH/2),width:armW,height:armH,rx:5,ry:5,fill:"rgba(255,198,140,.95)",stroke:"rgba(0,0,0,.18)","stroke-width":1}));
+          svg.appendChild(svgEl("circle",{cx:plateX+7,cy:cy,r:3.6,fill:"rgba(0,0,0,.20)"}));
+          svg.appendChild(svgEl("circle",{cx:plateX+7,cy:cy,r:2.0,fill:"rgba(238,243,255,.95)"}));
+
+          if(!hideRight && canOB && !hasErr){
+            var aText = aLabel + "= " + String(Math.round(A));
+            var aDim = (compas === "A2") ? "rgba(255,235,120,1)" : cDim;
+            var aBg  = (compas === "A2") ? "rgba(80,70,15,.60)" : cDimBg;
+
+            var boxW = Math.max(110, aText.length * 10 + 28);
+            var bx = xR + (dw - boxW) / 2;
+            var by = y0 - 34 - 12;
+            valueBoxH(bx, by, aText, aDim, aBg);
+          }
+
+          var supCY = y0 + (dh * 0.22);
+          var infCY = y0 + (dh * 0.82);
+          var xBoxL = xL + dw + 14;
+
+          var cDimL = "rgba(255,185,138,1)";
+          var cBgL  = "rgba(70,40,18,.55)";
+          if(!leftNoMeasures){
+            if(pSupL >= 0) valueBoxVertical(xBoxL, supCY, String(Math.round(pSupL*10)/10), cDimL, cBgL);
+            if(pInfL >= 0) valueBoxVertical(xBoxL, infCY, String(Math.round(pInfL*10)/10), cDimL, cBgL);
+          }
+
+          if(!hideRight && !hasErr){
+            var xBoxR = xR - 14;
+            if(pSup >= 0) valueBoxVertical(xBoxR, supCY, String(Math.round(pSup*10)/10), cDim, cDimBg);
+            if(pInf >= 0) valueBoxVertical(xBoxR, infCY, String(Math.round(pInf*10)/10), cDim, cDimBg);
+          }
+
+          if(!hideRight && !hasErr){
+            if(h >= 1200 && h <= 2500){
+              var rVal = (h/2) - 69;
+              var xBoxRR = xR + dw + 14;
+              if(xBoxRR > (vbW - 18)) xBoxRR = vbW - 18;
+              var rCY = y0 + (dh * 0.50);
+              valueBoxVertical(xBoxRR, rCY, String(Math.round(rVal*10)/10), cDim, cDimBg);
+            }
+          }
+
+          if(!hideRight && !hasErr){
+            var showBottom = false;
+            var bVal = NaN;
+
+            if(brand === "BAICHAPRO"){
+              if(w >= 750 && w <= 1700){
+                showBottom = true;
+                bVal = (w/2) - 118;
+              }
+            } else {
+              if(w >= 1000 && w <= 1700){
+                showBottom = true;
+                bVal = (w/2) - 69;
+              }
+            }
+
+            if(showBottom){
+              var bText = String(Math.round(bVal*10)/10);
+              var boxWb = Math.max(86, bText.length * 10 + 28);
+              var bxB = xR + (dw - boxWb) / 2;
+              var byB = y0 + dh + 10;
+              valueBoxH(bxB, byB, bText, cDim, cDimBg);
+            }
+          }
+        }
+
+        function selectAllOnFocus(el){
+          if(!el) return;
+          el.addEventListener("focus", function(){
+            try{
+              var v = String(el.value || "");
+              setTimeout(function(){
+                if(el.setSelectionRange) el.setSelectionRange(0, v.length);
+              }, 0);
+            }catch(e){}
+          }, false);
+        }
+        selectAllOnFocus(inW);
+        selectAllOnFocus(inH);
+        selectAllOnFocus(inM);
+
+        function onChange(){ draw(); }
+        inW.addEventListener("input", onChange, false);
+        inH.addEventListener("input", onChange, false);
+        inM.addEventListener("input", onChange, false);
+        inW.addEventListener("change", onChange, false);
+        inH.addEventListener("change", onChange, false);
+        inM.addEventListener("change", onChange, false);
+
+        var resetBtn = $("osResetBtn");
+        if(resetBtn){
+          resetBtn.addEventListener("click", function(){
+            inW.value = "500";
+            inH.value = "1200";
+            inM.value = "450";
+            setBrand(currentBrand || "GIESSE");
+          }, false);
+        }
+
+        setBrand("GIESSE");
+      })();
 
     })();
   </script>
