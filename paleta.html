@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Generador colores v9</title>
+    <title>Generador colores v10</title>
     <style>
     :root{
         --primary: #e74c3c;
-
         --bg0: #050711;
         --bg1: #0a0f1c;
         --panel: rgba(255,255,255,0.06);
@@ -16,14 +15,9 @@
         --text: #eef3ff;
         --muted: rgba(238,243,255,.72);
         --shadow: 0 18px 44px rgba(0,0,0,.45);
-
-        --accent: #007AFF;   /* iOS blue */
-        --accent2:#a78bfa;
-        --good: #34C759;
-
-        --btnText: #ffffff;
         --radius: 16px;
         --radius2: 14px;
+        --btnText: #ffffff;
     }
 
     body {
@@ -31,14 +25,12 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         margin: 0;
         padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
-        background:
-          radial-gradient(900px 520px at 20% 10%, rgba(114, 214, 255, .14), transparent 58%),
-          radial-gradient(800px 480px at 85% 20%, rgba(167, 139, 250, .12), transparent 60%),
-          linear-gradient(180deg, var(--bg0), var(--bg1));
+        background: radial-gradient(900px 520px at 20% 10%, rgba(114, 214, 255, .14), transparent 58%),
+                    radial-gradient(800px 480px at 85% 20%, rgba(167, 139, 250, .12), transparent 60%),
+                    linear-gradient(180deg, var(--bg0), var(--bg1));
         color: var(--text);
         overscroll-behavior: none;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
         -webkit-text-size-adjust: 100%;
     }
 
@@ -55,429 +47,204 @@
         -webkit-backdrop-filter: blur(10px);
     }
 
-    /* Encabezado más actual */
+    /* Estilos generales App principal */
     .app-title{
-        text-align: center;
-        font-size: 1.6em;
-        margin: 52px 0 18px;
-        letter-spacing: .2px;
-        font-weight: 950;
-        line-height: 1.1;
-        color: var(--primary);
+        text-align: center; font-size: 1.6em; margin: 52px 0 18px;
+        letter-spacing: .2px; font-weight: 950; line-height: 1.1; color: var(--primary);
     }
     .app-title .ver{
-        display: inline-block;
-        font-size: .62em;
-        font-weight: 900;
-        color: var(--muted);
-        margin-left: 8px;
-        padding: 4px 8px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: rgba(0,0,0,.16);
-        vertical-align: middle;
+        display: inline-block; font-size: .62em; font-weight: 900; color: var(--muted);
+        margin-left: 8px; padding: 4px 8px; border-radius: 999px;
+        border: 1px solid var(--border); background: rgba(0,0,0,.16); vertical-align: middle;
     }
 
-    /* Botón menú fijo */
     .btn-menu {
         position: fixed; top: calc(env(safe-area-inset-top) + 10px); left: 10px; z-index: 9999;
-        padding: 9px 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,.16);
-        background: var(--primary);
-        color: var(--text);
-        font-weight: 900;
-        box-shadow: 0 10px 22px rgba(0,0,0,.28);
-        cursor: pointer;
-        font-size: 0.9rem;
-        -webkit-tap-highlight-color: transparent;
+        padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+        background: var(--primary); color: var(--text); font-weight: 900;
+        box-shadow: 0 10px 22px rgba(0,0,0,.28); cursor: pointer; font-size: 0.9rem;
     }
-    .btn-menu:active { transform: translateY(1px); }
 
-    /* Botón principal (seleccionar imagen) */
     .btn-camera-launch {
-        width: 100%;
-        padding: 14px 14px;
-        background: linear-gradient(135deg, rgba(52,199,89,.95), rgba(52,199,89,.70));
-        color: var(--btnText);
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 14px;
-        font-size: 1.05em;
-        font-weight: 900;
-        margin-bottom: 18px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
+        width: 100%; padding: 14px; background: linear-gradient(135deg, rgba(52,199,89,.95), rgba(52,199,89,.70));
+        color: var(--btnText); border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
+        font-size: 1.05em; font-weight: 900; margin-bottom: 18px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
         box-shadow: 0 16px 30px rgba(52,199,89,0.18);
-        -webkit-tap-highlight-color: transparent;
     }
     .btn-camera-launch:active { transform: scale(0.985); }
 
     .color-picker-group {
         display: flex; align-items: center; justify-content: space-between;
-        margin-bottom: 14px; padding: 14px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius2);
-        background: rgba(0,0,0,.10);
+        margin-bottom: 14px; padding: 14px; border: 1px solid var(--border);
+        border-radius: var(--radius2); background: rgba(0,0,0,.10);
     }
-    .color-picker-group label{
-        margin: 0;
-        font-weight: 900;
-        font-size: 0.95em;
-        color: var(--muted);
-    }
-
     #colorWheelInput {
-        width: 72px; height: 42px; border: none; padding: 0;
-        border-radius: 10px; cursor: pointer; background: none;
-        box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+        width: 72px; height: 42px; border: none; padding: 0; border-radius: 10px;
+        cursor: pointer; background: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
     }
-
-    .hex-display-input {
-        flex-grow: 1; margin-left: 12px; padding: 11px 12px;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 12px;
-        font-size: 16px;
-        text-transform: uppercase;
-        width: 100%;
-        background: rgba(255,255,255,.07);
-        color: var(--text);
-        outline: none;
+    .hex-display-input, input[type="text"] {
+        flex-grow: 1; padding: 12px; border: 1px solid rgba(255,255,255,.16);
+        border-radius: 12px; font-size: 16px; background: rgba(255,255,255,.07);
+        color: var(--text); outline: none; width: 100%; box-sizing: border-box;
     }
-
+    .hex-display-input { margin-left: 12px; text-transform: uppercase; }
+    
     .selector-group { margin-bottom: 12px; position: relative; }
+    label { display: block; margin-bottom: 7px; font-weight: 900; font-size: 0.9em; color: var(--muted); }
 
-    label {
-        display: block;
-        margin-bottom: 7px;
-        font-weight: 900;
-        font-size: 0.9em;
-        color: var(--muted);
-        letter-spacing: .15px;
+    .custom-select .select-selected {
+        background: rgba(255,255,255,.07); padding: 12px;
+        border: 1px solid rgba(255,255,255,.16); border-radius: 12px;
+        cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        color: var(--text); font-weight: 900;
     }
-
-    input[type="text"] {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 10px;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 12px;
-        font-size: 16px; /* iOS friendly */
-        background: rgba(255,255,255,.07);
-        color: var(--text);
-        box-sizing: border-box;
-        outline: none;
-    }
-    input[type="text"]:focus,
-    .hex-display-input:focus{
-        box-shadow: 0 0 0 3px rgba(110,231,255,.18);
-        border-color: rgba(110,231,255,.35);
-    }
-
-    /* Custom select (se usa como botón que abre modal) */
-    .custom-select { position: relative; width: 100%; margin-bottom: 10px; font-size: 16px; }
-    .select-selected {
-        background: rgba(255,255,255,.07);
-        padding: 12px;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 12px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: var(--text);
-        font-weight: 900;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .select-selected::after {
-        content: "";
-        width: 0; height: 0;
-        border: 6px solid transparent;
-        border-color: var(--muted) transparent transparent transparent;
-        margin-left: 10px;
-        opacity: .9;
-    }
-
-    /* Se mantiene por compatibilidad aunque no se use el dropdown clásico */
-    .select-items { position: absolute; background-color: #fff; top: 100%; left: 0; right: 0;
-        z-index: 99; border: 1px solid #ced4da; border-radius: 0 0 8px 8px;
-        max-height: 250px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .select-items div { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #eee; display:flex; align-items:center; }
-    .select-hide { display: none; }
-    .option-swatch { width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 4px; margin-right: 10px; flex-shrink: 0; }
 
     #color-display {
-        width: 100%;
-        height: 120px;
-        border: 1px solid rgba(255,255,255,.16);
-        margin-top: 16px;
-        border-radius: var(--radius2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.05em;
-        font-weight: 900;
-        color: #fff;
-        text-shadow: 0 0 5px rgba(0,0,0,0.7);
-        transition: background 0.25s;
-        overflow:hidden;
-        position: relative;
-    }
-    #color-display::before{
-        content:"";
-        position:absolute;
-        inset:0;
-        background: radial-gradient(500px 180px at 20% 0%, rgba(255,255,255,.16), transparent 60%);
-        pointer-events:none;
-        opacity:.8;
+        width: 100%; height: 120px; border: 1px solid rgba(255,255,255,.16);
+        margin-top: 16px; border-radius: var(--radius2); display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        font-size: 1.05em; font-weight: 900; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.7);
+        position: relative; overflow:hidden;
     }
     .code-info {
-        margin: 6px 0;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background-color: rgba(0,0,0,0.22);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        position: relative;
-        z-index: 1;
+        margin: 6px 0; padding: 4px 10px; border-radius: 999px;
+        background-color: rgba(0,0,0,0.22); backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px); position: relative; z-index: 1;
     }
 
     /* =========================
-       Cámara (modo pantalla completa)
+       NUEVO CSS: Panel de Cámara
        ========================= */
     #camera-app {
-        display: none;
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #000; z-index: 10000;
-        flex-direction: column;
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 10000; flex-direction: column;
     }
-
     #viewport-container {
-        touch-action: none;
-        overscroll-behavior: none;
-        position: relative;
-        flex-grow: 1;
-        width: 100%;
-        overflow: hidden;
-        background: #000;
+        position: relative; flex-grow: 1; width: 100%; overflow: hidden; background: #000;
     }
-    video, #uploaded-image {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        display: block;
-    }
+    video, #uploaded-image { width: 100%; height: 100%; object-fit: cover; display: block; }
     #uploaded-image { display: none; }
 
     #crosshair {
-        position: absolute; top: 50%; left: 50%;
-        width: 30px; height: 30px;
-        border: 2px solid rgba(255,255,255,0.9);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
+        position: absolute; top: 50%; left: 50%; width: 30px; height: 30px;
+        border: 2px solid rgba(255,255,255,0.9); border-radius: 50%;
+        transform: translate(-50%, -50%); pointer-events: none;
         box-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
     #crosshair::after {
-        content: ''; position: absolute; top: 50%; left: 50%;
-        width: 4px; height: 4px; background: #ff3b30;
-        transform: translate(-50%, -50%); border-radius: 50%;
+        content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px;
+        background: #ff3b30; transform: translate(-50%, -50%); border-radius: 50%;
     }
+    #zoom-loupe {
+        position: absolute; width: 120px; height: 120px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,.95); box-shadow: 0 10px 24px rgba(0,0,0,0.45);
+        overflow: hidden; pointer-events: none; transform: translate(-50%, -50%);
+        background: #000; z-index: 10002; display: none;
+    }
+    #zoom-canvas { width: 100%; height: 100%; }
 
-    /* Panel controles cámara en oscuro */
+    /* CONTROLES CÁMARA REDISEÑADOS */
     #camera-controls {
         background: linear-gradient(180deg, rgba(14,22,48,.98), rgba(10,15,28,.98));
         border-top: 1px solid rgba(255,255,255,.10);
         padding: 16px;
         border-radius: 20px 20px 0 0;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        display: flex; flex-direction: column; gap: 14px;
         color: var(--text);
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
     }
-    .cam-info-row {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 10px;
+
+    /* Fila comparativa */
+    .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    .compare-box {
         background: rgba(255,255,255,.06);
         border: 1px solid rgba(255,255,255,.10);
-        border-radius: 14px;
+        border-radius: 12px;
+        padding: 10px;
+        display: flex; flex-direction: column; align-items: center;
+        text-align: center;
     }
-    .preview-circle { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,.14); }
-
-    #cam-ral-match {
-        font-weight: 950;
-        font-size: 1.15em;
-        color: var(--text);
-        line-height: 1.15;
+    .swatch-large {
+        width: 100%; height: 36px; border-radius: 8px;
+        margin-bottom: 8px; border: 1px solid rgba(255,255,255,.1);
+        position: relative;
     }
-    #cam-hex {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-weight: 800;
-        font-size: 0.95em;
-        color: var(--muted);
-        margin-top: 6px;
+    .lbl-sm { font-size: 0.75em; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;}
+    .lbl-val { font-family: monospace; font-size: 0.95em; color: #fff; font-weight: 800; }
+    .lbl-name { font-size: 0.8em; color: var(--text); font-weight: 700; margin-top: 2px;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;}
+
+    /* Título sección alternativas */
+    .alt-title { font-size: 0.8em; color: var(--muted); font-weight: 900; margin-bottom: -6px; margin-left: 4px; }
+    
+    /* Scroll de alternativas */
+    .alternatives-scroll {
+        display: flex; gap: 10px; overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
-
-    .cam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .btn-cam {
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,.14);
-        font-size: 16px;
-        font-weight: 950;
+    .alternatives-scroll::-webkit-scrollbar { display: none; }
+    
+    .alt-chip {
+        flex: 0 0 auto;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 10px;
+        padding: 6px 10px;
+        display: flex; align-items: center; gap: 8px;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255,255,255,.08);
-        color: var(--text);
-        -webkit-tap-highlight-color: transparent;
+        transition: background 0.2s, border-color 0.2s;
     }
-    .btn-cam:active { transform: scale(0.985); }
+    .alt-chip.active {
+        background: rgba(52,199,89,.2);
+        border-color: #34C759;
+    }
+    .alt-swatch { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+    .alt-info { display: flex; flex-direction: column; }
+    .alt-code { font-size: 0.85em; font-weight: 800; color: #fff; }
+    .alt-dist { font-size: 0.7em; color: var(--muted); }
 
+    .cam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .btn-cam {
+        padding: 12px; border-radius: 14px;
+        border: 1px solid rgba(255,255,255,.14);
+        font-size: 16px; font-weight: 950; cursor: pointer;
+        background: rgba(255,255,255,.08); color: var(--text);
+    }
     .btn-confirm {
         background: linear-gradient(135deg, rgba(0,122,255,.95), rgba(167,139,250,.70));
-        color: white;
-        grid-column: span 2;
+        color: white; grid-column: span 2;
         box-shadow: 0 14px 26px rgba(0,122,255,.18);
     }
-    .btn-sec { background: rgba(255,255,255,.08); color: var(--text); }
-
     .btn-close {
         position: absolute; top: calc(env(safe-area-inset-top) + 14px); right: 14px;
-        background: rgba(0,0,0,0.55);
-        color: white;
-        border: 1px solid rgba(255,255,255,.14);
-        padding: 9px 14px;
-        border-radius: 999px;
-        z-index: 10001;
-        font-weight: 950;
-        -webkit-tap-highlight-color: transparent;
+        background: rgba(0,0,0,0.55); color: white;
+        border: 1px solid rgba(255,255,255,.14); padding: 9px 14px;
+        border-radius: 999px; z-index: 10001; font-weight: 950;
     }
-    .btn-close:active { transform: translateY(1px); }
 
-    #zoom-loupe {
-        position: absolute;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 3px solid rgba(255,255,255,.95);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.45);
-        overflow: hidden;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        background: #000;
-        z-index: 10002;
-        display: none;
-    }
-    #zoom-canvas { width: 100%; height: 100%; }
-
-    /* =========================
-       Selector RAL a pantalla completa (oscuro)
-       ========================= */
-    .ral-modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.65);
-        z-index: 20000;
-        display: none;
-        overscroll-behavior: none;
-    }
+    /* Modal RAL */
+    .ral-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 20000; display: none; }
     .ral-modal.show { display: flex; }
-
     .ral-sheet {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(180deg, rgba(14,22,48,.98), rgba(10,15,28,.98));
-        display: flex;
-        flex-direction: column;
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+        width: 100%; height: 100%; background: linear-gradient(180deg, rgba(14,22,48,.98), rgba(10,15,28,.98));
+        display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
         color: var(--text);
     }
-    .ral-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 14px 14px 10px 14px;
-        border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .ral-title {
-        font-weight: 950;
-        font-size: 1.05rem;
-        color: var(--text);
-        letter-spacing: .2px;
-    }
-    .ral-close {
-        border: 1px solid rgba(255,255,255,.14);
-        background: rgba(255,255,255,.10);
-        color: var(--text);
-        font-weight: 950;
-        padding: 10px 14px;
-        border-radius: 14px;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .ral-close:active { transform: scale(0.98); }
-
-    .ral-search-wrap {
-        padding: 12px 14px;
-        border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    #ral-search {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px 12px;
-        border: 1px solid rgba(255,255,255,.16);
-        border-radius: 14px;
-        font-size: 16px;
-        outline: none;
-        background: rgba(255,255,255,.07);
-        color: var(--text);
-    }
-    #ral-search:focus{
-        box-shadow: 0 0 0 3px rgba(110,231,255,.18);
-        border-color: rgba(110,231,255,.35);
-    }
-
-    .ral-list {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 8px 10px 16px 10px;
-    }
+    .ral-header { display: flex; align-items: center; justify-content: space-between; padding: 14px; border-bottom: 1px solid rgba(255,255,255,.10); }
+    .ral-list { flex: 1; overflow-y: auto; padding: 10px; }
     .ral-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 10px;
-        border: 1px solid rgba(255,255,255,.10);
-        border-radius: 14px;
-        margin: 8px 4px;
-        background: rgba(255,255,255,.06);
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
+        display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px;
+        border: 1px solid rgba(255,255,255,.10); border-radius: 14px; background: rgba(255,255,255,.06);
     }
-    .ral-item:active { background: rgba(255,255,255,.10); }
-    .ral-swatch {
-        width: 34px;
-        height: 34px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.18);
-        flex-shrink: 0;
-    }
-    .ral-text { display: flex; flex-direction: column; line-height: 1.15; }
-    .ral-code { font-weight: 950; color: var(--text); }
-    .ral-name { font-size: 0.95em; color: var(--muted); margin-top: 3px; }
-
-    body.modal-open {
-        overflow: hidden;
-        touch-action: none;
-    }
+    .ral-swatch { width: 34px; height: 34px; border-radius: 12px; }
+    #ral-search { width: 100%; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.07); color:#fff; border:1px solid rgba(255,255,255,.16); outline:none; }
 
     </style>
 </head>
@@ -486,13 +253,9 @@
 <button type="button" class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}"><- MENÚ</button>
 
 <div class="container" id="main-app">
-    <h1 class="app-title">Generador de colores <span class="ver">v9</span></h1>
+    <h1 class="app-title">Generador de colores <span class="ver">v10</span></h1>
 
-    <!-- Solo botón verde -->
-    <button type="button"
-            class="btn-camera-launch"
-            
-            onclick="openGalleryDirect()">
+    <button type="button" class="btn-camera-launch" onclick="openGalleryDirect()">
          Seleccionar imagen
     </button>
 
@@ -506,7 +269,6 @@
         <label for="customRalSelector">2 Selecciona RAL</label>
         <div id="customRalSelector" class="custom-select">
             <div class="select-selected" data-ral="" data-hex="">Elige código RAL</div>
-            <div class="select-items select-hide"></div>
         </div>
     </div>
 
@@ -528,36 +290,56 @@
         <video id="video" autoplay muted playsinline></video>
         <img id="uploaded-image" alt="Imagen cargada">
         <div id="crosshair"></div>
-
-        <div id="zoom-loupe">
-            <canvas id="zoom-canvas"></canvas>
-        </div>
+        <div id="zoom-loupe"><canvas id="zoom-canvas"></canvas></div>
     </div>
 
     <div id="camera-controls">
-        <div class="cam-info-row">
-            <div id="cam-preview" class="preview-circle" style="background: #000;"></div>
-            <div style="text-align:right; flex:1; margin-left:12px;">
-                <div id="cam-ral-match">Buscando...</div>
-                <div id="cam-hex">#000000</div>
+        
+        <div class="compare-row">
+            <div class="compare-box">
+                <div class="lbl-sm">Detectado</div>
+                <div id="scan-swatch" class="swatch-large" style="background:#000;"></div>
+                <div id="scan-hex" class="lbl-val">#000000</div>
+            </div>
+            
+            <div class="compare-box" style="border-color: rgba(52,199,89,0.3);">
+                <div class="lbl-sm" style="color:#34C759;">Sugerido</div>
+                <div id="best-ral-swatch" class="swatch-large" style="background:#000;"></div>
+                <div id="best-ral-code" class="lbl-val">RAL ---</div>
+                <div id="best-ral-name" class="lbl-name">...</div>
             </div>
         </div>
 
+        <div class="alt-title">Otras opciones cercanas:</div>
+        <div class="alternatives-scroll" id="alternatives-list">
+            </div>
+
         <div class="cam-actions">
-            <button type="button" id="freeze-btn" class="btn-cam btn-sec"> Congelar</button>
-            <label class="btn-cam btn-sec" style="margin:0;">
+            <button type="button" id="freeze-btn" class="btn-cam">Congelar</button>
+            <label class="btn-cam" style="margin:0;">
                 Galería
                 <input type="file" id="file-upload" accept="image/*" style="display:none;">
             </label>
-            <button type="button" id="confirm-color-btn" class="btn-cam btn-confirm"> USAR ESTE COLOR</button>
+            <button type="button" id="confirm-color-btn" class="btn-cam btn-confirm">USAR ESTE COLOR</button>
         </div>
     </div>
     <canvas id="canvas" style="display:none;"></canvas>
 </div>
 
+<div id="ral-modal" class="ral-modal" aria-hidden="true">
+  <div class="ral-sheet" role="dialog">
+    <div class="ral-header">
+      <button type="button" class="btn-cam" id="ral-close-btn" style="padding:8px 14px;">Cerrar</button>
+      <div style="font-weight:900;">Lista RAL</div>
+    </div>
+    <div style="padding:10px;"><input id="ral-search" type="text" placeholder="Buscar RAL..." autocomplete="off"></div>
+    <div class="ral-list" id="ral-list"></div>
+  </div>
+</div>
+
 <script>
 /* =========================
-   RAL MAP (tu base completa)
+   BASE DE DATOS RAL
    ========================= */
 const ralToHexMap = {
     "1000": { hex: "#BEBD7F", name: "Beige verdoso" }, "1001": { hex: "#C2B078", name: "Beige" },
@@ -669,15 +451,12 @@ const ralToHexMap = {
 };
 
 /* =========================
-   Helpers color UI principal
+   UI PRINCIPAL
    ========================= */
 function isLightColor(hex) {
     const c = hex.substring(1);
     const rgb = parseInt(c, 16);
-    const r = (rgb >> 16) & 0xff;
-    const g = (rgb >> 8) & 0xff;
-    const b = (rgb >> 0) & 0xff;
-    return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 180;
+    return (0.2126 * ((rgb >> 16) & 0xff) + 0.7152 * ((rgb >> 8) & 0xff) + 0.0722 * ((rgb >> 0) & 0xff)) > 180;
 }
 
 function getRalFromHex(hex) {
@@ -743,141 +522,35 @@ function convertColorFromInput() {
 
 function initCustomSelect() {
     const customSelect = document.getElementById('customRalSelector');
-    const selectedElement = customSelect.querySelector('.select-selected');
-
-    // En móvil, lo hacemos a pantalla completa
-    selectedElement.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openRalModal();
-    }, { passive: false });
-
-    // Estado inicial
-    const defaultHex = document.getElementById('colorWheelInput').value;
-    const defaultRal = getRalFromHex(defaultHex);
-    if (defaultRal) updateAppWithColor(defaultRal, defaultHex);
-
-    // Construye lista 1 vez
+    customSelect.querySelector('.select-selected').addEventListener('click', openRalModal);
     buildRalModalList();
-}
-
-function closeAllSelect(elmnt) {
-    // Ya no usamos el dropdown clásico, pero lo dejamos por compatibilidad
-    const selectElements = document.getElementsByClassName("select-items");
-    for (let i = 0; i < selectElements.length; i++) selectElements[i].classList.add("select-hide");
-}
-
-function buildRalModalList() {
-    const list = document.getElementById('ral-list');
-    if (!list || list.dataset.built === "1") return;
-
-    const sortedRals = Object.keys(ralToHexMap).sort();
-    const frag = document.createDocumentFragment();
-
-    sortedRals.forEach(ralCode => {
-        const colorData = ralToHexMap[ralCode];
-        const row = document.createElement('div');
-        row.className = 'ral-item';
-        row.setAttribute('role', 'option');
-        row.dataset.ral = ralCode;
-        row.dataset.hex = colorData.hex;
-        row.dataset.search = (`${ralCode} ${colorData.name} ${colorData.hex}`).toLowerCase();
-
-        row.innerHTML = `
-            <div class="ral-swatch" style="background:${colorData.hex}"></div>
-            <div class="ral-text">
-                <div class="ral-code">RAL ${ralCode}</div>
-                <div class="ral-name">${colorData.name}</div>
-            </div>
-        `;
-
-        row.addEventListener('click', () => {
-            updateAppWithColor(row.dataset.ral, row.dataset.hex);
-            closeRalModal();
-        }, { passive: true });
-
-        frag.appendChild(row);
-    });
-
-    list.appendChild(frag);
-    list.dataset.built = "1";
-}
-
-function filterRalList(query) {
-    const q = (query || '').trim().toLowerCase();
-    const list = document.getElementById('ral-list');
-    if (!list) return;
-    const items = list.children;
-    for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        if (!q) { it.style.display = ''; continue; }
-        it.style.display = (it.dataset.search && it.dataset.search.includes(q)) ? '' : 'none';
-    }
-}
-
-function openRalModal() {
-    const modal = document.getElementById('ral-modal');
-    if (!modal) return;
-
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
-
-    const input = document.getElementById('ral-search');
-    if (input) {
-        input.value = '';
-        // Pequeño delay para iOS
-        setTimeout(() => { try { input.focus(); } catch(_) {} }, 50);
-    }
-    filterRalList('');
-}
-
-function closeRalModal() {
-    const modal = document.getElementById('ral-modal');
-    if (!modal) return;
-
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('modal-open');
-}
-
-
-function closeAllSelect(elmnt) {
-    const selectElements = document.getElementsByClassName("select-items");
-    const selectedElements = document.getElementsByClassName("select-selected");
-    for (let i = 0; i < selectedElements.length; i++) {
-        if (elmnt != selectedElements[i]) selectedElements[i].classList.remove("select-arrow-active");
-    }
-    for (let i = 0; i < selectElements.length; i++) selectElements[i].classList.add("select-hide");
 }
 
 function updateAppWithColor(ral, hex) {
     document.getElementById('hexDisplay').value = hex.toUpperCase();
     document.getElementById('colorWheelInput').value = hex;
     document.getElementById('codeInput').value = '';
-
     const selectedElement = document.querySelector('.custom-select .select-selected');
     if (ral && ralToHexMap[ral]) {
         selectedElement.innerHTML = `RAL ${ral} - ${ralToHexMap[ral].name}`;
         selectedElement.dataset.ral = ral;
     } else {
-        selectedElement.innerHTML = "RAL aproximado (Sin coincidencia exacta)";
+        selectedElement.innerHTML = "RAL personalizado";
         selectedElement.dataset.ral = "";
     }
-
     displayColorInfo(ral, hex);
 }
 
 /* =========================
-   Cámara / Imagen
+   CÁMARA / DETECCIÓN
    ========================= */
 let stream = null;
 let isFrozen = false;
 let camMode = 'camera';
-let pickSX = 0, pickSY = 0; // coordenadas en píxeles del SOURCE (imagen/video)
-let pickX = 0.5, pickY = 0.5; // coordenadas normalizadas del CONTENEDOR (solo para dibujar la cruz)
+let pickSX = 0, pickSY = 0;
+let pickX = 0.5, pickY = 0.5;
 let currentDetectedHex = "#000000";
-let currentClosestRal = null;
+let selectedRalForUse = null; // El que elegirá el usuario (puede ser el mejor o una alternativa)
 
 const video = document.getElementById('video');
 const imgElement = document.getElementById('uploaded-image');
@@ -892,114 +565,43 @@ function closeCameraApp() {
     document.getElementById('main-app').style.display = 'block';
 }
 
-/* Abre directamente la galería */
 function openGalleryDirect() {
     document.getElementById('main-app').style.display = 'none';
     document.getElementById('camera-app').style.display = 'flex';
-
-    camMode = 'image';
-    isFrozen = true;
-
+    camMode = 'image'; isFrozen = true;
     if (stream) { try { stream.getTracks().forEach(t => t.stop()); } catch(_) {} stream = null; }
-
-    video.style.display = 'none';
-    imgElement.style.display = 'block';
+    video.style.display = 'none'; imgElement.style.display = 'block';
     document.getElementById('freeze-btn').style.display = 'none';
-
-    const input = document.getElementById('file-upload');
-    input.value = '';
-    input.click();
+    const input = document.getElementById('file-upload'); input.value = ''; input.click();
 }
 
-/* =========================
-   CORRECCIÓN CLAVE: mapeo cover
-   ========================= */
-/**
- * Devuelve la geometría de cómo se está mostrando el source (video/img) dentro del contenedor
- * con object-fit: cover.
- */
 function getCoverGeometry(sourceEl) {
     const rect = viewportContainer.getBoundingClientRect();
-    const cw = rect.width;
-    const ch = rect.height;
-
-    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
-    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
-
-    if (!sw || !sh || !cw || !ch) return null;
-
-    // cover => escala máxima para cubrir
-    const scale = Math.max(cw / sw, ch / sh);
-    const dw = sw * scale;
-    const dh = sh * scale;
-
-    // el exceso es lo que se recorta
-    const offsetX = (dw - cw) / 2;
-    const offsetY = (dh - ch) / 2;
-
+    const cw = rect.width, ch = rect.height;
+    const sw = (sourceEl === video) ? (video.videoWidth||0) : (imgElement.naturalWidth||0);
+    const sh = (sourceEl === video) ? (video.videoHeight||0) : (imgElement.naturalHeight||0);
+    if (!sw||!sh||!cw||!ch) return null;
+    const scale = Math.max(cw/sw, ch/sh);
+    const dw = sw*scale, dh = sh*scale;
+    const offsetX = (dw-cw)/2, offsetY = (dh-ch)/2;
     return { cw, ch, sw, sh, scale, dw, dh, offsetX, offsetY };
 }
 
-/* Convierte coordenadas del contenedor (0..1) a coordenadas del source (px) */
-function containerToSourcePx(sourceEl, nx, ny) {
-    const g = getCoverGeometry(sourceEl);
-    if (!g) return null;
-
-    const cx = nx * g.cw;  // px en contenedor
-    const cy = ny * g.ch;
-
-    // dentro del "displayed image" (con recorte)
-    const dx = cx + g.offsetX;
-    const dy = cy + g.offsetY;
-
-    // a px del source
-    let sx = dx / g.scale;
-    let sy = dy / g.scale;
-
-    // clamp
-    sx = Math.max(0, Math.min(g.sw - 1, sx));
-    sy = Math.max(0, Math.min(g.sh - 1, sy));
-
-    return { sx, sy, g };
-}
-
-/* Convierte coordenadas del source (px) a coordenadas del contenedor (0..1) */
 function sourceToContainerNorm(sourceEl, sx, sy) {
-    const g = getCoverGeometry(sourceEl);
-    if (!g) return null;
-
-    const dx = sx * g.scale; // px en displayed
-    const dy = sy * g.scale;
-
-    const cx = dx - g.offsetX; // px en contenedor
-    const cy = dy - g.offsetY;
-
-    const nx = cx / g.cw;
-    const ny = cy / g.ch;
-
-    return {
-        nx: Math.max(0, Math.min(1, nx)),
-        ny: Math.max(0, Math.min(1, ny)),
-        g
-    };
+    const g = getCoverGeometry(sourceEl); if (!g) return null;
+    const dx = sx * g.scale, dy = sy * g.scale;
+    const cx = dx - g.offsetX, cy = dy - g.offsetY;
+    return { nx: Math.max(0,Math.min(1,cx/g.cw)), ny: Math.max(0,Math.min(1,cy/g.ch)), g };
 }
 
 function setPickToCenter(sourceEl) {
-    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
-    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
-    if (!sw || !sh) return;
-    pickSX = Math.floor(sw / 2);
-    pickSY = Math.floor(sh / 2);
-    syncPickNormFromSource(sourceEl);
-    drawCrosshair();
-}
-
-function syncPickNormFromSource(sourceEl) {
-    // Calcula pickX/pickY (normalizado en contenedor) a partir del píxel del source.
+    const sw = (sourceEl === video) ? (video.videoWidth||0) : (imgElement.naturalWidth||0);
+    const sh = (sourceEl === video) ? (video.videoHeight||0) : (imgElement.naturalHeight||0);
+    if (!sw||!sh) return;
+    pickSX = Math.floor(sw/2); pickSY = Math.floor(sh/2);
     const back = sourceToContainerNorm(sourceEl, pickSX, pickSY);
-    if (!back) return;
-    pickX = back.nx;
-    pickY = back.ny;
+    if (back) { pickX = back.nx; pickY = back.ny; }
+    drawCrosshair();
 }
 
 function drawCrosshair() {
@@ -1007,375 +609,252 @@ function drawCrosshair() {
     crosshair.style.top  = (pickY * 100) + '%';
 }
 
-/* =========================
-   Análisis (color) usando el mapeo correcto
-   ========================= */
-function analyzeFrame(sourceEl) {
-    // Asegura medidas
-    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
-    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
-    if (!sw || !sh) return;
-
-    // Si todavía no está inicializado, centra
-    if (pickSX === 0 && pickSY === 0) {
-        setPickToCenter(sourceEl);
-    }
-
-    // Clamp por seguridad
-    pickSX = Math.max(0, Math.min(sw - 1, Math.round(pickSX)));
-    pickSY = Math.max(0, Math.min(sh - 1, Math.round(pickSY)));
-
-    // Dibuja el source completo en canvas a resolución nativa
-    canvas.width = sw;
-    canvas.height = sh;
-    ctx.drawImage(sourceEl, 0, 0, sw, sh);
-
-    const p = ctx.getImageData(pickSX, pickSY, 1, 1).data;
-    const r = p[0], gg = p[1], b = p[2];
-
-    const hex = "#" + ((1 << 24) + (r << 16) + (gg << 8) + b).toString(16).slice(1).toUpperCase();
-    currentDetectedHex = hex;
-
-    document.getElementById('cam-preview').style.backgroundColor = hex;
-    document.getElementById('cam-hex').innerText = hex;
-
-    const closest = findClosestRal(r, gg, b);
-    currentClosestRal = closest.ral;
-
-    if (closest.ral && ralToHexMap[closest.ral]) {
-        document.getElementById('cam-ral-match').innerText = `RAL ${closest.ral} (${ralToHexMap[closest.ral].name})`;
-    } else if (closest.ral) {
-        document.getElementById('cam-ral-match').innerText = `RAL ${closest.ral}`;
-    } else {
-        document.getElementById('cam-ral-match').innerText = `RAL ---`;
-    }
-
-    // Actualiza cruz + lupa
-    syncPickNormFromSource(sourceEl);
-    drawCrosshair();
-    updateZoom(sourceEl);
-    positionLoupe();
-}
-
-function findClosestRal(r, g, b) {
-    let minDist = Infinity;
-    let closestRal = null;
-
+function getTopRals(r, g, b, limit = 5) {
+    const results = [];
     for (const ral in ralToHexMap) {
         const h = ralToHexMap[ral].hex;
         const cr = parseInt(h.substring(1,3), 16);
         const cg = parseInt(h.substring(3,5), 16);
         const cb = parseInt(h.substring(5,7), 16);
         const dist = Math.sqrt((r-cr)**2 + (g-cg)**2 + (b-cb)**2);
-        if (dist < minDist) { minDist = dist; closestRal = ral; }
+        results.push({ ral, dist, hex: h, name: ralToHexMap[ral].name });
     }
-    return { ral: closestRal, dist: minDist };
+    results.sort((a,b) => a.dist - b.dist);
+    return results.slice(0, limit);
 }
 
-/* =========================
-   Drag suave (sin saltos raros) en píxel REAL del source
-   ========================= */
-let dragging = false;
-let lastClientX = 0, lastClientY = 0;
-let pendingSX = 0, pendingSY = 0;
-let rafMove = 0;
-let rafAnalyze = 0;
+// Renderiza la lista de alternativas
+function renderAlternatives(topMatches) {
+    const list = document.getElementById('alternatives-list');
+    list.innerHTML = ''; // limpiar
 
-function scheduleAnalyze() {
-    if (rafAnalyze) return;
-    rafAnalyze = requestAnimationFrame(() => {
-        rafAnalyze = 0;
-        analyzeFrame(camMode === 'camera' ? video : imgElement);
+    // Si el usuario no ha forzado una elección, seleccionamos la mejor coincidencia por defecto
+    // Pero si el usuario toca una alternativa, esa será "selectedRalForUse"
+    // Reiniciamos selección manual si estamos en modo "vivo" (video no congelado) para que siga al mejor
+    if (camMode === 'camera' && !isFrozen) {
+        selectedRalForUse = topMatches[0].ral;
+    }
+
+    topMatches.forEach((m, index) => {
+        const isSelected = (m.ral === selectedRalForUse);
+        const chip = document.createElement('div');
+        chip.className = `alt-chip ${isSelected ? 'active' : ''}`;
+        chip.innerHTML = `
+            <div class="alt-swatch" style="background:${m.hex}"></div>
+            <div class="alt-info">
+                <div class="alt-code">RAL ${m.ral}</div>
+                <div class="alt-dist">${m.name}</div>
+            </div>
+        `;
+        chip.addEventListener('click', () => {
+            selectedRalForUse = m.ral;
+            updateComparisonPanel(currentDetectedHex, m);
+            renderAlternatives(topMatches); // Re-render para actualizar estado 'active'
+        });
+        list.appendChild(chip);
     });
 }
 
+function updateComparisonPanel(detectedHex, ralData) {
+    // Caja Detectado
+    document.getElementById('scan-swatch').style.backgroundColor = detectedHex;
+    document.getElementById('scan-hex').innerText = detectedHex;
+
+    // Caja Sugerido / Seleccionado
+    document.getElementById('best-ral-swatch').style.backgroundColor = ralData.hex;
+    document.getElementById('best-ral-code').innerText = "RAL " + ralData.ral;
+    document.getElementById('best-ral-name').innerText = ralData.name;
+}
+
+function analyzeFrame(sourceEl) {
+    const sw = (sourceEl===video)?(video.videoWidth||0):(imgElement.naturalWidth||0);
+    const sh = (sourceEl===video)?(video.videoHeight||0):(imgElement.naturalHeight||0);
+    if (!sw||!sh) return;
+    if (pickSX===0 && pickSY===0) setPickToCenter(sourceEl);
+
+    pickSX = Math.max(0, Math.min(sw-1, Math.round(pickSX)));
+    pickSY = Math.max(0, Math.min(sh-1, Math.round(pickSY)));
+
+    canvas.width = sw; canvas.height = sh;
+    ctx.drawImage(sourceEl, 0, 0, sw, sh);
+    const p = ctx.getImageData(pickSX, pickSY, 1, 1).data;
+    const r=p[0], gg=p[1], b=p[2];
+    const hex = "#" + ((1<<24)+(r<<16)+(gg<<8)+b).toString(16).slice(1).toUpperCase();
+    currentDetectedHex = hex;
+
+    // Obtener los 5 mejores
+    const topMatches = getTopRals(r, gg, b, 5);
+    
+    // Determinar cuál mostrar en la caja principal
+    // Si selectedRalForUse está definido y existe en la lista de tops, mostramos ese.
+    // Si no (o si cambio drásticamente la escena), mostramos el top 1.
+    let activeMatch = topMatches[0];
+    const userSelection = topMatches.find(m => m.ral === selectedRalForUse);
+    if(userSelection) activeMatch = userSelection;
+    else selectedRalForUse = topMatches[0].ral;
+
+    updateComparisonPanel(hex, activeMatch);
+    renderAlternatives(topMatches);
+
+    // Zoom/Crosshair
+    const back = sourceToContainerNorm(sourceEl, pickSX, pickSY);
+    if(back){ pickX = back.nx; pickY = back.ny; }
+    drawCrosshair();
+    updateZoom(sourceEl);
+    positionLoupe();
+}
+
+/* =========================
+   DRAG & ZOOM
+   ========================= */
+let dragging=false, rafMove=0, pendingSX=0, pendingSY=0;
+let lastClientX=0, lastClientY=0;
+
+function scheduleAnalyze() {
+    analyzeFrame(camMode === 'camera' ? video : imgElement);
+}
+
 function applyPendingMove() {
-    rafMove = 0;
-    if (!dragging) { pendingSX = 0; pendingSY = 0; return; }
-
+    rafMove=0;
+    if(!dragging){ pendingSX=0; pendingSY=0; return; }
     const srcEl = (camMode === 'camera') ? video : imgElement;
-    const g = getCoverGeometry(srcEl);
-    if (!g) return;
-
-    // Convertimos el movimiento en pantalla a píxeles del source
-    // (en cover, 1px en pantalla = 1/scale px en source)
-    pickSX += pendingSX / g.scale;
-    pickSY += pendingSY / g.scale;
-    pendingSX = 0; pendingSY = 0;
-
-    // Snap final a píxel (pero en espacio del SOURCE, estable)
-    pickSX = Math.round(pickSX);
-    pickSY = Math.round(pickSY);
-
-    // Clamp
-    pickSX = Math.max(0, Math.min(g.sw - 1, pickSX));
-    pickSY = Math.max(0, Math.min(g.sh - 1, pickSY));
-
+    const g = getCoverGeometry(srcEl); if(!g) return;
+    pickSX += pendingSX/g.scale; pickSY += pendingSY/g.scale;
+    pendingSX=0; pendingSY=0;
+    pickSX = Math.round(Math.max(0, Math.min(g.sw-1, pickSX)));
+    pickSY = Math.round(Math.max(0, Math.min(g.sh-1, pickSY)));
     scheduleAnalyze();
 }
 
-function showLoupe() {
-    zoomLoupe.style.display = 'block';
-}
-
-function hideLoupe() {
-    zoomLoupe.style.display = 'none';
-}
-
 viewportContainer.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    dragging = true;
-    showLoupe();
+    e.preventDefault(); dragging=true;
+    document.getElementById('zoom-loupe').style.display='block';
     try { viewportContainer.setPointerCapture(e.pointerId); } catch(_) {}
-    lastClientX = e.clientX;
-    lastClientY = e.clientY;
-}, { passive: false });
-
+    lastClientX=e.clientX; lastClientY=e.clientY;
+});
 viewportContainer.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    e.preventDefault();
-
-    const dxPx = (e.clientX - lastClientX);
-    const dyPx = (e.clientY - lastClientY);
-
-    lastClientX = e.clientX;
-    lastClientY = e.clientY;
-
-    pendingSX += dxPx;
-    pendingSY += dyPx;
-
-    if (!rafMove) rafMove = requestAnimationFrame(applyPendingMove);
-}, { passive: false });
-
+    if(!dragging) return; e.preventDefault();
+    const dx = e.clientX-lastClientX; const dy = e.clientY-lastClientY;
+    lastClientX=e.clientX; lastClientY=e.clientY;
+    pendingSX+=dx; pendingSY+=dy;
+    if(!rafMove) rafMove = requestAnimationFrame(applyPendingMove);
+});
 function endDrag() {
-    dragging = false;
-    pendingSX = 0; pendingSY = 0;
-    if (rafMove) { cancelAnimationFrame(rafMove); rafMove = 0; }
-    hideLoupe();
+    dragging=false; pendingSX=0; pendingSY=0;
+    if(rafMove){ cancelAnimationFrame(rafMove); rafMove=0; }
+    document.getElementById('zoom-loupe').style.display='none';
 }
-viewportContainer.addEventListener('pointerup', endDrag, { passive: true });
-viewportContainer.addEventListener('pointercancel', endDrag, { passive: true });
-window.addEventListener('blur', endDrag, { passive: true });
+viewportContainer.addEventListener('pointerup', endDrag);
+viewportContainer.addEventListener('pointercancel', endDrag);
+
+/* ZOOM RENDER */
+const zoomCanvas = document.getElementById('zoom-canvas');
+const zoomCtx = zoomCanvas.getContext('2d');
+function updateZoom(sourceEl) {
+    const dpr = window.devicePixelRatio || 1;
+    zoomCanvas.width = 120 * dpr; zoomCanvas.height = 120 * dpr;
+    zoomCtx.setTransform(1,0,0,1,0,0);
+    zoomCtx.imageSmoothingEnabled = true;
+    
+    const ZOOM_SIZE = 24; // Area a cortar
+    zoomCtx.drawImage(sourceEl, pickSX - ZOOM_SIZE/2, pickSY - ZOOM_SIZE/2, ZOOM_SIZE, ZOOM_SIZE, 0, 0, zoomCanvas.width, zoomCanvas.height);
+    
+    // Crosshair central
+    const cx=zoomCanvas.width/2, cy=zoomCanvas.height/2;
+    zoomCtx.strokeStyle="rgba(255,0,0,0.8)"; zoomCtx.lineWidth=2;
+    zoomCtx.beginPath(); zoomCtx.moveTo(cx,0); zoomCtx.lineTo(cx,zoomCanvas.height);
+    zoomCtx.moveTo(0,cy); zoomCtx.lineTo(zoomCanvas.width,cy); zoomCtx.stroke();
+}
+function positionLoupe() {
+    const rect=viewportContainer.getBoundingClientRect();
+    const loupe=document.getElementById('zoom-loupe');
+    const rad=60; 
+    let x = pickX * rect.width, y = pickY * rect.height - rad - 25;
+    if(y < 10) y = pickY * rect.height + rad + 25;
+    loupe.style.left = Math.max(rad, Math.min(rect.width-rad, x)) + 'px';
+    loupe.style.top  = Math.max(rad, Math.min(rect.height-rad, y)) + 'px';
+}
 
 /* =========================
-   Botones
+   EVENTOS BOTONES
    ========================= */
 document.getElementById('freeze-btn').addEventListener('click', () => {
-    if (camMode !== 'camera') return;
-    isFrozen = !isFrozen;
-    if (isFrozen) {
-        video.pause();
-        document.getElementById('freeze-btn').innerText = " Reanudar";
-        analyzeFrame(video);
-    } else {
-        video.play();
-        document.getElementById('freeze-btn').innerText = " Congelar";
-        camLoop();
-    }
-}, { passive: true });
+    if(camMode!=='camera') return;
+    isFrozen=!isFrozen;
+    const v = document.getElementById('video');
+    const btn = document.getElementById('freeze-btn');
+    if(isFrozen) { v.pause(); btn.innerText="Reanudar"; analyzeFrame(v); }
+    else { v.play(); btn.innerText="Congelar"; camLoop(); }
+});
 
 document.getElementById('file-upload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+    const file = e.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
         imgElement.src = evt.target.result;
         imgElement.onload = () => {
-            camMode = 'image';
-            video.style.display = 'none';
-            imgElement.style.display = 'block';
-            document.getElementById('freeze-btn').style.display = 'none';
-
-            // reinicia punto al centro (en píxeles reales)
-            pickSX = 0; pickSY = 0;
-            setPickToCenter(imgElement);
-
-            analyzeFrame(imgElement);
-            zoomLoupe.style.display = 'block';
+            camMode='image'; isFrozen=true;
+            video.style.display='none'; imgElement.style.display='block';
+            document.getElementById('freeze-btn').style.display='none';
+            setPickToCenter(imgElement); analyzeFrame(imgElement);
         };
     };
     reader.readAsDataURL(file);
-}, { passive: true });
+});
 
 document.getElementById('confirm-color-btn').addEventListener('click', () => {
-    updateAppWithColor(currentClosestRal, currentDetectedHex);
+    // Usamos el que el usuario haya seleccionado (o el mejor por defecto)
+    const finalRal = selectedRalForUse; 
+    const finalHex = ralToHexMap[finalRal].hex;
+    updateAppWithColor(finalRal, finalHex);
     closeCameraApp();
-}, { passive: true });
+});
 
-/* =========================
-   Loop cámara (si algún día lo reactivas)
-   ========================= */
-async function initCamera() {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-        await video.play();
-        camMode = 'camera';
-        isFrozen = false;
-        pickSX = 0; pickSY = 0;
-        setPickToCenter(video);
-        zoomLoupe.style.display = 'none';
-        imgElement.style.display = 'none';
-        video.style.display = 'block';
-        document.getElementById('freeze-btn').style.display = 'block';
-        document.getElementById('freeze-btn').innerText = " Congelar";
-        requestAnimationFrame(camLoop);
-    } catch (err) {
-        alert("No se pudo acceder a la cámara. Intenta subir una foto.");
-    }
-}
-
-function camLoop() {
-    if (document.getElementById('camera-app').style.display === 'none') return;
-    if (camMode === 'camera' && !isFrozen) {
-        analyzeFrame(video);
-        requestAnimationFrame(camLoop);
+async function camLoop() {
+    if(camMode==='camera' && !isFrozen && document.getElementById('camera-app').style.display!=='none') {
+        analyzeFrame(video); requestAnimationFrame(camLoop);
     }
 }
 
 /* =========================
-   Lupa: usa el MISMO punto (con mapeo cover)
+   MODAL RAL (Buscar/Lista)
    ========================= */
-const zoomLoupe = document.getElementById('zoom-loupe');
-const zoomCanvas = document.getElementById('zoom-canvas');
-const zoomCtx = zoomCanvas.getContext('2d');
-const ZOOM_FACTOR = 5;
-const ZOOM_SIZE = 26;
-
-function updateZoom(sourceEl) {
-    const sw = (sourceEl === video) ? (video.videoWidth || 0) : (imgElement.naturalWidth || 0);
-    const sh = (sourceEl === video) ? (video.videoHeight || 0) : (imgElement.naturalHeight || 0);
-    if (!sw || !sh) return;
-
-    const px = Math.max(0, Math.min(sw - 1, Math.round(pickSX)));
-    const py = Math.max(0, Math.min(sh - 1, Math.round(pickSY)));
-
-    // Suavizado: renderizamos al tamaño real de la lupa (con DPR) y con smoothing "high"
-    const LOUPE_PX = 120; // coincide con CSS
-    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
-
-    zoomCanvas.style.width = LOUPE_PX + "px";
-    zoomCanvas.style.height = LOUPE_PX + "px";
-    zoomCanvas.width = Math.round(LOUPE_PX * dpr);
-    zoomCanvas.height = Math.round(LOUPE_PX * dpr);
-
-    zoomCtx.setTransform(1, 0, 0, 1, 0, 0);
-    zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-
-    zoomCtx.imageSmoothingEnabled = true;
-    try { zoomCtx.imageSmoothingQuality = "high"; } catch(_) {}
-
-    // Tamaño del recorte alrededor del píxel seleccionado (más pequeño = más zoom)
-    const ZOOM_SIZE = 28;
-
-    zoomCtx.drawImage(
-        sourceEl,
-        px - ZOOM_SIZE / 2,
-        py - ZOOM_SIZE / 2,
-        ZOOM_SIZE,
-        ZOOM_SIZE,
-        0,
-        0,
-        zoomCanvas.width,
-        zoomCanvas.height
-    );
-
-    // Retícula exacta del centro (alineada a píxel)
-    const cx = zoomCanvas.width / 2;
-    const cy = zoomCanvas.height / 2;
-
-    zoomCtx.strokeStyle = "red";
-    zoomCtx.lineWidth = 1 * dpr;
-    zoomCtx.beginPath();
-    zoomCtx.moveTo(Math.round(cx) + 0.5, 0);
-    zoomCtx.lineTo(Math.round(cx) + 0.5, zoomCanvas.height);
-    zoomCtx.moveTo(0, Math.round(cy) + 0.5);
-    zoomCtx.lineTo(zoomCanvas.width, Math.round(cy) + 0.5);
-    zoomCtx.stroke();
+function buildRalModalList() {
+    const list = document.getElementById('ral-list');
+    if(list.childElementCount > 0) return;
+    const sorted = Object.keys(ralToHexMap).sort();
+    sorted.forEach(ral => {
+        const d = ralToHexMap[ral];
+        const row = document.createElement('div');
+        row.className = 'ral-item';
+        row.innerHTML = `<div class="ral-swatch" style="background:${d.hex}"></div><div><strong>RAL ${ral}</strong><br><small>${d.name}</small></div>`;
+        row.onclick = () => { updateAppWithColor(ral, d.hex); closeRalModal(); };
+        row.dataset.search = (ral + " " + d.name).toLowerCase();
+        list.appendChild(row);
+    });
 }
-
-function positionLoupe() {
-    // La lupa va ENCIMA de la cruz. Si no cabe arriba, se pone debajo.
-    const rect = viewportContainer.getBoundingClientRect();
-    const loupeRect = zoomLoupe.getBoundingClientRect();
-    const radius = (loupeRect.width || 120) / 2;
-
-    const cx = pickX * rect.width;
-    const cy = pickY * rect.height;
-
-    const offset = radius + 18; // separación cómoda respecto a la cruz
-
-    let x = cx;
-    let y = cy - offset;
-
-    // Si toca arriba, baja
-    if (y - radius < 8) y = cy + offset;
-
-    // Clamp dentro del contenedor
-    x = Math.max(radius + 8, Math.min(rect.width - radius - 8, x));
-    y = Math.max(radius + 8, Math.min(rect.height - radius - 8, y));
-
-    zoomLoupe.style.left = x + "px";
-    zoomLoupe.style.top  = y + "px";
+function openRalModal() {
+    document.getElementById('ral-modal').classList.add('show');
+    document.getElementById('ral-search').value='';
+    filterRalList('');
 }
+function closeRalModal() { document.getElementById('ral-modal').classList.remove('show'); }
+function filterRalList(q) {
+    const term = q.trim().toLowerCase();
+    const rows = document.getElementById('ral-list').children;
+    for(let row of rows) row.style.display = row.dataset.search.includes(term) ? 'flex' : 'none';
+}
+document.getElementById('ral-close-btn').onclick = closeRalModal;
+document.getElementById('ral-search').oninput = (e) => filterRalList(e.target.value);
 
-/* init */
 document.addEventListener('DOMContentLoaded', () => {
     initCustomSelect();
-    drawCrosshair();
-
-    // Si cambia el tamaño (rotación iPhone), recalcula la posición de la cruz
     window.addEventListener('resize', () => {
-        const srcEl = (camMode === 'camera') ? video : imgElement;
-        if (srcEl && (srcEl === video ? video.videoWidth : imgElement.naturalWidth)) {
-            syncPickNormFromSource(srcEl);
-            drawCrosshair();
-            positionLoupe();
-        }
-    }, { passive: true });
-    // Modal RAL: cerrar + buscar
-    const ralModal = document.getElementById('ral-modal');
-    const ralCloseBtn = document.getElementById('ral-close-btn');
-    const ralSearch = document.getElementById('ral-search');
-
-    if (ralCloseBtn) ralCloseBtn.addEventListener('click', closeRalModal, { passive: true });
-
-    // Tap fuera del panel (fondo) para cerrar
-    if (ralModal) {
-        ralModal.addEventListener('click', (e) => {
-            if (e.target === ralModal) closeRalModal();
-        }, { passive: true });
-    }
-
-    if (ralSearch) {
-        ralSearch.addEventListener('input', (e) => {
-            filterRalList(e.target.value);
-        }, { passive: true });
-    }
-
-    // Escape para teclados externos
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeRalModal();
-    }, { passive: true });
-
+         // Reajustar cruz si gira
+         const src = (camMode==='camera')?video:imgElement;
+         if(src && (src===video?src.videoWidth:src.naturalWidth)) drawCrosshair();
+    });
 });
 </script>
-
-
-<!-- Modal pantalla completa para selector RAL -->
-<div id="ral-modal" class="ral-modal" aria-hidden="true">
-  <div class="ral-sheet" role="dialog" aria-modal="true" aria-label="Selector RAL">
-    <div class="ral-header">
-      <button type="button" class="ral-close" id="ral-close-btn">Cerrar</button>
-      <div class="ral-title">Selecciona RAL</div>
-    </div>
-    <div class="ral-search-wrap">
-      <input id="ral-search" type="text" inputmode="search" placeholder="Buscar (ej: 7016 o gris)" autocomplete="off" />
-    </div>
-    <div class="ral-list" id="ral-list" role="listbox" aria-label="Lista RAL"></div>
-  </div>
-</div>
-
 </body>
 </html>
