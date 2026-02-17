@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras v1.5</title>
+  <title>Calculadoras v2.1</title>
 
   <style>
     :root{
@@ -470,8 +470,7 @@
       border: 1px solid var(--border);
       box-shadow: 0 18px 44px rgba(0,0,0,.45);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+
       padding: 10px 12px;
       display:none;
     }
@@ -569,8 +568,7 @@
       border: 1px solid var(--border);
       box-shadow: 0 18px 44px rgba(0,0,0,.45);
       background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.10));
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+
       padding: 10px 12px;
       display:none;
     }
@@ -605,10 +603,254 @@
       #viewOscilos .btnReset{ padding: 10px 6px; font-size: 12px; }
     }
 
+
+
+    /* Colores pedidos */
+    #btnShowSetup{ background:linear-gradient(180deg, var(--blue), var(--blue2)); }#viewCP .cpRoot #btnClearTop{ background:linear-gradient(180deg, var(--red), var(--red2)); }#viewCP .cpRoot #btnReset{ background:linear-gradient(180deg, var(--green), var(--green2)); }#viewCP .cpRoot .hint{ font-size:12px; color:var(--muted); margin:10px 0 0; line-height:1.35; }#viewCP .cpRoot code{ background:rgba(255,255,255,.10); padding:2px 6px; border-radius:8px; color:var(--text); border:1px solid rgba(255,255,255,.08); }
+  
+
+    /* ===== iOS/WebView hardening =====
+       Algunos visores HTML en iPhone dibujan barras/overlays translucidos usando el "fondo" de la página.
+       Para evitar bandas/capas "fantasma", fijamos el fondo en una capa independiente y eliminamos blur/backdrop-filter.
+    */
+    html{ background: var(--bg0); }
+    body{ background: transparent !important; }
+
+    .bgFixed{
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(900px 520px at 20% 10%, rgba(114, 214, 255, .14), transparent 58%),
+        radial-gradient(800px 480px at 85% 20%, rgba(167, 139, 250, .12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    /* Desactiva blur/backdrop-filter (Safari/visores iOS pueden dejar "placas" semi transparentes) */
+    *, *::before, *::after{
+
+    }
+
+
+
+/* ===== Buscador Codigo Postal (estilo original v2.0) scoped ===== */
+#viewCP .cpRoot{
+      --bg:#0b1220;
+      --card:#101a33;
+      --card2:#0f1a2e;
+      --text:#eaf0ff;
+      --muted:rgba(234,240,255,.72);
+      --line:rgba(255,255,255,.10);
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+
+      --blue:#2f7dff;
+      --blue2:#1f5fff;
+      --red:#ff3b30;
+      --red2:#d92b22;
+      --green:#34c759;
+      --green2:#20a944;
+
+      --yellow:#fff6cc;
+      --yellow2:#ffefad;
+      --focus:#ffd54a;
+    }
+
+#viewCP .cpRoot{ height:100%; }
+#viewCP .cpRoot{
+      font-family:-apple-system, system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(47,125,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 0%, rgba(52,199,89,.14), transparent 55%),
+        radial-gradient(1000px 800px at 50% 100%, rgba(255,213,74,.08), transparent 60%),
+        var(--bg);
+      padding:16px;
+      margin:0;
+      color:var(--text);
+      -webkit-text-size-adjust:100%;
+      touch-action:manipulation;
+    }
+
+#viewCP .cpRoot .config-box{
+      max-width:560px;
+      margin:0 auto 14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border:1px solid var(--line);
+      padding:16px;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      text-align:center;
+
+    }
+
+#viewCP .cpRoot .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid var(--line);
+      max-width:560px;
+      margin:0 auto;
+      padding:18px;
+      border-radius:18px;
+      box-shadow:var(--shadow);
+
+    }
+
+#viewCP .cpRoot .header{
+      border-bottom:1px solid var(--line);
+      margin-bottom:16px;
+      padding-bottom:12px;
+      text-align:center;
+    }
+
+#viewCP .cpRoot .title{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.6px;
+      font-weight:900;
+    }
+#viewCP .cpRoot .subtitle{
+      margin:6px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+#viewCP .cpRoot .group{ margin-bottom:14px; position:relative; }
+#viewCP .cpRoot label{
+      font-size:11px;
+      font-weight:800;
+      color:rgba(234,240,255,.85);
+      text-transform:uppercase;
+      display:block;
+      margin-bottom:6px;
+      letter-spacing:.5px;
+    }
+
+#viewCP .cpRoot input{
+      padding:14px 14px;
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      font-size:16px;
+      width:100%;
+      box-sizing:border-box;
+      background:linear-gradient(180deg, var(--yellow), var(--yellow2));
+      color:#1b1f2a;
+      -webkit-appearance:none;
+      outline:none;
+      box-shadow:0 6px 16px rgba(0,0,0,.10);
+    }
+#viewCP .cpRoot input:focus{
+      border-color:var(--focus);
+      box-shadow:0 0 0 4px rgba(255,213,74,.35), 0 8px 18px rgba(0,0,0,.12);
+    }
+#viewCP .cpRoot .readonly{
+      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.10));
+      color:rgba(234,240,255,.92);
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+#viewCP .cpRoot .readonly:focus{
+      border-color:var(--line);
+      box-shadow:none;
+    }
+
+#viewCP .cpRoot #sug-box{
+      position:absolute;
+      width:100%;
+      background:rgba(16,26,51,.98);
+      border-radius:14px;
+      box-shadow:0 18px 40px rgba(0,0,0,.40);
+      z-index:100;
+      max-height:260px;
+      overflow-y:auto;
+      display:none;
+      border:1px solid var(--line);
+      margin-top:8px;
+      -webkit-overflow-scrolling:touch;
+    }
+#viewCP .cpRoot .sug-item{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      cursor:pointer;
+      font-size:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--text);
+    }
+#viewCP .cpRoot .sug-item:active{ transform:scale(.99); }
+#viewCP .cpRoot .sug-item:hover{ background:rgba(47,125,255,.10); }
+#viewCP .cpRoot .cp-badge{
+      background:rgba(255,255,255,.10);
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      white-space:nowrap;
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+#viewCP .cpRoot #status-msg{ font-size:12px; margin-top:10px; color:var(--muted); }
+#viewCP .cpRoot .row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+#viewCP .cpRoot button{
+      border:0;
+      color:#fff;
+      padding:11px 14px;
+      border-radius:14px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:13px;
+      letter-spacing:.2px;
+      box-shadow:0 10px 20px rgba(0,0,0,.22);
+      -webkit-tap-highlight-color: transparent;
+    }
+#viewCP .cpRoot button:active{ transform:translateY(1px); }
+
+    /* Colores pedidos */
+#viewCP .cpRoot #btnShowSetup{ background:linear-gradient(180deg, var(--blue), var(--blue2)); }
+#viewCP .cpRoot #btnClearTop{ background:linear-gradient(180deg, var(--red), var(--red2)); }
+#viewCP .cpRoot #btnReset{ background:linear-gradient(180deg, var(--green), var(--green2)); }
+
+    
+#viewCP .cpRoot .hint{ font-size:12px; color:var(--muted); margin:10px 0 0; line-height:1.35; }
+#viewCP .cpRoot code{ background:rgba(255,255,255,.10); padding:2px 6px; border-radius:8px; color:var(--text); border:1px solid rgba(255,255,255,.08); }
+
+    /* ===== FIX9: Resultados inferiores NO transparentes (todas las apps excepto CP) ===== */
+    /* Barra dock genérica (Tensor / IVA / Cinta) */
+    .resultDock{
+      background: #0a0f1c !important; /* sólido */
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    /* Elementos internos del dock un poco más sólidos para legibilidad */
+    .resultDock .vueltas{
+      background: rgba(16,26,51,.95) !important;
+      border-color: rgba(110,231,255,.25) !important;
+    }
+    .resultDock .circ{
+      background: rgba(16,26,51,.92) !important;
+      border-color: rgba(255,255,255,.14) !important;
+      color: rgba(238,243,255,.82) !important;
+    }
+    .resultDock .circ strong{ color: rgba(238,243,255,.98) !important; }
+
+    /* Dock Oscilos */
+    #viewOscilos .osDock{
+      background: #0a0f1c !important; /* sólido */
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    #viewOscilos .osDockItem{
+      background: rgba(16,26,51,.92) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+
+    /* CP: no tocamos su diseño (no usa dock inferior) */
+
 </style>
 </head>
 
 <body>
+  <div class="bgFixed" aria-hidden="true"></div>
   <div class="topbar" aria-hidden="false">
     <!-- Botón rojo MENÚ: se mantiene tal cual el original -->
     <button class="btn-menu" type="button"
@@ -617,12 +859,11 @@
     <!-- Casa: solo para volver al menú de calculadoras (se mostrará solo dentro de calculadoras) -->
     <button id="btnHome" class="btn btn-ghost btn-home" type="button" title="Ir al menú">🏠</button>
   </div>
-</div>
 
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
-      <div class="title">Calculadoras <small>v1.5</small></div>
+      <div class="title">Calculadoras <small>v2.1</small></div>
 
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
@@ -675,6 +916,22 @@
                 <div>
                   <p class="miTitle">Tensor muelles</p>
                   <p class="miDesc">Calculo de vueltas recomendadas segun altura, eje y pretension.</p>
+                </div>
+                <span class="badge">Disponible</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
+              </div>
+            
+
+            
+            </div>
+<div class="menuItem" role="listitem" data-route="cp">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Codigo postal</p>
+                  <p class="miDesc">Buscador de codigos postales (carga CSV/JSON y guarda offline).</p>
                 </div>
                 <span class="badge">Disponible</span>
               </div>
@@ -822,12 +1079,7 @@
         </div>
         <div id="dockErrorIVA" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
       </div>
-<div class="circ" aria-label="Cinta en mm">
-            <strong id="dockCintaMM">—</strong> mm
-          </div>
-        </div>
-        <div id="dockErrorCinta" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
-      </div>
+
 
       <div class="subhead" style="margin-top:14px;">
         Puedes editar cualquier campo. El cálculo mantiene el último campo editado y recalcula los demás.
@@ -849,7 +1101,7 @@
               <label for="cintaAltVent">Altura ventana (mm)</label>
               <input id="cintaAltVent" type="number" inputmode="decimal" step="1" placeholder="0" value="1400" aria-describedby="ayudaCintaAltVent" />
               <div id="ayudaCintaAltVent" class="sr-only">Introduce la altura de la ventana en milímetros.</div>
-            </div></div>
+            </div>
 
             <div class="field">
               <label for="cintaEje">Ø eje lamas (mm)</label>
@@ -963,7 +1215,495 @@
       </div>
     </section>
 
-  </main>
+  
+    <!-- BUSCADOR CODIGO POSTAL -->
+    <section id="viewCP" class="view" aria-label="Buscador codigo postal">
+      <div class="title">Codigo postal <small>v2.0</small></div>
+
+  <section class="card" aria-label="Buscador codigo postal">
+    <div class="inner">
+      <div class="cpRoot">
+<div class="config-box" id="setup">
+  <strong>CARGAR BASE DE DATOS</strong><br>
+  <p class="hint">Sube tu <code>.json</code> o <code>.csv</code>. Para iPhone (archivo local), guardamos en <b>IndexedDB</b> (más capacidad que localStorage).</p>
+  <input type="file" id="fileInput" accept=".json,.csv">
+  
+<div id="status-msg">Esperando archivo...</div>
+</div>
+
+<div class="card">
+  <div class="header">
+    <h2 class="title">BUSCADOR POSTAL</h2>
+    <div class="subtitle">Offline · iPhone · Autorrelleno por CP</div>
+    <div id="db-count" style="font-size:10px; color:var(--ok); font-weight:800; margin-top:6px;"></div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnShowSetup" type="button">Cambiar base</button>
+          <button id="btnClearTop" type="button">Borrar base</button>
+          <button id="btnReset" type="button">Reset</button>
+        </div>
+  </div>
+
+  <div class="group">
+    <label>Código Postal</label>
+    <input type="text" id="in_cp" inputmode="numeric" pattern="[0-9]*" placeholder="Ej: 15001" autocomplete="off">
+  </div>
+
+  <div class="group">
+    <label>Población (opcional)</label>
+    <input type="text" id="in_pob" placeholder="Ej: Coruña" autocomplete="off">
+    <div id="sug-box"></div>
+  </div>
+
+  <div class="group">
+    <label>Municipio</label>
+    <input type="text" id="in_mun" class="readonly" readonly>
+  </div>
+
+  <div class="group">
+    <label>Provincia</label>
+    <input type="text" id="in_pro" class="readonly" readonly>
+  </div>
+
+  <div class="group">
+    <label>Comunidad</label>
+    <input type="text" id="in_com" class="readonly" readonly>
+  </div>
+</div>
+
+<script>
+/* =========================
+   iPhone local: sin fetch.
+   Persistencia: IndexedDB.
+   Índice: 1 entrada por CP (rápido).
+   ========================= */
+
+let cpDb = []; // [{cp, mun, pro, com, pobs:[...] }]
+
+
+// ---------- Utilidades de texto (NO cambiar Y->Ñ) ----------
+function normUpper(s){
+  if (s == null) return "";
+  return String(s).replace(/"/g,"").trim().toUpperCase();
+}
+// Búsqueda sin acentos (mantiene Ñ)
+function normKey(s){
+  const d = normUpper(s);
+  // Fallback universal (sin normalize)
+  return d
+    .replace(/Á/g,"A").replace(/À/g,"A").replace(/Â/g,"A").replace(/Ä/g,"A")
+    .replace(/É/g,"E").replace(/È/g,"E").replace(/Ê/g,"E").replace(/Ë/g,"E")
+    .replace(/Í/g,"I").replace(/Ì/g,"I").replace(/Î/g,"I").replace(/Ï/g,"I")
+    .replace(/Ó/g,"O").replace(/Ò/g,"O").replace(/Ô/g,"O").replace(/Ö/g,"O")
+    .replace(/Ú/g,"U").replace(/Ù/g,"U").replace(/Û/g,"U").replace(/Ü/g,"U");
+}
+function padCp(v){
+  const n = String(v||"").replace(/\D/g,"");
+  return n.padStart(5,"0").slice(0,5);
+}
+
+// ---------- CSV parser simple (soporta comillas) ----------
+function parseCSV(text){
+  const rows = [];
+  let i=0, field="", row=[], inQuotes=false;
+  while(i < text.length){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i+=2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += ch; i++; continue;
+    } else {
+      if(ch === '"'){ inQuotes = true; i++; continue; }
+      if(ch === ','){
+        row.push(field); field=""; i++; continue;
+      }
+      if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text[i+1] === '\n') i++;
+        row.push(field); field="";
+        if(row.length > 1) rows.push(row);
+        row=[];
+        i++; continue;
+      }
+      field += ch; i++; continue;
+    }
+  }
+  row.push(field);
+  if(row.length > 1) rows.push(row);
+  return rows;
+}
+
+// ---------- Construir índice 1 por CP ----------
+
+function buildIndex(records){
+  const map = new Map(); // cp -> {cp, mun, pro, com, pobs:Set}
+  for(const r of records){
+    const cp = padCp(r.CP ?? r.cp ?? r.codigo_postal);
+    if(!cp || cp.length !== 5) continue;
+
+    const pob = normUpper(r.POBLACION ?? r.pob ?? r.localidad ?? r.place_name ?? "");
+    const mun = normUpper(r.MUNICIPIO ?? r.mun ?? r.municipio ?? r.place_name ?? pob);
+    const pro = normUpper(r.PROVINCIA ?? r.pro ?? r.provincia ?? "");
+    const com = normUpper(r.COMUNIDAD ?? r.com ?? r.comunidad ?? "");
+
+    if(!map.has(cp)){
+      map.set(cp, {cp, mun, pro, com, pobs:new Set()});
+    }
+    const e = map.get(cp);
+
+    // Mantén el primero si vienen inconsistencias
+    if(!e.mun && mun) e.mun = mun;
+    if(!e.pro && pro) e.pro = pro;
+    if(!e.com && com) e.com = com;
+
+    if(pob) e.pobs.add(pob);
+  }
+
+  const out = [];
+  for(const e of map.values()){
+    out.push({ cp:e.cp, mun:e.mun, pro:e.pro, com:e.com, pobs:Array.from(e.pobs).sort() });
+  }
+  out.sort((a,b)=>a.cp.localeCompare(b.cp));
+  return out;
+}
+
+// ---------- IndexedDB ----------
+const DB_NAME = "postal_offline_db";
+const DB_VER  = 1;
+const STORE   = "cp_index";
+
+function idbOpen(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = (ev)=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STORE)){
+        db.createObjectStore(STORE, {keyPath:"cp"});
+      }
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+
+async function idbPutAll(items){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readwrite");
+    const st = tx.objectStore(STORE);
+    // Vacía y mete todo
+    st.clear();
+    for(const it of items) st.put(it);
+    tx.oncomplete = ()=>{ db.close(); resolve(); };
+    tx.onerror = ()=>{ const err = tx.error; db.close(); reject(err); };
+  });
+}
+
+async function idbGetAll(){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readonly");
+    const st = tx.objectStore(STORE);
+    const req = st.getAll();
+    req.onsuccess = ()=>{ db.close(); resolve(req.result || []); };
+    req.onerror = ()=>{ const err=req.error; db.close(); reject(err); };
+  });
+}
+
+async function idbClear(){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).clear();
+    tx.oncomplete = ()=>{ db.close(); resolve(); };
+    tx.onerror = ()=>{ const err=tx.error; db.close(); reject(err); };
+  });
+}
+
+// ---------- UI ----------
+function setStatus(msg, ok=true){
+
+// Mostrar panel de carga para cambiar base (sin borrar todavía)
+function showSetupPanel(msg){
+  const setup = document.getElementById("cp_setup");
+  if(setup) setup.style.display = "block";
+  const count = document.getElementById("cp_db-count");
+  if(count) count.innerText = "";
+  if(msg) setStatus(msg);
+  // Permite seleccionar el mismo archivo otra vez
+  const fi = document.getElementById("cp_fileInput");
+  if(fi) fi.value = "";
+}
+
+// Botones superiores
+document.getElementById("cp_btnShowSetup").addEventListener("click", ()=>{
+  showSetupPanel("Selecciona el nuevo archivo. Al cargarlo, reemplazará la base anterior.");
+}, {passive:true});
+
+document.getElementById("cp_btnClearTop").addEventListener("click", async ()=>{
+  try{
+    await idbClear();
+  }catch(e){}
+  cpDb = []; refreshMaps();
+  showSetupPanel("Base borrada. Sube un archivo nuevo.");
+}, {passive:true});
+
+document.getElementById("cp_btnReset").addEventListener("click", ()=>{
+  document.getElementById("cp_in_cp").value = "";
+  document.getElementById("cp_in_pob").value = "";
+  document.getElementById("cp_in_mun").value = "";
+  document.getElementById("cp_in_pro").value = "";
+  document.getElementById("cp_in_com").value = "";
+  hideSug();
+  try{ document.getElementById("cp_in_cp").focus(); }catch(e){}
+}, {passive:true});
+
+  const el = document.getElementById("cp_status-msg");
+  el.style.color = ok ? "#666" : "var(--bad)";
+  el.innerText = msg;
+}
+
+// --- Botones superiores (iOS compatible) ---
+function onClick(id, fn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("click", fn);
+}
+
+// Mostrar panel de carga para cambiar base (sin borrar todavía)
+function showSetupPanel(msg){
+  const setup = document.getElementById("cp_setup");
+  if(setup) setup.style.display = "block";
+  const count = document.getElementById("cp_db-count");
+  if(count) count.innerText = "";
+  if(msg) setStatus(msg);
+  // Permite seleccionar el mismo archivo otra vez
+  const fi = document.getElementById("cp_fileInput");
+  if(fi) fi.value = "";
+}
+
+onClick("btnShowSetup", ()=>{
+  showSetupPanel("Selecciona el nuevo archivo. Al cargarlo, reemplazará la base anterior.");
+});
+
+onClick("btnClearTop", async ()=>{
+  try{ await idbClear(); }catch(e){}
+  cpDb = []; refreshMaps();
+  showSetupPanel("Base borrada. Sube un archivo nuevo.");
+});
+
+onClick("btnReset", ()=>{
+  document.getElementById("cp_in_cp").value = "";
+  document.getElementById("cp_in_pob").value = "";
+  document.getElementById("cp_in_mun").value = "";
+  document.getElementById("cp_in_pro").value = "";
+  document.getElementById("cp_in_com").value = "";
+  hideSug();
+  try{ document.getElementById("cp_in_cp").focus(); }catch(e){}
+});
+
+function showLoaded(){
+  document.getElementById("cp_setup").style.display = "none";
+  document.getElementById("cp_db-count").innerText = "● " + cpDb.length.toLocaleString() + " CP CARGADOS (1 por código)";
+}
+function fillFields(entry, pobSel){
+  document.getElementById("cp_in_cp").value  = entry.cp;
+  document.getElementById("cp_in_pob").value = pobSel || (entry.pobs && entry.pobs[0] ? entry.pobs[0] : entry.mun);
+  document.getElementById("cp_in_mun").value = entry.mun;
+  document.getElementById("cp_in_pro").value = entry.pro;
+  document.getElementById("cp_in_com").value = (entry.com ? entry.com + ", " : "") + "ESPAÑA";
+}
+
+function renderSug(entries, mode){
+  const box = document.getElementById("cp_sug-box");
+  box.innerHTML = "";
+  if(!entries || entries.length === 0){ box.style.display="none"; return; }
+  box.style.display="block";
+
+  entries.forEach(e=>{
+    const div = document.createElement("div");
+    div.className = "sug-item";
+    const left = (mode === "pob" ? (e.pob || e.mun) : (e.mun));
+    div.innerHTML = `<span>${left}</span><span class="cp-badge">${e.cp}</span>`;
+    div.onclick = ()=>{
+      const cpEntry = cpDbByCp.get(e.cp);
+      if(cpEntry) fillFields(cpEntry, e.pob);
+      hideSug();
+    };
+    box.appendChild(div);
+  });
+}
+function hideSug(){ document.getElementById("cp_sug-box").style.display="none"; }
+
+let cpDbByCp = new Map();
+
+function refreshMaps(){
+  cpDbByCp = new Map(cpDb.map(e=>[e.cp,e]));
+}
+
+function searchByCpPrefix(prefix){
+  const raw = String(prefix||"");
+  const digitsLen = raw.replace(/\D/g,"").length;
+  const cp = padCp(raw);
+
+  // CP completo: mostrar selector de poblaciones de ESE CP (si existen)
+  if(digitsLen >= 5){
+    const entry = cpDbByCp.get(cp);
+    if(entry){
+      const pobs = (entry.pobs || []).slice(0, 120);
+
+      // Si hay poblaciones, mostramos selector SIEMPRE (así verás FAFIÁN en 15960)
+      if(pobs.length >= 1){
+        const res = pobs.map(p => ({cp: entry.cp, mun: entry.mun, pob: p}));
+        renderSug(res.slice(0, 60), "pob");
+        return;
+      }
+
+      // Si no hay poblaciones, autocompletamos con municipio
+      fillFields(entry, entry.mun);
+      hideSug();
+      return;
+    }
+    hideSug();
+    return;
+  }
+
+  // CP incompleto: sugerencias por prefijo (hasta 40)
+  const p = padCp(raw).slice(0, Math.min(digitsLen, 5));
+  if(p.length < 2){ hideSug(); return; }
+  const res = [];
+  for(const e of cpDb){
+    if(e.cp.startsWith(p)){
+      res.push({cp:e.cp, mun:e.mun});
+      if(res.length >= 40) break;
+    }
+  }
+  renderSug(res, "cp");
+}
+
+function searchByPob(text){
+  const t = normKey(text);
+  if(t.length < 3){ hideSug(); return; }
+  const res = [];
+  for(const e of cpDb){
+    // buscar por municipio (sin acentos)
+    if(normKey(e.mun).includes(t)){
+      res.push({cp:e.cp, mun:e.mun, pob:e.mun});
+      if(res.length >= 40) break;
+    }
+    // buscar por poblaciones conocidas (si existen)
+    if(e.pobs && e.pobs.length){
+      for(const p of e.pobs){
+        if(normKey(p).includes(t)){
+          res.push({cp:e.cp, mun:e.mun, pob:p});
+          if(res.length >= 40) break;
+        }
+      }
+    }
+    if(res.length >= 40) break;
+  }
+  renderSug(res, "pob");
+}
+// Eventos (iOS safe)
+const inCp  = document.getElementById("cp_in_cp");
+const inPob = document.getElementById("cp_in_pob");
+
+function bindInput(el, fn){
+  let rafId = 0;
+  const handler = ()=>{
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(()=>fn(el.value));
+  };
+  el.addEventListener("input", handler, {passive:true});
+}
+
+bindInput(inCp, searchByCpPrefix);
+bindInput(inPob, searchByPob);
+
+document.addEventListener("click", (e)=>{ if(!e.target.closest(".group")) hideSug(); }, {passive:true});
+
+// Cargar DB guardada
+(async function boot(){
+  try{
+    const stored = await idbGetAll();
+    if(stored && stored.length){
+      cpDb = stored;
+      refreshMaps();
+      showLoaded();
+    }
+  }catch(err){
+    // Si IndexedDB falla por cualquier razón, seguimos sin DB
+    console.warn(err);
+  }
+})();
+
+
+// Cargar archivo
+document.getElementById("cp_fileInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  setStatus("Procesando archivo...");
+
+  reader.onload = async function(ev){
+    const contenido = ev.target.result;
+    try{
+      let records = [];
+
+      if(file.name.toLowerCase().endsWith(".json")){
+        const raw = JSON.parse(contenido);
+        if(!Array.isArray(raw)) throw new Error("JSON debe ser un array");
+        records = raw;
+      }else{
+        const rows = parseCSV(contenido);
+        if(!rows.length) throw new Error("CSV vacío");
+        // Cabecera
+        const header = rows[0].map(h=>normUpper(h));
+        const idx = (name)=>header.indexOf(normUpper(name));
+        const iCP  = idx("CP");
+        const iPOB = idx("POBLACION");
+        const iMUN = idx("MUNICIPIO");
+        const iPRO = idx("PROVINCIA");
+        const iCOM = idx("COMUNIDAD");
+        if(iCP < 0) throw new Error("CSV sin columna CP");
+
+        for(let r=1; r<rows.length; r++){
+          const row = rows[r];
+          if(!row || row.length === 0) continue;
+          records.push({
+            CP: row[iCP],
+            POBLACION: iPOB>=0 ? row[iPOB] : "",
+            MUNICIPIO: iMUN>=0 ? row[iMUN] : "",
+            PROVINCIA: iPRO>=0 ? row[iPRO] : "",
+            COMUNIDAD: iCOM>=0 ? row[iCOM] : ""
+          });
+        }
+      }
+
+      // Construir índice compacto (1 por CP)
+      cpDb = buildIndex(records);
+      refreshMaps();
+
+      // Guardar en IndexedDB
+      await idbPutAll(cpDb);
+
+      showLoaded();
+    }catch(err){
+      console.error(err);
+      setStatus("Error: Archivo no válido o demasiado grande. Prueba con JSON/CSV con columnas CP,MUNICIPIO,PROVINCIA,COMUNIDAD.", false);
+    }
+  };
+  reader.readAsText(file, "utf-8");
+});
+</script>
+</div>
+    </div>
+  </section>
+</section>
+    </section>
+
+</main>
 
   <script>
     (function () {
@@ -976,6 +1716,7 @@
         iva: document.getElementById("viewIVA"),
         cinta: document.getElementById("viewCinta"),
         oscilos: document.getElementById("viewOscilos"),
+        cp: document.getElementById("viewCP"),
       };      const btnHome = document.getElementById("btnHome");
 
       // Home se muestra solo cuando estás dentro de una calculadora
@@ -1006,6 +1747,7 @@
         else if (h === "iva") setView("iva");
         else if (h === "cinta") setView("cinta");
         else if (h === "oscilos") setView("oscilos");
+        else if (h === "cp") setView("cp");
         else setView("menu");
       }
 
@@ -1025,6 +1767,9 @@
       function goOscilos(){
         location.hash = "#oscilos";
       }
+      function goCP(){
+        location.hash = "#cp";
+      }
 
       // Menú items
       function onMenuTap(e){
@@ -1035,6 +1780,7 @@
         if(route === "iva") goIVA();
         if(route === "cinta") goCinta();
         if(route === "oscilos") goOscilos();
+        if(route === "cp") goCP();
       }
 
       // Click/touch friendly
@@ -1740,6 +2486,434 @@
 
         setBrand("GIESSE");
       })();
+
+      /* =========================
+   iPhone local: sin fetch.
+   Persistencia: IndexedDB.
+   Índice: 1 entrada por CP (rápido).
+   ========================= */
+
+let cpDb = []; // [{cp, mun, pro, com, pobs:[...] }]
+
+
+// ---------- Utilidades de texto (NO cambiar Y->Ñ) ----------
+function normUpper(s){
+  if (s == null) return "";
+  return String(s).replace(/"/g,"").trim().toUpperCase();
+}
+// Búsqueda sin acentos (mantiene Ñ)
+function normKey(s){
+  const d = normUpper(s);
+  // Fallback universal (sin normalize)
+  return d
+    .replace(/Á/g,"A").replace(/À/g,"A").replace(/Â/g,"A").replace(/Ä/g,"A")
+    .replace(/É/g,"E").replace(/È/g,"E").replace(/Ê/g,"E").replace(/Ë/g,"E")
+    .replace(/Í/g,"I").replace(/Ì/g,"I").replace(/Î/g,"I").replace(/Ï/g,"I")
+    .replace(/Ó/g,"O").replace(/Ò/g,"O").replace(/Ô/g,"O").replace(/Ö/g,"O")
+    .replace(/Ú/g,"U").replace(/Ù/g,"U").replace(/Û/g,"U").replace(/Ü/g,"U");
+}
+function padCp(v){
+  const n = String(v||"").replace(/\D/g,"");
+  return n.padStart(5,"0").slice(0,5);
+}
+
+// ---------- CSV parser simple (soporta comillas) ----------
+function parseCSV(text){
+  const rows = [];
+  let i=0, field="", row=[], inQuotes=false;
+  while(i < text.length){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i+=2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += ch; i++; continue;
+    } else {
+      if(ch === '"'){ inQuotes = true; i++; continue; }
+      if(ch === ','){
+        row.push(field); field=""; i++; continue;
+      }
+      if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text[i+1] === '\n') i++;
+        row.push(field); field="";
+        if(row.length > 1) rows.push(row);
+        row=[];
+        i++; continue;
+      }
+      field += ch; i++; continue;
+    }
+  }
+  row.push(field);
+  if(row.length > 1) rows.push(row);
+  return rows;
+}
+
+// ---------- Construir índice 1 por CP ----------
+
+function buildIndex(records){
+  const map = new Map(); // cp -> {cp, mun, pro, com, pobs:Set}
+  for(const r of records){
+    const cp = padCp(r.CP ?? r.cp ?? r.codigo_postal);
+    if(!cp || cp.length !== 5) continue;
+
+    const pob = normUpper(r.POBLACION ?? r.pob ?? r.localidad ?? r.place_name ?? "");
+    const mun = normUpper(r.MUNICIPIO ?? r.mun ?? r.municipio ?? r.place_name ?? pob);
+    const pro = normUpper(r.PROVINCIA ?? r.pro ?? r.provincia ?? "");
+    const com = normUpper(r.COMUNIDAD ?? r.com ?? r.comunidad ?? "");
+
+    if(!map.has(cp)){
+      map.set(cp, {cp, mun, pro, com, pobs:new Set()});
+    }
+    const e = map.get(cp);
+
+    // Mantén el primero si vienen inconsistencias
+    if(!e.mun && mun) e.mun = mun;
+    if(!e.pro && pro) e.pro = pro;
+    if(!e.com && com) e.com = com;
+
+    if(pob) e.pobs.add(pob);
+  }
+
+  const out = [];
+  for(const e of map.values()){
+    out.push({ cp:e.cp, mun:e.mun, pro:e.pro, com:e.com, pobs:Array.from(e.pobs).sort() });
+  }
+  out.sort((a,b)=>a.cp.localeCompare(b.cp));
+  return out;
+}
+
+// ---------- IndexedDB ----------
+const DB_NAME = "postal_offline_db";
+const DB_VER  = 1;
+const STORE   = "cp_index";
+
+function idbOpen(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = (ev)=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STORE)){
+        db.createObjectStore(STORE, {keyPath:"cp"});
+      }
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+
+async function idbPutAll(items){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readwrite");
+    const st = tx.objectStore(STORE);
+    // Vacía y mete todo
+    st.clear();
+    for(const it of items) st.put(it);
+    tx.oncomplete = ()=>{ db.close(); resolve(); };
+    tx.onerror = ()=>{ const err = tx.error; db.close(); reject(err); };
+  });
+}
+
+async function idbGetAll(){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readonly");
+    const st = tx.objectStore(STORE);
+    const req = st.getAll();
+    req.onsuccess = ()=>{ db.close(); resolve(req.result || []); };
+    req.onerror = ()=>{ const err=req.error; db.close(); reject(err); };
+  });
+}
+
+async function idbClear(){
+  const db = await idbOpen();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).clear();
+    tx.oncomplete = ()=>{ db.close(); resolve(); };
+    tx.onerror = ()=>{ const err=tx.error; db.close(); reject(err); };
+  });
+}
+
+// ---------- UI ----------
+function setStatus(msg, ok=true){
+
+// Mostrar panel de carga para cambiar base (sin borrar todavía)
+function showSetupPanel(msg){
+  const setup = document.getElementById("cp_setup");
+  if(setup) setup.style.display = "block";
+  const count = document.getElementById("cp_db-count");
+  if(count) count.innerText = "";
+  if(msg) setStatus(msg);
+  // Permite seleccionar el mismo archivo otra vez
+  const fi = document.getElementById("cp_fileInput");
+  if(fi) fi.value = "";
+}
+
+// Botones superiores
+document.getElementById("cp_btnShowSetup").addEventListener("click", ()=>{
+  showSetupPanel("Selecciona el nuevo archivo. Al cargarlo, reemplazará la base anterior.");
+}, {passive:true});
+
+document.getElementById("cp_btnClearTop").addEventListener("click", async ()=>{
+  try{
+    await idbClear();
+  }catch(e){}
+  cpDb = []; refreshMaps();
+  showSetupPanel("Base borrada. Sube un archivo nuevo.");
+}, {passive:true});
+
+document.getElementById("cp_btnReset").addEventListener("click", ()=>{
+  document.getElementById("cp_in_cp").value = "";
+  document.getElementById("cp_in_pob").value = "";
+  document.getElementById("cp_in_mun").value = "";
+  document.getElementById("cp_in_pro").value = "";
+  document.getElementById("cp_in_com").value = "";
+  hideSug();
+  try{ document.getElementById("cp_in_cp").focus(); }catch(e){}
+}, {passive:true});
+
+  const el = document.getElementById("cp_status-msg");
+  el.style.color = ok ? "#666" : "var(--bad)";
+  el.innerText = msg;
+}
+
+// --- Botones superiores (iOS compatible) ---
+function onClick(id, fn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("click", fn);
+}
+
+// Mostrar panel de carga para cambiar base (sin borrar todavía)
+function showSetupPanel(msg){
+  const setup = document.getElementById("cp_setup");
+  if(setup) setup.style.display = "block";
+  const count = document.getElementById("cp_db-count");
+  if(count) count.innerText = "";
+  if(msg) setStatus(msg);
+  // Permite seleccionar el mismo archivo otra vez
+  const fi = document.getElementById("cp_fileInput");
+  if(fi) fi.value = "";
+}
+
+onClick("cp_btnShowSetup", ()=>{
+  showSetupPanel("Selecciona el nuevo archivo. Al cargarlo, reemplazará la base anterior.");
+});
+
+onClick("cp_btnClearTop", async ()=>{
+  try{ await idbClear(); }catch(e){}
+  cpDb = []; refreshMaps();
+  showSetupPanel("Base borrada. Sube un archivo nuevo.");
+});
+
+onClick("cp_btnReset", ()=>{
+  document.getElementById("cp_in_cp").value = "";
+  document.getElementById("cp_in_pob").value = "";
+  document.getElementById("cp_in_mun").value = "";
+  document.getElementById("cp_in_pro").value = "";
+  document.getElementById("cp_in_com").value = "";
+  hideSug();
+  try{ document.getElementById("cp_in_cp").focus(); }catch(e){}
+});
+
+function showLoaded(){
+  document.getElementById("cp_setup").style.display = "none";
+  document.getElementById("cp_db-count").innerText = "● " + cpDb.length.toLocaleString() + " CP CARGADOS (1 por código)";
+}
+function fillFields(entry, pobSel){
+  document.getElementById("cp_in_cp").value  = entry.cp;
+  document.getElementById("cp_in_pob").value = pobSel || (entry.pobs && entry.pobs[0] ? entry.pobs[0] : entry.mun);
+  document.getElementById("cp_in_mun").value = entry.mun;
+  document.getElementById("cp_in_pro").value = entry.pro;
+  document.getElementById("cp_in_com").value = (entry.com ? entry.com + ", " : "") + "ESPAÑA";
+}
+
+function renderSug(entries, mode){
+  const box = document.getElementById("cp_sug-box");
+  box.innerHTML = "";
+  if(!entries || entries.length === 0){ box.style.display="none"; return; }
+  box.style.display="block";
+
+  entries.forEach(e=>{
+    const div = document.createElement("div");
+    div.className = "sug-item";
+    const left = (mode === "pob" ? (e.pob || e.mun) : (e.mun));
+    div.innerHTML = `<span>${left}</span><span class="cp-badge">${e.cp}</span>`;
+    div.onclick = ()=>{
+      const cpEntry = cpDbByCp.get(e.cp);
+      if(cpEntry) fillFields(cpEntry, e.pob);
+      hideSug();
+    };
+    box.appendChild(div);
+  });
+}
+function hideSug(){ document.getElementById("cp_sug-box").style.display="none"; }
+
+let cpDbByCp = new Map();
+
+function refreshMaps(){
+  cpDbByCp = new Map(cpDb.map(e=>[e.cp,e]));
+}
+
+function searchByCpPrefix(prefix){
+  const raw = String(prefix||"");
+  const digitsLen = raw.replace(/\D/g,"").length;
+  const cp = padCp(raw);
+
+  // CP completo: mostrar selector de poblaciones de ESE CP (si existen)
+  if(digitsLen >= 5){
+    const entry = cpDbByCp.get(cp);
+    if(entry){
+      const pobs = (entry.pobs || []).slice(0, 120);
+
+      // Si hay poblaciones, mostramos selector SIEMPRE (así verás FAFIÁN en 15960)
+      if(pobs.length >= 1){
+        const res = pobs.map(p => ({cp: entry.cp, mun: entry.mun, pob: p}));
+        renderSug(res.slice(0, 60), "pob");
+        return;
+      }
+
+      // Si no hay poblaciones, autocompletamos con municipio
+      fillFields(entry, entry.mun);
+      hideSug();
+      return;
+    }
+    hideSug();
+    return;
+  }
+
+  // CP incompleto: sugerencias por prefijo (hasta 40)
+  const p = padCp(raw).slice(0, Math.min(digitsLen, 5));
+  if(p.length < 2){ hideSug(); return; }
+  const res = [];
+  for(const e of cpDb){
+    if(e.cp.startsWith(p)){
+      res.push({cp:e.cp, mun:e.mun});
+      if(res.length >= 40) break;
+    }
+  }
+  renderSug(res, "cp");
+}
+
+function searchByPob(text){
+  const t = normKey(text);
+  if(t.length < 3){ hideSug(); return; }
+  const res = [];
+  for(const e of cpDb){
+    // buscar por municipio (sin acentos)
+    if(normKey(e.mun).includes(t)){
+      res.push({cp:e.cp, mun:e.mun, pob:e.mun});
+      if(res.length >= 40) break;
+    }
+    // buscar por poblaciones conocidas (si existen)
+    if(e.pobs && e.pobs.length){
+      for(const p of e.pobs){
+        if(normKey(p).includes(t)){
+          res.push({cp:e.cp, mun:e.mun, pob:p});
+          if(res.length >= 40) break;
+        }
+      }
+    }
+    if(res.length >= 40) break;
+  }
+  renderSug(res, "pob");
+}
+// Eventos (iOS safe)
+const inCp  = document.getElementById("cp_in_cp");
+const inPob = document.getElementById("cp_in_pob");
+
+function bindInput(el, fn){
+  let rafId = 0;
+  const handler = ()=>{
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(()=>fn(el.value));
+  };
+  el.addEventListener("input", handler, {passive:true});
+}
+
+bindInput(inCp, searchByCpPrefix);
+bindInput(inPob, searchByPob);
+
+document.addEventListener("click", (e)=>{ if(!e.target.closest(".group")) hideSug(); }, {passive:true});
+
+// Cargar DB guardada
+(async function boot(){
+  try{
+    const stored = await idbGetAll();
+    if(stored && stored.length){
+      cpDb = stored;
+      refreshMaps();
+      showLoaded();
+    }
+  }catch(err){
+    // Si IndexedDB falla por cualquier razón, seguimos sin DB
+    console.warn(err);
+  }
+})();
+
+
+// Cargar archivo
+document.getElementById("cp_fileInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  setStatus("Procesando archivo...");
+
+  reader.onload = async function(ev){
+    const contenido = ev.target.result;
+    try{
+      let records = [];
+
+      if(file.name.toLowerCase().endsWith(".json")){
+        const raw = JSON.parse(contenido);
+        if(!Array.isArray(raw)) throw new Error("JSON debe ser un array");
+        records = raw;
+      }else{
+        const rows = parseCSV(contenido);
+        if(!rows.length) throw new Error("CSV vacío");
+        // Cabecera
+        const header = rows[0].map(h=>normUpper(h));
+        const idx = (name)=>header.indexOf(normUpper(name));
+        const iCP  = idx("CP");
+        const iPOB = idx("POBLACION");
+        const iMUN = idx("MUNICIPIO");
+        const iPRO = idx("PROVINCIA");
+        const iCOM = idx("COMUNIDAD");
+        if(iCP < 0) throw new Error("CSV sin columna CP");
+
+        for(let r=1; r<rows.length; r++){
+          const row = rows[r];
+          if(!row || row.length === 0) continue;
+          records.push({
+            CP: row[iCP],
+            POBLACION: iPOB>=0 ? row[iPOB] : "",
+            MUNICIPIO: iMUN>=0 ? row[iMUN] : "",
+            PROVINCIA: iPRO>=0 ? row[iPRO] : "",
+            COMUNIDAD: iCOM>=0 ? row[iCOM] : ""
+          });
+        }
+      }
+
+      // Construir índice compacto (1 por CP)
+      cpDb = buildIndex(records);
+      refreshMaps();
+
+      // Guardar en IndexedDB
+      await idbPutAll(cpDb);
+
+      showLoaded();
+    }catch(err){
+      console.error(err);
+      setStatus("Error: Archivo no válido o demasiado grande. Prueba con JSON/CSV con columnas CP,MUNICIPIO,PROVINCIA,COMUNIDAD.", false);
+    }
+  };
+  reader.readAsText(file, "utf-8");
+});
+
+
 
     })();
   </script>
