@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Diseño Ventana - Táctil Pro (Matricial)</title>
+    <title>Diseño Ventana Pro V83</title>
     <style>
 
         body {
@@ -439,7 +439,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<h1>Diseño Ventana Pro V80</h1>
+<h1>Diseño Ventana Pro V83</h1>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -555,7 +555,42 @@ body.dock-off #canvasDock{
 
 <div class="control-group" style="background-color: #E6D4B8;">
 
-    <h3>Añadir Fijos</h3>
+    
+<div class="control-group" style="background-color:#E6D4B8; margin-top: 15px;">
+  <h3>Acción al tocar en el cristal</h3>
+  <div class="option-group" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:#E1E2D6; padding:12px; border-radius:10px;">
+    <label style="margin:0;">Modo:</label>
+    <select id="touchMode" onchange="/*sin auto refresh*/">
+      <option value="pintar" selected>Pintar cristal</option>
+      <option value="insertar">Poner hoja dentro del hueco</option>
+      <option value="borrar">Borrar hoja del hueco</option>
+    </select>
+
+    <label style="margin:0;">Apertura hoja interior:</label>
+    <select id="subHojaApertura">
+      <option value="izquierda">Izquierda</option>
+      <option value="derecha" selected>Derecha</option>
+      <option value="izq-ob">Izquierda Oscilobatiente</option>
+      <option value="der-ob">Derecha Oscilobatiente</option>
+      <option value="proyectante">Proyectante</option>
+      <option value="abatible-inf">Abatible inferior</option>
+      <option value="corredera">Corredera</option>
+      <option value="fija">Fija</option>
+    </select>
+
+    <label style="margin:0; display:flex; align-items:center; gap:6px;">
+      <input type="checkbox" id="subHojaManilla" checked> Manilla
+    </label>
+    <label style="margin:0; display:flex; align-items:center; gap:6px;">
+      <input type="checkbox" id="subHojaBisagras" checked> Bisagras
+    </label>
+
+    <small style="color:#555; flex-basis:100%;">Tip: Cambia a “Poner hoja…” y toca un hueco. Para quitarla, cambia a “Borrar hoja…”.</small>
+  </div>
+</div>
+
+
+<h3>Añadir Fijos</h3>
 
 <div class="control-group" style="background-color: #E1E2D6;">
 
@@ -602,6 +637,38 @@ body.dock-off #canvasDock{
     // Color activo para "pintar" al tocar
     let colorActivo = "rgba(173, 216, 230, 1)";
     let colorCristalGlobal = "rgba(173, 216, 230, 1)"; // Mantenemos referencia del global
+
+    // --- HOJA DENTRO DE HUECO (sub-hoja) ---
+    // subHojas[key] = { apertura, manilla, bisagras }
+    let subHojas = {};
+
+    function zonaKey(data) {
+        if(!data || !data.type) return '';
+        const parts = [data.type];
+        if (data.index !== undefined) parts.push('i' + data.index);
+        if (data.subIndex !== undefined) parts.push('s' + data.subIndex);
+        if (data.row !== undefined) parts.push('r' + data.row);
+        if (data.col !== undefined) parts.push('c' + data.col);
+        return parts.join(':');
+    }
+
+    function insertarSubHojaEnZona(data) {
+        const key = zonaKey(data);
+        if(!key) return;
+        const apertura = (document.getElementById('subHojaApertura') || {}).value || 'derecha';
+        const manilla = !!(document.getElementById('subHojaManilla') && document.getElementById('subHojaManilla').checked);
+        const bisagras = !!(document.getElementById('subHojaBisagras') && document.getElementById('subHojaBisagras').checked);
+        subHojas[key] = { apertura, manilla, bisagras };
+        actualizarVista();
+    }
+
+    function borrarSubHojaDeZona(data) {
+        const key = zonaKey(data);
+        if(!key) return;
+        if(subHojas[key]) delete subHojas[key];
+        actualizarVista();
+    }
+
 
     let marcoThickness = 40;
     let hojaThickness = 70;
@@ -720,6 +787,49 @@ function oscurecerColor(hex, factor = 0.7) {
     const toHex = (c) => c.toString(16).padStart(2, '0');
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
+
+// --- CONTRASTE BORDE HOJA (para marcos oscuros) ---
+function _hexToRgbSafe(c) {
+    if (!c) return null;
+    // Soporta nombres básicos
+    if (c === 'white') return {r:255,g:255,b:255};
+    if (c === 'black') return {r:0,g:0,b:0};
+    if (c.startsWith('rgb')) {
+        const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if (m) return {r:+m[1], g:+m[2], b:+m[3]};
+        return null;
+    }
+    if (!c.startsWith('#')) return null;
+    let hex = c.replace('#','').trim();
+    if (hex.length === 3) hex = hex.split('').map(ch => ch+ch).join('');
+    if (hex.length !== 6) return null;
+    return {
+        r: parseInt(hex.slice(0,2),16),
+        g: parseInt(hex.slice(2,4),16),
+        b: parseInt(hex.slice(4,6),16)
+    };
+}
+
+function _esColorOscuro(c) {
+    const rgb = _hexToRgbSafe(c);
+    if (!rgb) return false;
+    // Luminancia perceptual
+    const lum = 0.2126*rgb.r + 0.7152*rgb.g + 0.0722*rgb.b;
+    return lum < 115; // umbral (ajustado para que grises medios sigan usando borde oscuro)
+}
+
+function getBordeHojaColor() {
+    // Si el marco es oscuro, borde claro para separar la hoja
+    return _esColorOscuro(colorMarco) ? "rgba(255,255,255,0.85)" : "#333333";
+}
+
+function getBordeHojaGrosor() {
+    // Si el marco es oscuro, subimos un poco el grosor
+    return _esColorOscuro(colorMarco) ? 2 : 1;
+}
+// --- FIN CONTRASTE BORDE HOJA ---
+
 
 // 2. Esta es la función principal modificada
 function cambiarColorMarco(c) {
@@ -1224,6 +1334,7 @@ function cambiarColorMarco(c) {
                         <option value="izq-ob" ${aperturaSeleccionada === 'izq-ob' ? 'selected' : ''}>Izquierda Oscilobatiente</option>
                         <option value="der-ob" ${aperturaSeleccionada === 'der-ob' ? 'selected' : ''}>Derecha Oscilobatiente</option>
                         <option value="proyectante" ${aperturaSeleccionada === 'proyectante' ? 'selected' : ''}>Proyectante</option>
+                        <option value="abatible-inf" ${aperturaSeleccionada === 'abatible-inf' ? 'selected' : ''}>Abatible inferior</option>
                         <option value="corredera" ${aperturaSeleccionada === 'corredera' ? 'selected' : ''}>Corredera</option>
                         <option value="fija" ${aperturaSeleccionada === 'fija' ? 'selected' : ''}>Fija</option>
                         <option value="fijo-con-travesano" ${aperturaSeleccionada === 'fijo-con-travesano' ? 'selected' : ''}>Fijo con travesaño</option>
@@ -1644,6 +1755,223 @@ function cambiarColorMarco(c) {
         ctx.stroke();
     }
 
+    // --- DIBUJO SUB-HOJAS (hoja dentro de hueco) ---
+    function _luminancia(color) {
+        // Acepta #RRGGBB o rgba(r,g,b,a)
+        if(!color) return 255;
+        if(color.startsWith('#')) {
+            const hex = color.replace('#','');
+            const r = parseInt(hex.substring(0,2),16);
+            const g = parseInt(hex.substring(2,4),16);
+            const b = parseInt(hex.substring(4,6),16);
+            return 0.299*r + 0.587*g + 0.114*b;
+        }
+        const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if(m) {
+            const r = parseInt(m[1]); const g = parseInt(m[2]); const b = parseInt(m[3]);
+            return 0.299*r + 0.587*g + 0.114*b;
+        }
+        return 255;
+    }
+
+    function _strokeParaMarco(marcoColor) {
+        const lum = _luminancia(marcoColor);
+        // marco oscuro -> borde claro; marco claro -> borde oscuro
+        return (lum < 140) ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.55)";
+    }
+
+    function _insetPoly(poly, padPx) {
+        // inset “seguro” por escalado hacia el centro
+        let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+        let cx=0, cy=0;
+        poly.forEach(p=>{minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y); cx+=p.x; cy+=p.y;});
+        cx/=poly.length; cy/=poly.length;
+        const w = Math.max(1, maxX-minX);
+        const h = Math.max(1, maxY-minY);
+        const sx = Math.max(0.1, (w - 2*padPx)/w);
+        const sy = Math.max(0.1, (h - 2*padPx)/h);
+        const s = Math.min(sx, sy);
+        return poly.map(p=>({x: cx + (p.x-cx)*s, y: cy + (p.y-cy)*s}));
+    }
+
+    function _dibujarCristalPoligono(ctx, poly, baseColor) {
+        if(!poly || poly.length < 3) return;
+        // Bounding box para degradado
+        let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+        poly.forEach(p=>{minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y);});
+        const w = Math.max(1, maxX-minX);
+        const h = Math.max(1, maxY-minY);
+
+        let fillStyle = baseColor;
+
+        if (typeof baseColor === 'string' && baseColor.startsWith("rgba")) {
+            // Efecto cristal: Color -> Blanco -> Color (diagonal)
+            let gradient = ctx.createLinearGradient(minX, minY, minX + w, minY + h);
+            gradient.addColorStop(0, baseColor);
+            gradient.addColorStop(0.5, "rgba(255, 255, 255, 1)");
+            gradient.addColorStop(1, baseColor);
+            fillStyle = gradient;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(poly[0].x, poly[0].y);
+        for(let i=1;i<poly.length;i++) ctx.lineTo(poly[i].x, poly[i].y);
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+        ctx.strokeStyle = "#0074D9";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+
+    function dibujarSubHojas(ctx) {
+        // Dibuja por encima de los cristales ya renderizados
+        const keys = Object.keys(subHojas || {});
+        if(keys.length === 0) return;
+
+        keys.forEach(key=>{
+            const cfg = subHojas[key];
+            if(!cfg) return;
+
+            // buscar zona actual (poly cambia con el redibujo)
+            let zona = null;
+            for (let i=0; i<zonasInteractivas.length; i++) {
+                if(zonaKey(zonasInteractivas[i].data) === key) { zona = zonasInteractivas[i]; break; }
+            }
+            if(!zona || !zona.poly || zona.poly.length < 4) return;
+
+            const poly = zona.poly.slice();
+
+            // --- Sub-hoja "real": marco (relleno) + cristal interior ---
+            // Calculamos un marco proporcional al tamaño del hueco (para que no se vea el cristal por los lados)
+            let minX0=Infinity, minY0=Infinity, maxX0=-Infinity, maxY0=-Infinity;
+            poly.forEach(p=>{minX0=Math.min(minX0,p.x); minY0=Math.min(minY0,p.y); maxX0=Math.max(maxX0,p.x); maxY0=Math.max(maxY0,p.y);});
+            const boxW0 = Math.max(1, maxX0 - minX0);
+            const boxH0 = Math.max(1, maxY0 - minY0);
+
+            // “Borde exterior” de la sub-hoja (separa un poco del hueco)
+            const outerPad = 1; // ocupar todo el hueco (sin dejar cristal visible)
+            // “Marco” de la sub-hoja (grosor del perfil)
+            const framePad = Math.max(8, Math.min(22, Math.round(Math.min(boxW0, boxH0) * 0.10)));
+
+            const outer = _insetPoly(poly, outerPad);
+            const glass = _insetPoly(poly, outerPad + framePad);
+
+            // 1) Marco interior (relleno) para tapar el cristal de detrás
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(outer[0].x, outer[0].y);
+            for(let k=1;k<outer.length;k++) ctx.lineTo(outer[k].x, outer[k].y);
+            ctx.closePath();
+            ctx.fillStyle = colorMarco;
+            ctx.fill();
+
+            // Borde del marco (contraste automático con el color del marco)
+            ctx.strokeStyle = _strokeParaMarco(colorMarco);
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 2) Cristal interior (degradado) dentro del marco
+            // Usamos el color global de cristal para que se integre con tu sistema actual
+            _dibujarCristalPoligono(ctx, glass, colorCristalGlobal);
+
+            // simbolo apertura (usamos glass como "cristal" de la subhoja)
+            const p1 = glass[0];
+            const p2 = glass[Math.max(1, glass.length - 3)];
+            const p3 = glass[Math.max(2, glass.length - 2)];
+            const p4 = glass[Math.max(3, glass.length - 1)];
+            const centerX=(p1.x+p2.x)/2;
+            const centerYTop=(p1.y+p2.y)/2;
+            const centerYBot=(p3.y+p4.y)/2;
+            const centerY=(centerYTop+centerYBot)/2;
+
+            ctx.strokeStyle = _strokeParaMarco(colorMarco);
+            ctx.lineWidth = 1.8;
+
+            const ap = cfg.apertura || 'derecha';
+
+            if (ap === "izquierda" || ap === "izq-ob") {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, centerY);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (ap === "derecha" || ap === "der-ob") {
+                ctx.beginPath();
+                ctx.moveTo(p2.x, p2.y);
+                ctx.lineTo(p1.x, centerY);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (ap === "proyectante") {
+                ctx.beginPath();
+                ctx.moveTo(centerX, p4.y);
+                ctx.lineTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (ap === "abatible-inf") {
+                ctx.beginPath();
+                ctx.moveTo(centerX, p1.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            // herrajes simplificados (2 bisagras)
+            if(cfg.bisagras) {
+                const w = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+                const hLeft = Math.hypot(p4.x-p1.x, p4.y-p1.y);
+                // Tomamos caja aproximada
+                const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
+                const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
+                const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
+                const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
+                const boxW = maxX-minX;
+                const boxH = maxY-minY;
+
+                if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, minX, minY, boxH, 'izquierda', 'black');
+                else if(ap === 'derecha' || ap === 'der-ob') dibujarBisagras(ctx, maxX, minY, boxH, 'derecha', 'black');
+                else if(ap === 'proyectante') dibujarBisagras(ctx, minX, minY, boxW, 'arriba', 'black');
+                else if(ap === 'abatible-inf') dibujarBisagras(ctx, minX, maxY, boxW, 'abajo', 'black');
+            }
+
+            // manilla simplificada
+            if(cfg.manilla) {
+                ctx.strokeStyle = _strokeParaMarco(colorMarco);
+                ctx.lineWidth = 3;
+                const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
+                const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
+                const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
+                const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
+                const boxW = maxX-minX;
+                const boxH = maxY-minY;
+
+                let mx=minX+boxW/2, my=minY+boxH/2;
+                let vertical=true;
+
+                if (ap === "izquierda" || ap === "izq-ob") { mx = maxX - 6; my = minY + boxH/2; vertical=true; }
+                else if (ap === "derecha" || ap === "der-ob") { mx = minX + 6; my = minY + boxH/2; vertical=true; }
+                else if (ap === "proyectante") { mx = minX + boxW/2; my = maxY - 6; vertical=false; }
+                else if (ap === "abatible-inf") { mx = minX + boxW/2; my = minY + 6; vertical=false; }
+
+                ctx.beginPath();
+                if(vertical) {
+                    ctx.moveTo(mx, my - 14); ctx.lineTo(mx, my + 14);
+                } else {
+                    ctx.moveTo(mx - 14, my); ctx.lineTo(mx + 14, my);
+                }
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        });
+    }
+
+
     function getCurvedY(x, x0, y0, x1, y1, x2, y2) {
         const t = (x - x0) / (x2 - x0);
         // Curva cuadrática Bezier B(t) = (1-t)^2 P0 + 2(1-t)t P1 + t^2 P2
@@ -1755,6 +2083,7 @@ function cambiarColorMarco(c) {
 
         if (lado === 'izquierda') {
             const bisagraX = x - bisagraWidthEsc;
+
             // Bisagra superior izquierda
             ctx.fillRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
             ctx.strokeRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
@@ -1765,15 +2094,46 @@ function cambiarColorMarco(c) {
 
         } else if (lado === 'derecha') {
             const bisagraX = x;
-             // Bisagra superior derecha
+
+            // Bisagra superior derecha
             ctx.fillRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
             ctx.strokeRect(bisagraX, y + marginEsc, bisagraWidthEsc, bisagraHeightEsc);
 
             // Bisagra inferior derecha
             ctx.fillRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
             ctx.strokeRect(bisagraX, y + alto - marginEsc - bisagraHeightEsc, bisagraWidthEsc, bisagraHeightEsc);
+
+         } else if (lado === 'arriba') {
+            // Para bisagra superior: aquí "alto" se interpreta como el ANCHO de la hoja (en px escalados)
+            const hingeW = bisagraHeightEsc; // ~100mm
+            const hingeH = bisagraWidthEsc;  // ~20mm
+            const yTop = y;                  // y se interpreta como línea superior de la hoja
+
+            const leftX = x + marginEsc;
+            const rightX = x + alto - marginEsc - hingeW;
+
+            [leftX, rightX].forEach(px => {
+                ctx.fillRect(px, yTop, hingeW, hingeH);
+                ctx.strokeRect(px, yTop, hingeW, hingeH);
+            });
+
+        } else if (lado === 'abajo') {
+            // Para bisagra inferior: aquí "alto" se interpreta como el ANCHO de la hoja (en px escalados)
+            const hingeW = bisagraHeightEsc; // ~100mm
+            const hingeH = bisagraWidthEsc;  // ~20mm
+            const yTop = y - hingeH;         // y se interpreta como línea inferior de la hoja
+
+            const leftX = x + marginEsc;
+            const centerX = x + (alto / 2) - (hingeW / 2);
+            const rightX = x + alto - marginEsc - hingeW;
+
+            [leftX, rightX].forEach(px => {
+                ctx.fillRect(px, yTop, hingeW, hingeH);
+                ctx.strokeRect(px, yTop, hingeW, hingeH);
+            });
         }
     }
+
 
     function dibujar(mostrarMedidasFlag) {
         const c = document.getElementById("canvas"), ctx = c.getContext("2d");
@@ -2126,8 +2486,8 @@ function cambiarColorMarco(c) {
                 const yHojaTopRight = y_top_frame(xHojaRight) + marcoThicknessEsc;
 
                 if (!isFijo) {
-                    ctx.strokeStyle = "#333333";
-                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = getBordeHojaColor();
+                    ctx.lineWidth = getBordeHojaGrosor();
 
                     ctx.beginPath();
                     ctx.moveTo(xHojaLeft, yHojaTopLeft);
@@ -2250,6 +2610,14 @@ function cambiarColorMarco(c) {
                     ctx.closePath();
                     ctx.stroke();
                 }
+                if (ap === "abatible-inf") {
+                    ctx.beginPath();
+                    ctx.moveTo(centerXGlass, p1.y);
+                    ctx.lineTo(p3.x, p3.y);
+                    ctx.lineTo(p4.x, p4.y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
                 if (ap === "izq-ob" || ap === "der-ob") {
                     ctx.strokeStyle = "red";
                     ctx.beginPath();
@@ -2306,6 +2674,10 @@ function cambiarColorMarco(c) {
                         manillaX = xHojaLeft + anchoHojaEsc / 2;
                         manillaY = yHojaBottom - hojaThicknessEsc / 2;
                         verticalManilla = false;
+                    } else if (ap === "abatible-inf") {
+                        manillaX = xHojaLeft + anchoHojaEsc / 2;
+                        manillaY = yHojaTopLeft + hojaThicknessEsc / 2;
+                        verticalManilla = false;
                     } else if (ap === "corredera") {
                         isSlidingManilla = true;
                         const manillaSide = document.getElementById(`manillaSide${i}`).value;
@@ -2328,8 +2700,15 @@ function cambiarColorMarco(c) {
                         dibujarBisagras(ctx, xHojaLeft, yHojaTopLeft, yHojaBottom - yHojaTopLeft, 'izquierda', bisagrasColor);
                     } else if (ap === "derecha" || ap === "der-ob") {
                         dibujarBisagras(ctx, xHojaRight, yHojaTopRight, yHojaBottom - yHojaTopRight, 'derecha', bisagrasColor);
+                    } else if (ap === "abatible-inf") {
+                        // Bisagras abajo (lo contrario a proyectante)
+                        dibujarBisagras(ctx, xHojaLeft, yHojaBottom, anchoHojaEsc, 'abajo', bisagrasColor);
                     }
-                }
+                else if (ap === "proyectante") {
+                        // Bisagras arriba (proyectante)
+                        dibujarBisagras(ctx, xHojaLeft, yHojaTopLeft, anchoHojaEsc, 'arriba', bisagrasColor);
+                    }
+                    }
 
                 currentHojaXPos += anchoHojaEsc;
                 if (i < hojas - 1) {
@@ -2821,6 +3200,8 @@ if (mostrarAltoTotalDer) {
             }
         }
     }
+        // Dibujar hojas interiores (si existen)
+        dibujarSubHojas(ctx);
 }
 
     // --- EVENTO CLIC EN CANVAS PARA PINTAR ---
@@ -2843,7 +3224,14 @@ if (mostrarAltoTotalDer) {
         }
         
         if (zonaEncontrada) {
-            aplicarColorAZona(zonaEncontrada, colorActivo);
+            const modoSel = (document.getElementById('touchMode') ? document.getElementById('touchMode').value : 'pintar');
+            if (modoSel === 'insertar') {
+                insertarSubHojaEnZona(zonaEncontrada);
+            } else if (modoSel === 'borrar') {
+                borrarSubHojaDeZona(zonaEncontrada);
+            } else {
+                aplicarColorAZona(zonaEncontrada, colorActivo);
+            }
         }
     });
     
