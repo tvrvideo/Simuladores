@@ -15,9 +15,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 15px;
-      gap: 15px;
+      padding: 15px;gap: 15px;
       color: #333;
+    }
+
+    .header{
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      padding-top: 0; /* sin aire extra */
+      box-sizing: border-box;
+    }
+    .verline{
+      font-size: 13px;
+      color: #0061FE;
+      opacity: 0.85;
+      margin-bottom: 6px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
     }
 
     h1 {
@@ -159,6 +174,8 @@
 
     .action-button:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
+    .action-button:disabled{ opacity:0.45; filter:grayscale(0.2); }
+
     /* Estado activo (blanco con borde azul) */
     .action-button.active {
       background-color: #e0eaff;
@@ -215,8 +232,7 @@
     #controls {
       width: 100%;
       box-sizing: border-box;
-      padding: 15px;
-      display: flex;
+      padding: 15px;display: flex;
       flex-direction: column;
       align-items: center;
       gap: 15px;
@@ -394,7 +410,10 @@ body.dock-on #controls{
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 
-<h1>Cierre con lamas <span class="ver">V16</span></h1>
+<div class="header">
+  <div class="verline">v2.3</div>
+  <h1>Cierre con lamas</h1>
+</div>
 
 <form id="form">
     <div class="dimensions-group">
@@ -441,7 +460,7 @@ body.dock-on #controls{
 
     <div style="width:100%">
         <label id="lblUtiles">Alto lamas (mm)</label>
-        <input type="number" id="altoUtillamas">
+        <input type="number" id="altoUtillamas" step="1" inputmode="numeric">
     </div>
 
     <div class="button-row">
@@ -449,10 +468,13 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="toggleWidthCota">Ocultar ancho</button>
         <button type="button" class="action-button" id="toggleHeightCota">Ocultar alto</button>
         <button type="button" class="action-button" id="toggleRedCota">Mostrar cota roja</button>
+        <button type="button" class="action-button" id="togglePostMeasures">Mostrar medidas postes</button>
         <button type="button" class="action-button" id="toggleMarco">Ocultar marco</button>
         <button type="button" class="action-button" id="toggleOrientation">Cambiar horizontal</button>
         <button type="button" class="action-button" id="toggleLarguero">Añadir larguero</button>
-        <button type="button" class="action-button" id="togglePoste">Añadir poste</button>
+        <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
+        <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
+            <button type="button" class="action-button" id="btnFence">Modo valla</button>
     </div>
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
@@ -482,8 +504,185 @@ body.dock-on #controls{
 
 <script>
     // --- LÓGICA COMPLETA ---
-    let showWidthCota = true, showHeightCota = true, showRedCota = false, showMarco = true, isVertical = false, isLamaMode = false;
-    let showLarguero = false, showPoste = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
+    let showLarguero = false, posteCount = 0, fenceMode = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+
+    // --- v1.7: Sincronización reversible (manda el último input editado) ---
+    let lastComputedN = 0;              // nº de lamas usado en el último dibujo
+    let lastComputedAL = 0;             // alto de lama usado en el último dibujo
+    let lastComputedEsp = 0;            // hueco efectivo usado en el último dibujo
+    let lastComputedUtil = 0;           // alto útil (lamas + huecos interiores)
+    let lastUserEditedId = null;        // id del último input tocado por el usuario
+    let inputDebounce = null;
+
+    function roundToStep(v, step=0.5) {
+        if(!isFinite(v)) return v;
+        return Math.round(v / step) * step;
+    }
+
+    function safeNumber(el) {
+        const v = parseFloat(el.value);
+        return Number.isFinite(v) ? v : NaN;
+    }
+
+    function setIfNotFocused(id, value, decimals=0) {
+        const el = document.getElementById(id);
+        if(!el) return;
+        if(document.activeElement === el) return; // no pisar mientras el usuario escribe
+        const vv = (decimals > 0) ? value.toFixed(decimals) : String(Math.round(value));
+        el.value = vv;
+    }
+
+    function computeFromCurrentDrawModel() {
+        // Modelo coherente para actualizar inputs "derivados" cuando el usuario cambie algo.
+        const marco = +document.getElementById("marco").value;
+        const alto = +document.getElementById("alto").value;
+        const altoLama = +document.getElementById("altoLama").value;
+        const sep = +document.getElementById("sep").value;
+
+        // Evitar divisiones raras
+        const areaUtil = Math.max(0, (isVertical ? (+document.getElementById("ancho").value - marco*2) : (alto - marco*2)));
+
+        // Mantener la misma lógica original para n/esp/nuevoAL
+        let n, esp, nuevoAL = altoLama;
+
+        if (isLamaMode) {
+            n = Math.round(areaUtil / (altoLama + sep));
+            if (n > 0) nuevoAL = (areaUtil - (n + 1) * sep) / n;
+            esp = sep;
+        } else {
+            n = Math.floor(areaUtil / (altoLama + sep));
+            esp = n > 0 ? (areaUtil - n * altoLama) / (n + 1) : 0;
+        }
+
+        const util = (n > 0) ? (n * nuevoAL + Math.max(0, (n - 1)) * esp) : 0;
+
+        return { marco, alto, altoLama, sep, areaUtil, n, esp, nuevoAL, util };
+    }
+
+    function applyReversibleUpdate(changedId) {
+        // Esta función intenta que "mande el último input" y ajusta el resto de manera coherente.
+        // Se apoya en lastComputedN para que el usuario pueda fijar "Alto lamas" sin que cambie n inesperadamente.
+        const anchoEl = document.getElementById("ancho");
+        const altoEl = document.getElementById("alto");
+        const altoLamaEl = document.getElementById("altoLama");
+        const marcoEl = document.getElementById("marco");
+        const sepEl = document.getElementById("sep");
+        const utilEl = document.getElementById("altoUtillamas");
+
+        let ancho = safeNumber(anchoEl);
+        let alto = safeNumber(altoEl);
+        let altoLama = safeNumber(altoLamaEl);
+        let marco = safeNumber(marcoEl);
+        let sep = safeNumber(sepEl);
+        let util = safeNumber(utilEl);
+
+        // Defaults seguros
+        if(!isFinite(ancho) || ancho <= 0) ancho = 1000;
+        if(!isFinite(alto) || alto <= 0) alto = 1000;
+        if(!isFinite(altoLama) || altoLama <= 0) altoLama = 200;
+        if(!isFinite(marco) || marco < 0) marco = 40;
+        if(!isFinite(sep) || sep < 0) sep = 10;
+
+        // Determinar n base: si existe lastComputedN y el cambio es "altoUtillamas", usamos ese n para estabilidad.
+        let nBase = lastComputedN > 0 ? lastComputedN : null;
+
+        // Si el usuario cambia ALTO (total), ALTO LAMA, MARCO, SEP... recalculamos n como el motor original.
+        // Si cambia ALTO LAMAS (util), mantenemos nBase para que sea reversible.
+        if(changedId !== "altoUtillamas") {
+            // Calcular n "como siempre"
+            const areaUtil = Math.max(0, (isVertical ? (ancho - marco*2) : (alto - marco*2)));
+            if (isLamaMode) nBase = Math.max(0, Math.round(areaUtil / (altoLama + sep)));
+            else nBase = Math.max(0, Math.floor(areaUtil / (altoLama + sep)));
+        } else {
+            if(!nBase || nBase <= 0) nBase = 1;
+        }
+
+        // Resolver según qué cambió:
+        if(changedId === "altoUtillamas") {
+            // El usuario fija la cota útil: ajustar sep o altoLama según modo, y actualizar alto total.
+            util = isFinite(util) ? util : 0;
+            util = Math.max(0, util);
+
+            if(isLamaMode) {
+                // Hueco (sep) fijo, ajustar alto lama para conseguir util (manteniendo nBase)
+                const denom = Math.max(1, nBase);
+                const nuevoAL = (util - Math.max(0, nBase - 1) * sep) / denom;
+                altoLama = Math.max(1, nuevoAL);
+            } else {
+                // Alto lama fijo, ajustar hueco (sep) para conseguir util (manteniendo nBase)
+                if(nBase <= 1) {
+                    // con 1 lama no hay huecos interiores; util = altoLama
+                    // dejamos sep tal cual
+                } else {
+                    const nuevoSep = (util - nBase * altoLama) / (nBase - 1);
+                    sep = Math.max(0, roundToStep(nuevoSep, 0.5));
+                }
+            }
+
+            // Actualizar alto total coherente (marco arriba+abajo + lamas + huecos (incl. exteriores))
+            // Usamos el modelo de "Variar huecos": exteriores = sep; interiores = sep
+            // Nota: es una aproximación al modelo del dibujo (el motor ya calcula hueco exterior real en modo variar huecos)
+            const altoTotal = 2*marco + nBase*altoLama + (nBase + 1)*sep;
+            alto = Math.max(1, Math.round(altoTotal));
+
+            // Escribir de vuelta (sin pisar el campo activo)
+            setIfNotFocused("altoLama", altoLama, 0);
+            setIfNotFocused("sep", sep, (Math.abs(sep - Math.round(sep)) > 1e-9) ? 1 : 0);
+            setIfNotFocused("alto", alto, 0);
+
+        } else {
+            // Para otros cambios: mantenemos el valor cambiado, y recalculamos util a partir del motor real (draw).
+            // No tocamos el input cambiado (salvo normalizaciones ligeras de step).
+            if(changedId === "sep") {
+                sep = Math.max(0, roundToStep(sep, 0.5));
+                setIfNotFocused("sep", sep, (Math.abs(sep - Math.round(sep)) > 1e-9) ? 1 : 0);
+            }
+            if(changedId === "marco") {
+                marco = Math.max(0, marco)
+                setIfNotFocused("marco", marco, 0)
+            }
+            if(changedId === "altoLama") {
+                altoLama = Math.max(1, altoLama)
+                setIfNotFocused("altoLama", altoLama, 0)
+            }
+            if(changedId === "alto") {
+                alto = Math.max(1, alto)
+                setIfNotFocused("alto", alto, 0)
+            }
+            if(changedId === "ancho") {
+                ancho = Math.max(1, ancho)
+                setIfNotFocused("ancho", ancho, 0)
+            }
+        }
+
+        // Disparar redraw con los valores actuales ya ajustados
+        updatingFromDraw = false;
+        drawCierre();
+    wireReversibleInputs();
+
+    }
+
+    function wireReversibleInputs() {
+        const ids = ["ancho", "alto", "altoLama", "marco", "sep", "altoUtillamas"];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(!el) return;
+
+            // Para que el usuario pueda teclear sin que se lo pise: aplicamos en input con debounce,
+            // y siempre al hacer change/blur.
+            const onUserEdit = () => {
+                lastUserEditedId = id;
+                if(inputDebounce) clearTimeout(inputDebounce);
+                inputDebounce = setTimeout(() => applyReversibleUpdate(id), 120);
+            };
+
+            el.addEventListener("input", onUserEdit, { passive: true });
+            el.addEventListener("change", () => applyReversibleUpdate(id), { passive: true });
+            el.addEventListener("blur", () => applyReversibleUpdate(id), { passive: true });
+        });
+    }
+
 
     function getContrastColor(hex) {
         const r = parseInt(hex.substring(1, 3), 16), g = parseInt(hex.substring(3, 5), 16), b = parseInt(hex.substring(5, 7), 16);
@@ -513,7 +712,7 @@ body.dock-on #controls{
     function drawDimLineSVG(x1, y1, x2, y2, text, vertical, level = 1, color = "#1d4ed8", alignRight = false, invertText = false, textBelowLine = false) {
         const g = document.getElementById("canvas").querySelector("g");
         const lineOffset = (-15 / scale) + (level - 1) * (20 / scale);
-        const textOffset = lineOffset + (35 / scale);
+        const textOffset = lineOffset + (28 / scale);
         const fontSize = 50 / scale;
         const arrowSize = 5 / scale;
 
@@ -543,6 +742,7 @@ body.dock-on #controls{
         g.appendChild(createPoly(p1, color));
         g.appendChild(createPoly(p2, color));
 
+        if (text !== "") {
         const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
         t.setAttribute("x", tx); t.setAttribute("y", ty); t.setAttribute("fill", color);
         t.setAttribute("font-size", fontSize); t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "middle");
@@ -550,6 +750,7 @@ body.dock-on #controls{
         t.textContent = text;
         g.appendChild(t);
     }
+}
 
     function drawCierre() {
         const ancho = +document.getElementById("ancho").value, alto = +document.getElementById("alto").value;
@@ -596,13 +797,75 @@ body.dock-on #controls{
             g.appendChild(createRect(ancho/2 - marco, 0, marco, alto, cMarco, "#fff", 0.5));
             g.appendChild(createRect(ancho/2 + 5, 0, marco, alto, cMarco, "#fff", 0.5));
         }
-        if(showPoste) {
-            if(isVertical) g.appendChild(createRect(0, alto/2 - marco/2, ancho, marco, cMarco, "#000", 0.5));
-            else g.appendChild(createRect(ancho/2 - marco/2, 0, marco, alto, cMarco, "#000", 0.5));
+
+        // Postes: se reparten automáticamente en huecos iguales
+        // v1.8: "Modo valla" => recorte de postes cuando el marco está oculto + 2 postes laterales
+        const utilSpan = n * nuevoAL + Math.max(0, (n - 1)) * esp; // alto/ancho útil real (sin marcos ni huecos exteriores)
+        const cropPosts = (fenceMode && !showMarco);
+
+        if(posteCount > 0) {
+            const spanX = Math.max(0, ancho - marco*2);
+            const spanY = Math.max(0, alto - marco*2);
+
+            // Rango de recorte para que no sobresalga por arriba/izquierda y se vea la lama extrema limpia
+            const cropX0 = marco + esp;
+            const cropX1 = cropX0 + utilSpan;
+            const cropY0 = marco + esp;
+            const cropY1 = cropY0 + utilSpan;
+
+            for(let k = 1; k <= posteCount; k++) {
+                if(isVertical) {
+                    // Lamas verticales => el poste es horizontal (como el original), repartido en altura útil
+                    const y = (spanY > 0) ? (marco + (k * spanY / (posteCount + 1)) - marco/2) : (alto/2 - marco/2);
+
+                    const x0 = cropPosts ? cropX0 : 0;
+                    const w  = cropPosts ? Math.max(0, cropX1 - cropX0) : ancho;
+                    g.appendChild(createRect(x0, y, w, marco, cMarco, "#000", 0.5));
+                } else {
+                    // Lamas horizontales => el poste es vertical, repartido en ancho útil
+                    const x = (spanX > 0) ? (marco + (k * spanX / (posteCount + 1)) - marco/2) : (ancho/2 - marco/2);
+
+                    const y0 = cropPosts ? cropY0 : 0;
+                    const h  = cropPosts ? Math.max(0, cropY1 - cropY0) : alto;
+                    g.appendChild(createRect(x, y0, marco, h, cMarco, "#000", 0.5));
+                }
+            }
+        }
+
+        // 2 postes extra (laterales) para simular valla cuando está activo
+        if(fenceMode) {
+            const cropX0 = marco + esp;
+            const cropX1 = cropX0 + utilSpan;
+            const cropY0 = marco + esp;
+            const cropY1 = cropY0 + utilSpan;
+
+            if(isVertical) {
+                // postes horizontales arriba y abajo
+                const x0 = cropPosts ? cropX0 : 0;
+                const w  = cropPosts ? Math.max(0, cropX1 - cropX0) : ancho;
+                g.appendChild(createRect(x0, 0, w, marco, cMarco, "#000", 0.5));
+                g.appendChild(createRect(x0, alto - marco, w, marco, cMarco, "#000", 0.5));
+            } else {
+                // postes verticales izquierda y derecha
+                const y0 = cropPosts ? cropY0 : 0;
+                const h  = cropPosts ? Math.max(0, cropY1 - cropY0) : alto;
+                g.appendChild(createRect(0, y0, marco, h, cMarco, "#000", 0.5));
+                g.appendChild(createRect(ancho - marco, y0, marco, h, cMarco, "#000", 0.5));
+            }
         }
 
         const cotaUtil = n * nuevoAL + (n-1)*esp;
-        if(!updatingFromDraw) document.getElementById("altoUtillamas").value = Math.round(cotaUtil);
+        // Guardar últimos resultados para sincronización reversible (v1.7)
+        lastComputedN = n;
+        lastComputedAL = nuevoAL;
+        lastComputedEsp = esp;
+        lastComputedUtil = cotaUtil;
+
+        // No pisar el campo si el usuario lo está editando
+        if(!updatingFromDraw) {
+            const utilEl = document.getElementById("altoUtillamas");
+            if(document.activeElement !== utilEl) utilEl.value = Math.round(cotaUtil);
+        }
 
         if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + " mm", false, 3);
         if(showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + " mm", true, 3, "#1d4ed8", false, true);
@@ -611,24 +874,99 @@ body.dock-on #controls{
             else drawDimLineSVG(ancho, marco+esp, ancho, marco+esp+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
         }
 
-        document.getElementById("stats").textContent = `Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm`;
+        // --- Medidas entre postes (verde) ---
+        if (showPostMeasures) {
+            const green = "#16a34a";
+            const extra = 35 / scale; // separación visual fuera del dibujo (en unidades del modelo)
+
+            // REPARTO TOTAL: solo importa la división del ancho/alto total:
+            // 1 poste => ancho/2, 2 postes => ancho/3, 3 postes => ancho/4, etc.
+            // (no se descuentan marcos ni el grosor del poste)
+            const segments = Math.max(1, posteCount + 1);
+
+            if (!isVertical) {
+                // Postes verticales => medir en horizontal, abajo (0..ancho)
+                const yBase = alto + extra;
+                for (let i = 0; i < segments; i++) {
+                    const x1 = (i * ancho) / segments;
+                    const x2 = ((i + 1) * ancho) / segments;
+                    const dist = Math.abs(x2 - x1);
+                    drawDimLineSVG(x1, yBase, x2, yBase, (i === 0 ? (Math.round(dist) + " mm") : ""), false, 1, green, false, false, true);
+                }
+            } else {
+                // Postes horizontales => medir en vertical, a la derecha (0..alto)
+                const xBase = ancho + extra;
+                for (let i = 0; i < segments; i++) {
+                    const y1 = (i * alto) / segments;
+                    const y2 = ((i + 1) * alto) / segments;
+                    const dist = Math.abs(y2 - y1);
+                    drawDimLineSVG(xBase, y1, xBase, y2, (i === 0 ? (Math.round(dist) + " mm") : ""), true, 1, green, true, true, true);
+                }
+            }
+        }
+
+        document.getElementById("stats").textContent = `Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount}`;
     }
 
     // --- EVENTOS ---
-    const inputs = document.querySelectorAll('input:not([type="color"])');
+    // Inputs principales (todos menos el selector de color y el input de "Alto/Ancho lamas")
+    const inputs = document.querySelectorAll('input:not([type="color"]):not(#altoUtillamas)');
     inputs.forEach(input => input.addEventListener('input', () => {
-        updatingFromDraw = (input.id === "altoUtillamas");
-        if(updatingFromDraw) {
-            const val = +input.value, m = +document.getElementById("marco").value, al = +document.getElementById("altoLama").value, s = +document.getElementById("sep").value;
-            const n = Math.floor(val / (al + s));
-            const total = (n*al) + (n+1)*((val - n*al)/(n+1)) + 2*m;
-            if(isVertical) document.getElementById("ancho").value = Math.round(total);
-            else document.getElementById("alto").value = Math.round(total);
-        }
+        updatingFromDraw = false;
         drawCierre();
     }));
 
-    // Control de Colores
+    // Input "Alto/Ancho lamas": fija la cota de lamas y recalcula los huecos + la altura/ancho total
+    const utilInput = document.getElementById("altoUtillamas");
+    if(utilInput) {
+        utilInput.addEventListener('input', () => {
+            const val = +utilInput.value;
+            if(!(val > 0)) { updatingFromDraw = false; drawCierre(); return; }
+
+            // Este input sirve para "repartir huecos", así que forzamos modo huecos
+            isLamaMode = false;
+            const btnDistr = document.getElementById("toggleDistrMode");
+            if(btnDistr) btnDistr.textContent = "Variar huecos";
+
+            const m = +document.getElementById("marco").value;
+            const al = +document.getElementById("altoLama").value;
+            const s0 = +document.getElementById("sep").value;
+
+            // Intentamos mantener un número de lamas coherente con la cota introducida
+            let n = Math.floor((val + s0) / (al + s0));
+            if(n < 1) n = 1;
+
+            // Calcula hueco interior (entre lamas) para que n lamas quepan en 'val'
+            let gap = (n > 1) ? (val - n * al) / (n - 1) : 0;
+
+            // Si no cabe (gap negativo), reducimos lamas
+            if(gap < 0) {
+                n = Math.max(1, Math.floor(val / al));
+                gap = (n > 1) ? (val - n * al) / (n - 1) : 0;
+                if(gap < 0) gap = 0;
+            }
+
+            // Redondeo a 0.5mm para ir acorde al step del input
+            const round05 = (x) => Math.round(x * 2) / 2;
+            gap = round05(gap);
+
+            // Actualiza hueco y dimensión total (incluye hueco superior+inferior + marcos)
+            document.getElementById("sep").value = gap;
+
+            const totalUtil = (n * al) + ((n + 1) * gap);  // dentro del marco, con hueco arriba y abajo
+            const total = totalUtil + 2 * m;
+
+            if(isVertical) document.getElementById("ancho").value = Math.round(total);
+            else document.getElementById("alto").value = Math.round(total);
+
+            // Evita que drawCierre reescriba este input justo después
+            updatingFromDraw = true;
+            drawCierre();
+            updatingFromDraw = false;
+        });
+    }
+
+// Control de Colores
     function updateColorBtn(wrapperId, color) {
         const wrapper = document.getElementById(wrapperId);
         wrapper.style.borderColor = color;
@@ -664,21 +1002,78 @@ body.dock-on #controls{
         };
     });
 
-    const actionIds = ["toggleDistrMode", "toggleWidthCota", "toggleHeightCota", "toggleRedCota", "toggleMarco", "toggleOrientation", "toggleLarguero", "togglePoste"];
-    actionIds.forEach(id => {
-        document.getElementById(id).onclick = (e) => {
-            if(id === "toggleDistrMode") { isLamaMode = !isLamaMode; e.target.textContent = isLamaMode ? "Variar lamas" : "Variar huecos"; }
-            if(id === "toggleWidthCota") showWidthCota = !showWidthCota;
-            if(id === "toggleHeightCota") showHeightCota = !showHeightCota;
-            if(id === "toggleRedCota") showRedCota = !showRedCota;
-            if(id === "toggleMarco") showMarco = !showMarco;
-            if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; }
-            if(id === "toggleLarguero") showLarguero = !showLarguero;
-            if(id === "togglePoste") showPoste = !showPoste;
-            e.target.classList.toggle("active");
-            drawCierre();
-        };
+    // --- BOTONES DE ACCIÓN ---
+const actionIds = ["toggleDistrMode", "toggleWidthCota", "toggleHeightCota", "toggleRedCota", "togglePostMeasures", "toggleMarco", "toggleOrientation", "toggleLarguero"];
+actionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('click', (e) => {
+        if(id === "toggleDistrMode") { isLamaMode = !isLamaMode; e.target.textContent = isLamaMode ? "Variar lamas" : "Variar huecos"; }
+        if(id === "toggleWidthCota") showWidthCota = !showWidthCota;
+        if(id === "toggleHeightCota") showHeightCota = !showHeightCota;
+        if(id === "toggleRedCota") showRedCota = !showRedCota;
+        if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; e.target.textContent = showPostMeasures ? "Ocultar medidas postes" : "Mostrar medidas postes"; }
+        if(id === "toggleMarco") showMarco = !showMarco;
+        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; }
+        if(id === "toggleLarguero") showLarguero = !showLarguero;
+        e.target.classList.toggle("active");
+        drawCierre();
     });
+});
+
+// --- TAP SEGURO (evita doble disparo touch/click en iOS) ---
+function bindTap(el, handler){
+    if(!el) return;
+    let last = 0;
+    const run = (ev) => {
+        const now = Date.now();
+        if(now - last < 250) return;   // debounce anti "ghost click"
+        last = now;
+        if(ev && ev.cancelable) ev.preventDefault();
+        handler();
+    };
+    // Pointer events (iOS moderno / la mayoría de navegadores)
+    el.addEventListener('pointerup', run);
+    // Fallback click (debounce lo hace seguro)
+    el.addEventListener('click', run);
+}
+
+// --- POSTES (+ / -): reparto automático en huecos iguales ---
+const btnPostePlus = document.getElementById('btnPostePlus');
+const btnPosteMinus = document.getElementById('btnPosteMinus');
+
+function updatePosteBtns(){
+    if(btnPosteMinus) btnPosteMinus.disabled = (posteCount <= 0);
+    if(btnPostePlus) btnPostePlus.textContent = `Poste + (${posteCount})`;
+}
+
+bindTap(btnPostePlus, () => {
+    posteCount = Math.min(posteCount + 1, 10); // límite de seguridad
+    updatePosteBtns();
+    drawCierre();
+});
+
+bindTap(btnPosteMinus, () => {
+    posteCount = Math.max(posteCount - 1, 0);
+    updatePosteBtns();
+    drawCierre();
+});
+
+updatePosteBtns();
+
+// --- MODO VALLA (v1.8) ---
+const btnFence = document.getElementById('btnFence');
+function updateFenceBtn(){
+    if(!btnFence) return;
+    btnFence.classList.toggle('active', fenceMode);
+    btnFence.textContent = fenceMode ? 'Modo valla: ON' : 'Modo valla';
+}
+bindTap(btnFence, () => {
+    fenceMode = !fenceMode;
+    updateFenceBtn();
+    drawCierre();
+});
+updateFenceBtn();
 
     updateColorBtn("btnMarcoWrapper", document.getElementById("colorMarcoPicker").value);
     updateColorBtn("btnLamaWrapper", document.getElementById("colorLamaPicker").value);
