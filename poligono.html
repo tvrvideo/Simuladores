@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Sistema de Modulación v4.1</title>
+  <title>Sistema de Modulación v4.1.1</title>
   <style>
     :root {
       --primary: #e74c3c;
@@ -215,7 +215,7 @@ body:not(.fijar-on) #dockArea{
   <div id="vista-diseno">
 <div id="scrollArea">
     <div class="title-wrap">
-      <h1>SISTEMA DE MODULACIÓN <span class="ver">v4.1</span></h1>
+      <h1>SISTEMA DE MODULACIÓN <span class="ver">v4.1.1</span></h1>
     </div>
 
     <div class="panel-controles">
@@ -921,7 +921,8 @@ function drawGeometry(geo) {
       for (let i = 1; i <= state.qtyV; i++) {
         const xReal = i * ancho;
         if (xReal > a + 0.1) break;
-        const yTop = verticalTopIntersection(pts, xReal);
+        const xGeom = pts[0].x + xReal;
+        const yTop = verticalTopIntersection(pts, xGeom);
         if (yTop === null) continue;
         const xCanvas = sps[0].x + xReal * scale;
         const yCanvasTop = offY - yTop * scale;
@@ -936,7 +937,8 @@ function drawGeometry(geo) {
       const anchoHueco = geo.labels[0] / numHuecos;
       for (let i = 1; i < numHuecos; i++) {
         const xReal = i * anchoHueco;
-        const yTop = verticalTopIntersection(pts, xReal);
+        const xGeom = pts[0].x + xReal;
+        const yTop = verticalTopIntersection(pts, xGeom);
         if (yTop === null) continue;
         const xCanvas = sps[0].x + xReal * scale;
         const yCanvasTop = offY - yTop * scale;
