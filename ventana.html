@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v83.2</title>
+    <title>Ventana Pro v83.3</title>
     <style>
 
         body {
@@ -545,7 +545,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v83.2"><span class="title-main">Ventana Pro</span><span class="title-version">v83.2</span></div>
+<div class="top-title" aria-label="Ventana Pro v83.3"><span class="title-main">Ventana Pro</span><span class="title-version">v83.3</span></div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -717,6 +717,8 @@ body.dock-off #canvasDock{
 
         <button onclick="toggleFijo('top')">Fijo Superior</button>
         <button onclick="toggleFijo('bottom')">Fijo Inferior</button>
+        <button onclick="toggleFijo('left')">Fijo Izquierdo</button>
+        <button onclick="toggleFijo('right')">Fijo Derecho</button>
     </div>
 
 
@@ -800,16 +802,22 @@ body.dock-off #canvasDock{
 
     let fijoSuperior = false;
     let fijoInferior = false;
+    let fijoIzquierdo = false;
+    let fijoDerecho = false;
     let altoFijoSuperiorMM = 400;
     let altoFijoInferiorMM = 400;
     let altoFijoSupIzqMM = 400;
     let altoFijoSupDerMM = 400;
     let altoFijoSupCenMM = 400;
+    let anchoFijoIzquierdoMM = 300;
+    let anchoFijoDerechoMM = 300;
 
     // NUEVO: Matrices de colores para fijos (filas x columnas)
     // Se inicializan dinámicamente según el número de travesaños
     let matrixColoresFijoSup = []; // Array de arrays
-    let matrixColoresFijoInf = []; 
+    let matrixColoresFijoInf = [];
+    let matrixColoresFijoIzq = [];
+    let matrixColoresFijoDer = [];
 
     let modoArco = false;
     let altoVentanaPrincipalBaseMM = 1400;
@@ -817,11 +825,17 @@ body.dock-off #canvasDock{
     
     let drawBorderTop = true;
     let drawBorderBottom = true;
+    let drawBorderLeft = true;
+    let drawBorderRight = true;
 
     let travesanosSupHorizontales = [];
     let travesanosSupVerticales = [];
     let travesanosInfHorizontales = [];
     let travesanosInfVerticales = [];
+    let travesanosIzqHorizontales = [];
+    let travesanosIzqVerticales = [];
+    let travesanosDerHorizontales = [];
+    let travesanosDerVerticales = [];
     let travesanosHojas = [];
     
     let hojasData = [];
@@ -1054,6 +1068,65 @@ function cambiarColorMarco(c) {
         mostrarAltoTotalDer = !mostrarAltoTotalDer;
         actualizarVista(); }
 
+    function getAnchoFijoIzqMM() {
+        return fijoIzquierdo ? Math.max(0, +anchoFijoIzquierdoMM || 0) : 0;
+    }
+
+    function getAnchoFijoDerMM() {
+        return fijoDerecho ? Math.max(0, +anchoFijoDerechoMM || 0) : 0;
+    }
+
+    function getAnchoZonaCentralMM() {
+        const anchoTotal = Math.max(0, +document.getElementById('ancho').value || 0);
+        return Math.max(0, anchoTotal - getAnchoFijoIzqMM() - getAnchoFijoDerMM());
+    }
+
+    function getAltoLateralFijoMM(position) {
+        if (position === 'izquierda') return Math.max(0, +document.getElementById('altoIzq').value || 0);
+        if (position === 'derecha') return Math.max(0, +document.getElementById('altoDer').value || 0);
+        return Math.max(0, altoVentanaPrincipalRealMM || 0);
+    }
+
+    function getAnchosHojasMMNormalizados() {
+        const n = Math.max(0, +hojas || 0);
+        if (n <= 0) return [];
+
+        const anchoVentanaPrincipal = Math.max(0, getAnchoZonaCentralMM() - (2 * marcoThickness));
+        let anchoDisponible = anchoVentanaPrincipal;
+        if (n > 1) anchoDisponible -= (n - 1) * separacionHoja;
+        anchoDisponible = Math.max(0, anchoDisponible);
+
+        let valores = [];
+        let suma = 0;
+        for (let i = 0; i < n; i++) {
+            const el = document.getElementById(`anchoHoja${i}`);
+            const v = Math.max(0, +(el ? el.value : 0) || 0);
+            valores.push(v);
+            suma += v;
+        }
+
+        if (suma <= 0) {
+            const base = n > 0 ? Math.floor(anchoDisponible / n) : 0;
+            let resto = anchoDisponible - (base * n);
+            return valores.map((_, idx) => base + (idx === n - 1 ? resto : 0));
+        }
+
+        if (Math.abs(suma - anchoDisponible) < 0.5) return valores;
+
+        let normalizados = [];
+        let acumulado = 0;
+        for (let i = 0; i < n; i++) {
+            if (i === n - 1) {
+                normalizados.push(Math.max(0, Math.round(anchoDisponible - acumulado)));
+            } else {
+                const ajustado = Math.max(0, Math.round((valores[i] / suma) * anchoDisponible));
+                normalizados.push(ajustado);
+                acumulado += ajustado;
+            }
+        }
+        return normalizados;
+    }
+
     function ajustarAltosConFijos() {
         let altoTotalInput = +document.getElementById('alto').value;
         let altosFijosCombinados = 0;
@@ -1075,49 +1148,44 @@ function cambiarColorMarco(c) {
 
     // Inicializa la matriz de colores cuando cambia la estructura (añadir/quitar travesaños)
     function initColorMatrix(position) {
-        // Filas = num travesaños horizontales + 1
-        // Columnas = num travesaños verticales + 1
         let rows, cols;
+        let matrizActual = [];
         if(position === 'superior') {
             rows = travesanosSupHorizontales.length + 1;
             cols = travesanosSupVerticales.length + 1;
-            // Preservar datos antiguos si es posible, o resetear si cambia dimensión drásticamente
-            // Para simplificar: Creamos nueva matriz y copiamos lo que quepa, el resto color activo
-            let newMatrix = [];
-            for(let r=0; r<rows; r++) {
-                let rowArr = [];
-                for(let c=0; c<cols; c++) {
-                    if(matrixColoresFijoSup[r] && matrixColoresFijoSup[r][c]) {
-                        rowArr.push(matrixColoresFijoSup[r][c]);
-                    } else {
-                        rowArr.push(colorActivo);
-                    }
-                }
-                newMatrix.push(rowArr);
-            }
-            matrixColoresFijoSup = newMatrix;
-        } else {
+            matrizActual = matrixColoresFijoSup;
+        } else if (position === 'inferior') {
             rows = travesanosInfHorizontales.length + 1;
             cols = travesanosInfVerticales.length + 1;
-            let newMatrix = [];
-            for(let r=0; r<rows; r++) {
-                let rowArr = [];
-                for(let c=0; c<cols; c++) {
-                    if(matrixColoresFijoInf[r] && matrixColoresFijoInf[r][c]) {
-                        rowArr.push(matrixColoresFijoInf[r][c]);
-                    } else {
-                        rowArr.push(colorActivo);
-                    }
-                }
-                newMatrix.push(rowArr);
-            }
-            matrixColoresFijoInf = newMatrix;
+            matrizActual = matrixColoresFijoInf;
+        } else if (position === 'izquierda') {
+            rows = travesanosIzqHorizontales.length + 1;
+            cols = travesanosIzqVerticales.length + 1;
+            matrizActual = matrixColoresFijoIzq;
+        } else {
+            rows = travesanosDerHorizontales.length + 1;
+            cols = travesanosDerVerticales.length + 1;
+            matrizActual = matrixColoresFijoDer;
         }
+
+        let newMatrix = [];
+        for(let r=0; r<rows; r++) {
+            let rowArr = [];
+            for(let c=0; c<cols; c++) {
+                rowArr.push((matrizActual[r] && matrizActual[r][c]) ? matrizActual[r][c] : colorActivo);
+            }
+            newMatrix.push(rowArr);
+        }
+
+        if(position === 'superior') matrixColoresFijoSup = newMatrix;
+        else if (position === 'inferior') matrixColoresFijoInf = newMatrix;
+        else if (position === 'izquierda') matrixColoresFijoIzq = newMatrix;
+        else matrixColoresFijoDer = newMatrix;
     }
 
     function toggleFijo(position) {
         let altoTotalInput = +document.getElementById('alto').value;
-        
+
         if (position === 'top') {
             fijoSuperior = !fijoSuperior;
             if (fijoSuperior) {
@@ -1127,11 +1195,10 @@ function cambiarColorMarco(c) {
                 altoFijoSupCenMM = altoFijoSuperiorMM;
                 initColorMatrix('superior');
             } else {
-                if(modoArco) {
-                    altoTotalInput -= Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM);
-                } else {
-                    altoTotalInput -= Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
-                }
+                altoTotalInput -= modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
+                travesanosSupHorizontales = [];
+                travesanosSupVerticales = [];
+                matrixColoresFijoSup = [];
             }
         } else if (position === 'bottom') {
             fijoInferior = !fijoInferior;
@@ -1140,22 +1207,36 @@ function cambiarColorMarco(c) {
                 initColorMatrix('inferior');
             } else {
                 altoTotalInput -= altoFijoInferiorMM;
+                travesanosInfHorizontales = [];
+                travesanosInfVerticales = [];
+                matrixColoresFijoInf = [];
+            }
+        } else if (position === 'left') {
+            fijoIzquierdo = !fijoIzquierdo;
+            if (fijoIzquierdo) {
+                initColorMatrix('izquierda');
+            } else {
+                travesanosIzqHorizontales = [];
+                travesanosIzqVerticales = [];
+                matrixColoresFijoIzq = [];
+            }
+        } else if (position === 'right') {
+            fijoDerecho = !fijoDerecho;
+            if (fijoDerecho) {
+                initColorMatrix('derecha');
+            } else {
+                travesanosDerHorizontales = [];
+                travesanosDerVerticales = [];
+                matrixColoresFijoDer = [];
             }
         }
-        
-        if (!fijoSuperior) {
-            travesanosSupHorizontales = [];
-            travesanosSupVerticales = [];
-        }
-        if (!fijoInferior) {
-            travesanosInfHorizontales = [];
-            travesanosInfVerticales = [];
-        }
 
-        document.getElementById('alto').value = Math.max(0, altoTotalInput); 
+        document.getElementById('alto').value = Math.max(0, altoTotalInput);
 
         ajustarAltosConFijos();
+        recalcularAnchosHojas();
         actualizarOpcionesFijos();
+        actualizarHojas();
         actualizarVista();
     }
 
@@ -1187,18 +1268,17 @@ function cambiarColorMarco(c) {
             cont.innerHTML += `
                 <div class="fijo-travesanos-group">
                     <button id="toggleArcoBtn" class="${modoArco ? 'active' : ''}" onclick="toggleArco()">Forma ${modoArco ? 'Arco' : 'Trapecio'}</button>
-                    
-<div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px; gap: 40px;">
-    <div>
-        <label for="altoFijoSupIzq">Sup. Izq:</label>
-        <input type="number" id="altoFijoSupIzq" value="${altoFijoSupIzqMM}" onchange="altoFijoSupIzqMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
-    </div>
-    <div>
-        <label for="altoFijoSupDer">Sup. Dcho:</label>
-        <input type="number" id="altoFijoSupDer" value="${altoFijoSupDerMM}" onchange="altoFijoSupDerMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
-    </div>
-</div>
 
+                    <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px; gap: 40px;">
+                        <div>
+                            <label for="altoFijoSupIzq">Sup. Izq:</label>
+                            <input type="number" id="altoFijoSupIzq" value="${altoFijoSupIzqMM}" onchange="altoFijoSupIzqMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                        </div>
+                        <div>
+                            <label for="altoFijoSupDer">Sup. Dcho:</label>
+                            <input type="number" id="altoFijoSupDer" value="${altoFijoSupDerMM}" onchange="altoFijoSupDerMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                        </div>
+                    </div>
 
                     <div id="altoFijoSupCenControl" class="${!modoArco ? 'hidden-input' : ''}">
                         <label for="altoFijoSupCen">Alto Fijo Sup. Central:</label>
@@ -1218,6 +1298,7 @@ function cambiarColorMarco(c) {
                 </div>
             `;
         }
+
         if (fijoInferior) {
             let travesanosHtml = '';
             travesanosInfHorizontales.forEach((travesano, index) => {
@@ -1241,15 +1322,13 @@ function cambiarColorMarco(c) {
 
             cont.innerHTML += `
                 <div class="fijo-travesanos-group">
+                    <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
+                        <div>
+                            <label for="altoFijoInferior">Fijo Inf:</label>
+                            <input type="number" id="altoFijoInferior" value="${altoFijoInferiorMM}" onchange="altoFijoInferiorMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                        </div>
+                    </div>
 
-<div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
-    <div>
-        <label for="altoFijoInferior">Fijo Inf:</label>
-        <input type="number" id="altoFijoInferior" value="${altoFijoInferiorMM}" onchange="altoFijoInferiorMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
-    </div>
-</div>
-
-                    
                     <div style="margin-top: 10px;">
                         <input type="checkbox" id="chkDrawBorderBottom" onchange="drawBorderBottom = this.checked; actualizarVista()" ${drawBorderBottom ? 'checked' : ''}>
                         <label for="chkDrawBorderBottom" style="display:inline; width:auto;">Borde Travesaños</label>
@@ -1258,6 +1337,94 @@ function cambiarColorMarco(c) {
                     <div class="travesano-buttons">
                         <button onclick="addTravesanoFijo('inferior', 'horizontal')">Añadir Travesaño Horizontal</button>
                         <button onclick="addTravesanoFijo('inferior', 'vertical')">Añadir Travesaño Vertical</button>
+                    </div>
+                    ${travesanosHtml}
+                </div>
+            `;
+        }
+
+        if (fijoIzquierdo) {
+            let travesanosHtml = '';
+            travesanosIzqHorizontales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño H. ${index + 1} (desde abajo):</label>
+                        <input type="number" id="travesanoIzqH-${index}" value="${travesano.altura}" min="1" onchange="updateTravesanoFijo('izquierda', 'horizontal', ${index}, 'altura', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('izquierda', 'horizontal', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+            travesanosIzqVerticales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño V. ${index + 1} (desde izq):</label>
+                        <input type="number" id="travesanoIzqV-${index}" value="${travesano.posicion}" min="1" onchange="updateTravesanoFijo('izquierda', 'vertical', ${index}, 'posicion', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('izquierda', 'vertical', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+
+            cont.innerHTML += `
+                <div class="fijo-travesanos-group">
+                    <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
+                        <div>
+                            <label for="anchoFijoIzquierdo">Fijo Izq:</label>
+                            <input type="number" id="anchoFijoIzquierdo" value="${anchoFijoIzquierdoMM}" onchange="anchoFijoIzquierdoMM = +this.value; recalcularAnchosHojas(); actualizarHojas(); actualizarVista()">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" id="chkDrawBorderLeft" onchange="drawBorderLeft = this.checked; actualizarVista()" ${drawBorderLeft ? 'checked' : ''}>
+                        <label for="chkDrawBorderLeft" style="display:inline; width:auto;">Borde Travesaños</label>
+                    </div>
+
+                    <div class="travesano-buttons">
+                        <button onclick="addTravesanoFijo('izquierda', 'horizontal')">Añadir Travesaño Horizontal</button>
+                        <button onclick="addTravesanoFijo('izquierda', 'vertical')">Añadir Travesaño Vertical</button>
+                    </div>
+                    ${travesanosHtml}
+                </div>
+            `;
+        }
+
+        if (fijoDerecho) {
+            let travesanosHtml = '';
+            travesanosDerHorizontales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño H. ${index + 1} (desde abajo):</label>
+                        <input type="number" id="travesanoDerH-${index}" value="${travesano.altura}" min="1" onchange="updateTravesanoFijo('derecha', 'horizontal', ${index}, 'altura', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('derecha', 'horizontal', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+            travesanosDerVerticales.forEach((travesano, index) => {
+                travesanosHtml += `
+                    <div class="travesano-config">
+                        <label>Travesaño V. ${index + 1} (desde izq):</label>
+                        <input type="number" id="travesanoDerV-${index}" value="${travesano.posicion}" min="1" onchange="updateTravesanoFijo('derecha', 'vertical', ${index}, 'posicion', this.value);">
+                        <button class="remove-button" onclick="removeTravesanoFijo('derecha', 'vertical', ${index})">Quitar</button>
+                    </div>
+                `;
+            });
+
+            cont.innerHTML += `
+                <div class="fijo-travesanos-group">
+                    <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
+                        <div>
+                            <label for="anchoFijoDerecho">Fijo Dcho:</label>
+                            <input type="number" id="anchoFijoDerecho" value="${anchoFijoDerechoMM}" onchange="anchoFijoDerechoMM = +this.value; recalcularAnchosHojas(); actualizarHojas(); actualizarVista()">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" id="chkDrawBorderRight" onchange="drawBorderRight = this.checked; actualizarVista()" ${drawBorderRight ? 'checked' : ''}>
+                        <label for="chkDrawBorderRight" style="display:inline; width:auto;">Borde Travesaños</label>
+                    </div>
+
+                    <div class="travesano-buttons">
+                        <button onclick="addTravesanoFijo('derecha', 'horizontal')">Añadir Travesaño Horizontal</button>
+                        <button onclick="addTravesanoFijo('derecha', 'vertical')">Añadir Travesaño Vertical</button>
                     </div>
                     ${travesanosHtml}
                 </div>
@@ -1280,7 +1447,7 @@ function cambiarColorMarco(c) {
 
     function addTravesanoFijo(position, orientation) {
         let newCount, totalDimension;
-        
+
         if (position === 'superior') {
             if (orientation === 'horizontal') {
                 newCount = travesanosSupHorizontales.length + 1;
@@ -1290,11 +1457,11 @@ function cambiarColorMarco(c) {
                 travesanosSupHorizontales = newAlturas.map(altura => ({ altura: altura }));
             } else {
                 newCount = travesanosSupVerticales.length + 1;
-                totalDimension = +document.getElementById('ancho').value - (2 * marcoThickness);
+                totalDimension = Math.max(0, (+document.getElementById('ancho').value) - (2 * marcoThickness));
                 const newPosiciones = calculatePositions(newCount, totalDimension);
                 travesanosSupVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
             }
-        } else {
+        } else if (position === 'inferior') {
             if (orientation === 'horizontal') {
                 newCount = travesanosInfHorizontales.length + 1;
                 totalDimension = altoFijoInferiorMM - (2 * travesanoThickness);
@@ -1302,9 +1469,33 @@ function cambiarColorMarco(c) {
                 travesanosInfHorizontales = newAlturas.map(altura => ({ altura: altura }));
             } else {
                 newCount = travesanosInfVerticales.length + 1;
-                totalDimension = +document.getElementById('ancho').value - (2 * marcoThickness);
+                totalDimension = Math.max(0, (+document.getElementById('ancho').value) - (2 * marcoThickness));
                 const newPosiciones = calculatePositions(newCount, totalDimension);
                 travesanosInfVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
+            }
+        } else if (position === 'izquierda') {
+            if (orientation === 'horizontal') {
+                newCount = travesanosIzqHorizontales.length + 1;
+                totalDimension = Math.max(0, getAltoLateralFijoMM('izquierda') - (2 * marcoThickness));
+                const newAlturas = calculatePositions(newCount, totalDimension);
+                travesanosIzqHorizontales = newAlturas.map(altura => ({ altura: altura }));
+            } else {
+                newCount = travesanosIzqVerticales.length + 1;
+                totalDimension = Math.max(0, getAnchoFijoIzqMM() - (2 * marcoThickness));
+                const newPosiciones = calculatePositions(newCount, totalDimension);
+                travesanosIzqVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
+            }
+        } else if (position === 'derecha') {
+            if (orientation === 'horizontal') {
+                newCount = travesanosDerHorizontales.length + 1;
+                totalDimension = Math.max(0, getAltoLateralFijoMM('derecha') - (2 * marcoThickness));
+                const newAlturas = calculatePositions(newCount, totalDimension);
+                travesanosDerHorizontales = newAlturas.map(altura => ({ altura: altura }));
+            } else {
+                newCount = travesanosDerVerticales.length + 1;
+                totalDimension = Math.max(0, getAnchoFijoDerMM() - (2 * marcoThickness));
+                const newPosiciones = calculatePositions(newCount, totalDimension);
+                travesanosDerVerticales = newPosiciones.map(posicion => ({ posicion: posicion }));
             }
         }
         initColorMatrix(position);
@@ -1314,17 +1505,17 @@ function cambiarColorMarco(c) {
 
     function removeTravesanoFijo(position, orientation, index) {
         if (position === 'superior') {
-            if (orientation === 'horizontal') {
-                travesanosSupHorizontales.splice(index, 1);
-            } else {
-                travesanosSupVerticales.splice(index, 1);
-            }
-        } else {
-            if (orientation === 'horizontal') {
-                travesanosInfHorizontales.splice(index, 1);
-            } else {
-                travesanosInfVerticales.splice(index, 1);
-            }
+            if (orientation === 'horizontal') travesanosSupHorizontales.splice(index, 1);
+            else travesanosSupVerticales.splice(index, 1);
+        } else if (position === 'inferior') {
+            if (orientation === 'horizontal') travesanosInfHorizontales.splice(index, 1);
+            else travesanosInfVerticales.splice(index, 1);
+        } else if (position === 'izquierda') {
+            if (orientation === 'horizontal') travesanosIzqHorizontales.splice(index, 1);
+            else travesanosIzqVerticales.splice(index, 1);
+        } else if (position === 'derecha') {
+            if (orientation === 'horizontal') travesanosDerHorizontales.splice(index, 1);
+            else travesanosDerVerticales.splice(index, 1);
         }
         initColorMatrix(position);
         actualizarOpcionesFijos();
@@ -1337,17 +1528,17 @@ function cambiarColorMarco(c) {
         }
 
         if (position === 'superior') {
-            if (orientation === 'horizontal') {
-                travesanosSupHorizontales[index][property] = value;
-            } else {
-                travesanosSupVerticales[index][property] = value;
-            }
-        } else {
-            if (orientation === 'horizontal') {
-                travesanosInfHorizontales[index][property] = value;
-            } else {
-                travesanosInfVerticales[index][property] = value;
-            }
+            if (orientation === 'horizontal') travesanosSupHorizontales[index][property] = value;
+            else travesanosSupVerticales[index][property] = value;
+        } else if (position === 'inferior') {
+            if (orientation === 'horizontal') travesanosInfHorizontales[index][property] = value;
+            else travesanosInfVerticales[index][property] = value;
+        } else if (position === 'izquierda') {
+            if (orientation === 'horizontal') travesanosIzqHorizontales[index][property] = value;
+            else travesanosIzqVerticales[index][property] = value;
+        } else if (position === 'derecha') {
+            if (orientation === 'horizontal') travesanosDerHorizontales[index][property] = value;
+            else travesanosDerVerticales[index][property] = value;
         }
         actualizarVista();
     }
@@ -1361,7 +1552,7 @@ function cambiarColorMarco(c) {
 
     function recalcularAnchosHojas() {
         const n = +document.getElementById('hojas').value;
-        const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+        const anchoVentanaPrincipal = getAnchoZonaCentralMM() - (2 * marcoThickness);
         let anchoDisponible = anchoVentanaPrincipal;
         if (n > 1) {
             anchoDisponible -= (n - 1) * separacionHoja;
@@ -1412,7 +1603,7 @@ function cambiarColorMarco(c) {
         travesanosHojas.splice(n);
 
         if (n > 0) {
-            const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+            const anchoVentanaPrincipal = getAnchoZonaCentralMM() - (2 * marcoThickness);
             let anchoDisponible = anchoVentanaPrincipal;
             if (n > 1) {
                 anchoDisponible -= (n - 1) * separacionHoja;
@@ -1690,7 +1881,7 @@ function cambiarColorMarco(c) {
 
     function ajustarAnchos(cambiada) {
         let n = +document.getElementById('hojas').value;
-        const anchoVentanaPrincipal = +document.getElementById('ancho').value - (2 * marcoThickness);
+        const anchoVentanaPrincipal = getAnchoZonaCentralMM() - (2 * marcoThickness);
         let anchoDisponible = anchoVentanaPrincipal;
         if (n > 1) {
             anchoDisponible -= (n - 1) * separacionHoja;
@@ -2303,9 +2494,12 @@ function cambiarColorMarco(c) {
 // MEDIDAS CANVAS Y MARGEN
 
         const margin = 70;
-        let anchoVentanaPrincipalMM = +document.getElementById("ancho").value;
+        let anchoVentanaTotalMM = +document.getElementById("ancho").value;
+        const anchoFijoIzqMMActual = getAnchoFijoIzqMM();
+        const anchoFijoDerMMActual = getAnchoFijoDerMM();
+        let anchoVentanaPrincipalMM = Math.max(0, anchoVentanaTotalMM - anchoFijoIzqMMActual - anchoFijoDerMMActual);
         let altoVentanaTotalMM = altoVentanaPrincipalRealMM + (fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0) + (fijoInferior ? altoFijoInferiorMM : 0);
-        
+
         const altoIzqMM = +document.getElementById('altoIzq').value;
         const altoDerMM = +document.getElementById('altoDer').value;
         const hojas = +document.getElementById("hojas").value;
@@ -2317,8 +2511,8 @@ function cambiarColorMarco(c) {
                 anchosHojasMM.push(a); totalHojasMM += a;
             }
         }
-        
-        let totalDrawingWidthMM = anchoVentanaPrincipalMM;
+
+        let totalDrawingWidthMM = anchoVentanaTotalMM;
         let maxAltoPrincipalSidesMM = Math.max(altoIzqMM, altoDerMM);
         let maxAltoFijoSupMM = fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0;
         let totalDrawingHeightMM = maxAltoPrincipalSidesMM + maxAltoFijoSupMM + (fijoInferior ? altoFijoInferiorMM : 0);
@@ -2326,8 +2520,8 @@ function cambiarColorMarco(c) {
         if (mostrarPersiana) {
             totalDrawingHeightMM += cajonAlturaMM;
         }
-        
-        const horizontalMeasureSpace = mostrarMedidasFlag ? 80 : 0;
+
+        const horizontalMeasureSpace = mostrarMedidasFlag ? 170 : 0;
         const verticalMeasureSpace = mostrarMedidasFlag ? 80 : 0;
 
         const availableWidth = c.width - (2 * margin);
@@ -2339,24 +2533,29 @@ function cambiarColorMarco(c) {
 
         const cajonHEsc = cajonAlturaMM * esc;
         const anchoVentanaPrincipalEsc = anchoVentanaPrincipalMM * esc;
+        const anchoVentanaTotalEsc = anchoVentanaTotalMM * esc;
+        const anchoFijoIzqEsc = anchoFijoIzqMMActual * esc;
+        const anchoFijoDerEsc = anchoFijoDerMMActual * esc;
         const altoIzqEsc = altoIzqMM * esc;
         const altoDerEsc = altoDerMM * esc;
         const altoFijoSupIzqEsc = fijoSuperior ? altoFijoSupIzqMM * esc : 0;
         const altoFijoSupDerEsc = fijoSuperior ? altoFijoSupDerMM * esc : 0;
         const altoFijoSupCenEsc = fijoSuperior ? altoFijoSupCenMM * esc : 0;
         const altoFijoInferiorEsc = fijoInferior ? altoFijoInferiorMM * esc : 0;
-        
+
         const marcoThicknessEsc = marcoThickness * esc;
         const hojaThicknessEsc = hojaThickness * esc;
         const travesanoThicknessEsc = travesanoThickness * esc;
         const glassPaddingInsideHojaEsc = glassPaddingInsideHoja * esc;
         const separacionHojaEsc = separacionHoja * esc;
 
-        const drawingWidth = anchoVentanaPrincipalEsc;
+        const drawingWidth = anchoVentanaTotalEsc;
         const drawingHeight = (mostrarPersiana ? cajonHEsc : 0) + maxAltoFijoSupMM * esc + maxAltoPrincipalSidesMM * esc + (fijoInferior ? altoFijoInferiorEsc : 0);
-        
+
         let x0 = margin + horizontalMeasureSpace / 2 + (availableWidth - horizontalMeasureSpace - drawingWidth) / 2;
         let y0 = margin + verticalMeasureSpace / 2 + (availableHeight - verticalMeasureSpace - drawingHeight) / 2;
+        const conjuntoXLeft = x0;
+        const conjuntoXRight = x0 + anchoFijoIzqEsc + anchoVentanaPrincipalEsc + anchoFijoDerEsc;
 
         let currentY = y0;
         let mainWinY0 = currentY;
@@ -2364,7 +2563,7 @@ function cambiarColorMarco(c) {
         if (mostrarPersiana) {
             const cajonX0 = x0;
             const cajonY0 = y0;
-            const cajonWidth = anchoVentanaPrincipalEsc;
+            const cajonWidth = anchoVentanaTotalEsc;
             const cajonHeight = cajonHEsc;
 
             let persianaColor;
@@ -2373,20 +2572,20 @@ function cambiarColorMarco(c) {
             } else {
                 persianaColor = mezclarColor(colorMarco, "#808080", 0.25);
             }
-            
+
             ctx.fillStyle = persianaColor;
             ctx.fillRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
             ctx.strokeStyle = "#666"; ctx.strokeRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
-            
+
             const isDark = esColorOscuro(persianaColor);
             const textColor = isDark ? "#FFFFFF" : "#000000";
 
             const maxFontSize = 40;
             const minFontSize = 10;
             const fontScaleFactor = 0.5;
-            
+
             let fontSize = Math.min(maxFontSize, Math.max(minFontSize, Math.min(cajonWidth, cajonHeight) * fontScaleFactor));
-            
+
             ctx.fillStyle = textColor;
             ctx.font = `${fontSize}px Arial`;
             ctx.textAlign = "center";
@@ -2402,10 +2601,10 @@ function cambiarColorMarco(c) {
             ctx.fillStyle = colorMarco;
             ctx.beginPath();
             const p1 = { x: x0, y: fijoSupYBottom - altoFijoSupIzqEsc };
-            const p3 = { x: x0 + anchoVentanaPrincipalEsc, y: fijoSupYBottom - altoFijoSupDerEsc };
+            const p3 = { x: x0 + anchoVentanaTotalEsc, y: fijoSupYBottom - altoFijoSupDerEsc };
             
             if (modoArco) {
-                const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc };
+                const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc };
                 ctx.moveTo(p1.x, p1.y);
                 ctx.quadraticCurveTo(p2.x, p2.y, p3.x, p3.y);
             } else {
@@ -2432,7 +2631,7 @@ function cambiarColorMarco(c) {
 
             // Coordenadas X de cortes verticales
             const xLeftGlass = x0 + marcoThicknessEsc;
-            const xRightGlass = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+            const xRightGlass = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
             let vCuts = [];
             let sortedV = [...travesanosSupVerticales].sort((a,b) => a.posicion - b.posicion);
             sortedV.forEach(t => {
@@ -2497,12 +2696,12 @@ function cambiarColorMarco(c) {
                              // Definir curva marco superior interno
                             if(modoArco) {
                                 const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
-                                const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
-                                const p3 = { x: x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
+                                const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
+                                const p3 = { x: x0 + anchoVentanaTotalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
                                 return getCurvedY(xVal, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                             } else {
                                 const xStart = x0 + marcoThicknessEsc;
-                                const xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+                                const xEnd = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
                                 const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
                                 const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
                                 const norm = (xVal - xStart)/(xEnd - xStart);
@@ -2540,12 +2739,12 @@ function cambiarColorMarco(c) {
                 const yTopFunc = (xV) => {
                     if(modoArco) {
                         const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
-                        const p2 = { x: x0 + anchoVentanaPrincipalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
-                        const p3 = { x: x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
+                        const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
+                        const p3 = { x: x0 + anchoVentanaTotalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
                         return getCurvedY(xV, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                     } else {
                         const xStart = x0 + marcoThicknessEsc;
-                        const xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+                        const xEnd = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
                         const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
                         const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
                         const norm = (xV - xStart)/(xEnd - xStart);
@@ -2565,9 +2764,9 @@ function cambiarColorMarco(c) {
 
         ctx.fillStyle = colorMarco;
         ctx.beginPath();
-        const marcoX0 = x0;
+        const marcoX0 = x0 + anchoFijoIzqEsc;
         const marcoY0SuperiorIzq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
-        const marcoX1 = x0 + anchoVentanaPrincipalEsc;
+        const marcoX1 = marcoX0 + anchoVentanaPrincipalEsc;
         const marcoY0SuperiorDer = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
         const marcoY1Inferior = mainWinY0 + maxAltoPrincipalSidesMM * esc;
 
@@ -2583,7 +2782,7 @@ function cambiarColorMarco(c) {
         if (hojas > 1) {
             ctx.strokeStyle = colorMarco;
             ctx.beginPath();
-            let currentHojaXPosForTravesano = x0 + marcoThicknessEsc;
+            let currentHojaXPosForTravesano = marcoX0 + marcoThicknessEsc;
             for (let i = 0; i < hojas - 1; i++) {
                 currentHojaXPosForTravesano += anchosHojasMM[i] * esc;
                 
@@ -2619,7 +2818,7 @@ function cambiarColorMarco(c) {
         }
 
         if (hojas > 0) {
-            let currentHojaXPos = x0 + marcoThicknessEsc;
+            let currentHojaXPos = marcoX0 + marcoThicknessEsc;
             
             const y_top_frame = (x_absolute) => {
                 const normalizedX = (x_absolute - marcoX0) / (marcoX1 - marcoX0);
@@ -2872,10 +3071,106 @@ function cambiarColorMarco(c) {
             }
         }
 
+        if (fijoIzquierdo && anchoFijoIzqEsc > 0) {
+            const fijoIzqX0 = x0;
+            const fijoIzqY0 = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
+            const fijoIzqWidth = anchoFijoIzqEsc;
+            const fijoIzqHeight = altoIzqEsc;
+
+            ctx.fillStyle = colorMarco;
+            ctx.fillRect(fijoIzqX0, fijoIzqY0, fijoIzqWidth, fijoIzqHeight);
+            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(fijoIzqX0, fijoIzqY0, fijoIzqWidth, fijoIzqHeight);
+
+            const xGlassLeft = fijoIzqX0 + marcoThicknessEsc;
+            const xGlassRight = fijoIzqX0 + fijoIzqWidth - marcoThicknessEsc;
+            const yGlassTop = fijoIzqY0 + marcoThicknessEsc;
+            const yGlassBottom = fijoIzqY0 + fijoIzqHeight - marcoThicknessEsc;
+
+            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTop) {
+                const gridYs = [yGlassBottom, ...[...travesanosIzqHorizontales].sort((a,b) => a.altura - b.altura).map(t => yGlassBottom - t.altura * esc - travesanoThicknessEsc)];
+                const gridXs = [xGlassLeft, ...[...travesanosIzqVerticales].sort((a,b) => a.posicion - b.posicion).map(t => xGlassLeft + t.posicion * esc), xGlassRight];
+
+                for(let r = 0; r < gridYs.length; r++) {
+                    for(let cI = 0; cI < gridXs.length - 1; cI++) {
+                        const cellColor = (matrixColoresFijoIzq[r] && matrixColoresFijoIzq[r][cI]) ? matrixColoresFijoIzq[r][cI] : colorActivo;
+                        let yB = gridYs[r];
+                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTop;
+                        let xL = gridXs[cI];
+                        let xR = gridXs[cI+1];
+                        if (cI > 0) xL += travesanoThicknessEsc / 2;
+                        if (cI < gridXs.length - 2) xR -= travesanoThicknessEsc / 2;
+                        dibujarCristalDegradado(ctx, xL, yT, xR - xL, yB - yT, cellColor, {type:'fijoIzq', row:r, col:cI});
+                    }
+                }
+
+                [...travesanosIzqHorizontales].sort((a,b) => a.altura - b.altura).forEach(t => {
+                    const yVal = yGlassBottom - t.altura * esc - travesanoThicknessEsc;
+                    ctx.fillStyle = colorMarco;
+                    ctx.fillRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+                    if (drawBorderLeft) ctx.strokeRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+                });
+
+                [...travesanosIzqVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
+                    const xVal = xGlassLeft + t.posicion * esc;
+                    ctx.fillStyle = colorMarco;
+                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                    if (drawBorderLeft) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                });
+            }
+        }
+
+        if (fijoDerecho && anchoFijoDerEsc > 0) {
+            const fijoDerX0 = x0 + anchoFijoIzqEsc + anchoVentanaPrincipalEsc;
+            const fijoDerY0 = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
+            const fijoDerWidth = anchoFijoDerEsc;
+            const fijoDerHeight = altoDerEsc;
+
+            ctx.fillStyle = colorMarco;
+            ctx.fillRect(fijoDerX0, fijoDerY0, fijoDerWidth, fijoDerHeight);
+            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(fijoDerX0, fijoDerY0, fijoDerWidth, fijoDerHeight);
+
+            const xGlassLeft = fijoDerX0 + marcoThicknessEsc;
+            const xGlassRight = fijoDerX0 + fijoDerWidth - marcoThicknessEsc;
+            const yGlassTop = fijoDerY0 + marcoThicknessEsc;
+            const yGlassBottom = fijoDerY0 + fijoDerHeight - marcoThicknessEsc;
+
+            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTop) {
+                const gridYs = [yGlassBottom, ...[...travesanosDerHorizontales].sort((a,b) => a.altura - b.altura).map(t => yGlassBottom - t.altura * esc - travesanoThicknessEsc)];
+                const gridXs = [xGlassLeft, ...[...travesanosDerVerticales].sort((a,b) => a.posicion - b.posicion).map(t => xGlassLeft + t.posicion * esc), xGlassRight];
+
+                for(let r = 0; r < gridYs.length; r++) {
+                    for(let cI = 0; cI < gridXs.length - 1; cI++) {
+                        const cellColor = (matrixColoresFijoDer[r] && matrixColoresFijoDer[r][cI]) ? matrixColoresFijoDer[r][cI] : colorActivo;
+                        let yB = gridYs[r];
+                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTop;
+                        let xL = gridXs[cI];
+                        let xR = gridXs[cI+1];
+                        if (cI > 0) xL += travesanoThicknessEsc / 2;
+                        if (cI < gridXs.length - 2) xR -= travesanoThicknessEsc / 2;
+                        dibujarCristalDegradado(ctx, xL, yT, xR - xL, yB - yT, cellColor, {type:'fijoDer', row:r, col:cI});
+                    }
+                }
+
+                [...travesanosDerHorizontales].sort((a,b) => a.altura - b.altura).forEach(t => {
+                    const yVal = yGlassBottom - t.altura * esc - travesanoThicknessEsc;
+                    ctx.fillStyle = colorMarco;
+                    ctx.fillRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+                    if (drawBorderRight) ctx.strokeRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
+                });
+
+                [...travesanosDerVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
+                    const xVal = xGlassLeft + t.posicion * esc;
+                    ctx.fillStyle = colorMarco;
+                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                    if (drawBorderRight) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                });
+            }
+        }
+
         if (fijoInferior) {
             const fijoInfX0 = x0;
             const fijoInfY0 = mainWinY0 + maxAltoPrincipalSidesMM * esc;
-            const fijoInfWidth = anchoVentanaPrincipalEsc;
+            const fijoInfWidth = anchoVentanaTotalEsc;
             const fijoInfHeight = altoFijoInferiorEsc;
 
             ctx.fillStyle = colorMarco;
@@ -2955,8 +3250,10 @@ function cambiarColorMarco(c) {
             ctx.textAlign = "center";
             
             const arrowSize = 8;
-            const verticalMeasureXLeft = x0 - 15;
-            const verticalMeasureXRight = x0 + anchoVentanaPrincipalEsc + 15;
+            const sideMeasureOffset = 32;
+            const sideMeasureTextOffset = 18;
+            const verticalMeasureXLeft = x0 - sideMeasureOffset;
+            const verticalMeasureXRight = conjuntoXRight + sideMeasureOffset;
 
             let mx_altura_ventana_principal = verticalMeasureXLeft;
             let y_top_ventana_med_izq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
@@ -2976,7 +3273,7 @@ function cambiarColorMarco(c) {
             ctx.lineTo(mx_altura_ventana_principal, y_bottom_ventana_med);
             ctx.stroke();
 
-            ctx.save(); ctx.translate(mx_altura_ventana_principal - 15, y_top_ventana_med_izq + (y_bottom_ventana_med - y_top_ventana_med_izq) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(altoIzqMM.toString(), 0, 0); ctx.restore();
+            ctx.save(); ctx.translate(mx_altura_ventana_principal - sideMeasureTextOffset, y_top_ventana_med_izq + (y_bottom_ventana_med - y_top_ventana_med_izq) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(altoIzqMM.toString(), 0, 0); ctx.restore();
 
 // MEDIDA DCHA SOLO MARCO
 
@@ -3010,7 +3307,7 @@ function cambiarColorMarco(c) {
                 ctx.font = "40px Arial";
                 ctx.textAlign = "center";
                 ctx.save();
-                ctx.translate(mx_cajon - 15, cajonY0Abs + cajonHEsc / 2);
+                ctx.translate(mx_cajon - sideMeasureTextOffset, cajonY0Abs + cajonHEsc / 2);
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillText(cajonAlturaMM.toString(), 0, 0);
                 ctx.restore();
@@ -3032,11 +3329,11 @@ function cambiarColorMarco(c) {
 
 //DASPLZAZA MEDIDA DCHA AZUL
 
-                ctx.save(); ctx.translate(mx_altura_der + 15, y_top_der_med + (y_bottom_ventana_med - y_top_der_med) / 3); ctx.rotate(Math.PI / 2); ctx.fillText(altoDerMM.toString(), 0, 0); ctx.restore();
+                ctx.save(); ctx.translate(mx_altura_der + sideMeasureTextOffset, y_top_der_med + (y_bottom_ventana_med - y_top_der_med) / 2); ctx.rotate(Math.PI / 2); ctx.fillText(altoDerMM.toString(), 0, 0); ctx.restore();
             }
             
             if (hojas > 0) {
-                let currentHojaXPos = x0 + marcoThicknessEsc;
+                let currentHojaXPos = marcoX0 + marcoThicknessEsc;
                 const fixedSpaceBelowWindow = 15;
                 my = mainWinY0 + maxAltoPrincipalSidesMM * esc + (fijoInferior ? altoFijoInferiorEsc : 0) + fixedSpaceBelowWindow;
  
@@ -3045,28 +3342,106 @@ function cambiarColorMarco(c) {
                 ctx.fillStyle = "blue";
                 ctx.font = "70px Arial";
                 ctx.textAlign = "center";
-                for (let i = 0; i < hojas; i++) {
-                    let anchoHojaEsc = anchosHojasMM[i] * esc;
+
+                const segmentosCotaInferior = [];
+                const dibujarLineaCotaHorizontal = (xInicio, xFin, yLinea) => {
                     ctx.beginPath();
-                    ctx.moveTo(currentHojaXPos, my);
-                    ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
-                    ctx.stroke();
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(currentHojaXPos + 6, my - 5); ctx.lineTo(currentHojaXPos, my);
-                    ctx.moveTo(currentHojaXPos + 6, my + 5); ctx.lineTo(currentHojaXPos, my);
-                    
-                    ctx.moveTo(currentHojaXPos + anchoHojaEsc - 6, my - 5); ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
-                    ctx.moveTo(currentHojaXPos + anchoHojaEsc - 6, my + 5); ctx.lineTo(currentHojaXPos + anchoHojaEsc, my);
+                    ctx.moveTo(xInicio, yLinea);
+                    ctx.lineTo(xFin, yLinea);
                     ctx.stroke();
 
-// MOVER ALTURA ANCHO HOJAS
-                    ctx.fillText(anchosHojasMM[i], currentHojaXPos + anchoHojaEsc / 2, my + 60);
+                    ctx.beginPath();
+                    ctx.moveTo(xInicio + 6, yLinea - 5); ctx.lineTo(xInicio, yLinea);
+                    ctx.moveTo(xInicio + 6, yLinea + 5); ctx.lineTo(xInicio, yLinea);
+                    ctx.moveTo(xFin - 6, yLinea - 5); ctx.lineTo(xFin, yLinea);
+                    ctx.moveTo(xFin - 6, yLinea + 5); ctx.lineTo(xFin, yLinea);
+                    ctx.stroke();
+                };
+
+                for (let i = 0; i < hojas; i++) {
+                    let anchoHojaEsc = anchosHojasMM[i] * esc;
+                    const xInicioHoja = currentHojaXPos;
+                    const xFinHoja = currentHojaXPos + anchoHojaEsc;
+                    dibujarLineaCotaHorizontal(xInicioHoja, xFinHoja, my);
+                    segmentosCotaInferior.push({
+                        x1: xInicioHoja,
+                        x2: xFinHoja,
+                        texto: anchosHojasMM[i].toString()
+                    });
                     currentHojaXPos += anchoHojaEsc;
                     if (i < hojas - 1) {
                         currentHojaXPos += separacionHojaEsc;
                     }
                 }
+
+                const myLaterales = my;
+                if (fijoIzquierdo && anchoFijoIzqEsc > 0) {
+                    dibujarLineaCotaHorizontal(x0, x0 + anchoFijoIzqEsc, myLaterales);
+                    segmentosCotaInferior.push({
+                        x1: x0,
+                        x2: x0 + anchoFijoIzqEsc,
+                        texto: anchoFijoIzqMMActual.toString()
+                    });
+                }
+
+                if (fijoDerecho && anchoFijoDerEsc > 0) {
+                    const fijoDerX0Cota = conjuntoXRight - anchoFijoDerEsc;
+                    dibujarLineaCotaHorizontal(fijoDerX0Cota, fijoDerX0Cota + anchoFijoDerEsc, myLaterales);
+                    segmentosCotaInferior.push({
+                        x1: fijoDerX0Cota,
+                        x2: fijoDerX0Cota + anchoFijoDerEsc,
+                        texto: anchoFijoDerMMActual.toString()
+                    });
+                }
+
+                segmentosCotaInferior.sort((a, b) => a.x1 - b.x1);
+                const baseTextoY = my + 60;
+                const maxFontSizeInferior = 70;
+                const minFontSizeInferior = 10;
+                const paddingInteriorTexto = 10;
+                const separacionMinimaTextos = 8;
+
+                let fontSizeInferiorGlobal = maxFontSizeInferior;
+                while (fontSizeInferiorGlobal > minFontSizeInferior) {
+                    ctx.font = `${fontSizeInferiorGlobal}px Arial`;
+                    let cabeTodo = true;
+
+                    for (let i = 0; i < segmentosCotaInferior.length; i++) {
+                        const seg = segmentosCotaInferior[i];
+                        const anchoDisponibleSegmento = Math.max(12, (seg.x2 - seg.x1) - paddingInteriorTexto * 2);
+                        const anchoTextoActual = ctx.measureText(seg.texto).width;
+
+                        if (anchoTextoActual > anchoDisponibleSegmento) {
+                            cabeTodo = false;
+                            break;
+                        }
+
+                        if (i < segmentosCotaInferior.length - 1) {
+                            const segSig = segmentosCotaInferior[i + 1];
+                            const centroActual = (seg.x1 + seg.x2) / 2;
+                            const centroSiguiente = (segSig.x1 + segSig.x2) / 2;
+                            const anchoTextoSiguiente = ctx.measureText(segSig.texto).width;
+                            const separacionCentros = centroSiguiente - centroActual;
+                            const separacionNecesaria = (anchoTextoActual / 2) + (anchoTextoSiguiente / 2) + separacionMinimaTextos;
+
+                            if (separacionCentros < separacionNecesaria) {
+                                cabeTodo = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (cabeTodo) break;
+                    fontSizeInferiorGlobal -= 1;
+                }
+
+                ctx.font = `${Math.max(minFontSizeInferior, fontSizeInferiorGlobal)}px Arial`;
+                segmentosCotaInferior.forEach(seg => {
+                    const cx = (seg.x1 + seg.x2) / 2;
+                    ctx.fillText(seg.texto, cx, baseTextoY);
+                });
+
+                ctx.font = "70px Arial";
             }
 
             let my_ancho_total_ventana_principal;
@@ -3086,22 +3461,22 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
             
             ctx.beginPath();
             ctx.moveTo(x0, my_ancho_total_ventana_principal);
-            ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
-            ctx.strokeStyle = "black"; ctx.stroke(); // FLECHA SUPERIOR
+            ctx.lineTo(x0 + anchoVentanaTotalEsc, my_ancho_total_ventana_principal);
+            ctx.strokeStyle = "black"; ctx.stroke();
 
             ctx.beginPath();
             ctx.moveTo(x0 + 8, my_ancho_total_ventana_principal - 5); ctx.lineTo(x0, my_ancho_total_ventana_principal);
             ctx.moveTo(x0 + 8, my_ancho_total_ventana_principal + 5); ctx.lineTo(x0, my_ancho_total_ventana_principal);
-            ctx.moveTo(x0 + anchoVentanaPrincipalEsc - 8, my_ancho_total_ventana_principal - 5); ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
-            ctx.moveTo(x0 + anchoVentanaPrincipalEsc - 8, my_ancho_total_ventana_principal + 5); ctx.lineTo(x0 + anchoVentanaPrincipalEsc, my_ancho_total_ventana_principal);
+            ctx.moveTo(x0 + anchoVentanaTotalEsc - 8, my_ancho_total_ventana_principal - 5); ctx.lineTo(x0 + anchoVentanaTotalEsc, my_ancho_total_ventana_principal);
+            ctx.moveTo(x0 + anchoVentanaTotalEsc - 8, my_ancho_total_ventana_principal + 5); ctx.lineTo(x0 + anchoVentanaTotalEsc, my_ancho_total_ventana_principal);
             ctx.stroke();
 
-// MEDIDA ANCHO MARCO
+// MEDIDA ANCHO TOTAL CONJUNTO
 
             ctx.fillStyle = "#333333";
             ctx.font = "90px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(anchoVentanaPrincipalMM.toString(), (x0 + x0 + anchoVentanaPrincipalEsc) / 2, my_ancho_total_ventana_principal - 15);
+            ctx.fillText(anchoVentanaTotalMM.toString(), x0 + (anchoVentanaTotalEsc / 2), my_ancho_total_ventana_principal - 15);
         
             if (altoIzqMM !== altoDerMM) {
                 const diffAlto = Math.abs(altoIzqMM - altoDerMM);
@@ -3270,7 +3645,7 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 ctx.stroke();
                 
                 ctx.save();
-                ctx.translate(fixedMeasureX - 15, fijoSupLeftYTop + (fijoSupYBottom - fijoSupLeftYTop) / 2);
+                ctx.translate(fixedMeasureX - sideMeasureTextOffset, fijoSupLeftYTop + (fijoSupYBottom - fijoSupLeftYTop) / 2);
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillText(altoFijoSupIzqMM.toString(), 0, 0);
                 ctx.restore();
@@ -3292,7 +3667,7 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                     ctx.stroke();
                     
                     ctx.save();
-                    ctx.translate(fixedMeasureXRight + 15, fijoSupRightYTop + (fijoSupYBottom - fijoSupRightYTop) / 2);
+                    ctx.translate(fixedMeasureXRight + sideMeasureTextOffset, fijoSupRightYTop + (fijoSupYBottom - fijoSupRightYTop) / 2);
                     ctx.rotate(Math.PI / 2);
                     ctx.fillText(altoFijoSupDerMM.toString(), 0, 0);
                     ctx.restore();
@@ -3316,7 +3691,7 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 ctx.stroke();
 
                 ctx.save();
-                ctx.translate(fixedMeasureX - 15, fijoInfY0Abs + (fijoInfY1Abs - fijoInfY0Abs) / 2);
+                ctx.translate(fixedMeasureX - sideMeasureTextOffset, fijoInfY0Abs + (fijoInfY1Abs - fijoInfY0Abs) / 2);
                 ctx.rotate(-Math.PI / 2);
                 ctx.fillText(altoFijoInferiorMM.toString(), 0, 0);
                 ctx.restore();
@@ -3328,7 +3703,7 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
 if (mostrarAltoTotalDer) {
             
             if (mostrarPersiana || fijoSuperior || fijoInferior || altoIzqMM !== altoDerMM) {
-                let mx_altura_total_completa = x0 + anchoVentanaPrincipalEsc + 25;
+                let mx_altura_total_completa = conjuntoXRight + 25;
                 
                 let startYTotal = y0 + (mostrarPersiana ? cajonHEsc : 0);
                 
@@ -3400,6 +3775,12 @@ if (mostrarAltoTotalDer) {
             if(!matrixColoresFijoInf[data.row]) matrixColoresFijoInf[data.row] = [];
             matrixColoresFijoInf[data.row][data.col] = color;
 
+        } else if (data.type === 'fijoIzq') {
+            if(!matrixColoresFijoIzq[data.row]) matrixColoresFijoIzq[data.row] = [];
+            matrixColoresFijoIzq[data.row][data.col] = color;
+        } else if (data.type === 'fijoDer') {
+            if(!matrixColoresFijoDer[data.row]) matrixColoresFijoDer[data.row] = [];
+            matrixColoresFijoDer[data.row][data.col] = color;
         } else if (data.type === 'hoja') {
             hojasData[data.index].colorCristal = color;
         } else if (data.type === 'hojaTrav') {
