@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Diseño Ventana Pro V83</title>
+    <title>Ventana Pro v83.2</title>
     <style>
 
         body {
@@ -61,6 +61,84 @@
     box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+
+.dimension-inputs-row select {
+    width: 100%;
+    font-size: 16px;
+    background-color: #FEFCDD;
+    text-align: center;
+    padding: 8px 6px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.medidas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    align-items: start;
+}
+
+.medidas-grid > div {
+    min-width: 0;
+}
+
+.auto-ajuste-slot {
+    display: flex;
+    align-items: flex-start;
+}
+
+.auto-ajuste-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auto-ajuste-box label {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 5px;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.auto-ajuste-box select {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    background-color: #DDEAF7;
+    color: #1F2A37;
+    text-align: center;
+    text-align-last: center;
+    padding: 8px 34px 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid #AFC3D9;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    display: block;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #4B6584 50%),
+      linear-gradient(135deg, #4B6584 50%, transparent 50%);
+    background-position:
+      calc(100% - 20px) 50%,
+      calc(100% - 12px) 50%;
+    background-size: 8px 8px, 8px 8px;
+    background-repeat: no-repeat;
+}
+
+.auto-ajuste-box select:focus {
+    outline: none;
+    border-color: #6E8FB3;
+    box-shadow: 0 0 0 2px rgba(110, 143, 179, 0.18);
 }
 
 /* --- FIN: NUEVOS ESTILOS --- */
@@ -292,6 +370,34 @@ button {
 }
 
 
+
+.top-title{
+  position: fixed;
+  top: 12px;
+  left: clamp(130px, 24vw, 300px);
+  right: clamp(130px, 24vw, 300px);
+  z-index: 9998;
+  margin: 0;
+  height: 42px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.top-title .title-main{
+  font-size: clamp(22px, 4.2vw, 34px);
+  font-weight: 800;
+}
+.top-title .title-version{
+  font-size: clamp(12px, 2.1vw, 18px);
+  font-weight: 700;
+}
+
 /* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
 .btn-menu { 
   position: fixed; 
@@ -439,14 +545,14 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<h1>Diseño Ventana Pro V83</h1>
+<div class="top-title" aria-label="Ventana Pro v83.2"><span class="title-main">Ventana Pro</span><span class="title-version">v83.2</span></div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
 
     <h3>Medidas</h3>
 
-    <div class="dimension-inputs-row">
+    <div class="dimension-inputs-row medidas-grid">
         <div>
             <label for="ancho">Ancho:</label>
             <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista()">
@@ -474,6 +580,21 @@ body.dock-off #canvasDock{
         <div>
             <label for="travesanoThickness">Zanca</label>
             <input type="number" id="travesanoThickness" value="70" onchange="travesanoThickness = +this.value; actualizarVista()">
+        </div>
+        <div class="auto-ajuste-slot">
+            <div class="auto-ajuste-box">
+                <label for="presetSerie">Serie:</label>
+                <select id="presetSerie" onchange="aplicarPresetMedidas()">
+                    <option value="ventana600">Ventana 600</option>
+                    <option value="puerta800">Puerta 800</option>
+                    <option value="ventanace">Ventana CE</option>
+                    <option value="puertace">Puerta CE</option>
+                    <option value="ventanapvc">Ventana PVC</option>
+                    <option value="puertapvc">Puerta PVC</option>
+                    <option value="nicho">Nicho</option>
+                    <option value="telefonillo">Telefonillo</option>
+                </select>
+            </div>
         </div>
     </div>
 </div>
@@ -707,6 +828,40 @@ body.dock-off #canvasDock{
     
     // Almacenará las coordenadas de los cristales para detectar clics
     let zonasInteractivas = [];
+
+    const presetsMedidas = {
+        ventana600: { marco: 20, hoja: 54, zanca: 54 },
+        puerta800: { marco: 36, hoja: 71, zanca: 71 },
+        ventanace: { marco: 22, hoja: 66, zanca: 66 },
+        puertace: { marco: 39, hoja: 90, zanca: 90 },
+        ventanapvc: { marco: 42, hoja: 78, zanca: 85 },
+        puertapvc: { marco: 52, hoja: 106, zanca: 110 },
+        nicho: { marco: 28, hoja: 20, zanca: 20 },
+        telefonillo: { marco: 0, hoja: 20, zanca: 20 }
+    };
+
+    function aplicarPresetMedidas() {
+        const select = document.getElementById('presetSerie');
+        if(!select) return;
+        const preset = presetsMedidas[select.value];
+        if(!preset) return;
+
+        marcoThickness = preset.marco;
+        hojaThickness = preset.hoja;
+        travesanoThickness = preset.zanca;
+
+        const marcoInput = document.getElementById('marcoThickness');
+        const hojaInput = document.getElementById('hojaThickness');
+        const zancaInput = document.getElementById('travesanoThickness');
+
+        if (marcoInput) marcoInput.value = preset.marco;
+        if (hojaInput) hojaInput.value = preset.hoja;
+        if (zancaInput) zancaInput.value = preset.zanca;
+
+        recalcularAnchosHojas();
+        actualizarOpcionesFijos();
+        actualizarVista();
+    }
 
     function toggleArco() {
         modoArco = !modoArco;
