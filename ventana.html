@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v83.3</title>
+    <title>Ventana Pro v83.4</title>
     <style>
 
         body {
@@ -545,7 +545,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v83.3"><span class="title-main">Ventana Pro</span><span class="title-version">v83.3</span></div>
+<div class="top-title" aria-label="Ventana Pro v83.4"><span class="title-main">Ventana Pro</span><span class="title-version">v83.4</span></div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -2559,6 +2559,10 @@ function cambiarColorMarco(c) {
 
         let currentY = y0;
         let mainWinY0 = currentY;
+        let conjuntoTopYLeft = 0;
+        let conjuntoTopYRight = 0;
+        let conjuntoBottomY = 0;
+        let yTopConjuntoAt = (x) => mainWinY0;
 
         if (mostrarPersiana) {
             const cajonX0 = x0;
@@ -2762,13 +2766,22 @@ function cambiarColorMarco(c) {
             mainWinY0 += maxAltoFijoSupMM * esc;
         }
 
+        conjuntoTopYLeft = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
+        conjuntoTopYRight = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
+        conjuntoBottomY = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+        yTopConjuntoAt = (x) => {
+            if (Math.abs(conjuntoXRight - conjuntoXLeft) < 0.0001) return conjuntoTopYLeft;
+            const t = (x - conjuntoXLeft) / (conjuntoXRight - conjuntoXLeft);
+            return conjuntoTopYLeft + (conjuntoTopYRight - conjuntoTopYLeft) * t;
+        };
+
         ctx.fillStyle = colorMarco;
         ctx.beginPath();
         const marcoX0 = x0 + anchoFijoIzqEsc;
-        const marcoY0SuperiorIzq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
+        const marcoY0SuperiorIzq = yTopConjuntoAt(marcoX0);
         const marcoX1 = marcoX0 + anchoVentanaPrincipalEsc;
-        const marcoY0SuperiorDer = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
-        const marcoY1Inferior = mainWinY0 + maxAltoPrincipalSidesMM * esc;
+        const marcoY0SuperiorDer = yTopConjuntoAt(marcoX1);
+        const marcoY1Inferior = conjuntoBottomY;
 
         ctx.moveTo(marcoX0, marcoY0SuperiorIzq);
         ctx.lineTo(marcoX1, marcoY0SuperiorDer);
@@ -3073,20 +3086,38 @@ function cambiarColorMarco(c) {
 
         if (fijoIzquierdo && anchoFijoIzqEsc > 0) {
             const fijoIzqX0 = x0;
-            const fijoIzqY0 = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
-            const fijoIzqWidth = anchoFijoIzqEsc;
-            const fijoIzqHeight = altoIzqEsc;
+            const fijoIzqX1 = x0 + anchoFijoIzqEsc;
+            const fijoIzqYTopL = yTopConjuntoAt(fijoIzqX0);
+            const fijoIzqYTopR = yTopConjuntoAt(fijoIzqX1);
+            const fijoIzqYBottom = conjuntoBottomY;
 
             ctx.fillStyle = colorMarco;
-            ctx.fillRect(fijoIzqX0, fijoIzqY0, fijoIzqWidth, fijoIzqHeight);
-            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(fijoIzqX0, fijoIzqY0, fijoIzqWidth, fijoIzqHeight);
+            ctx.beginPath();
+            ctx.moveTo(fijoIzqX0, fijoIzqYTopL);
+            ctx.lineTo(fijoIzqX1, fijoIzqYTopR);
+            ctx.lineTo(fijoIzqX1, fijoIzqYBottom);
+            ctx.lineTo(fijoIzqX0, fijoIzqYBottom);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.stroke();
 
             const xGlassLeft = fijoIzqX0 + marcoThicknessEsc;
-            const xGlassRight = fijoIzqX0 + fijoIzqWidth - marcoThicknessEsc;
-            const yGlassTop = fijoIzqY0 + marcoThicknessEsc;
-            const yGlassBottom = fijoIzqY0 + fijoIzqHeight - marcoThicknessEsc;
+            const xGlassRight = fijoIzqX1 - marcoThicknessEsc;
+            const yGlassTopLeft = yTopConjuntoAt(xGlassLeft) + marcoThicknessEsc;
+            const yGlassTopRight = yTopConjuntoAt(xGlassRight) + marcoThicknessEsc;
+            const yGlassBottom = fijoIzqYBottom - marcoThicknessEsc;
+            const yGlassTopMin = Math.min(yGlassTopLeft, yGlassTopRight);
 
-            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTop) {
+            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTopMin) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(xGlassLeft, yGlassTopLeft);
+                ctx.lineTo(xGlassRight, yGlassTopRight);
+                ctx.lineTo(xGlassRight, yGlassBottom);
+                ctx.lineTo(xGlassLeft, yGlassBottom);
+                ctx.closePath();
+                ctx.clip();
+
                 const gridYs = [yGlassBottom, ...[...travesanosIzqHorizontales].sort((a,b) => a.altura - b.altura).map(t => yGlassBottom - t.altura * esc - travesanoThicknessEsc)];
                 const gridXs = [xGlassLeft, ...[...travesanosIzqVerticales].sort((a,b) => a.posicion - b.posicion).map(t => xGlassLeft + t.posicion * esc), xGlassRight];
 
@@ -3094,7 +3125,7 @@ function cambiarColorMarco(c) {
                     for(let cI = 0; cI < gridXs.length - 1; cI++) {
                         const cellColor = (matrixColoresFijoIzq[r] && matrixColoresFijoIzq[r][cI]) ? matrixColoresFijoIzq[r][cI] : colorActivo;
                         let yB = gridYs[r];
-                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTop;
+                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTopMin;
                         let xL = gridXs[cI];
                         let xR = gridXs[cI+1];
                         if (cI > 0) xL += travesanoThicknessEsc / 2;
@@ -3113,28 +3144,47 @@ function cambiarColorMarco(c) {
                 [...travesanosIzqVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
                     const xVal = xGlassLeft + t.posicion * esc;
                     ctx.fillStyle = colorMarco;
-                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
-                    if (drawBorderLeft) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
+                    if (drawBorderLeft) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                 });
+                ctx.restore();
             }
         }
 
         if (fijoDerecho && anchoFijoDerEsc > 0) {
             const fijoDerX0 = x0 + anchoFijoIzqEsc + anchoVentanaPrincipalEsc;
-            const fijoDerY0 = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoDerEsc);
-            const fijoDerWidth = anchoFijoDerEsc;
-            const fijoDerHeight = altoDerEsc;
+            const fijoDerX1 = fijoDerX0 + anchoFijoDerEsc;
+            const fijoDerYTopL = yTopConjuntoAt(fijoDerX0);
+            const fijoDerYTopR = yTopConjuntoAt(fijoDerX1);
+            const fijoDerYBottom = conjuntoBottomY;
 
             ctx.fillStyle = colorMarco;
-            ctx.fillRect(fijoDerX0, fijoDerY0, fijoDerWidth, fijoDerHeight);
-            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.strokeRect(fijoDerX0, fijoDerY0, fijoDerWidth, fijoDerHeight);
+            ctx.beginPath();
+            ctx.moveTo(fijoDerX0, fijoDerYTopL);
+            ctx.lineTo(fijoDerX1, fijoDerYTopR);
+            ctx.lineTo(fijoDerX1, fijoDerYBottom);
+            ctx.lineTo(fijoDerX0, fijoDerYBottom);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#333333"; ctx.lineWidth = 1; ctx.stroke();
 
             const xGlassLeft = fijoDerX0 + marcoThicknessEsc;
-            const xGlassRight = fijoDerX0 + fijoDerWidth - marcoThicknessEsc;
-            const yGlassTop = fijoDerY0 + marcoThicknessEsc;
-            const yGlassBottom = fijoDerY0 + fijoDerHeight - marcoThicknessEsc;
+            const xGlassRight = fijoDerX1 - marcoThicknessEsc;
+            const yGlassTopLeft = yTopConjuntoAt(xGlassLeft) + marcoThicknessEsc;
+            const yGlassTopRight = yTopConjuntoAt(xGlassRight) + marcoThicknessEsc;
+            const yGlassBottom = fijoDerYBottom - marcoThicknessEsc;
+            const yGlassTopMin = Math.min(yGlassTopLeft, yGlassTopRight);
 
-            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTop) {
+            if (xGlassRight > xGlassLeft && yGlassBottom > yGlassTopMin) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(xGlassLeft, yGlassTopLeft);
+                ctx.lineTo(xGlassRight, yGlassTopRight);
+                ctx.lineTo(xGlassRight, yGlassBottom);
+                ctx.lineTo(xGlassLeft, yGlassBottom);
+                ctx.closePath();
+                ctx.clip();
+
                 const gridYs = [yGlassBottom, ...[...travesanosDerHorizontales].sort((a,b) => a.altura - b.altura).map(t => yGlassBottom - t.altura * esc - travesanoThicknessEsc)];
                 const gridXs = [xGlassLeft, ...[...travesanosDerVerticales].sort((a,b) => a.posicion - b.posicion).map(t => xGlassLeft + t.posicion * esc), xGlassRight];
 
@@ -3142,7 +3192,7 @@ function cambiarColorMarco(c) {
                     for(let cI = 0; cI < gridXs.length - 1; cI++) {
                         const cellColor = (matrixColoresFijoDer[r] && matrixColoresFijoDer[r][cI]) ? matrixColoresFijoDer[r][cI] : colorActivo;
                         let yB = gridYs[r];
-                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTop;
+                        let yT = (r < gridYs.length - 1) ? (gridYs[r+1] + travesanoThicknessEsc) : yGlassTopMin;
                         let xL = gridXs[cI];
                         let xR = gridXs[cI+1];
                         if (cI > 0) xL += travesanoThicknessEsc / 2;
@@ -3161,9 +3211,10 @@ function cambiarColorMarco(c) {
                 [...travesanosDerVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
                     const xVal = xGlassLeft + t.posicion * esc;
                     ctx.fillStyle = colorMarco;
-                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
-                    if (drawBorderRight) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTop, travesanoThicknessEsc, yGlassBottom - yGlassTop);
+                    ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
+                    if (drawBorderRight) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                 });
+                ctx.restore();
             }
         }
 
@@ -3480,7 +3531,7 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
         
             if (altoIzqMM !== altoDerMM) {
                 const diffAlto = Math.abs(altoIzqMM - altoDerMM);
-                const diagonalReal = Math.sqrt(Math.pow(anchoVentanaPrincipalMM, 2) + Math.pow(diffAlto, 2));
+                const diagonalReal = Math.sqrt(Math.pow(anchoVentanaTotalMM, 2) + Math.pow(diffAlto, 2));
                 const diagonalTexto = diagonalReal.toFixed(0);
 
 // NEDIDA DIAGONAL MARCO
@@ -3491,10 +3542,10 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 
                 const offsetY = -11;
 
-                const measureLineStartX = marcoX0;
-                const measureLineStartY = marcoY0SuperiorIzq - offsetY;
-                const measureLineEndX = marcoX1;
-                const measureLineEndY = marcoY0SuperiorDer - offsetY;
+                const measureLineStartX = conjuntoXLeft;
+                const measureLineStartY = yTopConjuntoAt(conjuntoXLeft) - offsetY;
+                const measureLineEndX = conjuntoXRight;
+                const measureLineEndY = yTopConjuntoAt(conjuntoXRight) - offsetY;
                 
                 const angle = Math.atan2(measureLineEndY - measureLineStartY, measureLineEndX - measureLineStartX);
                 
