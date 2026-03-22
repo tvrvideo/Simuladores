@@ -1,1059 +1,2224 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Corte de Barras - SVG</title>
-<style>
-  /* --- ESTILOS GENERALES Y DE FORMULARIO (Mantenidos) --- */
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: #f4f7f6;
-    color: #333;
-    line-height: 1.6;
-  }
-  h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 25px;
-    font-size: 2em;
-  }
-  h2 {
-    color: #34495e;
-    border-bottom: 2px solid #a3cef1;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-    font-size: 1.5em;
-  }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-  }
-  .section {
-    flex: 1;
-    min-width: 300px;
-    margin-bottom: 20px;
-  }
-  .input-grid {
-    display: grid;
-    grid-template-columns: auto auto 1fr; 
-    gap: 10px 15px;
-    align-items: end;
-  }
-  .input-grid label {
-    font-weight: bold;
-    color: #555;
-    text-align: left;
-    padding-bottom: 0;
-  }
-  .input-grid input[type="number"],
-  .input-grid input[type="text"],
-  .input-grid select { 
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 80px;
-    box-sizing: border-box;
-  }
-  .input-grid input[type="text"] {
-    width: 150px;
-  }
-  .input-grid button {
-    grid-column: 3; 
-    justify-self: start;
-    width: auto;
-    margin-left: 0;
-  }
-  button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 18px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background-color: #45a049;
-  }
-  .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px auto;
-    width: fit-content;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .button-group button {
-    background-color: #007bff;
-  }
-  .button-group button:hover {
-    background-color: #0056b3;
-  }
-  .button-group button#exportBtn {
-    background-color: #6c757d;
-  }
-  .button-group button#exportBtn:hover {
-    background-color: #5a6268;
-  }
-  .button-group select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    height: fit-content;
-  }
-  .item-list {
-    margin-top: 15px;
-    border: 1px solid #eee;
-    max-height: 150px;
-    overflow-y: auto;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #fafafa;
-  }
-  .item {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px dashed #e0e0e0;
-    color: #444;
-  }
-  .item:last-child {
-    border-bottom: none;
-  }
-  .item .action-buttons {
-    display: flex;
-    gap: 5px;
-  }
-  .item .remove-btn, .item .remove-all-btn, .item .edit-btn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 0.8em;
-    white-space: nowrap;
-  }
-  .item .remove-btn:hover, .item .remove-all-btn:hover {
-    background-color: #c82333;
-  }
-  .item .edit-btn {
-    background-color: #ffc107;
-    color: #212529;
-  }
-  .item .edit-btn:hover {
-    background-color: #e0a800;
-  }
-  #resultInfo {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #e9ecef;
-    border-left: 5px solid #007bff;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    border-radius: 4px;
-  }
-  /* --- ESTILOS PARA LA VISUALIZACIÓN SVG (ANCHO COMPLETO) --- */
-  .canvas-container { width: 100%; }
-  .canvas-group-wrapper {
-      background: #ffffff;
-      border: 1px solid #a3cef1;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
-      width: 100%; 
-      box-sizing: border-box;
-  }
-  .canvas-group-wrapper h3 {
-      text-align: center;
-      color: #34495e;
-      margin-top: 0;
-      margin-bottom: 15px;
-      font-size: 1.2em;
-      border-bottom: 1px dashed #e0e0e0;
-      padding-bottom: 10px;
-  }
-  .bar-svg-wrapper {
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      padding: 5px; 
-      border-radius: 4px;
-      position: relative;
-  }
-  .bar-info {
-      font-size: 0.95em;
-      margin-bottom: 5px;
-      padding: 0 5px;
-  }
-  .bar-info strong { color: #007bff; }
-  .legend {
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid #eee;
-      width: 100%;
-      text-align: left;
-      font-size: 0.95em; 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 20px;
-  }
-  .legend-item { display: flex; align-items: center; margin-bottom: 5px; flex-shrink: 0; }
-  .legend-color-box { width: 14px; height: 14px; border: 1px solid #888; margin-right: 8px; flex-shrink: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Cut Máster v1.9</title>
+  <style>
+    :root{
+      --bg:#f3eeee;
+      --panel:#ffffff;
+      --soft:#dbe9d6;
+      --soft-2:#cfe0cb;
+      --line:#ddd6d6;
+      --text:#2f241f;
+      --muted:#7c7571;
+      --tab:#d9d6e7;
+      --accent:#2d231d;
+      --blue:#1f7af0;
+      --danger:#b84a4a;
+      --ok:#43774c;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;touch-action:manipulation}
+    body{min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer;border:none;background:none;color:inherit}
+    .app{max-width:980px;margin:0 auto;min-height:100vh;background:var(--bg)}
+    .topbar{position:sticky;top:0;z-index:20;height:34px;background:#d7e6d1;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #c8d7c3}
+    .topbar .title{font-size:18px;font-weight:700;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
+    .icon-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .nav-home-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+    .icon-btn:active,.primary-btn:active,.soft-btn:active,.tab:active{transform:scale(.985)}
+    .screen{display:none;padding:10px 12px 74px}
+    #resultsScreen{padding-bottom:170px}
+    .screen.active{display:block}
+    .hero{display:none}
+    .project-create{display:flex;gap:8px;align-items:end;margin-bottom:14px}
+    .field{flex:1}
+    .label{font-size:13px;color:var(--muted);margin-bottom:3px}
+    .input, .num-input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:18px;outline:none;color:var(--text);border-radius:0}
+    .num-input{font-size:17px}
+    .confirm-btn{background:#d7e6d1;border-radius:10px;min-width:52px;height:42px;font-size:24px}
+    .section-btn{background:#cfe0cb;border-radius:10px;padding:12px 16px;font-size:17px;text-align:center;width:100%;box-shadow:0 1px 0 rgba(0,0,0,.05)}
+    .card{background:var(--panel);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;border:1px solid #ece7e7}
+    .project-row,.material-row,.piece-row,.stock-row,.material-list-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #ece7e7}
+    .project-row:first-child,.material-row:first-child,.piece-row:first-child,.stock-row:first-child,.material-list-row:first-child{border-top:none}
+    .project-name{flex:1;font-size:17px}
+    .row-actions{display:flex;gap:8px;align-items:center}
+    .ghost{color:#958d89}
+    .bottom-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .soft-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:16px;min-width:150px;text-align:center}
+    .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--tab);border-top:1px solid #cac4da;z-index:25;height:54px}
+    .tab{flex:1;padding:12px 6px;text-align:center;font-size:16px;border-right:1px solid #cbc5db}
+    .tab:last-child{border-right:none}
+    .tab.active{font-weight:700}
+    .header-title{font-size:18px;text-align:center;margin:2px 0 12px;font-weight:500}
+    .toolbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .pill{padding:8px 12px;border:1px solid #665e5a;border-radius:10px;background:transparent;font-size:14px}
+    .material-block{margin:12px 0;background:transparent}
+    .material-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .material-name{font-size:18px;font-weight:700;flex:1}
+    .material-grid-head,.entry-grid{display:grid;grid-template-columns:1.15fr 1fr .95fr auto;gap:10px;align-items:end}
+    .material-grid-head{padding:2px 34px 0 34px;color:#8e8783;font-size:12px}
+    .entry-list{display:flex;flex-direction:column;gap:8px}
+    .material-body.is-collapsed .material-grid-head,.material-body.is-collapsed .entry-list,.material-body.is-collapsed .primary-row-btns{display:none}
+    .collapse-toggle{font-size:18px;line-height:1}
+    .entry-grid{padding-left:34px}
+    .add-inline{width:34px;height:34px;border-radius:999px;background:#d7e6d1;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .inline-x{font-size:18px;color:#88817d;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+    .entry-name-input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:16px;outline:none;color:var(--text);border-radius:0}
+    .cut-select{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:15px;outline:none;color:var(--text);border-radius:0}
+    .cut-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:#eef3ea;font-size:12px;color:#5d625d;margin-left:6px;vertical-align:middle}
+    .piece-meta{font-size:12px;color:#7b7470;margin-top:6px}
 
-  /* Estilos SVG */
-  .bar-svg { display: block; width: 100%; }
-  .bar-background { fill: #f0f0f0; stroke: #2c3e50; stroke-width: 1; }
-  .cut-piece { stroke: #000000; stroke-width: 0.5; }
-  .allowance { fill: #c0392b; stroke: #000000; stroke-width: 0.5; }
-  .offcut { fill: #e74c3c; stroke: #a33; stroke-width: 1; }
-  .offcut-text { fill: #fff; font-size: 14px; text-anchor: middle; pointer-events: none; font-weight: bold; }
-  .dim-line { stroke: #000000; stroke-width: 1; fill: none; }
-  .dim-arrow { stroke: #000000; fill: #000000; stroke-width: 1; }
-  .dim-text { font-size: 30px; fill: #333; text-anchor: middle; pointer-events: none; font-weight: bold; }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .container { flex-direction: column; }
-    .section { min-width: unset; width: 100%; }
-    .input-grid { grid-template-columns: 1fr; gap: 5px; }
-    .input-grid label, .input-grid input, .input-grid button, .input-grid select { width: 100%; box-sizing: border-box; }
-    .input-grid button { grid-column: 1; justify-self: stretch; }
-    .button-group { flex-direction: column; gap: 10px; align-items: center; }
-    .item { flex-direction: column; align-items: flex-start; gap: 5px; }
-    .item .action-buttons { width: 100%; justify-content: flex-start; margin-top: 5px; }
-    .canvas-group-wrapper { width: 100%; box-sizing: border-box; }
-    .legend { flex-direction: column; gap: 5px; }
-  }
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);display:none;align-items:flex-end;justify-content:center;z-index:60;padding:12px}
+    .modal-backdrop.active{display:flex}
+    .modal-card{width:min(100%,520px);background:#fff;border-radius:16px 16px 12px 12px;padding:16px 14px 14px;box-shadow:0 10px 26px rgba(0,0,0,.18)}
+    .modal-title{font-size:18px;font-weight:700;margin:0 0 6px}
+    .modal-text{font-size:14px;color:#6e6763;margin:0 0 12px;line-height:1.35}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+    .modal-btn{background:#cfe0cb;border-radius:10px;padding:11px 14px;font-size:15px;min-width:110px;text-align:center}
+    .modal-btn.secondary{background:#ece7e7}
+    .modal-btn.danger{background:#ead1d1;color:#7a1f1f}
+    .primary-row-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .primary-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:16px;flex:1;min-width:180px;text-align:center}
+    .subtle{color:#817a76}
+    .results-tabs{display:flex;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:58px;z-index:10;margin:-14px -12px 10px}
+    .results-tab{flex:1;padding:10px 12px;font-size:16px;text-align:center;border-bottom:3px solid transparent;background:#fff;color:#7a7470}
+    .results-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+    .result-panel{display:none}
+    .result-panel.active{display:block}
+    .diagram-card{margin-bottom:22px}
+    .diagram-title{font-size:30px;font-weight:800;line-height:1.05;margin-bottom:10px}
+    .diagram-sub{font-size:15px;color:#5e5651;margin-bottom:16px;line-height:1.32}
+    .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+    .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}
+    .bar-sketch-wrap{flex:1;min-width:0}
+    .bar-head{font-size:18px;font-weight:700;margin:0 0 4px;color:#3c312b}
+    .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}
+    .bar-sketch-wrap{position:relative}
+    .bar-canvas{position:relative;width:100%;max-width:900px}
+    .bar-touch-layer{position:absolute;inset:0;z-index:3;background:transparent;pointer-events:auto}
+    .bar-hit-zone{position:absolute;background:transparent;border:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:4;cursor:pointer;min-width:18px}
+    .bar-outline{stroke:#433630;stroke-width:2.2;fill:none}
+    .cut-fill{fill:#dfd7cf;transition:fill .16s ease,opacity .16s ease}
+    .cut-fill.active{fill:#1f7af0}
+    .cut-fill.done{fill:#8fb36a}
+    .cut-fill.done.active{fill:#6ea84c}
+    .cut-fill.dimmed{opacity:.28}
+    .waste-fill{fill:#8f8f8f;transition:opacity .16s ease}
+    .cut-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-style:italic;font-weight:500;letter-spacing:.2px}
+    .cut-text.active{fill:#ffffff;font-weight:700}
+    .cut-text.done{fill:#ffffff;font-weight:700}
+    .cut-text.done.active{fill:#ffffff}
+    .cut-text.dimmed{opacity:.30}
+    .cut-line{stroke:#433630;stroke-width:2.2}
+    .cut-line.active{stroke:#433630;stroke-width:2.2}
+    .cut-line.dimmed{opacity:.38}
+    .bar-sketch.is-filtering .waste-fill{opacity:.35}
+    .selection-toast{position:fixed;left:10px;right:10px;bottom:calc(54px + env(safe-area-inset-bottom, 0px) + 4px);background:#5b4332;color:#fff;border-radius:18px;padding:14px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:90;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+    .selection-toast.show{display:flex}
+    .selection-toast-content{display:flex;flex-direction:column;gap:10px;width:100%}
+    .selection-top{font-size:15px;font-weight:800;line-height:1.15}
+    .selection-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .selection-pending-wrap{display:flex;align-items:flex-end;gap:6px;flex-shrink:0;min-width:92px}
+    .selection-pending-number{font-size:34px;font-weight:900;line-height:1}
+    .selection-pending-label{font-size:13px;font-weight:700;line-height:1.05;opacity:.95;padding-bottom:3px}
+    .selection-toast-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .selection-count-btn{width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;flex-shrink:0}
+    .selection-count-btn:active,.selection-toast-btn:active{transform:scale(.97)}
+    .selection-toast-btn{border:none;background:transparent;color:#fff;font-size:16px;font-weight:700;padding:8px 6px;flex-shrink:0}
 
 
-/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
-.btn-menu { 
-  position: fixed; 
-  top: 10px; 
-  left: 10px; 
-  z-index: 9999; 
-  padding: 10px 15px; 
-  border-radius: 20px; 
-  border: none; 
-  background: #e74c3c; 
-  color: white; 
-  font-weight: bold; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-  cursor: pointer;
-  font-size: 0.9rem;
-  width: auto !important;      /* evita button{width:100%} */
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
+    .diagram-note{font-size:13px;color:#7b7470;margin-top:4px}
+    .small{font-size:10px}
+    .material-list-row{justify-content:space-between;font-size:15px;background:#fff}
+    .summary{background:#fff;border:1px solid #ece7e7;border-radius:10px;padding:10px 12px;margin-bottom:10px;line-height:1.35;font-size:14px}
+    .results-export-bar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+    .export-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;min-width:170px;text-align:center}
+    .export-btn.secondary{background:#d7e6f8}
+    .export-status{display:none;background:#eff6ff;border:1px solid #d7e8ff;color:#1e3a8a;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13px;line-height:1.35;word-break:break-word}
+    .export-status.show{display:block}
+    .manual-download-link{display:none;font-size:14px;font-weight:700;margin:0 0 12px;color:#1f5fbf;text-decoration:none}
+    .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+    .setting-card{background:#fff;border-radius:10px;padding:12px;border:1px solid #ece7e7}
+    .setting-card h4{margin:0 0 6px;font-size:15px}
+    .setting-select,.setting-input{width:100%;border:1px solid #ddd6d6;background:#fff;border-radius:10px;padding:10px 12px;font-size:16px;outline:none;color:var(--text)}
+    .setting-save{margin-top:12px}
+    .setting-line{font-size:13px;color:#6f6966;margin-top:4px}
+    .empty{color:#7d7672;font-size:14px;padding:12px 0}
+    .muted-note{font-size:13px;color:#756e6a}
 
-</style>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
-<link rel="icon" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<link rel="manifest" href="manifest.json"></head>
+    .footer-space{height:10px}
+    .btn-menu{
+      position:fixed;
+      top:10px;
+      left:10px;
+      z-index:9999;
+      padding:10px 15px;
+      border-radius:20px;
+      border:none;
+      background:#e74c3c;
+      color:#fff;
+      font-weight:bold;
+      box-shadow:0 2px 5px rgba(0,0,0,.2);
+      cursor:pointer;
+      font-size:.9rem;
+      width:auto !important;
+      display:inline-flex !important;
+      align-items:center;
+      justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    @media (max-width: 720px){
+      .btn-menu{top:8px;left:8px;padding:9px 13px;font-size:.85rem}
+      .topbar{height:38px}
+      .topbar .title{font-size:17px}
+      .nav-home-btn{width:28px;height:28px;font-size:18px}
+      .hero{font-size:17px;margin-bottom:18px}
+      .project-create{align-items:center}
+      .input{font-size:17px}
+      .section-btn{font-size:16px;padding:12px}
+      .header-title{font-size:17px}
+      .material-name{font-size:17px}
+      .material-grid-head{padding-left:34px;font-size:12px}
+      .entry-grid{grid-template-columns:1.05fr 1fr .78fr auto;padding-left:34px;gap:8px}
+      .primary-btn,.soft-btn,.tab{font-size:15px}
+      .results-tabs{top:54px}
+      .results-tab{font-size:15px}
+      .selection-bottom{align-items:flex-end}
+      .selection-pending-wrap{min-width:76px}
+      .selection-pending-number{font-size:30px}
+      .selection-pending-label{font-size:12px}
+      .selection-toast-controls{gap:6px}
+      .bar{height:30px}
+      .seg{font-size:10px}
+    }
+  </style>
+</head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button id="legacyBackBtn" class="btn-menu" type="button" aria-label="Volver al menú">← MENÚ</button>
+<div class="app">
+  <div class="topbar">
+    <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
+    <div id="topTitle" class="title">Cut Máster v1.9</div>
+    <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
+  </div>
 
-
-<h1>Corte de Barras - Optimizador SVG</h1>
-
-<div class="container">
-  <div class="section">
-    <h2>Barras en Almacén</h2>
-    <div class="input-grid">
-      <label for="barName">Nombre:</label>
-      <input type="text" id="barName" placeholder="Ej: Barra 6m Extruido" value="Barras">
-      
-      <label for="barLength">Longitud (mm):</label>
-      <input type="number" id="barLength" min="1" value="6600" placeholder="Ej: 6000">
-      
-      <label for="barQty">Cantidad:</label>
-      <input type="number" id="barQty" min="1" value="999">
-      
-      <button id="addOrUpdateBarBtn">Añadir</button>
+  <section id="homeScreen" class="screen active">
+    <div class="hero">Crea un proyecto nuevo o abre uno existente.</div>
+    <div class="project-create">
+      <div class="field">
+        
+        <input id="newProjectInput" class="input" type="text" placeholder="Nuevo proyecto" inputmode="text" />
+      </div>
+      <button id="createProjectBtn" class="confirm-btn" aria-label="Crear proyecto">✓</button>
     </div>
-    <div id="barList" class="item-list"><div class="item">
-        <span>Barras - 6600 mm - Cantidad: 999</span>
-        <div class="action-buttons">
-            <button class="edit-btn" data-key="Barras - 6600 mm">Editar</button>
-            <button class="remove-btn" data-key="Barras - 6600 mm">Eliminar 1</button>
-            <button class="remove-all-btn" data-key="Barras - 6600 mm">Eliminar Todas</button>
+
+    <button class="section-btn" id="loadProjectBtn">Proyectos</button>
+    <div class="card" style="margin-top:2px">
+      <div id="projectsList"></div>
+    </div>
+
+    <div class="bottom-actions" style="display:none"></div>
+  </section>
+
+  <section id="piecesScreen" class="screen">
+    <div class="header-title">Introducir piezas del proyecto</div>
+    <div id="piecesContent"></div>
+    <div class="primary-row-btns">
+      <button class="primary-btn" id="addLinearBtn">Nueva barra</button>
+    </div>
+  </section>
+
+  <section id="stockScreen" class="screen">
+    <div class="toolbar">
+      <div class="header-title" style="margin:0">Introducir stock</div>
+      <button class="pill" id="applyDefaultStockBtn">Aplicar stock por defecto</button>
+    </div>
+    <div id="stockContent"></div>
+  </section>
+
+  <section id="resultsScreen" class="screen">
+    <div class="results-tabs">
+      <button class="results-tab active" data-result-tab="diagram">Diagrama de corte</button>
+      <button class="results-tab" data-result-tab="list">Lista de material</button>
+    </div>
+    <div id="resultsSummary" class="summary"></div>
+    <div class="results-export-bar">
+      <button id="exportPngBtn" class="export-btn secondary">Exportar PNG</button>
+      <button id="exportPdfBtn" class="export-btn">Exportar PDF editable</button>
+    </div>
+    <div id="exportStatus" class="export-status"></div>
+    <a id="manualDownloadLink" class="manual-download-link" href="#" download>Descarga manual</a>
+    <div id="diagramPanel" class="result-panel active"></div>
+    <div id="listPanel" class="result-panel"></div>
+    <div class="footer-space"></div>
+  </section>
+
+  <section id="settingsScreen" class="screen">
+    <div class="header-title">Ajustes</div>
+    <div class="settings-grid">
+      <div class="setting-card">
+        <h4>Unidad de medida</h4>
+        <select id="unitSelect" class="setting-select">
+          <option value="mm">mm</option>
+          <option value="cm">cm</option>
+        </select>
+        <div class="setting-line">Por defecto en mm, con opción de cambiar a cm.</div>
+      </div>
+      <div class="setting-card">
+        <h4>Ancho de corte</h4>
+        <input id="kerfInput" class="setting-input" type="number" min="0" step="0.1" inputmode="decimal" />
+        <div class="setting-line">Valor editable. Se aplica en la optimización.</div>
+      </div>
+      <div class="setting-card">
+        <h4>Stock por defecto</h4>
+        <div class="setting-line">Guarda el stock actual del proyecto abierto como base para los próximos proyectos.</div>
+        <div class="setting-actions">
+          <button id="defaultStockBtn" class="soft-btn">Guardar stock por defecto</button>
         </div>
-      </div></div>
-  </div>
+      </div>
+      <div class="setting-card">
+        <h4>Proyectos JSON</h4>
+        <div class="setting-line">Exporta o importa todos los proyectos guardados en un archivo .json.</div>
+        <div class="setting-actions">
+          <button id="exportJsonBtn" class="soft-btn">Exportar .json</button>
+          <button id="importJsonBtn" class="soft-btn">Importar .json</button>
+          <input id="importJsonInput" type="file" accept="application/json,.json" style="display:none" />
+        </div>
+      </div>
 
-  <div class="section">
-    <h2>Cortes a Realizar</h2>
-    <div class="input-grid">
-      <label for="cutLength">Longitud (mm):</label>
-      <input type="number" id="cutLength" min="1" placeholder="Ej: 1250">
-      
-      <label for="cutQty">Cantidad:</label>
-      <input type="number" id="cutQty" min="1" value="1">
-
-      <label for="cutTargetBar">Para Barra:</label>
-      <select id="cutTargetBar"><option value="">Corte Global (cualquier barra)</option><option value="Barras - 6600 mm">Barras - 6600 mm</option></select>
-      
-      <button id="addCutBtn">Añadir</button>
     </div>
-    <div id="cutList" class="item-list"></div>
+    <div class="setting-save">
+      <button id="saveSettingsBtn" class="soft-btn">Guardar ajustes</button>
+    </div>
+  </section>
+
+  <div id="bottomTabs" class="tabs" style="display:none">
+    <button class="tab active" data-screen="piecesScreen">Piezas</button>
+    <button class="tab" data-screen="stockScreen">Stock</button>
+    <button class="tab" data-screen="resultsScreen">Resultados</button>
   </div>
 </div>
 
-<div class="button-group">
-  <button id="optimizeAllBtn">Optimizar Todos los Tipos de Barras</button>
-  <button id="exportBtn">Exportar Gráficos a PNG</button>
-</div>
 
-<div id="resultInfo">Añada cortes y haga clic en "Optimizar Todos los Tipos de Barras" para ver los resultados.</div>
-
-<div id="resultsContainer" class="canvas-container"></div>
+  <div id="appModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalText" class="modal-text"></div>
+      <div id="modalFieldWrap" style="display:none">
+        <input id="modalInput" class="setting-input" type="text" inputmode="text" />
+      </div>
+      <div class="modal-actions">
+        <button id="modalCancelBtn" type="button" class="modal-btn secondary">Cancelar</button>
+        <button id="modalOkBtn" type="button" class="modal-btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-  // --- Datos y configuración global ---
-  const bars = new Map(); 
-  const cuts = []; 
-  const cuttingAllowance = 3; 
-  let lastOptimizedBarsData = []; 
-  
-  let editingBarKey = null;
-  
-  // Constantes de diseño SVG
-  const BAR_SVG_FIXED_WIDTH = 1000; 
-  const PADDING_X = 20; 
-  const INNER_WIDTH = BAR_SVG_FIXED_WIDTH - PADDING_X * 2;
-  const BAR_HEIGHT_SVG = 70; 
-  const DIMENSION_OFFSET = 10; 
-  const DIMENSION_HEIGHT = 15; 
-  const BAR_Y_START = 45; 
-  
-  // Altura total calculada para una única barra SVG (incluyendo títulos y cotas)
-  // CORRECCIÓN CLAVE: Reducir esta altura a la mínima necesaria (antes 260)
-  const HEIGHT_PER_BAR = 175; // Altura mínima para contener el título, barra y cotas.
-  
-  // Espacio vertical entre barras en la imagen combinada
-  const VERTICAL_SPACING = 1; 
+(function(){
+  'use strict';
 
-  // --- Referencias DOM (Mantenidas) ---
-  const barNameInput = document.getElementById('barName');
-  const barLengthInput = document.getElementById('barLength');
-  const barQtyInput = document.getElementById('barQty');
-  const addOrUpdateBarBtn = document.getElementById('addOrUpdateBarBtn');
-  const barList = document.getElementById('barList');
+  const STORAGE_KEY = 'cutmaster_projects_v10';
+  const DEFAULT_STOCK_KEY = 'cutmaster_default_stock_v10';
+  const SETTINGS_KEY = 'cutmaster_settings_v10';
 
-  const cutLengthInput = document.getElementById('cutLength');
-  const cutQtyInput = document.getElementById('cutQty');
-  const addCutBtn = document.getElementById('addCutBtn');
-  const cutList = document.getElementById('cutList');
-  const cutTargetBarSelect = document.getElementById('cutTargetBar'); 
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    projects: loadProjects(),
+    defaultStock: loadDefaultStock(),
+    settings: loadSettings(),
+    currentProjectId: null,
+    currentScreen: 'homeScreen',
+    resultTab: 'diagram',
+    highlightPieceKey: '',
+    highlightPieceId: '',
+    highlightMaterialId: ''
+  };
 
-  const optimizeAllBtn = document.getElementById('optimizeAllBtn'); 
-  const exportBtn = document.getElementById('exportBtn');
-  const resultInfo = document.getElementById('resultInfo');
-  const resultsContainer = document.getElementById('resultsContainer');
+  function uid(){ return 'p_' + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
+  function loadProjects(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; }
+  }
+  function saveProjects(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects)); }
+  function loadDefaultStock(){
+    try {
+      const data = JSON.parse(localStorage.getItem(DEFAULT_STOCK_KEY) || 'null');
+      return data || [{ material:'General', stock:[{ length:6000, qty:999 }] }];
+    } catch(e){
+      return [{ material:'General', stock:[{ length:6000, qty:999 }] }];
+    }
+  }
+  function saveDefaultStock(){ localStorage.setItem(DEFAULT_STOCK_KEY, JSON.stringify(state.defaultStock)); }
+  function loadSettings(){
+    try {
+      const data = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {};
+      return {
+        unit: data.unit === 'cm' ? 'cm' : 'mm',
+        kerfMm: Number(data.kerfMm) >= 0 ? Number(data.kerfMm) : 4
+      };
+    } catch(e){
+      return { unit:'mm', kerfMm:4 };
+    }
+  }
+  function saveSettings(){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); }
+  function currentUnit(){ return state.settings.unit || 'mm'; }
+  function currentKerfMm(){ return Number(state.settings.kerfMm) >= 0 ? Number(state.settings.kerfMm) : 4; }
+  function toDisplayLength(mm){
+    const n = Number(mm) || 0;
+    return currentUnit() === 'cm' ? (n / 10) : n;
+  }
+  function fromDisplayLength(value){
+    const n = Number(String(value).replace(',', '.')) || 0;
+    return currentUnit() === 'cm' ? Math.round(n * 10) : Math.round(n);
+  }
+  function formatLength(mm){
+    const v = toDisplayLength(mm);
+    if(currentUnit() === 'cm'){
+      return Number.isInteger(v) ? String(v) : v.toFixed(1).replace(/\.0$/, '');
+    }
+    return String(Math.round(v));
+  }
+  function currentProject(){ return state.projects.find(p => p.id === state.currentProjectId) || null; }
 
-  // Cache para los colores de los cortes
-  const cutColorCache = {};
-
-  // --- Funciones de Utilidad (Mantenidas) ---
-  function generateId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
+  function ensureProjectProgress(project){
+    if(project && (!project.cutProgress || typeof project.cutProgress !== 'object')) project.cutProgress = {};
+    return project && project.cutProgress ? project.cutProgress : {};
+  }
+  function isPieceDone(pieceId){
+    const project = currentProject();
+    if(!project || !pieceId) return false;
+    const progress = ensureProjectProgress(project);
+    return !!progress[pieceId];
+  }
+  function setPieceDone(pieceId, done){
+    const project = currentProject();
+    if(!project || !pieceId) return;
+    const progress = ensureProjectProgress(project);
+    if(done) progress[pieceId] = true;
+    else delete progress[pieceId];
+    saveProjects();
   }
 
-  function validateInput(value, name = 'Valor', min = 1) {
-    if (typeof value === 'string' && value.trim() === '') {
-      alert(`Por favor, introduce un valor para ${name}.`);
-      return false;
-    }
-    if (typeof value === 'number' && (isNaN(value) || value <= 0)) {
-      alert(`Por favor, introduce un valor numérico válido y positivo para ${name} (mínimo ${min}).`);
-      return false;
-    }
-    return true;
+  function showScreen(id){
+    state.currentScreen = id;
+    ['homeScreen','piecesScreen','stockScreen','resultsScreen','settingsScreen'].forEach(screenId => {
+      $(screenId).classList.toggle('active', screenId === id);
+    });
+    const inProject = ['piecesScreen','stockScreen','resultsScreen'].includes(id);
+    $('bottomTabs').style.display = inProject ? 'flex' : 'none';
+    document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === id));
+    updateTopbar();
+    if(id === 'homeScreen') renderProjects();
+    if(id === 'piecesScreen') renderPieces();
+    if(id === 'stockScreen') renderStock();
+    if(id === 'resultsScreen') renderResults();
+  }
+  function updateTopbar(){
+    const project = currentProject();
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9');
+    $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂';
+    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
 
-  function getColorForCut(length) {
-    const key = `${length}`;
-    if (cutColorCache[key]) {
-      return cutColorCache[key];
-    }
-
-    let hash = 0;
-    for (let i = 0; i < key.length; i++) {
-        hash = key.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    const h = hash % 360;
-    const s = 60 + (hash % 20); 
-    const l = 50 + (hash % 10); 
-
-    const color = `hsl(${h}, ${s}%, ${l}%)`;
-    cutColorCache[key] = color;
-    return color;
+  function renderSettings(){
+    if($('unitSelect')) $('unitSelect').value = currentUnit();
+    if($('kerfInput')) $('kerfInput').value = formatLength(currentKerfMm());
   }
 
-  function createSVGElement(name, attributes = {}) {
-    const el = document.createElementNS('http://www.w3.org/2000/svg', name);
-    for (const key in attributes) {
-        el.setAttribute(key, attributes[key]);
-    }
-    return el;
-  }
-  
-  /**
-   * Genera una URL Blob a partir de una cadena SVG.
-   */
-  function getBlobURL(svgString) {
-      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-      return URL.createObjectURL(blob);
-  }
-
-
-  // --- Gestión de Barras en Almacén (Funciones mantenidas) ---
-  addOrUpdateBarBtn.onclick = () => {
-    const name = barNameInput.value.trim();
-    const length = parseInt(barLengthInput.value);
-    const qty = parseInt(barQtyInput.value);
-
-    if (!validateInput(name, 'nombre de barra') || !validateInput(length, 'longitud de barra') || !validateInput(qty, 'cantidad de barras')) return;
-
-    const key = `${name} - ${length} mm`;
-
-    if (editingBarKey) {
-        if (editingBarKey !== key) {
-            bars.delete(editingBarKey);
+  function createProject(name){
+    const safeName = (name || '').trim();
+    if(!safeName){ alert('Escribe un nombre para el proyecto.'); return; }
+    const project = {
+      id: uid(),
+      name: safeName,
+      createdAt: new Date().toISOString(),
+      cutProgress: {},
+      materials: [
+        {
+          id: uid(),
+          name: 'Material 1',
+          profileFace: 40,
+          pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],
+          stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],
+          collapsed: false
         }
-        bars.set(key, { name: name, length: length, qty: qty });
-        editingBarKey = null;
-        addOrUpdateBarBtn.textContent = 'Añadir'; 
-        barNameInput.value = "Barras";
-        barLengthInput.value = "6600";
-        barQtyInput.value = "1";
-    } else {
-        if (bars.has(key)) {
-            const existingBar = bars.get(key);
-            existingBar.qty += qty;
-            bars.set(key, existingBar);
+      ]
+    };
+    state.projects.unshift(project);
+    state.currentProjectId = project.id;
+    saveProjects();
+    $('newProjectInput').value = '';
+    showScreen('piecesScreen');
+  }
+
+
+  function renameProject(projectId){
+    const project = state.projects.find(p => p.id === projectId);
+    if(!project) return;
+    openTextModal({
+      title: 'Cambiar nombre del proyecto',
+      text: 'Escribe el nuevo nombre del proyecto.',
+      value: project.name,
+      placeholder: 'Nombre del proyecto',
+      okText: 'Guardar',
+      onSubmit(value){
+        const safeName = (value || '').trim();
+        if(!safeName) return true;
+        project.name = safeName;
+        saveProjects();
+        renderProjects();
+        updateTopbar();
+      }
+    });
+  }
+
+  function deleteProject(projectId){
+    const project = state.projects.find(p => p.id === projectId);
+    if(!project) return;
+    openConfirmModal({
+      title: 'Borrar proyecto',
+      text: `¿Quieres borrar el proyecto "${project.name}"?`,
+      okText: 'Borrar',
+      danger: true,
+      onConfirm(){
+        state.projects = state.projects.filter(p => p.id !== projectId);
+        if(state.currentProjectId === projectId){
+          state.currentProjectId = null;
+        }
+        saveProjects();
+        renderProjects();
+        if(!state.projects.length || !state.currentProjectId){
+          showScreen('homeScreen');
         } else {
-            bars.set(key, { name: name, length: length, qty: qty });
+          updateTopbar();
         }
-        barQtyInput.value = '1';
+      }
+    });
+  }
+
+  function renderProjects(){
+    const root = $('projectsList');
+    if(!state.projects.length){
+      root.innerHTML = '<div class="project-row"><div class="project-name ghost">Todavía no hay proyectos guardados.</div></div>';
+      return;
     }
-    updateBarList();
-    updateCutTargetBarSelectOptions(); 
-  };
+    root.innerHTML = '';
+    state.projects.forEach(project => {
+      const row = document.createElement('div');
+      row.className = 'project-row';
 
-  function updateBarList() {
-    barList.innerHTML = '';
+      const openBtn = document.createElement('button');
+      openBtn.className = 'project-name';
+      openBtn.textContent = project.name;
+      openBtn.type = 'button';
+      openBtn.addEventListener('click', function(){
+        state.currentProjectId = project.id;
+        showScreen('piecesScreen');
+      });
 
-    bars.forEach((barData, key) => {
-      const div = document.createElement('div');
-      div.className = 'item';
-      div.innerHTML = `
-        <span>${barData.name} - ${barData.length} mm - Cantidad: ${barData.qty}</span>
-        <div class="action-buttons">
-            <button class="edit-btn" data-key="${key}">Editar</button>
-            <button class="remove-btn" data-key="${key}">Eliminar 1</button>
-            <button class="remove-all-btn" data-key="${key}">Eliminar Todas</button>
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'icon-btn ghost';
+      renameBtn.type = 'button';
+      renameBtn.title = 'Renombrar';
+      renameBtn.textContent = '✎';
+      renameBtn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        renameProject(project.id);
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'icon-btn ghost';
+      deleteBtn.type = 'button';
+      deleteBtn.title = 'Borrar';
+      deleteBtn.textContent = '🗑';
+      deleteBtn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        deleteProject(project.id);
+      });
+
+      actions.appendChild(renameBtn);
+      actions.appendChild(deleteBtn);
+      row.appendChild(openBtn);
+      row.appendChild(actions);
+      root.appendChild(row);
+    });
+  }
+
+  function renderPieces(){
+    const project = currentProject();
+    if(!project) return showScreen('homeScreen');
+    ensureProjectProgress(project);
+    const root = $('piecesContent');
+    if(!project.materials.length) project.materials.push({id:uid(), name:'Barra 1', profileFace:40, pieces:[{ id:uid(), length:1000, qty:1, cutType:'recto' }], stock:[{ id:uid(), label:'Barra 1', length:6600, qty:999 }], collapsed:false});
+    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; if(!material.profileFace) material.profileFace = 40; (material.pieces || []).forEach(piece => { if(!piece.cutType) piece.cutType = 'recto'; }); });
+    root.innerHTML = '';
+    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; if(!material.profileFace) material.profileFace = 40; (material.pieces || []).forEach(piece => { if(!piece.cutType) piece.cutType = 'recto'; }); });
+    project.materials.forEach(material => {
+      const wrap = document.createElement('div');
+      wrap.className = 'material-block';
+      wrap.innerHTML = `
+        <div class="material-head">
+          <button class="icon-btn ghost collapse-toggle" type="button" title="Mostrar u ocultar" data-toggle-material="${material.id}">${material.collapsed ? '⌄' : '⌃'}</button>
+          <div class="material-name">${escapeHtml(material.name)}</div>
+          <button class="icon-btn ghost" data-rename-material="${material.id}">✎</button>
+          <button class="icon-btn ghost" data-delete-material="${material.id}">🗑</button>
         </div>
-      `;
-      barList.appendChild(div);
+        <div class="material-body ${material.collapsed ? 'is-collapsed' : ''}">
+          <div class="material-grid-head">
+            <div>Longitud (${currentUnit()})</div>
+            <div>Cantidad</div>
+            <div>Corte</div>
+            <div></div>
+          </div>
+          <div class="entry-list" id="pieces-${material.id}"></div>
+        </div>`;
+      root.appendChild(wrap);
+      const list = wrap.querySelector(`#pieces-${CSS.escape(material.id)}`);
+      if(!material.pieces.length){
+        list.innerHTML = '<div class="empty">Sin piezas todavía.</div>';
+      } else {
+        material.pieces.forEach(piece => list.appendChild(buildEntryRow(material.id, piece, 'piece')));
+      }
     });
   }
 
-  function updateCutTargetBarSelectOptions() {
-    cutTargetBarSelect.innerHTML = '<option value="">Corte Global (cualquier barra)</option>';
-    bars.forEach((barData, key) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = `${barData.name} - ${barData.length} mm`;
-        cutTargetBarSelect.appendChild(option);
-    });
-  }
-
-  // --- Gestión de Cortes y Funcionalidad de Eliminar/Editar (Funciones mantenidas) ---
-  addCutBtn.onclick = () => {
-    const cutLengthValue = cutLengthInput.value;
-    const cutQtyValue = cutQtyInput.value;
-    const targetBarKey = cutTargetBarSelect.value; 
-
-    if (!validateInput(cutLengthValue, 'longitud de corte')) return;
-    if (!validateInput(cutQtyValue, 'cantidad de cortes')) return;
-
-    const length = parseInt(cutLengthValue);
-    const qty = parseInt(cutQtyValue);
-
-    if (!validateInput(length, 'longitud de corte') || !validateInput(qty, 'cantidad de cortes')) return;
-
-    for(let i = 0; i < qty; i++) {
-      cuts.push({ id: generateId(), length: length, targetBarKey: targetBarKey });
-    }
-    updateCutList();
-    cutLengthInput.value = '';
-    cutQtyInput.value = '1';
-    cutTargetBarSelect.value = ''; 
-  };
-
-  function updateCutList() {
-    cutList.innerHTML = '';
-    const counts = {};
-    cuts.forEach(c => {
-      const barInfo = c.targetBarKey ? ` (para ${c.targetBarKey.split(' - ')[0]})` : ' (Global)';
-      const key = `${c.length} mm${barInfo}`;
-      counts[key] = (counts[key] || 0) + 1;
-    });
-
-    for (const key in counts) {
-      const div = document.createElement('div');
-      div.className = 'item';
-      div.innerHTML = `
-        <span>${key} - Cantidad: ${counts[key]}</span>
-        <div class="action-buttons">
-            <button class="remove-btn" data-type="cut" data-key="${key}">Eliminar 1</button>
-            <button class="remove-all-btn" data-type="cut" data-key="${key}">Eliminar Todas</button>
+  function renderStock(){
+    const project = currentProject();
+    if(!project) return showScreen('homeScreen');
+    const root = $('stockContent');
+    root.innerHTML = '';
+    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; });
+    project.materials.forEach(material => {
+      const wrap = document.createElement('div');
+      wrap.className = 'material-block';
+      wrap.innerHTML = `
+        <div class="material-head">
+          <button class="icon-btn ghost collapse-toggle" type="button" title="Mostrar u ocultar" data-toggle-material="${material.id}">${material.collapsed ? '⌄' : '⌃'}</button>
+          <div class="material-name">${escapeHtml(material.name)}</div>
+          <button class="icon-btn ghost" data-copy-default-material="${material.id}">⇢</button>
+          <button class="icon-btn ghost" data-rename-material="${material.id}">✎</button>
+          <button class="icon-btn ghost" data-delete-material="${material.id}">🗑</button>
         </div>
-      `;
-      cutList.appendChild(div);
-    }
+        <div class="material-body ${material.collapsed ? 'is-collapsed' : ''}">
+          <div class="material-grid-head">
+            <div>Nombre</div>
+            <div>Longitud (${currentUnit()})</div>
+            <div>Cantidad</div>
+            <div></div>
+          </div>
+          <div class="entry-list" id="stock-${material.id}"></div>
+          <div class="primary-row-btns" style="margin-top:18px">
+            <button class="primary-btn" data-add-stock="${material.id}">Añadir barra</button>
+          </div>
+        </div>`;
+      root.appendChild(wrap);
+      const list = wrap.querySelector(`#stock-${CSS.escape(material.id)}`);
+      if(!material.stock.length){
+        list.innerHTML = '<div class="empty">Sin stock todavía.</div>';
+      } else {
+        material.stock.forEach(stock => list.appendChild(buildEntryRow(material.id, stock, 'stock')));
+      }
+    });
   }
 
-  document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('remove-btn') && event.target.dataset.type === 'bar') {
-        const key = event.target.dataset.key;
-        const barData = bars.get(key);
-        if (barData && barData.qty > 1) { barData.qty--; bars.set(key, barData); } else { bars.delete(key); }
-        updateBarList();
-        updateCutTargetBarSelectOptions(); 
-    } else if (event.target.classList.contains('remove-all-btn') && event.target.dataset.type === 'bar') { 
-        bars.delete(event.target.dataset.key);
-        updateBarList();
-        updateCutTargetBarSelectOptions(); 
-    } else if (event.target.classList.contains('remove-btn') && event.target.dataset.type === 'cut') {
-        const key = event.target.dataset.key;
-        const match = key.match(/(\d+) mm(?:\s+\(para\s+(.+)\))?/);
-        if (!match) return;
-        const targetLength = parseInt(match[1]);
-        const targetBarNameForCut = match[2] ? `${match[2]} - ${targetLength} mm` : ''; 
-        const index = cuts.findIndex(c => c.length === targetLength && ((c.targetBarKey === '' && targetBarNameForCut === '') || c.targetBarKey === targetBarNameForCut));
-        if (index !== -1) { cuts.splice(index, 1); }
-        updateCutList();
-    } else if (event.target.classList.contains('remove-all-btn') && event.target.dataset.type === 'cut') { 
-        const key = event.target.dataset.key;
-        const match = key.match(/(\d+) mm(?:\s+\(para\s+(.+)\))?/);
-        if (!match) return;
-        const targetLength = parseInt(match[1]);
-        const targetBarNameForCut = match[2] ? `${match[2]} - ${targetLength} mm` : ''; 
-        const newCuts = cuts.filter(c => !(c.length === targetLength && ((c.targetBarKey === '' && targetBarNameForCut === '') || c.targetBarKey === targetBarNameForCut)));
-        cuts.length = 0; 
-        cuts.push(...newCuts); 
-        updateCutList();
-    } else if (event.target.classList.contains('edit-btn')) {
-        const keyToEdit = event.target.dataset.key;
-        const barToEdit = bars.get(keyToEdit);
-        if (barToEdit) {
-            barNameInput.value = barToEdit.name;
-            barLengthInput.value = barToEdit.length;
-            barQtyInput.value = barToEdit.qty;
-            addOrUpdateBarBtn.textContent = 'Guardar Cambios';
-            editingBarKey = keyToEdit;
+  function toggleMaterial(materialId){
+    const project = currentProject();
+    if(!project) return;
+    const material = project.materials.find(m => m.id === materialId);
+    if(!material) return;
+    material.collapsed = !material.collapsed;
+    saveProjects();
+    if(state.currentScreen === 'piecesScreen') renderPieces();
+    if(state.currentScreen === 'stockScreen') renderStock();
+  }
+
+  function buildEntryRow(materialId, entry, type){
+    const row = document.createElement('div');
+    row.className = type === 'piece' ? 'piece-row' : 'stock-row';
+    const fieldsHtml = type === 'piece'
+      ? `
+        <input class="num-input" type="number" min="1" step="1" value="${formatLength(entry.length)}" data-edit-${type}="${materialId}:${entry.id}:length" inputmode="numeric">
+        <input class="num-input" type="number" min="1" step="1" value="${entry.qty}" data-edit-${type}="${materialId}:${entry.id}:qty" inputmode="numeric">
+        <select class="cut-select" data-edit-${type}="${materialId}:${entry.id}:cutType">
+          <option value="recto" ${normalizeCutType(entry.cutType) === 'recto' ? 'selected' : ''}>Recto</option>
+          <option value="45-45" ${normalizeCutType(entry.cutType) === '45-45' ? 'selected' : ''}>45° / 45°</option>
+          <option value="45-recto" ${normalizeCutType(entry.cutType) === '45-recto' ? 'selected' : ''}>45° / Recto</option>
+          <option value="recto-45" ${normalizeCutType(entry.cutType) === 'recto-45' ? 'selected' : ''}>Recto / 45°</option>
+        </select>
+      `
+      : `
+        <input class="entry-name-input" type="text" value="${escapeHtml(entry.label || '')}" placeholder="Barra" data-edit-${type}="${materialId}:${entry.id}:label" inputmode="text">
+        <input class="num-input" type="number" min="1" step="1" value="${formatLength(entry.length)}" data-edit-${type}="${materialId}:${entry.id}:length" inputmode="numeric">
+        <input class="num-input" type="number" min="1" step="1" value="${entry.qty}" data-edit-${type}="${materialId}:${entry.id}:qty" inputmode="numeric">
+      `;
+    row.innerHTML = `
+      <button class="add-inline" data-clone-${type}="${materialId}:${entry.id}">+</button>
+      <div class="entry-grid" style="flex:1;padding-left:0">
+        ${fieldsHtml}
+        <button class="inline-x" data-remove-${type}="${materialId}:${entry.id}" aria-label="Borrar">✕</button>
+      </div>`;
+    return row;
+  }
+
+
+  function getCutSides(cutType){
+    const value = normalizeCutType(cutType);
+    const map = {
+      'recto': ['recto','recto'],
+      '45-45': ['45','45'],
+      '45-recto': ['45','recto'],
+      'recto-45': ['recto','45']
+    };
+    return map[value] || ['recto','recto'];
+  }
+
+  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId){
+    const width = 900;
+    const height = 118;
+    const topY = 18;
+    const bottomY = 68;
+    const centerY = (topY + bottomY) / 2;
+    const leftPad = 16;
+    const usableWidth = width - 32;
+    const endX = leftPad + usableWidth;
+    const barLength = Math.max(1, Number(bar.length) || 1);
+    const faceMm = Math.max(1, Number(profileFace) || 40);
+    const facePx = Math.max(9, (faceMm / barLength) * usableWidth);
+    const totalUsed = bar.pieces.reduce((a,b)=>a+(Number(b.length)||0),0) + Math.max(0, (bar.pieces.length-1)*currentKerfMm());
+    const waste = Math.max(0, barLength - totalUsed);
+    const pieceAreaWidth = usableWidth - ((waste / barLength) * usableWidth);
+
+    function pieceKey(piece){
+      return `${Number(piece.length)||0}`;
+    }
+    function makeRuns(){
+      const runs = [];
+      let i = 0;
+      while(i < bar.pieces.length){
+        const piece = bar.pieces[i];
+        const len = Number(piece.length) || 0;
+        const rawWidth = (len / barLength) * usableWidth;
+        const tiny = len < 180 || rawWidth < 34;
+        if(!tiny){
+          runs.push({ type:'piece', pieces:[piece], rawWidth });
+          i += 1;
+          continue;
         }
+        const group = [piece];
+        let groupWidth = rawWidth;
+        let j = i + 1;
+        while(j < bar.pieces.length){
+          const next = bar.pieces[j];
+          const nextLen = Number(next.length) || 0;
+          const nextWidth = (nextLen / barLength) * usableWidth;
+          const nextTiny = nextLen < 180 || nextWidth < 34;
+          if(!nextTiny) break;
+          group.push(next);
+          groupWidth += nextWidth;
+          j += 1;
+        }
+        if(group.length === 1){
+          runs.push({ type:'piece', pieces:group, rawWidth:groupWidth });
+        } else {
+          runs.push({ type:'group', pieces:group, rawWidth:groupWidth });
+        }
+        i = j;
+      }
+      return runs;
     }
-  });
-
-
-  // --- Lógica de Optimización (Mantenida) ---
-  function optimizeLinearCutsForBarType(selectedBarTypeKey) {
-    const selectedBarData = bars.get(selectedBarTypeKey);
-    if (!selectedBarData || selectedBarData.qty === 0) {
-        return { optimizedBars: [], unplacedCuts: [] };
+    function drawBoundary(x, prevRight, nextLeft){
+      if(prevRight === '45' && nextLeft === '45'){
+        return `<path class="cut-line" d="M ${x - facePx} ${topY} L ${x} ${bottomY} L ${x + facePx} ${topY}" fill="none" stroke="#3e342e" stroke-width="2.5" stroke-linejoin="round" />`;
+      }
+      if(prevRight === '45' && nextLeft === 'recto'){
+        return `<line class="cut-line" x1="${x - facePx}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`;
+      }
+      if(prevRight === 'recto' && nextLeft === '45'){
+        return `<line class="cut-line" x1="${x}" y1="${bottomY}" x2="${x + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`;
+      }
+      return `<line class="cut-line" x1="${x}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`;
     }
 
-    const cutsForOptimization = cuts.filter(c => 
-        c.targetBarKey === '' || c.targetBarKey === selectedBarTypeKey
-    );
+    const runs = makeRuns();
+    const fills = [];
+    const cuts = [];
+    const labels = [];
+    const legend = [];
+    const totalRunWidth = runs.reduce((sum, run) => sum + run.rawWidth, 0);
+    const hitZones = [];
+    const legendMap = new Map();
+    const legendPalette = ['#e7d9c6','#d6e4f0','#d9ead3','#f4cccc','#fff2cc','#ead1dc','#d0e0e3','#fce5cd','#d9d2e9','#cfe2f3'];
 
-    if (cutsForOptimization.length === 0) {
-        return { optimizedBars: [], unplacedCuts: [] };
+    const outer = [
+      `<line x1="${leftPad}" y1="${topY}" x2="${endX}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`,
+      `<line x1="${leftPad}" y1="${bottomY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`
+    ];
+
+    let x = leftPad;
+
+    if(bar.pieces.length){
+      const [firstLeft] = getCutSides(bar.pieces[0].cutType);
+      if(firstLeft === '45'){
+        cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${bottomY}" x2="${leftPad + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`);
+      } else {
+        cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${topY}" x2="${leftPad}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
+      }
+    } else {
+      cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${topY}" x2="${leftPad}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     }
 
-    const barsForOptimization = [];
-    for(let i = 0; i < selectedBarData.qty; i++) {
-        barsForOptimization.push({
-            id: generateId(),
-            name: selectedBarData.name,
-            length: selectedBarData.length
+    runs.forEach((run, runIndex) => {
+      const runWidth = totalRunWidth > 0 ? (run.rawWidth / totalRunWidth) * pieceAreaWidth : 0;
+      const xStart = x;
+      const xEnd = runIndex === runs.length - 1 ? leftPad + pieceAreaWidth : x + runWidth;
+      const innerWidth = Math.max(2, xEnd - xStart);
+
+      if(run.type === 'piece'){
+        const piece = run.pieces[0];
+        const len = Number(piece.length) || 0;
+        const key = pieceKey(piece);
+        const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${len}`);
+        const cutType = normalizeCutType(piece.cutType);
+        const legendKey = `${len}__${cutType}`;
+        let legendEntry = legendMap.get(legendKey);
+        if(!legendEntry){
+          legendEntry = {
+            key: legendKey,
+            length: len,
+            cutType,
+            qty: 0,
+            color: legendPalette[legendMap.size % legendPalette.length]
+          };
+          legendMap.set(legendKey, legendEntry);
+        }
+        legendEntry.qty += 1;
+
+        fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${legendEntry.color}" />`);
+        if(innerWidth >= 34){
+          const size = innerWidth < 95 ? 28 : 40;
+          labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+8}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
+        }
+        hitZones.push({
+          key,
+          pieceId,
+          materialId: String(materialId || ''),
+          leftPct: (xStart / width) * 100,
+          widthPct: (innerWidth / width) * 100,
+          topPct: (topY / height) * 100,
+          heightPct: ((bottomY - topY) / height) * 100
         });
+      } else {
+        let pieceCursor = xStart;
+        const totalPieceLen = run.pieces.reduce((sum, p) => sum + (Number(p.length) || 0), 0) || 1;
+        run.pieces.forEach((piece, pieceIdx) => {
+          const len = Number(piece.length) || 0;
+          const key = pieceKey(piece);
+          const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${pieceIdx}_${len}`);
+          const cutType = normalizeCutType(piece.cutType);
+          const legendKey = `${len}__${cutType}`;
+          let legendEntry = legendMap.get(legendKey);
+          if(!legendEntry){
+            legendEntry = {
+              key: legendKey,
+              length: len,
+              cutType,
+              qty: 0,
+              color: legendPalette[legendMap.size % legendPalette.length]
+            };
+            legendMap.set(legendKey, legendEntry);
+          }
+          legendEntry.qty += 1;
+
+          const pieceWidth = pieceIdx === run.pieces.length - 1
+            ? Math.max(8, (xStart + innerWidth) - pieceCursor)
+            : Math.max(8, innerWidth * (len / totalPieceLen));
+
+          fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${pieceCursor}" y="${topY}" width="${pieceWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${legendEntry.color}" />`);
+
+          hitZones.push({
+            key,
+            pieceId,
+            materialId: String(materialId || ''),
+            leftPct: (pieceCursor / width) * 100,
+            widthPct: (pieceWidth / width) * 100,
+            topPct: ((topY - 10) / height) * 100,
+            heightPct: ((bottomY - topY + 20) / height) * 100
+          });
+
+          if(pieceIdx < run.pieces.length - 1){
+            const px = pieceCursor + pieceWidth;
+            cuts.push(`<path class="cut-line" d="M ${px - Math.min(10, facePx*0.55)} ${topY} L ${px} ${bottomY} L ${px + Math.min(10, facePx*0.55)} ${topY}" fill="none" stroke="#6b645f" stroke-width="1.8" stroke-linejoin="round" />`);
+          }
+
+          pieceCursor += pieceWidth;
+        });
+      }
+
+      const lastPiece = run.pieces[run.pieces.length - 1];
+      const nextRun = runs[runIndex + 1];
+      const [, prevRight] = getCutSides(lastPiece.cutType);
+
+      if(nextRun){
+        const [nextLeft] = getCutSides(nextRun.pieces[0].cutType);
+        cuts.push(drawBoundary(xEnd, prevRight, nextLeft));
+      } else {
+        if(prevRight === '45'){
+          cuts.push(`<line class="cut-line" x1="${xEnd - facePx}" y1="${topY}" x2="${xEnd}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
+        } else {
+          cuts.push(`<line class="cut-line" x1="${xEnd}" y1="${topY}" x2="${xEnd}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
+        }
+      }
+
+      x = xEnd;
+    });
+
+    const wasteStart = leftPad + pieceAreaWidth;
+    if(waste > 0 && endX > wasteStart){
+      fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${Math.max(2, endX - wasteStart)}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
+      const wasteWidth = endX - wasteStart;
+      if(wasteWidth >= 90){
+        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+8}" text-anchor="middle" font-size="30" font-family="Arial, sans-serif" fill="#ffffff">${formatLength(waste)}</text>`);
+      }
+      cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
+    } else {
+      cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     }
 
-    let cutsToPlace = cutsForOptimization.map(c => ({ ...c, placed: false }))
-                          .sort((a, b) => b.length - a.length);
+    const legendItems = Array.from(legendMap.values());
+    const legendCols = 2;
+    const legendRowHeight = 46;
+    const legendTop = 104;
+    const legendColWidth = 430;
+    legendItems.forEach((item, idx) => {
+      const col = idx % legendCols;
+      const row = Math.floor(idx / legendCols);
+      const lx = leftPad + (col * legendColWidth);
+      const ly = legendTop + (row * legendRowHeight);
+      legend.push(`<rect x="${lx}" y="${ly - 22}" width="34" height="34" rx="5" ry="5" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
+      legend.push(`<text x="${lx + 48}" y="${ly + 8}" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f241f">${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);
+    });
+    const totalHeight = 96 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 6 : 0);
 
-    const availableBars = barsForOptimization.map(b => ({
-      id: b.id,
-      name: b.name,
-      originalLength: b.length,
-      remainingLength: b.length,
-      usedCuts: []
-    }));
+    return {
+      width,
+      height: totalHeight,
+      svg: `<svg class="bar-sketch" viewBox="0 0 ${width} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ${index+1}">
+        ${fills.join('')}
+        ${outer.join('')}
+        ${cuts.join('')}
+        ${labels.join('')}
+        ${legend.join('')}
+      </svg>`,
+      hitZones
+    };
+  }
 
-    let unplacedCutsCount = cutsToPlace.length;
-    const usedBarsData = [];
+  function getSelectedPieceCount(pieceKey, materialId){
+    const key = String(pieceKey || '').trim();
+    if(!key) return 0;
+    const result = calculateProject(currentProject() || { materials: [] });
+    return (result.materials || []).reduce((total, mat) => {
+      if(materialId && String(mat.id || '') !== String(materialId)) return total;
+      return total + (mat.bars || []).reduce((sum, bar) => {
+        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key).length;
+      }, 0);
+    }, 0);
+  }
 
-    for (let i = 0; i < cutsToPlace.length; i++) {
-      let currentCut = cutsToPlace[i];
-      if (currentCut.placed) continue;
+  function getSelectedPieceDoneCount(pieceKey, materialId){
+    const key = String(pieceKey || '').trim();
+    if(!key) return 0;
+    const result = calculateProject(currentProject() || { materials: [] });
+    return (result.materials || []).reduce((total, mat) => {
+      if(materialId && String(mat.id || '') !== String(materialId)) return total;
+      return total + (mat.bars || []).reduce((sum, bar) => {
+        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key && isPieceDone(piece.uid)).length;
+      }, 0);
+    }, 0);
+  }
 
-      let placedInExistingBar = false;
 
-      for (let j = 0; j < availableBars.length; j++) {
-        let bar = availableBars[j];
+  function getSelectedPiecesInOrder(pieceKey, materialId){
+    const key = String(pieceKey || '').trim();
+    if(!key) return [];
+    const result = calculateProject(currentProject() || { materials: [] });
+    const items = [];
+    (result.materials || []).forEach((mat, materialIndex) => {
+      if(materialId && String(mat.id || '') !== String(materialId)) return;
+      (mat.bars || []).forEach((bar, barIndex) => {
+        (bar.pieces || []).forEach((piece, pieceIndex) => {
+          if(String(Number(piece.length) || 0) === key){
+            items.push({
+              uid: piece.uid,
+              materialIndex,
+              barIndex,
+              pieceIndex,
+              length: Number(piece.length) || 0
+            });
+          }
+        });
+      });
+    });
+    items.sort((a,b) => a.materialIndex - b.materialIndex || a.barIndex - b.barIndex || a.pieceIndex - b.pieceIndex);
+    return items;
+  }
 
-        const spaceNeeded = bar.usedCuts.length === 0 ? currentCut.length : currentCut.length + cuttingAllowance;
+  function markNextSelectedPiece(){
+    const key = state.highlightPieceKey || '';
+    if(!key) return;
+    const materialId = state.highlightMaterialId || '';
+    const next = getSelectedPiecesInOrder(key, materialId).find(item => !isPieceDone(item.uid));
+    if(!next) return;
+    setPieceDone(next.uid, true);
+    state.highlightPieceId = next.uid;
+    applyPieceHighlight(key);
+  }
 
-        if (bar.remainingLength >= spaceNeeded) {
-          bar.usedCuts.push({
-            id: currentCut.id,
-            originalLength: currentCut.length,
-            length: currentCut.length,
-            startPos: bar.originalLength - bar.remainingLength 
-          });
-          bar.remainingLength -= spaceNeeded;
-          currentCut.placed = true;
-          unplacedCutsCount--;
-          placedInExistingBar = true;
+  function unmarkLastSelectedPiece(){
+    const key = state.highlightPieceKey || '';
+    if(!key) return;
+    const materialId = state.highlightMaterialId || '';
+    const items = getSelectedPiecesInOrder(key, materialId);
+    for(let i = items.length - 1; i >= 0; i--){
+      if(isPieceDone(items[i].uid)){
+        setPieceDone(items[i].uid, false);
+        state.highlightPieceId = items[i].uid;
+        break;
+      }
+    }
+    applyPieceHighlight(key);
+  }
+
+  function resetSelectedPieces(){
+    const key = state.highlightPieceKey || '';
+    if(!key) return;
+    const materialId = state.highlightMaterialId || '';
+    getSelectedPiecesInOrder(key, materialId).forEach(item => setPieceDone(item.uid, false));
+    state.highlightPieceId = '';
+    applyPieceHighlight(key);
+  }
+
+  function ensureSelectionToast(){
+    let toast = document.getElementById('selectionToast');
+    if(toast) return toast;
+    toast = document.createElement('div');
+    toast.id = 'selectionToast';
+    toast.className = 'selection-toast';
+    toast.innerHTML = '<div class="selection-toast-content"><div class="selection-top" id="selectionToastTop"></div><div class="selection-bottom"><div class="selection-pending-wrap"><div class="selection-pending-number" id="selectionToastPending">0</div><div class="selection-pending-label">pend.</div></div><div class="selection-toast-controls"><button type="button" class="selection-count-btn" id="selectionMinusBtn" aria-label="Quitar una cortada">−</button><button type="button" class="selection-count-btn" id="selectionPlusBtn" aria-label="Marcar una cortada">+</button><button type="button" class="selection-toast-btn" id="selectionResetBtn">Reset</button><button type="button" class="selection-toast-btn" id="selectionToastBtn">Cerrar</button></div></div></div>';
+    document.body.appendChild(toast);
+    document.getElementById('selectionToastBtn').addEventListener('click', () => {
+      state.highlightPieceKey = '';
+      state.highlightPieceId = '';
+      state.highlightMaterialId = '';
+      applyPieceHighlight('');
+    }, {passive:true});
+    document.getElementById('selectionPlusBtn').addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      markNextSelectedPiece();
+    }, {passive:false});
+    document.getElementById('selectionMinusBtn').addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      unmarkLastSelectedPiece();
+    }, {passive:false});
+    document.getElementById('selectionResetBtn').addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      resetSelectedPieces();
+    }, {passive:false});
+    return toast;
+  }
+
+  function updateSelectionToast(pieceKey, materialId){
+    const toast = ensureSelectionToast();
+    const topText = document.getElementById('selectionToastTop');
+    const pendingText = document.getElementById('selectionToastPending');
+    if(pieceKey){
+      const qty = getSelectedPieceCount(pieceKey, materialId);
+      const done = getSelectedPieceDoneCount(pieceKey, materialId);
+      const pending = Math.max(0, qty - done);
+      const plural = qty === 1 ? 'pieza' : 'piezas';
+      topText.textContent = `Hay ${qty} ${plural} de ${pieceKey} ${currentUnit()}`;
+      pendingText.textContent = String(pending);
+      toast.classList.add('show');
+    } else {
+      toast.classList.remove('show');
+    }
+  }
+
+  function applyPieceHighlight(pieceKey, materialId){
+    const fills = document.querySelectorAll('.cut-fill[data-piece-id]');
+    const texts = document.querySelectorAll('.cut-text[data-piece-id]');
+    const lines = document.querySelectorAll('.cut-line');
+    const hasSelection = !!pieceKey;
+
+    document.querySelectorAll('.bar-sketch').forEach(svg => svg.classList.toggle('is-filtering', hasSelection));
+
+    fills.forEach(el => {
+      const same = (el.getAttribute('data-piece-key') || '') === pieceKey && (!materialId || (el.getAttribute('data-piece-scope') || '') === materialId);
+      const done = isPieceDone(el.getAttribute('data-piece-id') || '');
+      el.classList.toggle('active', hasSelection && same && !done);
+      el.classList.toggle('done', done);
+      el.classList.toggle('dimmed', hasSelection && !same && !done);
+    });
+
+    texts.forEach(el => {
+      const same = (el.getAttribute('data-piece-key') || '') === pieceKey && (!materialId || (el.getAttribute('data-piece-scope') || '') === materialId);
+      const done = isPieceDone(el.getAttribute('data-piece-id') || '');
+      el.classList.toggle('active', hasSelection && same && !done);
+      el.classList.toggle('done', done);
+      el.classList.toggle('dimmed', hasSelection && !same && !done);
+    });
+
+    lines.forEach(el => {
+      el.classList.toggle('dimmed', hasSelection);
+      el.classList.remove('active');
+    });
+
+    updateSelectionToast(pieceKey, materialId);
+  }
+
+  function bindPieceHighlighting(){
+    const root = document.getElementById('diagramPanel');
+    if(!root) return;
+
+    ensureSelectionToast();
+
+    root.querySelectorAll('.bar-hit-zone[data-piece-key][data-piece-id][data-piece-scope]').forEach(btn => {
+      if(btn._pieceBound) return;
+      btn._pieceBound = true;
+
+      const activateButton = (ev) => {
+        const key = btn.getAttribute('data-piece-key') || '';
+        const pieceId = btn.getAttribute('data-piece-id') || '';
+        const materialId = btn.getAttribute('data-piece-scope') || '';
+        if(!key || !pieceId || !materialId) return;
+
+        if(state.highlightPieceKey !== key || state.highlightMaterialId !== materialId){
+          state.highlightPieceKey = key;
+          state.highlightPieceId = '';
+          state.highlightMaterialId = materialId;
+        } else {
+          setPieceDone(pieceId, !isPieceDone(pieceId));
+          state.highlightPieceId = pieceId;
+        }
+
+        applyPieceHighlight(state.highlightPieceKey, state.highlightMaterialId);
+        if(ev){
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      };
+
+      btn.addEventListener('pointerup', activateButton, {passive:false});
+    });
+
+    root.onclick = (ev) => {
+      const hit = ev.target && ev.target.closest ? ev.target.closest('.bar-hit-zone[data-piece-key]') : null;
+      if(hit) return;
+      const insideSketch = ev.target && ev.target.closest ? ev.target.closest('.bar-sketch-wrap') : null;
+      if(!insideSketch){
+        state.highlightPieceKey = '';
+        state.highlightPieceId = '';
+        state.highlightMaterialId = '';
+        applyPieceHighlight('');
+      }
+    };
+
+    applyPieceHighlight(state.highlightPieceKey || '', state.highlightMaterialId || '');
+  }
+
+  function renderResults(){
+    const project = currentProject();
+    if(!project) return showScreen('homeScreen');
+    ensureProjectProgress(project);
+    const summary = $('resultsSummary');
+    const diagramPanel = $('diagramPanel');
+    const listPanel = $('listPanel');
+    const result = calculateProject(project);
+
+    summary.innerHTML = `<strong>Configuración:</strong> unidad <strong>${currentUnit()}</strong> · ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong>.`;
+
+    if(!result.materials.length){
+      diagramPanel.innerHTML = '<div class="empty">Añade piezas y stock para ver la optimización.</div>';
+      listPanel.innerHTML = '';
+      switchResultTab(state.resultTab);
+      return;
+    }
+
+    diagramPanel.innerHTML = '';
+    listPanel.innerHTML = '';
+
+    result.materials.forEach(mat => {
+      const card = document.createElement('div');
+      card.className = 'diagram-card';
+      let barsHtml = '';
+      if(!mat.bars.length){
+        barsHtml = '<div class="empty">No hay combinación posible con el stock indicado.</div>';
+      } else {
+        barsHtml = mat.bars.map((bar, idx) => {
+          const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id);
+          const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
+          return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head">Barra ${idx+1} · ${bar.length} mm</div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
+        }).join('');
+      }
+      card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
+        
+        ${barsHtml}`;
+      diagramPanel.appendChild(card);
+
+      const listCard = document.createElement('div');
+      listCard.className = 'card';
+      let rows = '';
+      if(mat.cutSummary && mat.cutSummary.length){
+        rows += `<div class="material-list-row"><div><strong>${escapeHtml(mat.name)}</strong><div class="piece-meta">Tipos de corte: ${mat.cutSummary.map(item => `<span class="cut-badge">${cutTypeLabel(item.cutType)} · ${item.qty} ud.</span>`).join(' ')}</div></div></div>`;
+      }
+      if(!mat.stockUsage.length){
+        rows += '<div class="material-list-row"><div>No se ha podido optimizar con el stock actual.</div></div>';
+      } else {
+        rows += mat.stockUsage.map(item => `<div class="material-list-row"><div><strong>${escapeHtml(mat.name)}</strong> · barra ${item.length} mm</div><div>${item.qty} ud.</div></div>`).join('');
+      }
+      listCard.innerHTML = rows;
+      listPanel.appendChild(listCard);
+    });
+
+    switchResultTab(state.resultTab);
+    bindPieceHighlighting();
+  }
+
+  function calculateProject(project){
+    const materials = project.materials.map(material => calculateMaterial(material)).filter(Boolean);
+    return { materials };
+  }
+
+  function calculateMaterial(material){
+    const pieces = [];
+    const cutSummaryMap = new Map();
+    (material.pieces || []).forEach(p => {
+      const len = Number(p.length);
+      const qty = Number(p.qty);
+      const cutType = normalizeCutType(p.cutType);
+      if(len > 0 && qty > 0){
+        cutSummaryMap.set(cutType, (cutSummaryMap.get(cutType) || 0) + qty);
+        for(let i=0;i<qty;i++) pieces.push({ uid:`${p.id}__${i+1}`, length: len, cutType });
+      }
+    });
+
+    const stockList = [];
+    (material.stock || []).forEach(s => {
+      const len = Number(s.length);
+      const qty = Number(s.qty);
+      if(len > 0 && qty > 0){
+        for(let i=0;i<qty;i++) stockList.push(len);
+      }
+    });
+
+    if(!pieces.length && !stockList.length) return null;
+
+    pieces.sort((a,b)=>b.length-a.length);
+    stockList.sort((a,b)=>a-b);
+
+    const bars = [];
+    const usageMap = new Map();
+
+    for(const piece of pieces){
+      const pieceLen = Number(piece.length) || 0;
+      let placed = false;
+
+      for(const bar of bars){
+        const needed = pieceLen + (bar.pieces.length > 0 ? currentKerfMm() : 0);
+        if(bar.remaining >= needed){
+          bar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
+          bar.remaining -= needed;
+          placed = true;
           break;
         }
       }
 
-      if (!placedInExistingBar && unplacedCutsCount > 0) {
-        const newBarIndex = availableBars.findIndex(b => b.usedCuts.length === 0 && b.originalLength >= currentCut.length);
+      if(placed) continue;
 
-        if (newBarIndex !== -1) {
-          let newBar = availableBars[newBarIndex];
-          newBar.usedCuts.push({
-            id: currentCut.id,
-            originalLength: currentCut.length,
-            length: currentCut.length,
-            startPos: 0
-          });
-          newBar.remainingLength -= currentCut.length;
-          currentCut.placed = true;
-          unplacedCutsCount--;
+      let stockIndex = -1;
+      for(let i=0;i<stockList.length;i++){
+        if(stockList[i] >= pieceLen){ stockIndex = i; break; }
+      }
+      if(stockIndex === -1) continue;
+
+      const stockLen = stockList.splice(stockIndex,1)[0];
+      bars.push({ length: stockLen, remaining: stockLen - pieceLen, pieces:[{ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) }] });
+      usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);
+    }
+
+    const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);
+    bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);
+
+    const cutSummary = Array.from(cutSummaryMap.entries()).map(([cutType, qty]) => ({ cutType, qty }));
+    return { id: material.id, name: material.name, profileFace: Number(material.profileFace || 40), bars, stockUsage, cutSummary };
+  }
+
+  function refreshProjectScreens(){
+    renderProjects();
+    renderPieces();
+    renderStock();
+    updateTopbar();
+  }
+
+  function openTextModal(opts){
+    const modal = $('appModal');
+    const input = $('modalInput');
+    $('modalTitle').textContent = opts.title || '';
+    $('modalText').textContent = opts.text || '';
+    $('modalFieldWrap').style.display = 'block';
+    input.value = opts.value || '';
+    input.placeholder = opts.placeholder || '';
+    $('modalOkBtn').textContent = opts.okText || 'Aceptar';
+    $('modalOkBtn').className = 'modal-btn';
+    $('modalCancelBtn').style.display = '';
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    setTimeout(() => { input.focus(); input.select(); }, 30);
+    function close(){
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      $('modalOkBtn').onclick = null;
+      $('modalCancelBtn').onclick = null;
+      modal.onclick = null;
+    }
+    $('modalCancelBtn').onclick = close;
+    modal.onclick = function(ev){ if(ev.target === modal) close(); };
+    $('modalOkBtn').onclick = function(){
+      const value = input.value;
+      const keepOpen = opts.onSubmit ? opts.onSubmit(value, close) : false;
+      if(!keepOpen) close();
+    };
+  }
+
+  function openConfirmModal(opts){
+    const modal = $('appModal');
+    $('modalTitle').textContent = opts.title || '';
+    $('modalText').textContent = opts.text || '';
+    $('modalFieldWrap').style.display = 'none';
+    $('modalOkBtn').textContent = opts.okText || 'Aceptar';
+    $('modalOkBtn').className = 'modal-btn' + (opts.danger ? ' danger' : '');
+    $('modalCancelBtn').textContent = opts.cancelText || 'Cancelar';
+    $('modalCancelBtn').style.display = '';
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    function close(){
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      $('modalOkBtn').onclick = null;
+      $('modalCancelBtn').onclick = null;
+      modal.onclick = null;
+    }
+    $('modalCancelBtn').onclick = close;
+    modal.onclick = function(ev){ if(ev.target === modal) close(); };
+    $('modalOkBtn').onclick = function(){
+      if(opts.onConfirm) opts.onConfirm();
+      close();
+    };
+  }
+
+  function addMaterial(){
+    const project = currentProject();
+    if(!project) return;
+    openTextModal({
+      title: 'Nueva barra',
+      text: 'Escribe el nombre del perfil o material. Ejemplos: marco, hoja, zanca, junquillo.',
+      value: `Barra ${project.materials.length + 1}`,
+      placeholder: 'Nombre de la barra',
+      okText: 'Crear',
+      onSubmit(value){
+        const safe = (value || '').trim() || `Barra ${project.materials.length + 1}`;
+        project.materials.push({ id:uid(), name:safe, profileFace:40, pieces:[{ id:uid(), length:1000, qty:1, cutType:'recto' }], stock:[{ id:uid(), label:'Barra 1', length:6600, qty:999 }] });
+        saveProjects();
+        refreshProjectScreens();
+      }
+    });
+  }
+
+  function addEntry(materialId, type){
+    const project = currentProject(); if(!project) return;
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    const target = type === 'piece' ? material.pieces : material.stock;
+    if(type === 'piece') {
+      target.push({ id:uid(), length:1000, qty:1, cutType:'recto' });
+    } else {
+      target.push({ id:uid(), label:`Barra ${target.length + 1}`, length:6000, qty:1 });
+    }
+    saveProjects();
+    type === 'piece' ? renderPieces() : renderStock();
+  }
+
+  function cloneEntry(materialId, entryId, type){
+    const project = currentProject(); if(!project) return;
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    const target = type === 'piece' ? material.pieces : material.stock;
+    const entry = target.find(e => e.id === entryId);
+    if(!entry) return;
+    target.push(type === 'piece'
+      ? { id:uid(), length:entry.length, qty:entry.qty, cutType:normalizeCutType(entry.cutType) }
+      : { id:uid(), label: entry.label ? entry.label + ' copia' : '', length:entry.length, qty:entry.qty });
+    saveProjects();
+    type === 'piece' ? renderPieces() : renderStock();
+  }
+
+  function removeEntry(materialId, entryId, type){
+    const project = currentProject(); if(!project) return;
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    const key = type === 'piece' ? 'pieces' : 'stock';
+    material[key] = material[key].filter(e => e.id !== entryId);
+    saveProjects();
+    type === 'piece' ? renderPieces() : renderStock();
+  }
+
+  function updateEntry(materialId, entryId, field, value, type){
+    const project = currentProject(); if(!project) return;
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    const target = (type === 'piece' ? material.pieces : material.stock).find(e => e.id === entryId);
+    if(!target) return;
+    if(field === 'length'){
+      target[field] = Math.max(1, fromDisplayLength(value));
+    } else if(field === 'qty'){
+      target[field] = Math.max(1, parseInt(value || '1', 10) || 1);
+    } else if(field === 'label'){
+      target[field] = String(value || '').trimStart();
+    } else if(field === 'cutType'){
+      target[field] = normalizeCutType(value);
+    }
+    saveProjects();
+  }
+
+  function renameMaterial(materialId){
+    const project = currentProject(); if(!project) return;
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    openTextModal({
+      title: 'Cambiar nombre del material',
+      text: 'Pon el nombre que necesitas para identificar el corte.',
+      value: material.name,
+      placeholder: 'Nombre de la barra',
+      okText: 'Guardar',
+      onSubmit(value){
+        const safe = (value || '').trim();
+        if(!safe) return true;
+        material.name = safe;
+        saveProjects();
+        refreshProjectScreens();
+      }
+    });
+  }
+
+  function deleteMaterial(materialId){
+    const project = currentProject(); if(!project) return;
+    if(project.materials.length === 1){
+      openConfirmModal({ title:'No se puede borrar', text:'Debe quedar al menos un material dentro del proyecto.', okText:'Entendido', cancelText:'', onConfirm(){}, danger:false });
+      $('modalCancelBtn').style.display = 'none';
+      return;
+    }
+    const material = project.materials.find(m => m.id === materialId); if(!material) return;
+    openConfirmModal({
+      title: 'Borrar material',
+      text: `Se eliminará "${material.name}" con sus piezas y barras.`,
+      okText: 'Borrar',
+      danger: true,
+      onConfirm(){
+        project.materials = project.materials.filter(m => m.id !== materialId);
+        saveProjects();
+        refreshProjectScreens();
+      }
+    });
+  }
+
+  function applyDefaultStockToProject(){
+    const project = currentProject(); if(!project) return;
+    project.materials.forEach(material => {
+      const match = state.defaultStock.find(d => d.material.toLowerCase() === material.name.toLowerCase()) || state.defaultStock[0];
+      material.stock = (match.stock || []).map(s => ({ id:uid(), length:Number(s.length)||6000, qty:Number(s.qty)||1 }));
+    });
+    saveProjects();
+    renderStock();
+  }
+
+  function saveCurrentAsDefaultStock(){
+    const project = currentProject();
+    if(!project){
+      const length = prompt('Longitud de barra por defecto en mm:', '6000');
+      const qty = prompt('Cantidad por defecto:', '999');
+      if(length === null || qty === null) return;
+      state.defaultStock = [{ material:'General', stock:[{ length:Math.max(1,parseInt(length,10)||6000), qty:Math.max(1,parseInt(qty,10)||1) }] }];
+      saveDefaultStock();
+      alert('Stock por defecto guardado.');
+      return;
+    }
+    state.defaultStock = project.materials.map(m => ({
+      material: m.name,
+      stock: (m.stock || []).map(s => ({ length:Number(s.length)||6000, qty:Number(s.qty)||1 }))
+    }));
+    saveDefaultStock();
+    alert('Se ha guardado el stock por defecto a partir de este proyecto.');
+  }
+
+  function sanitizeImportedProjects(list){
+    if(!Array.isArray(list)) return [];
+    return list.map(project => ({
+      id: project && project.id ? String(project.id) : uid(),
+      name: project && project.name ? String(project.name) : 'Proyecto',
+      createdAt: project && project.createdAt ? String(project.createdAt) : new Date().toISOString(),
+      cutProgress: project && project.cutProgress && typeof project.cutProgress === 'object' ? project.cutProgress : {},
+      materials: Array.isArray(project && project.materials) && project.materials.length ? project.materials.map(material => ({
+        id: material && material.id ? String(material.id) : uid(),
+        name: material && material.name ? String(material.name) : 'Material 1',
+        profileFace: Math.max(1, Number(material && material.profileFace) || 40),
+        collapsed: !!(material && material.collapsed),
+        pieces: Array.isArray(material && material.pieces) && material.pieces.length ? material.pieces.map(piece => ({
+          id: piece && piece.id ? String(piece.id) : uid(),
+          length: Math.max(1, Number(piece && piece.length) || 1000),
+          qty: Math.max(1, parseInt(piece && piece.qty, 10) || 1),
+          cutType: normalizeCutType(piece && piece.cutType)
+        })) : [{ id: uid(), length: 1000, qty: 1, cutType: 'recto' }],
+        stock: Array.isArray(material && material.stock) && material.stock.length ? material.stock.map(stock => ({
+          id: stock && stock.id ? String(stock.id) : uid(),
+          label: stock && stock.label ? String(stock.label) : 'Barra 1',
+          length: Math.max(1, Number(stock && stock.length) || 6600),
+          qty: Math.max(1, parseInt(stock && stock.qty, 10) || 1)
+        })) : [{ id: uid(), label:'Barra 1', length:6600, qty:999 }]
+      })) : [{
+        id: uid(),
+        name: 'Material 1',
+        profileFace: 40,
+        pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],
+        stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],
+        collapsed: false
+      }]
+    }));
+  }
+
+  function sanitizeImportedDefaultStock(list){
+    if(!Array.isArray(list) || !list.length) return [{ material:'General', stock:[{ length:6000, qty:999 }] }];
+    return list.map(item => ({
+      material: item && item.material ? String(item.material) : 'General',
+      stock: Array.isArray(item && item.stock) && item.stock.length ? item.stock.map(stock => ({
+        length: Math.max(1, Number(stock && stock.length) || 6000),
+        qty: Math.max(1, parseInt(stock && stock.qty, 10) || 1)
+      })) : [{ length:6000, qty:999 }]
+    }));
+  }
+
+  async function exportProjects(){
+    const data = {
+      app: 'Cut Master',
+      version: 'v1.8',
+      projects: state.projects,
+      defaultStock: state.defaultStock,
+      settings: state.settings,
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    await shareOrDownloadBlob(blob, safeFileName('cut-master_proyectos', '.json'), 'Proyectos JSON');
+  }
+
+  function triggerImportProjects(){
+    const input = $('importJsonInput');
+    if(!input) return;
+    input.value = '';
+    input.click();
+  }
+
+  function importProjectsFromFile(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){
+      try{
+        const raw = JSON.parse(String(reader.result || ''));
+        const importedProjects = sanitizeImportedProjects(raw && raw.projects);
+        if(!importedProjects.length) throw new Error('El archivo no contiene proyectos válidos.');
+        const importedDefaultStock = sanitizeImportedDefaultStock(raw && raw.defaultStock);
+        const importedSettings = raw && raw.settings && typeof raw.settings === 'object' ? raw.settings : null;
+        openConfirmModal({
+          title: 'Importar proyectos',
+          text: 'Se sustituirán los proyectos guardados actuales por los del archivo JSON.',
+          okText: 'Importar',
+          onConfirm(){
+            state.projects = importedProjects;
+            state.defaultStock = importedDefaultStock;
+            if(importedSettings){
+              state.settings.unit = importedSettings.unit === 'cm' ? 'cm' : 'mm';
+              state.settings.kerfMm = Math.max(0, Number(importedSettings.kerfMm) || 0);
+              saveSettings();
+            }
+            state.currentProjectId = state.projects[0] ? state.projects[0].id : null;
+            saveProjects();
+            saveDefaultStock();
+            renderAll();
+            renderSettings();
+            setExportStatus('JSON importado correctamente.');
+            alert('Proyectos importados correctamente.');
+          }
+        });
+      }catch(err){
+        alert('No se pudo importar el archivo JSON.');
+      }
+    };
+    reader.onerror = function(){
+      alert('No se pudo leer el archivo seleccionado.');
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  function switchResultTab(tab){
+    state.resultTab = tab;
+    document.querySelectorAll('.results-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.resultTab === tab));
+    $('diagramPanel').classList.toggle('active', tab === 'diagram');
+    $('listPanel').classList.toggle('active', tab === 'list');
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  function normalizeCutType(value){
+    const allowed = ['recto','45-45','45-recto','recto-45'];
+    return allowed.includes(value) ? value : 'recto';
+  }
+  function cutTypeLabel(value){
+    const map = {
+      'recto':'Recto',
+      '45-45':'45° / 45°',
+      '45-recto':'45° / Recto',
+      'recto-45':'Recto / 45°'
+    };
+    return map[normalizeCutType(value)] || 'Recto';
+  }
+
+
+
+  function safeFileName(name, ext){
+    const clean = String(name || 'resultado').replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim() || 'resultado';
+    return clean + (ext || '');
+  }
+
+  function setExportStatus(msg, isVisible){
+    const box = $('exportStatus');
+    if(!box) return;
+    box.textContent = msg || '';
+    box.classList.toggle('show', isVisible !== false && !!msg);
+  }
+
+  function showManualDownload(blob, filename, label){
+    const link = $('manualDownloadLink');
+    if(!link) return;
+    try{ if(link.dataset.url) URL.revokeObjectURL(link.dataset.url); }catch(e){}
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.dataset.url = url;
+    link.download = filename;
+    link.textContent = label || ('Descargar ' + filename);
+    link.style.display = 'inline-block';
+  }
+
+  async function shareOrDownloadBlob(blob, filename, titleText){
+    const manualLabel = 'Pulsa aquí si iPhone no mostró la descarga';
+    let file = null;
+    try{ file = new File([blob], filename, { type: blob.type || 'application/octet-stream' }); }catch(e){}
+
+    try{
+      if(file && navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+        await navigator.share({ files:[file], title: titleText || filename });
+        setExportStatus('Se abrió Compartir. Elige “Guardar en Archivos”.');
+        return { method:'share' };
+      }
+    }catch(e1){}
+
+    try{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showManualDownload(blob, filename, manualLabel);
+      setExportStatus('Se intentó descargar el archivo. Si iPhone no mostró nada, usa el enlace manual.');
+      setTimeout(() => { try{ URL.revokeObjectURL(url); }catch(e){} }, 4000);
+      return { method:'download' };
+    }catch(e2){}
+
+    showManualDownload(blob, filename, 'Abrir enlace manual');
+    setExportStatus('No se pudo usar compartir automático. Usa el enlace manual.');
+    return { method:'manual' };
+  }
+
+  function _b64ToBytes(b64){
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for(let i=0;i<len;i++) bytes[i] = bin.charCodeAt(i) & 0xFF;
+    return bytes;
+  }
+  function _pdf_bytes_cp1252(str){
+    const out = [];
+    for(let i=0;i<str.length;i++){
+      const c = str.charCodeAt(i);
+      if(c <= 0xFF){ out.push(c); continue; }
+      if(c === 0x20AC){ out.push(0x80); continue; }
+      const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};
+      out.push(map[c] || 0x3F);
+    }
+    return new Uint8Array(out);
+  }
+  function _pdfTextShow_cp1252(s){
+    const bytes = [];
+    for(let i=0;i<s.length;i++){
+      const cp = s.charCodeAt(i);
+      let b = 0x3F;
+      if(cp <= 0xFF) b = cp;
+      else if(cp === 0x20AC) b = 0x80;
+      else {
+        const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};
+        b = map[cp] || 0x3F;
+      }
+      bytes.push(b);
+    }
+    let hex = '<';
+    for(let j=0;j<bytes.length;j++){
+      let h = bytes[j].toString(16).toUpperCase();
+      if(h.length < 2) h = '0' + h;
+      hex += h;
+    }
+    return hex + '> Tj';
+  }
+  function _pdf_concat(arrs){
+    let total = 0;
+    for(let i=0;i<arrs.length;i++) total += arrs[i].length;
+    const out = new Uint8Array(total);
+    let off = 0;
+    for(let j=0;j<arrs.length;j++){
+      out.set(arrs[j], off);
+      off += arrs[j].length;
+    }
+    return out;
+  }
+  function _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx){
+    const pageW = 595.28, pageH = 841.89;
+    const hasImg = !!(jpegBytes && jpegBytes.length);
+    const pagesN = (contentBytesArr && contentBytesArr.length) ? contentBytesArr.length : 1;
+    const parts = [], offsets = [0];
+    let cursor = 0;
+    function addBytes(u8){ parts.push(u8); cursor += u8.length; }
+    function addStr(s){ addBytes(_pdf_bytes_cp1252(s)); }
+    function mark(n){ offsets[n] = cursor; }
+    addStr('%PDF-1.4\n%' + String.fromCharCode(0xE2,0xE3,0xCF,0xD3) + '\n');
+    const objCatalog = 1, objPages = 2, objFirstPage = 3;
+    const objFont1 = objFirstPage + pagesN, objFont2 = objFirstPage + pagesN + 1;
+    const objImg = hasImg ? (objFirstPage + pagesN + 2) : null;
+    const objFirstContent = hasImg ? (objFirstPage + pagesN + 3) : (objFirstPage + pagesN + 2);
+    const objMax = objFirstContent + pagesN - 1, size = objMax + 1;
+    mark(objCatalog); addStr(objCatalog + ' 0 obj\n<< /Type /Catalog /Pages ' + objPages + ' 0 R >>\nendobj\n');
+    let kids = '';
+    for(let i=0;i<pagesN;i++) kids += (objFirstPage + i) + ' 0 R ';
+    mark(objPages); addStr(objPages + ' 0 obj\n<< /Type /Pages /Kids [' + kids.trim() + '] /Count ' + pagesN + ' >>\nendobj\n');
+    for(let p=0;p<pagesN;p++){
+      const objPage = objFirstPage + p, objContent = objFirstContent + p;
+      let res = '/Resources << /Font << /F1 ' + objFont1 + ' 0 R /F2 ' + objFont2 + ' 0 R >>';
+      if(hasImg) res += ' /XObject << /Im0 ' + objImg + ' 0 R >>';
+      res += ' >>';
+      mark(objPage);
+      addStr(objPage + ' 0 obj\n<< /Type /Page /Parent ' + objPages + ' 0 R /MediaBox [0 0 ' + pageW + ' ' + pageH + '] ' + res + ' /Contents ' + objContent + ' 0 R >>\nendobj\n');
+    }
+    mark(objFont1); addStr(objFont1 + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n');
+    mark(objFont2); addStr(objFont2 + ' 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n');
+    if(hasImg){
+      mark(objImg);
+      addStr(objImg + ' 0 obj\n<< /Type /XObject /Subtype /Image /Name /Im0 /Width ' + imgWpx + ' /Height ' + imgHpx + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n');
+      addBytes(jpegBytes);
+      addStr('\nendstream\nendobj\n');
+    }
+    for(let c=0;c<pagesN;c++){
+      const objC = objFirstContent + c;
+      const bytes = contentBytesArr[c] || new Uint8Array(0);
+      mark(objC);
+      addStr(objC + ' 0 obj\n<< /Length ' + bytes.length + ' >>\nstream\n');
+      addBytes(bytes);
+      addStr('\nendstream\nendobj\n');
+    }
+    const xrefPos = cursor;
+    addStr('xref\n0 ' + size + '\n');
+    addStr('0000000000 65535 f \n');
+    for(let n=1;n<size;n++){
+      let offStr = String(offsets[n] || 0);
+      while(offStr.length < 10) offStr = '0' + offStr;
+      addStr(offStr + ' 00000 n \n');
+    }
+    addStr('trailer\n<< /Size ' + size + ' /Root ' + objCatalog + ' 0 R >>\nstartxref\n' + xrefPos + '\n%%EOF');
+    return _pdf_concat(parts);
+  }
+
+  async function exportSvgToEditablePdf(svgEl, options){
+    options = options || {};
+    if(!svgEl) throw new Error('SVG no encontrado');
+    setExportStatus('Preparando PDF editable...');
+
+    const vb = (svgEl.getAttribute('viewBox') || '0 0 800 1132').split(/\s+/).map(Number);
+    const vbW = vb[2] || 800;
+    const pageW = 595.28, pageH = 841.89, scale = pageW / vbW;
+    const mc = document.createElement('canvas');
+    mc.width = 2048;
+    mc.height = 512;
+    const mctx = mc.getContext('2d');
+    if(!mctx) throw new Error('No se pudo iniciar canvas');
+    mctx.fillStyle = '#ffffff';
+    mctx.fillRect(0, 0, mc.width, mc.height);
+
+    function pdfNum(n){ return (Math.round(n * 1000) / 1000).toString(); }
+    function svgYToPdf(y){ return pageH - (y * scale); }
+    function parseTranslate(tr){
+      if(!tr) return {x:0,y:0};
+      const m = tr.match(/translate\(\s*([-0-9.]+)(?:[ ,]\s*([-0-9.]+))?\s*\)/i);
+      if(!m) return {x:0,y:0};
+      return {x: parseFloat(m[1] || '0') || 0, y: parseFloat(m[2] || '0') || 0};
+    }
+    function getAccumTranslate(el){
+      let tx = 0, ty = 0, cur = el;
+      while(cur && cur.getAttribute){
+        const tr = cur.getAttribute('transform');
+        if(tr){ const t = parseTranslate(tr); tx += t.x; ty += t.y; }
+        cur = cur.parentNode;
+      }
+      return {x:tx,y:ty};
+    }
+    function getStrokeWidth(el, fallback){
+      let sw = parseFloat(el.getAttribute('stroke-width') || '');
+      if(!isFinite(sw)) sw = fallback;
+      return sw;
+    }
+    function measureWidthPt(text, fontCss){ mctx.font = fontCss; return mctx.measureText(text).width / 1.333; }
+    function pathTokens(d){ return d.match(/[a-zA-Z]|-?\d*\.?\d+/g) || []; }
+    function normalizeColorToken(token){
+      return String(token || '').trim().toLowerCase();
+    }
+    function parseColorToRgb(color, fallback){
+      const c = normalizeColorToken(color);
+      if(!c || c === 'none' || c === 'transparent') return null;
+      const names = {
+        black:[0,0,0], white:[1,1,1], red:[1,0,0], green:[0,0.502,0], blue:[0,0,1],
+        gray:[0.502,0.502,0.502], grey:[0.502,0.502,0.502],
+        lightgray:[0.827,0.827,0.827], lightgrey:[0.827,0.827,0.827]
+      };
+      if(names[c]) return names[c];
+      const hex = c.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if(hex){
+        const raw = hex[1];
+        const full = raw.length === 3 ? raw.split('').map(ch => ch + ch).join('') : raw;
+        return [
+          parseInt(full.slice(0,2),16) / 255,
+          parseInt(full.slice(2,4),16) / 255,
+          parseInt(full.slice(4,6),16) / 255
+        ];
+      }
+      const rgb = c.match(/^rgba?\(([^)]+)\)$/i);
+      if(rgb){
+        const parts = rgb[1].split(',').map(v => parseFloat(v.trim()));
+        if(parts.length >= 3) return [
+          Math.max(0, Math.min(255, parts[0])) / 255,
+          Math.max(0, Math.min(255, parts[1])) / 255,
+          Math.max(0, Math.min(255, parts[2])) / 255
+        ];
+      }
+      return fallback || [0,0,0];
+    }
+    function pdfColorCmd(rgb, mode){
+      if(!rgb) return '';
+      return pdfNum(rgb[0]) + ' ' + pdfNum(rgb[1]) + ' ' + pdfNum(rgb[2]) + ' ' + mode + '\n';
+    }
+    function pathToPdf(d, tr){
+      const toks = pathTokens(d);
+      if(!toks.length) return '';
+      let k = 0, cx = 0, cy = 0, sx = 0, sy = 0, out = '';
+      function nextNum(){ return parseFloat(toks[k++]); }
+      while(k < toks.length){
+        const cmd = toks[k++];
+        if(cmd === 'M' || cmd === 'L'){
+          const x = nextNum() + tr.x, y = nextNum() + tr.y; cx = x; cy = y;
+          if(cmd === 'M'){ sx = cx; sy = cy; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' m\n'; }
+          else out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\n';
+        } else if(cmd === 'H'){
+          cx = nextNum() + tr.x; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\n';
+        } else if(cmd === 'V'){
+          cy = nextNum() + tr.y; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\n';
+        } else if(cmd === 'Z' || cmd === 'z'){
+          out += 'h\n'; cx = sx; cy = sy;
+        } else return '';
+      }
+      return out;
+    }
+    function extractLines(s){
+      if(!s) return [];
+      s = String(s).replace(/\r/g,'').replace(/\u2028|\u2029/g,'\n');
+      if(s.indexOf('\n') >= 0){
+        return s.split('\n').map(part => (part || '').replace(/[ \t]+/g,' ').trim()).filter(Boolean);
+      }
+      const one = s.replace(/\s+/g,' ').trim();
+      return one ? [one] : [];
+    }
+
+    function buildPdf(){
+      const vbNow = (svgEl.getAttribute('viewBox') || '0 0 800 1132').split(/\s+/).map(Number);
+      const vbWNow = vbNow[2] || vbW || 800;
+      const vbH = vbNow[3] || 1132;
+      const PAGE_H_SVG = pageH / (pageW / vbWNow);
+      const pages = Math.max(1, Math.ceil(vbH / PAGE_H_SVG));
+      const contents = new Array(pages), preByPage = new Array(pages).fill('');
+      for(let p=0;p<pages;p++) contents[p] = ['q\n','0 0 0 RG\n0 0 0 rg\n'];
+      function svgYToPdfRel(yRel){ return pageH - (yRel * scale); }
+      function pageOfY(yAbs){ let pi = Math.floor((yAbs + 0.0001) / PAGE_H_SVG); if(pi < 0) pi = 0; if(pi >= pages) pi = pages - 1; return pi; }
+      function relY(yAbs,p){ return yAbs - (p * PAGE_H_SVG); }
+
+      const rects = svgEl.querySelectorAll('rect');
+      for(let i=0;i<rects.length;i++){
+        const r = rects[i], tr = getAccumTranslate(r);
+        const xAbs = parseFloat(r.getAttribute('x') || '0') + tr.x;
+        const yAbs = parseFloat(r.getAttribute('y') || '0') + tr.y;
+        const wAbs = parseFloat(r.getAttribute('width') || '0');
+        const hAbs = parseFloat(r.getAttribute('height') || '0');
+        const strokeRgb = parseColorToRgb(r.getAttribute('stroke'));
+        const fillRgb = parseColorToRgb(r.getAttribute('fill'));
+        const p = pageOfY(yAbs), yRel = relY(yAbs,p), sw = getStrokeWidth(r, 0.8) * scale;
+        contents[p].push('q\n');
+        contents[p].push(pdfNum(sw) + ' w\n');
+        if(fillRgb) contents[p].push(pdfColorCmd(fillRgb, 'rg'));
+        if(strokeRgb) contents[p].push(pdfColorCmd(strokeRgb, 'RG'));
+        const rectCmd = pdfNum(xAbs * scale) + ' ' + pdfNum(svgYToPdfRel(yRel) - (hAbs * scale)) + ' ' + pdfNum(wAbs * scale) + ' ' + pdfNum(hAbs * scale) + ' re\n';
+        if(fillRgb && strokeRgb) contents[p].push(rectCmd + 'B\n');
+        else if(fillRgb) contents[p].push(rectCmd + 'f\n');
+        else if(strokeRgb) contents[p].push(rectCmd + 'S\n');
+        contents[p].push('Q\n');
+      }
+
+      const lines = svgEl.querySelectorAll('line');
+      for(let li=0;li<lines.length;li++){
+        const l = lines[li], trl = getAccumTranslate(l);
+        const x1Abs = parseFloat(l.getAttribute('x1') || '0') + trl.x;
+        const y1Abs = parseFloat(l.getAttribute('y1') || '0') + trl.y;
+        const x2Abs = parseFloat(l.getAttribute('x2') || '0') + trl.x;
+        const y2Abs = parseFloat(l.getAttribute('y2') || '0') + trl.y;
+        const p = pageOfY(Math.min(y1Abs, y2Abs));
+        const sw = getStrokeWidth(l,0.8) * scale;
+        const strokeRgb = parseColorToRgb(l.getAttribute('stroke')) || [0,0,0];
+        contents[p].push('q\n');
+        contents[p].push(pdfColorCmd(strokeRgb, 'RG'));
+        contents[p].push(pdfNum(sw) + ' w\n');
+        contents[p].push(pdfNum(x1Abs * scale) + ' ' + pdfNum(svgYToPdfRel(relY(y1Abs,p))) + ' m\n' + pdfNum(x2Abs * scale) + ' ' + pdfNum(svgYToPdfRel(relY(y2Abs,p))) + ' l\nS\nQ\n');
+      }
+
+      const paths = svgEl.querySelectorAll('path');
+      for(let pi=0;pi<paths.length;pi++){
+        const pa = paths[pi], d = pa.getAttribute('d') || '';
+        if(!d) continue;
+        const trp = getAccumTranslate(pa), toks = pathTokens(d);
+        let yFirst = null;
+        for(let tk=0;tk<toks.length;tk++){
+          if(toks[tk] === 'M' || toks[tk] === 'm'){ yFirst = parseFloat(toks[tk+2] || '0') + trp.y; break; }
+        }
+        if(yFirst === null) yFirst = trp.y;
+        const p = pageOfY(yFirst), out = pathToPdf(d, {x: trp.x, y: trp.y - (p * PAGE_H_SVG)});
+        if(out){
+          const strokeRgb = parseColorToRgb(pa.getAttribute('stroke')) || [0,0,0];
+          contents[p].push('q\n');
+          contents[p].push(pdfColorCmd(strokeRgb, 'RG'));
+          contents[p].push(pdfNum(getStrokeWidth(pa,0.8) * scale) + ' w\n');
+          contents[p].push(out + 'S\nQ\n');
         }
       }
-    }
 
-    usedBarsData.push(...availableBars.filter(b => b.usedCuts.length > 0));
-
-    usedBarsData.forEach(bar => {
-      const totalCutLength = bar.usedCuts.reduce((sum, cut) => sum + cut.length, 0);
-      const totalAllowanceUsed = bar.usedCuts.length > 0 ? (bar.usedCuts.length - 1) * cuttingAllowance : 0;
-      const actualUsedLength = totalCutLength + totalAllowanceUsed;
-      
-      bar.utilization = (actualUsedLength / bar.originalLength) * 100;
-      bar.offcut = bar.originalLength - actualUsedLength; 
-      if (bar.offcut < 0) bar.offcut = 0;
-    });
-
-    const remainingCuts = cutsToPlace.filter(c => !c.placed);
-
-    return { optimizedBars: usedBarsData, unplacedCuts: remainingCuts };
-  }
-
-
-  // --- FUNCIÓN: Genera la cadena SVG para una sola barra (incluyendo estilos) ---
-  function generateBarSVGString(barData, barIndex) {
-    const scale = INNER_WIDTH / barData.originalLength; 
-    let svgContent = '';
-    
-    // 1. Definición de estilos dentro del SVG (necesario para la exportación a Canvas)
-    const styleContent = `
-        .bar-background{fill:#f0f0f0;stroke:#2c3e50;stroke-width:1;}
-        .cut-piece{stroke:#000;stroke-width:0.5;}
-        .allowance{fill:#c0392b;stroke:#000;stroke-width:0.5;}
-        .offcut{fill:#e74c3c;stroke:#a33;stroke-width:1;}
-        .offcut-text{fill:#fff;font-size:14px;text-anchor:middle;pointer-events:none;font-weight:bold;}
-        .dim-line{stroke:#000;stroke-width:1;fill:none;}
-        .dim-arrow{stroke:#000;fill:#000;stroke-width:1;}
-        .dim-text{font-size:30px;fill:#333;text-anchor:middle;pointer-events:none;font-weight:bold;}
-    `;
-    svgContent += `<style>${styleContent}</style>`;
-    
-    // 2. Información de la barra (Título)
-    const infoTextY = BAR_Y_START - 5; 
-    const infoText = `Barra ${barIndex + 1}: ${barData.name} (${barData.originalLength} mm) - Aprovechamiento: ${(barData.utilization).toFixed(1)}%`;
-    svgContent += `<text x="${PADDING_X}" y="${infoTextY}" fill="#333" font-size="24px" font-weight="bold">${infoText}</text>`;
-    
-    // 3. Fondo y barra completa
-    svgContent += `<rect x="${PADDING_X}" y="${BAR_Y_START}" width="${INNER_WIDTH}" height="${BAR_HEIGHT_SVG}" class="bar-background"/>`;
-
-    let currentPosPx = 0; 
-    let cutStartPx = PADDING_X; 
-
-    barData.usedCuts.forEach((cut, index) => {
-        const widthPx = cut.length * scale;
-        const color = getColorForCut(cut.originalLength);
-        
-        // Pieza de corte
-        svgContent += `<rect x="${cutStartPx}" y="${BAR_Y_START}" width="${widthPx}" height="${BAR_HEIGHT_SVG}" fill="${color}" class="cut-piece"/>`;
-        
-        // Texto de longitud del corte
-        svgContent += `<text x="${cutStartPx + widthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 8}" fill="#000" font-size="25px" font-weight="bold" text-anchor="middle">${cut.originalLength}</text>`; 
-        
-        currentPosPx += widthPx;
-        cutStartPx += widthPx;
-        
-        if (index < barData.usedCuts.length - 1) { 
-            const allowanceWidthPx = cuttingAllowance * scale;
-            
-            // Margen de corte
-            svgContent += `<rect x="${cutStartPx}" y="${BAR_Y_START}" width="${allowanceWidthPx}" height="${BAR_HEIGHT_SVG}" class="allowance"/>`;
-            
-            // Texto de margen
-            if (allowanceWidthPx > 15) {
-                svgContent += `<text x="${cutStartPx + allowanceWidthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 3}" fill="#fff" font-size="10px" text-anchor="middle">-${cuttingAllowance}mm</text>`;
-            }
-            
-            // Línea de corte
-            svgContent += `<line x1="${cutStartPx}" y1="${BAR_Y_START}" x2="${cutStartPx}" y2="${BAR_Y_START + BAR_HEIGHT_SVG}" stroke="#000" stroke-width="1"/>`;
-
-            currentPosPx += allowanceWidthPx;
-            cutStartPx += allowanceWidthPx; 
+      const texts = svgEl.querySelectorAll('text');
+      for(let ti=0;ti<texts.length;ti++){
+        const t = texts[ti];
+        if(!t.textContent) continue;
+        const styleAttr = (t.getAttribute('style') || '').toLowerCase();
+        const disp = (t.getAttribute('display') || '').toLowerCase();
+        const vis = (t.getAttribute('visibility') || '').toLowerCase();
+        if(disp === 'none' || vis === 'hidden' || styleAttr.indexOf('display:none') >= 0 || styleAttr.indexOf('visibility:hidden') >= 0) continue;
+        const trt = getAccumTranslate(t);
+        const xAbs = parseFloat(t.getAttribute('x') || '0') + trt.x;
+        const yAbs = parseFloat(t.getAttribute('y') || '0') + trt.y;
+        const p = pageOfY(yAbs), yRel = relY(yAbs,p);
+        const style = window.getComputedStyle(t);
+        const fontFamily = (style.fontFamily || t.getAttribute('font-family') || 'Helvetica').split(',')[0].trim();
+        const fontSize = parseFloat(style.fontSize || t.getAttribute('font-size') || '12') || 12;
+        const fontWeight = String(style.fontWeight || t.getAttribute('font-weight') || '400');
+        const bold = fontWeight.indexOf('bold') >= 0 || parseInt(fontWeight, 10) >= 600;
+        const fillRgb = parseColorToRgb(style.fill || t.getAttribute('fill')) || [0,0,0];
+        let fsPt = (fontSize * scale) * 0.75;
+        if(fsPt < 6) fsPt = 6;
+        const ta = (t.getAttribute('text-anchor') || 'start').toLowerCase();
+        const linesArr = extractLines(t.textContent || '');
+        if(!linesArr.length) continue;
+        let lineStep = (fontSize * 1.15) * scale;
+        if(lineStep < fsPt * 1.05) lineStep = fsPt * 1.05;
+        for(let li2=0;li2<linesArr.length;li2++){
+          const sline = String(linesArr[li2] || '');
+          const fontCss = (bold ? 'bold ' : '') + fontSize + 'px ' + fontFamily;
+          const wPt = measureWidthPt(sline, fontCss) * scale;
+          let xAdj = xAbs * scale;
+          if(ta === 'middle') xAdj -= wPt / 2;
+          else if(ta === 'end') xAdj -= wPt;
+          const yPdf = svgYToPdfRel(yRel) - (li2 * lineStep);
+          contents[p].push('BT\n');
+          contents[p].push(pdfColorCmd(fillRgb, 'rg'));
+          contents[p].push('/' + (bold ? 'F2' : 'F1') + ' ' + pdfNum(fsPt) + ' Tf\n');
+          contents[p].push(pdfNum(xAdj) + ' ' + pdfNum(yPdf) + ' Td\n');
+          contents[p].push(_pdfTextShow_cp1252(sline) + '\n');
+          contents[p].push('ET\n');
         }
-    });
-
-    // Desperdicio (Offcut)
-    const offcutWidthPx = barData.offcut * scale;
-    const offcutStartX = PADDING_X + INNER_WIDTH - offcutWidthPx;
-    
-    svgContent += `<rect x="${offcutStartX}" y="${BAR_Y_START}" width="${offcutWidthPx}" height="${BAR_HEIGHT_SVG}" class="offcut"/>`;
-    
-    // Texto de desperdicio
-    if (barData.offcut > 0 && offcutWidthPx > 20) { 
-        svgContent += `<text x="${offcutStartX + offcutWidthPx / 2}" y="${BAR_Y_START + BAR_HEIGHT_SVG / 2 + 3}" class="offcut-text">${barData.offcut.toFixed(0)} mm</text>`;
+      }
+      const contentBytesArr = [];
+      for(let p2=0;p2<pages;p2++) contentBytesArr.push(_pdf_bytes_cp1252((preByPage[p2] || '') + contents[p2].join('')));
+      return _pdf_buildA4VectorPDF_MULTI(contentBytesArr, null, 0, 0);
     }
 
-    // Cota de dimensión total
-    const totalDimY = BAR_Y_START + BAR_HEIGHT_SVG + DIMENSION_OFFSET;
-    const arrowSize = 4;
-    const textOffset = 35;
-    
-    // Línea de cota
-    svgContent += `<line x1="${PADDING_X}" y1="${totalDimY}" x2="${PADDING_X + INNER_WIDTH}" y2="${totalDimY}" class="dim-line"/>`;
-    // Flechas
-    svgContent += `<polygon points="${PADDING_X},${totalDimY} ${PADDING_X + arrowSize},${totalDimY - arrowSize} ${PADDING_X + arrowSize},${totalDimY + arrowSize}" class="dim-arrow"/>`;
-    svgContent += `<polygon points="${PADDING_X + INNER_WIDTH},${totalDimY} ${PADDING_X + INNER_WIDTH - arrowSize},${totalDimY - arrowSize} ${PADDING_X + INNER_WIDTH - arrowSize},${totalDimY + arrowSize}" class="dim-arrow"/>`;
-
-    // Texto de cota
-    const textY = totalDimY + textOffset;
-    svgContent += `<text x="${(PADDING_X + PADDING_X + INNER_WIDTH) / 2}" y="${textY}" class="dim-text">Total: ${barData.originalLength} mm</text>`;
-
-    // Se envuelve el contenido en el SVG padre con dimensiones fijas
-    const svgWrapper = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${BAR_SVG_FIXED_WIDTH} ${HEIGHT_PER_BAR}" width="${BAR_SVG_FIXED_WIDTH}" height="${HEIGHT_PER_BAR}">
-        ${svgContent}
-    </svg>`;
-
-    return svgWrapper;
-}
-
-
-  // --- Funciones de Dibujo en SVG (Mantenidas) ---
-
-  function drawBarOnSVG(barData, barIndex) {
-    const barWrapperDiv = document.createElement('div');
-    barWrapperDiv.className = 'bar-svg-wrapper';
-    
-    const infoHTML = `
-        <div class="bar-info">
-            <strong>Barra ${barIndex + 1}:</strong> ${barData.name} (${barData.originalLength} mm) | 
-            Aprovechamiento: <strong>${(barData.utilization).toFixed(1)}%</strong> | 
-            Desperdicio: ${barData.offcut.toFixed(0)} mm
-        </div>
-    `;
-    barWrapperDiv.innerHTML = infoHTML;
-
-    // Generar el SVG string y convertirlo a elemento DOM para la visualización en pantalla
-    const svgString = generateBarSVGString(barData, barIndex);
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-    const svgElement = svgDoc.documentElement;
-    svgElement.classList.add('bar-svg');
-    svgElement.removeAttribute('width'); 
-    svgElement.removeAttribute('height'); // Para que el CSS controle el tamaño
-    
-    barWrapperDiv.appendChild(svgElement);
-    return barWrapperDiv;
+    const pdfBytes = buildPdf();
+    const pdfBlob = new Blob([pdfBytes], { type:'application/pdf' });
+    const filename = safeFileName(options.filename || 'resultado_corte', '.pdf');
+    await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Resultado PDF');
+    return { blob: pdfBlob, filename };
   }
+  function buildExportDiagramSvg(){
+    const project = currentProject();
+    if(!project) return null;
+    const result = calculateProject(project);
+    if(!result.materials.length) return null;
 
-  function drawResultSVG(allOptimizedResults) { 
-    resultsContainer.innerHTML = ''; 
-    lastOptimizedBarsData = []; 
+    const width = 1120;
+    const pagePadX = 28;
+    const contentX = 190;
+    const contentWidth = 900;
+    const labelX = 34;
 
-    if (allOptimizedResults.length === 0) {
-      resultInfo.textContent = 'No se encontraron optimizaciones para los tipos de barras disponibles.';
-      return;
-    }
+    let y = 32;
+    const parts = [];
 
-    let totalBarsOptimized = 0;
-    let totalGroupsCreated = 0;
+    parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
+    y += 34;
 
-    allOptimizedResults.forEach(resultForBarType => {
-        const { barTypeName, optimizedBars, unplacedCuts } = resultForBarType;
+    result.materials.forEach((mat) => {
+      y += 18;
+      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
+      y += 34;
 
-        if (optimizedBars.length === 0) {
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'result-group-info';
-            infoDiv.style.padding = '10px';
-            infoDiv.style.marginTop = '15px';
-            infoDiv.style.border = '1px dashed #ccc';
-            infoDiv.style.borderRadius = '5px';
-            infoDiv.textContent = `No se pudieron optimizar cortes para la barra: ${barTypeName}. No hay cortes asignados o suficientes barras.`;
-            resultsContainer.appendChild(infoDiv);
-            return;
-        }
-
-        totalBarsOptimized += optimizedBars.length;
-        totalGroupsCreated++;
-
-        lastOptimizedBarsData.push(...optimizedBars);
-
-        const groupWrapper = document.createElement('div');
-        groupWrapper.className = 'canvas-group-wrapper';
-        groupWrapper.innerHTML = `<h3>Optimización para: ${barTypeName}</h3>`;
-        
-        const svgBarContainer = document.createElement('div');
-        svgBarContainer.className = 'svg-bar-container';
-
-        optimizedBars.forEach((bar, barIdx) => {
-            // Se usa el índice global de todas las barras optimizadas
-            const globalBarIndex = lastOptimizedBarsData.findIndex(d => d.id === bar.id); 
-            const barSVGWrapper = drawBarOnSVG(bar, globalBarIndex);
-            svgBarContainer.appendChild(barSVGWrapper);
-        });
-        
-        groupWrapper.appendChild(svgBarContainer);
-        
-        // ... Lógica de Leyenda y mensajes de cortes no colocados (Mantenida)
-        const groupUniqueCuts = {}; 
-        optimizedBars.forEach(bar => {
-            bar.usedCuts.forEach(cut => {
-                const key = `${cut.originalLength} mm`;
-                if (!groupUniqueCuts[key]) {
-                    groupUniqueCuts[key] = {
-                        color: getColorForCut(cut.originalLength),
-                        dimensions: key
-                    };
-                }
-            });
-        });
-
-        let groupLegendHTML = '<strong>Leyenda de Cortes:</strong>';
-        
-        const sortedLegendKeys = Object.keys(groupUniqueCuts).sort((a, b) => {
-            const numA = parseInt(a);
-            const numB = parseInt(b);
-            if (!isNaN(numA) && !isNaN(numB)) {
-                return numA - numB;
-            }
-            return a.localeCompare(b);
-        });
-
-
-        sortedLegendKeys.forEach(key => {
-            const item = groupUniqueCuts[key];
-            groupLegendHTML += `
-                <div class="legend-item">
-                    <div class="legend-color-box" style="background-color: ${item.color};"></div>
-                    <span>${item.dimensions}</span>
-                </div>
-            `;
-        });
-        
-        const groupLegendDiv = document.createElement('div');
-        groupLegendDiv.className = 'legend';
-        groupLegendDiv.innerHTML = groupLegendHTML;
-        groupWrapper.appendChild(groupLegendDiv);
-
-
-        resultsContainer.appendChild(groupWrapper);
-
-        if (unplacedCuts.length > 0) {
-            const remainingCutsMap = {};
-            unplacedCuts.forEach(c => {
-                const key = `${c.length} mm`;
-                remainingCutsMap[key] = (remainingCutsMap[key] || 0) + 1;
-            });
-
-            let remainingMessage = `¡Atención! Para la barra "${barTypeName}", los siguientes cortes no pudieron ser colocados:\n`;
-            for (const key in remainingCutsMap) {
-                remainingMessage += `- ${key}: ${remainingCutsMap[key]} unidad(es)\n`;
-            }
-            const alertDiv = document.createElement('div');
-            alertDiv.style.color = '#dc3545';
-            alertDiv.style.fontWeight = 'bold';
-            alertDiv.style.padding = '10px';
-            alertDiv.style.marginTop = '10px';
-            alertDiv.style.border = '1px solid #dc3545';
-            alertDiv.style.borderRadius = '4px';
-            alertDiv.style.backgroundColor = '#f8d7da';
-            alertDiv.style.whiteSpace = 'pre-wrap';
-            alertDiv.textContent = remainingMessage;
-            groupWrapper.appendChild(alertDiv);
-        }
-    });
-
-    if (totalBarsOptimized > 0) {
-        resultInfo.textContent = `Se optimizaron y utilizaron ${totalBarsOptimized} barra(s) en total, distribuidas en ${totalGroupsCreated} grupo(s) de tipos de barras.`;
-    } else {
-        resultInfo.textContent = 'No se pudo generar ninguna optimización. Por favor, asegúrese de tener barras en almacén y cortes para realizar.';
-    }
-  }
-
-  // --- Evento de Optimizar Todos (Mantenido) ---
-  optimizeAllBtn.onclick = () => {
-    resultsContainer.innerHTML = ''; 
-    lastOptimizedBarsData = []; 
-
-    if (bars.size === 0) {
-        alert('Por favor, añada barras en almacén antes de intentar optimizar.');
-        resultInfo.textContent = 'Añada barras en almacén para poder optimizar.';
+      if(!mat.bars.length){
+        y += 18;
+        parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2f241f">No hay combinación posible con el stock indicado.</text>');
+        y += 30;
         return;
-    }
-    if (cuts.length === 0) {
-        alert('Por favor, añada cortes a realizar antes de intentar optimizar.');
-        resultInfo.textContent = 'Añada cortes a realizar para poder optimizar.';
-        return;
-    }
+      }
 
-    const allOptimizedResults = [];
-    bars.forEach((barData, barKey) => {
-        const { optimizedBars, unplacedCuts } = optimizeLinearCutsForBarType(barKey);
-        allOptimizedResults.push({
-            barTypeName: barKey,
-            optimizedBars: optimizedBars,
-            unplacedCuts: unplacedCuts
-        });
+      mat.bars.forEach((bar, idx) => {
+        y += 26;
+        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id);
+        const sketchInner = sketchPack.svg
+          .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
+          .replace('</svg>', '');
+
+        const headY = y;
+        const sketchY = headY + 22;
+        const qtyY = sketchY + 42;
+
+        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + ' · ' + escapeHtml(String(bar.length)) + ' mm</text>');
+        parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="500" fill="#2f241f">1x</text>');
+        parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
+
+        y = sketchY + sketchPack.height + 36;
+      });
     });
-    
-    drawResultSVG(allOptimizedResults); 
-  };
 
-  // --- MÉTODO DE EXPORTACIÓN (Espaciado Mínimo) ---
-  exportBtn.onclick = () => {
-    if (lastOptimizedBarsData.length === 0) {
-      alert('Primero realiza una optimización para generar gráficos a exportar.');
-      return;
-    }
+    const height = Math.max(700, Math.ceil(y + 24));
+    const exportStyle = '<style>' +
+      '.cut-fill{fill:#dfd7cf;stroke:none;}' +
+      '.waste-fill{fill:#8f8f8f;stroke:none;}' +
+      '.cut-text{fill:#2f241f;font-family:Arial,sans-serif;}' +
+      '.bar-outline{fill:none;stroke:#433630;stroke-width:2.2;}' +
+      '.cut-line{stroke:#433630;stroke-width:2.2;}' +
+      '</style>';
+    parts.unshift('<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>');
+    parts.unshift(exportStyle);
+    const svg = '<svg id="exportResultSvg" viewBox="0 0 ' + width + ' ' + height + '" width="' + width + '" height="' + height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Resultado de corte">' + parts.join('') + '</svg>';
+    return { svg, width, height, projectName: project.name };
+  }
 
-    const totalBars = lastOptimizedBarsData.length;
-    
-    // 1. Calcular el tamaño del Canvas final
-    // Altura total: (número de barras * altura de cada barra) + (espacios entre barras) + margen
-    const totalHeight = (totalBars * HEIGHT_PER_BAR) + ((totalBars - 1) * VERTICAL_SPACING) + 20; 
+  async function exportCurrentResultsToPng(){
+    const pack = buildExportDiagramSvg();
+    if(!pack) throw new Error('No hay resultados para exportar');
+    setExportStatus('Preparando PNG...');
+    const img = new Image();
+    img.decoding = 'sync';
+    img.crossOrigin = 'anonymous';
+    const loaded = new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('No se pudo cargar el SVG para PNG'));
+    });
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(pack.svg);
+    await loaded;
+
     const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = BAR_SVG_FIXED_WIDTH;
-    canvas.height = totalHeight;
-    context.fillStyle = '#ffffff'; // Fondo blanco
-    context.fillRect(0, 0, BAR_SVG_FIXED_WIDTH, totalHeight); 
+    const scale = 2;
+    canvas.width = Math.round(pack.width * scale);
+    canvas.height = Math.round(pack.height * scale);
+    const ctx = canvas.getContext('2d');
+    if(!ctx) throw new Error('No se pudo iniciar canvas');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    let currentY = 10; 
-    const loadPromises = [];
-
-    // 2. Iterar y dibujar cada barra SVG en el Canvas
-    lastOptimizedBarsData.forEach((barData, idx) => {
-        // Usamos la nueva función para obtener el SVG de la barra
-        const svgString = generateBarSVGString(barData, idx);
-        const blobUrl = getBlobURL(svgString);
-
-        const promise = new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous'; 
-
-            img.onload = function() {
-                try {
-                    // Dibujar el SVG de la barra en la posición Y actual
-                    context.drawImage(img, 0, currentY, BAR_SVG_FIXED_WIDTH, HEIGHT_PER_BAR);
-                    currentY += HEIGHT_PER_BAR + VERTICAL_SPACING; // Mover Y para la siguiente barra
-                    resolve(true);
-                } catch (e) {
-                    reject(`Error al dibujar barra ${idx + 1} en Canvas: ${e.message}`);
-                } finally {
-                    URL.revokeObjectURL(blobUrl);
-                }
-            };
-            
-            img.onerror = function(err) {
-                URL.revokeObjectURL(blobUrl);
-                reject(`Error al cargar la fuente SVG para barra ${idx + 1}.`);
-            }
-
-            img.src = blobUrl;
-        });
-
-        loadPromises.push(promise);
-    });
-
-    // 3. Esperar a que todas las imágenes se dibujen y exportar el Canvas
-    Promise.all(loadPromises).then(() => {
-        const dataURL = canvas.toDataURL('image/png'); // Generar el PNG
-        
-        // Abrir en nueva pestaña (método compatible con iOS)
-        const win = window.open(dataURL, '_blank');
-
-        if (!win) {
-            alert('Falló la exportación. El navegador bloqueó la ventana emergente. Desactiva el bloqueador e inténtalo de nuevo.');
-        } else {
-            alert('¡Exportación exitosa! Se abrió una nueva pestaña con la **imagen combinada**. Por favor, **mantén pulsada la imagen** para guardarla en tu dispositivo.');
-        }
-    }).catch(error => {
-        console.error("Error en Promise.all:", error);
-        alert(`Ocurrió un error al combinar los gráficos: ${error}`);
-    });
-  };
+    let pngBlob = null;
+    if(canvas.toBlob){
+      pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    }
+    if(!pngBlob){
+      const dataUrl = canvas.toDataURL('image/png');
+      pngBlob = await (await fetch(dataUrl)).blob();
+    }
+    if(!pngBlob) throw new Error('No se pudo generar el PNG');
+    await shareOrDownloadBlob(pngBlob, safeFileName(pack.projectName + '_resultado_corte', '.png'), 'Resultado PNG');
+  }
+  async function exportCurrentResultsToPdf(){
+    const pack = buildExportDiagramSvg();
+    if(!pack) throw new Error('No hay resultados para exportar');
+    const host = document.createElement('div');
+    host.style.position = 'fixed';
+    host.style.left = '-99999px';
+    host.style.top = '0';
+    host.style.opacity = '0';
+    host.style.pointerEvents = 'none';
+    host.innerHTML = pack.svg;
+    document.body.appendChild(host);
+    try{
+      const svgEl = host.querySelector('svg');
+      await exportSvgToEditablePdf(svgEl, { filename: pack.projectName + '_resultado_corte' });
+    } finally {
+      host.remove();
+    }
+  }
 
 
-  // --- Inicialización (Mantenida) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    barNameInput.value = "Barras";
-    barLengthInput.value = "6600";
-    barQtyInput.value = "999";
-
-    const defaultBarName = barNameInput.value;
-    const defaultBarLength = parseInt(barLengthInput.value);
-    const defaultBarQty = parseInt(barQtyInput.value);
-    const defaultKey = `${defaultBarName} - ${defaultBarLength} mm`;
-
-    bars.set(defaultKey, { name: defaultBarName, length: defaultBarLength, qty: defaultBarQty });
-    
-    updateBarList();
-    updateCutTargetBarSelectOptions(); 
-
-    resultInfo.textContent = 'Añada cortes y haga clic en "Optimizar Todos los Tipos de Barras" para ver los resultados.';
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const modal = $('appModal');
+    if(modal && modal.classList.contains('active') && document.activeElement === $('modalInput')){
+      e.preventDefault();
+      $('modalOkBtn').click();
+    }
   });
-</script>
 
+  const importJsonInput = $('importJsonInput');
+  if(importJsonInput){
+    importJsonInput.addEventListener('change', function(ev){
+      const file = ev.target && ev.target.files ? ev.target.files[0] : null;
+      if(file) importProjectsFromFile(file);
+    }, { passive:true });
+  }
+
+  document.addEventListener('click', function(e){
+    const t = e.target.closest('button');
+    if(!t) return;
+
+    if(t.id === 'createProjectBtn'){ createProject($('newProjectInput').value); return; }
+    if(t.id === 'loadProjectBtn'){ const first = state.projects[0]; if(first){ state.currentProjectId = first.id; showScreen('piecesScreen'); } return; }
+    if(t.id === 'addLinearBtn'){ addMaterial(); return; }
+    if(t.id === 'applyDefaultStockBtn'){ applyDefaultStockToProject(); return; }
+    if(t.id === 'defaultStockBtn'){ saveCurrentAsDefaultStock(); return; }
+    if(t.id === 'exportJsonBtn'){ exportProjects(); return; }
+    if(t.id === 'importJsonBtn'){ triggerImportProjects(); return; }
+    if(t.id === 'legacyBackBtn'){
+      if(window.parent && typeof window.parent.volverMenu === 'function'){
+        window.parent.volverMenu();
+      }else{
+        window.location.href = 'index.html';
+      }
+      return;
+    }
+    if(t.id === 'leftTopBtn'){
+      showScreen('homeScreen');
+      return;
+    }
+    if(t.id === 'rightTopBtn'){ showScreen('settingsScreen'); return; }
+
+    if(t.dataset.screen){ showScreen(t.dataset.screen); return; }
+    if(t.dataset.resultTab){ switchResultTab(t.dataset.resultTab); return; }
+    if(t.dataset.toggleMaterial){ toggleMaterial(t.dataset.toggleMaterial); return; }
+    if(t.dataset.addPiece){ addEntry(t.dataset.addPiece, 'piece'); return; }
+    if(t.dataset.addStock){ addEntry(t.dataset.addStock, 'stock'); return; }
+    if(t.dataset.clonePiece){ const [m,eid] = t.dataset.clonePiece.split(':'); cloneEntry(m,eid,'piece'); return; }
+    if(t.dataset.cloneStock){ const [m,eid] = t.dataset.cloneStock.split(':'); cloneEntry(m,eid,'stock'); return; }
+    if(t.dataset.removePiece){ const [m,eid] = t.dataset.removePiece.split(':'); removeEntry(m,eid,'piece'); return; }
+    if(t.dataset.removeStock){ const [m,eid] = t.dataset.removeStock.split(':'); removeEntry(m,eid,'stock'); return; }
+    if(t.dataset.renameMaterial){ renameMaterial(t.dataset.renameMaterial); return; }
+    if(t.dataset.deleteMaterial){ deleteMaterial(t.dataset.deleteMaterial); return; }
+    if(t.dataset.copyDefaultMaterial){
+      const project = currentProject(); if(!project) return;
+      const material = project.materials.find(m => m.id === t.dataset.copyDefaultMaterial); if(!material) return;
+      const match = state.defaultStock.find(d => d.material.toLowerCase() === material.name.toLowerCase()) || state.defaultStock[0];
+      material.stock = (match.stock || []).map(s => ({ id:uid(), length:Number(s.length)||6000, qty:Number(s.qty)||1 }));
+      saveProjects(); renderStock();
+      return;
+    }
+  }, { passive:true });
+
+  document.addEventListener('input', function(e){
+    const el = e.target;
+    if(el.dataset.editPiece){
+      const [m,eid,field] = el.dataset.editPiece.split(':');
+      updateEntry(m,eid,field,el.value,'piece');
+      return;
+    }
+    if(el.dataset.editStock){
+      const [m,eid,field] = el.dataset.editStock.split(':');
+      updateEntry(m,eid,field,el.value,'stock');
+      return;
+    }
+  }, { passive:true });
+
+  $('saveSettingsBtn').addEventListener('click', function(){
+    state.settings.unit = $('unitSelect').value === 'cm' ? 'cm' : 'mm';
+    state.settings.kerfMm = Math.max(0, fromDisplayLength($('kerfInput').value || '0'));
+    saveSettings();
+    renderPieces();
+    renderStock();
+    if(state.currentScreen === 'resultsScreen') renderResults();
+    alert('Ajustes guardados.');
+  });
+
+  $('newProjectInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); createProject(this.value); }
+  });
+
+  $('exportPngBtn').addEventListener('click', function(ev){
+    ev.preventDefault();
+    exportCurrentResultsToPng().catch(function(err){
+      setExportStatus('Error al exportar PNG: ' + (err && err.message ? err.message : err));
+    });
+  }, { passive:false });
+
+  $('exportPdfBtn').addEventListener('click', function(ev){
+    ev.preventDefault();
+    exportCurrentResultsToPdf().catch(function(err){
+      setExportStatus('Error al exportar PDF editable: ' + (err && err.message ? err.message : err));
+    });
+  }, { passive:false });
+
+  renderProjects();
+  renderSettings();
+  updateTopbar();
+})();
+</script>
 </body>
 </html>
