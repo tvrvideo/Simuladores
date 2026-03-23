@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v1.9</title>
+  <title>Cut Máster v1.9.2</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -28,7 +28,7 @@
     .topbar{position:sticky;top:0;z-index:20;height:34px;background:#d7e6d1;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #c8d7c3}
     .topbar .title{font-size:18px;font-weight:700;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
     .icon-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .nav-home-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+    .nav-home-btn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;margin-left:88px;border:2px solid rgba(47,36,31,.22);background:rgba(255,255,255,.30);box-shadow:0 1px 2px rgba(0,0,0,.06)}
     .icon-btn:active,.primary-btn:active,.soft-btn:active,.tab:active{transform:scale(.985)}
     .screen{display:none;padding:10px 12px 74px}
     #resultsScreen{padding-bottom:170px}
@@ -176,7 +176,7 @@
       .btn-menu{top:8px;left:8px;padding:9px 13px;font-size:.85rem}
       .topbar{height:38px}
       .topbar .title{font-size:17px}
-      .nav-home-btn{width:28px;height:28px;font-size:18px}
+      .nav-home-btn{width:34px;height:34px;font-size:22px;margin-left:86px;border-radius:10px}
       .hero{font-size:17px;margin-bottom:18px}
       .project-create{align-items:center}
       .input{font-size:17px}
@@ -204,7 +204,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v1.9</div>
+    <div id="topTitle" class="title">Cut Máster v1.9.2</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -421,9 +421,9 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9');
-    $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂';
-    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9.2');
+    $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
+    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio'); $('leftTopBtn').title = state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio';
   }
 
   function renderSettings(){
