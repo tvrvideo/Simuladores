@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v1.9.2</title>
+  <title>Cut Máster v1.9.4</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -28,7 +28,7 @@
     .topbar{position:sticky;top:0;z-index:20;height:34px;background:#d7e6d1;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #c8d7c3}
     .topbar .title{font-size:18px;font-weight:700;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
     .icon-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .nav-home-btn{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;margin-left:88px;border:2px solid rgba(47,36,31,.22);background:rgba(255,255,255,.30);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+    .nav-home-btn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;margin-left:92px;border:2px solid rgba(47,36,31,.18);background:rgba(255,255,255,.34)}
     .icon-btn:active,.primary-btn:active,.soft-btn:active,.tab:active{transform:scale(.985)}
     .screen{display:none;padding:10px 12px 74px}
     #resultsScreen{padding-bottom:170px}
@@ -176,7 +176,7 @@
       .btn-menu{top:8px;left:8px;padding:9px 13px;font-size:.85rem}
       .topbar{height:38px}
       .topbar .title{font-size:17px}
-      .nav-home-btn{width:34px;height:34px;font-size:22px;margin-left:86px;border-radius:10px}
+      .nav-home-btn{width:36px;height:36px;font-size:23px;margin-left:90px;border-radius:11px}
       .hero{font-size:17px;margin-bottom:18px}
       .project-create{align-items:center}
       .input{font-size:17px}
@@ -204,7 +204,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v1.9.2</div>
+    <div id="topTitle" class="title">Cut Máster v1.9.4</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -421,9 +421,9 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9.2');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9.4');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
-    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio'); $('leftTopBtn').title = state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio';
+    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
 
   function renderSettings(){
@@ -1225,44 +1225,278 @@
 
     if(!pieces.length && !stockList.length) return null;
 
-    pieces.sort((a,b)=>b.length-a.length);
+    pieces.sort((a,b)=>b.length-a.length || String(a.uid).localeCompare(String(b.uid)));
     stockList.sort((a,b)=>a-b);
 
-    const bars = [];
-    const usageMap = new Map();
+    const kerf = Math.max(0, Number(currentKerfMm()) || 0);
+    const pieceGroups = new Map();
+    pieces.forEach(piece => {
+      const len = Number(piece.length) || 0;
+      if(!pieceGroups.has(len)) pieceGroups.set(len, []);
+      pieceGroups.get(len).push(piece);
+    });
 
-    for(const piece of pieces){
-      const pieceLen = Number(piece.length) || 0;
-      let placed = false;
+    const uniqueLengths = Array.from(pieceGroups.keys()).sort((a,b)=>b-a);
+    const initialCounts = uniqueLengths.map(len => (pieceGroups.get(len) || []).length);
+    const stockLengths = Array.from(new Set(stockList)).sort((a,b)=>a-b);
+    const initialStockCounts = stockLengths.map(len => stockList.filter(v => v === len).length);
 
-      for(const bar of bars){
-        const needed = pieceLen + (bar.pieces.length > 0 ? currentKerfMm() : 0);
-        if(bar.remaining >= needed){
-          bar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
-          bar.remaining -= needed;
-          placed = true;
-          break;
-        }
-      }
-
-      if(placed) continue;
-
-      let stockIndex = -1;
-      for(let i=0;i<stockList.length;i++){
-        if(stockList[i] >= pieceLen){ stockIndex = i; break; }
-      }
-      if(stockIndex === -1) continue;
-
-      const stockLen = stockList.splice(stockIndex,1)[0];
-      bars.push({ length: stockLen, remaining: stockLen - pieceLen, pieces:[{ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) }] });
-      usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);
+    function fitsWithUsed(stockLen, usedLen, pieceCount, nextLen){
+      const nextUsed = usedLen + nextLen + (pieceCount > 0 ? kerf : 0);
+      return nextUsed <= stockLen ? nextUsed : -1;
     }
 
-    const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);
-    bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);
+    function buildPlanFromPatterns(patterns){
+      const usageMap = new Map();
+      const bars = patterns.map(pattern => {
+        const barPieces = [];
+        let used = 0;
+        pattern.counts.forEach((qty, idx) => {
+          const len = uniqueLengths[idx];
+          const source = pieceGroups.get(len) || [];
+          for(let i=0;i<qty;i++){
+            const original = source.shift();
+            if(!original) continue;
+            if(barPieces.length > 0) used += kerf;
+            used += len;
+            barPieces.push({ uid: original.uid, length: len, cutType: normalizeCutType(original.cutType) });
+          }
+        });
+        usageMap.set(pattern.stockLen, (usageMap.get(pattern.stockLen) || 0) + 1);
+        return {
+          length: pattern.stockLen,
+          remaining: Math.max(0, pattern.stockLen - used),
+          pieces: barPieces
+        };
+      });
+      const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);
+      bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);
+      return { bars, stockUsage };
+    }
+
+    function heuristicPlan(){
+      const remainingPieces = pieces.map(piece => ({ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }));
+      const availableStock = stockList.slice();
+      const bars = [];
+      const usageMap = new Map();
+
+      function placeInExisting(piece){
+        const pieceLen = Number(piece.length) || 0;
+        let bestBar = null;
+        let bestLeft = Infinity;
+        for(const bar of bars){
+          const needed = pieceLen + (bar.pieces.length > 0 ? kerf : 0);
+          if(bar.remaining >= needed){
+            const left = bar.remaining - needed;
+            if(left < bestLeft){
+              bestLeft = left;
+              bestBar = bar;
+            }
+          }
+        }
+        if(!bestBar) return false;
+        const needed = pieceLen + (bestBar.pieces.length > 0 ? kerf : 0);
+        bestBar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
+        bestBar.remaining -= needed;
+        return true;
+      }
+
+      function chooseNewStock(piece){
+        const pieceLen = Number(piece.length) || 0;
+        const candidates = [];
+        for(let i=0;i<availableStock.length;i++){
+          const stockLen = availableStock[i];
+          if(stockLen < pieceLen) continue;
+          let used = pieceLen;
+          let pieceCount = 1;
+          for(let j=0;j<remainingPieces.length;j++){
+            const nextLen = Number(remainingPieces[j].length) || 0;
+            const maybeUsed = fitsWithUsed(stockLen, used, pieceCount, nextLen);
+            if(maybeUsed >= 0){
+              used = maybeUsed;
+              pieceCount += 1;
+            }
+          }
+          candidates.push({ index:i, stockLen, waste: stockLen - used, fill: used, pieceCount });
+        }
+        if(!candidates.length) return -1;
+        candidates.sort((a,b)=> b.pieceCount - a.pieceCount || a.waste - b.waste || a.stockLen - b.stockLen || a.index - b.index);
+        return candidates[0].index;
+      }
+
+      while(remainingPieces.length){
+        const piece = remainingPieces.shift();
+        if(placeInExisting(piece)) continue;
+        const stockIndex = chooseNewStock(piece);
+        if(stockIndex === -1) continue;
+        const stockLen = availableStock.splice(stockIndex,1)[0];
+        bars.push({
+          length: stockLen,
+          remaining: Math.max(0, stockLen - (Number(piece.length) || 0)),
+          pieces:[{ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }]
+        });
+        usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);
+      }
+
+      const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);
+      bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);
+      return { bars, stockUsage };
+    }
+
+    function optimizeWithSearch(){
+      const totalPieces = initialCounts.reduce((a,b)=>a+b,0);
+      const totalStock = initialStockCounts.reduce((a,b)=>a+b,0);
+      if(!totalPieces || !totalStock) return { patterns: [] };
+      if(totalPieces > 26 || totalStock > 40 || uniqueLengths.length > 10 || stockLengths.length > 10) return null;
+
+      const startedAt = Date.now();
+      const timeLimitMs = 900;
+      const memo = new Map();
+      const patternCache = new Map();
+      let explored = 0;
+
+      function encode(counts, stockCounts){
+        return counts.join(',') + '|' + stockCounts.join(',');
+      }
+      function sumPieces(counts){
+        return counts.reduce((acc, qty, idx) => acc + qty * uniqueLengths[idx], 0);
+      }
+      function totalRemaining(counts){
+        return counts.reduce((acc, qty) => acc + qty, 0);
+      }
+      function firstPieceIndex(counts){
+        for(let i=0;i<counts.length;i++) if(counts[i] > 0) return i;
+        return -1;
+      }
+      function makeEmptyPattern(stockLen){
+        return { stockLen, counts: new Array(uniqueLengths.length).fill(0), used: 0, pieces: 0 };
+      }
+      function patternKey(pattern){
+        return pattern.stockLen + '|' + pattern.counts.join(',');
+      }
+      function clonePattern(pattern){
+        return { stockLen: pattern.stockLen, counts: pattern.counts.slice(), used: pattern.used, pieces: pattern.pieces };
+      }
+      function distinctLengthsInPattern(pattern){
+        let distinct = 0;
+        for(let i=0;i<pattern.counts.length;i++) if(pattern.counts[i] > 0) distinct += 1;
+        return distinct;
+      }
+      function comparePattern(a, b){
+        const aDistinct = distinctLengthsInPattern(a);
+        const bDistinct = distinctLengthsInPattern(b);
+        return a.used - b.used || aDistinct - bDistinct || b.pieces - a.pieces || a.stockLen - b.stockLen;
+      }
+
+      function generatePatternsForStock(stockLen, counts, firstIdx){
+        const cacheKey = stockLen + '|' + counts.join(',') + '|' + firstIdx;
+        if(patternCache.has(cacheKey)) return patternCache.get(cacheKey);
+        const patterns = [];
+        const seen = new Set();
+        const base = makeEmptyPattern(stockLen);
+        base.counts[firstIdx] = 1;
+        base.used = uniqueLengths[firstIdx];
+        base.pieces = 1;
+
+        function pushPattern(pattern){
+          const key = patternKey(pattern);
+          if(seen.has(key)) return;
+          seen.add(key);
+          patterns.push(clonePattern(pattern));
+        }
+
+        function rec(startIdx, pattern){
+          pushPattern(pattern);
+          if(patterns.length > 40) return;
+          for(let idx=startIdx; idx<uniqueLengths.length; idx++){
+            const available = counts[idx] - pattern.counts[idx];
+            if(available <= 0) continue;
+            const len = uniqueLengths[idx];
+            const nextUsed = fitsWithUsed(stockLen, pattern.used, pattern.pieces, len);
+            if(nextUsed < 0) continue;
+            pattern.counts[idx] += 1;
+            const prevUsed = pattern.used;
+            const prevPieces = pattern.pieces;
+            pattern.used = nextUsed;
+            pattern.pieces += 1;
+            rec(idx, pattern);
+            pattern.counts[idx] -= 1;
+            pattern.used = prevUsed;
+            pattern.pieces = prevPieces;
+            if(Date.now() - startedAt > timeLimitMs) break;
+          }
+        }
+
+        rec(firstIdx, base);
+        patterns.sort((a,b)=>comparePattern(b,a));
+        const limited = patterns.slice(0, 12);
+        patternCache.set(cacheKey, limited);
+        return limited;
+      }
+
+      function search(counts, stockCounts){
+        explored += 1;
+        if(explored > 12000 || Date.now() - startedAt > timeLimitMs) return null;
+        if(totalRemaining(counts) === 0) return { bars: 0, waste: 0, mixPenalty: 0, patterns: [] };
+        const stateKey = encode(counts, stockCounts);
+        if(memo.has(stateKey)) return memo.get(stateKey);
+
+        const firstIdx = firstPieceIndex(counts);
+        if(firstIdx === -1) return { bars: 0, waste: 0, patterns: [] };
+
+        let best = null;
+        for(let stockIdx=0; stockIdx<stockLengths.length; stockIdx++){
+          if(stockCounts[stockIdx] <= 0) continue;
+          const stockLen = stockLengths[stockIdx];
+          if(stockLen < uniqueLengths[firstIdx]) continue;
+          const patterns = generatePatternsForStock(stockLen, counts, firstIdx);
+          for(const pattern of patterns){
+            const nextCounts = counts.slice();
+            let valid = true;
+            for(let i=0;i<nextCounts.length;i++){
+              nextCounts[i] -= pattern.counts[i];
+              if(nextCounts[i] < 0){ valid = false; break; }
+            }
+            if(!valid) continue;
+            const nextStockCounts = stockCounts.slice();
+            nextStockCounts[stockIdx] -= 1;
+            const sub = search(nextCounts, nextStockCounts);
+            if(!sub) continue;
+            const patternDistinct = distinctLengthsInPattern(pattern);
+            const candidate = {
+              bars: sub.bars + 1,
+              waste: sub.waste + Math.max(0, stockLen - pattern.used),
+              mixPenalty: sub.mixPenalty + Math.max(0, patternDistinct - 1),
+              patterns: [clonePattern(pattern)].concat(sub.patterns)
+            };
+            if(!best
+              || candidate.bars < best.bars
+              || (candidate.bars === best.bars && candidate.mixPenalty < best.mixPenalty)
+              || (candidate.bars === best.bars && candidate.mixPenalty === best.mixPenalty && candidate.waste < best.waste)){
+              best = candidate;
+            }
+          }
+        }
+        memo.set(stateKey, best);
+        return best;
+      }
+
+      const solved = search(initialCounts.slice(), initialStockCounts.slice());
+      return solved;
+    }
+
+    const optimized = optimizeWithSearch();
+    const plan = optimized && optimized.patterns ? buildPlanFromPatterns(optimized.patterns) : heuristicPlan();
 
     const cutSummary = Array.from(cutSummaryMap.entries()).map(([cutType, qty]) => ({ cutType, qty }));
-    return { id: material.id, name: material.name, profileFace: Number(material.profileFace || 40), bars, stockUsage, cutSummary };
+    return {
+      id: material.id,
+      name: material.name,
+      profileFace: Number(material.profileFace || 40),
+      bars: plan.bars,
+      stockUsage: plan.stockUsage,
+      cutSummary
+    };
   }
 
   function refreshProjectScreens(){
@@ -2001,47 +2235,61 @@
     const width = 1120;
     const pagePadX = 28;
     const contentX = 190;
-    const contentWidth = 900;
     const labelX = 34;
 
-    let y = 32;
+    const topPad = 24;
+    const projectTitleSize = 28;
+    const materialTitleSize = 40;
+    const materialGapBefore = 8;
+    const materialGapAfter = 18;
+    const barGapBefore = 12;
+    const barTitleSize = 24;
+    const barTitleOffset = 18;
+    const qtySize = 30;
+    const qtyYOffset = 36;
+    const afterBarGap = 12;
+    const emptyMsgSize = 16;
+
+    let y = topPad;
     const parts = [];
 
-    parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
-    y += 34;
+    parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + projectTitleSize + '" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
+    y += 20;
 
     result.materials.forEach((mat) => {
-      y += 18;
-      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
-      y += 34;
+      y += materialGapBefore;
+      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
+      y += materialGapAfter;
 
       if(!mat.bars.length){
+        y += 12;
+        parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + emptyMsgSize + '" fill="#2f241f">No hay combinación posible con el stock indicado.</text>');
         y += 18;
-        parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#2f241f">No hay combinación posible con el stock indicado.</text>');
-        y += 30;
         return;
       }
 
       mat.bars.forEach((bar, idx) => {
-        y += 26;
+        y += barGapBefore;
         const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id);
         const sketchInner = sketchPack.svg
           .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
           .replace('</svg>', '');
 
         const headY = y;
-        const sketchY = headY + 22;
-        const qtyY = sketchY + 42;
+        const sketchY = headY + barTitleOffset;
+        const qtyY = sketchY + qtyYOffset;
 
-        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + ' · ' + escapeHtml(String(bar.length)) + ' mm</text>');
-        parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="500" fill="#2f241f">1x</text>');
+        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + ' · ' + escapeHtml(String(bar.length)) + ' mm</text>');
+        parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">1x</text>');
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
-        y = sketchY + sketchPack.height + 36;
+        y = sketchY + sketchPack.height + afterBarGap;
       });
+
+      y += 4;
     });
 
-    const height = Math.max(700, Math.ceil(y + 24));
+    const height = Math.max(700, Math.ceil(y + 16));
     const exportStyle = '<style>' +
       '.cut-fill{fill:#dfd7cf;stroke:none;}' +
       '.waste-fill{fill:#8f8f8f;stroke:none;}' +
