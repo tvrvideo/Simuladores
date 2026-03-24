@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.0</title>
+  <title>Cut Máster v2.1</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -95,17 +95,21 @@
     .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}
     .bar-sketch-wrap{flex:1;min-width:0}
-    .bar-head{font-size:18px;font-weight:700;margin:0 0 4px;color:#3c312b}
+    .bar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:700;margin:0 0 4px;color:#3c312b}
+    .bar-head-title{display:inline-block}
+    .bar-metrics{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:4px 10px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:14px;font-weight:800;line-height:1.1;color:#3c312b}
+    .bar-chip.waste{background:#e4e4e4;border-color:#cfcfcf}
     .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}
     .bar-sketch-wrap{position:relative}
     .bar-canvas{position:relative;width:100%;max-width:900px}
     .bar-touch-layer{position:absolute;inset:0;z-index:3;background:transparent;pointer-events:auto}
     .bar-hit-zone{position:absolute;background:transparent;border:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:4;cursor:pointer;min-width:18px}
     .bar-outline{stroke:#433630;stroke-width:2.2;fill:none}
-    .cut-fill{fill:#dfd7cf;transition:fill .16s ease,opacity .16s ease}
-    .cut-fill.active{fill:#1f7af0}
-    .cut-fill.done{fill:#8fb36a}
-    .cut-fill.done.active{fill:#6ea84c}
+    .cut-fill{fill:var(--piece-fill, #dfd7cf);transition:fill .16s ease,opacity .16s ease}
+    .cut-fill.active{fill:#1f7af0 !important}
+    .cut-fill.done{fill:#8fb36a !important}
+    .cut-fill.done.active{fill:#6ea84c !important}
     .cut-fill.dimmed{opacity:.28}
     .waste-fill{fill:#8f8f8f;transition:opacity .16s ease}
     .cut-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-style:italic;font-weight:500;letter-spacing:.2px}
@@ -136,6 +140,7 @@
     .material-list-row{justify-content:space-between;font-size:15px;background:#fff}
     .summary{background:#fff;border:1px solid #ece7e7;border-radius:10px;padding:10px 12px;margin-bottom:10px;line-height:1.35;font-size:14px}
     .results-export-bar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+    .export-btn.active{background:#7ea96f;color:#fff}
     .export-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;min-width:170px;text-align:center}
     .export-btn.secondary{background:#d7e6f8}
     .export-status{display:none;background:#eff6ff;border:1px solid #d7e8ff;color:#1e3a8a;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13px;line-height:1.35;word-break:break-word}
@@ -204,7 +209,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.0</div>
+    <div id="topTitle" class="title">Cut Máster v2.1</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -249,6 +254,7 @@
     </div>
     <div id="resultsSummary" class="summary"></div>
     <div class="results-export-bar">
+      <button id="toggleColorCutsBtn" class="export-btn secondary">Colores por medida: OFF</button>
       <button id="exportPngBtn" class="export-btn secondary">Exportar PNG</button>
       <button id="exportPdfBtn" class="export-btn">Exportar PDF editable</button>
     </div>
@@ -360,15 +366,17 @@
       const data = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {};
       return {
         unit: data.unit === 'cm' ? 'cm' : 'mm',
-        kerfMm: Number(data.kerfMm) >= 0 ? Number(data.kerfMm) : 4
+        kerfMm: Number(data.kerfMm) >= 0 ? Number(data.kerfMm) : 4,
+        colorCuts: !!data.colorCuts
       };
     } catch(e){
-      return { unit:'mm', kerfMm:4 };
+      return { unit:'mm', kerfMm:4, colorCuts:false };
     }
   }
   function saveSettings(){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); }
   function currentUnit(){ return state.settings.unit || 'mm'; }
   function currentKerfMm(){ return Number(state.settings.kerfMm) >= 0 ? Number(state.settings.kerfMm) : 4; }
+  function colorsByMeasureEnabled(){ return !!(state.settings && state.settings.colorCuts); }
   function toDisplayLength(mm){
     const n = Number(mm) || 0;
     return currentUnit() === 'cm' ? (n / 10) : n;
@@ -421,7 +429,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.0');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.1');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -700,7 +708,26 @@
     return map[value] || ['recto','recto'];
   }
 
-  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId){
+  function buildMeasureColorMap(result){
+    const palette = ['#f4b183','#ffd966','#d5a6bd','#e06666','#f6b26b','#8e7cc3','#c27ba0','#f9cb9c','#d9d2e9','#ea9999','#b4a7d6','#ffe599','#c27c4e','#d17a22','#b45f06','#a64d79','#cc7a99','#b37b6d','#c9a227','#d99694'];
+    const map = new Map();
+    ((result && result.materials) || []).forEach(mat => {
+      let colorIndex = 0;
+      const scope = String(mat.id || '');
+      (mat.bars || []).forEach(bar => {
+        (bar.pieces || []).forEach(piece => {
+          const lengthKey = String(Number(piece.length) || 0);
+          const scopedKey = `${scope}__${lengthKey}`;
+          if(!lengthKey || map.has(scopedKey)) return;
+          map.set(scopedKey, palette[colorIndex % palette.length]);
+          colorIndex += 1;
+        });
+      });
+    });
+    return map;
+  }
+
+  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap){
     const width = 900;
     const height = 118;
     const topY = 18;
@@ -775,7 +802,15 @@
     const totalRunWidth = runs.reduce((sum, run) => sum + run.rawWidth, 0);
     const hitZones = [];
     const legendMap = new Map();
-    const legendPalette = ['#e7d9c6','#d6e4f0','#d9ead3','#f4cccc','#fff2cc','#ead1dc','#d0e0e3','#fce5cd','#d9d2e9','#cfe2f3'];
+    const useMeasureColors = colorsByMeasureEnabled();
+    const measureColorMap = sharedMeasureColorMap instanceof Map ? sharedMeasureColorMap : new Map();
+
+    function getPieceColor(measureKey){
+      const key = String(measureKey || '').trim();
+      const scope = String(materialId || '').trim();
+      if(!key) return '#dfd7cf';
+      return measureColorMap.get(`${scope}__${key}`) || '#dfd7cf';
+    }
 
     const outer = [
       `<line x1="${leftPad}" y1="${topY}" x2="${endX}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`,
@@ -808,6 +843,7 @@
         const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${len}`);
         const cutType = normalizeCutType(piece.cutType);
         const legendKey = `${len}__${cutType}`;
+        const pieceColor = getPieceColor(key);
         let legendEntry = legendMap.get(legendKey);
         if(!legendEntry){
           legendEntry = {
@@ -815,13 +851,13 @@
             length: len,
             cutType,
             qty: 0,
-            color: legendPalette[legendMap.size % legendPalette.length]
+            color: pieceColor
           };
           legendMap.set(legendKey, legendEntry);
         }
         legendEntry.qty += 1;
 
-        fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${legendEntry.color}" />`);
+        fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${useMeasureColors ? pieceColor : '#dfd7cf'}" style="--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}" />`);
         if(innerWidth >= 34){
           const size = innerWidth < 95 ? 28 : 40;
           labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+8}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
@@ -844,6 +880,7 @@
           const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${pieceIdx}_${len}`);
           const cutType = normalizeCutType(piece.cutType);
           const legendKey = `${len}__${cutType}`;
+          const pieceColor = getPieceColor(key);
           let legendEntry = legendMap.get(legendKey);
           if(!legendEntry){
             legendEntry = {
@@ -851,7 +888,7 @@
               length: len,
               cutType,
               qty: 0,
-              color: legendPalette[legendMap.size % legendPalette.length]
+              color: pieceColor
             };
             legendMap.set(legendKey, legendEntry);
           }
@@ -861,7 +898,7 @@
             ? Math.max(8, (xStart + innerWidth) - pieceCursor)
             : Math.max(8, innerWidth * (len / totalPieceLen));
 
-          fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${pieceCursor}" y="${topY}" width="${pieceWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${legendEntry.color}" />`);
+          fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${pieceCursor}" y="${topY}" width="${pieceWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${useMeasureColors ? pieceColor : '#dfd7cf'}" style="--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}" />`);
 
           hitZones.push({
             key,
@@ -1165,8 +1202,10 @@
     const diagramPanel = $('diagramPanel');
     const listPanel = $('listPanel');
     const result = calculateProject(project);
+    const measureColorMap = buildMeasureColorMap(result);
 
-    summary.innerHTML = `<strong>Configuración:</strong> unidad <strong>${currentUnit()}</strong> · ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong>.`;
+    summary.innerHTML = `<strong>Configuración:</strong> unidad <strong>${currentUnit()}</strong> · ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong> · color por corte <strong>${colorsByMeasureEnabled() ? 'activado' : 'desactivado'}</strong>.`;
+    updateColorCutsToggle();
 
     if(!result.materials.length){
       diagramPanel.innerHTML = '<div class="empty">Añade piezas y stock para ver la optimización.</div>';
@@ -1186,9 +1225,9 @@
         barsHtml = '<div class="empty">No hay combinación posible con el stock indicado.</div>';
       } else {
         barsHtml = mat.bars.map((bar, idx) => {
-          const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id);
+          const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);
           const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
-          return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head">Barra ${idx+1} · ${bar.length} mm</div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
+          return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head"><span class="bar-head-title">Barra ${idx+1}</span><div class="bar-metrics"><span class="bar-chip">Barra ${formatLength(bar.length)} ${currentUnit()}</span><span class="bar-chip waste">Sobra ${formatLength(bar.remaining || 0)} ${currentUnit()}</span></div></div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
       card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
@@ -1771,7 +1810,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v2.0',
+      version: 'v2.1',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
@@ -1827,6 +1866,15 @@
       alert('No se pudo leer el archivo seleccionado.');
     };
     reader.readAsText(file, 'utf-8');
+  }
+
+  function updateColorCutsToggle(){
+    const btn = $('toggleColorCutsBtn');
+    if(!btn) return;
+    const active = colorsByMeasureEnabled();
+    btn.textContent = 'Colores por medida: ' + (active ? 'ON' : 'OFF');
+    btn.classList.toggle('active', active);
+    btn.classList.toggle('secondary', !active);
   }
 
   function switchResultTab(tab){
@@ -2258,49 +2306,86 @@
     const contentX = 190;
     const labelX = 34;
 
-    const topPad = 24;
+    const topPad = 18;
+    const pageBottomPad = 18;
     const projectTitleSize = 28;
     const materialTitleSize = 40;
-    const materialGapBefore = 8;
-    const materialGapAfter = 18;
-    const barGapBefore = 12;
+    const materialGapBefore = 4;
+    const materialGapAfter = 12;
+    const barGapBefore = 6;
     const barTitleSize = 24;
-    const barTitleOffset = 18;
+    const barTitleOffset = 14;
     const qtySize = 30;
-    const qtyYOffset = 36;
-    const afterBarGap = 12;
+    const qtyYOffset = 30;
+    const afterBarGap = 8;
     const emptyMsgSize = 16;
+    const PAGE_H_SVG = 1583.989;
+
+    function getPageIndex(yPos){
+      return Math.max(0, Math.floor(Math.max(0, yPos - 0.001) / PAGE_H_SVG));
+    }
+    function getPageStart(pageIndex){
+      return (pageIndex * PAGE_H_SVG) + topPad;
+    }
+    function getPageEnd(pageIndex){
+      return ((pageIndex + 1) * PAGE_H_SVG) - pageBottomPad;
+    }
+    function moveToNextPage(yPos){
+      return getPageStart(getPageIndex(yPos) + 1);
+    }
+    function ensureBlockFits(yPos, blockHeight){
+      const pageIndex = getPageIndex(yPos);
+      const pageEnd = getPageEnd(pageIndex);
+      if((yPos + blockHeight) > pageEnd){
+        return moveToNextPage(yPos);
+      }
+      return yPos;
+    }
 
     let y = topPad;
     const parts = [];
+    const measureColorMap = buildMeasureColorMap(result);
 
     parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + projectTitleSize + '" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
     y += 20;
 
     result.materials.forEach((mat) => {
+      const barSketches = (mat.bars || []).map((bar, idx) => {
+        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);
+        const sketchInner = sketchPack.svg
+          .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
+          .replace('</svg>', '');
+        return { bar, idx, sketchPack, sketchInner, blockHeight: barGapBefore + barTitleOffset + sketchPack.height + afterBarGap };
+      });
+      const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
+      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;
+      y = ensureBlockFits(y, materialBlockHeight);
+
       y += materialGapBefore;
       parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
       y += materialGapAfter;
 
       if(!mat.bars.length){
+        y = ensureBlockFits(y, 32);
         y += 12;
         parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + emptyMsgSize + '" fill="#2f241f">No hay combinación posible con el stock indicado.</text>');
         y += 18;
         return;
       }
 
-      mat.bars.forEach((bar, idx) => {
+      barSketches.forEach(({ bar, idx, sketchPack, sketchInner, blockHeight }) => {
+        y = ensureBlockFits(y, blockHeight);
         y += barGapBefore;
-        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id);
-        const sketchInner = sketchPack.svg
-          .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
-          .replace('</svg>', '');
 
         const headY = y;
-        const sketchY = headY + barTitleOffset;
+        const metricsY = headY + 20;
+        const sketchY = metricsY + 10;
         const qtyY = sketchY + qtyYOffset;
+        const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
-        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + ' · ' + escapeHtml(String(bar.length)) + ' mm</text>');
+        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
+        parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
+        parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
         parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">1x</text>');
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
@@ -2312,7 +2397,7 @@
 
     const height = Math.max(700, Math.ceil(y + 16));
     const exportStyle = '<style>' +
-      '.cut-fill{fill:#dfd7cf;stroke:none;}' +
+      '.cut-fill{stroke:none;}' +
       '.waste-fill{fill:#8f8f8f;stroke:none;}' +
       '.cut-text{fill:#2f241f;font-family:Arial,sans-serif;}' +
       '.bar-outline{fill:none;stroke:#433630;stroke-width:2.2;}' +
@@ -2420,6 +2505,13 @@
       return;
     }
     if(t.id === 'rightTopBtn'){ showScreen('settingsScreen'); return; }
+    if(t.id === 'toggleColorCutsBtn'){
+      state.settings.colorCuts = !colorsByMeasureEnabled();
+      saveSettings();
+      if(state.currentScreen === 'resultsScreen') renderResults();
+      else updateColorCutsToggle();
+      return;
+    }
 
     if(t.dataset.screen){ showScreen(t.dataset.screen); return; }
     if(t.dataset.resultTab){ switchResultTab(t.dataset.resultTab); return; }
@@ -2486,6 +2578,7 @@
 
   renderProjects();
   renderSettings();
+  updateColorCutsToggle();
   updateTopbar();
 })();
 </script>
