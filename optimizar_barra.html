@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v1.9.4</title>
+  <title>Cut Máster v2.0</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -204,7 +204,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v1.9.4</div>
+    <div id="topTitle" class="title">Cut Máster v2.0</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -421,7 +421,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.9.4');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.0');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -439,22 +439,41 @@
       name: safeName,
       createdAt: new Date().toISOString(),
       cutProgress: {},
-      materials: [
-        {
-          id: uid(),
-          name: 'Material 1',
-          profileFace: 40,
-          pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],
-          stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],
-          collapsed: false
-        }
-      ]
+      materials: []
     };
     state.projects.unshift(project);
     state.currentProjectId = project.id;
     saveProjects();
     $('newProjectInput').value = '';
-    showScreen('piecesScreen');
+
+    openTextModal({
+      title: 'Nueva barra',
+      text: 'Escribe el nombre del perfil o material. Ejemplos: marco, hoja, zanca, junquillo.',
+      value: 'Barra 1',
+      placeholder: 'Nombre de la barra',
+      okText: 'Crear',
+      onCancel(){
+        state.projects = state.projects.filter(p => p.id !== project.id);
+        if(state.currentProjectId === project.id) state.currentProjectId = null;
+        saveProjects();
+        refreshProjectScreens();
+        showScreen('homeScreen');
+      },
+      onSubmit(value){
+        const safeMaterialName = (value || '').trim() || 'Barra 1';
+        project.materials.push({
+          id: uid(),
+          name: safeMaterialName,
+          profileFace: 40,
+          pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],
+          stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],
+          collapsed: false
+        });
+        saveProjects();
+        refreshProjectScreens();
+        showScreen('piecesScreen');
+      }
+    });
   }
 
 
@@ -1520,19 +1539,21 @@
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     setTimeout(() => { input.focus(); input.select(); }, 30);
-    function close(){
+    function close(reason){
       modal.classList.remove('active');
       modal.setAttribute('aria-hidden', 'true');
       $('modalOkBtn').onclick = null;
       $('modalCancelBtn').onclick = null;
       modal.onclick = null;
+      if(reason === 'cancel' && opts.onCancel) opts.onCancel();
+      if(opts.onClose) opts.onClose(reason || 'close');
     }
-    $('modalCancelBtn').onclick = close;
-    modal.onclick = function(ev){ if(ev.target === modal) close(); };
+    $('modalCancelBtn').onclick = function(){ close('cancel'); };
+    modal.onclick = function(ev){ if(ev.target === modal) close('cancel'); };
     $('modalOkBtn').onclick = function(){
       const value = input.value;
       const keepOpen = opts.onSubmit ? opts.onSubmit(value, close) : false;
-      if(!keepOpen) close();
+      if(!keepOpen) close('submit');
     };
   }
 
@@ -1750,7 +1771,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v1.8',
+      version: 'v2.0',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
