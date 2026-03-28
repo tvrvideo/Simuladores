@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v83.4</title>
+    <title>Ventana Pro v85.4</title>
     <style>
 
         body {
@@ -372,13 +372,9 @@ button {
 
 
 .top-title{
-  position: fixed;
-  top: 12px;
-  left: clamp(130px, 24vw, 300px);
-  right: clamp(130px, 24vw, 300px);
-  z-index: 9998;
-  margin: 0;
-  height: 42px;
+  position: relative;
+  margin: 0 0 12px 0;
+  min-height: 42px;
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -545,7 +541,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v83.4"><span class="title-main">Ventana Pro</span><span class="title-version">v83.4</span></div>
+<div class="top-title" aria-label="Ventana Pro v85.4"><span class="title-main">Ventana Pro</span><span class="title-version">v85.4</span></div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -555,11 +551,11 @@ body.dock-off #canvasDock{
     <div class="dimension-inputs-row medidas-grid">
         <div>
             <label for="ancho">Ancho:</label>
-            <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista()">
+            <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista(); actualizarDespieceCOR2300SiActivo()" oninput="actualizarDespieceCOR2300SiActivo()">
         </div>
         <div>
             <label for="alto">Alto:</label>
-            <input type="number" id="alto" value="1400" onchange="ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
+            <input type="number" id="alto" value="1400" onchange="ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista(); actualizarDespieceCOR2300SiActivo()" oninput="actualizarDespieceCOR2300SiActivo()">
         </div>
         <div>
             <label for="altoIzq">L Izq:</label>
@@ -584,7 +580,7 @@ body.dock-off #canvasDock{
         <div class="auto-ajuste-slot">
             <div class="auto-ajuste-box">
                 <label for="presetSerie">Serie:</label>
-                <select id="presetSerie" onchange="aplicarPresetMedidas()">
+                <select id="presetSerie" onchange="aplicarPresetMedidas(); actualizarVisibilidadDespieceCOR2300(); actualizarDespieceCOR2300SiActivo()">
                     <option value="ventana600">Ventana 600</option>
                     <option value="puerta800">Puerta 800</option>
                     <option value="ventanace">Ventana CE</option>
@@ -599,6 +595,27 @@ body.dock-off #canvasDock{
     </div>
 </div>
 
+
+
+<div class="control-group" id="despiecePanelCompacto" style="background-color:#E6D4B8; display:none;">
+    <h3>Despiece COR-2300</h3>
+    <div style="background:#E1E2D6; padding:14px; border-radius:10px; border:1px solid #ccc;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; margin:0; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">
+                <input type="checkbox" id="despieceCondensacion" onchange="actualizarDespieceCOR2300SiActivo(); actualizarEstadoDespieceCOR2300()">
+                Condensación
+            </label>
+            <button id="btnMostrarDespieceCOR2300" onclick="mostrarOverlayDespieceCOR2300()" style="padding:12px 16px; margin-top:0;">Mostrar</button>
+            <button id="btnCutMasterCOR2300" onclick="abrirCutMasterIntegrado()" style="padding:12px 16px; margin-top:0;">Cut Master</button>
+            <button id="btnCsvDespieceCOR2300" onclick="exportarDespieceCOR2300CSV()" style="padding:12px 16px; margin-top:0;">CSV</button>
+            <button id="btnOptimizarCOR2300" onclick="optimizarBarrasCOR2300()" style="padding:12px 16px; margin-top:0;">Optimizar</button>
+        </div>
+        <div id="despieceCor2300Estado" style="margin-top:10px; font-size:13px; color:#555;">
+            Selecciona <strong>Ventana CE</strong> para activar el panel COR-2300 con Mostrar, Cut Master, CSV y Optimizar.
+        </div>
+        <div id="despieceCor2300Resultado" style="display:none;"></div>
+    </div>
+</div>
 
 <div class="control-group" style="background-color: #E6D4B8;">
 
@@ -664,7 +681,7 @@ body.dock-off #canvasDock{
         </div>
 
     <h3>Configuración hojas</h3>
-    <select id="hojas" onchange="actualizarHojas(); actualizarVista()">
+    <select id="hojas" onchange="actualizarHojas(); actualizarVista(); actualizarDespieceCOR2300SiActivo()">
         <option value="0">0 hojas (solo marco)</option>
         <option value="1">1 hoja</option>
         <option value="2" selected="">2 hojas</option>
@@ -741,6 +758,36 @@ body.dock-off #canvasDock{
         </div>
     </div>
 </div>
+
+
+<div id="despieceOverlayCOR2300" onclick="if(event.target===this) cerrarOverlayDespieceCOR2300()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(940px, 100%); max-height:90vh; margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Despiece COR-2300</div>
+                <div style="font-size:12px; color:#555;">Serie practicable abisagrada. Solo para Ventana CE.</div>
+            </div>
+            <button onclick="cerrarOverlayDespieceCOR2300()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <div id="despieceOverlayContenidoCOR2300" style="padding:16px; overflow:auto; -webkit-overflow-scrolling:touch;"></div>
+    </div>
+</div>
+</div>
+
+</div>
+
+
+<div id="cutMasterOverlay" onclick="if(event.target===this) cerrarCutMasterIntegrado()" style="display:none; position:fixed; inset:0; z-index:99998; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(1120px, 100%); height:min(92vh, 100%); margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Cut Master integrado</div>
+                <div style="font-size:12px; color:#555;">Tu Cut Master se abre dentro de la app con el despiece actual ya cargado en la pantalla de resultados.</div>
+            </div>
+            <button onclick="cerrarCutMasterIntegrado()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <iframe id="cutMasterFrame" title="Cut Master integrado" style="border:0; width:100%; height:100%; background:#f4f0f0;"></iframe>
+    </div>
 </div>
 
 <div id="canvasDock">
@@ -875,6 +922,18 @@ body.dock-off #canvasDock{
         recalcularAnchosHojas();
         actualizarOpcionesFijos();
         actualizarVista();
+
+        actualizarVisibilidadDespieceCOR2300();
+        generarDespieceCOR2300();
+
+        ['altoFijoInferior','anchoFijoIzq','anchoFijoDer','altoIzq','altoDer','altoFijoSupIzq','altoFijoSupDer','altoFijoSupCen'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', actualizarDespieceCOR2300SiActivo, { passive: true });
+                el.addEventListener('change', actualizarDespieceCOR2300SiActivo, { passive: true });
+            }
+        });
+
     }
 
     function toggleArco() {
@@ -884,6 +943,7 @@ body.dock-off #canvasDock{
         btn.textContent = modoArco ? "Forma Arco" : "Forma Trapecio";
         actualizarOpcionesFijos();
         actualizarVista();
+        generarDespieceCOR2300();
     }
     
     function toggleManilla(hojaIndex) {
@@ -1054,6 +1114,7 @@ function cambiarColorMarco(c) {
         actualizarHojas();
         actualizarOpcionesFijos();
         actualizarVista();
+        generarDespieceCOR2300();
     }
 
     function cambiarColorCristalHoja(hojaIndex, c) {
@@ -1501,6 +1562,7 @@ function cambiarColorMarco(c) {
         initColorMatrix(position);
         actualizarOpcionesFijos();
         actualizarVista();
+        generarDespieceCOR2300();
     }
 
     function removeTravesanoFijo(position, orientation, index) {
@@ -1520,6 +1582,7 @@ function cambiarColorMarco(c) {
         initColorMatrix(position);
         actualizarOpcionesFijos();
         actualizarVista();
+        generarDespieceCOR2300();
     }
 
     function updateTravesanoFijo(position, orientation, index, property, value) {
@@ -2127,7 +2190,7 @@ function cambiarColorMarco(c) {
     }
 
     function _insetPoly(poly, padPx) {
-        // inset “seguro” por escalado hacia el centro
+        // fallback simple por escalado (se mantiene para otros usos)
         let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
         let cx=0, cy=0;
         poly.forEach(p=>{minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y); cx+=p.x; cy+=p.y;});
@@ -2138,6 +2201,63 @@ function cambiarColorMarco(c) {
         const sy = Math.max(0.1, (h - 2*padPx)/h);
         const s = Math.min(sx, sy);
         return poly.map(p=>({x: cx + (p.x-cx)*s, y: cy + (p.y-cy)*s}));
+    }
+
+    function _signedAreaPoly(poly) {
+        let a = 0;
+        for (let i = 0; i < poly.length; i++) {
+            const p = poly[i];
+            const q = poly[(i + 1) % poly.length];
+            a += (p.x * q.y) - (q.x * p.y);
+        }
+        return a / 2;
+    }
+
+    function _interseccionRectasInfinitas(a1, a2, b1, b2) {
+        const x1 = a1.x, y1 = a1.y, x2 = a2.x, y2 = a2.y;
+        const x3 = b1.x, y3 = b1.y, x4 = b2.x, y4 = b2.y;
+        const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        if (Math.abs(den) < 0.0001) return null;
+        const px = ((x1*y2 - y1*x2) * (x3 - x4) - (x1 - x2) * (x3*y4 - y3*x4)) / den;
+        const py = ((x1*y2 - y1*x2) * (y3 - y4) - (y1 - y2) * (x3*y4 - y3*x4)) / den;
+        return { x: px, y: py };
+    }
+
+    function _insetConvexPolyExact(poly, padPx) {
+        if(!poly || poly.length < 3) return poly;
+        if (padPx <= 0) return poly.map(p => ({x:p.x, y:p.y}));
+
+        const area = _signedAreaPoly(poly);
+        const orientation = area >= 0 ? 1 : -1;
+        const offsetLines = [];
+
+        for (let i = 0; i < poly.length; i++) {
+            const p1 = poly[i];
+            const p2 = poly[(i + 1) % poly.length];
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const len = Math.hypot(dx, dy) || 1;
+
+            // normal hacia el interior según orientación del polígono
+            const nx = orientation > 0 ? (-dy / len) : (dy / len);
+            const ny = orientation > 0 ? (dx / len) : (-dx / len);
+
+            offsetLines.push({
+                a: { x: p1.x + nx * padPx, y: p1.y + ny * padPx },
+                b: { x: p2.x + nx * padPx, y: p2.y + ny * padPx }
+            });
+        }
+
+        const inset = [];
+        for (let i = 0; i < offsetLines.length; i++) {
+            const prev = offsetLines[(i - 1 + offsetLines.length) % offsetLines.length];
+            const curr = offsetLines[i];
+            const inter = _interseccionRectasInfinitas(prev.a, prev.b, curr.a, curr.b);
+            if (inter) inset.push(inter);
+            else return _insetPoly(poly, padPx);
+        }
+
+        return inset;
     }
 
     function _dibujarCristalPoligono(ctx, poly, baseColor) {
@@ -2180,62 +2300,48 @@ function cambiarColorMarco(c) {
             const cfg = subHojas[key];
             if(!cfg) return;
 
-            // buscar zona actual (poly cambia con el redibujo)
             let zona = null;
             for (let i=0; i<zonasInteractivas.length; i++) {
                 if(zonaKey(zonasInteractivas[i].data) === key) { zona = zonasInteractivas[i]; break; }
             }
             if(!zona || !zona.poly || zona.poly.length < 4) return;
 
-            const poly = zona.poly.slice();
+            const poly = zona.poly.slice(0, 4);
+            const ap = cfg.apertura || 'derecha';
+            const strokeColor = getBordeHojaColor();
+            const strokeWidth = getBordeHojaGrosor();
+            const framePad = Math.max(2, hojaThickness * esc);
+            const glassPoly = _insetConvexPolyExact(poly, framePad);
 
-            // --- Sub-hoja "real": marco (relleno) + cristal interior ---
-            // Calculamos un marco proporcional al tamaño del hueco (para que no se vea el cristal por los lados)
-            let minX0=Infinity, minY0=Infinity, maxX0=-Infinity, maxY0=-Infinity;
-            poly.forEach(p=>{minX0=Math.min(minX0,p.x); minY0=Math.min(minY0,p.y); maxX0=Math.max(maxX0,p.x); maxY0=Math.max(maxY0,p.y);});
-            const boxW0 = Math.max(1, maxX0 - minX0);
-            const boxH0 = Math.max(1, maxY0 - minY0);
+            if (!glassPoly || glassPoly.length < 4) return;
 
-            // “Borde exterior” de la sub-hoja (separa un poco del hueco)
-            const outerPad = 1; // ocupar todo el hueco (sin dejar cristal visible)
-            // “Marco” de la sub-hoja (grosor del perfil)
-            const framePad = Math.max(8, Math.min(22, Math.round(Math.min(boxW0, boxH0) * 0.10)));
-
-            const outer = _insetPoly(poly, outerPad);
-            const glass = _insetPoly(poly, outerPad + framePad);
-
-            // 1) Marco interior (relleno) para tapar el cristal de detrás
             ctx.save();
+
+            // Hoja exterior ocupando exactamente el hueco
             ctx.beginPath();
-            ctx.moveTo(outer[0].x, outer[0].y);
-            for(let k=1;k<outer.length;k++) ctx.lineTo(outer[k].x, outer[k].y);
+            ctx.moveTo(poly[0].x, poly[0].y);
+            for(let k=1;k<poly.length;k++) ctx.lineTo(poly[k].x, poly[k].y);
             ctx.closePath();
             ctx.fillStyle = colorMarco;
             ctx.fill();
-
-            // Borde del marco (contraste automático con el color del marco)
-            ctx.strokeStyle = _strokeParaMarco(colorMarco);
-            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = strokeWidth;
             ctx.stroke();
 
-            // 2) Cristal interior (degradado) dentro del marco
-            // Usamos el color global de cristal para que se integre con tu sistema actual
-            _dibujarCristalPoligono(ctx, glass, colorCristalGlobal);
+            // Cristal interior con el mismo retranqueo que una hoja normal
+            _dibujarCristalPoligono(ctx, glassPoly, colorCristalGlobal);
 
-            // simbolo apertura (usamos glass como "cristal" de la subhoja)
-            const p1 = glass[0];
-            const p2 = glass[Math.max(1, glass.length - 3)];
-            const p3 = glass[Math.max(2, glass.length - 2)];
-            const p4 = glass[Math.max(3, glass.length - 1)];
-            const centerX=(p1.x+p2.x)/2;
-            const centerYTop=(p1.y+p2.y)/2;
-            const centerYBot=(p3.y+p4.y)/2;
-            const centerY=(centerYTop+centerYBot)/2;
+            const p1 = glassPoly[0];
+            const p2 = glassPoly[1];
+            const p3 = glassPoly[2];
+            const p4 = glassPoly[3];
+            const centerX = (p1.x + p2.x) / 2;
+            const centerYTop = (p1.y + p2.y) / 2;
+            const centerYBot = (p3.y + p4.y) / 2;
+            const centerY = (centerYTop + centerYBot) / 2;
 
-            ctx.strokeStyle = _strokeParaMarco(colorMarco);
+            ctx.strokeStyle = '#0074D9';
             ctx.lineWidth = 1.8;
-
-            const ap = cfg.apertura || 'derecha';
 
             if (ap === "izquierda" || ap === "izq-ob") {
                 ctx.beginPath();
@@ -2267,50 +2373,52 @@ function cambiarColorMarco(c) {
                 ctx.stroke();
             }
 
-            // herrajes simplificados (2 bisagras)
-            if(cfg.bisagras) {
-                const w = Math.hypot(p2.x-p1.x, p2.y-p1.y);
-                const hLeft = Math.hypot(p4.x-p1.x, p4.y-p1.y);
-                // Tomamos caja aproximada
-                const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
-                const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
-                const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
-                const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
-                const boxW = maxX-minX;
-                const boxH = maxY-minY;
+            const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
+            const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
+            const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
+            const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
+            const boxW = maxX-minX;
+            const boxH = maxY-minY;
 
+            if(cfg.bisagras) {
                 if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, minX, minY, boxH, 'izquierda', 'black');
                 else if(ap === 'derecha' || ap === 'der-ob') dibujarBisagras(ctx, maxX, minY, boxH, 'derecha', 'black');
                 else if(ap === 'proyectante') dibujarBisagras(ctx, minX, minY, boxW, 'arriba', 'black');
                 else if(ap === 'abatible-inf') dibujarBisagras(ctx, minX, maxY, boxW, 'abajo', 'black');
             }
 
-            // manilla simplificada
             if(cfg.manilla) {
-                ctx.strokeStyle = _strokeParaMarco(colorMarco);
-                ctx.lineWidth = 3;
-                const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
-                const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
-                const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
-                const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
-                const boxW = maxX-minX;
-                const boxH = maxY-minY;
+                const outerMinX = Math.min(poly[0].x, poly[1].x, poly[2].x, poly[3].x);
+                const outerMaxX = Math.max(poly[0].x, poly[1].x, poly[2].x, poly[3].x);
+                const outerMinY = Math.min(poly[0].y, poly[1].y, poly[2].y, poly[3].y);
+                const outerMaxY = Math.max(poly[0].y, poly[1].y, poly[2].y, poly[3].y);
 
                 let mx=minX+boxW/2, my=minY+boxH/2;
                 let vertical=true;
 
-                if (ap === "izquierda" || ap === "izq-ob") { mx = maxX - 6; my = minY + boxH/2; vertical=true; }
-                else if (ap === "derecha" || ap === "der-ob") { mx = minX + 6; my = minY + boxH/2; vertical=true; }
-                else if (ap === "proyectante") { mx = minX + boxW/2; my = maxY - 6; vertical=false; }
-                else if (ap === "abatible-inf") { mx = minX + boxW/2; my = minY + 6; vertical=false; }
-
-                ctx.beginPath();
-                if(vertical) {
-                    ctx.moveTo(mx, my - 14); ctx.lineTo(mx, my + 14);
-                } else {
-                    ctx.moveTo(mx - 14, my); ctx.lineTo(mx + 14, my);
+                // La manilla debe apoyarse sobre el larguero de hoja, no sobre el cristal.
+                if (ap === "izquierda" || ap === "izq-ob") {
+                    mx = (outerMaxX + maxX) / 2;
+                    my = minY + boxH/2;
+                    vertical = true;
                 }
-                ctx.stroke();
+                else if (ap === "derecha" || ap === "der-ob") {
+                    mx = (outerMinX + minX) / 2;
+                    my = minY + boxH/2;
+                    vertical = true;
+                }
+                else if (ap === "proyectante") {
+                    mx = minX + boxW/2;
+                    my = (outerMaxY + maxY) / 2;
+                    vertical = false;
+                }
+                else if (ap === "abatible-inf") {
+                    mx = minX + boxW/2;
+                    my = (outerMinY + minY) / 2;
+                    vertical = false;
+                }
+
+                dibujarManilla(ctx, mx, my, 'black', vertical, ap === 'corredera');
             }
 
             ctx.restore();
@@ -3892,6 +4000,530 @@ if (mostrarAltoTotalDer) {
         dibujar(mostrarMedidas);
     }
 
+
+    function mmEntero(v) {
+        return Math.max(0, Math.round(Number(v) || 0));
+    }
+
+    function fmtMm(v) {
+        return mmEntero(v).toString() + ' mm';
+    }
+
+    function escaparHtml(txt) {
+        return String(txt == null ? '' : txt)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function pushPiezaDespiece(arr, ref, nombre, pieza, length, qty, corte, grupo, extras) {
+        const largo = mmEntero(length);
+        const unidades = Math.max(0, Math.round(Number(qty) || 0));
+        if (largo <= 0 || unidades <= 0) return;
+        arr.push(Object.assign({
+            ref,
+            nombre,
+            perfil: ref + ' — ' + nombre,
+            pieza,
+            length: largo,
+            qty: unidades,
+            cutType: corte || '',
+            grupo: grupo || 'barras'
+        }, extras || {}));
+    }
+
+    function addVidrioDespiece(arr, pieza, width, height, qty, modulo) {
+        const ancho = mmEntero(width);
+        const alto = mmEntero(height);
+        const unidades = Math.max(0, Math.round(Number(qty) || 0));
+        if (ancho <= 0 || alto <= 0 || unidades <= 0) return;
+        arr.push({
+            grupo: 'vidrios',
+            perfil: 'Vidrio',
+            pieza,
+            width: ancho,
+            height: alto,
+            qty: unidades,
+            modulo: modulo || ''
+        });
+    }
+
+    function addFijoRectoDespiece(arr, etiqueta, anchoFijo, altoFijo) {
+        const w = mmEntero(anchoFijo);
+        const h = mmEntero(altoFijo);
+        if (w <= 0 || h <= 0) return;
+        pushPiezaDespiece(arr, 'COR-2019', 'Junquillo', 'Junquillo horizontal ' + etiqueta, w - 54, 2, 'Recto', 'barras', { modulo: etiqueta });
+        pushPiezaDespiece(arr, 'COR-2019', 'Junquillo', 'Junquillo vertical ' + etiqueta, h - 94, 2, 'Recto', 'barras', { modulo: etiqueta });
+        addVidrioDespiece(arr, 'Vidrio ' + etiqueta, w - 84, h - 84, 1, etiqueta);
+    }
+
+    function obtenerAnchoHojaFormulaCOR2300(hojas, anchoVentana) {
+        const ancho = Number(anchoVentana) || 0;
+        if (hojas === 1) return ancho - 42;
+        if (hojas === 2) return (ancho / 2) - 24;
+        if (hojas === 3) return (ancho / 3) - 26;
+        return 0;
+    }
+
+
+
+    function esSerieCOR2300Seleccionada() {
+        const sel = document.getElementById('presetSerie');
+        return !!sel && sel.value === 'ventanace';
+    }
+
+
+    function actualizarEstadoDespieceCOR2300(msg) {
+        const estado = document.getElementById('despieceCor2300Estado');
+        const btnShow = document.getElementById('btnMostrarDespieceCOR2300');
+        const btnCut = document.getElementById('btnCutMasterCOR2300');
+        const btnCsv = document.getElementById('btnCsvDespieceCOR2300');
+        const btnOpt = document.getElementById('btnOptimizarCOR2300');
+
+        const activa = esSerieCOR2300Seleccionada();
+
+        [btnShow, btnCut, btnCsv, btnOpt].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !activa;
+            btn.style.opacity = activa ? '1' : '0.55';
+            btn.style.cursor = activa ? 'pointer' : 'not-allowed';
+        });
+
+        if (!estado) return;
+        if (msg) {
+            estado.innerHTML = msg;
+            return;
+        }
+        if (!activa) {
+            estado.innerHTML = 'Selecciona <strong>Ventana CE</strong> para activar el panel COR-2300.';
+            return;
+        }
+
+        const data = window.__ultimoDespieceCOR2300;
+        const llevaCondensacion = !!(document.getElementById('despieceCondensacion') && document.getElementById('despieceCondensacion').checked);
+        if (data) {
+            const piezas = (data.barras || []).reduce((acc, p) => acc + (Number(p.qty) || 0), 0);
+            const vidrios = (data.vidrios || []).reduce((acc, v) => acc + (Number(v.qty) || 0), 0);
+            estado.innerHTML = 'COR-2300 listo' + (llevaCondensacion ? ' · con condensación' : ' · sin condensación') + ' · ' + piezas + ' piezas · ' + vidrios + ' vidrios';
+        } else {
+            estado.innerHTML = 'Ventana CE activa. Ya puedes usar Mostrar, Cut Master, CSV u Optimizar.';
+        }
+    }
+
+    function generarDespieceCOR2300Compacto() {
+        const data = generarDespieceCOR2300Compacto();
+        if (data) {
+            actualizarEstadoDespieceCOR2300('Despiece COR-2300 calculado correctamente.');
+            setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+        }
+        return data;
+    }
+
+    function mostrarOverlayDespieceCOR2300() {
+        if (!esSerieCOR2300Seleccionada()) {
+            actualizarEstadoDespieceCOR2300();
+            return;
+        }
+        const data = generarDespieceCOR2300();
+        if (!data) return;
+
+        const overlay = document.getElementById('despieceOverlayCOR2300');
+        const contenido = document.getElementById('despieceOverlayContenidoCOR2300');
+        const origen = document.getElementById('despieceCor2300Resultado');
+        if (!overlay || !contenido || !origen) return;
+
+        contenido.innerHTML = origen.innerHTML || '<div style="color:#666;">No hay despiece calculado.</div>';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespieceCOR2300('Mostrando despiece COR-2300.');
+        setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+    }
+
+    function cerrarOverlayDespieceCOR2300() {
+        const overlay = document.getElementById('despieceOverlayCOR2300');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function actualizarVisibilidadDespieceCOR2300() {
+        const panel = document.getElementById('despiecePanelCompacto');
+        const result = document.getElementById('despieceCor2300Resultado');
+        const overlay = document.getElementById('despieceOverlayCOR2300');
+        if (!panel || !result) return;
+
+        const activa = esSerieCOR2300Seleccionada();
+        panel.style.display = activa ? '' : 'none';
+
+        if (activa) {
+            if (!window.__ultimoDespieceCOR2300) {
+                result.innerHTML = '<div style="color:#444;">Seleccionada <strong>Ventana CE</strong>. Ya puedes calcular el despiece COR-2300.</div>';
+            }
+        } else {
+            window.__ultimoDespieceCOR2300 = null;
+            result.innerHTML = '<div style="color:#666;">El despiece COR-2300 solo está activo cuando la serie seleccionada es <strong>Ventana CE</strong>.</div>';
+            if (overlay) overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        actualizarEstadoDespieceCOR2300();
+    }
+
+    function actualizarDespieceCOR2300SiActivo() {
+        if (!document.getElementById('despieceCor2300Resultado')) return;
+        if (!esSerieCOR2300Seleccionada()) return;
+        if (window.__ultimoDespieceCOR2300) {
+            generarDespieceCOR2300();
+        }
+    }
+
+    function descargarTextoComoArchivoSeguro(filename, mimeType, contenido) {
+        try {
+            // iOS/Safari funciona mejor compartiendo un archivo real cuando está disponible.
+            if (navigator.share && typeof File !== 'undefined') {
+                const file = new File([contenido], filename, { type: mimeType });
+                const canShare = !navigator.canShare || navigator.canShare({ files: [file] });
+                if (canShare) {
+                    return navigator.share({ files: [file], title: filename });
+                }
+            }
+        } catch (e) {
+            // seguimos con los fallbacks
+        }
+
+        try {
+            const blob = new Blob([contenido], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+            return Promise.resolve(true);
+        } catch (e) {
+            // último fallback más seguro para iPhone/iPad: overlay cerrable con copiar
+        }
+
+        return new Promise((resolve) => {
+            const existing = document.getElementById('csvFallbackOverlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'csvFallbackOverlay';
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; padding:20px;';
+
+            const box = document.createElement('div');
+            box.style.cssText = 'background:#fff; width:min(92vw,780px); max-height:85vh; overflow:auto; border-radius:12px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);';
+
+            const title = document.createElement('div');
+            title.innerHTML = '<strong>Exportación CSV</strong><div style="margin-top:6px; color:#555;">Tu navegador no permitió guardar el archivo directamente. Puedes copiar el contenido o cerrarlo sin salir bloqueado.</div>';
+
+            const ta = document.createElement('textarea');
+            ta.value = contenido;
+            ta.style.cssText = 'width:100%; min-height:320px; margin-top:12px; font-family:monospace; font-size:13px;';
+
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex; gap:10px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap;';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = 'Copiar CSV';
+            copyBtn.onclick = async () => {
+                try {
+                    ta.select();
+                    ta.setSelectionRange(0, ta.value.length);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(ta.value);
+                    } else {
+                        document.execCommand('copy');
+                    }
+                    alert('CSV copiado.');
+                } catch (err) {
+                    alert('No se pudo copiar automáticamente.');
+                }
+            };
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Cerrar';
+            closeBtn.onclick = () => overlay.remove();
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(closeBtn);
+            box.appendChild(title);
+            box.appendChild(ta);
+            box.appendChild(actions);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+            resolve(false);
+        });
+    }
+
+    function generarDespieceCOR2300() {
+        if (!esSerieCOR2300Seleccionada()) {
+            const target = document.getElementById('despieceCor2300Resultado');
+            if (target) {
+                target.innerHTML = '<div style="color:#666;">Selecciona <strong>Ventana CE</strong> para usar el despiece de la serie COR-2300.</div>';
+            }
+            window.__ultimoDespieceCOR2300 = null;
+            actualizarEstadoDespieceCOR2300();
+            return null;
+        }
+        const resultadoEl = document.getElementById('despieceCor2300Resultado');
+        if (!resultadoEl) return null;
+
+        const anchoTotal = mmEntero((document.getElementById('ancho') || {}).value);
+        const hojas = Math.max(0, Math.round(Number((document.getElementById('hojas') || {}).value) || 0));
+        const anchoCentral = mmEntero(getAnchoZonaCentralMM());
+        const altoPrincipalBruto = mmEntero(altoVentanaPrincipalRealMM || (document.getElementById('alto') || {}).value);
+        const llevaCondensacion = !!(document.getElementById('despieceCondensacion') && document.getElementById('despieceCondensacion').checked);
+        const altoCalculo = Math.max(0, altoPrincipalBruto - (llevaCondensacion ? 20 : 0));
+
+        const piezas = [];
+        const avisos = [];
+        const resumen = {
+            serie: 'COR-2300',
+            tipo: 'Practicable abisagrada',
+            anchoTotal,
+            altoTotal: mmEntero((document.getElementById('alto') || {}).value),
+            anchoCentral,
+            altoPrincipalBruto,
+            altoPrincipalCalculo: altoCalculo,
+            llevaCondensacion,
+            hojas,
+            piezas
+        };
+
+        if (hojas > 3) {
+            avisos.push('El despiece COR-2300 cargado por ahora solo contempla 0, 1, 2 o 3 hojas.');
+        }
+
+        if (anchoCentral > 0 && altoCalculo > 0) {
+            pushPiezaDespiece(piezas, 'COR-2322', 'Marco ventana', 'Vertical marco principal', altoCalculo, 2, '45°', 'barras', { modulo: 'Ventana principal' });
+            pushPiezaDespiece(piezas, 'COR-2322', 'Marco ventana', 'Horizontal marco principal', anchoCentral, 2, '45°', 'barras', { modulo: 'Ventana principal' });
+        }
+
+        if (llevaCondensacion) {
+            pushPiezaDespiece(piezas, 'COR-2356', 'Condensación', 'Condensación principal', anchoCentral, 1, 'Recto', 'barras', { modulo: 'Ventana principal' });
+            avisos.push('Con condensación se descuenta 20 mm al alto de cálculo de la ventana principal.');
+        }
+
+        if (hojas >= 1 && hojas <= 3) {
+            const altoHoja = altoCalculo - 42;
+            const anchoHoja = obtenerAnchoHojaFormulaCOR2300(hojas, anchoCentral);
+
+            if (altoHoja <= 0 || anchoHoja <= 0) {
+                avisos.push('Las medidas actuales dejan alguna hoja con largo no válido. Revisa ancho/alto.');
+            } else {
+                pushPiezaDespiece(piezas, 'COR-2396', 'Hoja ventana', 'Vertical hoja', altoHoja, hojas * 2, '45°', 'barras', { modulo: 'Hojas' });
+                pushPiezaDespiece(piezas, 'COR-2396', 'Hoja ventana', 'Horizontal hoja', anchoHoja, hojas * 2, '45°', 'barras', { modulo: 'Hojas' });
+
+                if (hojas >= 2) {
+                    pushPiezaDespiece(piezas, 'COR-2324', 'Inversor', 'Vertical inversor', altoCalculo - 109, 1, 'Recto', 'barras', { modulo: 'Ventana principal' });
+                }
+
+                pushPiezaDespiece(piezas, 'COR-2019', 'Junquillo', 'Junquillo vertical hoja', altoHoja - 132, hojas * 2, 'Recto', 'barras', { modulo: 'Hojas' });
+                pushPiezaDespiece(piezas, 'COR-2019', 'Junquillo', 'Junquillo horizontal hoja', anchoHoja - 92, hojas * 2, 'Recto', 'barras', { modulo: 'Hojas' });
+
+                addVidrioDespiece(piezas, 'Vidrio hoja', anchoHoja - 112, altoHoja - 112, hojas, 'Hojas');
+            }
+        }
+
+        if (fijoInferior && mmEntero(altoFijoInferiorMM) > 0) {
+            addFijoRectoDespiece(piezas, 'fijo inferior', anchoTotal, mmEntero(altoFijoInferiorMM));
+        }
+
+        if (fijoIzquierdo && mmEntero(anchoFijoIzquierdoMM) > 0 && altoPrincipalBruto > 0) {
+            addFijoRectoDespiece(piezas, 'fijo izquierdo', mmEntero(anchoFijoIzquierdoMM), altoPrincipalBruto);
+        }
+
+        if (fijoDerecho && mmEntero(anchoFijoDerechoMM) > 0 && altoPrincipalBruto > 0) {
+            addFijoRectoDespiece(piezas, 'fijo derecho', mmEntero(anchoFijoDerechoMM), altoPrincipalBruto);
+        }
+
+        if (fijoSuperior) {
+            const topHeights = [mmEntero(altoFijoSupIzqMM), mmEntero(altoFijoSupDerMM)];
+            if (modoArco) topHeights.push(mmEntero(altoFijoSupCenMM));
+            const iguales = topHeights.every(v => v === topHeights[0]);
+            if (iguales && topHeights[0] > 0) {
+                addFijoRectoDespiece(piezas, 'fijo superior', anchoTotal, topHeights[0]);
+            } else {
+                avisos.push('El fijo superior trapecio/arco no se incluye aún en el despiece automático porque necesita fórmula específica.');
+            }
+        }
+
+        const piezasBarras = piezas.filter(p => p.grupo === 'barras');
+        const piezasVidrio = piezas.filter(p => p.grupo === 'vidrios');
+
+        const agrupado = {};
+        piezasBarras.forEach(p => {
+            const key = [p.ref, p.nombre, p.pieza, p.length, p.cutType].join('|');
+            if (!agrupado[key]) agrupado[key] = Object.assign({}, p);
+            else agrupado[key].qty += p.qty;
+        });
+        const barrasAgrupadas = Object.values(agrupado).sort((a, b) => {
+            if (a.ref !== b.ref) return a.ref.localeCompare(b.ref);
+            if (a.pieza !== b.pieza) return a.pieza.localeCompare(b.pieza);
+            return a.length - b.length;
+        });
+
+        const resumenPerfiles = {};
+        barrasAgrupadas.forEach(p => {
+            const k = p.ref + ' — ' + p.nombre;
+            if (!resumenPerfiles[k]) resumenPerfiles[k] = { perfil: k, qty: 0, metros: 0 };
+            resumenPerfiles[k].qty += p.qty;
+            resumenPerfiles[k].metros += (p.length * p.qty) / 1000;
+        });
+        const resumenPerfilesArr = Object.values(resumenPerfiles);
+
+        window.__ultimoDespieceCOR2300 = {
+            meta: resumen,
+            barras: barrasAgrupadas,
+            vidrios: piezasVidrio,
+            avisos
+        };
+
+        let htmlOut = '';
+        htmlOut += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Serie:</strong> COR-2300</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Hojas:</strong> ${hojas}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Ancho principal:</strong> ${escaparHtml(fmtMm(anchoCentral))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto cálculo:</strong> ${escaparHtml(fmtMm(altoCalculo))}</div>
+        </div>`;
+
+        if (avisos.length) {
+            htmlOut += `<div style="background:#fff4d6; border:1px solid #e5cf8e; color:#6f5617; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+                <strong>Avisos:</strong><br>${avisos.map(a => '• ' + escaparHtml(a)).join('<br>')}
+            </div>`;
+        }
+
+        htmlOut += `<h4 style="margin:8px 0;">Barras</h4>`;
+        if (!barrasAgrupadas.length) {
+            htmlOut += `<div>No hay barras calculadas con la configuración actual.</div>`;
+        } else {
+            htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="background:#f0eee8;">
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Largo</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Corte</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${barrasAgrupadas.map(p => `<tr>
+                        <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.perfil)}</td>
+                        <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.pieza)}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(p.length))}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.qty}</td>
+                        <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.cutType)}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table></div>`;
+        }
+
+        htmlOut += `<h4 style="margin:16px 0 8px;">Vidrios</h4>`;
+        if (!piezasVidrio.length) {
+            htmlOut += `<div>No hay vidrios calculados con la configuración actual.</div>`;
+        } else {
+            htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="background:#f0eee8;">
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Ancho</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Alto</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${piezasVidrio.map(v => `<tr>
+                        <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(v.pieza)}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.width))}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.height))}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${v.qty}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table></div>`;
+        }
+
+        if (resumenPerfilesArr.length) {
+            htmlOut += `<h4 style="margin:16px 0 8px;">Resumen por perfil</h4>
+            <div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="background:#f0eee8;">
+                        <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Piezas</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Metros</th>
+                        <th style="border:1px solid #ddd; padding:8px; text-align:right;">Barras 6500</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${resumenPerfilesArr.map(r => `<tr>
+                        <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(r.perfil)}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.qty}</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.metros.toFixed(2)} m</td>
+                        <td style="border:1px solid #ddd; padding:8px; text-align:right;">${Math.ceil((r.metros * 1000) / 6500)}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table></div>`;
+        }
+
+        resultadoEl.innerHTML = htmlOut;
+        return window.__ultimoDespieceCOR2300;
+    }
+
+    function textoPlanoDespieceCOR2300() {
+        const data = window.__ultimoDespieceCOR2300 || generarDespieceCOR2300();
+        if (!data) return '';
+        const lines = [];
+        lines.push('DESPIECE COR-2300');
+        lines.push('Serie practicable abisagrada');
+        lines.push(`Ancho principal: ${data.meta.anchoCentral} mm`);
+        lines.push(`Alto cálculo principal: ${data.meta.altoPrincipalCalculo} mm`);
+        lines.push(`Hojas: ${data.meta.hojas}`);
+        lines.push('');
+        lines.push('BARRAS');
+        data.barras.forEach(p => lines.push(`${p.perfil} | ${p.pieza} | ${p.length} mm | ${p.qty} ud | ${p.cutType}`));
+        lines.push('');
+        lines.push('VIDRIOS');
+        data.vidrios.forEach(v => lines.push(`${v.pieza} | ${v.width} x ${v.height} mm | ${v.qty} ud`));
+        if (data.avisos && data.avisos.length) {
+            lines.push('');
+            lines.push('AVISOS');
+            data.avisos.forEach(a => lines.push('- ' + a));
+        }
+        return lines.join('\n');
+    }
+
+    function copiarDespieceCOR2300() {
+        generarDespieceCOR2300Compacto();
+        const texto = textoPlanoDespieceCOR2300();
+        if (!texto) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('Despiece copiado.');
+            }).catch(() => {
+                alert(texto);
+            });
+        } else {
+            alert(texto);
+        }
+    }
+
+    function exportarDespieceCOR2300CSV() {
+        const data = generarDespieceCOR2300();
+        if (!data) return;
+        const rows = [['grupo','perfil','pieza','largo_mm','ancho_mm','alto_mm','uds','corte']];
+        data.barras.forEach(p => rows.push(['barra', p.perfil, p.pieza, p.length, '', '', p.qty, p.cutType]));
+        data.vidrios.forEach(v => rows.push(['vidrio', 'Vidrio', v.pieza, '', v.width, v.height, v.qty, '']));
+        const csv = rows.map(row => row.map(val => `"${String(val == null ? '' : val).replace(/"/g, '""')}"`).join(';')).join('\n');
+        descargarTextoComoArchivoSeguro('despiece-cor-2300.csv', 'text/csv;charset=utf-8;', csv);
+    }
+
+
+
     function exportarPNG() {
         const canvas = document.getElementById('canvas');
         
@@ -4017,6 +4649,7 @@ if (mostrarAltoTotalDer) {
         
         actualizarOpcionesFijos();
         actualizarVista();
+        generarDespieceCOR2300();
     }
 </script>
 
@@ -4042,6 +4675,172 @@ if (mostrarAltoTotalDer) {
       }
     }, {passive:true});
   })();
+
+    const CUT_MASTER_INTEGRADO_HTML = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no\" />\n  <title>Cut M\u00e1ster integrado</title>\n  <style>\n    :root{\n      --bg:#f3eeee;\n      --panel:#ffffff;\n      --soft:#dbe9d6;\n      --soft-2:#cfe0cb;\n      --line:#ddd6d6;\n      --text:#2f241f;\n      --muted:#7c7571;\n      --tab:#d9d6e7;\n      --accent:#2d231d;\n      --blue:#1f7af0;\n      --danger:#b84a4a;\n      --ok:#43774c;\n    }\n    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\n    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;touch-action:manipulation}\n    body{min-height:100vh}\n    button,input,select,textarea{font:inherit}\n    button{cursor:pointer;border:none;background:none;color:inherit}\n    .app{max-width:980px;margin:0 auto;min-height:100vh;background:var(--bg)}\n    .topbar{position:sticky;top:0;z-index:20;height:34px;background:#d7e6d1;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #c8d7c3}\n    .topbar .title{font-size:18px;font-weight:700;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}\n    .icon-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}\n    .nav-home-btn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;margin-left:92px;border:2px solid rgba(47,36,31,.18);background:rgba(255,255,255,.34)}\n    .icon-btn:active,.primary-btn:active,.soft-btn:active,.tab:active{transform:scale(.985)}\n    .screen{display:none;padding:10px 12px 74px}\n    #resultsScreen{padding-bottom:170px}\n    .screen.active{display:block}\n    .hero{display:none}\n    .project-create{display:flex;gap:8px;align-items:end;margin-bottom:14px}\n    .field{flex:1}\n    .label{font-size:13px;color:var(--muted);margin-bottom:3px}\n    .input, .num-input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:18px;outline:none;color:var(--text);border-radius:0}\n    .num-input{font-size:17px}\n    .confirm-btn{background:#d7e6d1;border-radius:10px;min-width:52px;height:42px;font-size:24px}\n    .section-btn{background:#cfe0cb;border-radius:10px;padding:12px 16px;font-size:17px;text-align:center;width:100%;box-shadow:0 1px 0 rgba(0,0,0,.05)}\n    .card{background:var(--panel);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;border:1px solid #ece7e7}\n    .project-row,.material-row,.piece-row,.stock-row,.material-list-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #ece7e7}\n    .project-row:first-child,.material-row:first-child,.piece-row:first-child,.stock-row:first-child,.material-list-row:first-child{border-top:none}\n    .project-name{flex:1;font-size:17px}\n    .row-actions{display:flex;gap:8px;align-items:center}\n    .ghost{color:#958d89}\n    .bottom-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}\n    .soft-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:16px;min-width:150px;text-align:center}\n    .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--tab);border-top:1px solid #cac4da;z-index:25;height:54px}\n    .tab{flex:1;padding:12px 6px;text-align:center;font-size:16px;border-right:1px solid #cbc5db}\n    .tab:last-child{border-right:none}\n    .tab.active{font-weight:700}\n    .header-title{font-size:18px;text-align:center;margin:2px 0 12px;font-weight:500}\n    .toolbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px}\n    .pill{padding:8px 12px;border:1px solid #665e5a;border-radius:10px;background:transparent;font-size:14px}\n    .material-block{margin:12px 0;background:transparent}\n    .material-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}\n    .material-name{font-size:18px;font-weight:700;flex:1}\n    .material-grid-head,.entry-grid{display:grid;grid-template-columns:1.15fr 1fr .95fr auto;gap:10px;align-items:end}\n    .material-grid-head{padding:2px 34px 0 34px;color:#8e8783;font-size:12px}\n    .entry-list{display:flex;flex-direction:column;gap:8px}\n    .material-body.is-collapsed .material-grid-head,.material-body.is-collapsed .entry-list,.material-body.is-collapsed .primary-row-btns{display:none}\n    .collapse-toggle{font-size:18px;line-height:1}\n    .entry-grid{padding-left:34px}\n    .add-inline{width:34px;height:34px;border-radius:999px;background:#d7e6d1;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}\n    .inline-x{font-size:18px;color:#88817d;width:26px;height:26px;display:flex;align-items:center;justify-content:center}\n    .entry-name-input{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:16px;outline:none;color:var(--text);border-radius:0}\n    .cut-select{width:100%;border:none;border-bottom:1px solid var(--line);background:transparent;padding:6px 0;font-size:15px;outline:none;color:var(--text);border-radius:0}\n    .cut-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;background:#eef3ea;font-size:12px;color:#5d625d;margin-left:6px;vertical-align:middle}\n    .piece-meta{font-size:12px;color:#7b7470;margin-top:6px}\n\n    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);display:none;align-items:flex-end;justify-content:center;z-index:60;padding:12px}\n    .modal-backdrop.active{display:flex}\n    .modal-card{width:min(100%,520px);background:#fff;border-radius:16px 16px 12px 12px;padding:16px 14px 14px;box-shadow:0 10px 26px rgba(0,0,0,.18)}\n    .modal-title{font-size:18px;font-weight:700;margin:0 0 6px}\n    .modal-text{font-size:14px;color:#6e6763;margin:0 0 12px;line-height:1.35}\n    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}\n    .modal-btn{background:#cfe0cb;border-radius:10px;padding:11px 14px;font-size:15px;min-width:110px;text-align:center}\n    .modal-btn.secondary{background:#ece7e7}\n    .modal-btn.danger{background:#ead1d1;color:#7a1f1f}\n    .primary-row-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}\n    .primary-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:16px;flex:1;min-width:180px;text-align:center}\n    .subtle{color:#817a76}\n    .results-tabs{display:flex;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:58px;z-index:10;margin:-14px -12px 10px}\n    .results-tab{flex:1;padding:10px 12px;font-size:16px;text-align:center;border-bottom:3px solid transparent;background:#fff;color:#7a7470}\n    .results-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}\n    .result-panel{display:none}\n    .result-panel.active{display:block}\n    .diagram-card{margin-bottom:22px}\n    .diagram-title{font-size:30px;font-weight:800;line-height:1.05;margin-bottom:10px}\n    .diagram-sub{font-size:15px;color:#5e5651;margin-bottom:16px;line-height:1.32}\n    .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}\n    .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}\n    .bar-sketch-wrap{flex:1;min-width:0}\n    .bar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:700;margin:0 0 4px;color:#3c312b}\n    .bar-head-title{display:inline-block}\n    .bar-metrics{display:flex;align-items:center;gap:8px;flex-wrap:wrap}\n    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:4px 10px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:14px;font-weight:800;line-height:1.1;color:#3c312b}\n    .bar-chip.waste{background:#e4e4e4;border-color:#cfcfcf}\n    .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}\n    .bar-sketch-wrap{position:relative}\n    .bar-canvas{position:relative;width:100%;max-width:900px}\n    .bar-touch-layer{position:absolute;inset:0;z-index:3;background:transparent;pointer-events:auto}\n    .bar-hit-zone{position:absolute;background:transparent;border:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;z-index:4;cursor:pointer;min-width:18px}\n    .bar-outline{stroke:#433630;stroke-width:2.2;fill:none}\n    .cut-fill{fill:var(--piece-fill, #dfd7cf);transition:fill .16s ease,opacity .16s ease}\n    .cut-fill.active{fill:#1f7af0 !important}\n    .cut-fill.done{fill:#8fb36a !important}\n    .cut-fill.done.active{fill:#6ea84c !important}\n    .cut-fill.dimmed{opacity:.28}\n    .waste-fill{fill:#8f8f8f;transition:opacity .16s ease}\n    .cut-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-style:italic;font-weight:500;letter-spacing:.2px}\n    .cut-text.active{fill:#ffffff;font-weight:700}\n    .cut-text.done{fill:#ffffff;font-weight:700}\n    .cut-text.done.active{fill:#ffffff}\n    .cut-text.dimmed{opacity:.30}\n    .cut-line{stroke:#433630;stroke-width:2.2}\n    .cut-line.active{stroke:#433630;stroke-width:2.2}\n    .cut-line.dimmed{opacity:.38}\n    .bar-sketch.is-filtering .waste-fill{opacity:.35}\n    .selection-toast{position:fixed;left:10px;right:10px;bottom:calc(54px + env(safe-area-inset-bottom, 0px) + 4px);background:#5b4332;color:#fff;border-radius:18px;padding:14px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:90;box-shadow:0 10px 24px rgba(0,0,0,.18)}\n    .selection-toast.show{display:flex}\n    .selection-toast-content{display:flex;flex-direction:column;gap:10px;width:100%}\n    .selection-top{font-size:15px;font-weight:800;line-height:1.15}\n    .selection-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}\n    .selection-pending-wrap{display:flex;align-items:flex-end;gap:6px;flex-shrink:0;min-width:92px}\n    .selection-pending-number{font-size:34px;font-weight:900;line-height:1}\n    .selection-pending-label{font-size:13px;font-weight:700;line-height:1.05;opacity:.95;padding-bottom:3px}\n    .selection-toast-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}\n    .selection-count-btn{width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;flex-shrink:0}\n    .selection-count-btn:active,.selection-toast-btn:active{transform:scale(.97)}\n    .selection-toast-btn{border:none;background:transparent;color:#fff;font-size:16px;font-weight:700;padding:8px 6px;flex-shrink:0}\n\n\n    .diagram-note{font-size:13px;color:#7b7470;margin-top:4px}\n    .small{font-size:10px}\n    .material-list-row{justify-content:space-between;font-size:15px;background:#fff}\n    .summary{background:#fff;border:1px solid #ece7e7;border-radius:10px;padding:10px 12px;margin-bottom:10px;line-height:1.35;font-size:14px}\n    .results-export-bar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}\n    .export-btn.active{background:#7ea96f;color:#fff}\n    .export-btn{background:#cfe0cb;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;min-width:170px;text-align:center}\n    .export-btn.secondary{background:#d7e6f8}\n    .export-status{display:none;background:#eff6ff;border:1px solid #d7e8ff;color:#1e3a8a;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13px;line-height:1.35;word-break:break-word}\n    .export-status.show{display:block}\n    .manual-download-link{display:none;font-size:14px;font-weight:700;margin:0 0 12px;color:#1f5fbf;text-decoration:none}\n    .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}\n    .setting-card{background:#fff;border-radius:10px;padding:12px;border:1px solid #ece7e7}\n    .setting-card h4{margin:0 0 6px;font-size:15px}\n    .setting-select,.setting-input{width:100%;border:1px solid #ddd6d6;background:#fff;border-radius:10px;padding:10px 12px;font-size:16px;outline:none;color:var(--text)}\n    .setting-save{margin-top:12px}\n    .setting-line{font-size:13px;color:#6f6966;margin-top:4px}\n    .empty{color:#7d7672;font-size:14px;padding:12px 0}\n    .muted-note{font-size:13px;color:#756e6a}\n\n    .footer-space{height:10px}\n    .btn-menu{\n      position:fixed;\n      top:10px;\n      left:10px;\n      z-index:9999;\n      padding:10px 15px;\n      border-radius:20px;\n      border:none;\n      background:#e74c3c;\n      color:#fff;\n      font-weight:bold;\n      box-shadow:0 2px 5px rgba(0,0,0,.2);\n      cursor:pointer;\n      font-size:.9rem;\n      width:auto !important;\n      display:inline-flex !important;\n      align-items:center;\n      justify-content:center;\n      -webkit-tap-highlight-color:transparent;\n      touch-action:manipulation;\n    }\n    @media (max-width: 720px){\n      .btn-menu{top:8px;left:8px;padding:9px 13px;font-size:.85rem}\n      .topbar{height:38px}\n      .topbar .title{font-size:17px}\n      .nav-home-btn{width:36px;height:36px;font-size:23px;margin-left:90px;border-radius:11px}\n      .hero{font-size:17px;margin-bottom:18px}\n      .project-create{align-items:center}\n      .input{font-size:17px}\n      .section-btn{font-size:16px;padding:12px}\n      .header-title{font-size:17px}\n      .material-name{font-size:17px}\n      .material-grid-head{padding-left:34px;font-size:12px}\n      .entry-grid{grid-template-columns:1.05fr 1fr .78fr auto;padding-left:34px;gap:8px}\n      .primary-btn,.soft-btn,.tab{font-size:15px}\n      .results-tabs{top:54px}\n      .results-tab{font-size:15px}\n      .selection-bottom{align-items:flex-end}\n      .selection-pending-wrap{min-width:76px}\n      .selection-pending-number{font-size:30px}\n      .selection-pending-label{font-size:12px}\n      .selection-toast-controls{gap:6px}\n      .bar{height:30px}\n      .seg{font-size:10px}\n    }\n  </style>\n</head>\n<body>\n\n<button id=\"legacyBackBtn\" class=\"btn-menu\" type=\"button\" aria-label=\"Volver al men\u00fa\">\u2190 MEN\u00da</button>\n<div class=\"app\">\n  <div class=\"topbar\">\n    <button id=\"leftTopBtn\" class=\"icon-btn nav-home-btn\" aria-label=\"Inicio\">\u2302</button>\n    <div id=\"topTitle\" class=\"title\">Cut M\u00e1ster v2.1</div>\n    <button id=\"rightTopBtn\" class=\"icon-btn\" aria-label=\"Ajustes\">\u2699</button>\n  </div>\n\n  <section id=\"homeScreen\" class=\"screen active\">\n    <div class=\"hero\">Crea un proyecto nuevo o abre uno existente.</div>\n    <div class=\"project-create\">\n      <div class=\"field\">\n        \n        <input id=\"newProjectInput\" class=\"input\" type=\"text\" placeholder=\"Nuevo proyecto\" inputmode=\"text\" />\n      </div>\n      <button id=\"createProjectBtn\" class=\"confirm-btn\" aria-label=\"Crear proyecto\">\u2713</button>\n    </div>\n\n    <button class=\"section-btn\" id=\"loadProjectBtn\">Proyectos</button>\n    <div class=\"card\" style=\"margin-top:2px\">\n      <div id=\"projectsList\"></div>\n    </div>\n\n    <div class=\"bottom-actions\" style=\"display:none\"></div>\n  </section>\n\n  <section id=\"piecesScreen\" class=\"screen\">\n    <div class=\"header-title\">Introducir piezas del proyecto</div>\n    <div id=\"piecesContent\"></div>\n    <div class=\"primary-row-btns\">\n      <button class=\"primary-btn\" id=\"addLinearBtn\">Nueva barra</button>\n    </div>\n  </section>\n\n  <section id=\"stockScreen\" class=\"screen\">\n    <div class=\"toolbar\">\n      <div class=\"header-title\" style=\"margin:0\">Introducir stock</div>\n      <button class=\"pill\" id=\"applyDefaultStockBtn\">Aplicar stock por defecto</button>\n    </div>\n    <div id=\"stockContent\"></div>\n  </section>\n\n  <section id=\"resultsScreen\" class=\"screen\">\n    <div class=\"results-tabs\">\n      <button class=\"results-tab active\" data-result-tab=\"diagram\">Diagrama de corte</button>\n      <button class=\"results-tab\" data-result-tab=\"list\">Lista de material</button>\n    </div>\n    <div id=\"resultsSummary\" class=\"summary\"></div>\n    <div class=\"results-export-bar\">\n      <button id=\"toggleColorCutsBtn\" class=\"export-btn secondary\">Colores por medida: OFF</button>\n      <button id=\"exportPngBtn\" class=\"export-btn secondary\">Exportar PNG</button>\n      <button id=\"exportPdfBtn\" class=\"export-btn\">Exportar PDF editable</button>\n    </div>\n    <div id=\"exportStatus\" class=\"export-status\"></div>\n    <a id=\"manualDownloadLink\" class=\"manual-download-link\" href=\"#\" download>Descarga manual</a>\n    <div id=\"diagramPanel\" class=\"result-panel active\"></div>\n    <div id=\"listPanel\" class=\"result-panel\"></div>\n    <div class=\"footer-space\"></div>\n  </section>\n\n  <section id=\"settingsScreen\" class=\"screen\">\n    <div class=\"header-title\">Ajustes</div>\n    <div class=\"settings-grid\">\n      <div class=\"setting-card\">\n        <h4>Unidad de medida</h4>\n        <select id=\"unitSelect\" class=\"setting-select\">\n          <option value=\"mm\">mm</option>\n          <option value=\"cm\">cm</option>\n        </select>\n        <div class=\"setting-line\">Por defecto en mm, con opci\u00f3n de cambiar a cm.</div>\n      </div>\n      <div class=\"setting-card\">\n        <h4>Ancho de corte</h4>\n        <input id=\"kerfInput\" class=\"setting-input\" type=\"number\" min=\"0\" step=\"0.1\" inputmode=\"decimal\" />\n        <div class=\"setting-line\">Valor editable. Se aplica en la optimizaci\u00f3n.</div>\n      </div>\n      <div class=\"setting-card\">\n        <h4>Stock por defecto</h4>\n        <div class=\"setting-line\">Guarda el stock actual del proyecto abierto como base para los pr\u00f3ximos proyectos.</div>\n        <div class=\"setting-actions\">\n          <button id=\"defaultStockBtn\" class=\"soft-btn\">Guardar stock por defecto</button>\n        </div>\n      </div>\n      <div class=\"setting-card\">\n        <h4>Proyectos JSON</h4>\n        <div class=\"setting-line\">Exporta o importa todos los proyectos guardados en un archivo .json.</div>\n        <div class=\"setting-actions\">\n          <button id=\"exportJsonBtn\" class=\"soft-btn\">Exportar .json</button>\n          <button id=\"importJsonBtn\" class=\"soft-btn\">Importar .json</button>\n          <input id=\"importJsonInput\" type=\"file\" accept=\"application/json,.json\" style=\"display:none\" />\n        </div>\n      </div>\n\n    </div>\n    <div class=\"setting-save\">\n      <button id=\"saveSettingsBtn\" class=\"soft-btn\">Guardar ajustes</button>\n    </div>\n  </section>\n\n  <div id=\"bottomTabs\" class=\"tabs\" style=\"display:none\">\n    <button class=\"tab active\" data-screen=\"piecesScreen\">Piezas</button>\n    <button class=\"tab\" data-screen=\"stockScreen\">Stock</button>\n    <button class=\"tab\" data-screen=\"resultsScreen\">Resultados</button>\n  </div>\n</div>\n\n\n  <div id=\"appModal\" class=\"modal-backdrop\" aria-hidden=\"true\">\n    <div class=\"modal-card\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"modalTitle\">\n      <div id=\"modalTitle\" class=\"modal-title\"></div>\n      <div id=\"modalText\" class=\"modal-text\"></div>\n      <div id=\"modalFieldWrap\" style=\"display:none\">\n        <input id=\"modalInput\" class=\"setting-input\" type=\"text\" inputmode=\"text\" />\n      </div>\n      <div class=\"modal-actions\">\n        <button id=\"modalCancelBtn\" type=\"button\" class=\"modal-btn secondary\">Cancelar</button>\n        <button id=\"modalOkBtn\" type=\"button\" class=\"modal-btn\">Aceptar</button>\n      </div>\n    </div>\n  </div>\n\n<script>\n(function(){\n  'use strict';\n\n  const STORAGE_KEY = 'cutmaster_projects_v10';\n  const DEFAULT_STOCK_KEY = 'cutmaster_default_stock_v10';\n  const SETTINGS_KEY = 'cutmaster_settings_v10';\n\n  const $ = (id) => document.getElementById(id);\n  const state = {\n    projects: loadProjects(),\n    defaultStock: loadDefaultStock(),\n    settings: loadSettings(),\n    currentProjectId: null,\n    currentScreen: 'homeScreen',\n    resultTab: 'diagram',\n    highlightPieceKey: '',\n    highlightPieceId: '',\n    highlightMaterialId: ''\n  };\n\n  function uid(){ return 'p_' + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }\n  function loadProjects(){\n    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; }\n  }\n  function saveProjects(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects)); }\n  function loadDefaultStock(){\n    try {\n      const data = JSON.parse(localStorage.getItem(DEFAULT_STOCK_KEY) || 'null');\n      return data || [{ material:'General', stock:[{ length:6000, qty:999 }] }];\n    } catch(e){\n      return [{ material:'General', stock:[{ length:6000, qty:999 }] }];\n    }\n  }\n  function saveDefaultStock(){ localStorage.setItem(DEFAULT_STOCK_KEY, JSON.stringify(state.defaultStock)); }\n  function loadSettings(){\n    try {\n      const data = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null') || {};\n      return {\n        unit: data.unit === 'cm' ? 'cm' : 'mm',\n        kerfMm: Number(data.kerfMm) >= 0 ? Number(data.kerfMm) : 4,\n        colorCuts: !!data.colorCuts\n      };\n    } catch(e){\n      return { unit:'mm', kerfMm:4, colorCuts:false };\n    }\n  }\n  function saveSettings(){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); }\n  function currentUnit(){ return state.settings.unit || 'mm'; }\n  function currentKerfMm(){ return Number(state.settings.kerfMm) >= 0 ? Number(state.settings.kerfMm) : 4; }\n  function colorsByMeasureEnabled(){ return !!(state.settings && state.settings.colorCuts); }\n  function toDisplayLength(mm){\n    const n = Number(mm) || 0;\n    return currentUnit() === 'cm' ? (n / 10) : n;\n  }\n  function fromDisplayLength(value){\n    const n = Number(String(value).replace(',', '.')) || 0;\n    return currentUnit() === 'cm' ? Math.round(n * 10) : Math.round(n);\n  }\n  function formatLength(mm){\n    const v = toDisplayLength(mm);\n    if(currentUnit() === 'cm'){\n      return Number.isInteger(v) ? String(v) : v.toFixed(1).replace(/\\.0$/, '');\n    }\n    return String(Math.round(v));\n  }\n  function currentProject(){ return state.projects.find(p => p.id === state.currentProjectId) || null; }\n\n  function ensureProjectProgress(project){\n    if(project && (!project.cutProgress || typeof project.cutProgress !== 'object')) project.cutProgress = {};\n    return project && project.cutProgress ? project.cutProgress : {};\n  }\n  function isPieceDone(pieceId){\n    const project = currentProject();\n    if(!project || !pieceId) return false;\n    const progress = ensureProjectProgress(project);\n    return !!progress[pieceId];\n  }\n  function setPieceDone(pieceId, done){\n    const project = currentProject();\n    if(!project || !pieceId) return;\n    const progress = ensureProjectProgress(project);\n    if(done) progress[pieceId] = true;\n    else delete progress[pieceId];\n    saveProjects();\n  }\n\n  function showScreen(id){\n    state.currentScreen = id;\n    ['homeScreen','piecesScreen','stockScreen','resultsScreen','settingsScreen'].forEach(screenId => {\n      $(screenId).classList.toggle('active', screenId === id);\n    });\n    const inProject = ['piecesScreen','stockScreen','resultsScreen'].includes(id);\n    $('bottomTabs').style.display = inProject ? 'flex' : 'none';\n    document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === id));\n    updateTopbar();\n    if(id === 'homeScreen') renderProjects();\n    if(id === 'piecesScreen') renderPieces();\n    if(id === 'stockScreen') renderStock();\n    if(id === 'resultsScreen') renderResults();\n  }\n  function updateTopbar(){\n    const project = currentProject();\n    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut M\u00e1ster v2.1');\n    $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? '\u24d8' : '\u2302'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';\n    $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Informaci\u00f3n' : 'Inicio');\n  }\n\n  function renderSettings(){\n    if($('unitSelect')) $('unitSelect').value = currentUnit();\n    if($('kerfInput')) $('kerfInput').value = formatLength(currentKerfMm());\n  }\n\n  function createProject(name){\n    const safeName = (name || '').trim();\n    if(!safeName){ alert('Escribe un nombre para el proyecto.'); return; }\n    const project = {\n      id: uid(),\n      name: safeName,\n      createdAt: new Date().toISOString(),\n      cutProgress: {},\n      materials: []\n    };\n    state.projects.unshift(project);\n    state.currentProjectId = project.id;\n    saveProjects();\n    $('newProjectInput').value = '';\n\n    openTextModal({\n      title: 'Nueva barra',\n      text: 'Escribe el nombre del perfil o material. Ejemplos: marco, hoja, zanca, junquillo.',\n      value: 'Barra 1',\n      placeholder: 'Nombre de la barra',\n      okText: 'Crear',\n      onCancel(){\n        state.projects = state.projects.filter(p => p.id !== project.id);\n        if(state.currentProjectId === project.id) state.currentProjectId = null;\n        saveProjects();\n        refreshProjectScreens();\n        showScreen('homeScreen');\n      },\n      onSubmit(value){\n        const safeMaterialName = (value || '').trim() || 'Barra 1';\n        project.materials.push({\n          id: uid(),\n          name: safeMaterialName,\n          profileFace: 40,\n          pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],\n          stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],\n          collapsed: false\n        });\n        saveProjects();\n        refreshProjectScreens();\n        showScreen('piecesScreen');\n      }\n    });\n  }\n\n\n  function renameProject(projectId){\n    const project = state.projects.find(p => p.id === projectId);\n    if(!project) return;\n    openTextModal({\n      title: 'Cambiar nombre del proyecto',\n      text: 'Escribe el nuevo nombre del proyecto.',\n      value: project.name,\n      placeholder: 'Nombre del proyecto',\n      okText: 'Guardar',\n      onSubmit(value){\n        const safeName = (value || '').trim();\n        if(!safeName) return true;\n        project.name = safeName;\n        saveProjects();\n        renderProjects();\n        updateTopbar();\n      }\n    });\n  }\n\n  function deleteProject(projectId){\n    const project = state.projects.find(p => p.id === projectId);\n    if(!project) return;\n    openConfirmModal({\n      title: 'Borrar proyecto',\n      text: `\u00bfQuieres borrar el proyecto \"${project.name}\"?`,\n      okText: 'Borrar',\n      danger: true,\n      onConfirm(){\n        state.projects = state.projects.filter(p => p.id !== projectId);\n        if(state.currentProjectId === projectId){\n          state.currentProjectId = null;\n        }\n        saveProjects();\n        renderProjects();\n        if(!state.projects.length || !state.currentProjectId){\n          showScreen('homeScreen');\n        } else {\n          updateTopbar();\n        }\n      }\n    });\n  }\n\n  function renderProjects(){\n    const root = $('projectsList');\n    if(!state.projects.length){\n      root.innerHTML = '<div class=\"project-row\"><div class=\"project-name ghost\">Todav\u00eda no hay proyectos guardados.</div></div>';\n      return;\n    }\n    root.innerHTML = '';\n    state.projects.forEach(project => {\n      const row = document.createElement('div');\n      row.className = 'project-row';\n\n      const openBtn = document.createElement('button');\n      openBtn.className = 'project-name';\n      openBtn.textContent = project.name;\n      openBtn.type = 'button';\n      openBtn.addEventListener('click', function(){\n        state.currentProjectId = project.id;\n        showScreen('piecesScreen');\n      });\n\n      const actions = document.createElement('div');\n      actions.className = 'row-actions';\n\n      const renameBtn = document.createElement('button');\n      renameBtn.className = 'icon-btn ghost';\n      renameBtn.type = 'button';\n      renameBtn.title = 'Renombrar';\n      renameBtn.textContent = '\u270e';\n      renameBtn.addEventListener('click', function(ev){\n        ev.stopPropagation();\n        renameProject(project.id);\n      });\n\n      const deleteBtn = document.createElement('button');\n      deleteBtn.className = 'icon-btn ghost';\n      deleteBtn.type = 'button';\n      deleteBtn.title = 'Borrar';\n      deleteBtn.textContent = '\ud83d\uddd1';\n      deleteBtn.addEventListener('click', function(ev){\n        ev.stopPropagation();\n        deleteProject(project.id);\n      });\n\n      actions.appendChild(renameBtn);\n      actions.appendChild(deleteBtn);\n      row.appendChild(openBtn);\n      row.appendChild(actions);\n      root.appendChild(row);\n    });\n  }\n\n  function renderPieces(){\n    const project = currentProject();\n    if(!project) return showScreen('homeScreen');\n    ensureProjectProgress(project);\n    const root = $('piecesContent');\n    if(!project.materials.length) project.materials.push({id:uid(), name:'Barra 1', profileFace:40, pieces:[{ id:uid(), length:1000, qty:1, cutType:'recto' }], stock:[{ id:uid(), label:'Barra 1', length:6600, qty:999 }], collapsed:false});\n    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; if(!material.profileFace) material.profileFace = 40; (material.pieces || []).forEach(piece => { if(!piece.cutType) piece.cutType = 'recto'; }); });\n    root.innerHTML = '';\n    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; if(!material.profileFace) material.profileFace = 40; (material.pieces || []).forEach(piece => { if(!piece.cutType) piece.cutType = 'recto'; }); });\n    project.materials.forEach(material => {\n      const wrap = document.createElement('div');\n      wrap.className = 'material-block';\n      wrap.innerHTML = `\n        <div class=\"material-head\">\n          <button class=\"icon-btn ghost collapse-toggle\" type=\"button\" title=\"Mostrar u ocultar\" data-toggle-material=\"${material.id}\">${material.collapsed ? '\u2304' : '\u2303'}</button>\n          <div class=\"material-name\">${escapeHtml(material.name)}</div>\n          <button class=\"icon-btn ghost\" data-rename-material=\"${material.id}\">\u270e</button>\n          <button class=\"icon-btn ghost\" data-delete-material=\"${material.id}\">\ud83d\uddd1</button>\n        </div>\n        <div class=\"material-body ${material.collapsed ? 'is-collapsed' : ''}\">\n          <div class=\"material-grid-head\">\n            <div>Longitud (${currentUnit()})</div>\n            <div>Cantidad</div>\n            <div>Corte</div>\n            <div></div>\n          </div>\n          <div class=\"entry-list\" id=\"pieces-${material.id}\"></div>\n        </div>`;\n      root.appendChild(wrap);\n      const list = wrap.querySelector(`#pieces-${CSS.escape(material.id)}`);\n      if(!material.pieces.length){\n        list.innerHTML = '<div class=\"empty\">Sin piezas todav\u00eda.</div>';\n      } else {\n        material.pieces.forEach(piece => list.appendChild(buildEntryRow(material.id, piece, 'piece')));\n      }\n    });\n  }\n\n  function renderStock(){\n    const project = currentProject();\n    if(!project) return showScreen('homeScreen');\n    const root = $('stockContent');\n    root.innerHTML = '';\n    project.materials.forEach(material => { if(typeof material.collapsed !== 'boolean') material.collapsed = false; });\n    project.materials.forEach(material => {\n      const wrap = document.createElement('div');\n      wrap.className = 'material-block';\n      wrap.innerHTML = `\n        <div class=\"material-head\">\n          <button class=\"icon-btn ghost collapse-toggle\" type=\"button\" title=\"Mostrar u ocultar\" data-toggle-material=\"${material.id}\">${material.collapsed ? '\u2304' : '\u2303'}</button>\n          <div class=\"material-name\">${escapeHtml(material.name)}</div>\n          <button class=\"icon-btn ghost\" data-copy-default-material=\"${material.id}\">\u21e2</button>\n          <button class=\"icon-btn ghost\" data-rename-material=\"${material.id}\">\u270e</button>\n          <button class=\"icon-btn ghost\" data-delete-material=\"${material.id}\">\ud83d\uddd1</button>\n        </div>\n        <div class=\"material-body ${material.collapsed ? 'is-collapsed' : ''}\">\n          <div class=\"material-grid-head\">\n            <div>Nombre</div>\n            <div>Longitud (${currentUnit()})</div>\n            <div>Cantidad</div>\n            <div></div>\n          </div>\n          <div class=\"entry-list\" id=\"stock-${material.id}\"></div>\n          <div class=\"primary-row-btns\" style=\"margin-top:18px\">\n            <button class=\"primary-btn\" data-add-stock=\"${material.id}\">A\u00f1adir barra</button>\n          </div>\n        </div>`;\n      root.appendChild(wrap);\n      const list = wrap.querySelector(`#stock-${CSS.escape(material.id)}`);\n      if(!material.stock.length){\n        list.innerHTML = '<div class=\"empty\">Sin stock todav\u00eda.</div>';\n      } else {\n        material.stock.forEach(stock => list.appendChild(buildEntryRow(material.id, stock, 'stock')));\n      }\n    });\n  }\n\n  function toggleMaterial(materialId){\n    const project = currentProject();\n    if(!project) return;\n    const material = project.materials.find(m => m.id === materialId);\n    if(!material) return;\n    material.collapsed = !material.collapsed;\n    saveProjects();\n    if(state.currentScreen === 'piecesScreen') renderPieces();\n    if(state.currentScreen === 'stockScreen') renderStock();\n  }\n\n  function buildEntryRow(materialId, entry, type){\n    const row = document.createElement('div');\n    row.className = type === 'piece' ? 'piece-row' : 'stock-row';\n    const fieldsHtml = type === 'piece'\n      ? `\n        <input class=\"num-input\" type=\"number\" min=\"1\" step=\"1\" value=\"${formatLength(entry.length)}\" data-edit-${type}=\"${materialId}:${entry.id}:length\" inputmode=\"numeric\">\n        <input class=\"num-input\" type=\"number\" min=\"1\" step=\"1\" value=\"${entry.qty}\" data-edit-${type}=\"${materialId}:${entry.id}:qty\" inputmode=\"numeric\">\n        <select class=\"cut-select\" data-edit-${type}=\"${materialId}:${entry.id}:cutType\">\n          <option value=\"recto\" ${normalizeCutType(entry.cutType) === 'recto' ? 'selected' : ''}>Recto</option>\n          <option value=\"45-45\" ${normalizeCutType(entry.cutType) === '45-45' ? 'selected' : ''}>45\u00b0 / 45\u00b0</option>\n          <option value=\"45-recto\" ${normalizeCutType(entry.cutType) === '45-recto' ? 'selected' : ''}>45\u00b0 / Recto</option>\n          <option value=\"recto-45\" ${normalizeCutType(entry.cutType) === 'recto-45' ? 'selected' : ''}>Recto / 45\u00b0</option>\n        </select>\n      `\n      : `\n        <input class=\"entry-name-input\" type=\"text\" value=\"${escapeHtml(entry.label || '')}\" placeholder=\"Barra\" data-edit-${type}=\"${materialId}:${entry.id}:label\" inputmode=\"text\">\n        <input class=\"num-input\" type=\"number\" min=\"1\" step=\"1\" value=\"${formatLength(entry.length)}\" data-edit-${type}=\"${materialId}:${entry.id}:length\" inputmode=\"numeric\">\n        <input class=\"num-input\" type=\"number\" min=\"1\" step=\"1\" value=\"${entry.qty}\" data-edit-${type}=\"${materialId}:${entry.id}:qty\" inputmode=\"numeric\">\n      `;\n    row.innerHTML = `\n      <button class=\"add-inline\" data-clone-${type}=\"${materialId}:${entry.id}\">+</button>\n      <div class=\"entry-grid\" style=\"flex:1;padding-left:0\">\n        ${fieldsHtml}\n        <button class=\"inline-x\" data-remove-${type}=\"${materialId}:${entry.id}\" aria-label=\"Borrar\">\u2715</button>\n      </div>`;\n    return row;\n  }\n\n\n  function getCutSides(cutType){\n    const value = normalizeCutType(cutType);\n    const map = {\n      'recto': ['recto','recto'],\n      '45-45': ['45','45'],\n      '45-recto': ['45','recto'],\n      'recto-45': ['recto','45']\n    };\n    return map[value] || ['recto','recto'];\n  }\n\n  function buildMeasureColorMap(result){\n    const palette = ['#f4b183','#ffd966','#d5a6bd','#e06666','#f6b26b','#8e7cc3','#c27ba0','#f9cb9c','#d9d2e9','#ea9999','#b4a7d6','#ffe599','#c27c4e','#d17a22','#b45f06','#a64d79','#cc7a99','#b37b6d','#c9a227','#d99694'];\n    const map = new Map();\n    ((result && result.materials) || []).forEach(mat => {\n      let colorIndex = 0;\n      const scope = String(mat.id || '');\n      (mat.bars || []).forEach(bar => {\n        (bar.pieces || []).forEach(piece => {\n          const lengthKey = String(Number(piece.length) || 0);\n          const scopedKey = `${scope}__${lengthKey}`;\n          if(!lengthKey || map.has(scopedKey)) return;\n          map.set(scopedKey, palette[colorIndex % palette.length]);\n          colorIndex += 1;\n        });\n      });\n    });\n    return map;\n  }\n\n  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap){\n    const width = 900;\n    const height = 118;\n    const topY = 18;\n    const bottomY = 68;\n    const centerY = (topY + bottomY) / 2;\n    const leftPad = 16;\n    const usableWidth = width - 32;\n    const endX = leftPad + usableWidth;\n    const barLength = Math.max(1, Number(bar.length) || 1);\n    const faceMm = Math.max(1, Number(profileFace) || 40);\n    const facePx = Math.max(9, (faceMm / barLength) * usableWidth);\n    const totalUsed = bar.pieces.reduce((a,b)=>a+(Number(b.length)||0),0) + Math.max(0, (bar.pieces.length-1)*currentKerfMm());\n    const waste = Math.max(0, barLength - totalUsed);\n    const pieceAreaWidth = usableWidth - ((waste / barLength) * usableWidth);\n\n    function pieceKey(piece){\n      return `${Number(piece.length)||0}`;\n    }\n    function makeRuns(){\n      const runs = [];\n      let i = 0;\n      while(i < bar.pieces.length){\n        const piece = bar.pieces[i];\n        const len = Number(piece.length) || 0;\n        const rawWidth = (len / barLength) * usableWidth;\n        const tiny = len < 180 || rawWidth < 34;\n        if(!tiny){\n          runs.push({ type:'piece', pieces:[piece], rawWidth });\n          i += 1;\n          continue;\n        }\n        const group = [piece];\n        let groupWidth = rawWidth;\n        let j = i + 1;\n        while(j < bar.pieces.length){\n          const next = bar.pieces[j];\n          const nextLen = Number(next.length) || 0;\n          const nextWidth = (nextLen / barLength) * usableWidth;\n          const nextTiny = nextLen < 180 || nextWidth < 34;\n          if(!nextTiny) break;\n          group.push(next);\n          groupWidth += nextWidth;\n          j += 1;\n        }\n        if(group.length === 1){\n          runs.push({ type:'piece', pieces:group, rawWidth:groupWidth });\n        } else {\n          runs.push({ type:'group', pieces:group, rawWidth:groupWidth });\n        }\n        i = j;\n      }\n      return runs;\n    }\n    function drawBoundary(x, prevRight, nextLeft){\n      if(prevRight === '45' && nextLeft === '45'){\n        return `<path class=\"cut-line\" d=\"M ${x - facePx} ${topY} L ${x} ${bottomY} L ${x + facePx} ${topY}\" fill=\"none\" stroke=\"#3e342e\" stroke-width=\"2.5\" stroke-linejoin=\"round\" />`;\n      }\n      if(prevRight === '45' && nextLeft === 'recto'){\n        return `<line class=\"cut-line\" x1=\"${x - facePx}\" y1=\"${topY}\" x2=\"${x}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`;\n      }\n      if(prevRight === 'recto' && nextLeft === '45'){\n        return `<line class=\"cut-line\" x1=\"${x}\" y1=\"${bottomY}\" x2=\"${x + facePx}\" y2=\"${topY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`;\n      }\n      return `<line class=\"cut-line\" x1=\"${x}\" y1=\"${topY}\" x2=\"${x}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`;\n    }\n\n    const runs = makeRuns();\n    const fills = [];\n    const cuts = [];\n    const labels = [];\n    const legend = [];\n    const totalRunWidth = runs.reduce((sum, run) => sum + run.rawWidth, 0);\n    const hitZones = [];\n    const legendMap = new Map();\n    const useMeasureColors = colorsByMeasureEnabled();\n    const measureColorMap = sharedMeasureColorMap instanceof Map ? sharedMeasureColorMap : new Map();\n\n    function getPieceColor(measureKey){\n      const key = String(measureKey || '').trim();\n      const scope = String(materialId || '').trim();\n      if(!key) return '#dfd7cf';\n      return measureColorMap.get(`${scope}__${key}`) || '#dfd7cf';\n    }\n\n    const outer = [\n      `<line x1=\"${leftPad}\" y1=\"${topY}\" x2=\"${endX}\" y2=\"${topY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`,\n      `<line x1=\"${leftPad}\" y1=\"${bottomY}\" x2=\"${endX}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`\n    ];\n\n    let x = leftPad;\n\n    if(bar.pieces.length){\n      const [firstLeft] = getCutSides(bar.pieces[0].cutType);\n      if(firstLeft === '45'){\n        cuts.push(`<line class=\"cut-line\" x1=\"${leftPad}\" y1=\"${bottomY}\" x2=\"${leftPad + facePx}\" y2=\"${topY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n      } else {\n        cuts.push(`<line class=\"cut-line\" x1=\"${leftPad}\" y1=\"${topY}\" x2=\"${leftPad}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n      }\n    } else {\n      cuts.push(`<line class=\"cut-line\" x1=\"${leftPad}\" y1=\"${topY}\" x2=\"${leftPad}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n    }\n\n    runs.forEach((run, runIndex) => {\n      const runWidth = totalRunWidth > 0 ? (run.rawWidth / totalRunWidth) * pieceAreaWidth : 0;\n      const xStart = x;\n      const xEnd = runIndex === runs.length - 1 ? leftPad + pieceAreaWidth : x + runWidth;\n      const innerWidth = Math.max(2, xEnd - xStart);\n\n      if(run.type === 'piece'){\n        const piece = run.pieces[0];\n        const len = Number(piece.length) || 0;\n        const key = pieceKey(piece);\n        const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${len}`);\n        const cutType = normalizeCutType(piece.cutType);\n        const legendKey = `${len}__${cutType}`;\n        const pieceColor = getPieceColor(key);\n        let legendEntry = legendMap.get(legendKey);\n        if(!legendEntry){\n          legendEntry = {\n            key: legendKey,\n            length: len,\n            cutType,\n            qty: 0,\n            color: pieceColor\n          };\n          legendMap.set(legendKey, legendEntry);\n        }\n        legendEntry.qty += 1;\n\n        fills.push(`<rect class=\"cut-fill\" data-piece-id=\"${escapeHtml(pieceId)}\" data-piece-key=\"${escapeHtml(key)}\" data-piece-scope=\"${escapeHtml(String(materialId || ''))}\" x=\"${xStart}\" y=\"${topY}\" width=\"${innerWidth}\" height=\"${bottomY-topY}\" rx=\"1\" ry=\"1\" fill=\"${useMeasureColors ? pieceColor : '#dfd7cf'}\" style=\"--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}\" />`);\n        if(innerWidth >= 34){\n          const size = innerWidth < 95 ? 28 : 40;\n          labels.push(`<text class=\"cut-text\" data-piece-id=\"${escapeHtml(pieceId)}\" data-piece-key=\"${escapeHtml(key)}\" data-piece-scope=\"${escapeHtml(String(materialId || ''))}\" x=\"${(xStart+xEnd)/2}\" y=\"${centerY+8}\" text-anchor=\"middle\" font-size=\"${size}\" font-family=\"Arial, sans-serif\" fill=\"#3e342e\">${formatLength(len)}</text>`);\n        }\n        hitZones.push({\n          key,\n          pieceId,\n          materialId: String(materialId || ''),\n          leftPct: (xStart / width) * 100,\n          widthPct: (innerWidth / width) * 100,\n          topPct: (topY / height) * 100,\n          heightPct: ((bottomY - topY) / height) * 100\n        });\n      } else {\n        let pieceCursor = xStart;\n        const totalPieceLen = run.pieces.reduce((sum, p) => sum + (Number(p.length) || 0), 0) || 1;\n        run.pieces.forEach((piece, pieceIdx) => {\n          const len = Number(piece.length) || 0;\n          const key = pieceKey(piece);\n          const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${pieceIdx}_${len}`);\n          const cutType = normalizeCutType(piece.cutType);\n          const legendKey = `${len}__${cutType}`;\n          const pieceColor = getPieceColor(key);\n          let legendEntry = legendMap.get(legendKey);\n          if(!legendEntry){\n            legendEntry = {\n              key: legendKey,\n              length: len,\n              cutType,\n              qty: 0,\n              color: pieceColor\n            };\n            legendMap.set(legendKey, legendEntry);\n          }\n          legendEntry.qty += 1;\n\n          const pieceWidth = pieceIdx === run.pieces.length - 1\n            ? Math.max(8, (xStart + innerWidth) - pieceCursor)\n            : Math.max(8, innerWidth * (len / totalPieceLen));\n\n          fills.push(`<rect class=\"cut-fill\" data-piece-id=\"${escapeHtml(pieceId)}\" data-piece-key=\"${escapeHtml(key)}\" data-piece-scope=\"${escapeHtml(String(materialId || ''))}\" x=\"${pieceCursor}\" y=\"${topY}\" width=\"${pieceWidth}\" height=\"${bottomY-topY}\" rx=\"1\" ry=\"1\" fill=\"${useMeasureColors ? pieceColor : '#dfd7cf'}\" style=\"--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}\" />`);\n\n          hitZones.push({\n            key,\n            pieceId,\n            materialId: String(materialId || ''),\n            leftPct: (pieceCursor / width) * 100,\n            widthPct: (pieceWidth / width) * 100,\n            topPct: ((topY - 10) / height) * 100,\n            heightPct: ((bottomY - topY + 20) / height) * 100\n          });\n\n          if(pieceIdx < run.pieces.length - 1){\n            const px = pieceCursor + pieceWidth;\n            cuts.push(`<path class=\"cut-line\" d=\"M ${px - Math.min(10, facePx*0.55)} ${topY} L ${px} ${bottomY} L ${px + Math.min(10, facePx*0.55)} ${topY}\" fill=\"none\" stroke=\"#6b645f\" stroke-width=\"1.8\" stroke-linejoin=\"round\" />`);\n          }\n\n          pieceCursor += pieceWidth;\n        });\n      }\n\n      const lastPiece = run.pieces[run.pieces.length - 1];\n      const nextRun = runs[runIndex + 1];\n      const [, prevRight] = getCutSides(lastPiece.cutType);\n\n      if(nextRun){\n        const [nextLeft] = getCutSides(nextRun.pieces[0].cutType);\n        cuts.push(drawBoundary(xEnd, prevRight, nextLeft));\n      } else {\n        if(prevRight === '45'){\n          cuts.push(`<line class=\"cut-line\" x1=\"${xEnd - facePx}\" y1=\"${topY}\" x2=\"${xEnd}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n        } else {\n          cuts.push(`<line class=\"cut-line\" x1=\"${xEnd}\" y1=\"${topY}\" x2=\"${xEnd}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n        }\n      }\n\n      x = xEnd;\n    });\n\n    const wasteStart = leftPad + pieceAreaWidth;\n    if(waste > 0 && endX > wasteStart){\n      fills.push(`<rect class=\"waste-fill\" x=\"${wasteStart}\" y=\"${topY}\" width=\"${Math.max(2, endX - wasteStart)}\" height=\"${bottomY-topY}\" fill=\"#9a9a9a\" stroke=\"none\" />`);\n      const wasteWidth = endX - wasteStart;\n      if(wasteWidth >= 90){\n        labels.push(`<text x=\"${wasteStart + wasteWidth/2}\" y=\"${centerY+8}\" text-anchor=\"middle\" font-size=\"30\" font-family=\"Arial, sans-serif\" fill=\"#ffffff\">${formatLength(waste)}</text>`);\n      }\n      cuts.push(`<line class=\"cut-line\" x1=\"${endX}\" y1=\"${topY}\" x2=\"${endX}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n    } else {\n      cuts.push(`<line class=\"cut-line\" x1=\"${endX}\" y1=\"${topY}\" x2=\"${endX}\" y2=\"${bottomY}\" stroke=\"#3e342e\" stroke-width=\"2.5\" />`);\n    }\n\n    const legendItems = Array.from(legendMap.values());\n    const legendCols = 2;\n    const legendRowHeight = 46;\n    const legendTop = 104;\n    const legendColWidth = 430;\n    legendItems.forEach((item, idx) => {\n      const col = idx % legendCols;\n      const row = Math.floor(idx / legendCols);\n      const lx = leftPad + (col * legendColWidth);\n      const ly = legendTop + (row * legendRowHeight);\n      legend.push(`<rect x=\"${lx}\" y=\"${ly - 22}\" width=\"34\" height=\"34\" rx=\"5\" ry=\"5\" fill=\"${item.color}\" stroke=\"#433630\" stroke-width=\"1.8\" />`);\n      legend.push(`<text x=\"${lx + 48}\" y=\"${ly + 8}\" font-family=\"Arial, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#2f241f\">${item.qty} x ${formatLength(item.length)} ${currentUnit()} \u00b7 ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);\n    });\n    const totalHeight = 96 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 6 : 0);\n\n    return {\n      width,\n      height: totalHeight,\n      svg: `<svg class=\"bar-sketch\" viewBox=\"0 0 ${width} ${totalHeight}\" xmlns=\"http://www.w3.org/2000/svg\" aria-label=\"Barra ${index+1}\">\n        ${fills.join('')}\n        ${outer.join('')}\n        ${cuts.join('')}\n        ${labels.join('')}\n        ${legend.join('')}\n      </svg>`,\n      hitZones\n    };\n  }\n\n  function getSelectedPieceCount(pieceKey, materialId){\n    const key = String(pieceKey || '').trim();\n    if(!key) return 0;\n    const result = calculateProject(currentProject() || { materials: [] });\n    return (result.materials || []).reduce((total, mat) => {\n      if(materialId && String(mat.id || '') !== String(materialId)) return total;\n      return total + (mat.bars || []).reduce((sum, bar) => {\n        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key).length;\n      }, 0);\n    }, 0);\n  }\n\n  function getSelectedPieceDoneCount(pieceKey, materialId){\n    const key = String(pieceKey || '').trim();\n    if(!key) return 0;\n    const result = calculateProject(currentProject() || { materials: [] });\n    return (result.materials || []).reduce((total, mat) => {\n      if(materialId && String(mat.id || '') !== String(materialId)) return total;\n      return total + (mat.bars || []).reduce((sum, bar) => {\n        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key && isPieceDone(piece.uid)).length;\n      }, 0);\n    }, 0);\n  }\n\n\n  function getSelectedPiecesInOrder(pieceKey, materialId){\n    const key = String(pieceKey || '').trim();\n    if(!key) return [];\n    const result = calculateProject(currentProject() || { materials: [] });\n    const items = [];\n    (result.materials || []).forEach((mat, materialIndex) => {\n      if(materialId && String(mat.id || '') !== String(materialId)) return;\n      (mat.bars || []).forEach((bar, barIndex) => {\n        (bar.pieces || []).forEach((piece, pieceIndex) => {\n          if(String(Number(piece.length) || 0) === key){\n            items.push({\n              uid: piece.uid,\n              materialIndex,\n              barIndex,\n              pieceIndex,\n              length: Number(piece.length) || 0\n            });\n          }\n        });\n      });\n    });\n    items.sort((a,b) => a.materialIndex - b.materialIndex || a.barIndex - b.barIndex || a.pieceIndex - b.pieceIndex);\n    return items;\n  }\n\n  function markNextSelectedPiece(){\n    const key = state.highlightPieceKey || '';\n    if(!key) return;\n    const materialId = state.highlightMaterialId || '';\n    const next = getSelectedPiecesInOrder(key, materialId).find(item => !isPieceDone(item.uid));\n    if(!next) return;\n    setPieceDone(next.uid, true);\n    state.highlightPieceId = next.uid;\n    applyPieceHighlight(key);\n  }\n\n  function unmarkLastSelectedPiece(){\n    const key = state.highlightPieceKey || '';\n    if(!key) return;\n    const materialId = state.highlightMaterialId || '';\n    const items = getSelectedPiecesInOrder(key, materialId);\n    for(let i = items.length - 1; i >= 0; i--){\n      if(isPieceDone(items[i].uid)){\n        setPieceDone(items[i].uid, false);\n        state.highlightPieceId = items[i].uid;\n        break;\n      }\n    }\n    applyPieceHighlight(key);\n  }\n\n  function resetSelectedPieces(){\n    const key = state.highlightPieceKey || '';\n    if(!key) return;\n    const materialId = state.highlightMaterialId || '';\n    getSelectedPiecesInOrder(key, materialId).forEach(item => setPieceDone(item.uid, false));\n    state.highlightPieceId = '';\n    applyPieceHighlight(key);\n  }\n\n  function ensureSelectionToast(){\n    let toast = document.getElementById('selectionToast');\n    if(toast) return toast;\n    toast = document.createElement('div');\n    toast.id = 'selectionToast';\n    toast.className = 'selection-toast';\n    toast.innerHTML = '<div class=\"selection-toast-content\"><div class=\"selection-top\" id=\"selectionToastTop\"></div><div class=\"selection-bottom\"><div class=\"selection-pending-wrap\"><div class=\"selection-pending-number\" id=\"selectionToastPending\">0</div><div class=\"selection-pending-label\">pend.</div></div><div class=\"selection-toast-controls\"><button type=\"button\" class=\"selection-count-btn\" id=\"selectionMinusBtn\" aria-label=\"Quitar una cortada\">\u2212</button><button type=\"button\" class=\"selection-count-btn\" id=\"selectionPlusBtn\" aria-label=\"Marcar una cortada\">+</button><button type=\"button\" class=\"selection-toast-btn\" id=\"selectionResetBtn\">Reset</button><button type=\"button\" class=\"selection-toast-btn\" id=\"selectionToastBtn\">Cerrar</button></div></div></div>';\n    document.body.appendChild(toast);\n    document.getElementById('selectionToastBtn').addEventListener('click', () => {\n      state.highlightPieceKey = '';\n      state.highlightPieceId = '';\n      state.highlightMaterialId = '';\n      applyPieceHighlight('');\n    }, {passive:true});\n    document.getElementById('selectionPlusBtn').addEventListener('click', (ev) => {\n      ev.preventDefault();\n      ev.stopPropagation();\n      markNextSelectedPiece();\n    }, {passive:false});\n    document.getElementById('selectionMinusBtn').addEventListener('click', (ev) => {\n      ev.preventDefault();\n      ev.stopPropagation();\n      unmarkLastSelectedPiece();\n    }, {passive:false});\n    document.getElementById('selectionResetBtn').addEventListener('click', (ev) => {\n      ev.preventDefault();\n      ev.stopPropagation();\n      resetSelectedPieces();\n    }, {passive:false});\n    return toast;\n  }\n\n  function updateSelectionToast(pieceKey, materialId){\n    const toast = ensureSelectionToast();\n    const topText = document.getElementById('selectionToastTop');\n    const pendingText = document.getElementById('selectionToastPending');\n    if(pieceKey){\n      const qty = getSelectedPieceCount(pieceKey, materialId);\n      const done = getSelectedPieceDoneCount(pieceKey, materialId);\n      const pending = Math.max(0, qty - done);\n      const plural = qty === 1 ? 'pieza' : 'piezas';\n      topText.textContent = `Hay ${qty} ${plural} de ${pieceKey} ${currentUnit()}`;\n      pendingText.textContent = String(pending);\n      toast.classList.add('show');\n    } else {\n      toast.classList.remove('show');\n    }\n  }\n\n  function applyPieceHighlight(pieceKey, materialId){\n    const fills = document.querySelectorAll('.cut-fill[data-piece-id]');\n    const texts = document.querySelectorAll('.cut-text[data-piece-id]');\n    const lines = document.querySelectorAll('.cut-line');\n    const hasSelection = !!pieceKey;\n\n    document.querySelectorAll('.bar-sketch').forEach(svg => svg.classList.toggle('is-filtering', hasSelection));\n\n    fills.forEach(el => {\n      const same = (el.getAttribute('data-piece-key') || '') === pieceKey && (!materialId || (el.getAttribute('data-piece-scope') || '') === materialId);\n      const done = isPieceDone(el.getAttribute('data-piece-id') || '');\n      el.classList.toggle('active', hasSelection && same && !done);\n      el.classList.toggle('done', done);\n      el.classList.toggle('dimmed', hasSelection && !same && !done);\n    });\n\n    texts.forEach(el => {\n      const same = (el.getAttribute('data-piece-key') || '') === pieceKey && (!materialId || (el.getAttribute('data-piece-scope') || '') === materialId);\n      const done = isPieceDone(el.getAttribute('data-piece-id') || '');\n      el.classList.toggle('active', hasSelection && same && !done);\n      el.classList.toggle('done', done);\n      el.classList.toggle('dimmed', hasSelection && !same && !done);\n    });\n\n    lines.forEach(el => {\n      el.classList.toggle('dimmed', hasSelection);\n      el.classList.remove('active');\n    });\n\n    updateSelectionToast(pieceKey, materialId);\n  }\n\n  function bindPieceHighlighting(){\n    const root = document.getElementById('diagramPanel');\n    if(!root) return;\n\n    ensureSelectionToast();\n\n    root.querySelectorAll('.bar-hit-zone[data-piece-key][data-piece-id][data-piece-scope]').forEach(btn => {\n      if(btn._pieceBound) return;\n      btn._pieceBound = true;\n\n      const activateButton = (ev) => {\n        const key = btn.getAttribute('data-piece-key') || '';\n        const pieceId = btn.getAttribute('data-piece-id') || '';\n        const materialId = btn.getAttribute('data-piece-scope') || '';\n        if(!key || !pieceId || !materialId) return;\n\n        if(state.highlightPieceKey !== key || state.highlightMaterialId !== materialId){\n          state.highlightPieceKey = key;\n          state.highlightPieceId = '';\n          state.highlightMaterialId = materialId;\n        } else {\n          setPieceDone(pieceId, !isPieceDone(pieceId));\n          state.highlightPieceId = pieceId;\n        }\n\n        applyPieceHighlight(state.highlightPieceKey, state.highlightMaterialId);\n        if(ev){\n          ev.preventDefault();\n          ev.stopPropagation();\n        }\n      };\n\n      btn.addEventListener('pointerup', activateButton, {passive:false});\n    });\n\n    root.onclick = (ev) => {\n      const hit = ev.target && ev.target.closest ? ev.target.closest('.bar-hit-zone[data-piece-key]') : null;\n      if(hit) return;\n      const insideSketch = ev.target && ev.target.closest ? ev.target.closest('.bar-sketch-wrap') : null;\n      if(!insideSketch){\n        state.highlightPieceKey = '';\n        state.highlightPieceId = '';\n        state.highlightMaterialId = '';\n        applyPieceHighlight('');\n      }\n    };\n\n    applyPieceHighlight(state.highlightPieceKey || '', state.highlightMaterialId || '');\n  }\n\n  function renderResults(){\n    const project = currentProject();\n    if(!project) return showScreen('homeScreen');\n    ensureProjectProgress(project);\n    const summary = $('resultsSummary');\n    const diagramPanel = $('diagramPanel');\n    const listPanel = $('listPanel');\n    const result = calculateProject(project);\n    const measureColorMap = buildMeasureColorMap(result);\n\n    summary.innerHTML = `<strong>Configuraci\u00f3n:</strong> unidad <strong>${currentUnit()}</strong> \u00b7 ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong> \u00b7 color por corte <strong>${colorsByMeasureEnabled() ? 'activado' : 'desactivado'}</strong>.`;\n    updateColorCutsToggle();\n\n    if(!result.materials.length){\n      diagramPanel.innerHTML = '<div class=\"empty\">A\u00f1ade piezas y stock para ver la optimizaci\u00f3n.</div>';\n      listPanel.innerHTML = '';\n      switchResultTab(state.resultTab);\n      return;\n    }\n\n    diagramPanel.innerHTML = '';\n    listPanel.innerHTML = '';\n\n    result.materials.forEach(mat => {\n      const card = document.createElement('div');\n      card.className = 'diagram-card';\n      let barsHtml = '';\n      if(!mat.bars.length){\n        barsHtml = '<div class=\"empty\">No hay combinaci\u00f3n posible con el stock indicado.</div>';\n      } else {\n        barsHtml = mat.bars.map((bar, idx) => {\n          const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);\n          const hits = sketch.hitZones.map(zone => `<button type=\"button\" class=\"bar-hit-zone\" data-piece-key=\"${escapeHtml(zone.key)}\" data-piece-id=\"${escapeHtml(zone.pieceId)}\" data-piece-scope=\"${escapeHtml(zone.materialId)}\" style=\"pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%\"></button>`).join('');\n          return `<div class=\"bar-row\"><div class=\"bar-label\">1x</div><div class=\"bar-sketch-wrap\"><div class=\"bar-head\"><span class=\"bar-head-title\">Barra ${idx+1}</span><div class=\"bar-metrics\"><span class=\"bar-chip\">Barra ${formatLength(bar.length)} ${currentUnit()}</span><span class=\"bar-chip waste\">Sobra ${formatLength(bar.remaining || 0)} ${currentUnit()}</span></div></div><div class=\"bar-canvas\">${sketch.svg}<div class=\"bar-touch-layer\">${hits}</div></div></div></div>`;\n        }).join('');\n      }\n      card.innerHTML = `<div class=\"diagram-title\">${escapeHtml(mat.name)}</div>\n        \n        ${barsHtml}`;\n      diagramPanel.appendChild(card);\n\n      const listCard = document.createElement('div');\n      listCard.className = 'card';\n      let rows = '';\n      if(mat.cutSummary && mat.cutSummary.length){\n        rows += `<div class=\"material-list-row\"><div><strong>${escapeHtml(mat.name)}</strong><div class=\"piece-meta\">Tipos de corte: ${mat.cutSummary.map(item => `<span class=\"cut-badge\">${cutTypeLabel(item.cutType)} \u00b7 ${item.qty} ud.</span>`).join(' ')}</div></div></div>`;\n      }\n      if(!mat.stockUsage.length){\n        rows += '<div class=\"material-list-row\"><div>No se ha podido optimizar con el stock actual.</div></div>';\n      } else {\n        rows += mat.stockUsage.map(item => `<div class=\"material-list-row\"><div><strong>${escapeHtml(mat.name)}</strong> \u00b7 barra ${item.length} mm</div><div>${item.qty} ud.</div></div>`).join('');\n      }\n      listCard.innerHTML = rows;\n      listPanel.appendChild(listCard);\n    });\n\n    switchResultTab(state.resultTab);\n    bindPieceHighlighting();\n  }\n\n  function calculateProject(project){\n    const materials = project.materials.map(material => calculateMaterial(material)).filter(Boolean);\n    return { materials };\n  }\n\n  function calculateMaterial(material){\n    const pieces = [];\n    const cutSummaryMap = new Map();\n    (material.pieces || []).forEach(p => {\n      const len = Number(p.length);\n      const qty = Number(p.qty);\n      const cutType = normalizeCutType(p.cutType);\n      if(len > 0 && qty > 0){\n        cutSummaryMap.set(cutType, (cutSummaryMap.get(cutType) || 0) + qty);\n        for(let i=0;i<qty;i++) pieces.push({ uid:`${p.id}__${i+1}`, length: len, cutType });\n      }\n    });\n\n    const stockList = [];\n    (material.stock || []).forEach(s => {\n      const len = Number(s.length);\n      const qty = Number(s.qty);\n      if(len > 0 && qty > 0){\n        for(let i=0;i<qty;i++) stockList.push(len);\n      }\n    });\n\n    if(!pieces.length && !stockList.length) return null;\n\n    pieces.sort((a,b)=>b.length-a.length || String(a.uid).localeCompare(String(b.uid)));\n    stockList.sort((a,b)=>a-b);\n\n    const kerf = Math.max(0, Number(currentKerfMm()) || 0);\n    const pieceGroups = new Map();\n    pieces.forEach(piece => {\n      const len = Number(piece.length) || 0;\n      if(!pieceGroups.has(len)) pieceGroups.set(len, []);\n      pieceGroups.get(len).push(piece);\n    });\n\n    const uniqueLengths = Array.from(pieceGroups.keys()).sort((a,b)=>b-a);\n    const initialCounts = uniqueLengths.map(len => (pieceGroups.get(len) || []).length);\n    const stockLengths = Array.from(new Set(stockList)).sort((a,b)=>a-b);\n    const initialStockCounts = stockLengths.map(len => stockList.filter(v => v === len).length);\n\n    function fitsWithUsed(stockLen, usedLen, pieceCount, nextLen){\n      const nextUsed = usedLen + nextLen + (pieceCount > 0 ? kerf : 0);\n      return nextUsed <= stockLen ? nextUsed : -1;\n    }\n\n    function buildPlanFromPatterns(patterns){\n      const usageMap = new Map();\n      const bars = patterns.map(pattern => {\n        const barPieces = [];\n        let used = 0;\n        pattern.counts.forEach((qty, idx) => {\n          const len = uniqueLengths[idx];\n          const source = pieceGroups.get(len) || [];\n          for(let i=0;i<qty;i++){\n            const original = source.shift();\n            if(!original) continue;\n            if(barPieces.length > 0) used += kerf;\n            used += len;\n            barPieces.push({ uid: original.uid, length: len, cutType: normalizeCutType(original.cutType) });\n          }\n        });\n        usageMap.set(pattern.stockLen, (usageMap.get(pattern.stockLen) || 0) + 1);\n        return {\n          length: pattern.stockLen,\n          remaining: Math.max(0, pattern.stockLen - used),\n          pieces: barPieces\n        };\n      });\n      const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);\n      bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);\n      return { bars, stockUsage };\n    }\n\n    function heuristicPlan(){\n      const remainingPieces = pieces.map(piece => ({ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }));\n      const availableStock = stockList.slice();\n      const bars = [];\n      const usageMap = new Map();\n\n      function placeInExisting(piece){\n        const pieceLen = Number(piece.length) || 0;\n        let bestBar = null;\n        let bestLeft = Infinity;\n        for(const bar of bars){\n          const needed = pieceLen + (bar.pieces.length > 0 ? kerf : 0);\n          if(bar.remaining >= needed){\n            const left = bar.remaining - needed;\n            if(left < bestLeft){\n              bestLeft = left;\n              bestBar = bar;\n            }\n          }\n        }\n        if(!bestBar) return false;\n        const needed = pieceLen + (bestBar.pieces.length > 0 ? kerf : 0);\n        bestBar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });\n        bestBar.remaining -= needed;\n        return true;\n      }\n\n      function chooseNewStock(piece){\n        const pieceLen = Number(piece.length) || 0;\n        const candidates = [];\n        for(let i=0;i<availableStock.length;i++){\n          const stockLen = availableStock[i];\n          if(stockLen < pieceLen) continue;\n          let used = pieceLen;\n          let pieceCount = 1;\n          for(let j=0;j<remainingPieces.length;j++){\n            const nextLen = Number(remainingPieces[j].length) || 0;\n            const maybeUsed = fitsWithUsed(stockLen, used, pieceCount, nextLen);\n            if(maybeUsed >= 0){\n              used = maybeUsed;\n              pieceCount += 1;\n            }\n          }\n          candidates.push({ index:i, stockLen, waste: stockLen - used, fill: used, pieceCount });\n        }\n        if(!candidates.length) return -1;\n        candidates.sort((a,b)=> b.pieceCount - a.pieceCount || a.waste - b.waste || a.stockLen - b.stockLen || a.index - b.index);\n        return candidates[0].index;\n      }\n\n      while(remainingPieces.length){\n        const piece = remainingPieces.shift();\n        if(placeInExisting(piece)) continue;\n        const stockIndex = chooseNewStock(piece);\n        if(stockIndex === -1) continue;\n        const stockLen = availableStock.splice(stockIndex,1)[0];\n        bars.push({\n          length: stockLen,\n          remaining: Math.max(0, stockLen - (Number(piece.length) || 0)),\n          pieces:[{ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }]\n        });\n        usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);\n      }\n\n      const stockUsage = Array.from(usageMap.entries()).map(([length, qty]) => ({ length, qty })).sort((a,b)=>a.length-b.length);\n      bars.sort((a,b)=>a.length-b.length || b.pieces.length-a.pieces.length);\n      return { bars, stockUsage };\n    }\n\n    function optimizeWithSearch(){\n      const totalPieces = initialCounts.reduce((a,b)=>a+b,0);\n      const totalStock = initialStockCounts.reduce((a,b)=>a+b,0);\n      if(!totalPieces || !totalStock) return { patterns: [] };\n      if(totalPieces > 26 || totalStock > 40 || uniqueLengths.length > 10 || stockLengths.length > 10) return null;\n\n      const startedAt = Date.now();\n      const timeLimitMs = 900;\n      const memo = new Map();\n      const patternCache = new Map();\n      let explored = 0;\n\n      function encode(counts, stockCounts){\n        return counts.join(',') + '|' + stockCounts.join(',');\n      }\n      function sumPieces(counts){\n        return counts.reduce((acc, qty, idx) => acc + qty * uniqueLengths[idx], 0);\n      }\n      function totalRemaining(counts){\n        return counts.reduce((acc, qty) => acc + qty, 0);\n      }\n      function firstPieceIndex(counts){\n        for(let i=0;i<counts.length;i++) if(counts[i] > 0) return i;\n        return -1;\n      }\n      function makeEmptyPattern(stockLen){\n        return { stockLen, counts: new Array(uniqueLengths.length).fill(0), used: 0, pieces: 0 };\n      }\n      function patternKey(pattern){\n        return pattern.stockLen + '|' + pattern.counts.join(',');\n      }\n      function clonePattern(pattern){\n        return { stockLen: pattern.stockLen, counts: pattern.counts.slice(), used: pattern.used, pieces: pattern.pieces };\n      }\n      function distinctLengthsInPattern(pattern){\n        let distinct = 0;\n        for(let i=0;i<pattern.counts.length;i++) if(pattern.counts[i] > 0) distinct += 1;\n        return distinct;\n      }\n      function comparePattern(a, b){\n        const aDistinct = distinctLengthsInPattern(a);\n        const bDistinct = distinctLengthsInPattern(b);\n        return a.used - b.used || aDistinct - bDistinct || b.pieces - a.pieces || a.stockLen - b.stockLen;\n      }\n\n      function generatePatternsForStock(stockLen, counts, firstIdx){\n        const cacheKey = stockLen + '|' + counts.join(',') + '|' + firstIdx;\n        if(patternCache.has(cacheKey)) return patternCache.get(cacheKey);\n        const patterns = [];\n        const seen = new Set();\n        const base = makeEmptyPattern(stockLen);\n        base.counts[firstIdx] = 1;\n        base.used = uniqueLengths[firstIdx];\n        base.pieces = 1;\n\n        function pushPattern(pattern){\n          const key = patternKey(pattern);\n          if(seen.has(key)) return;\n          seen.add(key);\n          patterns.push(clonePattern(pattern));\n        }\n\n        function rec(startIdx, pattern){\n          pushPattern(pattern);\n          if(patterns.length > 40) return;\n          for(let idx=startIdx; idx<uniqueLengths.length; idx++){\n            const available = counts[idx] - pattern.counts[idx];\n            if(available <= 0) continue;\n            const len = uniqueLengths[idx];\n            const nextUsed = fitsWithUsed(stockLen, pattern.used, pattern.pieces, len);\n            if(nextUsed < 0) continue;\n            pattern.counts[idx] += 1;\n            const prevUsed = pattern.used;\n            const prevPieces = pattern.pieces;\n            pattern.used = nextUsed;\n            pattern.pieces += 1;\n            rec(idx, pattern);\n            pattern.counts[idx] -= 1;\n            pattern.used = prevUsed;\n            pattern.pieces = prevPieces;\n            if(Date.now() - startedAt > timeLimitMs) break;\n          }\n        }\n\n        rec(firstIdx, base);\n        patterns.sort((a,b)=>comparePattern(b,a));\n        const limited = patterns.slice(0, 12);\n        patternCache.set(cacheKey, limited);\n        return limited;\n      }\n\n      function search(counts, stockCounts){\n        explored += 1;\n        if(explored > 12000 || Date.now() - startedAt > timeLimitMs) return null;\n        if(totalRemaining(counts) === 0) return { bars: 0, waste: 0, mixPenalty: 0, patterns: [] };\n        const stateKey = encode(counts, stockCounts);\n        if(memo.has(stateKey)) return memo.get(stateKey);\n\n        const firstIdx = firstPieceIndex(counts);\n        if(firstIdx === -1) return { bars: 0, waste: 0, patterns: [] };\n\n        let best = null;\n        for(let stockIdx=0; stockIdx<stockLengths.length; stockIdx++){\n          if(stockCounts[stockIdx] <= 0) continue;\n          const stockLen = stockLengths[stockIdx];\n          if(stockLen < uniqueLengths[firstIdx]) continue;\n          const patterns = generatePatternsForStock(stockLen, counts, firstIdx);\n          for(const pattern of patterns){\n            const nextCounts = counts.slice();\n            let valid = true;\n            for(let i=0;i<nextCounts.length;i++){\n              nextCounts[i] -= pattern.counts[i];\n              if(nextCounts[i] < 0){ valid = false; break; }\n            }\n            if(!valid) continue;\n            const nextStockCounts = stockCounts.slice();\n            nextStockCounts[stockIdx] -= 1;\n            const sub = search(nextCounts, nextStockCounts);\n            if(!sub) continue;\n            const patternDistinct = distinctLengthsInPattern(pattern);\n            const candidate = {\n              bars: sub.bars + 1,\n              waste: sub.waste + Math.max(0, stockLen - pattern.used),\n              mixPenalty: sub.mixPenalty + Math.max(0, patternDistinct - 1),\n              patterns: [clonePattern(pattern)].concat(sub.patterns)\n            };\n            if(!best\n              || candidate.bars < best.bars\n              || (candidate.bars === best.bars && candidate.mixPenalty < best.mixPenalty)\n              || (candidate.bars === best.bars && candidate.mixPenalty === best.mixPenalty && candidate.waste < best.waste)){\n              best = candidate;\n            }\n          }\n        }\n        memo.set(stateKey, best);\n        return best;\n      }\n\n      const solved = search(initialCounts.slice(), initialStockCounts.slice());\n      return solved;\n    }\n\n    const optimized = optimizeWithSearch();\n    const plan = optimized && optimized.patterns ? buildPlanFromPatterns(optimized.patterns) : heuristicPlan();\n\n    const cutSummary = Array.from(cutSummaryMap.entries()).map(([cutType, qty]) => ({ cutType, qty }));\n    return {\n      id: material.id,\n      name: material.name,\n      profileFace: Number(material.profileFace || 40),\n      bars: plan.bars,\n      stockUsage: plan.stockUsage,\n      cutSummary\n    };\n  }\n\n  function refreshProjectScreens(){\n    renderProjects();\n    renderPieces();\n    renderStock();\n    updateTopbar();\n  }\n\n  function openTextModal(opts){\n    const modal = $('appModal');\n    const input = $('modalInput');\n    $('modalTitle').textContent = opts.title || '';\n    $('modalText').textContent = opts.text || '';\n    $('modalFieldWrap').style.display = 'block';\n    input.value = opts.value || '';\n    input.placeholder = opts.placeholder || '';\n    $('modalOkBtn').textContent = opts.okText || 'Aceptar';\n    $('modalOkBtn').className = 'modal-btn';\n    $('modalCancelBtn').style.display = '';\n    modal.classList.add('active');\n    modal.setAttribute('aria-hidden', 'false');\n    setTimeout(() => { input.focus(); input.select(); }, 30);\n    function close(reason){\n      modal.classList.remove('active');\n      modal.setAttribute('aria-hidden', 'true');\n      $('modalOkBtn').onclick = null;\n      $('modalCancelBtn').onclick = null;\n      modal.onclick = null;\n      if(reason === 'cancel' && opts.onCancel) opts.onCancel();\n      if(opts.onClose) opts.onClose(reason || 'close');\n    }\n    $('modalCancelBtn').onclick = function(){ close('cancel'); };\n    modal.onclick = function(ev){ if(ev.target === modal) close('cancel'); };\n    $('modalOkBtn').onclick = function(){\n      const value = input.value;\n      const keepOpen = opts.onSubmit ? opts.onSubmit(value, close) : false;\n      if(!keepOpen) close('submit');\n    };\n  }\n\n  function openConfirmModal(opts){\n    const modal = $('appModal');\n    $('modalTitle').textContent = opts.title || '';\n    $('modalText').textContent = opts.text || '';\n    $('modalFieldWrap').style.display = 'none';\n    $('modalOkBtn').textContent = opts.okText || 'Aceptar';\n    $('modalOkBtn').className = 'modal-btn' + (opts.danger ? ' danger' : '');\n    $('modalCancelBtn').textContent = opts.cancelText || 'Cancelar';\n    $('modalCancelBtn').style.display = '';\n    modal.classList.add('active');\n    modal.setAttribute('aria-hidden', 'false');\n    function close(){\n      modal.classList.remove('active');\n      modal.setAttribute('aria-hidden', 'true');\n      $('modalOkBtn').onclick = null;\n      $('modalCancelBtn').onclick = null;\n      modal.onclick = null;\n    }\n    $('modalCancelBtn').onclick = close;\n    modal.onclick = function(ev){ if(ev.target === modal) close(); };\n    $('modalOkBtn').onclick = function(){\n      if(opts.onConfirm) opts.onConfirm();\n      close();\n    };\n  }\n\n  function addMaterial(){\n    const project = currentProject();\n    if(!project) return;\n    openTextModal({\n      title: 'Nueva barra',\n      text: 'Escribe el nombre del perfil o material. Ejemplos: marco, hoja, zanca, junquillo.',\n      value: `Barra ${project.materials.length + 1}`,\n      placeholder: 'Nombre de la barra',\n      okText: 'Crear',\n      onSubmit(value){\n        const safe = (value || '').trim() || `Barra ${project.materials.length + 1}`;\n        project.materials.push({ id:uid(), name:safe, profileFace:40, pieces:[{ id:uid(), length:1000, qty:1, cutType:'recto' }], stock:[{ id:uid(), label:'Barra 1', length:6600, qty:999 }] });\n        saveProjects();\n        refreshProjectScreens();\n      }\n    });\n  }\n\n  function addEntry(materialId, type){\n    const project = currentProject(); if(!project) return;\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    const target = type === 'piece' ? material.pieces : material.stock;\n    if(type === 'piece') {\n      target.push({ id:uid(), length:1000, qty:1, cutType:'recto' });\n    } else {\n      target.push({ id:uid(), label:`Barra ${target.length + 1}`, length:6000, qty:1 });\n    }\n    saveProjects();\n    type === 'piece' ? renderPieces() : renderStock();\n  }\n\n  function cloneEntry(materialId, entryId, type){\n    const project = currentProject(); if(!project) return;\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    const target = type === 'piece' ? material.pieces : material.stock;\n    const entry = target.find(e => e.id === entryId);\n    if(!entry) return;\n    target.push(type === 'piece'\n      ? { id:uid(), length:entry.length, qty:entry.qty, cutType:normalizeCutType(entry.cutType) }\n      : { id:uid(), label: entry.label ? entry.label + ' copia' : '', length:entry.length, qty:entry.qty });\n    saveProjects();\n    type === 'piece' ? renderPieces() : renderStock();\n  }\n\n  function removeEntry(materialId, entryId, type){\n    const project = currentProject(); if(!project) return;\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    const key = type === 'piece' ? 'pieces' : 'stock';\n    material[key] = material[key].filter(e => e.id !== entryId);\n    saveProjects();\n    type === 'piece' ? renderPieces() : renderStock();\n  }\n\n  function updateEntry(materialId, entryId, field, value, type){\n    const project = currentProject(); if(!project) return;\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    const target = (type === 'piece' ? material.pieces : material.stock).find(e => e.id === entryId);\n    if(!target) return;\n    if(field === 'length'){\n      target[field] = Math.max(1, fromDisplayLength(value));\n    } else if(field === 'qty'){\n      target[field] = Math.max(1, parseInt(value || '1', 10) || 1);\n    } else if(field === 'label'){\n      target[field] = String(value || '').trimStart();\n    } else if(field === 'cutType'){\n      target[field] = normalizeCutType(value);\n    }\n    saveProjects();\n  }\n\n  function renameMaterial(materialId){\n    const project = currentProject(); if(!project) return;\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    openTextModal({\n      title: 'Cambiar nombre del material',\n      text: 'Pon el nombre que necesitas para identificar el corte.',\n      value: material.name,\n      placeholder: 'Nombre de la barra',\n      okText: 'Guardar',\n      onSubmit(value){\n        const safe = (value || '').trim();\n        if(!safe) return true;\n        material.name = safe;\n        saveProjects();\n        refreshProjectScreens();\n      }\n    });\n  }\n\n  function deleteMaterial(materialId){\n    const project = currentProject(); if(!project) return;\n    if(project.materials.length === 1){\n      openConfirmModal({ title:'No se puede borrar', text:'Debe quedar al menos un material dentro del proyecto.', okText:'Entendido', cancelText:'', onConfirm(){}, danger:false });\n      $('modalCancelBtn').style.display = 'none';\n      return;\n    }\n    const material = project.materials.find(m => m.id === materialId); if(!material) return;\n    openConfirmModal({\n      title: 'Borrar material',\n      text: `Se eliminar\u00e1 \"${material.name}\" con sus piezas y barras.`,\n      okText: 'Borrar',\n      danger: true,\n      onConfirm(){\n        project.materials = project.materials.filter(m => m.id !== materialId);\n        saveProjects();\n        refreshProjectScreens();\n      }\n    });\n  }\n\n  function applyDefaultStockToProject(){\n    const project = currentProject(); if(!project) return;\n    project.materials.forEach(material => {\n      const match = state.defaultStock.find(d => d.material.toLowerCase() === material.name.toLowerCase()) || state.defaultStock[0];\n      material.stock = (match.stock || []).map(s => ({ id:uid(), length:Number(s.length)||6000, qty:Number(s.qty)||1 }));\n    });\n    saveProjects();\n    renderStock();\n  }\n\n  function saveCurrentAsDefaultStock(){\n    const project = currentProject();\n    if(!project){\n      const length = prompt('Longitud de barra por defecto en mm:', '6000');\n      const qty = prompt('Cantidad por defecto:', '999');\n      if(length === null || qty === null) return;\n      state.defaultStock = [{ material:'General', stock:[{ length:Math.max(1,parseInt(length,10)||6000), qty:Math.max(1,parseInt(qty,10)||1) }] }];\n      saveDefaultStock();\n      alert('Stock por defecto guardado.');\n      return;\n    }\n    state.defaultStock = project.materials.map(m => ({\n      material: m.name,\n      stock: (m.stock || []).map(s => ({ length:Number(s.length)||6000, qty:Number(s.qty)||1 }))\n    }));\n    saveDefaultStock();\n    alert('Se ha guardado el stock por defecto a partir de este proyecto.');\n  }\n\n  function sanitizeImportedProjects(list){\n    if(!Array.isArray(list)) return [];\n    return list.map(project => ({\n      id: project && project.id ? String(project.id) : uid(),\n      name: project && project.name ? String(project.name) : 'Proyecto',\n      createdAt: project && project.createdAt ? String(project.createdAt) : new Date().toISOString(),\n      cutProgress: project && project.cutProgress && typeof project.cutProgress === 'object' ? project.cutProgress : {},\n      materials: Array.isArray(project && project.materials) && project.materials.length ? project.materials.map(material => ({\n        id: material && material.id ? String(material.id) : uid(),\n        name: material && material.name ? String(material.name) : 'Material 1',\n        profileFace: Math.max(1, Number(material && material.profileFace) || 40),\n        collapsed: !!(material && material.collapsed),\n        pieces: Array.isArray(material && material.pieces) && material.pieces.length ? material.pieces.map(piece => ({\n          id: piece && piece.id ? String(piece.id) : uid(),\n          length: Math.max(1, Number(piece && piece.length) || 1000),\n          qty: Math.max(1, parseInt(piece && piece.qty, 10) || 1),\n          cutType: normalizeCutType(piece && piece.cutType)\n        })) : [{ id: uid(), length: 1000, qty: 1, cutType: 'recto' }],\n        stock: Array.isArray(material && material.stock) && material.stock.length ? material.stock.map(stock => ({\n          id: stock && stock.id ? String(stock.id) : uid(),\n          label: stock && stock.label ? String(stock.label) : 'Barra 1',\n          length: Math.max(1, Number(stock && stock.length) || 6600),\n          qty: Math.max(1, parseInt(stock && stock.qty, 10) || 1)\n        })) : [{ id: uid(), label:'Barra 1', length:6600, qty:999 }]\n      })) : [{\n        id: uid(),\n        name: 'Material 1',\n        profileFace: 40,\n        pieces: [{ id: uid(), length: 1000, qty: 1, cutType:'recto' }],\n        stock: [{ id: uid(), label:'Barra 1', length: 6600, qty: 999 }],\n        collapsed: false\n      }]\n    }));\n  }\n\n  function sanitizeImportedDefaultStock(list){\n    if(!Array.isArray(list) || !list.length) return [{ material:'General', stock:[{ length:6000, qty:999 }] }];\n    return list.map(item => ({\n      material: item && item.material ? String(item.material) : 'General',\n      stock: Array.isArray(item && item.stock) && item.stock.length ? item.stock.map(stock => ({\n        length: Math.max(1, Number(stock && stock.length) || 6000),\n        qty: Math.max(1, parseInt(stock && stock.qty, 10) || 1)\n      })) : [{ length:6000, qty:999 }]\n    }));\n  }\n\n  async function exportProjects(){\n    const data = {\n      app: 'Cut Master',\n      version: 'v2.1',\n      projects: state.projects,\n      defaultStock: state.defaultStock,\n      settings: state.settings,\n      exportedAt: new Date().toISOString()\n    };\n    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });\n    await shareOrDownloadBlob(blob, safeFileName('cut-master_proyectos', '.json'), 'Proyectos JSON');\n  }\n\n  function triggerImportProjects(){\n    const input = $('importJsonInput');\n    if(!input) return;\n    input.value = '';\n    input.click();\n  }\n\n  function importProjectsFromFile(file){\n    if(!file) return;\n    const reader = new FileReader();\n    reader.onload = function(){\n      try{\n        const raw = JSON.parse(String(reader.result || ''));\n        const importedProjects = sanitizeImportedProjects(raw && raw.projects);\n        if(!importedProjects.length) throw new Error('El archivo no contiene proyectos v\u00e1lidos.');\n        const importedDefaultStock = sanitizeImportedDefaultStock(raw && raw.defaultStock);\n        const importedSettings = raw && raw.settings && typeof raw.settings === 'object' ? raw.settings : null;\n        openConfirmModal({\n          title: 'Importar proyectos',\n          text: 'Se sustituir\u00e1n los proyectos guardados actuales por los del archivo JSON.',\n          okText: 'Importar',\n          onConfirm(){\n            state.projects = importedProjects;\n            state.defaultStock = importedDefaultStock;\n            if(importedSettings){\n              state.settings.unit = importedSettings.unit === 'cm' ? 'cm' : 'mm';\n              state.settings.kerfMm = Math.max(0, Number(importedSettings.kerfMm) || 0);\n              saveSettings();\n            }\n            state.currentProjectId = state.projects[0] ? state.projects[0].id : null;\n            saveProjects();\n            saveDefaultStock();\n            renderAll();\n            renderSettings();\n            setExportStatus('JSON importado correctamente.');\n            alert('Proyectos importados correctamente.');\n          }\n        });\n      }catch(err){\n        alert('No se pudo importar el archivo JSON.');\n      }\n    };\n    reader.onerror = function(){\n      alert('No se pudo leer el archivo seleccionado.');\n    };\n    reader.readAsText(file, 'utf-8');\n  }\n\n  function updateColorCutsToggle(){\n    const btn = $('toggleColorCutsBtn');\n    if(!btn) return;\n    const active = colorsByMeasureEnabled();\n    btn.textContent = 'Colores por medida: ' + (active ? 'ON' : 'OFF');\n    btn.classList.toggle('active', active);\n    btn.classList.toggle('secondary', !active);\n  }\n\n  function switchResultTab(tab){\n    state.resultTab = tab;\n    document.querySelectorAll('.results-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.resultTab === tab));\n    $('diagramPanel').classList.toggle('active', tab === 'diagram');\n    $('listPanel').classList.toggle('active', tab === 'list');\n  }\n\n  function escapeHtml(str){\n    return String(str).replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[s]));\n  }\n\n  function normalizeCutType(value){\n    const allowed = ['recto','45-45','45-recto','recto-45'];\n    return allowed.includes(value) ? value : 'recto';\n  }\n  function cutTypeLabel(value){\n    const map = {\n      'recto':'Recto',\n      '45-45':'45\u00b0 / 45\u00b0',\n      '45-recto':'45\u00b0 / Recto',\n      'recto-45':'Recto / 45\u00b0'\n    };\n    return map[normalizeCutType(value)] || 'Recto';\n  }\n\n\n\n  function safeFileName(name, ext){\n    const clean = String(name || 'resultado').replace(/[\\\\/:*?\"<>|]/g, ' ').replace(/\\s+/g, ' ').trim() || 'resultado';\n    return clean + (ext || '');\n  }\n\n  function setExportStatus(msg, isVisible){\n    const box = $('exportStatus');\n    if(!box) return;\n    box.textContent = msg || '';\n    box.classList.toggle('show', isVisible !== false && !!msg);\n  }\n\n  function showManualDownload(blob, filename, label){\n    const link = $('manualDownloadLink');\n    if(!link) return;\n    try{ if(link.dataset.url) URL.revokeObjectURL(link.dataset.url); }catch(e){}\n    const url = URL.createObjectURL(blob);\n    link.href = url;\n    link.dataset.url = url;\n    link.download = filename;\n    link.textContent = label || ('Descargar ' + filename);\n    link.style.display = 'inline-block';\n  }\n\n  async function shareOrDownloadBlob(blob, filename, titleText){\n    const manualLabel = 'Pulsa aqu\u00ed si iPhone no mostr\u00f3 la descarga';\n    let file = null;\n    try{ file = new File([blob], filename, { type: blob.type || 'application/octet-stream' }); }catch(e){}\n\n    try{\n      if(file && navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){\n        await navigator.share({ files:[file], title: titleText || filename });\n        setExportStatus('Se abri\u00f3 Compartir. Elige \u201cGuardar en Archivos\u201d.');\n        return { method:'share' };\n      }\n    }catch(e1){}\n\n    try{\n      const url = URL.createObjectURL(blob);\n      const a = document.createElement('a');\n      a.href = url;\n      a.download = filename;\n      a.rel = 'noopener';\n      document.body.appendChild(a);\n      a.click();\n      a.remove();\n      showManualDownload(blob, filename, manualLabel);\n      setExportStatus('Se intent\u00f3 descargar el archivo. Si iPhone no mostr\u00f3 nada, usa el enlace manual.');\n      setTimeout(() => { try{ URL.revokeObjectURL(url); }catch(e){} }, 4000);\n      return { method:'download' };\n    }catch(e2){}\n\n    showManualDownload(blob, filename, 'Abrir enlace manual');\n    setExportStatus('No se pudo usar compartir autom\u00e1tico. Usa el enlace manual.');\n    return { method:'manual' };\n  }\n\n  function _b64ToBytes(b64){\n    const bin = atob(b64);\n    const len = bin.length;\n    const bytes = new Uint8Array(len);\n    for(let i=0;i<len;i++) bytes[i] = bin.charCodeAt(i) & 0xFF;\n    return bytes;\n  }\n  function _pdf_bytes_cp1252(str){\n    const out = [];\n    for(let i=0;i<str.length;i++){\n      const c = str.charCodeAt(i);\n      if(c <= 0xFF){ out.push(c); continue; }\n      if(c === 0x20AC){ out.push(0x80); continue; }\n      const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};\n      out.push(map[c] || 0x3F);\n    }\n    return new Uint8Array(out);\n  }\n  function _pdfTextShow_cp1252(s){\n    const bytes = [];\n    for(let i=0;i<s.length;i++){\n      const cp = s.charCodeAt(i);\n      let b = 0x3F;\n      if(cp <= 0xFF) b = cp;\n      else if(cp === 0x20AC) b = 0x80;\n      else {\n        const map = {0x00E1:0xE1,0x00E9:0xE9,0x00ED:0xED,0x00F3:0xF3,0x00FA:0xFA,0x00C1:0xC1,0x00C9:0xC9,0x00CD:0xCD,0x00D3:0xD3,0x00DA:0xDA,0x00F1:0xF1,0x00D1:0xD1,0x00FC:0xFC,0x00DC:0xDC,0x00BF:0xBF,0x00A1:0xA1};\n        b = map[cp] || 0x3F;\n      }\n      bytes.push(b);\n    }\n    let hex = '<';\n    for(let j=0;j<bytes.length;j++){\n      let h = bytes[j].toString(16).toUpperCase();\n      if(h.length < 2) h = '0' + h;\n      hex += h;\n    }\n    return hex + '> Tj';\n  }\n  function _pdf_concat(arrs){\n    let total = 0;\n    for(let i=0;i<arrs.length;i++) total += arrs[i].length;\n    const out = new Uint8Array(total);\n    let off = 0;\n    for(let j=0;j<arrs.length;j++){\n      out.set(arrs[j], off);\n      off += arrs[j].length;\n    }\n    return out;\n  }\n  function _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx){\n    const pageW = 595.28, pageH = 841.89;\n    const hasImg = !!(jpegBytes && jpegBytes.length);\n    const pagesN = (contentBytesArr && contentBytesArr.length) ? contentBytesArr.length : 1;\n    const parts = [], offsets = [0];\n    let cursor = 0;\n    function addBytes(u8){ parts.push(u8); cursor += u8.length; }\n    function addStr(s){ addBytes(_pdf_bytes_cp1252(s)); }\n    function mark(n){ offsets[n] = cursor; }\n    addStr('%PDF-1.4\\n%' + String.fromCharCode(0xE2,0xE3,0xCF,0xD3) + '\\n');\n    const objCatalog = 1, objPages = 2, objFirstPage = 3;\n    const objFont1 = objFirstPage + pagesN, objFont2 = objFirstPage + pagesN + 1;\n    const objImg = hasImg ? (objFirstPage + pagesN + 2) : null;\n    const objFirstContent = hasImg ? (objFirstPage + pagesN + 3) : (objFirstPage + pagesN + 2);\n    const objMax = objFirstContent + pagesN - 1, size = objMax + 1;\n    mark(objCatalog); addStr(objCatalog + ' 0 obj\\n<< /Type /Catalog /Pages ' + objPages + ' 0 R >>\\nendobj\\n');\n    let kids = '';\n    for(let i=0;i<pagesN;i++) kids += (objFirstPage + i) + ' 0 R ';\n    mark(objPages); addStr(objPages + ' 0 obj\\n<< /Type /Pages /Kids [' + kids.trim() + '] /Count ' + pagesN + ' >>\\nendobj\\n');\n    for(let p=0;p<pagesN;p++){\n      const objPage = objFirstPage + p, objContent = objFirstContent + p;\n      let res = '/Resources << /Font << /F1 ' + objFont1 + ' 0 R /F2 ' + objFont2 + ' 0 R >>';\n      if(hasImg) res += ' /XObject << /Im0 ' + objImg + ' 0 R >>';\n      res += ' >>';\n      mark(objPage);\n      addStr(objPage + ' 0 obj\\n<< /Type /Page /Parent ' + objPages + ' 0 R /MediaBox [0 0 ' + pageW + ' ' + pageH + '] ' + res + ' /Contents ' + objContent + ' 0 R >>\\nendobj\\n');\n    }\n    mark(objFont1); addStr(objFont1 + ' 0 obj\\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\\nendobj\\n');\n    mark(objFont2); addStr(objFont2 + ' 0 obj\\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\\nendobj\\n');\n    if(hasImg){\n      mark(objImg);\n      addStr(objImg + ' 0 obj\\n<< /Type /XObject /Subtype /Image /Name /Im0 /Width ' + imgWpx + ' /Height ' + imgHpx + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\\nstream\\n');\n      addBytes(jpegBytes);\n      addStr('\\nendstream\\nendobj\\n');\n    }\n    for(let c=0;c<pagesN;c++){\n      const objC = objFirstContent + c;\n      const bytes = contentBytesArr[c] || new Uint8Array(0);\n      mark(objC);\n      addStr(objC + ' 0 obj\\n<< /Length ' + bytes.length + ' >>\\nstream\\n');\n      addBytes(bytes);\n      addStr('\\nendstream\\nendobj\\n');\n    }\n    const xrefPos = cursor;\n    addStr('xref\\n0 ' + size + '\\n');\n    addStr('0000000000 65535 f \\n');\n    for(let n=1;n<size;n++){\n      let offStr = String(offsets[n] || 0);\n      while(offStr.length < 10) offStr = '0' + offStr;\n      addStr(offStr + ' 00000 n \\n');\n    }\n    addStr('trailer\\n<< /Size ' + size + ' /Root ' + objCatalog + ' 0 R >>\\nstartxref\\n' + xrefPos + '\\n%%EOF');\n    return _pdf_concat(parts);\n  }\n\n  async function exportSvgToEditablePdf(svgEl, options){\n    options = options || {};\n    if(!svgEl) throw new Error('SVG no encontrado');\n    setExportStatus('Preparando PDF editable...');\n\n    const vb = (svgEl.getAttribute('viewBox') || '0 0 800 1132').split(/\\s+/).map(Number);\n    const vbW = vb[2] || 800;\n    const pageW = 595.28, pageH = 841.89, scale = pageW / vbW;\n    const mc = document.createElement('canvas');\n    mc.width = 2048;\n    mc.height = 512;\n    const mctx = mc.getContext('2d');\n    if(!mctx) throw new Error('No se pudo iniciar canvas');\n    mctx.fillStyle = '#ffffff';\n    mctx.fillRect(0, 0, mc.width, mc.height);\n\n    function pdfNum(n){ return (Math.round(n * 1000) / 1000).toString(); }\n    function svgYToPdf(y){ return pageH - (y * scale); }\n    function parseTranslate(tr){\n      if(!tr) return {x:0,y:0};\n      const m = tr.match(/translate\\(\\s*([-0-9.]+)(?:[ ,]\\s*([-0-9.]+))?\\s*\\)/i);\n      if(!m) return {x:0,y:0};\n      return {x: parseFloat(m[1] || '0') || 0, y: parseFloat(m[2] || '0') || 0};\n    }\n    function getAccumTranslate(el){\n      let tx = 0, ty = 0, cur = el;\n      while(cur && cur.getAttribute){\n        const tr = cur.getAttribute('transform');\n        if(tr){ const t = parseTranslate(tr); tx += t.x; ty += t.y; }\n        cur = cur.parentNode;\n      }\n      return {x:tx,y:ty};\n    }\n    function getStrokeWidth(el, fallback){\n      let sw = parseFloat(el.getAttribute('stroke-width') || '');\n      if(!isFinite(sw)) sw = fallback;\n      return sw;\n    }\n    function measureWidthPt(text, fontCss){ mctx.font = fontCss; return mctx.measureText(text).width / 1.333; }\n    function pathTokens(d){ return d.match(/[a-zA-Z]|-?\\d*\\.?\\d+/g) || []; }\n    function normalizeColorToken(token){\n      return String(token || '').trim().toLowerCase();\n    }\n    function parseColorToRgb(color, fallback){\n      const c = normalizeColorToken(color);\n      if(!c || c === 'none' || c === 'transparent') return null;\n      const names = {\n        black:[0,0,0], white:[1,1,1], red:[1,0,0], green:[0,0.502,0], blue:[0,0,1],\n        gray:[0.502,0.502,0.502], grey:[0.502,0.502,0.502],\n        lightgray:[0.827,0.827,0.827], lightgrey:[0.827,0.827,0.827]\n      };\n      if(names[c]) return names[c];\n      const hex = c.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);\n      if(hex){\n        const raw = hex[1];\n        const full = raw.length === 3 ? raw.split('').map(ch => ch + ch).join('') : raw;\n        return [\n          parseInt(full.slice(0,2),16) / 255,\n          parseInt(full.slice(2,4),16) / 255,\n          parseInt(full.slice(4,6),16) / 255\n        ];\n      }\n      const rgb = c.match(/^rgba?\\(([^)]+)\\)$/i);\n      if(rgb){\n        const parts = rgb[1].split(',').map(v => parseFloat(v.trim()));\n        if(parts.length >= 3) return [\n          Math.max(0, Math.min(255, parts[0])) / 255,\n          Math.max(0, Math.min(255, parts[1])) / 255,\n          Math.max(0, Math.min(255, parts[2])) / 255\n        ];\n      }\n      return fallback || [0,0,0];\n    }\n    function pdfColorCmd(rgb, mode){\n      if(!rgb) return '';\n      return pdfNum(rgb[0]) + ' ' + pdfNum(rgb[1]) + ' ' + pdfNum(rgb[2]) + ' ' + mode + '\\n';\n    }\n    function pathToPdf(d, tr){\n      const toks = pathTokens(d);\n      if(!toks.length) return '';\n      let k = 0, cx = 0, cy = 0, sx = 0, sy = 0, out = '';\n      function nextNum(){ return parseFloat(toks[k++]); }\n      while(k < toks.length){\n        const cmd = toks[k++];\n        if(cmd === 'M' || cmd === 'L'){\n          const x = nextNum() + tr.x, y = nextNum() + tr.y; cx = x; cy = y;\n          if(cmd === 'M'){ sx = cx; sy = cy; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' m\\n'; }\n          else out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\\n';\n        } else if(cmd === 'H'){\n          cx = nextNum() + tr.x; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\\n';\n        } else if(cmd === 'V'){\n          cy = nextNum() + tr.y; out += pdfNum(cx * scale) + ' ' + pdfNum(svgYToPdf(cy)) + ' l\\n';\n        } else if(cmd === 'Z' || cmd === 'z'){\n          out += 'h\\n'; cx = sx; cy = sy;\n        } else return '';\n      }\n      return out;\n    }\n    function extractLines(s){\n      if(!s) return [];\n      s = String(s).replace(/\\r/g,'').replace(/\\u2028|\\u2029/g,'\\n');\n      if(s.indexOf('\\n') >= 0){\n        return s.split('\\n').map(part => (part || '').replace(/[ \\t]+/g,' ').trim()).filter(Boolean);\n      }\n      const one = s.replace(/\\s+/g,' ').trim();\n      return one ? [one] : [];\n    }\n\n    function buildPdf(){\n      const vbNow = (svgEl.getAttribute('viewBox') || '0 0 800 1132').split(/\\s+/).map(Number);\n      const vbWNow = vbNow[2] || vbW || 800;\n      const vbH = vbNow[3] || 1132;\n      const PAGE_H_SVG = pageH / (pageW / vbWNow);\n      const pages = Math.max(1, Math.ceil(vbH / PAGE_H_SVG));\n      const contents = new Array(pages), preByPage = new Array(pages).fill('');\n      for(let p=0;p<pages;p++) contents[p] = ['q\\n','0 0 0 RG\\n0 0 0 rg\\n'];\n      function svgYToPdfRel(yRel){ return pageH - (yRel * scale); }\n      function pageOfY(yAbs){ let pi = Math.floor((yAbs + 0.0001) / PAGE_H_SVG); if(pi < 0) pi = 0; if(pi >= pages) pi = pages - 1; return pi; }\n      function relY(yAbs,p){ return yAbs - (p * PAGE_H_SVG); }\n\n      const rects = svgEl.querySelectorAll('rect');\n      for(let i=0;i<rects.length;i++){\n        const r = rects[i], tr = getAccumTranslate(r);\n        const xAbs = parseFloat(r.getAttribute('x') || '0') + tr.x;\n        const yAbs = parseFloat(r.getAttribute('y') || '0') + tr.y;\n        const wAbs = parseFloat(r.getAttribute('width') || '0');\n        const hAbs = parseFloat(r.getAttribute('height') || '0');\n        const strokeRgb = parseColorToRgb(r.getAttribute('stroke'));\n        const fillRgb = parseColorToRgb(r.getAttribute('fill'));\n        const p = pageOfY(yAbs), yRel = relY(yAbs,p), sw = getStrokeWidth(r, 0.8) * scale;\n        contents[p].push('q\\n');\n        contents[p].push(pdfNum(sw) + ' w\\n');\n        if(fillRgb) contents[p].push(pdfColorCmd(fillRgb, 'rg'));\n        if(strokeRgb) contents[p].push(pdfColorCmd(strokeRgb, 'RG'));\n        const rectCmd = pdfNum(xAbs * scale) + ' ' + pdfNum(svgYToPdfRel(yRel) - (hAbs * scale)) + ' ' + pdfNum(wAbs * scale) + ' ' + pdfNum(hAbs * scale) + ' re\\n';\n        if(fillRgb && strokeRgb) contents[p].push(rectCmd + 'B\\n');\n        else if(fillRgb) contents[p].push(rectCmd + 'f\\n');\n        else if(strokeRgb) contents[p].push(rectCmd + 'S\\n');\n        contents[p].push('Q\\n');\n      }\n\n      const lines = svgEl.querySelectorAll('line');\n      for(let li=0;li<lines.length;li++){\n        const l = lines[li], trl = getAccumTranslate(l);\n        const x1Abs = parseFloat(l.getAttribute('x1') || '0') + trl.x;\n        const y1Abs = parseFloat(l.getAttribute('y1') || '0') + trl.y;\n        const x2Abs = parseFloat(l.getAttribute('x2') || '0') + trl.x;\n        const y2Abs = parseFloat(l.getAttribute('y2') || '0') + trl.y;\n        const p = pageOfY(Math.min(y1Abs, y2Abs));\n        const sw = getStrokeWidth(l,0.8) * scale;\n        const strokeRgb = parseColorToRgb(l.getAttribute('stroke')) || [0,0,0];\n        contents[p].push('q\\n');\n        contents[p].push(pdfColorCmd(strokeRgb, 'RG'));\n        contents[p].push(pdfNum(sw) + ' w\\n');\n        contents[p].push(pdfNum(x1Abs * scale) + ' ' + pdfNum(svgYToPdfRel(relY(y1Abs,p))) + ' m\\n' + pdfNum(x2Abs * scale) + ' ' + pdfNum(svgYToPdfRel(relY(y2Abs,p))) + ' l\\nS\\nQ\\n');\n      }\n\n      const paths = svgEl.querySelectorAll('path');\n      for(let pi=0;pi<paths.length;pi++){\n        const pa = paths[pi], d = pa.getAttribute('d') || '';\n        if(!d) continue;\n        const trp = getAccumTranslate(pa), toks = pathTokens(d);\n        let yFirst = null;\n        for(let tk=0;tk<toks.length;tk++){\n          if(toks[tk] === 'M' || toks[tk] === 'm'){ yFirst = parseFloat(toks[tk+2] || '0') + trp.y; break; }\n        }\n        if(yFirst === null) yFirst = trp.y;\n        const p = pageOfY(yFirst), out = pathToPdf(d, {x: trp.x, y: trp.y - (p * PAGE_H_SVG)});\n        if(out){\n          const strokeRgb = parseColorToRgb(pa.getAttribute('stroke')) || [0,0,0];\n          contents[p].push('q\\n');\n          contents[p].push(pdfColorCmd(strokeRgb, 'RG'));\n          contents[p].push(pdfNum(getStrokeWidth(pa,0.8) * scale) + ' w\\n');\n          contents[p].push(out + 'S\\nQ\\n');\n        }\n      }\n\n      const texts = svgEl.querySelectorAll('text');\n      for(let ti=0;ti<texts.length;ti++){\n        const t = texts[ti];\n        if(!t.textContent) continue;\n        const styleAttr = (t.getAttribute('style') || '').toLowerCase();\n        const disp = (t.getAttribute('display') || '').toLowerCase();\n        const vis = (t.getAttribute('visibility') || '').toLowerCase();\n        if(disp === 'none' || vis === 'hidden' || styleAttr.indexOf('display:none') >= 0 || styleAttr.indexOf('visibility:hidden') >= 0) continue;\n        const trt = getAccumTranslate(t);\n        const xAbs = parseFloat(t.getAttribute('x') || '0') + trt.x;\n        const yAbs = parseFloat(t.getAttribute('y') || '0') + trt.y;\n        const p = pageOfY(yAbs), yRel = relY(yAbs,p);\n        const style = window.getComputedStyle(t);\n        const fontFamily = (style.fontFamily || t.getAttribute('font-family') || 'Helvetica').split(',')[0].trim();\n        const fontSize = parseFloat(style.fontSize || t.getAttribute('font-size') || '12') || 12;\n        const fontWeight = String(style.fontWeight || t.getAttribute('font-weight') || '400');\n        const bold = fontWeight.indexOf('bold') >= 0 || parseInt(fontWeight, 10) >= 600;\n        const fillRgb = parseColorToRgb(style.fill || t.getAttribute('fill')) || [0,0,0];\n        let fsPt = (fontSize * scale) * 0.75;\n        if(fsPt < 6) fsPt = 6;\n        const ta = (t.getAttribute('text-anchor') || 'start').toLowerCase();\n        const linesArr = extractLines(t.textContent || '');\n        if(!linesArr.length) continue;\n        let lineStep = (fontSize * 1.15) * scale;\n        if(lineStep < fsPt * 1.05) lineStep = fsPt * 1.05;\n        for(let li2=0;li2<linesArr.length;li2++){\n          const sline = String(linesArr[li2] || '');\n          const fontCss = (bold ? 'bold ' : '') + fontSize + 'px ' + fontFamily;\n          const wPt = measureWidthPt(sline, fontCss) * scale;\n          let xAdj = xAbs * scale;\n          if(ta === 'middle') xAdj -= wPt / 2;\n          else if(ta === 'end') xAdj -= wPt;\n          const yPdf = svgYToPdfRel(yRel) - (li2 * lineStep);\n          contents[p].push('BT\\n');\n          contents[p].push(pdfColorCmd(fillRgb, 'rg'));\n          contents[p].push('/' + (bold ? 'F2' : 'F1') + ' ' + pdfNum(fsPt) + ' Tf\\n');\n          contents[p].push(pdfNum(xAdj) + ' ' + pdfNum(yPdf) + ' Td\\n');\n          contents[p].push(_pdfTextShow_cp1252(sline) + '\\n');\n          contents[p].push('ET\\n');\n        }\n      }\n      const contentBytesArr = [];\n      for(let p2=0;p2<pages;p2++) contentBytesArr.push(_pdf_bytes_cp1252((preByPage[p2] || '') + contents[p2].join('')));\n      return _pdf_buildA4VectorPDF_MULTI(contentBytesArr, null, 0, 0);\n    }\n\n    const pdfBytes = buildPdf();\n    const pdfBlob = new Blob([pdfBytes], { type:'application/pdf' });\n    const filename = safeFileName(options.filename || 'resultado_corte', '.pdf');\n    await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Resultado PDF');\n    return { blob: pdfBlob, filename };\n  }\n  function buildExportDiagramSvg(){\n    const project = currentProject();\n    if(!project) return null;\n    const result = calculateProject(project);\n    if(!result.materials.length) return null;\n\n    const width = 1120;\n    const pagePadX = 28;\n    const contentX = 190;\n    const labelX = 34;\n\n    const topPad = 18;\n    const pageBottomPad = 18;\n    const projectTitleSize = 28;\n    const materialTitleSize = 40;\n    const materialGapBefore = 4;\n    const materialGapAfter = 12;\n    const barGapBefore = 6;\n    const barTitleSize = 24;\n    const barTitleOffset = 14;\n    const qtySize = 30;\n    const qtyYOffset = 30;\n    const afterBarGap = 8;\n    const emptyMsgSize = 16;\n    const PAGE_H_SVG = 1583.989;\n\n    function getPageIndex(yPos){\n      return Math.max(0, Math.floor(Math.max(0, yPos - 0.001) / PAGE_H_SVG));\n    }\n    function getPageStart(pageIndex){\n      return (pageIndex * PAGE_H_SVG) + topPad;\n    }\n    function getPageEnd(pageIndex){\n      return ((pageIndex + 1) * PAGE_H_SVG) - pageBottomPad;\n    }\n    function moveToNextPage(yPos){\n      return getPageStart(getPageIndex(yPos) + 1);\n    }\n    function ensureBlockFits(yPos, blockHeight){\n      const pageIndex = getPageIndex(yPos);\n      const pageEnd = getPageEnd(pageIndex);\n      if((yPos + blockHeight) > pageEnd){\n        return moveToNextPage(yPos);\n      }\n      return yPos;\n    }\n\n    let y = topPad;\n    const parts = [];\n    const measureColorMap = buildMeasureColorMap(result);\n\n    parts.push('<text x=\"' + (width / 2) + '\" y=\"' + y + '\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"' + projectTitleSize + '\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#000000\">' + escapeHtml(project.name) + '</text>');\n    y += 20;\n\n    result.materials.forEach((mat) => {\n      const barSketches = (mat.bars || []).map((bar, idx) => {\n        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);\n        const sketchInner = sketchPack.svg\n          .replace('<svg class=\"bar-sketch\" viewBox=\"0 0 ' + sketchPack.width + ' ' + sketchPack.height + '\" xmlns=\"http://www.w3.org/2000/svg\" aria-label=\"Barra ' + (idx+1) + '\">', '')\n          .replace('</svg>', '');\n        return { bar, idx, sketchPack, sketchInner, blockHeight: barGapBefore + barTitleOffset + sketchPack.height + afterBarGap };\n      });\n      const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;\n      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;\n      y = ensureBlockFits(y, materialBlockHeight);\n\n      y += materialGapBefore;\n      parts.push('<text x=\"' + pagePadX + '\" y=\"' + y + '\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"' + materialTitleSize + '\" font-weight=\"700\" fill=\"#2f241f\">' + escapeHtml(mat.name) + '</text>');\n      y += materialGapAfter;\n\n      if(!mat.bars.length){\n        y = ensureBlockFits(y, 32);\n        y += 12;\n        parts.push('<text x=\"' + pagePadX + '\" y=\"' + y + '\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"' + emptyMsgSize + '\" fill=\"#2f241f\">No hay combinaci\u00f3n posible con el stock indicado.</text>');\n        y += 18;\n        return;\n      }\n\n      barSketches.forEach(({ bar, idx, sketchPack, sketchInner, blockHeight }) => {\n        y = ensureBlockFits(y, blockHeight);\n        y += barGapBefore;\n\n        const headY = y;\n        const metricsY = headY + 20;\n        const sketchY = metricsY + 10;\n        const qtyY = sketchY + qtyYOffset;\n        const wasteValue = Math.max(0, Number(bar.remaining) || 0);\n\n        parts.push('<text x=\"' + contentX + '\" y=\"' + headY + '\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"' + barTitleSize + '\" font-weight=\"700\" text-anchor=\"start\" fill=\"#3c312b\">Barra ' + (idx + 1) + '</text>');\n        parts.push('<g transform=\"translate(' + contentX + ',' + metricsY + ')\"><rect x=\"0\" y=\"-14\" rx=\"8\" ry=\"8\" width=\"126\" height=\"22\" fill=\"#f5efe8\" stroke=\"#665e5a\" stroke-width=\"1.2\"/><text x=\"12\" y=\"1\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"12\" font-weight=\"700\" fill=\"#3c312b\">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');\n        parts.push('<g transform=\"translate(' + (contentX + 138) + ',' + metricsY + ')\"><rect x=\"0\" y=\"-14\" rx=\"8\" ry=\"8\" width=\"128\" height=\"22\" fill=\"#e4e4e4\" stroke=\"#cfcfcf\" stroke-width=\"1.2\"/><text x=\"12\" y=\"1\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"12\" font-weight=\"700\" fill=\"#3c312b\">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');\n        parts.push('<text x=\"' + labelX + '\" y=\"' + qtyY + '\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"' + qtySize + '\" font-weight=\"500\" fill=\"#2f241f\">1x</text>');\n        parts.push('<g transform=\"translate(' + contentX + ',' + sketchY + ')\">' + sketchInner + '</g>');\n\n        y = sketchY + sketchPack.height + afterBarGap;\n      });\n\n      y += 4;\n    });\n\n    const height = Math.max(700, Math.ceil(y + 16));\n    const exportStyle = '<style>' +\n      '.cut-fill{stroke:none;}' +\n      '.waste-fill{fill:#8f8f8f;stroke:none;}' +\n      '.cut-text{fill:#2f241f;font-family:Arial,sans-serif;}' +\n      '.bar-outline{fill:none;stroke:#433630;stroke-width:2.2;}' +\n      '.cut-line{stroke:#433630;stroke-width:2.2;}' +\n      '</style>';\n    parts.unshift('<rect x=\"0\" y=\"0\" width=\"' + width + '\" height=\"' + height + '\" fill=\"#ffffff\"/>');\n    parts.unshift(exportStyle);\n    const svg = '<svg id=\"exportResultSvg\" viewBox=\"0 0 ' + width + ' ' + height + '\" width=\"' + width + '\" height=\"' + height + '\" xmlns=\"http://www.w3.org/2000/svg\" aria-label=\"Resultado de corte\">' + parts.join('') + '</svg>';\n    return { svg, width, height, projectName: project.name };\n  }\n\n  async function exportCurrentResultsToPng(){\n    const pack = buildExportDiagramSvg();\n    if(!pack) throw new Error('No hay resultados para exportar');\n    setExportStatus('Preparando PNG...');\n    const img = new Image();\n    img.decoding = 'sync';\n    img.crossOrigin = 'anonymous';\n    const loaded = new Promise((resolve, reject) => {\n      img.onload = resolve;\n      img.onerror = () => reject(new Error('No se pudo cargar el SVG para PNG'));\n    });\n    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(pack.svg);\n    await loaded;\n\n    const canvas = document.createElement('canvas');\n    const scale = 2;\n    canvas.width = Math.round(pack.width * scale);\n    canvas.height = Math.round(pack.height * scale);\n    const ctx = canvas.getContext('2d');\n    if(!ctx) throw new Error('No se pudo iniciar canvas');\n    ctx.fillStyle = '#ffffff';\n    ctx.fillRect(0, 0, canvas.width, canvas.height);\n    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);\n\n    let pngBlob = null;\n    if(canvas.toBlob){\n      pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));\n    }\n    if(!pngBlob){\n      const dataUrl = canvas.toDataURL('image/png');\n      pngBlob = await (await fetch(dataUrl)).blob();\n    }\n    if(!pngBlob) throw new Error('No se pudo generar el PNG');\n    await shareOrDownloadBlob(pngBlob, safeFileName(pack.projectName + '_resultado_corte', '.png'), 'Resultado PNG');\n  }\n  async function exportCurrentResultsToPdf(){\n    const pack = buildExportDiagramSvg();\n    if(!pack) throw new Error('No hay resultados para exportar');\n    const host = document.createElement('div');\n    host.style.position = 'fixed';\n    host.style.left = '-99999px';\n    host.style.top = '0';\n    host.style.opacity = '0';\n    host.style.pointerEvents = 'none';\n    host.innerHTML = pack.svg;\n    document.body.appendChild(host);\n    try{\n      const svgEl = host.querySelector('svg');\n      await exportSvgToEditablePdf(svgEl, { filename: pack.projectName + '_resultado_corte' });\n    } finally {\n      host.remove();\n    }\n  }\n\n\n  document.addEventListener('keydown', function(e){\n    if(e.key !== 'Enter') return;\n    const modal = $('appModal');\n    if(modal && modal.classList.contains('active') && document.activeElement === $('modalInput')){\n      e.preventDefault();\n      $('modalOkBtn').click();\n    }\n  });\n\n  const importJsonInput = $('importJsonInput');\n  if(importJsonInput){\n    importJsonInput.addEventListener('change', function(ev){\n      const file = ev.target && ev.target.files ? ev.target.files[0] : null;\n      if(file) importProjectsFromFile(file);\n    }, { passive:true });\n  }\n\n  document.addEventListener('click', function(e){\n    const t = e.target.closest('button');\n    if(!t) return;\n\n    if(t.id === 'createProjectBtn'){ createProject($('newProjectInput').value); return; }\n    if(t.id === 'loadProjectBtn'){ const first = state.projects[0]; if(first){ state.currentProjectId = first.id; showScreen('piecesScreen'); } return; }\n    if(t.id === 'addLinearBtn'){ addMaterial(); return; }\n    if(t.id === 'applyDefaultStockBtn'){ applyDefaultStockToProject(); return; }\n    if(t.id === 'defaultStockBtn'){ saveCurrentAsDefaultStock(); return; }\n    if(t.id === 'exportJsonBtn'){ exportProjects(); return; }\n    if(t.id === 'importJsonBtn'){ triggerImportProjects(); return; }\n    if(t.id === 'legacyBackBtn'){\n      if(window.parent && typeof window.parent.volverMenu === 'function'){\n        window.parent.volverMenu();\n      }else{\n        window.location.href = 'index.html';\n      }\n      return;\n    }\n    if(t.id === 'leftTopBtn'){\n      showScreen('homeScreen');\n      return;\n    }\n    if(t.id === 'rightTopBtn'){ showScreen('settingsScreen'); return; }\n    if(t.id === 'toggleColorCutsBtn'){\n      state.settings.colorCuts = !colorsByMeasureEnabled();\n      saveSettings();\n      if(state.currentScreen === 'resultsScreen') renderResults();\n      else updateColorCutsToggle();\n      return;\n    }\n\n    if(t.dataset.screen){ showScreen(t.dataset.screen); return; }\n    if(t.dataset.resultTab){ switchResultTab(t.dataset.resultTab); return; }\n    if(t.dataset.toggleMaterial){ toggleMaterial(t.dataset.toggleMaterial); return; }\n    if(t.dataset.addPiece){ addEntry(t.dataset.addPiece, 'piece'); return; }\n    if(t.dataset.addStock){ addEntry(t.dataset.addStock, 'stock'); return; }\n    if(t.dataset.clonePiece){ const [m,eid] = t.dataset.clonePiece.split(':'); cloneEntry(m,eid,'piece'); return; }\n    if(t.dataset.cloneStock){ const [m,eid] = t.dataset.cloneStock.split(':'); cloneEntry(m,eid,'stock'); return; }\n    if(t.dataset.removePiece){ const [m,eid] = t.dataset.removePiece.split(':'); removeEntry(m,eid,'piece'); return; }\n    if(t.dataset.removeStock){ const [m,eid] = t.dataset.removeStock.split(':'); removeEntry(m,eid,'stock'); return; }\n    if(t.dataset.renameMaterial){ renameMaterial(t.dataset.renameMaterial); return; }\n    if(t.dataset.deleteMaterial){ deleteMaterial(t.dataset.deleteMaterial); return; }\n    if(t.dataset.copyDefaultMaterial){\n      const project = currentProject(); if(!project) return;\n      const material = project.materials.find(m => m.id === t.dataset.copyDefaultMaterial); if(!material) return;\n      const match = state.defaultStock.find(d => d.material.toLowerCase() === material.name.toLowerCase()) || state.defaultStock[0];\n      material.stock = (match.stock || []).map(s => ({ id:uid(), length:Number(s.length)||6000, qty:Number(s.qty)||1 }));\n      saveProjects(); renderStock();\n      return;\n    }\n  }, { passive:true });\n\n  document.addEventListener('input', function(e){\n    const el = e.target;\n    if(el.dataset.editPiece){\n      const [m,eid,field] = el.dataset.editPiece.split(':');\n      updateEntry(m,eid,field,el.value,'piece');\n      return;\n    }\n    if(el.dataset.editStock){\n      const [m,eid,field] = el.dataset.editStock.split(':');\n      updateEntry(m,eid,field,el.value,'stock');\n      return;\n    }\n  }, { passive:true });\n\n  $('saveSettingsBtn').addEventListener('click', function(){\n    state.settings.unit = $('unitSelect').value === 'cm' ? 'cm' : 'mm';\n    state.settings.kerfMm = Math.max(0, fromDisplayLength($('kerfInput').value || '0'));\n    saveSettings();\n    renderPieces();\n    renderStock();\n    if(state.currentScreen === 'resultsScreen') renderResults();\n    alert('Ajustes guardados.');\n  });\n\n  $('newProjectInput').addEventListener('keydown', function(e){\n    if(e.key === 'Enter'){ e.preventDefault(); createProject(this.value); }\n  });\n\n  $('exportPngBtn').addEventListener('click', function(ev){\n    ev.preventDefault();\n    exportCurrentResultsToPng().catch(function(err){\n      setExportStatus('Error al exportar PNG: ' + (err && err.message ? err.message : err));\n    });\n  }, { passive:false });\n\n  $('exportPdfBtn').addEventListener('click', function(ev){\n    ev.preventDefault();\n    exportCurrentResultsToPdf().catch(function(err){\n      setExportStatus('Error al exportar PDF editable: ' + (err && err.message ? err.message : err));\n    });\n  }, { passive:false });\n\n\n  function importExternalProjectFromHost(external){\n    try{\n      external = external || {};\n      if(external.settings){\n        if(external.settings.unit === 'mm' || external.settings.unit === 'cm') state.settings.unit = external.settings.unit;\n        if(Number(external.settings.kerfMm) >= 0) state.settings.kerfMm = Number(external.settings.kerfMm);\n        state.settings.colorCuts = !!external.settings.colorCuts;\n      }\n\n      const materials = (Array.isArray(external.materials) ? external.materials : []).map((mat, idx) => ({\n        id: uid(),\n        name: String(mat.name || ('Barra ' + (idx + 1))),\n        profileFace: Number(mat.profileFace) > 0 ? Number(mat.profileFace) : 40,\n        pieces: (Array.isArray(mat.pieces) ? mat.pieces : []).map((p, pidx) => ({\n          id: uid(),\n          label: String(p.label || ('Pieza ' + (pidx + 1))),\n          length: Number(p.length) || 0,\n          qty: Math.max(0, Number(p.qty) || 0),\n          cutType: normalizeCutType(p.cutType || 'recto')\n        })).filter(p => p.length > 0 && p.qty > 0),\n        stock: (Array.isArray(mat.stock) ? mat.stock : []).map((s, sidx) => ({\n          id: uid(),\n          label: String(s.label || ('Barra ' + (sidx + 1))),\n          length: Number(s.length) || 6500,\n          qty: Math.max(1, Number(s.qty) || 1)\n        })).filter(s => s.length > 0 && s.qty > 0),\n        collapsed: false\n      })).filter(mat => mat.pieces.length || mat.stock.length);\n\n      const project = {\n        id: uid(),\n        name: String(external.name || 'Ventana CE'),\n        createdAt: new Date().toISOString(),\n        cutProgress: {},\n        materials: materials\n      };\n\n      state.projects = [project];\n      state.currentProjectId = project.id;\n      state.currentScreen = 'resultsScreen';\n      state.resultTab = external.resultTab === 'list' ? 'list' : 'diagram';\n      state.highlightPieceKey = '';\n      state.highlightPieceId = '';\n      state.highlightMaterialId = '';\n\n      renderProjects();\n      renderSettings();\n      updateColorCutsToggle();\n      updateTopbar();\n      showScreen('resultsScreen');\n\n      if(window.parent && window.parent !== window){\n        window.parent.postMessage({ type:'cutmasterEmbeddedLoaded', ok:true }, '*');\n      }\n    }catch(err){\n      console.error(err);\n      alert('Error al cargar datos externos en Cut M\u00e1ster.');\n    }\n  }\n\n  window.__cmLoadExternalProject = importExternalProjectFromHost;\n  window.addEventListener('message', function(ev){\n    const msg = ev && ev.data;\n    if(msg && msg.type === 'loadExternalProject'){\n      importExternalProjectFromHost(msg.project || {});\n    }\n  });\n\n\n  renderProjects();\n  renderSettings();\n  updateColorCutsToggle();\n  updateTopbar();\n})();\n<\\/script>\n</body>\n</html>\n";
+    let cutMasterFrameInitialized = false;
+
+    function buildCutMasterProjectFromCurrentDespiece() {
+        const data = window.__ultimoDespieceCOR2300 || generarDespieceCOR2300();
+        if (!data) return null;
+
+        const materialsMap = new Map();
+        (data.barras || []).forEach((p, idx) => {
+            const key = p.perfil || ('Perfil ' + (idx + 1));
+            if (!materialsMap.has(key)) {
+                materialsMap.set(key, {
+                    name: key,
+                    profileFace: 40,
+                    stock: [{ label: 'Barra 6500', length: 6500, qty: 999 }],
+                    pieces: []
+                });
+            }
+            materialsMap.get(key).pieces.push({
+                label: p.pieza || ('Pieza ' + (idx + 1)),
+                length: Number(p.length) || 0,
+                qty: Number(p.qty) || 0,
+                cutType: String(p.cutType || '').toLowerCase().includes('45') ? '45-45' : 'recto'
+            });
+        });
+
+        const name = 'Ventana CE ' + (data.meta && data.meta.anchoTotal ? data.meta.anchoTotal : '') + ' x ' + (data.meta && data.meta.altoTotal ? data.meta.altoTotal : '');
+        return {
+            name: name.trim(),
+            resultTab: 'diagram',
+            settings: {
+                unit: 'mm',
+                kerfMm: 4,
+                colorCuts: false
+            },
+            materials: Array.from(materialsMap.values()),
+            vidrios: data.vidrios || [],
+            meta: data.meta || {},
+            avisos: data.avisos || []
+        };
+    }
+
+    
+    function serializeCutMasterBridgePayload(project) {
+        return JSON.stringify({
+            source: 'ventana-app',
+            createdAt: new Date().toISOString(),
+            project: project || null
+        });
+    }
+
+    function guardarProyectoPendienteCutMaster(project) {
+        const payload = serializeCutMasterBridgePayload(project);
+        try { localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT', payload); } catch (e) {}
+        try { sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT', payload); } catch (e) {}
+        try { window.name = 'CUT_MASTER_EXTERNAL_PROJECT::' + payload; } catch (e) {}
+        try { localStorage.setItem('CUT_MASTER_RETURN_URL', 'ventana.html'); } catch (e) {}
+        try { sessionStorage.setItem('CUT_MASTER_RETURN_URL', 'ventana.html'); } catch (e) {}
+        return payload;
+    }
+
+    function abrirArchivoCutMasterReal() {
+        const target = 'optimizar_barra.html';
+        try {
+            if (window.parent && window.parent !== window && typeof window.parent.abrir === 'function') {
+                window.parent.abrir(target);
+            } else {
+                window.location.href = target;
+            }
+            return true;
+        } catch (err) {
+            console.error(err);
+        }
+        return false;
+    }
+
+    function abrirCutMasterIntegrado() {
+        if (!esSerieCOR2300Seleccionada()) {
+            actualizarEstadoDespieceCOR2300();
+            return;
+        }
+        const project = buildCutMasterProjectFromCurrentDespiece();
+        if (!project) {
+            actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.');
+            return;
+        }
+        guardarProyectoPendienteCutMaster(project);
+        actualizarEstadoDespieceCOR2300('Abriendo Cut Master real con el proyecto ya preparado...');
+        abrirArchivoCutMasterReal();
+    }
+
+    function cerrarCutMasterIntegrado() {
+        try { history.back(); } catch (e) {}
+    }
+
+function optimizarBarrasCOR2300() {
+        if (!esSerieCOR2300Seleccionada()) {
+            actualizarEstadoDespieceCOR2300();
+            return;
+        }
+
+        const data = window.__ultimoDespieceCOR2300 || generarDespieceCOR2300();
+        if (!data) return;
+
+        const stock = 6500;
+        const perfiles = {};
+
+        data.barras.forEach(p => {
+            if (!perfiles[p.perfil]) perfiles[p.perfil] = [];
+            const qty = Math.max(0, Number(p.qty) || 0);
+            const len = Math.max(0, Number(p.length) || 0);
+            for (let i = 0; i < qty; i++) perfiles[p.perfil].push(len);
+        });
+
+        let out = '<div style="display:flex; flex-direction:column; gap:16px;">';
+        out += '<div style="background:#F3EFE8; border:1px solid #ddd; border-radius:10px; padding:12px;">';
+        out += '<strong>Optimización rápida</strong><div style="font-size:13px; color:#555; margin-top:4px;">Barras comerciales de 6500 mm. Cierra esta vista y vuelves al diseño.</div>';
+        out += '</div>';
+
+        Object.keys(perfiles).sort().forEach(perfil => {
+            const piezas = perfiles[perfil].slice().sort((a,b) => b-a);
+            const barras = [];
+            piezas.forEach(len => {
+                let colocada = false;
+                for (const barra of barras) {
+                    if (barra.restante >= len) {
+                        barra.piezas.push(len);
+                        barra.restante -= len;
+                        colocada = true;
+                        break;
+                    }
+                }
+                if (!colocada) barras.push({ piezas:[len], restante: stock - len });
+            });
+
+            const total = piezas.reduce((acc,v) => acc + v, 0);
+            const sobrante = barras.reduce((acc,b) => acc + b.restante, 0);
+
+            out += '<div style="border:1px solid #d7d7d7; border-radius:10px; overflow:hidden;">';
+            out += '<div style="background:#eef2f5; padding:10px 12px; font-weight:700;">' + perfil + '</div>';
+            out += '<div style="padding:12px;">';
+            out += '<div style="font-size:13px; color:#555; margin-bottom:10px;">' + piezas.length + ' cortes · ' + total + ' mm totales · ' + barras.length + ' barras · sobrante total ' + sobrante + ' mm</div>';
+
+            barras.forEach((barra, idx) => {
+                out += '<div style="padding:8px 10px; border:1px solid #ececec; border-radius:8px; margin-bottom:8px; background:#fafafa;">';
+                out += '<strong>Barra ' + (idx + 1) + '</strong>: ' + barra.piezas.join(' + ') + ' <span style="color:#666;">→ sobrante ' + barra.restante + ' mm</span>';
+                out += '</div>';
+            });
+
+            out += '</div></div>';
+        });
+
+        out += '</div>';
+
+        const overlay = document.getElementById('despieceOverlayCOR2300');
+        const contenido = document.getElementById('despieceOverlayContenidoCOR2300');
+        if (!overlay || !contenido) return;
+
+        contenido.innerHTML = out;
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespieceCOR2300('Mostrando optimización rápida.');
+        setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+    }
+
 </script>
 
 </body></html>

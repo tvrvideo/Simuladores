@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.1</title>
+  <title>Cut Máster v2.2</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -209,7 +209,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.1</div>
+    <div id="topTitle" class="title">Cut Máster v2.2</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -429,7 +429,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.1');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.2');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1810,7 +1810,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v2.1',
+      version: 'v2.2',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
@@ -2576,10 +2576,141 @@
     });
   }, { passive:false });
 
+
+  function importExternalProjectFromHost(external){
+    try{
+      external = external || {};
+      if(external.settings){
+        if(external.settings.unit === 'mm' || external.settings.unit === 'cm') state.settings.unit = external.settings.unit;
+        if(Number(external.settings.kerfMm) >= 0) state.settings.kerfMm = Number(external.settings.kerfMm);
+        state.settings.colorCuts = !!external.settings.colorCuts;
+        saveSettings();
+      }
+
+      const materials = (Array.isArray(external.materials) ? external.materials : []).map((mat, idx) => ({
+        id: uid(),
+        name: String(mat.name || ('Barra ' + (idx + 1))),
+        profileFace: Number(mat.profileFace) > 0 ? Number(mat.profileFace) : 40,
+        pieces: (Array.isArray(mat.pieces) ? mat.pieces : []).map((p, pidx) => ({
+          id: uid(),
+          label: String(p.label || ('Pieza ' + (pidx + 1))),
+          length: Number(p.length) || 0,
+          qty: Math.max(0, Number(p.qty) || 0),
+          cutType: normalizeCutType(p.cutType || 'recto')
+        })).filter(p => p.length > 0 && p.qty > 0),
+        stock: (Array.isArray(mat.stock) ? mat.stock : []).map((s, sidx) => ({
+          id: uid(),
+          label: String(s.label || ('Barra ' + (sidx + 1))),
+          length: Number(s.length) || 6500,
+          qty: Math.max(1, Number(s.qty) || 1)
+        })).filter(s => s.length > 0 && s.qty > 0),
+        collapsed: false
+      })).filter(mat => mat.pieces.length || mat.stock.length);
+
+      if(!materials.length) throw new Error('No hay piezas válidas para importar');
+
+      const project = {
+        id: uid(),
+        name: String(external.name || 'Ventana CE'),
+        createdAt: new Date().toISOString(),
+        cutProgress: {},
+        materials: materials
+      };
+
+      state.projects = [project];
+      state.currentProjectId = project.id;
+      state.currentScreen = 'resultsScreen';
+      state.resultTab = external.resultTab === 'list' ? 'list' : 'diagram';
+      state.highlightPieceKey = '';
+      state.highlightPieceId = '';
+      state.highlightMaterialId = '';
+      saveProjects();
+
+      renderProjects();
+      renderSettings();
+      updateColorCutsToggle();
+      updateTopbar();
+      showScreen('resultsScreen');
+    }catch(err){
+      console.error(err);
+      alert('Error al cargar datos externos en Cut Máster.');
+    }
+  }
+
+  function consumePendingExternalProject(){
+    let payload = '';
+    try{ payload = sessionStorage.getItem('CUT_MASTER_EXTERNAL_PROJECT') || payload; }catch(e){}
+    try{ payload = localStorage.getItem('CUT_MASTER_EXTERNAL_PROJECT') || payload; }catch(e){}
+    try{
+      if(!payload && typeof window.name === 'string' && window.name.indexOf('CUT_MASTER_EXTERNAL_PROJECT::') === 0){
+        payload = window.name.slice('CUT_MASTER_EXTERNAL_PROJECT::'.length);
+      }
+    }catch(e){}
+    if(!payload) return false;
+
+    try{
+      const raw = JSON.parse(payload);
+      const project = raw && raw.project ? raw.project : raw;
+      importExternalProjectFromHost(project || {});
+      try{ sessionStorage.removeItem('CUT_MASTER_EXTERNAL_PROJECT'); }catch(e){}
+      try{ localStorage.removeItem('CUT_MASTER_EXTERNAL_PROJECT'); }catch(e){}
+      try{ if(typeof window.name === 'string' && window.name.indexOf('CUT_MASTER_EXTERNAL_PROJECT::') === 0) window.name = ''; }catch(e){}
+      return true;
+    }catch(err){
+      console.error(err);
+      return false;
+    }
+  }
+
+  function installReturnButton(){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '← Ventanas';
+    btn.setAttribute('aria-label', 'Volver a la app de ventanas');
+    btn.style.position = 'fixed';
+    btn.style.right = '14px';
+    btn.style.top = 'auto';
+    btn.style.bottom = 'calc(54px + env(safe-area-inset-bottom, 0px) + 16px)';
+    btn.style.zIndex = '120';
+    btn.style.border = '0';
+    btn.style.borderRadius = '999px';
+    btn.style.padding = '10px 14px';
+    btn.style.fontSize = '14px';
+    btn.style.fontWeight = '700';
+    btn.style.background = '#1f78d1';
+    btn.style.color = '#fff';
+    btn.style.boxShadow = '0 6px 18px rgba(0,0,0,.18)';
+    btn.style.touchAction = 'manipulation';
+    btn.addEventListener('click', function(){
+      const target = 'ventana.html';
+      try{
+        if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+          window.parent.abrir(target);
+          return;
+        }
+      }catch(e){}
+      let returnUrl = target;
+      try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
+      try{ returnUrl = localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
+      location.href = returnUrl || target;
+    }, { passive:true });
+    document.body.appendChild(btn);
+  }
+
+  window.__cmLoadExternalProject = importExternalProjectFromHost;
+  window.addEventListener('message', function(ev){
+    const msg = ev && ev.data;
+    if(msg && msg.type === 'loadExternalProject'){
+      importExternalProjectFromHost(msg.project || {});
+    }
+  });
+
   renderProjects();
   renderSettings();
   updateColorCutsToggle();
   updateTopbar();
+  installReturnButton();
+  setTimeout(function(){ consumePendingExternalProject(); }, 50);
 })();
 </script>
 </body>
