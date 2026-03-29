@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v85.7</title>
-    <!-- v85.7: Corrige la pieza de 3 hojas COR-2343 para enviar nombre limpio "Zanca" sin duplicar la referencia del perfil en Cut Master. -->
+    <title>Ventana Pro v86.0</title>
+    <!-- v86.0: Base estable con lista de fabricación visible en 600, Ventana CE/COR-2300, Nicho y Telefonillo. Añade despiece real de Telefonillo con marco y hoja a 45° y cristal descontado. -->
     <style>
 
         body {
@@ -542,7 +542,21 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v85.7"><span class="title-main">Ventana Pro</span><span class="title-version">v85.7</span></div>
+<div class="top-title" aria-label="Ventana Pro v86.2"><span class="title-main">Ventana Pro</span><span class="title-version">v86.2</span></div>
+
+
+<div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(940px, 100%); max-height:90vh; margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Despiece Puerta 800</div>
+                <div style="font-size:12px; color:#555;">1 o 2 hojas. Hoja siempre 800. Marco 600/800 y marco inferior configurables. Integrado a lista y Cut Master.</div>
+            </div>
+            <button onclick="cerrarOverlayDespiecePuerta800()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <div id="despieceOverlayContenidoPuerta800" style="padding:16px; overflow:auto; -webkit-overflow-scrolling:touch;"></div>
+    </div>
+</div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -552,11 +566,11 @@ body.dock-off #canvasDock{
     <div class="dimension-inputs-row medidas-grid">
         <div>
             <label for="ancho">Ancho:</label>
-            <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista(); actualizarDespieceCOR2300SiActivo()" oninput="actualizarDespieceCOR2300SiActivo()">
+            <input type="number" id="ancho" value="1200" onchange="recalcularAnchosHojas(); actualizarVista(); actualizarDespieceCOR2300SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()" oninput="actualizarDespieceCOR2300SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()">
         </div>
         <div>
             <label for="alto">Alto:</label>
-            <input type="number" id="alto" value="1400" onchange="ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista(); actualizarDespieceCOR2300SiActivo()" oninput="actualizarDespieceCOR2300SiActivo()">
+            <input type="number" id="alto" value="1400" onchange="ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista(); actualizarDespieceCOR2300SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()" oninput="actualizarDespieceCOR2300SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()">
         </div>
         <div>
             <label for="altoIzq">L Izq:</label>
@@ -581,7 +595,7 @@ body.dock-off #canvasDock{
         <div class="auto-ajuste-slot">
             <div class="auto-ajuste-box">
                 <label for="presetSerie">Serie:</label>
-                <select id="presetSerie" onchange="aplicarPresetMedidas(); actualizarVisibilidadDespieceCOR2300(); actualizarDespieceCOR2300SiActivo()">
+                <select id="presetSerie" onchange="aplicarPresetMedidas(); actualizarVisibilidadDespieceCOR2300(); actualizarVisibilidadDespiece600(); actualizarVisibilidadDespiecePuerta800(); actualizarVisibilidadDespieceNicho(); actualizarVisibilidadDespieceTelefonillo(); actualizarDespieceCOR2300SiActivo(); actualizarDespiecePuerta800SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()">
                     <option value="ventana600">Ventana 600</option>
                     <option value="puerta800">Puerta 800</option>
                     <option value="ventanace">Ventana CE</option>
@@ -615,6 +629,134 @@ body.dock-off #canvasDock{
             Selecciona <strong>Ventana CE</strong> para activar el panel COR-2300 con Mostrar, Cut Master, CSV y Optimizar.
         </div>
         <div id="despieceCor2300Resultado" style="display:none;"></div>
+        <div id="fabricacionHost2300"></div>
+    </div>
+</div>
+
+<div class="control-group" id="despiecePanel600" style="background-color:#E6D4B8; display:none;">
+    <h3>Despiece Ventana 600</h3>
+    <div style="background:#E1E2D6; padding:14px; border-radius:10px; border:1px solid #ccc;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; margin:0; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">
+                <input type="checkbox" id="despiece600Condensacion" onchange="actualizarDespiece600SiActivo(); actualizarEstadoDespiece600()">
+                Condensación
+            </label>
+            <button id="btnMostrarDespiece600" onclick="mostrarOverlayDespiece600()" style="padding:12px 16px; margin-top:0;">Mostrar</button>
+            <button id="btnCutMaster600" onclick="abrirCutMasterIntegrado()" style="padding:12px 16px; margin-top:0;">Cut Master</button>
+            <button id="btnCsvDespiece600" onclick="exportarDespiece600CSV()" style="padding:12px 16px; margin-top:0;">CSV</button>
+            <button id="btnOptimizar600" onclick="optimizarBarras600()" style="padding:12px 16px; margin-top:0;">Optimizar</button>
+        </div>
+        <div id="despiece600Estado" style="margin-top:10px; font-size:13px; color:#555;">
+            Selecciona <strong>Ventana 600</strong> para activar este panel.
+        </div>
+        <div id="despiece600Resultado" style="display:none;"></div>
+        <div id="fabricacionHost600"></div>
+    </div>
+</div>
+
+
+<div class="control-group" id="despiecePanelPuerta800" style="background-color:#E6D4B8; display:none;">
+    <h3>Despiece Puerta 800</h3>
+    <div style="background:#E1E2D6; padding:14px; border-radius:10px; border:1px solid #ccc;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; margin:0; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">
+                <span>Marco</span>
+                <select id="despiecePuerta800MarcoHoja" onchange="sincronizarOpcionesPuerta800DesdePanel(); actualizarDespiecePuerta800SiActivo(); actualizarEstadoDespiecePuerta800()" style="padding:8px; border:1px solid #ccc; border-radius:6px;">
+                    <option value="600" selected>600</option>
+                    <option value="800">800</option>
+                </select>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; margin:0; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">
+                <input type="checkbox" id="despiecePuerta800MarcoInferior" checked onchange="sincronizarOpcionesPuerta800DesdePanel(); actualizarDespiecePuerta800SiActivo(); actualizarEstadoDespiecePuerta800()">
+                Marco inferior
+            </label>
+            <button id="btnMostrarDespiecePuerta800" onclick="mostrarOverlayDespiecePuerta800()" style="padding:12px 16px; margin-top:0;">Mostrar</button>
+            <button id="btnCutMasterPuerta800" onclick="abrirCutMasterIntegrado()" style="padding:12px 16px; margin-top:0;">Cut Master</button>
+            <button id="btnCsvDespiecePuerta800" onclick="exportarDespiecePuerta800CSV()" style="padding:12px 16px; margin-top:0;">CSV</button>
+            <button id="btnOptimizarPuerta800" onclick="optimizarBarrasPuerta800()" style="padding:12px 16px; margin-top:0;">Optimizar</button>
+        </div>
+        <div id="despiecePuerta800Estado" style="margin-top:10px; font-size:13px; color:#555;">
+            Selecciona <strong>Puerta 800</strong> para activar este panel.
+        </div>
+        <div id="despiecePuerta800Resultado" style="display:none;"></div>
+        <div id="fabricacionHostPuerta800"></div>
+    </div>
+</div>
+
+<div class="control-group" id="despiecePanelNicho" style="background-color:#E6D4B8; display:none;">
+    <h3>Despiece Nicho</h3>
+    <div style="background:#E1E2D6; padding:14px; border-radius:10px; border:1px solid #ccc;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; margin:0; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">
+                <input type="checkbox" id="despieceNichoPestana" onchange="actualizarDespieceNichoSiActivo(); actualizarEstadoDespieceNicho()">
+                Añadir pestaña
+            </label>
+            <button id="btnMostrarDespieceNicho" onclick="mostrarOverlayDespieceNicho()" style="padding:12px 16px; margin-top:0;">Mostrar</button>
+            <button id="btnCutMasterNicho" onclick="abrirCutMasterIntegrado()" style="padding:12px 16px; margin-top:0;">Cut Master</button>
+            <button id="btnCsvDespieceNicho" onclick="exportarDespieceNichoCSV()" style="padding:12px 16px; margin-top:0;">CSV</button>
+            <button id="btnOptimizarNicho" onclick="optimizarBarrasNicho()" style="padding:12px 16px; margin-top:0;">Optimizar</button>
+        </div>
+        <div id="despieceNichoEstado" style="margin-top:10px; font-size:13px; color:#555;">
+            Selecciona <strong>Nicho</strong> para activar este panel.
+        </div>
+        <div id="despieceNichoResultado" style="display:none;"></div>
+        <div id="fabricacionHostNicho"></div>
+    </div>
+</div>
+
+<div class="control-group" id="despiecePanelTelefonillo" style="background-color:#E6D4B8; display:none;">
+    <h3>Despiece Telefonillo</h3>
+    <div style="background:#E1E2D6; padding:14px; border-radius:10px; border:1px solid #ccc;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+            <button id="btnMostrarDespieceTelefonillo" onclick="mostrarOverlayDespieceTelefonillo()" style="padding:12px 16px; margin-top:0;">Mostrar</button>
+            <button id="btnCutMasterTelefonillo" onclick="abrirCutMasterIntegrado()" style="padding:12px 16px; margin-top:0;">Cut Master</button>
+            <button id="btnCsvDespieceTelefonillo" onclick="exportarDespieceTelefonilloCSV()" style="padding:12px 16px; margin-top:0;">CSV</button>
+            <button id="btnOptimizarTelefonillo" onclick="optimizarBarrasTelefonillo()" style="padding:12px 16px; margin-top:0;">Optimizar</button>
+        </div>
+        <div id="despieceTelefonilloEstado" style="margin-top:10px; font-size:13px; color:#555;">
+            Selecciona <strong>Telefonillo</strong> para activar este panel.
+        </div>
+        <div id="despieceTelefonilloResultado" style="display:none;"></div>
+        <div id="fabricacionHostTelefonillo"></div>
+    </div>
+</div>
+
+<div id="despieceOverlayTelefonillo" onclick="if(event.target===this) cerrarOverlayDespieceTelefonillo()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(940px, 100%); max-height:90vh; margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Despiece Telefonillo</div>
+                <div style="font-size:12px; color:#555;">1 hoja fija. Marco y hoja a 45°. Cristal descontado ancho -23 y alto -10.</div>
+            </div>
+            <button onclick="cerrarOverlayDespieceTelefonillo()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <div id="despieceOverlayContenidoTelefonillo" style="padding:16px; overflow:auto; -webkit-overflow-scrolling:touch;"></div>
+    </div>
+</div>
+
+<div id="despieceOverlayNicho" onclick="if(event.target===this) cerrarOverlayDespieceNicho()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(940px, 100%); max-height:90vh; margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Despiece Nicho</div>
+                <div style="font-size:12px; color:#555;">1 hoja fija. Marco y hoja a 45º. Opción de pestaña inferior.</div>
+            </div>
+            <button onclick="cerrarOverlayDespieceNicho()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <div id="despieceOverlayContenidoNicho" style="padding:16px; overflow:auto; -webkit-overflow-scrolling:touch;"></div>
+    </div>
+</div>
+
+<div id="despieceOverlay600" onclick="if(event.target===this) cerrarOverlayDespiece600()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
+    <div style="background:#fff; width:min(940px, 100%); max-height:90vh; margin:0 auto; border-radius:14px; box-shadow:0 12px 36px rgba(0,0,0,0.28); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#F3EFE8; border-bottom:1px solid #ddd;">
+            <div>
+                <div style="font-weight:700;">Despiece Ventana 600</div>
+                <div style="font-size:12px; color:#555;">Fijo, 1 hoja y 2 hojas. Incluye condensación, junquillo, cristal e inversor.</div>
+            </div>
+            <button onclick="cerrarOverlayDespiece600()" style="padding:10px 14px; margin-top:0;">Cerrar</button>
+        </div>
+        <div id="despieceOverlayContenido600" style="padding:16px; overflow:auto; -webkit-overflow-scrolling:touch;"></div>
     </div>
 </div>
 
@@ -749,7 +891,7 @@ body.dock-off #canvasDock{
     
     <div style="background: #E1E2D6; padding: 15px; border-radius: 8px; border: 1px solid #ccc;">
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            <button onclick="togglePersiana()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Cajón persiana</button>
+            <button id="btnTogglePersiana" onclick="togglePersiana()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Cajón persiana</button>
             <button onclick="toggleMedidas()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Medidas</button>
             <button onclick="toggleAltoTotalDer()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Alto Total</button>
             
@@ -902,6 +1044,50 @@ body.dock-off #canvasDock{
         telefonillo: { marco: 0, hoja: 20, zanca: 20 }
     };
 
+    function esSerieSinPersiana() {
+        const select = document.getElementById('presetSerie');
+        return !!select && (select.value === 'nicho' || select.value === 'telefonillo');
+    }
+
+    function actualizarEstadoEspecialSerie() {
+        const hojasSelect = document.getElementById('hojas');
+        const persianaBtn = document.getElementById('btnTogglePersiana');
+        const esEspecial = esSerieSinPersiana();
+
+        if (hojasSelect) {
+            if (esEspecial) {
+                hojasSelect.value = '1';
+                hojasSelect.disabled = true;
+            } else {
+                hojasSelect.disabled = false;
+            }
+        }
+
+        if (esEspecial) {
+            hojas = 1;
+            mostrarPersiana = false;
+        }
+
+        if (persianaBtn) {
+            persianaBtn.disabled = esEspecial;
+            persianaBtn.style.opacity = esEspecial ? '0.55' : '1';
+            persianaBtn.style.cursor = esEspecial ? 'not-allowed' : 'pointer';
+        }
+    }
+
+    function forzarConfiguracionEspecialHojas() {
+        if (!esSerieSinPersiana()) return;
+        const ap = document.getElementById('apertura0');
+        if (ap) ap.value = 'derecha';
+        if (hojasData[0]) {
+            hojasData[0].savedApertura = 'derecha';
+            hojasData[0].manilla = hojasData[0].manilla || { enabled: true, color: 'black', side: 'derecha' };
+            hojasData[0].manilla.enabled = true;
+            hojasData[0].manilla.side = 'derecha';
+        }
+        toggleManillaVisibility(0);
+    }
+
     function aplicarPresetMedidas() {
         const select = document.getElementById('presetSerie');
         if(!select) return;
@@ -920,12 +1106,35 @@ body.dock-off #canvasDock{
         if (hojaInput) hojaInput.value = preset.hoja;
         if (zancaInput) zancaInput.value = preset.zanca;
 
+        if (select.value === 'puerta800') {
+            const hojasSelect = document.getElementById('hojas');
+            if (hojasSelect && (!hojasSelect.value || Number(hojasSelect.value) < 1)) hojasSelect.value = '1';
+            hojas = Math.max(1, Number(hojasSelect && hojasSelect.value) || 1);
+            drawBorderBottom = true;
+            const chkMarcoInferior = document.getElementById('chkDrawBorderBottom');
+            if (chkMarcoInferior) chkMarcoInferior.checked = true;
+            const ap = document.getElementById('apertura0');
+            if (ap) ap.value = 'izquierda';
+            if (hojasData[0]) hojasData[0].savedApertura = 'izquierda';
+            const marcoHojaSel = document.getElementById('despiecePuerta800MarcoHoja');
+            if (marcoHojaSel && !marcoHojaSel.value) marcoHojaSel.value = '600';
+        }
+
+        actualizarEstadoEspecialSerie();
         recalcularAnchosHojas();
         actualizarOpcionesFijos();
         actualizarVista();
 
         actualizarVisibilidadDespieceCOR2300();
+        try { actualizarVisibilidadDespiece600(); } catch(e) {}
+        try { actualizarVisibilidadDespiecePuerta800(); } catch(e) {}
+        try { actualizarVisibilidadDespieceNicho(); } catch(e) {}
+        try { actualizarVisibilidadDespieceTelefonillo(); } catch(e) {}
         generarDespieceCOR2300();
+        try { generarDespiece600(); } catch(e) {}
+        try { generarDespiecePuerta800(); } catch(e) {}
+        try { generarDespieceNicho(); } catch(e) {}
+        try { generarDespieceTelefonillo(); } catch(e) {}
 
         ['altoFijoInferior','anchoFijoIzq','anchoFijoDer','altoIzq','altoDer','altoFijoSupIzq','altoFijoSupDer','altoFijoSupCen'].forEach(id => {
             const el = document.getElementById(id);
@@ -1124,7 +1333,16 @@ function cambiarColorMarco(c) {
         actualizarVista();
     }
 
-    function togglePersiana() { mostrarPersiana = !mostrarPersiana; actualizarVista(); }
+    function togglePersiana() {
+        if (esSerieSinPersiana()) {
+            mostrarPersiana = false;
+            actualizarEstadoEspecialSerie();
+            actualizarVista();
+            return;
+        }
+        mostrarPersiana = !mostrarPersiana;
+        actualizarVista();
+    }
     function toggleMedidas() { mostrarMedidas = !mostrarMedidas; actualizarVista(); }
     function toggleAltoTotalDer() {
         mostrarAltoTotalDer = !mostrarAltoTotalDer;
@@ -4149,6 +4367,7 @@ if (mostrarAltoTotalDer) {
     }
 
     function actualizarVisibilidadDespieceCOR2300() {
+        try { moveFabUiToActivePanel(); } catch(e) {}
         const panel = document.getElementById('despiecePanelCompacto');
         const result = document.getElementById('despieceCor2300Resultado');
         const overlay = document.getElementById('despieceOverlayCOR2300');
@@ -4156,6 +4375,7 @@ if (mostrarAltoTotalDer) {
 
         const activa = esSerieCOR2300Seleccionada();
         panel.style.display = activa ? '' : 'none';
+        try { moveFabUiToActivePanel(); } catch(e) {}
 
         if (activa) {
             if (!window.__ultimoDespieceCOR2300) {
@@ -4168,13 +4388,17 @@ if (mostrarAltoTotalDer) {
             document.body.style.overflow = '';
         }
         actualizarEstadoDespieceCOR2300();
+        actualizarEstadoDespiece600();
+        actualizarEstadoDespieceNicho();
+        try { actualizarEstadoDespieceTelefonillo(); } catch(e) {}
     }
 
     function actualizarDespieceCOR2300SiActivo() {
-        if (!document.getElementById('despieceCor2300Resultado')) return;
-        if (!esSerieCOR2300Seleccionada()) return;
-        if (window.__ultimoDespieceCOR2300) {
+        if (document.getElementById('despieceCor2300Resultado') && esSerieCOR2300Seleccionada() && window.__ultimoDespieceCOR2300) {
             generarDespieceCOR2300();
+        }
+        if (document.getElementById('despiece600Resultado') && esSerie600Seleccionada() && window.__ultimoDespiece600) {
+            generarDespiece600();
         }
     }
 
@@ -4527,7 +4751,1079 @@ if (mostrarAltoTotalDer) {
         descargarTextoComoArchivoSeguro('despiece-cor-2300.csv', 'text/csv;charset=utf-8;', csv);
     }
 
+    function esSerie600Seleccionada() {
+        const sel = document.getElementById('presetSerie');
+        return !!sel && sel.value === 'ventana600';
+    }
 
+    function getCheckboxCondensacion600() {
+        return !!(document.getElementById('despiece600Condensacion') && document.getElementById('despiece600Condensacion').checked);
+    }
+
+    function actualizarEstadoDespiece600(msg) {
+        const estado = document.getElementById('despiece600Estado');
+        const btnShow = document.getElementById('btnMostrarDespiece600');
+        const btnCut = document.getElementById('btnCutMaster600');
+        const btnCsv = document.getElementById('btnCsvDespiece600');
+        const btnOpt = document.getElementById('btnOptimizar600');
+        const activa = esSerie600Seleccionada();
+        [btnShow, btnCut, btnCsv, btnOpt].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !activa;
+            btn.style.opacity = activa ? '1' : '0.55';
+            btn.style.cursor = activa ? 'pointer' : 'not-allowed';
+        });
+        if (!estado) return;
+        if (msg) { estado.innerHTML = msg; return; }
+        if (!activa) {
+            estado.innerHTML = 'Selecciona <strong>Ventana 600</strong> para activar este panel.';
+            return;
+        }
+        const data = window.__ultimoDespiece600;
+        if (data) {
+            const piezas = (data.barras || []).reduce((acc, p) => acc + (Number(p.qty) || 0), 0);
+            const vidrios = (data.vidrios || []).reduce((acc, v) => acc + (Number(v.qty) || 0), 0);
+            estado.innerHTML = 'Serie 600 lista' + (getCheckboxCondensacion600() ? ' · con condensación' : ' · sin condensación') + ' · ' + piezas + ' piezas · ' + vidrios + ' vidrios';
+        } else {
+            estado.innerHTML = 'Ventana 600 activa. Ya puedes usar Mostrar, Cut Master, CSV u Optimizar.';
+        }
+    }
+
+    function actualizarVisibilidadDespiece600() {
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        const panel = document.getElementById('despiecePanel600');
+        const result = document.getElementById('despiece600Resultado');
+        const overlay = document.getElementById('despieceOverlay600');
+        if (!panel || !result) return;
+        const activa = esSerie600Seleccionada();
+        panel.style.display = activa ? '' : 'none';
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        if (activa) {
+            if (!window.__ultimoDespiece600) result.innerHTML = '<div style="color:#444;">Seleccionada <strong>Ventana 600</strong>. Ya puedes calcular el despiece.</div>';
+        } else {
+            window.__ultimoDespiece600 = null;
+            result.innerHTML = '<div style="color:#666;">El despiece Ventana 600 solo está activo cuando la serie seleccionada es <strong>Ventana 600</strong>.</div>';
+            if (overlay) overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        actualizarEstadoDespiece600();
+        try { moveFabUiToActivePanel(); } catch(e) {}
+    }
+
+    function actualizarDespiece600SiActivo() {
+        if (!document.getElementById('despiece600Resultado')) return;
+        if (!esSerie600Seleccionada()) return;
+        if (window.__ultimoDespiece600) generarDespiece600();
+    }
+
+    function cerrarOverlayDespiece600() {
+        const overlay = document.getElementById('despieceOverlay600');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function mostrarOverlayDespiece600() {
+        if (!esSerie600Seleccionada()) { actualizarEstadoDespiece600(); return; }
+        const data = generarDespiece600();
+        if (!data) return;
+        const overlay = document.getElementById('despieceOverlay600');
+        const contenido = document.getElementById('despieceOverlayContenido600');
+        const origen = document.getElementById('despiece600Resultado');
+        if (!overlay || !contenido || !origen) return;
+        contenido.innerHTML = origen.innerHTML || '<div style="color:#666;">No hay despiece calculado.</div>';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespiece600('Mostrando despiece Serie 600.');
+        setTimeout(() => actualizarEstadoDespiece600(), 1200);
+    }
+
+    function pushPiezaDespiece600(target, perfil, pieza, length, qty, cutType, modulo) {
+        length = Math.round(Number(length) || 0);
+        qty = Math.round(Number(qty) || 0);
+        if (length <= 0 || qty <= 0) return;
+        target.push({ perfil, pieza, length, qty, cutType, modulo, grupo: 'barras' });
+    }
+
+    function addVidrio600(target, pieza, width, height, qty, modulo) {
+        width = Math.round(Number(width) || 0);
+        height = Math.round(Number(height) || 0);
+        qty = Math.round(Number(qty) || 0);
+        if (width <= 0 || height <= 0 || qty <= 0) return;
+        target.push({ pieza, width, height, qty, modulo, grupo: 'vidrios' });
+    }
+
+    function agruparBarras600(items) {
+        const map = {};
+        items.forEach(p => {
+            const key = [p.perfil, p.pieza, p.length, p.cutType].join('|');
+            if (!map[key]) map[key] = Object.assign({}, p);
+            else map[key].qty += p.qty;
+        });
+        return Object.values(map).sort((a,b) => {
+            if (a.perfil !== b.perfil) return a.perfil.localeCompare(b.perfil);
+            if (a.pieza !== b.pieza) return a.pieza.localeCompare(b.pieza);
+            return a.length - b.length;
+        });
+    }
+
+    function agruparVidrios600(items) {
+        const map = {};
+        items.forEach(v => {
+            const key = [v.pieza, v.width, v.height].join('|');
+            if (!map[key]) map[key] = Object.assign({}, v);
+            else map[key].qty += v.qty;
+        });
+        return Object.values(map).sort((a,b) => {
+            if (a.pieza !== b.pieza) return a.pieza.localeCompare(b.pieza);
+            if (a.width !== b.width) return a.width - b.width;
+            return a.height - b.height;
+        });
+    }
+
+    function resumenPerfiles600(barras) {
+        const map = {};
+        barras.forEach(p => {
+            const key = p.perfil;
+            if (!map[key]) map[key] = { perfil: key, qty: 0, metros: 0 };
+            map[key].qty += p.qty;
+            map[key].metros += (p.length * p.qty) / 1000;
+        });
+        return Object.values(map).sort((a,b) => a.perfil.localeCompare(b.perfil));
+    }
+
+    function calcularPanosCristal600(totalWidth, totalHeight, posicionesV, posicionesH) {
+        totalWidth = Number(totalWidth) || 0;
+        totalHeight = Number(totalHeight) || 0;
+        if (totalWidth <= 0 || totalHeight <= 0) return [];
+        const edgeX = 28.5;
+        const edgeY = 40;
+        const halfDiv = 13;
+        const posV = (Array.isArray(posicionesV) ? posicionesV : []).map(v => Number(v) || 0).filter(v => v > 0 && v < totalWidth).sort((a,b) => a-b);
+        const posH = (Array.isArray(posicionesH) ? posicionesH : []).map(v => Number(v) || 0).filter(v => v > 0 && v < totalHeight).sort((a,b) => a-b);
+        const segX = [];
+        let prev = 0;
+        posV.forEach(v => { segX.push(v - prev); prev = v; });
+        segX.push(totalWidth - prev);
+        const segY = [];
+        prev = 0;
+        posH.forEach(v => { segY.push(v - prev); prev = v; });
+        segY.push(totalHeight - prev);
+        const panes = [];
+        segY.forEach((rawH, r) => {
+            const topDed = r === segY.length - 1 ? edgeY : halfDiv;
+            const bottomDed = r === 0 ? edgeY : halfDiv;
+            const glassH = Math.round(rawH - topDed - bottomDed);
+            segX.forEach((rawW, c) => {
+                const leftDed = c === 0 ? edgeX : halfDiv;
+                const rightDed = c === segX.length - 1 ? edgeX : halfDiv;
+                const glassW = Math.round(rawW - leftDed - rightDed);
+                if (glassW > 0 && glassH > 0) panes.push({ width: glassW, height: glassH, row: r, col: c });
+            });
+        });
+        return panes;
+    }
+
+    function addFijoSerie600(piezas, avisos, etiqueta, width, height, posicionesV, posicionesH) {
+        width = Math.round(Number(width) || 0);
+        height = Math.round(Number(height) || 0);
+        const conCond = getCheckboxCondensacion600();
+        const hEff = Math.max(0, height - (conCond ? 26 : 0));
+        if (width <= 0 || hEff <= 0) {
+            avisos.push('Las medidas de ' + etiqueta + ' no son válidas para la serie 600.');
+            return;
+        }
+        pushPiezaDespiece600(piezas, 'Marco 600', 'Marco horizontal ' + etiqueta, width, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, 'Marco 600', 'Marco vertical ' + etiqueta, hEff, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal ' + etiqueta, width - 52, 2, 'Recto', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical ' + etiqueta, hEff - 80, 2, 'Recto', etiqueta);
+        const panes = calcularPanosCristal600(width, hEff, posicionesV, posicionesH);
+        if (!panes.length) {
+            avisos.push('No se pudieron calcular los cristales de ' + etiqueta + '.');
+        } else {
+            panes.forEach(p => addVidrio600(piezas, 'Cristal ' + etiqueta, p.width, p.height, 1, etiqueta));
+        }
+    }
+
+    function addHojaSerie600(piezas, avisos, etiqueta, hojaWidth, totalHeight, posicionesV, posicionesH) {
+        hojaWidth = Math.round(Number(hojaWidth) || 0);
+        totalHeight = Math.round(Number(totalHeight) || 0);
+        const conCond = getCheckboxCondensacion600();
+        const hCond = Math.max(0, totalHeight - (conCond ? 26 : 0));
+        const hojaHeight = hCond - 40;
+        if (hojaWidth <= 0 || hojaHeight <= 0) {
+            avisos.push('Las medidas de ' + etiqueta + ' no son válidas para la serie 600.');
+            return;
+        }
+        pushPiezaDespiece600(piezas, 'Hoja 600', 'Hoja horizontal ' + etiqueta, hojaWidth, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, 'Hoja 600', 'Hoja vertical ' + etiqueta, hojaHeight, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal ' + etiqueta, hojaWidth - 52, 2, 'Recto', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical ' + etiqueta, hojaHeight - 80, 2, 'Recto', etiqueta);
+        const panes = calcularPanosCristal600(hojaWidth, hojaHeight, posicionesV, posicionesH);
+        if (!panes.length) {
+            avisos.push('No se pudieron calcular los cristales de ' + etiqueta + '.');
+        } else {
+            panes.forEach(p => addVidrio600(piezas, 'Cristal ' + etiqueta, p.width, p.height, 1, etiqueta));
+        }
+    }
+
+    function generarDespiece600() {
+        if (!esSerie600Seleccionada()) {
+            const target = document.getElementById('despiece600Resultado');
+            if (target) target.innerHTML = '<div style="color:#666;">Selecciona <strong>Ventana 600</strong> para usar este despiece.</div>';
+            window.__ultimoDespiece600 = null;
+            actualizarEstadoDespiece600();
+            return null;
+        }
+        const resultadoEl = document.getElementById('despiece600Resultado');
+        if (!resultadoEl) return null;
+
+        const piezas = [];
+        const avisos = [];
+        const hojas = Math.max(0, Math.round(Number((document.getElementById('hojas') || {}).value) || 0));
+        const anchoTotal = mmEntero((document.getElementById('ancho') || {}).value);
+        const altoTotal = mmEntero((document.getElementById('alto') || {}).value);
+        const anchoCentral = mmEntero(getAnchoZonaCentralMM());
+        const altoPrincipal = mmEntero(altoVentanaPrincipalRealMM || (document.getElementById('alto') || {}).value);
+        const conCond = getCheckboxCondensacion600();
+
+        if (hojas > 2) avisos.push('La Ventana 600 solo está disponible por ahora para fijo, 1 hoja y 2 hojas.');
+
+        if (anchoCentral > 0 && altoPrincipal > 0) {
+            pushPiezaDespiece600(piezas, 'Marco 600', 'Marco horizontal ventana principal', anchoCentral, 2, '45°', 'Ventana principal');
+            pushPiezaDespiece600(piezas, 'Marco 600', 'Marco vertical ventana principal', altoPrincipal - (conCond ? 26 : 0), 2, '45°', 'Ventana principal');
+            if (conCond) pushPiezaDespiece600(piezas, 'Condensación', 'Condensación ventana principal', anchoCentral, 1, 'Recto', 'Ventana principal');
+
+            if (hojas === 0) {
+                addVidrio600(piezas, 'Cristal fijo ventana principal', anchoCentral - 57, (altoPrincipal - (conCond ? 26 : 0)) - 80, 1, 'Ventana principal');
+                pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal ventana principal', anchoCentral - 52, 2, 'Recto', 'Ventana principal');
+                pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical ventana principal', (altoPrincipal - (conCond ? 26 : 0)) - 80, 2, 'Recto', 'Ventana principal');
+            } else if (hojas === 1) {
+                const hojaWidth = anchoCentral - 40;
+                addHojaSerie600(piezas, avisos, 'hoja 1', hojaWidth, altoPrincipal, travesanosHojas[0] ? travesanosHojas[0].posicionesV : [], travesanosHojas[0] ? travesanosHojas[0].alturasH : []);
+            } else if (hojas === 2) {
+                const hojaWidth = Math.round((anchoCentral / 2) - 27);
+                addHojaSerie600(piezas, avisos, 'hoja 1', hojaWidth, altoPrincipal, travesanosHojas[0] ? travesanosHojas[0].posicionesV : [], travesanosHojas[0] ? travesanosHojas[0].alturasH : []);
+                addHojaSerie600(piezas, avisos, 'hoja 2', hojaWidth, altoPrincipal, travesanosHojas[1] ? travesanosHojas[1].posicionesV : [], travesanosHojas[1] ? travesanosHojas[1].alturasH : []);
+                pushPiezaDespiece600(piezas, 'Zanca 600', 'Inversor ventana principal', (altoPrincipal - (conCond ? 26 : 0)) - 96, 1, 'Recto', 'Ventana principal');
+            }
+        }
+
+        if (fijoInferior && mmEntero(altoFijoInferiorMM) > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo inferior', anchoTotal, mmEntero(altoFijoInferiorMM), travesanosInfVerticales.map(t=>t.posicion), travesanosInfHorizontales.map(t=>t.altura));
+            if (conCond) pushPiezaDespiece600(piezas, 'Condensación', 'Condensación fijo inferior', anchoTotal, 1, 'Recto', 'fijo inferior');
+        }
+        if (fijoIzquierdo && mmEntero(anchoFijoIzquierdoMM) > 0 && altoPrincipal > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo izquierdo', mmEntero(anchoFijoIzquierdoMM), altoPrincipal, travesanosIzqVerticales.map(t=>t.posicion), travesanosIzqHorizontales.map(t=>t.altura));
+            if (conCond) pushPiezaDespiece600(piezas, 'Condensación', 'Condensación fijo izquierdo', mmEntero(anchoFijoIzquierdoMM), 1, 'Recto', 'fijo izquierdo');
+        }
+        if (fijoDerecho && mmEntero(anchoFijoDerechoMM) > 0 && altoPrincipal > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo derecho', mmEntero(anchoFijoDerechoMM), altoPrincipal, travesanosDerVerticales.map(t=>t.posicion), travesanosDerHorizontales.map(t=>t.altura));
+            if (conCond) pushPiezaDespiece600(piezas, 'Condensación', 'Condensación fijo derecho', mmEntero(anchoFijoDerechoMM), 1, 'Recto', 'fijo derecho');
+        }
+        if (fijoSuperior) {
+            const heights = [mmEntero(altoFijoSupIzqMM), mmEntero(altoFijoSupDerMM)];
+            if (modoArco) heights.push(mmEntero(altoFijoSupCenMM));
+            const iguales = heights.every(v => v === heights[0]);
+            if (iguales && heights[0] > 0) {
+                addFijoSerie600(piezas, avisos, 'fijo superior', anchoTotal, heights[0], travesanosSupVerticales.map(t=>t.posicion), travesanosSupHorizontales.map(t=>t.altura));
+                if (conCond) pushPiezaDespiece600(piezas, 'Condensación', 'Condensación fijo superior', anchoTotal, 1, 'Recto', 'fijo superior');
+            } else {
+                avisos.push('El fijo superior trapecio/arco no se incluye aún en el despiece automático de Serie 600.');
+            }
+        }
+
+        const barras = agruparBarras600(piezas.filter(p => p.grupo === 'barras'));
+        const vidrios = agruparVidrios600(piezas.filter(p => p.grupo === 'vidrios'));
+        const resumen = {
+            serie: 'Ventana 600',
+            hojas,
+            anchoTotal,
+            altoTotal,
+            anchoCentral,
+            altoPrincipal,
+            condensacion: conCond
+        };
+        window.__ultimoDespiece600 = { meta: resumen, barras, vidrios, avisos };
+
+        const resumenPerfiles = resumenPerfiles600(barras);
+        let htmlOut = '';
+        htmlOut += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Serie:</strong> Ventana 600</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Hojas:</strong> ${hojas}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Ancho principal:</strong> ${escaparHtml(fmtMm(anchoCentral))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto principal:</strong> ${escaparHtml(fmtMm(altoPrincipal))}</div>
+        </div>`;
+        if (avisos.length) {
+            htmlOut += `<div style="background:#fff4d6; border:1px solid #e5cf8e; color:#6f5617; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+                <strong>Avisos:</strong><br>${avisos.map(a => '• ' + escaparHtml(a)).join('<br>')}
+            </div>`;
+        }
+        htmlOut += `<h4 style="margin:8px 0;">Barras</h4>`;
+        if (!barras.length) htmlOut += `<div>No hay barras calculadas con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Largo</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Corte</th>
+            </tr></thead><tbody>${barras.map(p => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.perfil)}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(p.length))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.qty}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.cutType)}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        htmlOut += `<h4 style="margin:16px 0 8px;">Cristal</h4>`;
+        if (!vidrios.length) htmlOut += `<div>No hay cristales calculados con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Ancho</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Alto</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+            </tr></thead><tbody>${vidrios.map(v => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(v.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.width))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.height))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${v.qty}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        if (resumenPerfiles.length) {
+            htmlOut += `<h4 style="margin:16px 0 8px;">Resumen por perfil</h4><div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead><tr style="background:#f0eee8;">
+                    <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Piezas</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Metros</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Barras 6500</th>
+                </tr></thead><tbody>${resumenPerfiles.map(r => `<tr>
+                    <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(r.perfil)}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.qty}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.metros.toFixed(2)} m</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${Math.ceil((r.metros * 1000) / 6500)}</td>
+                </tr>`).join('')}</tbody></table></div>`;
+        }
+        resultadoEl.innerHTML = htmlOut;
+        actualizarEstadoDespiece600();
+        return window.__ultimoDespiece600;
+    }
+
+    function exportarDespiece600CSV() {
+        const data = generarDespiece600();
+        if (!data) return;
+        const rows = [['grupo','perfil','pieza','largo_mm','ancho_mm','alto_mm','uds','corte']];
+        data.barras.forEach(p => rows.push(['barra', p.perfil, p.pieza, p.length, '', '', p.qty, p.cutType]));
+        data.vidrios.forEach(v => rows.push(['cristal', 'Cristal', v.pieza, '', v.width, v.height, v.qty, '']));
+        const csv = rows.map(row => row.map(val => `"${String(val == null ? '' : val).replace(/"/g, '""')}"`).join(';')).join('\n');
+        descargarTextoComoArchivoSeguro('despiece-serie-600-practicable.csv', 'text/csv;charset=utf-8;', csv);
+    }
+
+
+    function esSeriePuerta800Seleccionada() {
+        const sel = document.getElementById('presetSerie');
+        return !!sel && sel.value === 'puerta800';
+    }
+
+    function getMarcoHojaPuerta800() {
+        const sel = document.getElementById('despiecePuerta800MarcoHoja');
+        return sel && sel.value === '800' ? '800' : '600';
+    }
+
+    function sincronizarOpcionesPuerta800DesdePanel() {
+        const chk = document.getElementById('despiecePuerta800MarcoInferior');
+        if (chk) drawBorderBottom = !!chk.checked;
+    }
+
+    function sincronizarPanelPuerta800DesdeDiseno() {
+        const chk = document.getElementById('despiecePuerta800MarcoInferior');
+        if (chk) chk.checked = !!drawBorderBottom;
+    }
+
+    function getMarcoInferiorPuerta800() {
+        const chk = document.getElementById('despiecePuerta800MarcoInferior');
+        return chk ? !!chk.checked : !!drawBorderBottom;
+    }
+
+    function actualizarEstadoDespiecePuerta800(msg) {
+        const estado = document.getElementById('despiecePuerta800Estado');
+        const btnShow = document.getElementById('btnMostrarDespiecePuerta800');
+        const btnCut = document.getElementById('btnCutMasterPuerta800');
+        const btnCsv = document.getElementById('btnCsvDespiecePuerta800');
+        const btnOpt = document.getElementById('btnOptimizarPuerta800');
+        const activa = esSeriePuerta800Seleccionada();
+        [btnShow, btnCut, btnCsv, btnOpt].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !activa;
+            btn.style.opacity = activa ? '1' : '0.55';
+            btn.style.cursor = activa ? 'pointer' : 'not-allowed';
+        });
+        if (!estado) return;
+        if (msg) { estado.innerHTML = msg; return; }
+        if (!activa) {
+            estado.innerHTML = 'Selecciona <strong>Puerta 800</strong> para activar este panel.';
+            return;
+        }
+        const data = window.__ultimoDespiecePuerta800;
+        const marcoInferiorTxt = getMarcoInferiorPuerta800() ? 'con marco inferior' : 'sin marco inferior';
+        sincronizarPanelPuerta800DesdeDiseno();
+        const marcoHoja = getMarcoHojaPuerta800();
+        if (data) {
+            const piezas = (data.barras || []).reduce((acc, p) => acc + (Number(p.qty) || 0), 0);
+            const vidrios = (data.vidrios || []).reduce((acc, v) => acc + (Number(v.qty) || 0), 0);
+            estado.innerHTML = 'Puerta 800 lista · ' + (data.meta && data.meta.hojas ? data.meta.hojas : 0) + ' hoja/s · marco ' + marcoHoja + ' · ' + marcoInferiorTxt + ' · ' + piezas + ' piezas · ' + vidrios + ' vidrios';
+        } else {
+            estado.innerHTML = 'Puerta 800 activa. Ya puedes usar Mostrar, Cut Master, CSV u Optimizar.';
+        }
+    }
+
+    function actualizarVisibilidadDespiecePuerta800() {
+        const panel = document.getElementById('despiecePanelPuerta800');
+        if (!panel) return;
+        panel.style.display = esSeriePuerta800Seleccionada() ? 'block' : 'none';
+        if (esSeriePuerta800Seleccionada()) sincronizarPanelPuerta800DesdeDiseno();
+        actualizarEstadoDespiecePuerta800();
+    }
+
+    function actualizarDespiecePuerta800SiActivo() {
+        if (esSeriePuerta800Seleccionada() && window.__ultimoDespiecePuerta800) generarDespiecePuerta800();
+    }
+
+    function cerrarOverlayDespiecePuerta800() {
+        const overlay = document.getElementById('despieceOverlayPuerta800');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        actualizarEstadoDespiecePuerta800();
+    }
+
+    function mostrarOverlayDespiecePuerta800() {
+        if (!esSeriePuerta800Seleccionada()) { actualizarEstadoDespiecePuerta800(); return; }
+        const data = generarDespiecePuerta800();
+        if (!data) return;
+        const overlay = document.getElementById('despieceOverlayPuerta800');
+        const contenido = document.getElementById('despieceOverlayContenidoPuerta800');
+        const origen = document.getElementById('despiecePuerta800Resultado');
+        if (!overlay || !contenido || !origen) return;
+        contenido.innerHTML = origen.innerHTML || '<div style="color:#666;">No hay despiece calculado.</div>';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespiecePuerta800('Mostrando despiece Puerta 800.');
+        setTimeout(() => actualizarEstadoDespiecePuerta800(), 1200);
+    }
+
+    function calcularPanosCristalPuerta800(totalWidth, totalHeight, posicionesV, posicionesH) {
+        totalWidth = Number(totalWidth) || 0;
+        totalHeight = Number(totalHeight) || 0;
+        if (totalWidth <= 0 || totalHeight <= 0) return [];
+        const edgeX = 60;
+        const edgeY = 57;
+        const halfDiv = 13;
+        const posV = (Array.isArray(posicionesV) ? posicionesV : []).map(v => Number(v) || 0).filter(v => v > 0 && v < totalWidth).sort((a,b) => a-b);
+        const posH = (Array.isArray(posicionesH) ? posicionesH : []).map(v => Number(v) || 0).filter(v => v > 0 && v < totalHeight).sort((a,b) => a-b);
+        const segX = [];
+        let prev = 0;
+        posV.forEach(v => { segX.push(v - prev); prev = v; });
+        segX.push(totalWidth - prev);
+        const segY = [];
+        prev = 0;
+        posH.forEach(v => { segY.push(v - prev); prev = v; });
+        segY.push(totalHeight - prev);
+        const panes = [];
+        segY.forEach((rawH, r) => {
+            const topDed = r === segY.length - 1 ? edgeY : halfDiv;
+            const bottomDed = r === 0 ? edgeY : halfDiv;
+            const glassH = Math.round(rawH - topDed - bottomDed);
+            segX.forEach((rawW, c) => {
+                const leftDed = c === 0 ? edgeX : halfDiv;
+                const rightDed = c === segX.length - 1 ? edgeX : halfDiv;
+                const glassW = Math.round(rawW - leftDed - rightDed);
+                if (glassW > 0 && glassH > 0) panes.push({ width: glassW, height: glassH, row: r, col: c });
+            });
+        });
+        return panes;
+    }
+
+    function addHojaPuerta800(piezas, avisos, etiqueta, hojasCount, anchoHueco, altoTotal, marcoHoja, conMarcoInferior, posicionesV, posicionesH) {
+        anchoHueco = Math.round(Number(anchoHueco) || 0);
+        altoTotal = Math.round(Number(altoTotal) || 0);
+        const esMarco800 = String(marcoHoja || '600') === '800';
+        let hojaWidth = 0;
+        let hojaHeight = 0;
+        let inversor = 0;
+        if (hojasCount === 1) {
+            hojaWidth = anchoHueco - (esMarco800 ? 74 : 40);
+            hojaHeight = altoTotal - (conMarcoInferior ? (esMarco800 ? 74 : 40) : (esMarco800 ? 38 : 20));
+        } else if (hojasCount === 2) {
+            hojaWidth = Math.round((anchoHueco / 2) - (esMarco800 ? 44 : 27));
+            hojaHeight = altoTotal - (conMarcoInferior ? (esMarco800 ? 74 : 40) : (esMarco800 ? 38 : 20));
+            inversor = altoTotal - (conMarcoInferior ? (esMarco800 ? 130 : 96) : (esMarco800 ? 108 : 56));
+        }
+        if (hojaWidth <= 0 || hojaHeight <= 0) {
+            avisos.push('Las medidas de ' + etiqueta + ' no son válidas para Puerta 800.');
+            return;
+        }
+        const perfilHoja = 'Hoja 800';
+        const junqH = hojaWidth - 119;
+        const junqV = hojaHeight - 142;
+        pushPiezaDespiece600(piezas, perfilHoja, 'Hoja horizontal ' + etiqueta, hojaWidth, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, perfilHoja, 'Hoja vertical ' + etiqueta, hojaHeight, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal ' + etiqueta, junqH, 2, 'Recto', etiqueta);
+        pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical ' + etiqueta, junqV, 2, 'Recto', etiqueta);
+
+        const panes = calcularPanosCristalPuerta800(hojaWidth, hojaHeight, posicionesV, posicionesH);
+        if (!panes.length) {
+            avisos.push('No se pudieron calcular los cristales de ' + etiqueta + '.');
+        } else {
+            panes.forEach(p => addVidrio600(piezas, 'Cristal ' + etiqueta, p.width, p.height, 1, etiqueta));
+        }
+
+        const travV = Array.isArray(posicionesV) ? posicionesV.length : 0;
+        const travH = Array.isArray(posicionesH) ? posicionesH.length : 0;
+        const totalTraves = travV + travH;
+        if (totalTraves > 0) {
+            pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal extra travesaños ' + etiqueta, junqH, totalTraves * 2, 'Recto', etiqueta);
+            pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical extra travesaños ' + etiqueta, junqV, totalTraves * 2, 'Recto', etiqueta);
+        }
+        if (inversor > 0) pushPiezaDespiece600(piezas, 'Zanca 600', 'Inversor ' + etiqueta, inversor, 1, 'Recto', etiqueta);
+    }
+
+    function generarDespiecePuerta800() {
+        if (!esSeriePuerta800Seleccionada()) {
+            const target = document.getElementById('despiecePuerta800Resultado');
+            if (target) target.innerHTML = '<div style="color:#666;">Selecciona <strong>Puerta 800</strong> para usar este despiece.</div>';
+            window.__ultimoDespiecePuerta800 = null;
+            actualizarEstadoDespiecePuerta800();
+            return null;
+        }
+        const resultadoEl = document.getElementById('despiecePuerta800Resultado');
+        if (!resultadoEl) return null;
+
+        const piezas = [];
+        const avisos = [];
+        const hojas = Math.max(0, Math.round(Number((document.getElementById('hojas') || {}).value) || 0));
+        const anchoTotal = mmEntero((document.getElementById('ancho') || {}).value);
+        const altoTotal = mmEntero((document.getElementById('alto') || {}).value);
+        const anchoCentral = mmEntero(getAnchoZonaCentralMM());
+        const altoPrincipal = mmEntero(altoVentanaPrincipalRealMM || (document.getElementById('alto') || {}).value);
+        const marcoHoja = getMarcoHojaPuerta800();
+        const conMarcoInferior = getMarcoInferiorPuerta800();
+
+        if (hojas < 1 || hojas > 2) avisos.push('Puerta 800 solo se calcula por ahora para 1 o 2 hojas.');
+        const perfilMarco = marcoHoja === '800' ? 'Marco 800' : 'Marco 600';
+        if (anchoCentral > 0 && altoPrincipal > 0) {
+            pushPiezaDespiece600(piezas, perfilMarco, 'Marco horizontal superior puerta principal', anchoCentral, 1, '45°', 'Puerta principal');
+            if (conMarcoInferior) pushPiezaDespiece600(piezas, perfilMarco, 'Marco horizontal inferior puerta principal', anchoCentral, 1, '45°', 'Puerta principal');
+            pushPiezaDespiece600(piezas, perfilMarco, 'Marco vertical puerta principal', altoPrincipal, 2, conMarcoInferior ? '45°' : '45°/Recto', 'Puerta principal');
+
+            if (hojas === 1) {
+                addHojaPuerta800(piezas, avisos, 'hoja 1', 1, anchoCentral, altoPrincipal, marcoHoja, conMarcoInferior, travesanosHojas[0] ? travesanosHojas[0].posicionesV : [], travesanosHojas[0] ? travesanosHojas[0].alturasH : []);
+            } else if (hojas === 2) {
+                addHojaPuerta800(piezas, avisos, 'hoja 1', 2, anchoCentral, altoPrincipal, marcoHoja, conMarcoInferior, travesanosHojas[0] ? travesanosHojas[0].posicionesV : [], travesanosHojas[0] ? travesanosHojas[0].alturasH : []);
+                addHojaPuerta800(piezas, avisos, 'hoja 2', 2, anchoCentral, altoPrincipal, marcoHoja, conMarcoInferior, travesanosHojas[1] ? travesanosHojas[1].posicionesV : [], travesanosHojas[1] ? travesanosHojas[1].alturasH : []);
+            }
+        }
+
+        if (fijoInferior && mmEntero(altoFijoInferiorMM) > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo inferior', anchoTotal, mmEntero(altoFijoInferiorMM), travesanosInfVerticales.map(t=>t.posicion), travesanosInfHorizontales.map(t=>t.altura));
+            avisos.push('Los fijos de Puerta 800 se mantienen con el cálculo estable actual para no tocar las series que ya funcionan.');
+        }
+        if (fijoIzquierdo && mmEntero(anchoFijoIzquierdoMM) > 0 && altoPrincipal > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo izquierdo', mmEntero(anchoFijoIzquierdoMM), altoPrincipal, travesanosIzqVerticales.map(t=>t.posicion), travesanosIzqHorizontales.map(t=>t.altura));
+        }
+        if (fijoDerecho && mmEntero(anchoFijoDerechoMM) > 0 && altoPrincipal > 0) {
+            addFijoSerie600(piezas, avisos, 'fijo derecho', mmEntero(anchoFijoDerechoMM), altoPrincipal, travesanosDerVerticales.map(t=>t.posicion), travesanosDerHorizontales.map(t=>t.altura));
+        }
+        if (fijoSuperior) {
+            const heights = [mmEntero(altoFijoSupIzqMM), mmEntero(altoFijoSupDerMM)];
+            if (modoArco) heights.push(mmEntero(altoFijoSupCenMM));
+            const iguales = heights.every(v => v === heights[0]);
+            if (iguales && heights[0] > 0) {
+                addFijoSerie600(piezas, avisos, 'fijo superior', anchoTotal, heights[0], travesanosSupVerticales.map(t=>t.posicion), travesanosSupHorizontales.map(t=>t.altura));
+            } else if (fijoSuperior) {
+                avisos.push('El fijo superior trapecio/arco no se incluye aún en el despiece automático de Puerta 800.');
+            }
+        }
+
+        const barras = agruparBarras600(piezas.filter(p => p.grupo === 'barras'));
+        const vidrios = agruparVidrios600(piezas.filter(p => p.grupo === 'vidrios'));
+        const resumen = {
+            serie: 'Puerta 800',
+            hojas,
+            anchoTotal,
+            altoTotal,
+            anchoCentral,
+            altoPrincipal,
+            marcoHoja,
+            marcoInferior: conMarcoInferior
+        };
+        window.__ultimoDespiecePuerta800 = { meta: resumen, barras, vidrios, avisos };
+
+        const resumenPerfiles = resumenPerfiles600(barras);
+        let htmlOut = '';
+        htmlOut += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Serie:</strong> Puerta 800</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Hojas:</strong> ${hojas}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Marco:</strong> ${escaparHtml(marcoHoja)}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Marco inferior:</strong> ${conMarcoInferior ? 'Sí' : 'No'}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Ancho principal:</strong> ${escaparHtml(fmtMm(anchoCentral))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto principal:</strong> ${escaparHtml(fmtMm(altoPrincipal))}</div>
+        </div>`;
+        if (avisos.length) {
+            htmlOut += `<div style="background:#fff4d6; border:1px solid #e5cf8e; color:#6f5617; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+                <strong>Avisos:</strong><br>${avisos.map(a => '• ' + escaparHtml(a)).join('<br>')}
+            </div>`;
+        }
+        htmlOut += `<h4 style="margin:8px 0;">Barras</h4>`;
+        if (!barras.length) htmlOut += `<div>No hay barras calculadas con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Largo</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Corte</th>
+            </tr></thead><tbody>${barras.map(p => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.perfil)}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(p.length))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.qty}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.cutType)}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        htmlOut += `<h4 style="margin:16px 0 8px;">Cristal</h4>`;
+        if (!vidrios.length) htmlOut += `<div>No hay cristales calculados con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Ancho</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Alto</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+            </tr></thead><tbody>${vidrios.map(v => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(v.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.width))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.height))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${v.qty}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        if (resumenPerfiles.length) {
+            htmlOut += `<h4 style="margin:16px 0 8px;">Resumen por perfil</h4><div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead><tr style="background:#f0eee8;">
+                    <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Piezas</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Metros</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Barras 6500</th>
+                </tr></thead><tbody>${resumenPerfiles.map(r => `<tr>
+                    <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(r.perfil)}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.qty}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.metros.toFixed(2)} m</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${Math.ceil((r.metros * 1000) / 6500)}</td>
+                </tr>`).join('')}</tbody></table></div>`;
+        }
+        resultadoEl.innerHTML = htmlOut;
+        actualizarEstadoDespiecePuerta800();
+        return window.__ultimoDespiecePuerta800;
+    }
+
+    function exportarDespiecePuerta800CSV() {
+        const data = generarDespiecePuerta800();
+        if (!data) return;
+        const rows = [['grupo','perfil','pieza','largo_mm','ancho_mm','alto_mm','uds','corte']];
+        data.barras.forEach(p => rows.push(['barra', p.perfil, p.pieza, p.length, '', '', p.qty, p.cutType]));
+        data.vidrios.forEach(v => rows.push(['cristal', 'Cristal', v.pieza, '', v.width, v.height, v.qty, '']));
+        const csv = rows.map(row => row.map(val => `"${String(val == null ? '' : val).replace(/"/g, '""')}"`).join(';')).join('\n');
+        descargarTextoComoArchivoSeguro('despiece-puerta-800.csv', 'text/csv;charset=utf-8;', csv);
+    }
+
+    function esSerieNichoSeleccionada() {
+        const sel = document.getElementById('presetSerie');
+        return !!sel && sel.value === 'nicho';
+    }
+
+    function esSerieTelefonilloSeleccionada() {
+        const sel = document.getElementById('presetSerie');
+        return !!sel && sel.value === 'telefonillo';
+    }
+
+    function getCheckboxPestanaNicho() {
+        return !!(document.getElementById('despieceNichoPestana') && document.getElementById('despieceNichoPestana').checked);
+    }
+
+    function actualizarEstadoDespieceNicho(msg) {
+        const estado = document.getElementById('despieceNichoEstado');
+        const btnShow = document.getElementById('btnMostrarDespieceNicho');
+        const btnCut = document.getElementById('btnCutMasterNicho');
+        const btnCsv = document.getElementById('btnCsvDespieceNicho');
+        const btnOpt = document.getElementById('btnOptimizarNicho');
+        const activa = esSerieNichoSeleccionada();
+        [btnShow, btnCut, btnCsv, btnOpt].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !activa;
+            btn.style.opacity = activa ? '1' : '0.55';
+            btn.style.cursor = activa ? 'pointer' : 'not-allowed';
+        });
+        if (!estado) return;
+        if (msg) { estado.innerHTML = msg; return; }
+        if (!activa) {
+            estado.innerHTML = 'Selecciona <strong>Nicho</strong> para activar este panel.';
+            return;
+        }
+        const data = window.__ultimoDespieceNicho;
+        if (data) {
+            const piezas = (data.barras || []).reduce((acc, p) => acc + (Number(p.qty) || 0), 0);
+            const vidrios = (data.vidrios || []).reduce((acc, v) => acc + (Number(v.qty) || 0), 0);
+            estado.innerHTML = 'Nicho listo · 1 hoja · ' + (getCheckboxPestanaNicho() ? 'con pestaña' : 'sin pestaña') + ' · ' + piezas + ' piezas · ' + vidrios + ' vidrios';
+        } else {
+            estado.innerHTML = 'Nicho activo. Ya puedes usar Mostrar, Cut Master, CSV u Optimizar.';
+        }
+    }
+
+    function actualizarVisibilidadDespieceNicho() {
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        const panel = document.getElementById('despiecePanelNicho');
+        const result = document.getElementById('despieceNichoResultado');
+        const overlay = document.getElementById('despieceOverlayNicho');
+        if (!panel || !result) return;
+        const activa = esSerieNichoSeleccionada();
+        panel.style.display = activa ? '' : 'none';
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        if (activa) {
+            if (!window.__ultimoDespieceNicho) result.innerHTML = '<div style="color:#444;">Seleccionado <strong>Nicho</strong>. Ya puedes calcular el despiece.</div>';
+        } else {
+            window.__ultimoDespieceNicho = null;
+            result.innerHTML = '<div style="color:#666;">El despiece Nicho solo está activo cuando la serie seleccionada es <strong>Nicho</strong>.</div>';
+            if (overlay) overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        actualizarEstadoDespieceNicho();
+    }
+
+    function actualizarDespieceNichoSiActivo() {
+        if (!document.getElementById('despieceNichoResultado')) return;
+        if (!esSerieNichoSeleccionada()) return;
+        generarDespieceNicho();
+    }
+
+    function cerrarOverlayDespieceNicho() {
+        const overlay = document.getElementById('despieceOverlayNicho');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function mostrarOverlayDespieceNicho() {
+        if (!esSerieNichoSeleccionada()) { actualizarEstadoDespieceNicho(); return; }
+        const data = generarDespieceNicho();
+        if (!data) return;
+        const overlay = document.getElementById('despieceOverlayNicho');
+        const contenido = document.getElementById('despieceOverlayContenidoNicho');
+        const origen = document.getElementById('despieceNichoResultado');
+        if (!overlay || !contenido || !origen) return;
+        contenido.innerHTML = origen.innerHTML || '<div style="color:#666;">No hay despiece calculado.</div>';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespieceNicho('Mostrando despiece Nicho.');
+        setTimeout(() => actualizarEstadoDespieceNicho(), 1200);
+    }
+
+    function generarDespieceNicho() {
+        if (!esSerieNichoSeleccionada()) {
+            const target = document.getElementById('despieceNichoResultado');
+            if (target) target.innerHTML = '<div style="color:#666;">Selecciona <strong>Nicho</strong> para usar este despiece.</div>';
+            window.__ultimoDespieceNicho = null;
+            actualizarEstadoDespieceNicho();
+            return null;
+        }
+        const resultadoEl = document.getElementById('despieceNichoResultado');
+        if (!resultadoEl) return null;
+
+        const ancho = mmEntero((document.getElementById('ancho') || {}).value);
+        const alto = mmEntero((document.getElementById('alto') || {}).value);
+        const conPestana = getCheckboxPestanaNicho();
+        const extraAlto = conPestana ? 12 : 0;
+        const piezas = [];
+        const vidrios = [];
+        const avisos = [];
+
+        if (ancho <= 0 || alto <= 0) {
+            avisos.push('Las medidas del nicho no son válidas.');
+        } else {
+            pushPiezaDespiece600(piezas, 'Marco Nicho', 'Marco horizontal Nicho', ancho, 2, '45°', 'Nicho');
+            pushPiezaDespiece600(piezas, 'Marco Nicho', 'Marco vertical Nicho', alto + extraAlto, 2, '45°', 'Nicho');
+            pushPiezaDespiece600(piezas, 'Hoja Nicho', 'Hoja horizontal Nicho', ancho - 60, 2, '45°', 'Nicho');
+            pushPiezaDespiece600(piezas, 'Hoja Nicho', 'Hoja vertical Nicho', (alto - 60) + extraAlto, 2, '45°', 'Nicho');
+            addVidrio600(vidrios, 'Cristal Nicho', ancho - 115, alto - 115 + extraAlto, 1, 'Nicho');
+        }
+
+        const barras = agruparBarras600(piezas);
+        const cristales = agruparVidrios600(vidrios);
+        const resumen = {
+            serie: 'Nicho',
+            hojas: 1,
+            anchoTotal: ancho,
+            altoTotal: alto,
+            altoCorte: alto + extraAlto,
+            anchoCentral: ancho,
+            altoPrincipal: alto,
+            pestana: conPestana
+        };
+        window.__ultimoDespieceNicho = { meta: resumen, barras, vidrios: cristales, avisos };
+
+        const resumenPerfiles = resumenPerfiles600(barras);
+        let htmlOut = '';
+        htmlOut += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Serie:</strong> Nicho</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Hojas:</strong> 1</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Ancho:</strong> ${escaparHtml(fmtMm(ancho))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto base:</strong> ${escaparHtml(fmtMm(alto))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto corte:</strong> ${escaparHtml(fmtMm(alto + extraAlto))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Pestaña:</strong> ${conPestana ? 'Sí (+12 a todos los altos)' : 'No'}</div>
+        </div>`;
+        if (avisos.length) {
+            htmlOut += `<div style="background:#fff4d6; border:1px solid #e5cf8e; color:#6f5617; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+                <strong>Avisos:</strong><br>${avisos.map(a => '• ' + escaparHtml(a)).join('<br>')}
+            </div>`;
+        }
+        htmlOut += `<h4 style="margin:8px 0;">Barras</h4>`;
+        if (!barras.length) htmlOut += `<div>No hay barras calculadas con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Largo</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Corte</th>
+            </tr></thead><tbody>${barras.map(p => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.perfil)}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(p.length))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.qty}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.cutType)}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        htmlOut += `<h4 style="margin:16px 0 8px;">Cristal</h4>`;
+        if (!cristales.length) htmlOut += `<div>No hay cristales calculados con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Ancho</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Alto</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+            </tr></thead><tbody>${cristales.map(v => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(v.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.width))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.height))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${v.qty}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        if (resumenPerfiles.length) {
+            htmlOut += `<h4 style="margin:16px 0 8px;">Resumen por perfil</h4><div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead><tr style="background:#f0eee8;">
+                    <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Piezas</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Metros</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Barras 6500</th>
+                </tr></thead><tbody>${resumenPerfiles.map(r => `<tr>
+                    <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(r.perfil)}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.qty}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.metros.toFixed(2)} m</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${Math.ceil((r.metros * 1000) / 6500)}</td>
+                </tr>`).join('')}</tbody></table></div>`;
+        }
+        resultadoEl.innerHTML = htmlOut;
+        actualizarEstadoDespieceNicho();
+        return window.__ultimoDespieceNicho;
+    }
+
+    function exportarDespieceNichoCSV() {
+        const data = generarDespieceNicho();
+        if (!data) return;
+        const rows = [['grupo','perfil','pieza','largo_mm','ancho_mm','alto_mm','uds','corte']];
+        data.barras.forEach(p => rows.push(['barra', p.perfil, p.pieza, p.length, '', '', p.qty, p.cutType]));
+        data.vidrios.forEach(v => rows.push(['cristal', 'Cristal', v.pieza, '', v.width, v.height, v.qty, '']));
+        const csv = rows.map(row => row.map(val => `"${String(val == null ? '' : val).replace(/"/g, '""')}"`).join(';')).join('\n');
+        descargarTextoComoArchivoSeguro('despiece-nicho.csv', 'text/csv;charset=utf-8;', csv);
+    }
+
+    function actualizarEstadoDespieceTelefonillo(msg) {
+        const estado = document.getElementById('despieceTelefonilloEstado');
+        const btnShow = document.getElementById('btnMostrarDespieceTelefonillo');
+        const btnCut = document.getElementById('btnCutMasterTelefonillo');
+        const btnCsv = document.getElementById('btnCsvDespieceTelefonillo');
+        const btnOpt = document.getElementById('btnOptimizarTelefonillo');
+        const activa = esSerieTelefonilloSeleccionada();
+        [btnShow, btnCut, btnCsv, btnOpt].forEach(btn => {
+            if (!btn) return;
+            btn.disabled = !activa;
+            btn.style.opacity = activa ? '1' : '0.55';
+            btn.style.cursor = activa ? 'pointer' : 'not-allowed';
+        });
+        if (!estado) return;
+        if (msg) { estado.innerHTML = msg; return; }
+        if (!activa) {
+            estado.innerHTML = 'Selecciona <strong>Telefonillo</strong> para activar este panel.';
+            return;
+        }
+        const data = window.__ultimoDespieceTelefonillo;
+        if (data) {
+            const piezas = (data.barras || []).reduce((acc, p) => acc + (Number(p.qty) || 0), 0);
+            const vidrios = (data.vidrios || []).reduce((acc, v) => acc + (Number(v.qty) || 0), 0);
+            estado.innerHTML = 'Telefonillo listo · 1 hoja · ' + piezas + ' piezas · ' + vidrios + ' vidrios';
+        } else {
+            estado.innerHTML = 'Telefonillo activo. Ya puedes usar Mostrar, Cut Master, CSV u Optimizar.';
+        }
+    }
+
+    function actualizarVisibilidadDespieceTelefonillo() {
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        const panel = document.getElementById('despiecePanelTelefonillo');
+        const result = document.getElementById('despieceTelefonilloResultado');
+        const overlay = document.getElementById('despieceOverlayTelefonillo');
+        if (!panel || !result) return;
+        const activa = esSerieTelefonilloSeleccionada();
+        panel.style.display = activa ? '' : 'none';
+        try { moveFabUiToActivePanel(); } catch(e) {}
+        if (activa) {
+            if (!window.__ultimoDespieceTelefonillo) result.innerHTML = '<div style="color:#444;">Seleccionado <strong>Telefonillo</strong>. Ya puedes calcular el despiece.</div>';
+        } else {
+            window.__ultimoDespieceTelefonillo = null;
+            result.innerHTML = '<div style="color:#666;">El despiece Telefonillo solo está activo cuando la serie seleccionada es <strong>Telefonillo</strong>.</div>';
+            if (overlay) overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        actualizarEstadoDespieceTelefonillo();
+    }
+
+    function actualizarDespieceTelefonilloSiActivo() {
+        if (!document.getElementById('despieceTelefonilloResultado')) return;
+        if (!esSerieTelefonilloSeleccionada()) return;
+        generarDespieceTelefonillo();
+    }
+
+    function cerrarOverlayDespieceTelefonillo() {
+        const overlay = document.getElementById('despieceOverlayTelefonillo');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function mostrarOverlayDespieceTelefonillo() {
+        if (!esSerieTelefonilloSeleccionada()) { actualizarEstadoDespieceTelefonillo(); return; }
+        const data = generarDespieceTelefonillo();
+        if (!data) return;
+        const overlay = document.getElementById('despieceOverlayTelefonillo');
+        const contenido = document.getElementById('despieceOverlayContenidoTelefonillo');
+        const origen = document.getElementById('despieceTelefonilloResultado');
+        if (!overlay || !contenido || !origen) return;
+        contenido.innerHTML = origen.innerHTML || '<div style="color:#666;">No hay despiece calculado.</div>';
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespieceTelefonillo('Mostrando despiece Telefonillo.');
+        setTimeout(() => actualizarEstadoDespieceTelefonillo(), 1200);
+    }
+
+    function generarDespieceTelefonillo() {
+        if (!esSerieTelefonilloSeleccionada()) {
+            const target = document.getElementById('despieceTelefonilloResultado');
+            if (target) target.innerHTML = '<div style="color:#666;">Selecciona <strong>Telefonillo</strong> para usar este despiece.</div>';
+            window.__ultimoDespieceTelefonillo = null;
+            actualizarEstadoDespieceTelefonillo();
+            return null;
+        }
+        const resultadoEl = document.getElementById('despieceTelefonilloResultado');
+        if (!resultadoEl) return null;
+
+        const ancho = mmEntero((document.getElementById('ancho') || {}).value);
+        const alto = mmEntero((document.getElementById('alto') || {}).value);
+        const piezas = [];
+        const vidrios = [];
+        const avisos = [];
+
+        if (ancho <= 0 || alto <= 0) {
+            avisos.push('Las medidas del telefonillo no son válidas.');
+        } else {
+            pushPiezaDespiece600(piezas, 'Marco Telefonillo', 'Marco horizontal Telefonillo', ancho, 2, '45°', 'Telefonillo');
+            pushPiezaDespiece600(piezas, 'Marco Telefonillo', 'Marco vertical Telefonillo', alto, 2, '45°', 'Telefonillo');
+            pushPiezaDespiece600(piezas, 'Hoja Telefonillo', 'Hoja horizontal Telefonillo', ancho, 2, '45°', 'Telefonillo');
+            pushPiezaDespiece600(piezas, 'Hoja Telefonillo', 'Hoja vertical Telefonillo', alto, 2, '45°', 'Telefonillo');
+            addVidrio600(vidrios, 'Cristal Telefonillo', ancho - 23, alto - 10, 1, 'Telefonillo');
+        }
+
+        const barras = agruparBarras600(piezas);
+        const cristales = agruparVidrios600(vidrios);
+        const resumen = {
+            serie: 'Telefonillo',
+            hojas: 1,
+            anchoTotal: ancho,
+            altoTotal: alto,
+            anchoCentral: ancho,
+            altoPrincipal: alto
+        };
+        window.__ultimoDespieceTelefonillo = { meta: resumen, barras, vidrios: cristales, avisos };
+
+        const resumenPerfiles = resumenPerfiles600(barras);
+        let htmlOut = '';
+        htmlOut += `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Serie:</strong> Telefonillo</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Hojas:</strong> 1</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Ancho corte marco/hoja:</strong> ${escaparHtml(fmtMm(ancho))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Alto corte marco/hoja:</strong> ${escaparHtml(fmtMm(alto))}</div>
+            <div style="background:#f7f7f7; border:1px solid #ddd; border-radius:8px; padding:10px 12px;"><strong>Cristal:</strong> ${escaparHtml(fmtMm(ancho - 23))} × ${escaparHtml(fmtMm(alto - 10))}</div>
+        </div>`;
+        if (avisos.length) {
+            htmlOut += `<div style="background:#fff4d6; border:1px solid #e5cf8e; color:#6f5617; padding:10px 12px; border-radius:8px; margin-bottom:12px;">
+                <strong>Avisos:</strong><br>${avisos.map(a => '• ' + escaparHtml(a)).join('<br>')}
+            </div>`;
+        }
+        htmlOut += `<h4 style="margin:8px 0;">Barras</h4>`;
+        if (!barras.length) htmlOut += `<div>No hay barras calculadas con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Largo</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Corte</th>
+            </tr></thead><tbody>${barras.map(p => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.perfil)}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(p.length))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${p.qty}</td>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(p.cutType)}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        htmlOut += `<h4 style="margin:16px 0 8px;">Cristal</h4>`;
+        if (!cristales.length) htmlOut += `<div>No hay cristales calculados con la configuración actual.</div>`;
+        else htmlOut += `<div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead><tr style="background:#f0eee8;">
+                <th style="border:1px solid #ddd; padding:8px; text-align:left;">Pieza</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Ancho</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Alto</th>
+                <th style="border:1px solid #ddd; padding:8px; text-align:right;">Uds</th>
+            </tr></thead><tbody>${cristales.map(v => `<tr>
+                <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(v.pieza)}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.width))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${escaparHtml(fmtMm(v.height))}</td>
+                <td style="border:1px solid #ddd; padding:8px; text-align:right;">${v.qty}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+        if (resumenPerfiles.length) {
+            htmlOut += `<h4 style="margin:16px 0 8px;">Resumen por perfil</h4><div style="overflow:auto;"><table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead><tr style="background:#f0eee8;">
+                    <th style="border:1px solid #ddd; padding:8px; text-align:left;">Perfil</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Piezas</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Metros</th>
+                    <th style="border:1px solid #ddd; padding:8px; text-align:right;">Barras 6500</th>
+                </tr></thead><tbody>${resumenPerfiles.map(r => `<tr>
+                    <td style="border:1px solid #ddd; padding:8px;">${escaparHtml(r.perfil)}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.qty}</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${r.metros.toFixed(2)} m</td>
+                    <td style="border:1px solid #ddd; padding:8px; text-align:right;">${Math.ceil((r.metros * 1000) / 6500)}</td>
+                </tr>`).join('')}</tbody></table></div>`;
+        }
+        resultadoEl.innerHTML = htmlOut;
+        actualizarEstadoDespieceTelefonillo();
+        return window.__ultimoDespieceTelefonillo;
+    }
+
+    function exportarDespieceTelefonilloCSV() {
+        const data = generarDespieceTelefonillo();
+        if (!data) return;
+        const rows = [['grupo','perfil','pieza','largo_mm','ancho_mm','alto_mm','uds','corte']];
+        data.barras.forEach(p => rows.push(['barra', p.perfil, p.pieza, p.length, '', '', p.qty, p.cutType]));
+        data.vidrios.forEach(v => rows.push(['cristal', 'Cristal', v.pieza, '', v.width, v.height, v.qty, '']));
+        const csv = rows.map(row => row.map(val => `"${String(val == null ? '' : val).replace(/"/g, '""')}"`).join(';')).join('\n');
+        descargarTextoComoArchivoSeguro('despiece-telefonillo.csv', 'text/csv;charset=utf-8;', csv);
+    }
 
     function exportarPNG() {
         const canvas = document.getElementById('canvas');
@@ -4685,7 +5981,21 @@ if (mostrarAltoTotalDer) {
     let cutMasterFrameInitialized = false;
 
     function buildCutMasterProjectFromCurrentDespiece() {
-        const data = window.__ultimoDespieceCOR2300 || generarDespieceCOR2300();
+        let data = null;
+        let serieNombre = '';
+        if (esSerie600Seleccionada()) {
+            data = window.__ultimoDespiece600 || generarDespiece600();
+            serieNombre = 'Ventana 600';
+        } else if (esSerieNichoSeleccionada()) {
+            data = window.__ultimoDespieceNicho || generarDespieceNicho();
+            serieNombre = 'Nicho';
+        } else if (esSerieTelefonilloSeleccionada()) {
+            data = window.__ultimoDespieceTelefonillo || generarDespieceTelefonillo();
+            serieNombre = 'Telefonillo';
+        } else if (esSerieCOR2300Seleccionada()) {
+            data = window.__ultimoDespieceCOR2300 || generarDespieceCOR2300();
+            serieNombre = 'Ventana CE';
+        }
         if (!data) return null;
 
         const materialsMap = new Map();
@@ -4707,7 +6017,9 @@ if (mostrarAltoTotalDer) {
             });
         });
 
-        const name = 'Ventana CE ' + (data.meta && data.meta.anchoTotal ? data.meta.anchoTotal : '') + ' x ' + (data.meta && data.meta.altoTotal ? data.meta.altoTotal : '');
+        const anchoRef = (data.meta && (data.meta.anchoTotal || data.meta.anchoCentral)) ? (data.meta.anchoTotal || data.meta.anchoCentral) : '';
+        const altoRef = (data.meta && (data.meta.altoTotal || data.meta.altoPrincipal)) ? (data.meta.altoTotal || data.meta.altoPrincipal) : '';
+        const name = (serieNombre + ' ' + anchoRef + ' x ' + altoRef).trim();
         return {
             name: name.trim(),
             resultTab: 'diagram',
@@ -4774,18 +6086,41 @@ if (mostrarAltoTotalDer) {
     }
 
     function abrirCutMasterIntegrado() {
-        if (!esSerieCOR2300Seleccionada()) {
+        const es600 = esSerie600Seleccionada();
+        const es2300 = esSerieCOR2300Seleccionada();
+        const esNicho = esSerieNichoSeleccionada();
+        const esTelefonillo = esSerieTelefonilloSeleccionada();
+        if (!es600 && !es2300 && !esNicho && !esTelefonillo) {
             actualizarEstadoDespieceCOR2300();
+            actualizarEstadoDespiece600();
+            actualizarEstadoDespieceNicho();
+            actualizarEstadoDespieceTelefonillo();
             return;
         }
         const overlay = document.getElementById('cutMasterOverlay');
         if (!overlay) return;
-        generarDespieceCOR2300();
+        if (es600) {
+            generarDespiece600();
+            actualizarEstadoDespiece600('Abriendo Cut Master con el diagrama de corte cargado...');
+        } else if (esNicho) {
+            generarDespieceNicho();
+            actualizarEstadoDespieceNicho('Abriendo Cut Master con el diagrama de corte cargado...');
+        } else if (esTelefonillo) {
+            generarDespieceTelefonillo();
+            actualizarEstadoDespieceTelefonillo('Abriendo Cut Master con el diagrama de corte cargado...');
+        } else {
+            generarDespieceCOR2300();
+            actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el diagrama de corte cargado...');
+        }
         overlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
-        actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el diagrama de corte cargado...');
         ensureCutMasterFrameReady(function() {
-            setTimeout(() => actualizarEstadoDespieceCOR2300(), 900);
+            setTimeout(() => {
+                if (es600) actualizarEstadoDespiece600();
+                else if (esNicho) actualizarEstadoDespieceNicho();
+                else if (esTelefonillo) actualizarEstadoDespieceTelefonillo();
+                else actualizarEstadoDespieceCOR2300();
+            }, 900);
         });
     }
 
@@ -4794,17 +6129,157 @@ if (mostrarAltoTotalDer) {
         if (overlay) overlay.style.display = 'none';
         document.body.style.overflow = '';
         actualizarEstadoDespieceCOR2300();
+        actualizarEstadoDespiece600();
+        actualizarEstadoDespieceNicho();
+        try { actualizarEstadoDespieceTelefonillo(); } catch(e) {}
     }
 
     window.addEventListener('message', function(ev) {
         const msg = ev && ev.data;
         if (msg && msg.type === 'cutmasterEmbeddedLoaded') {
-            actualizarEstadoDespieceCOR2300('Cut Master cargado con el despiece actual.');
-            setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+            if (esSerie600Seleccionada()) {
+                actualizarEstadoDespiece600('Cut Master cargado con el despiece actual.');
+                setTimeout(() => actualizarEstadoDespiece600(), 1200);
+            } else if (esSerieNichoSeleccionada()) {
+                actualizarEstadoDespieceNicho('Cut Master cargado con el despiece actual.');
+                setTimeout(() => actualizarEstadoDespieceNicho(), 1200);
+            } else if (esSerieTelefonilloSeleccionada()) {
+                actualizarEstadoDespieceTelefonillo('Cut Master cargado con el despiece actual.');
+                setTimeout(() => actualizarEstadoDespieceTelefonillo(), 1200);
+            } else if (typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) {
+                actualizarEstadoDespiecePuerta800('Cut Master cargado con el despiece actual.');
+                setTimeout(() => actualizarEstadoDespiecePuerta800(), 1200);
+            } else {
+                actualizarEstadoDespieceCOR2300('Cut Master cargado con el despiece actual.');
+                setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+            }
         }
     });
 
 
+
+
+    function construirHtmlOptimizacionRapida(data, titulo) {
+        if (!data || !Array.isArray(data.barras) || !data.barras.length) return '';
+        const stock = 6500;
+        const perfiles = {};
+
+        data.barras.forEach(p => {
+            const perfil = String((p && p.perfil) || 'Perfil');
+            if (!perfiles[perfil]) perfiles[perfil] = [];
+            const qty = Math.max(0, Number(p.qty) || 0);
+            const len = Math.max(0, Number(p.length) || 0);
+            for (let i = 0; i < qty; i++) perfiles[perfil].push(len);
+        });
+
+        let out = '<div style="display:flex; flex-direction:column; gap:16px;">';
+        out += '<div style="background:#F3EFE8; border:1px solid #ddd; border-radius:10px; padding:12px;">';
+        out += '<strong>' + escaparHtml(titulo || 'Optimización rápida') + '</strong><div style="font-size:13px; color:#555; margin-top:4px;">Barras comerciales de 6500 mm. Cierra esta vista y vuelves al diseño.</div>';
+        out += '</div>';
+
+        Object.keys(perfiles).sort().forEach(perfil => {
+            const piezas = perfiles[perfil].slice().sort((a,b) => b-a);
+            const barras = [];
+            piezas.forEach(len => {
+                let colocada = false;
+                for (const barra of barras) {
+                    if (barra.restante >= len) {
+                        barra.piezas.push(len);
+                        barra.restante -= len;
+                        colocada = true;
+                        break;
+                    }
+                }
+                if (!colocada) barras.push({ piezas:[len], restante: stock - len });
+            });
+
+            const total = piezas.reduce((acc,v) => acc + v, 0);
+            const sobrante = barras.reduce((acc,b) => acc + b.restante, 0);
+
+            out += '<div style="border:1px solid #d7d7d7; border-radius:10px; overflow:hidden;">';
+            out += '<div style="background:#eef2f5; padding:10px 12px; font-weight:700;">' + escaparHtml(perfil) + '</div>';
+            out += '<div style="padding:12px;">';
+            out += '<div style="font-size:13px; color:#555; margin-bottom:10px;">' + piezas.length + ' cortes · ' + total + ' mm totales · ' + barras.length + ' barras · sobrante total ' + sobrante + ' mm</div>';
+
+            barras.forEach((barra, idx) => {
+                out += '<div style="padding:8px 10px; border:1px solid #ececec; border-radius:8px; margin-bottom:8px; background:#fafafa;">';
+                out += '<strong>Barra ' + (idx + 1) + '</strong>: ' + barra.piezas.join(' + ') + ' <span style="color:#666;">→ sobrante ' + barra.restante + ' mm</span>';
+                out += '</div>';
+            });
+
+            out += '</div></div>';
+        });
+
+        out += '</div>';
+        return out;
+    }
+
+    function mostrarOptimizacionRapidaSerie(options) {
+        const opts = options || {};
+        const esActiva = typeof opts.isActive === 'function' ? !!opts.isActive() : false;
+        if (!esActiva) {
+            if (typeof opts.updateStatus === 'function') opts.updateStatus();
+            return;
+        }
+        const data = (typeof opts.getData === 'function' ? opts.getData() : null) || null;
+        if (!data) return;
+
+        const overlay = document.getElementById(opts.overlayId || '');
+        const contenido = document.getElementById(opts.contentId || '');
+        if (!overlay || !contenido) return;
+
+        contenido.innerHTML = construirHtmlOptimizacionRapida(data, opts.title || 'Optimización rápida');
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        if (typeof opts.updateStatus === 'function') {
+            opts.updateStatus('Mostrando optimización rápida.');
+            setTimeout(() => opts.updateStatus(), 1200);
+        }
+    }
+
+    function optimizarBarras600() {
+        mostrarOptimizacionRapidaSerie({
+            isActive: esSerie600Seleccionada,
+            getData: function(){ return window.__ultimoDespiece600 || generarDespiece600(); },
+            overlayId: 'despieceOverlay600',
+            contentId: 'despieceOverlayContenido600',
+            title: 'Optimización rápida · Ventana 600',
+            updateStatus: actualizarEstadoDespiece600
+        });
+    }
+
+    function optimizarBarrasPuerta800() {
+        mostrarOptimizacionRapidaSerie({
+            isActive: esSeriePuerta800Seleccionada,
+            getData: function(){ return window.__ultimoDespiecePuerta800 || generarDespiecePuerta800(); },
+            overlayId: 'despieceOverlayPuerta800',
+            contentId: 'despieceOverlayContenidoPuerta800',
+            title: 'Optimización rápida · Puerta 800',
+            updateStatus: actualizarEstadoDespiecePuerta800
+        });
+    }
+
+    function optimizarBarrasNicho() {
+        mostrarOptimizacionRapidaSerie({
+            isActive: esSerieNichoSeleccionada,
+            getData: function(){ return window.__ultimoDespieceNicho || generarDespieceNicho(); },
+            overlayId: 'despieceOverlayNicho',
+            contentId: 'despieceOverlayContenidoNicho',
+            title: 'Optimización rápida · Nicho',
+            updateStatus: actualizarEstadoDespieceNicho
+        });
+    }
+
+    function optimizarBarrasTelefonillo() {
+        mostrarOptimizacionRapidaSerie({
+            isActive: esSerieTelefonilloSeleccionada,
+            getData: function(){ return window.__ultimoDespieceTelefonillo || generarDespieceTelefonillo(); },
+            overlayId: 'despieceOverlayTelefonillo',
+            contentId: 'despieceOverlayContenidoTelefonillo',
+            title: 'Optimización rápida · Telefonillo',
+            updateStatus: actualizarEstadoDespieceTelefonillo
+        });
+    }
 
     function optimizarBarrasCOR2300() {
         if (!esSerieCOR2300Seleccionada()) {
@@ -4881,8 +6356,8 @@ if (mostrarAltoTotalDer) {
 
 <script>
 (function(){
-  const STATE_KEY = 'VENTANA_APP_STATE_V85_5';
-  const FAB_KEY = 'VENTANA_APP_FAB_LIST_V85_5';
+  const STATE_KEY = 'VENTANA_APP_STATE_V85_9';
+  const FAB_KEY = 'VENTANA_APP_FAB_LIST_V85_9';
   const CUT_KEY = 'CUT_MASTER_EXTERNAL_PROJECT';
   const RETURN_KEY = 'CUT_MASTER_RETURN_URL';
 
@@ -4901,12 +6376,42 @@ if (mostrarAltoTotalDer) {
     return 'recto';
   }
 
+  function getCurrentDespieceForFabricacion(){
+    try{
+      if(typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()){
+        return window.__ultimoDespiece600 || (typeof generarDespiece600 === 'function' ? generarDespiece600() : null);
+      }
+    }catch(e){}
+    try{
+      if(typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()){
+        return window.__ultimoDespiecePuerta800 || (typeof generarDespiecePuerta800 === 'function' ? generarDespiecePuerta800() : null);
+      }
+    }catch(e){}
+    try{
+      if(typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()){
+        return window.__ultimoDespieceNicho || (typeof generarDespieceNicho === 'function' ? generarDespieceNicho() : null);
+      }
+    }catch(e){}
+    try{
+      if(typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()){
+        return window.__ultimoDespieceTelefonillo || (typeof generarDespieceTelefonillo === 'function' ? generarDespieceTelefonillo() : null);
+      }
+    }catch(e){}
+    try{
+      if(typeof esSerieCOR2300Seleccionada === 'function' && esSerieCOR2300Seleccionada()){
+        return window.__ultimoDespieceCOR2300 || (typeof generarDespieceCOR2300 === 'function' ? generarDespieceCOR2300() : null);
+      }
+    }catch(e){}
+    return window.__ultimoDespiecePuerta800 || window.__ultimoDespieceTelefonillo || window.__ultimoDespieceNicho || window.__ultimoDespiece600 || window.__ultimoDespieceCOR2300 || null;
+  }
+
   function projectFromDespiece(data, customName, options){
-    const despiece = data || window.__ultimoDespieceCOR2300 || (typeof generarDespieceCOR2300 === 'function' ? generarDespieceCOR2300() : null);
+    const despiece = data || getCurrentDespieceForFabricacion();
     if(!despiece || !Array.isArray(despiece.barras) || !despiece.barras.length) return null;
 
     const opts = options || {};
     const windowRef = String(opts.windowRef || ((despiece.meta || {}).windowRef || '')).trim();
+    const serie = String(((despiece.meta || {}).serie || 'Ventana')).trim();
     const materialsMap = new Map();
     despiece.barras.forEach(function(p, idx){
       const perfil = String(p.perfil || ('Perfil ' + (idx + 1)));
@@ -4934,7 +6439,7 @@ if (mostrarAltoTotalDer) {
     const meta = Object.assign({}, despiece.meta || {});
     if(windowRef) meta.windowRef = windowRef;
     return {
-      name: customName || ((windowRef ? (windowRef + ' · ') : '') + (('Ventana CE ' + [meta.anchoTotal, meta.altoTotal].filter(Boolean).join(' x ')).trim() || 'Ventana CE')),
+      name: customName || ((windowRef ? (windowRef + ' · ') : '') + ((serie + ' ' + [meta.anchoTotal, meta.altoTotal].filter(Boolean).join(' x ')).trim() || serie)),
       resultTab: 'diagram',
       settings: { unit: 'mm', kerfMm: 0, colorCuts: true },
       meta: meta,
@@ -4987,8 +6492,14 @@ if (mostrarAltoTotalDer) {
     try{ if(typeof actualizarOpcionesFijos === 'function') actualizarOpcionesFijos(); }catch(e){}
     try{ if(typeof actualizarHojas === 'function') actualizarHojas(); }catch(e){}
     try{ if(typeof actualizarVisibilidadDespieceCOR2300 === 'function') actualizarVisibilidadDespieceCOR2300(); }catch(e){}
+    try{ if(typeof actualizarVisibilidadDespiece600 === 'function') actualizarVisibilidadDespiece600(); }catch(e){}
+    try{ if(typeof actualizarVisibilidadDespieceNicho === 'function') actualizarVisibilidadDespieceNicho(); }catch(e){}
+    try{ if(typeof actualizarVisibilidadDespieceTelefonillo === 'function') actualizarVisibilidadDespieceTelefonillo(); }catch(e){}
     try{ if(typeof actualizarVista === 'function') actualizarVista(); }catch(e){}
     try{ if(typeof generarDespieceCOR2300 === 'function') generarDespieceCOR2300(); }catch(e){}
+    try{ if(typeof generarDespiece600 === 'function') generarDespiece600(); }catch(e){}
+    try{ if(typeof generarDespieceNicho === 'function') generarDespieceNicho(); }catch(e){}
+    try{ if(typeof generarDespieceTelefonillo === 'function') generarDespieceTelefonillo(); }catch(e){}
 
     try{
       const enabled = !!globals.__dockEnabled;
@@ -5017,12 +6528,16 @@ if (mostrarAltoTotalDer) {
   }
 
   function buildCurrentFabItem(){
-    const despiece = window.__ultimoDespieceCOR2300 || (typeof generarDespieceCOR2300 === 'function' ? generarDespieceCOR2300() : null);
+    const despiece = getCurrentDespieceForFabricacion();
     const list = loadFabList();
     const windowRef = getNextFabReference(list);
     const project = projectFromDespiece(despiece, '', { windowRef: windowRef });
     if(!project || !project.materials || !project.materials.length) return null;
-    const units = Math.max(1, Number(document.getElementById('fabricacionUnits')?.value) || 1);
+    let unitsEl = null;
+    const activeHost = getFabricacionHostPreferido();
+    if(activeHost) unitsEl = activeHost.querySelector('[data-fab-master-units]');
+    if(!unitsEl) unitsEl = document.querySelector('[data-fab-master-units]');
+    const units = Math.max(1, Number(unitsEl && unitsEl.value) || 1);
     const meta = despiece && despiece.meta ? despiece.meta : {};
     return {
       id: 'fab_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
@@ -5031,7 +6546,7 @@ if (mostrarAltoTotalDer) {
       project: project,
       summary: {
         ref: windowRef,
-        serie: meta.serie || 'COR-2300',
+        serie: meta.serie || ((typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()) ? 'Telefonillo' : ((typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()) ? 'Nicho' : ((typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) ? 'Puerta 800' : ((typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()) ? 'Ventana 600' : 'COR-2300')))),
         hojas: meta.hojas || 0,
         ancho: meta.anchoTotal || document.getElementById('ancho')?.value || '',
         alto: meta.altoTotal || document.getElementById('alto')?.value || ''
@@ -5094,19 +6609,46 @@ if (mostrarAltoTotalDer) {
     };
   }
 
+  function getFabricacionHosts(){
+    return [
+      document.getElementById('fabricacionHost600'),
+      document.getElementById('fabricacionHostPuerta800'),
+      document.getElementById('fabricacionHost2300'),
+      document.getElementById('fabricacionHostNicho'),
+      document.getElementById('fabricacionHostTelefonillo')
+    ].filter(Boolean);
+  }
+
+  function getFabricacionHostPreferido(){
+    if(typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()) return document.getElementById('fabricacionHostTelefonillo');
+    if(typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()) return document.getElementById('fabricacionHostNicho');
+    if(typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) return document.getElementById('fabricacionHostPuerta800');
+    if(typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()) return document.getElementById('fabricacionHost600');
+    if(typeof esSerieCOR2300Seleccionada === 'function' && esSerieCOR2300Seleccionada()) return document.getElementById('fabricacionHost2300');
+    return document.getElementById('fabricacionHost2300') || document.getElementById('fabricacionHostPuerta800') || document.getElementById('fabricacionHost600') || document.getElementById('fabricacionHostNicho') || document.getElementById('fabricacionHostTelefonillo');
+  }
+
+  function buildFabUiInnerHtml(suffix){
+    return ''
+      + '<h3 style="margin:0 0 10px 0; font-size:16px;">Lista de fabricación</h3>'
+      + '<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px;">'
+      +   '<label style="display:flex; align-items:center; gap:8px; margin:0; background:#f7f7f7; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">'
+      +     '<span>Unidades</span>'
+      +     '<input id="fabricacionUnits_' + suffix + '" data-fab-master-units="1" type="number" min="1" step="1" value="1" style="width:72px; padding:8px; border:1px solid #ccc; border-radius:6px;">'
+      +   '</label>'
+      +   '<button id="btnAgregarFabricacion_' + suffix + '" data-fab-add="1" type="button" style="padding:12px 16px; margin-top:0;">Añadir a lista</button>'
+      +   '<button id="btnVaciarFabricacion_' + suffix + '" data-fab-clear="1" type="button" style="padding:12px 16px; margin-top:0;">Vaciar lista</button>'
+      + '</div>'
+      + '<div id="fabricacionListaEstado_' + suffix + '" data-fab-status="1" style="font-size:13px; color:#555; margin-bottom:8px;">Todavía no hay ventanas añadidas.</div>'
+      + '<div id="fabricacionLista_' + suffix + '" data-fab-list="1" style="display:flex; flex-direction:column; gap:8px;"></div>';
+  }
+
   function renderFabList(){
-    const box = document.getElementById('fabricacionLista');
-    const status = document.getElementById('fabricacionListaEstado');
-    if(!box || !status) return;
+    const statusNodes = Array.from(document.querySelectorAll('[data-fab-status]'));
+    const listNodes = Array.from(document.querySelectorAll('[data-fab-list]'));
+    if(!statusNodes.length || !listNodes.length) return;
     const list = loadFabList();
-    if(!list.length){
-      status.textContent = 'Todavía no hay ventanas añadidas.';
-      box.innerHTML = '';
-      return;
-    }
-    const totalUnits = list.reduce(function(acc, item){ return acc + Math.max(1, Number(item.units) || 1); }, 0);
-    status.textContent = list.length + ' diseño(s) en lista · ' + totalUnits + ' ud. totales';
-    box.innerHTML = list.map(function(item, idx){
+    const html = !list.length ? '' : list.map(function(item, idx){
       const s = item.summary || {};
       const ref = String(s.ref || item.windowRef || '');
       const title = [ref, s.serie || 'Ventana', s.ancho && s.alto ? (s.ancho + ' x ' + s.alto) : '', s.hojas ? (s.hojas + ' hoja/s') : ''].filter(Boolean).join(' · ');
@@ -5121,53 +6663,112 @@ if (mostrarAltoTotalDer) {
         + '</div>'
         + '</div>';
     }).join('');
+
+    const text = !list.length
+      ? 'Todavía no hay ventanas añadidas.'
+      : (list.length + ' diseño(s) en lista · ' + list.reduce(function(acc, item){ return acc + Math.max(1, Number(item.units) || 1); }, 0) + ' ud. totales');
+
+    statusNodes.forEach(function(node){ node.textContent = text; });
+    listNodes.forEach(function(node){ node.innerHTML = html; });
   }
 
   function ensureFabUi(){
-    const panel = document.getElementById('despiecePanelCompacto');
-    if(!panel || document.getElementById('fabricacionListaBox')) return;
-    const host = panel.querySelector('div[style*="padding:14px"]') || panel;
-    const box = document.createElement('div');
-    box.id = 'fabricacionListaBox';
-    box.style.cssText = 'margin-top:14px; background:#fff; border:1px solid #d7d7d7; border-radius:10px; padding:12px;';
-    box.innerHTML = ''
-      + '<h3 style="margin:0 0 10px 0; font-size:16px;">Lista de fabricación</h3>'
-      + '<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px;">'
-      +   '<label style="display:flex; align-items:center; gap:8px; margin:0; background:#f7f7f7; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">'
-      +     '<span>Unidades</span>'
-      +     '<input id="fabricacionUnits" type="number" min="1" step="1" value="1" style="width:72px; padding:8px; border:1px solid #ccc; border-radius:6px;">'
-      +   '</label>'
-      +   '<button id="btnAgregarFabricacion" type="button" style="padding:12px 16px; margin-top:0;">Añadir a lista</button>'
-      +   '<button id="btnVaciarFabricacion" type="button" style="padding:12px 16px; margin-top:0;">Vaciar lista</button>'
-      + '</div>'
-      + '<div id="fabricacionListaEstado" style="font-size:13px; color:#555; margin-bottom:8px;">Todavía no hay ventanas añadidas.</div>'
-      + '<div id="fabricacionLista" style="display:flex; flex-direction:column; gap:8px;"></div>';
-    host.appendChild(box);
+    const hosts = getFabricacionHosts();
+    if(!hosts.length) return;
+    hosts.forEach(function(host){
+      if(!host || host.querySelector('.fabricacion-lista-box')) return;
+      const suffix = host.id.replace('fabricacionHost','').toLowerCase();
+      const box = document.createElement('div');
+      box.className = 'fabricacion-lista-box';
+      box.setAttribute('data-fab-box', suffix);
+      box.style.cssText = 'margin-top:14px; background:#fff; border:1px solid #d7d7d7; border-radius:10px; padding:12px;';
+      box.innerHTML = buildFabUiInnerHtml(suffix);
+      host.appendChild(box);
+    });
 
-    document.getElementById('btnAgregarFabricacion').addEventListener('click', function(){
-      const item = buildCurrentFabItem();
-      if(!item){
-        try{ actualizarEstadoDespieceCOR2300('No se pudo añadir: primero genera un despiece válido.'); }catch(e){}
-        return;
-      }
-      const list = loadFabList();
-      list.push(item);
-      saveFabList(list);
-      renderFabList();
-      saveState();
-      try{ actualizarEstadoDespieceCOR2300('Ventana añadida a la lista de fabricación.'); }catch(e){}
+    if(window.__fabUiBound) return;
+    window.__fabUiBound = true;
+
+    document.addEventListener('input', function(ev){
+      const unitsInput = ev.target && ev.target.closest ? ev.target.closest('[data-fab-master-units]') : null;
+      if(unitsInput) syncFabMasterUnits(unitsInput);
     }, { passive:true });
 
-    document.getElementById('btnVaciarFabricacion').addEventListener('click', function(){
-      saveFabList([]);
-      renderFabList();
-      try{ actualizarEstadoDespieceCOR2300('Lista de fabricación vaciada.'); }catch(e){}
+    document.addEventListener('click', function(ev){
+      const addBtn = ev.target && ev.target.closest ? ev.target.closest('[data-fab-add]') : null;
+      if(addBtn){
+        const item = buildCurrentFabItem();
+        if(!item){
+          try{
+            if(typeof actualizarEstadoDespieceTelefonillo === 'function' && typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()) actualizarEstadoDespieceTelefonillo('No se pudo añadir: primero genera un despiece válido.');
+            else if(typeof actualizarEstadoDespieceNicho === 'function' && typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()) actualizarEstadoDespieceNicho('No se pudo añadir: primero genera un despiece válido.');
+            else if(typeof actualizarEstadoDespiecePuerta800 === 'function' && typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) actualizarEstadoDespiecePuerta800('No se pudo añadir: primero genera un despiece válido.');
+            else if(typeof actualizarEstadoDespiece600 === 'function' && typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()) actualizarEstadoDespiece600('No se pudo añadir: primero genera un despiece válido.');
+            else actualizarEstadoDespieceCOR2300('No se pudo añadir: primero genera un despiece válido.');
+          }catch(e){}
+          return;
+        }
+        const list = loadFabList();
+        list.push(item);
+        saveFabList(list);
+        renderFabList();
+        saveState();
+        try{
+          if(typeof actualizarEstadoDespieceTelefonillo === 'function' && typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()) actualizarEstadoDespieceTelefonillo('Telefonillo añadido a la lista de fabricación.');
+          else if(typeof actualizarEstadoDespieceNicho === 'function' && typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()) actualizarEstadoDespieceNicho('Nicho añadido a la lista de fabricación.');
+          else if(typeof actualizarEstadoDespiecePuerta800 === 'function' && typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) actualizarEstadoDespiecePuerta800('Puerta 800 añadida a la lista de fabricación.');
+          else if(typeof actualizarEstadoDespiece600 === 'function' && typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()) actualizarEstadoDespiece600('Ventana añadida a la lista de fabricación.');
+          else actualizarEstadoDespieceCOR2300('Ventana añadida a la lista de fabricación.');
+        }catch(e){}
+        return;
+      }
+      const clearBtn = ev.target && ev.target.closest ? ev.target.closest('[data-fab-clear]') : null;
+      if(clearBtn){
+        saveFabList([]);
+        renderFabList();
+        try{
+          if(typeof actualizarEstadoDespieceTelefonillo === 'function' && typeof esSerieTelefonilloSeleccionada === 'function' && esSerieTelefonilloSeleccionada()) actualizarEstadoDespieceTelefonillo('Lista de fabricación vaciada.');
+          else if(typeof actualizarEstadoDespieceNicho === 'function' && typeof esSerieNichoSeleccionada === 'function' && esSerieNichoSeleccionada()) actualizarEstadoDespieceNicho('Lista de fabricación vaciada.');
+          else if(typeof actualizarEstadoDespiecePuerta800 === 'function' && typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) actualizarEstadoDespiecePuerta800('Lista de fabricación vaciada.');
+          else if(typeof actualizarEstadoDespiece600 === 'function' && typeof esSerie600Seleccionada === 'function' && esSerie600Seleccionada()) actualizarEstadoDespiece600('Lista de fabricación vaciada.');
+          else actualizarEstadoDespieceCOR2300('Lista de fabricación vaciada.');
+        }catch(e){}
+        return;
+      }
     }, { passive:true });
   }
 
+  function syncFabMasterUnits(sourceEl){
+    const value = Math.max(1, Number(sourceEl && sourceEl.value) || 1);
+    document.querySelectorAll('[data-fab-master-units]').forEach(function(input){
+      if(input !== sourceEl) input.value = value;
+    });
+  }
+
+  function moveFabUiToActivePanel(){
+    const hosts = getFabricacionHosts();
+    if(!hosts.length) return;
+    hosts.forEach(function(host){
+      const box = host.querySelector('.fabricacion-lista-box');
+      if(!box) return;
+      box.style.display = '';
+    });
+  }
+
   function openCutMasterProject(project){
+    const es600 = (typeof esSerie600Seleccionada === 'function') && esSerie600Seleccionada();
+    const esPuerta800 = (typeof esSeriePuerta800Seleccionada === 'function') && esSeriePuerta800Seleccionada();
+    const es2300 = (typeof esSerieCOR2300Seleccionada === 'function') && esSerieCOR2300Seleccionada();
+    const esNicho = (typeof esSerieNichoSeleccionada === 'function') && esSerieNichoSeleccionada();
+    const esTelefonillo = (typeof esSerieTelefonilloSeleccionada === 'function') && esSerieTelefonilloSeleccionada();
     if(!project || !Array.isArray(project.materials) || !project.materials.length){
-      try{ actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.'); }catch(e){}
+      try{
+        if(esTelefonillo) actualizarEstadoDespieceTelefonillo('No se pudo generar el proyecto para Cut Master.');
+        else if(esNicho) actualizarEstadoDespieceNicho('No se pudo generar el proyecto para Cut Master.');
+        else if(esPuerta800) actualizarEstadoDespiecePuerta800('No se pudo generar el proyecto para Cut Master.');
+        else if(es600) actualizarEstadoDespiece600('No se pudo generar el proyecto para Cut Master.');
+        else actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.');
+      }catch(e){}
       return;
     }
     saveState();
@@ -5176,7 +6777,13 @@ if (mostrarAltoTotalDer) {
     try{ localStorage.setItem(CUT_KEY, payload); }catch(e){}
     try{ sessionStorage.setItem(RETURN_KEY, 'ventana.html'); }catch(e){}
     try{ localStorage.setItem(RETURN_KEY, 'ventana.html'); }catch(e){}
-    try{ actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el proyecto actual...'); }catch(e){}
+    try{
+      if(esTelefonillo) actualizarEstadoDespieceTelefonillo('Abriendo Cut Master con el proyecto actual...');
+      else if(esNicho) actualizarEstadoDespieceNicho('Abriendo Cut Master con el proyecto actual...');
+      else if(esPuerta800) actualizarEstadoDespiecePuerta800('Abriendo Cut Master con el proyecto actual...');
+      else if(es600) actualizarEstadoDespiece600('Abriendo Cut Master con el proyecto actual...');
+      else if(es2300) actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el proyecto actual...');
+    }catch(e){}
     try{
       if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
         window.parent.abrir('optimizar_barra.html');
@@ -5187,14 +6794,46 @@ if (mostrarAltoTotalDer) {
   }
 
   window.abrirCutMasterIntegrado = function(){
-    if(typeof esSerieCOR2300Seleccionada === 'function' && !esSerieCOR2300Seleccionada()){
+    const es600 = (typeof esSerie600Seleccionada === 'function') && esSerie600Seleccionada();
+    const esPuerta800 = (typeof esSeriePuerta800Seleccionada === 'function') && esSeriePuerta800Seleccionada();
+    const es2300 = (typeof esSerieCOR2300Seleccionada === 'function') && esSerieCOR2300Seleccionada();
+    const esNicho = (typeof esSerieNichoSeleccionada === 'function') && esSerieNichoSeleccionada();
+    const esTelefonillo = (typeof esSerieTelefonilloSeleccionada === 'function') && esSerieTelefonilloSeleccionada();
+    if(!es600 && !esPuerta800 && !es2300 && !esNicho && !esTelefonillo){
+      try{ actualizarEstadoDespieceTelefonillo(); }catch(e){}
+      try{ actualizarEstadoDespieceNicho(); }catch(e){}
+      try{ actualizarEstadoDespiecePuerta800(); }catch(e){}
+      try{ actualizarEstadoDespiece600(); }catch(e){}
       try{ actualizarEstadoDespieceCOR2300(); }catch(e){}
       return;
     }
-    try{ if(typeof generarDespieceCOR2300 === 'function') generarDespieceCOR2300(); }catch(e){}
+    try{
+      if(esTelefonillo && typeof generarDespieceTelefonillo === 'function') generarDespieceTelefonillo();
+      if(esNicho && typeof generarDespieceNicho === 'function') generarDespieceNicho();
+      if(esPuerta800 && typeof generarDespiecePuerta800 === 'function') generarDespiecePuerta800();
+      if(es600 && typeof generarDespiece600 === 'function') generarDespiece600();
+      if(es2300 && typeof generarDespieceCOR2300 === 'function') generarDespieceCOR2300();
+    }catch(e){}
     const list = loadFabList();
     const project = list.length ? aggregateFabProject(list) : projectFromDespiece(null, '', { windowRef: 'V1' });
     if(project && list.length) project.name = 'Fabricación Ventanas';
+    if(!project){
+      try{
+        if(esTelefonillo) actualizarEstadoDespieceTelefonillo('No se pudo generar el proyecto para Cut Master.');
+        else if(esNicho) actualizarEstadoDespieceNicho('No se pudo generar el proyecto para Cut Master.');
+        else if(esPuerta800) actualizarEstadoDespiecePuerta800('No se pudo generar el proyecto para Cut Master.');
+        else if(es600) actualizarEstadoDespiece600('No se pudo generar el proyecto para Cut Master.');
+        else actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.');
+      }catch(e){}
+      return;
+    }
+    try{
+      if(esTelefonillo) actualizarEstadoDespieceTelefonillo('Abriendo Cut Master con el proyecto actual...');
+      else if(esNicho) actualizarEstadoDespieceNicho('Abriendo Cut Master con el proyecto actual...');
+      else if(esPuerta800) actualizarEstadoDespiecePuerta800('Abriendo Cut Master con el proyecto actual...');
+      else if(es600) actualizarEstadoDespiece600('Abriendo Cut Master con el proyecto actual...');
+      else actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el proyecto actual...');
+    }catch(e){}
     openCutMasterProject(project);
   };
 
@@ -5209,6 +6848,12 @@ if (mostrarAltoTotalDer) {
           saveFabList(list);
           renderFabList();
         }
+        return;
+      }
+      if(t && t.hasAttribute && t.hasAttribute('data-fab-master-units')){
+        const v = Math.max(1, Number(t.value) || 1);
+        document.querySelectorAll('[data-fab-master-units]').forEach(function(inp){ if(inp !== t) inp.value = v; });
+        saveState();
         return;
       }
       saveState();
@@ -5238,9 +6883,18 @@ if (mostrarAltoTotalDer) {
   window.addEventListener('load', function(){
     restoreState();
     ensureFabUi();
+    moveFabUiToActivePanel();
     renderFabList();
     bindPersistence();
+    try{ actualizarVisibilidadDespieceNicho(); }catch(e){}
+    try{ actualizarEstadoDespieceNicho(); }catch(e){}
+    try{ actualizarVisibilidadDespieceTelefonillo(); }catch(e){}
+    try{ actualizarEstadoDespieceTelefonillo(); }catch(e){}
+    try{ actualizarVisibilidadDespiecePuerta800(); }catch(e){}
+    try{ actualizarEstadoDespiecePuerta800(); }catch(e){}
     try{ actualizarEstadoDespieceCOR2300(); }catch(e){}
+    try{ actualizarVisibilidadDespiece600(); }catch(e){}
+    try{ actualizarEstadoDespiece600(); }catch(e){}
   }, { once:true });
 })();
 </script>
