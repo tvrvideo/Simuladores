@@ -2,7 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v85.4</title>
+    <title>Ventana Pro v85.7</title>
+    <!-- v85.7: Corrige la pieza de 3 hojas COR-2343 para enviar nombre limpio "Zanca" sin duplicar la referencia del perfil en Cut Master. -->
     <style>
 
         body {
@@ -541,7 +542,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v85.4"><span class="title-main">Ventana Pro</span><span class="title-version">v85.4</span></div>
+<div class="top-title" aria-label="Ventana Pro v85.7"><span class="title-main">Ventana Pro</span><span class="title-version">v85.7</span></div>
 
 <div class="control-group" style="background-color: #E6D4B8;"> <div class="dimension-inputs-row">
         </div>
@@ -4323,6 +4324,10 @@ if (mostrarAltoTotalDer) {
                     pushPiezaDespiece(piezas, 'COR-2324', 'Inversor', 'Vertical inversor', altoCalculo - 109, 1, 'Recto', 'barras', { modulo: 'Ventana principal' });
                 }
 
+                if (hojas === 3) {
+                    pushPiezaDespiece(piezas, 'COR-2343', 'Zanca', 'Vertical zanca', altoCalculo - 54, 1, 'Recto', 'barras', { modulo: 'Ventana principal' });
+                }
+
                 pushPiezaDespiece(piezas, 'COR-2019', 'Junquillo', 'Junquillo vertical hoja', altoHoja - 132, hojas * 2, 'Recto', 'barras', { modulo: 'Hojas' });
                 pushPiezaDespiece(piezas, 'COR-2019', 'Junquillo', 'Junquillo horizontal hoja', anchoHoja - 92, hojas * 2, 'Recto', 'barras', { modulo: 'Hojas' });
 
@@ -4698,7 +4703,7 @@ if (mostrarAltoTotalDer) {
                 label: p.pieza || ('Pieza ' + (idx + 1)),
                 length: Number(p.length) || 0,
                 qty: Number(p.qty) || 0,
-                cutType: String(p.cutType || '').toLowerCase().includes('45') ? '45-45' : 'recto'
+                cutType: String(p.cutType || '').toLowerCase().includes('45') ? '45' : 'recto'
             });
         });
 
@@ -4718,38 +4723,54 @@ if (mostrarAltoTotalDer) {
         };
     }
 
-    
-    function serializeCutMasterBridgePayload(project) {
-        return JSON.stringify({
-            source: 'ventana-app',
-            createdAt: new Date().toISOString(),
-            project: project || null
-        });
+    function buildCutMasterSrcdocWithCurrentProject() {
+        const project = buildCutMasterProjectFromCurrentDespiece();
+        if (!project) return CUT_MASTER_INTEGRADO_HTML;
+
+        const safeJson = JSON.stringify(project)
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026');
+
+        const bootScript =
+            '<script>' +
+            '(function(){' +
+            'var project=' + safeJson + ';' +
+            'function launch(){' +
+            'try{' +
+            'if(typeof window.__cmLoadExternalProject==="function"){' +
+            'window.__cmLoadExternalProject(project);' +
+            'return true;' +
+            '}' +
+            '}catch(err){console.error(err);}' +
+            'return false;' +
+            '}' +
+            'window.addEventListener("load",function(){' +
+            'if(launch()) return;' +
+            'var tries=0;' +
+            'var t=setInterval(function(){' +
+            'tries++;' +
+            'if(launch()||tries>60) clearInterval(t);' +
+            '},100);' +
+            '});' +
+            '})();' +
+            '<' + '/script>';
+
+        return CUT_MASTER_INTEGRADO_HTML.replace('</body>', bootScript + '</body>');
     }
 
-    function guardarProyectoPendienteCutMaster(project) {
-        const payload = serializeCutMasterBridgePayload(project);
-        try { localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT', payload); } catch (e) {}
-        try { sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT', payload); } catch (e) {}
-        try { window.name = 'CUT_MASTER_EXTERNAL_PROJECT::' + payload; } catch (e) {}
-        try { localStorage.setItem('CUT_MASTER_RETURN_URL', 'ventana.html'); } catch (e) {}
-        try { sessionStorage.setItem('CUT_MASTER_RETURN_URL', 'ventana.html'); } catch (e) {}
-        return payload;
-    }
+    function ensureCutMasterFrameReady(callback) {
+        const frame = document.getElementById('cutMasterFrame');
+        if (!frame) return;
 
-    function abrirArchivoCutMasterReal() {
-        const target = 'optimizar_barra.html';
-        try {
-            if (window.parent && window.parent !== window && typeof window.parent.abrir === 'function') {
-                window.parent.abrir(target);
-            } else {
-                window.location.href = target;
+        frame.onload = function() {
+            cutMasterFrameInitialized = true;
+            if (typeof callback === 'function') {
+                setTimeout(callback, 500);
             }
-            return true;
-        } catch (err) {
-            console.error(err);
-        }
-        return false;
+        };
+
+        frame.srcdoc = buildCutMasterSrcdocWithCurrentProject();
     }
 
     function abrirCutMasterIntegrado() {
@@ -4757,21 +4778,35 @@ if (mostrarAltoTotalDer) {
             actualizarEstadoDespieceCOR2300();
             return;
         }
-        const project = buildCutMasterProjectFromCurrentDespiece();
-        if (!project) {
-            actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.');
-            return;
-        }
-        guardarProyectoPendienteCutMaster(project);
-        actualizarEstadoDespieceCOR2300('Abriendo Cut Master real con el proyecto ya preparado...');
-        abrirArchivoCutMasterReal();
+        const overlay = document.getElementById('cutMasterOverlay');
+        if (!overlay) return;
+        generarDespieceCOR2300();
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el diagrama de corte cargado...');
+        ensureCutMasterFrameReady(function() {
+            setTimeout(() => actualizarEstadoDespieceCOR2300(), 900);
+        });
     }
 
     function cerrarCutMasterIntegrado() {
-        try { history.back(); } catch (e) {}
+        const overlay = document.getElementById('cutMasterOverlay');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        actualizarEstadoDespieceCOR2300();
     }
 
-function optimizarBarrasCOR2300() {
+    window.addEventListener('message', function(ev) {
+        const msg = ev && ev.data;
+        if (msg && msg.type === 'cutmasterEmbeddedLoaded') {
+            actualizarEstadoDespieceCOR2300('Cut Master cargado con el despiece actual.');
+            setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
+        }
+    });
+
+
+
+    function optimizarBarrasCOR2300() {
         if (!esSerieCOR2300Seleccionada()) {
             actualizarEstadoDespieceCOR2300();
             return;
@@ -4841,6 +4876,373 @@ function optimizarBarrasCOR2300() {
         setTimeout(() => actualizarEstadoDespieceCOR2300(), 1200);
     }
 
+</script>
+
+
+<script>
+(function(){
+  const STATE_KEY = 'VENTANA_APP_STATE_V85_5';
+  const FAB_KEY = 'VENTANA_APP_FAB_LIST_V85_5';
+  const CUT_KEY = 'CUT_MASTER_EXTERNAL_PROJECT';
+  const RETURN_KEY = 'CUT_MASTER_RETURN_URL';
+
+  function safeParse(raw, fallback){
+    try { return raw ? JSON.parse(raw) : fallback; } catch(e){ return fallback; }
+  }
+
+  function mmNum(v){
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function normalizeCutType(cutType){
+    const raw = String(cutType || '').toLowerCase();
+    if(raw.includes('45')) return '45-45';
+    return 'recto';
+  }
+
+  function projectFromDespiece(data, customName, options){
+    const despiece = data || window.__ultimoDespieceCOR2300 || (typeof generarDespieceCOR2300 === 'function' ? generarDespieceCOR2300() : null);
+    if(!despiece || !Array.isArray(despiece.barras) || !despiece.barras.length) return null;
+
+    const opts = options || {};
+    const windowRef = String(opts.windowRef || ((despiece.meta || {}).windowRef || '')).trim();
+    const materialsMap = new Map();
+    despiece.barras.forEach(function(p, idx){
+      const perfil = String(p.perfil || ('Perfil ' + (idx + 1)));
+      if(!materialsMap.has(perfil)){
+        materialsMap.set(perfil, {
+          name: perfil,
+          profileFace: 40,
+          stock: [{ label: 'Barra 6500', length: 6500, qty: 999 }],
+          pieces: []
+        });
+      }
+      const material = materialsMap.get(perfil);
+      const pieceLabel = String(p.pieza || ('Pieza ' + (idx + 1)));
+      material.pieces.push({
+        label: pieceLabel,
+        sourceWindowRef: windowRef,
+        sourcePiece: pieceLabel,
+        modulo: String(p.modulo || ''),
+        length: mmNum(p.length),
+        qty: Math.max(0, Number(p.qty) || 0),
+        cutType: normalizeCutType(p.cutType)
+      });
+    });
+
+    const meta = Object.assign({}, despiece.meta || {});
+    if(windowRef) meta.windowRef = windowRef;
+    return {
+      name: customName || ((windowRef ? (windowRef + ' · ') : '') + (('Ventana CE ' + [meta.anchoTotal, meta.altoTotal].filter(Boolean).join(' x ')).trim() || 'Ventana CE')),
+      resultTab: 'diagram',
+      settings: { unit: 'mm', kerfMm: 0, colorCuts: true },
+      meta: meta,
+      materials: Array.from(materialsMap.values()).filter(function(mat){
+        mat.pieces = mat.pieces.filter(function(piece){ return piece.length > 0 && piece.qty > 0; });
+        return mat.pieces.length > 0;
+      })
+    };
+  }
+
+  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+  function saveState(){
+    const data = { inputs:{}, globals:{} };
+    document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el){
+      if(el.type === 'file') return;
+      if(el.type === 'checkbox' || el.type === 'radio') data.inputs[el.id] = !!el.checked;
+      else data.inputs[el.id] = el.value;
+    });
+    ['colorMarco','colorActivo','modoArco','marcoThickness','hojaThickness','travesanoThickness','hojas','fijoSuperior','fijoInferior','altoFijoSuperiorMM','altoFijoInferiorMM'].forEach(function(key){
+      try{
+        if(typeof window[key] !== 'undefined') data.globals[key] = clone(window[key]);
+      }catch(e){}
+    });
+    try{ data.globals.__dockEnabled = !!document.getElementById('btnFijar')?.classList.contains('active'); }catch(e){}
+    try{ localStorage.setItem(STATE_KEY, JSON.stringify(data)); }catch(e){}
+  }
+
+  function restoreState(){
+    const data = safeParse(localStorage.getItem(STATE_KEY), null);
+    if(!data || typeof data !== 'object') return;
+
+    const inputs = data.inputs || {};
+    Object.keys(inputs).forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.type === 'checkbox' || el.type === 'radio') el.checked = !!inputs[id];
+      else el.value = inputs[id];
+    });
+
+    const globals = data.globals || {};
+    Object.keys(globals).forEach(function(key){
+      if(key === '__dockEnabled') return;
+      try{ window[key] = clone(globals[key]); }catch(e){}
+    });
+
+    try{ if(typeof recalcularAnchosHojas === 'function') recalcularAnchosHojas(); }catch(e){}
+    try{ if(typeof ajustarAltosConFijos === 'function') ajustarAltosConFijos(); }catch(e){}
+    try{ if(typeof actualizarAltosLados === 'function') actualizarAltosLados(); }catch(e){}
+    try{ if(typeof actualizarOpcionesFijos === 'function') actualizarOpcionesFijos(); }catch(e){}
+    try{ if(typeof actualizarHojas === 'function') actualizarHojas(); }catch(e){}
+    try{ if(typeof actualizarVisibilidadDespieceCOR2300 === 'function') actualizarVisibilidadDespieceCOR2300(); }catch(e){}
+    try{ if(typeof actualizarVista === 'function') actualizarVista(); }catch(e){}
+    try{ if(typeof generarDespieceCOR2300 === 'function') generarDespieceCOR2300(); }catch(e){}
+
+    try{
+      const enabled = !!globals.__dockEnabled;
+      document.body.classList.toggle('dock-off', !enabled);
+      document.getElementById('btnFijar')?.classList.toggle('active', enabled);
+    }catch(e){}
+  }
+
+  function loadFabList(){ return safeParse(localStorage.getItem(FAB_KEY), []) || []; }
+  function saveFabList(list){ try{ localStorage.setItem(FAB_KEY, JSON.stringify(Array.isArray(list) ? list : [])); }catch(e){} }
+
+  function getFabRefNumber(value){
+    const match = String(value || '').trim().match(/^V(\d+)$/i);
+    return match ? Math.max(0, parseInt(match[1], 10) || 0) : 0;
+  }
+
+  function getNextFabReference(list){
+    const items = Array.isArray(list) ? list : [];
+    let maxNum = 0;
+    items.forEach(function(item){
+      maxNum = Math.max(maxNum, getFabRefNumber(item && item.windowRef));
+      maxNum = Math.max(maxNum, getFabRefNumber(item && item.summary && item.summary.ref));
+      maxNum = Math.max(maxNum, getFabRefNumber(item && item.project && item.project.meta && item.project.meta.windowRef));
+    });
+    return 'V' + (maxNum + 1);
+  }
+
+  function buildCurrentFabItem(){
+    const despiece = window.__ultimoDespieceCOR2300 || (typeof generarDespieceCOR2300 === 'function' ? generarDespieceCOR2300() : null);
+    const list = loadFabList();
+    const windowRef = getNextFabReference(list);
+    const project = projectFromDespiece(despiece, '', { windowRef: windowRef });
+    if(!project || !project.materials || !project.materials.length) return null;
+    const units = Math.max(1, Number(document.getElementById('fabricacionUnits')?.value) || 1);
+    const meta = despiece && despiece.meta ? despiece.meta : {};
+    return {
+      id: 'fab_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      windowRef: windowRef,
+      units: units,
+      project: project,
+      summary: {
+        ref: windowRef,
+        serie: meta.serie || 'COR-2300',
+        hojas: meta.hojas || 0,
+        ancho: meta.anchoTotal || document.getElementById('ancho')?.value || '',
+        alto: meta.altoTotal || document.getElementById('alto')?.value || ''
+      }
+    };
+  }
+
+  function aggregateFabProject(list){
+    const items = Array.isArray(list) ? list : [];
+    const materialsMap = new Map();
+    const refs = [];
+    items.forEach(function(item){
+      const units = Math.max(1, Number(item.units) || 1);
+      const itemRef = String((item && item.windowRef) || ((item && item.summary && item.summary.ref) || ((item && item.project && item.project.meta && item.project.meta.windowRef) || ''))).trim();
+      if(itemRef && refs.indexOf(itemRef) === -1) refs.push(itemRef);
+      const mats = (((item || {}).project || {}).materials || []);
+      mats.forEach(function(mat){
+        const key = String(mat.name || 'Perfil');
+        if(!materialsMap.has(key)){
+          materialsMap.set(key, {
+            name: key,
+            profileFace: Number(mat.profileFace) > 0 ? Number(mat.profileFace) : 40,
+            stock: clone(Array.isArray(mat.stock) && mat.stock.length ? mat.stock : [{ label:'Barra 6500', length:6500, qty:999 }]),
+            pieces: []
+          });
+        }
+        const bucket = materialsMap.get(key);
+        (mat.pieces || []).forEach(function(piece){
+          const label = String(piece.label || piece.sourcePiece || 'Pieza');
+          const sourceWindowRef = String(piece.sourceWindowRef || itemRef || '').trim();
+          const sourcePiece = String(piece.sourcePiece || label || 'Pieza');
+          const cutType = normalizeCutType(piece.cutType);
+          const length = mmNum(piece.length);
+          const qty = Math.max(0, Number(piece.qty) || 0) * units;
+          if(length <= 0 || qty <= 0) return;
+          const existing = bucket.pieces.find(function(p){
+            return p.label === label && p.length === length && p.cutType === cutType && String(p.sourceWindowRef || '') === sourceWindowRef;
+          });
+          if(existing) existing.qty += qty;
+          else bucket.pieces.push({
+            label: label,
+            sourceWindowRef: sourceWindowRef,
+            sourcePiece: sourcePiece,
+            modulo: String(piece.modulo || ''),
+            length: length,
+            qty: qty,
+            cutType: cutType
+          });
+        });
+      });
+    });
+
+    const totalUnits = items.reduce(function(acc, item){ return acc + Math.max(1, Number(item.units) || 1); }, 0);
+    return {
+      name: 'Fabricación Ventanas (' + totalUnits + ' ud.)',
+      resultTab: 'diagram',
+      settings: { unit: 'mm', kerfMm: 0, colorCuts: true },
+      meta: { references: refs },
+      materials: Array.from(materialsMap.values()).filter(function(mat){ return mat.pieces && mat.pieces.length; })
+    };
+  }
+
+  function renderFabList(){
+    const box = document.getElementById('fabricacionLista');
+    const status = document.getElementById('fabricacionListaEstado');
+    if(!box || !status) return;
+    const list = loadFabList();
+    if(!list.length){
+      status.textContent = 'Todavía no hay ventanas añadidas.';
+      box.innerHTML = '';
+      return;
+    }
+    const totalUnits = list.reduce(function(acc, item){ return acc + Math.max(1, Number(item.units) || 1); }, 0);
+    status.textContent = list.length + ' diseño(s) en lista · ' + totalUnits + ' ud. totales';
+    box.innerHTML = list.map(function(item, idx){
+      const s = item.summary || {};
+      const ref = String(s.ref || item.windowRef || '');
+      const title = [ref, s.serie || 'Ventana', s.ancho && s.alto ? (s.ancho + ' x ' + s.alto) : '', s.hojas ? (s.hojas + ' hoja/s') : ''].filter(Boolean).join(' · ');
+      return '<div style="display:flex; gap:10px; align-items:center; justify-content:space-between; border:1px solid #e3e3e3; border-radius:8px; padding:10px 12px; background:#fafafa;">'
+        + '<div style="min-width:0; flex:1;">'
+        +   '<div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + title + '</div>'
+        +   '<div style="font-size:12px; color:#666; margin-top:3px;">' + ((item.project && item.project.materials ? item.project.materials.length : 0)) + ' perfil(es) para optimizar</div>'
+        + '</div>'
+        + '<div style="display:flex; align-items:center; gap:8px;">'
+        +   '<input data-fab-units="' + idx + '" type="number" min="1" step="1" value="' + Math.max(1, Number(item.units) || 1) + '" style="width:72px; padding:8px; border:1px solid #ccc; border-radius:6px;">'
+        +   '<button data-fab-remove="' + idx + '" type="button" style="padding:8px 12px; margin-top:0; background:#f2d3d3; border:1px solid #ddb0b0; border-radius:8px;">Quitar</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function ensureFabUi(){
+    const panel = document.getElementById('despiecePanelCompacto');
+    if(!panel || document.getElementById('fabricacionListaBox')) return;
+    const host = panel.querySelector('div[style*="padding:14px"]') || panel;
+    const box = document.createElement('div');
+    box.id = 'fabricacionListaBox';
+    box.style.cssText = 'margin-top:14px; background:#fff; border:1px solid #d7d7d7; border-radius:10px; padding:12px;';
+    box.innerHTML = ''
+      + '<h3 style="margin:0 0 10px 0; font-size:16px;">Lista de fabricación</h3>'
+      + '<div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px;">'
+      +   '<label style="display:flex; align-items:center; gap:8px; margin:0; background:#f7f7f7; border:1px solid #d7d7d7; border-radius:8px; padding:10px 12px;">'
+      +     '<span>Unidades</span>'
+      +     '<input id="fabricacionUnits" type="number" min="1" step="1" value="1" style="width:72px; padding:8px; border:1px solid #ccc; border-radius:6px;">'
+      +   '</label>'
+      +   '<button id="btnAgregarFabricacion" type="button" style="padding:12px 16px; margin-top:0;">Añadir a lista</button>'
+      +   '<button id="btnVaciarFabricacion" type="button" style="padding:12px 16px; margin-top:0;">Vaciar lista</button>'
+      + '</div>'
+      + '<div id="fabricacionListaEstado" style="font-size:13px; color:#555; margin-bottom:8px;">Todavía no hay ventanas añadidas.</div>'
+      + '<div id="fabricacionLista" style="display:flex; flex-direction:column; gap:8px;"></div>';
+    host.appendChild(box);
+
+    document.getElementById('btnAgregarFabricacion').addEventListener('click', function(){
+      const item = buildCurrentFabItem();
+      if(!item){
+        try{ actualizarEstadoDespieceCOR2300('No se pudo añadir: primero genera un despiece válido.'); }catch(e){}
+        return;
+      }
+      const list = loadFabList();
+      list.push(item);
+      saveFabList(list);
+      renderFabList();
+      saveState();
+      try{ actualizarEstadoDespieceCOR2300('Ventana añadida a la lista de fabricación.'); }catch(e){}
+    }, { passive:true });
+
+    document.getElementById('btnVaciarFabricacion').addEventListener('click', function(){
+      saveFabList([]);
+      renderFabList();
+      try{ actualizarEstadoDespieceCOR2300('Lista de fabricación vaciada.'); }catch(e){}
+    }, { passive:true });
+  }
+
+  function openCutMasterProject(project){
+    if(!project || !Array.isArray(project.materials) || !project.materials.length){
+      try{ actualizarEstadoDespieceCOR2300('No se pudo generar el proyecto para Cut Master.'); }catch(e){}
+      return;
+    }
+    saveState();
+    const payload = JSON.stringify({ project: project });
+    try{ sessionStorage.setItem(CUT_KEY, payload); }catch(e){}
+    try{ localStorage.setItem(CUT_KEY, payload); }catch(e){}
+    try{ sessionStorage.setItem(RETURN_KEY, 'ventana.html'); }catch(e){}
+    try{ localStorage.setItem(RETURN_KEY, 'ventana.html'); }catch(e){}
+    try{ actualizarEstadoDespieceCOR2300('Abriendo Cut Master con el proyecto actual...'); }catch(e){}
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir('optimizar_barra.html');
+        return;
+      }
+    }catch(e){}
+    window.location.href = 'optimizar_barra.html';
+  }
+
+  window.abrirCutMasterIntegrado = function(){
+    if(typeof esSerieCOR2300Seleccionada === 'function' && !esSerieCOR2300Seleccionada()){
+      try{ actualizarEstadoDespieceCOR2300(); }catch(e){}
+      return;
+    }
+    try{ if(typeof generarDespieceCOR2300 === 'function') generarDespieceCOR2300(); }catch(e){}
+    const list = loadFabList();
+    const project = list.length ? aggregateFabProject(list) : projectFromDespiece(null, '', { windowRef: 'V1' });
+    if(project && list.length) project.name = 'Fabricación Ventanas';
+    openCutMasterProject(project);
+  };
+
+  function bindPersistence(){
+    document.addEventListener('input', function(ev){
+      const t = ev.target;
+      if(t && t.hasAttribute && t.hasAttribute('data-fab-units')){
+        const idx = Number(t.getAttribute('data-fab-units'));
+        const list = loadFabList();
+        if(Number.isFinite(idx) && list[idx]){
+          list[idx].units = Math.max(1, Number(t.value) || 1);
+          saveFabList(list);
+          renderFabList();
+        }
+        return;
+      }
+      saveState();
+    }, { passive:true });
+
+    document.addEventListener('change', function(){ saveState(); }, { passive:true });
+
+    document.addEventListener('click', function(ev){
+      const btn = ev.target && ev.target.closest ? ev.target.closest('[data-fab-remove]') : null;
+      if(btn){
+        const idx = Number(btn.getAttribute('data-fab-remove'));
+        const list = loadFabList();
+        if(Number.isFinite(idx) && list[idx]){
+          list.splice(idx, 1);
+          saveFabList(list);
+          renderFabList();
+        }
+        return;
+      }
+      const button = ev.target && ev.target.closest ? ev.target.closest('button') : null;
+      if(button) setTimeout(saveState, 40);
+    }, { passive:true });
+
+    window.addEventListener('beforeunload', saveState);
+  }
+
+  window.addEventListener('load', function(){
+    restoreState();
+    ensureFabUi();
+    renderFabList();
+    bindPersistence();
+    try{ actualizarEstadoDespieceCOR2300(); }catch(e){}
+  }, { once:true });
+})();
 </script>
 
 </body></html>

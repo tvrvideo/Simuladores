@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.2</title>
+  <title>Cut Máster v2.6</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -53,6 +53,7 @@
     .tab{flex:1;padding:12px 6px;text-align:center;font-size:16px;border-right:1px solid #cbc5db}
     .tab:last-child{border-right:none}
     .tab.active{font-weight:700}
+    .return-tab-btn{flex:0 0 auto;align-self:center;margin:0 8px 0 0;padding:9px 14px;border-radius:999px;background:#1f78d1;color:#fff;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.16);white-space:nowrap}
     .header-title{font-size:18px;text-align:center;margin:2px 0 12px;font-weight:500}
     .toolbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:8px}
     .pill{padding:8px 12px;border:1px solid #665e5a;border-radius:10px;background:transparent;font-size:14px}
@@ -90,15 +91,15 @@
     .result-panel{display:none}
     .result-panel.active{display:block}
     .diagram-card{margin-bottom:22px}
-    .diagram-title{font-size:30px;font-weight:800;line-height:1.05;margin-bottom:10px}
+    .diagram-title{font-size:22px;font-weight:800;line-height:1.12;margin-bottom:8px;word-break:break-word;overflow-wrap:anywhere}
     .diagram-sub{font-size:15px;color:#5e5651;margin-bottom:16px;line-height:1.32}
     .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}
     .bar-sketch-wrap{flex:1;min-width:0}
-    .bar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:700;margin:0 0 4px;color:#3c312b}
+    .bar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:16px;font-weight:700;margin:0 0 4px;color:#3c312b}
     .bar-head-title{display:inline-block}
     .bar-metrics{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:4px 10px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:14px;font-weight:800;line-height:1.1;color:#3c312b}
+    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:4px 9px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:12px;font-weight:800;line-height:1.1;color:#3c312b}
     .bar-chip.waste{background:#e4e4e4;border-color:#cfcfcf}
     .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}
     .bar-sketch-wrap{position:relative}
@@ -113,10 +114,13 @@
     .cut-fill.dimmed{opacity:.28}
     .waste-fill{fill:#8f8f8f;transition:opacity .16s ease}
     .cut-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-style:italic;font-weight:500;letter-spacing:.2px}
-    .cut-text.active{fill:#ffffff;font-weight:700}
-    .cut-text.done{fill:#ffffff;font-weight:700}
-    .cut-text.done.active{fill:#ffffff}
-    .cut-text.dimmed{opacity:.30}
+    .cut-ref-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-weight:800;letter-spacing:.2px}
+    .cut-main-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-weight:800;letter-spacing:.15px}
+    .cut-sub-text{pointer-events:none;user-select:none;-webkit-user-select:none;transition:fill .16s ease,opacity .16s ease;font-weight:700;letter-spacing:.12px}
+    .cut-text.active,.cut-ref-text.active,.cut-main-text.active,.cut-sub-text.active{fill:#ffffff;font-weight:700}
+    .cut-text.done,.cut-ref-text.done,.cut-main-text.done,.cut-sub-text.done{fill:#ffffff;font-weight:700}
+    .cut-text.done.active,.cut-ref-text.done.active,.cut-main-text.done.active,.cut-sub-text.done.active{fill:#ffffff}
+    .cut-text.dimmed,.cut-ref-text.dimmed,.cut-main-text.dimmed,.cut-sub-text.dimmed{opacity:.30}
     .cut-line{stroke:#433630;stroke-width:2.2}
     .cut-line.active{stroke:#433630;stroke-width:2.2}
     .cut-line.dimmed{opacity:.38}
@@ -133,6 +137,7 @@
     .selection-count-btn{width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;flex-shrink:0}
     .selection-count-btn:active,.selection-toast-btn:active{transform:scale(.97)}
     .selection-toast-btn{border:none;background:transparent;color:#fff;font-size:16px;font-weight:700;padding:8px 6px;flex-shrink:0}
+    .floating-return-btn{position:fixed;right:12px;bottom:calc(54px + env(safe-area-inset-bottom, 0px) + 80px);z-index:120;border:0;border-radius:999px;padding:9px 15px;font-size:14px;font-weight:700;background:#1f78d1;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.18);touch-action:manipulation;display:none}
 
 
     .diagram-note{font-size:13px;color:#7b7470;margin-top:4px}
@@ -193,6 +198,9 @@
       .primary-btn,.soft-btn,.tab{font-size:15px}
       .results-tabs{top:54px}
       .results-tab{font-size:15px}
+      .diagram-title{font-size:20px}
+      .bar-head{font-size:15px}
+      .bar-chip{font-size:11px;padding:4px 8px}
       .selection-bottom{align-items:flex-end}
       .selection-pending-wrap{min-width:76px}
       .selection-pending-number{font-size:30px}
@@ -209,7 +217,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.2</div>
+    <div id="topTitle" class="title">Cut Máster v2.6</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -308,6 +316,7 @@
     <button class="tab active" data-screen="piecesScreen">Piezas</button>
     <button class="tab" data-screen="stockScreen">Stock</button>
     <button class="tab" data-screen="resultsScreen">Resultados</button>
+    <button id="returnTabBtn" type="button" class="return-tab-btn">← Ventanas</button>
   </div>
 </div>
 
@@ -420,7 +429,7 @@
     });
     const inProject = ['piecesScreen','stockScreen','resultsScreen'].includes(id);
     $('bottomTabs').style.display = inProject ? 'flex' : 'none';
-    document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === id));
+    document.querySelectorAll('.tab[data-screen]').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === id));
     updateTopbar();
     if(id === 'homeScreen') renderProjects();
     if(id === 'piecesScreen') renderPieces();
@@ -429,7 +438,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.2');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.6');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -687,11 +696,17 @@
         <input class="num-input" type="number" min="1" step="1" value="${formatLength(entry.length)}" data-edit-${type}="${materialId}:${entry.id}:length" inputmode="numeric">
         <input class="num-input" type="number" min="1" step="1" value="${entry.qty}" data-edit-${type}="${materialId}:${entry.id}:qty" inputmode="numeric">
       `;
+    const pieceMetaHtml = type === 'piece' && (entry.sourceWindowRef || entry.label || entry.modulo)
+      ? `<div class="piece-meta" style="padding-left:42px; margin-top:4px;">${escapeHtml([entry.sourceWindowRef || '', entry.label || '', entry.modulo || ''].filter(Boolean).join(' · '))}</div>`
+      : '';
     row.innerHTML = `
       <button class="add-inline" data-clone-${type}="${materialId}:${entry.id}">+</button>
-      <div class="entry-grid" style="flex:1;padding-left:0">
-        ${fieldsHtml}
-        <button class="inline-x" data-remove-${type}="${materialId}:${entry.id}" aria-label="Borrar">✕</button>
+      <div style="flex:1;">
+        <div class="entry-grid" style="flex:1;padding-left:0">
+          ${fieldsHtml}
+          <button class="inline-x" data-remove-${type}="${materialId}:${entry.id}" aria-label="Borrar">✕</button>
+        </div>
+        ${pieceMetaHtml}
       </div>`;
     return row;
   }
@@ -842,7 +857,8 @@
         const key = pieceKey(piece);
         const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${len}`);
         const cutType = normalizeCutType(piece.cutType);
-        const legendKey = `${len}__${cutType}`;
+        const refText = String(piece.sourceWindowRef || '').trim();
+        const legendKey = `${refText || 'sinref'}__${len}__${cutType}`;
         const pieceColor = getPieceColor(key);
         let legendEntry = legendMap.get(legendKey);
         if(!legendEntry){
@@ -851,7 +867,8 @@
             length: len,
             cutType,
             qty: 0,
-            color: pieceColor
+            color: pieceColor,
+            sourceWindowRef: refText
           };
           legendMap.set(legendKey, legendEntry);
         }
@@ -859,8 +876,15 @@
 
         fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${useMeasureColors ? pieceColor : '#dfd7cf'}" style="--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}" />`);
         if(innerWidth >= 34){
-          const size = innerWidth < 95 ? 28 : 40;
-          labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+8}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
+          const labelCenterX = (xStart + xEnd) / 2;
+          const lengthText = `${formatLength(len)}`;
+          const charCount = Math.max(1, lengthText.length);
+          const widthLimited = Math.floor((innerWidth - 10) / Math.max(1, charCount) * 1.95);
+          let mainFontSize = Math.max(12, Math.min(innerWidth < 70 ? 20 : innerWidth < 110 ? 28 : 38, widthLimited));
+          if(innerWidth < 52){
+            mainFontSize = Math.min(mainFontSize, 14);
+          }
+          labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${labelCenterX}" y="${centerY + 8}" text-anchor="middle" font-size="${mainFontSize}" font-family="Arial, sans-serif" fill="#3e342e">${lengthText}</text>`);
         }
         hitZones.push({
           key,
@@ -879,7 +903,8 @@
           const key = pieceKey(piece);
           const pieceId = String(piece.uid || `${materialName}_${index}_${runIndex}_${pieceIdx}_${len}`);
           const cutType = normalizeCutType(piece.cutType);
-          const legendKey = `${len}__${cutType}`;
+          const refText = String(piece.sourceWindowRef || '').trim();
+        const legendKey = `${refText || 'sinref'}__${len}__${cutType}`;
           const pieceColor = getPieceColor(key);
           let legendEntry = legendMap.get(legendKey);
           if(!legendEntry){
@@ -941,7 +966,9 @@
     if(waste > 0 && endX > wasteStart){
       fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${Math.max(2, endX - wasteStart)}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
       const wasteWidth = endX - wasteStart;
-      if(wasteWidth >= 90){
+      if(wasteWidth >= 150){
+        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+8}" text-anchor="middle" font-size="24" font-family="Arial, sans-serif" fill="#ffffff">Sobra ${formatLength(waste)}</text>`);
+      } else if(wasteWidth >= 90){
         labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+8}" text-anchor="middle" font-size="30" font-family="Arial, sans-serif" fill="#ffffff">${formatLength(waste)}</text>`);
       }
       cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
@@ -960,7 +987,11 @@
       const lx = leftPad + (col * legendColWidth);
       const ly = legendTop + (row * legendRowHeight);
       legend.push(`<rect x="${lx}" y="${ly - 22}" width="34" height="34" rx="5" ry="5" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
-      legend.push(`<text x="${lx + 48}" y="${ly + 8}" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f241f">${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);
+      const legendRef = String(item.sourceWindowRef || '').trim();
+      const legendLabel = legendRef
+        ? `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${legendRef} · ${cutTypeLabel(item.cutType)}`
+        : `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${cutTypeLabel(item.cutType)}`;
+      legend.push(`<text x="${lx + 48}" y="${ly + 8}" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f241f">${escapeHtml(legendLabel)}</text>`);
     });
     const totalHeight = 96 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 6 : 0);
 
@@ -1204,7 +1235,8 @@
     const result = calculateProject(project);
     const measureColorMap = buildMeasureColorMap(result);
 
-    summary.innerHTML = `<strong>Configuración:</strong> unidad <strong>${currentUnit()}</strong> · ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong> · color por corte <strong>${colorsByMeasureEnabled() ? 'activado' : 'desactivado'}</strong>.`;
+    const refs = Array.from(new Set((((project.meta || {}).references) || []).concat((project.materials || []).flatMap(mat => (mat.pieces || []).map(p => String(p.sourceWindowRef || '').trim()).filter(Boolean))))).filter(Boolean);
+    summary.innerHTML = `<strong>Configuración:</strong> unidad <strong>${currentUnit()}</strong> · ancho de corte <strong>${formatLength(currentKerfMm())} ${currentUnit()}</strong> · color por corte <strong>${colorsByMeasureEnabled() ? 'activado' : 'desactivado'}</strong>${refs.length ? ` · referencias <strong>${escapeHtml(refs.join(', '))}</strong>` : ''}.`;
     updateColorCutsToggle();
 
     if(!result.materials.length){
@@ -1246,6 +1278,9 @@
       } else {
         rows += mat.stockUsage.map(item => `<div class="material-list-row"><div><strong>${escapeHtml(mat.name)}</strong> · barra ${item.length} mm</div><div>${item.qty} ud.</div></div>`).join('');
       }
+      if(mat.pieceBreakdown && mat.pieceBreakdown.length){
+        rows += mat.pieceBreakdown.map(item => `<div class="material-list-row"><div><strong>${escapeHtml(item.sourceWindowRef || '—')}</strong> · ${escapeHtml(item.label || 'Pieza')}<div class="piece-meta">${escapeHtml(cutTypeLabel(item.cutType))} · ${formatLength(item.length)} ${currentUnit()}${item.modulo ? ' · ' + escapeHtml(item.modulo) : ''}</div></div><div>${item.qty} ud.</div></div>`).join('');
+      }
       listCard.innerHTML = rows;
       listPanel.appendChild(listCard);
     });
@@ -1262,13 +1297,19 @@
   function calculateMaterial(material){
     const pieces = [];
     const cutSummaryMap = new Map();
+    const pieceBreakdown = [];
     (material.pieces || []).forEach(p => {
       const len = Number(p.length);
       const qty = Number(p.qty);
       const cutType = normalizeCutType(p.cutType);
+      const label = String(p.label || 'Pieza');
+      const sourceWindowRef = String(p.sourceWindowRef || '').trim();
+      const sourcePiece = String(p.sourcePiece || label || 'Pieza');
+      const modulo = String(p.modulo || '').trim();
       if(len > 0 && qty > 0){
         cutSummaryMap.set(cutType, (cutSummaryMap.get(cutType) || 0) + qty);
-        for(let i=0;i<qty;i++) pieces.push({ uid:`${p.id}__${i+1}`, length: len, cutType });
+        pieceBreakdown.push({ label, sourceWindowRef, sourcePiece, modulo, length: len, qty, cutType });
+        for(let i=0;i<qty;i++) pieces.push({ uid:`${p.id}__${i+1}`, label, sourceWindowRef, sourcePiece, modulo, length: len, cutType });
       }
     });
 
@@ -1317,7 +1358,7 @@
             if(!original) continue;
             if(barPieces.length > 0) used += kerf;
             used += len;
-            barPieces.push({ uid: original.uid, length: len, cutType: normalizeCutType(original.cutType) });
+            barPieces.push({ uid: original.uid, label: original.label, sourceWindowRef: original.sourceWindowRef, sourcePiece: original.sourcePiece, modulo: original.modulo, length: len, cutType: normalizeCutType(original.cutType) });
           }
         });
         usageMap.set(pattern.stockLen, (usageMap.get(pattern.stockLen) || 0) + 1);
@@ -1333,7 +1374,7 @@
     }
 
     function heuristicPlan(){
-      const remainingPieces = pieces.map(piece => ({ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }));
+      const remainingPieces = pieces.map(piece => ({ uid: piece.uid, label: piece.label, sourceWindowRef: piece.sourceWindowRef, sourcePiece: piece.sourcePiece, modulo: piece.modulo, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }));
       const availableStock = stockList.slice();
       const bars = [];
       const usageMap = new Map();
@@ -1354,7 +1395,7 @@
         }
         if(!bestBar) return false;
         const needed = pieceLen + (bestBar.pieces.length > 0 ? kerf : 0);
-        bestBar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
+        bestBar.pieces.push({ uid: piece.uid, label: piece.label, sourceWindowRef: piece.sourceWindowRef, sourcePiece: piece.sourcePiece, modulo: piece.modulo, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
         bestBar.remaining -= needed;
         return true;
       }
@@ -1391,7 +1432,7 @@
         bars.push({
           length: stockLen,
           remaining: Math.max(0, stockLen - (Number(piece.length) || 0)),
-          pieces:[{ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }]
+          pieces:[{ uid: piece.uid, label: piece.label, sourceWindowRef: piece.sourceWindowRef, sourcePiece: piece.sourcePiece, modulo: piece.modulo, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }]
         });
         usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);
       }
@@ -1547,13 +1588,19 @@
     const plan = optimized && optimized.patterns ? buildPlanFromPatterns(optimized.patterns) : heuristicPlan();
 
     const cutSummary = Array.from(cutSummaryMap.entries()).map(([cutType, qty]) => ({ cutType, qty }));
+    pieceBreakdown.sort((a,b)=>
+      String(a.sourceWindowRef || '').localeCompare(String(b.sourceWindowRef || ''))
+      || String(a.label || '').localeCompare(String(b.label || ''))
+      || (Number(a.length) || 0) - (Number(b.length) || 0)
+    );
     return {
       id: material.id,
       name: material.name,
       profileFace: Number(material.profileFace || 40),
       bars: plan.bars,
       stockUsage: plan.stockUsage,
-      cutSummary
+      cutSummary,
+      pieceBreakdown
     };
   }
 
@@ -1810,7 +1857,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v2.2',
+      version: 'v2.5',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
@@ -2594,6 +2641,9 @@
         pieces: (Array.isArray(mat.pieces) ? mat.pieces : []).map((p, pidx) => ({
           id: uid(),
           label: String(p.label || ('Pieza ' + (pidx + 1))),
+          sourceWindowRef: String(p.sourceWindowRef || '').trim(),
+          sourcePiece: String(p.sourcePiece || p.label || ('Pieza ' + (pidx + 1))),
+          modulo: String(p.modulo || ''),
           length: Number(p.length) || 0,
           qty: Math.max(0, Number(p.qty) || 0),
           cutType: normalizeCutType(p.cutType || 'recto')
@@ -2614,6 +2664,7 @@
         name: String(external.name || 'Ventana CE'),
         createdAt: new Date().toISOString(),
         cutProgress: {},
+        meta: external.meta && typeof external.meta === 'object' ? JSON.parse(JSON.stringify(external.meta)) : {},
         materials: materials
       };
 
@@ -2663,24 +2714,8 @@
   }
 
   function installReturnButton(){
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = '← Ventanas';
-    btn.setAttribute('aria-label', 'Volver a la app de ventanas');
-    btn.style.position = 'fixed';
-    btn.style.right = '14px';
-    btn.style.top = 'auto';
-    btn.style.bottom = 'calc(54px + env(safe-area-inset-bottom, 0px) + 16px)';
-    btn.style.zIndex = '120';
-    btn.style.border = '0';
-    btn.style.borderRadius = '999px';
-    btn.style.padding = '10px 14px';
-    btn.style.fontSize = '14px';
-    btn.style.fontWeight = '700';
-    btn.style.background = '#1f78d1';
-    btn.style.color = '#fff';
-    btn.style.boxShadow = '0 6px 18px rgba(0,0,0,.18)';
-    btn.style.touchAction = 'manipulation';
+    const btn = document.getElementById('returnTabBtn');
+    if(!btn) return;
     btn.addEventListener('click', function(){
       const target = 'ventana.html';
       try{
@@ -2694,7 +2729,6 @@
       try{ returnUrl = localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
       location.href = returnUrl || target;
     }, { passive:true });
-    document.body.appendChild(btn);
   }
 
   window.__cmLoadExternalProject = importExternalProjectFromHost;
