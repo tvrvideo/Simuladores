@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" name="viewport"/>
-<title>Cut Máster v3.0</title>
+<title>Cut Máster v3.1</title>
 <style>
     :root{
       --bg:#f3eeee;
@@ -217,7 +217,7 @@
 <div class="app">
 <div class="topbar">
 <button aria-label="Inicio" class="icon-btn nav-home-btn" id="leftTopBtn">⌂</button>
-<div class="title" id="topTitle">Cut Máster v3.0</div>
+<div class="title" id="topTitle">Cut Máster v3.1</div>
 <button aria-label="Ajustes" class="icon-btn" id="rightTopBtn">⚙</button>
 </div>
 <section class="screen active" id="homeScreen">
@@ -425,7 +425,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v3.0');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v3.1');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -731,9 +731,9 @@
 
   function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap){
     const width = 980;
-    const height = 98;
-    const topY = 14;
-    const bottomY = 54;
+    const height = 88;
+    const topY = 11;
+    const bottomY = 48;
     const centerY = (topY + bottomY) / 2;
     const leftPad = 10;
     const usableWidth = width - 20;
@@ -966,7 +966,7 @@
     const legendItems = Array.from(legendMap.values());
     const legendCols = 2;
     const legendRowHeight = 32;
-    const legendTop = 76;
+    const legendTop = 66;
     const legendColWidth = 430;
     legendItems.forEach((item, idx) => {
       const col = idx % legendCols;
@@ -980,7 +980,7 @@
         : `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${cutTypeLabel(item.cutType)}`;
       legend.push(`<text x="${lx + 34}" y="${ly + 4}" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#2f241f">${escapeHtml(legendLabel)}</text>`);
     });
-    const totalHeight = 72 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 4 : 0);
+    const totalHeight = 62 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 3 : 0);
 
     return {
       width,
@@ -1844,7 +1844,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v3.0',
+      version: 'v3.1',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
@@ -2345,13 +2345,13 @@
     const projectTitleSize = 28;
     const materialTitleSize = 32;
     const materialGapBefore = 4;
-    const materialGapAfter = 8;
+    const materialGapAfter = 6;
     const barGapBefore = 2;
     const barTitleSize = 24;
     const barTitleOffset = 6;
     const qtySize = 30;
     const qtyYOffset = 22;
-    const afterBarGap = 3;
+    const afterBarGap = 1;
     const emptyMsgSize = 16;
     const PAGE_H_SVG = 1583.989;
 
@@ -2413,7 +2413,7 @@
 
         const headY = y + 8;
         const metricsY = headY + 10;
-        const sketchY = metricsY + 5;
+        const sketchY = metricsY + 3;
         const qtyY = sketchY + qtyYOffset;
         const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
