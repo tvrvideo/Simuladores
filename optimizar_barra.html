@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.6</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" name="viewport"/>
+<title>Cut Máster v3.0</title>
+<style>
     :root{
       --bg:#f3eeee;
       --panel:#ffffff;
@@ -28,7 +29,7 @@
     .topbar{position:sticky;top:0;z-index:20;height:34px;background:#d7e6d1;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #c8d7c3}
     .topbar .title{font-size:18px;font-weight:700;text-align:center;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
     .icon-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .nav-home-btn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;margin-left:92px;border:2px solid rgba(47,36,31,.18);background:rgba(255,255,255,.34)}
+    .nav-home-btn{width:40px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;margin-left:92px;border:2px solid rgba(47,36,31,.18);background:rgba(255,255,255,.34)}
     .icon-btn:active,.primary-btn:active,.soft-btn:active,.tab:active{transform:scale(.985)}
     .screen{display:none;padding:10px 12px 74px}
     #resultsScreen{padding-bottom:170px}
@@ -99,7 +100,7 @@
     .bar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:16px;font-weight:700;margin:0 0 4px;color:#3c312b}
     .bar-head-title{display:inline-block}
     .bar-metrics{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:4px 9px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:12px;font-weight:800;line-height:1.1;color:#3c312b}
+    .bar-chip{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:4px 9px;border-radius:8px;background:#efe8e2;border:1px solid #ddd2c8;font-size:12px;font-weight:800;line-height:1.1;color:#3c312b}
     .bar-chip.waste{background:#e4e4e4;border-color:#cfcfcf}
     .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}
     .bar-sketch-wrap{position:relative}
@@ -134,7 +135,7 @@
     .selection-pending-number{font-size:34px;font-weight:900;line-height:1}
     .selection-pending-label{font-size:13px;font-weight:700;line-height:1.05;opacity:.95;padding-bottom:3px}
     .selection-toast-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .selection-count-btn{width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;flex-shrink:0}
+    .selection-count-btn{width:40px;height:22px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;touch-action:manipulation;flex-shrink:0}
     .selection-count-btn:active,.selection-toast-btn:active{transform:scale(.97)}
     .selection-toast-btn{border:none;background:transparent;color:#fff;font-size:16px;font-weight:700;padding:8px 6px;flex-shrink:0}
     .floating-return-btn{position:fixed;right:12px;bottom:calc(54px + env(safe-area-inset-bottom, 0px) + 80px);z-index:120;border:0;border-radius:999px;padding:9px 15px;font-size:14px;font-weight:700;background:#1f78d1;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.18);touch-action:manipulation;display:none}
@@ -212,129 +213,115 @@
   </style>
 </head>
 <body>
-
-<button id="legacyBackBtn" class="btn-menu" type="button" aria-label="Volver al menú">← MENÚ</button>
+<button aria-label="Volver al menú" class="btn-menu" id="legacyBackBtn" type="button">← MENÚ</button>
 <div class="app">
-  <div class="topbar">
-    <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.6</div>
-    <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
-  </div>
-
-  <section id="homeScreen" class="screen active">
-    <div class="hero">Crea un proyecto nuevo o abre uno existente.</div>
-    <div class="project-create">
-      <div class="field">
-        
-        <input id="newProjectInput" class="input" type="text" placeholder="Nuevo proyecto" inputmode="text" />
-      </div>
-      <button id="createProjectBtn" class="confirm-btn" aria-label="Crear proyecto">✓</button>
-    </div>
-
-    <button class="section-btn" id="loadProjectBtn">Proyectos</button>
-    <div class="card" style="margin-top:2px">
-      <div id="projectsList"></div>
-    </div>
-
-    <div class="bottom-actions" style="display:none"></div>
-  </section>
-
-  <section id="piecesScreen" class="screen">
-    <div class="header-title">Introducir piezas del proyecto</div>
-    <div id="piecesContent"></div>
-    <div class="primary-row-btns">
-      <button class="primary-btn" id="addLinearBtn">Nueva barra</button>
-    </div>
-  </section>
-
-  <section id="stockScreen" class="screen">
-    <div class="toolbar">
-      <div class="header-title" style="margin:0">Introducir stock</div>
-      <button class="pill" id="applyDefaultStockBtn">Aplicar stock por defecto</button>
-    </div>
-    <div id="stockContent"></div>
-  </section>
-
-  <section id="resultsScreen" class="screen">
-    <div class="results-tabs">
-      <button class="results-tab active" data-result-tab="diagram">Diagrama de corte</button>
-      <button class="results-tab" data-result-tab="list">Lista de material</button>
-    </div>
-    <div id="resultsSummary" class="summary"></div>
-    <div class="results-export-bar">
-      <button id="toggleColorCutsBtn" class="export-btn secondary">Colores por medida: OFF</button>
-      <button id="exportPngBtn" class="export-btn secondary">Exportar PNG</button>
-      <button id="exportPdfBtn" class="export-btn">Exportar PDF editable</button>
-    </div>
-    <div id="exportStatus" class="export-status"></div>
-    <a id="manualDownloadLink" class="manual-download-link" href="#" download>Descarga manual</a>
-    <div id="diagramPanel" class="result-panel active"></div>
-    <div id="listPanel" class="result-panel"></div>
-    <div class="footer-space"></div>
-  </section>
-
-  <section id="settingsScreen" class="screen">
-    <div class="header-title">Ajustes</div>
-    <div class="settings-grid">
-      <div class="setting-card">
-        <h4>Unidad de medida</h4>
-        <select id="unitSelect" class="setting-select">
-          <option value="mm">mm</option>
-          <option value="cm">cm</option>
-        </select>
-        <div class="setting-line">Por defecto en mm, con opción de cambiar a cm.</div>
-      </div>
-      <div class="setting-card">
-        <h4>Ancho de corte</h4>
-        <input id="kerfInput" class="setting-input" type="number" min="0" step="0.1" inputmode="decimal" />
-        <div class="setting-line">Valor editable. Se aplica en la optimización.</div>
-      </div>
-      <div class="setting-card">
-        <h4>Stock por defecto</h4>
-        <div class="setting-line">Guarda el stock actual del proyecto abierto como base para los próximos proyectos.</div>
-        <div class="setting-actions">
-          <button id="defaultStockBtn" class="soft-btn">Guardar stock por defecto</button>
-        </div>
-      </div>
-      <div class="setting-card">
-        <h4>Proyectos JSON</h4>
-        <div class="setting-line">Exporta o importa todos los proyectos guardados en un archivo .json.</div>
-        <div class="setting-actions">
-          <button id="exportJsonBtn" class="soft-btn">Exportar .json</button>
-          <button id="importJsonBtn" class="soft-btn">Importar .json</button>
-          <input id="importJsonInput" type="file" accept="application/json,.json" style="display:none" />
-        </div>
-      </div>
-
-    </div>
-    <div class="setting-save">
-      <button id="saveSettingsBtn" class="soft-btn">Guardar ajustes</button>
-    </div>
-  </section>
-
-  <div id="bottomTabs" class="tabs" style="display:none">
-    <button class="tab active" data-screen="piecesScreen">Piezas</button>
-    <button class="tab" data-screen="stockScreen">Stock</button>
-    <button class="tab" data-screen="resultsScreen">Resultados</button>
-    <button id="returnTabBtn" type="button" class="return-tab-btn">← Ventanas</button>
-  </div>
+<div class="topbar">
+<button aria-label="Inicio" class="icon-btn nav-home-btn" id="leftTopBtn">⌂</button>
+<div class="title" id="topTitle">Cut Máster v3.0</div>
+<button aria-label="Ajustes" class="icon-btn" id="rightTopBtn">⚙</button>
 </div>
-
-
-  <div id="appModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div id="modalTitle" class="modal-title"></div>
-      <div id="modalText" class="modal-text"></div>
-      <div id="modalFieldWrap" style="display:none">
-        <input id="modalInput" class="setting-input" type="text" inputmode="text" />
-      </div>
-      <div class="modal-actions">
-        <button id="modalCancelBtn" type="button" class="modal-btn secondary">Cancelar</button>
-        <button id="modalOkBtn" type="button" class="modal-btn">Aceptar</button>
-      </div>
-    </div>
-  </div>
-
+<section class="screen active" id="homeScreen">
+<div class="hero">Crea un proyecto nuevo o abre uno existente.</div>
+<div class="project-create">
+<div class="field">
+<input class="input" id="newProjectInput" inputmode="text" placeholder="Nuevo proyecto" type="text"/>
+</div>
+<button aria-label="Crear proyecto" class="confirm-btn" id="createProjectBtn">✓</button>
+</div>
+<button class="section-btn" id="loadProjectBtn">Proyectos</button>
+<div class="card" style="margin-top:2px">
+<div id="projectsList"></div>
+</div>
+<div class="bottom-actions" style="display:none"></div>
+</section>
+<section class="screen" id="piecesScreen">
+<div class="header-title">Introducir piezas del proyecto</div>
+<div id="piecesContent"></div>
+<div class="primary-row-btns">
+<button class="primary-btn" id="addLinearBtn">Nueva barra</button>
+</div>
+</section>
+<section class="screen" id="stockScreen">
+<div class="toolbar">
+<div class="header-title" style="margin:0">Introducir stock</div>
+<button class="pill" id="applyDefaultStockBtn">Aplicar stock por defecto</button>
+</div>
+<div id="stockContent"></div>
+</section>
+<section class="screen" id="resultsScreen">
+<div class="results-tabs">
+<button class="results-tab active" data-result-tab="diagram">Diagrama de corte</button>
+<button class="results-tab" data-result-tab="list">Lista de material</button>
+</div>
+<div class="summary" id="resultsSummary"></div>
+<div class="results-export-bar">
+<button class="export-btn secondary" id="toggleColorCutsBtn">Colores por medida: OFF</button>
+<button class="export-btn secondary" id="exportPngBtn">Exportar PNG</button>
+<button class="export-btn" id="exportPdfBtn">Exportar PDF editable</button>
+</div>
+<div class="export-status" id="exportStatus"></div>
+<a class="manual-download-link" download="" href="#" id="manualDownloadLink">Descarga manual</a>
+<div class="result-panel active" id="diagramPanel"></div>
+<div class="result-panel" id="listPanel"></div>
+<div class="footer-space"></div>
+</section>
+<section class="screen" id="settingsScreen">
+<div class="header-title">Ajustes</div>
+<div class="settings-grid">
+<div class="setting-card">
+<h4>Unidad de medida</h4>
+<select class="setting-select" id="unitSelect">
+<option value="mm">mm</option>
+<option value="cm">cm</option>
+</select>
+<div class="setting-line">Por defecto en mm, con opción de cambiar a cm.</div>
+</div>
+<div class="setting-card">
+<h4>Ancho de corte</h4>
+<input class="setting-input" id="kerfInput" inputmode="decimal" min="0" step="0.1" type="number"/>
+<div class="setting-line">Valor editable. Se aplica en la optimización.</div>
+</div>
+<div class="setting-card">
+<h4>Stock por defecto</h4>
+<div class="setting-line">Guarda el stock actual del proyecto abierto como base para los próximos proyectos.</div>
+<div class="setting-actions">
+<button class="soft-btn" id="defaultStockBtn">Guardar stock por defecto</button>
+</div>
+</div>
+<div class="setting-card">
+<h4>Proyectos JSON</h4>
+<div class="setting-line">Exporta o importa todos los proyectos guardados en un archivo .json.</div>
+<div class="setting-actions">
+<button class="soft-btn" id="exportJsonBtn">Exportar .json</button>
+<button class="soft-btn" id="importJsonBtn">Importar .json</button>
+<input accept="application/json,.json" id="importJsonInput" style="display:none" type="file"/>
+</div>
+</div>
+</div>
+<div class="setting-save">
+<button class="soft-btn" id="saveSettingsBtn">Guardar ajustes</button>
+</div>
+</section>
+<div class="tabs" id="bottomTabs" style="display:none">
+<button class="tab active" data-screen="piecesScreen">Piezas</button>
+<button class="tab" data-screen="stockScreen">Stock</button>
+<button class="tab" data-screen="resultsScreen">Resultados</button>
+<button class="return-tab-btn" id="returnTabBtn" type="button">← Ventanas</button>
+</div>
+</div>
+<div aria-hidden="true" class="modal-backdrop" id="appModal">
+<div aria-labelledby="modalTitle" aria-modal="true" class="modal-card" role="dialog">
+<div class="modal-title" id="modalTitle"></div>
+<div class="modal-text" id="modalText"></div>
+<div id="modalFieldWrap" style="display:none">
+<input class="setting-input" id="modalInput" inputmode="text" type="text"/>
+</div>
+<div class="modal-actions">
+<button class="modal-btn secondary" id="modalCancelBtn" type="button">Cancelar</button>
+<button class="modal-btn" id="modalOkBtn" type="button">Aceptar</button>
+</div>
+</div>
+</div>
 <script>
 (function(){
   'use strict';
@@ -438,7 +425,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.6');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v3.0');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -743,13 +730,13 @@
   }
 
   function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap){
-    const width = 900;
-    const height = 118;
-    const topY = 18;
-    const bottomY = 68;
+    const width = 980;
+    const height = 98;
+    const topY = 14;
+    const bottomY = 54;
     const centerY = (topY + bottomY) / 2;
-    const leftPad = 16;
-    const usableWidth = width - 32;
+    const leftPad = 10;
+    const usableWidth = width - 20;
     const endX = leftPad + usableWidth;
     const barLength = Math.max(1, Number(bar.length) || 1);
     const faceMm = Math.max(1, Number(profileFace) || 40);
@@ -978,22 +965,22 @@
 
     const legendItems = Array.from(legendMap.values());
     const legendCols = 2;
-    const legendRowHeight = 46;
-    const legendTop = 104;
+    const legendRowHeight = 32;
+    const legendTop = 76;
     const legendColWidth = 430;
     legendItems.forEach((item, idx) => {
       const col = idx % legendCols;
       const row = Math.floor(idx / legendCols);
       const lx = leftPad + (col * legendColWidth);
       const ly = legendTop + (row * legendRowHeight);
-      legend.push(`<rect x="${lx}" y="${ly - 22}" width="34" height="34" rx="5" ry="5" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
+      legend.push(`<rect x="${lx}" y="${ly - 15}" width="24" height="24" rx="4" ry="4" fill="${item.color}" stroke="#433630" stroke-width="1.4" />`);
       const legendRef = String(item.sourceWindowRef || '').trim();
       const legendLabel = legendRef
         ? `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${legendRef} · ${cutTypeLabel(item.cutType)}`
         : `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${cutTypeLabel(item.cutType)}`;
-      legend.push(`<text x="${lx + 48}" y="${ly + 8}" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f241f">${escapeHtml(legendLabel)}</text>`);
+      legend.push(`<text x="${lx + 34}" y="${ly + 4}" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#2f241f">${escapeHtml(legendLabel)}</text>`);
     });
-    const totalHeight = 96 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 6 : 0);
+    const totalHeight = 72 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 4 : 0);
 
     return {
       width,
@@ -1857,7 +1844,7 @@
   async function exportProjects(){
     const data = {
       app: 'Cut Master',
-      version: 'v2.5',
+      version: 'v3.0',
       projects: state.projects,
       defaultStock: state.defaultStock,
       settings: state.settings,
@@ -2349,22 +2336,22 @@
     if(!result.materials.length) return null;
 
     const width = 1120;
-    const pagePadX = 28;
-    const contentX = 190;
-    const labelX = 34;
+    const pagePadX = 12;
+    const contentX = 64;
+    const labelX = 14;
 
     const topPad = 18;
     const pageBottomPad = 18;
     const projectTitleSize = 28;
-    const materialTitleSize = 40;
+    const materialTitleSize = 32;
     const materialGapBefore = 4;
-    const materialGapAfter = 12;
-    const barGapBefore = 6;
+    const materialGapAfter = 8;
+    const barGapBefore = 2;
     const barTitleSize = 24;
-    const barTitleOffset = 14;
+    const barTitleOffset = 6;
     const qtySize = 30;
-    const qtyYOffset = 30;
-    const afterBarGap = 8;
+    const qtyYOffset = 22;
+    const afterBarGap = 3;
     const emptyMsgSize = 16;
     const PAGE_H_SVG = 1583.989;
 
@@ -2409,7 +2396,7 @@
       y = ensureBlockFits(y, materialBlockHeight);
 
       y += materialGapBefore;
-      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
+      parts.push('<text x="' + (contentX - 12) + '" y="' + (y + 3) + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" text-anchor="start" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
       y += materialGapAfter;
 
       if(!mat.bars.length){
@@ -2424,15 +2411,15 @@
         y = ensureBlockFits(y, blockHeight);
         y += barGapBefore;
 
-        const headY = y;
-        const metricsY = headY + 20;
-        const sketchY = metricsY + 10;
+        const headY = y + 8;
+        const metricsY = headY + 10;
+        const sketchY = metricsY + 5;
         const qtyY = sketchY + qtyYOffset;
         const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
-        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
-        parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
-        parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
+        parts.push('<text x="' + (contentX + 26) + '" y="' + (headY + 8) + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
+        parts.push('<g transform="translate(' + (contentX + 120) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
+        parts.push('<g transform="translate(' + (contentX + 260) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
         parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">1x</text>');
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
