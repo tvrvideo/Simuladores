@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v86.0</title>
-    <!-- v86.0: Base estable con lista de fabricación visible en 600, Ventana CE/COR-2300, Nicho y Telefonillo. Añade despiece real de Telefonillo con marco y hoja a 45° y cristal descontado. -->
+    <title>Ventana Pro v86.9</title>
+    <!-- v86.9: Corrige sub-hojas para que "fija" dibuje solo una X y el resto de aperturas vuelvan a mostrarse bien en todos los huecos, incluido fijo superior. -->
     <style>
 
         body {
@@ -542,7 +542,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v86.2"><span class="title-main">Ventana Pro</span><span class="title-version">v86.2</span></div>
+<div class="top-title" aria-label="Ventana Pro v86.9"><span class="title-main">Ventana Pro</span><span class="title-version">v86.8</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -2515,6 +2515,38 @@ function cambiarColorMarco(c) {
         const keys = Object.keys(subHojas || {});
         if(keys.length === 0) return;
 
+        function getPolyBounds(poly) {
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            poly.forEach(p => {
+                if (p.x < minX) minX = p.x;
+                if (p.x > maxX) maxX = p.x;
+                if (p.y < minY) minY = p.y;
+                if (p.y > maxY) maxY = p.y;
+            });
+            return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
+        }
+
+        function normalizarPolyHoja(poly) {
+            if (!Array.isArray(poly) || poly.length < 3) return [];
+            if (poly.length <= 4) return poly.map(p => ({ x: p.x, y: p.y }));
+
+            // En huecos poligonales del fijo superior, convertimos el contorno a 4 esquinas
+            // para que la hoja se vea como una hoja normal de la serie.
+            let tl = null, tr = null, br = null, bl = null;
+            let minXY = Infinity, maxXY = -Infinity, maxXMinY = -Infinity, minXMinY = Infinity;
+            poly.forEach(p => {
+                const xy = p.x + p.y;
+                const xmy = p.x - p.y;
+                if (xy < minXY) { minXY = xy; tl = p; }
+                if (xy > maxXY) { maxXY = xy; br = p; }
+                if (xmy > maxXMinY) { maxXMinY = xmy; tr = p; }
+                if (xmy < minXMinY) { minXMinY = xmy; bl = p; }
+            });
+            const quad = [tl, tr, br, bl].filter(Boolean).map(p => ({ x: p.x, y: p.y }));
+            if (quad.length === 4) return quad;
+            return poly.slice(0, 4).map(p => ({ x: p.x, y: p.y }));
+        }
+
         keys.forEach(key=>{
             const cfg = subHojas[key];
             if(!cfg) return;
@@ -2523,23 +2555,73 @@ function cambiarColorMarco(c) {
             for (let i=0; i<zonasInteractivas.length; i++) {
                 if(zonaKey(zonasInteractivas[i].data) === key) { zona = zonasInteractivas[i]; break; }
             }
-            if(!zona || !zona.poly || zona.poly.length < 4) return;
+            if(!zona || !zona.poly || zona.poly.length < 3) return;
 
-            const poly = zona.poly.slice(0, 4);
+            const clipPoly = Array.isArray(zona.poly) ? zona.poly.map(p => ({ x: p.x, y: p.y })) : [];
+            if (clipPoly.length < 3) return;
+
+            const drawPoly = normalizarPolyHoja(clipPoly);
+            if (drawPoly.length < 4) return;
+
             const ap = cfg.apertura || 'derecha';
             const strokeColor = getBordeHojaColor();
             const strokeWidth = getBordeHojaGrosor();
             const framePad = Math.max(2, hojaThickness * esc);
-            const glassPoly = _insetConvexPolyExact(poly, framePad);
-
+            const glassPoly = _insetConvexPolyExact(drawPoly, framePad);
             if (!glassPoly || glassPoly.length < 4) return;
+
+            const outerBounds = getPolyBounds(drawPoly);
+            const innerBounds = getPolyBounds(glassPoly);
+            const minX = innerBounds.minX;
+            const maxX = innerBounds.maxX;
+            const minY = innerBounds.minY;
+            const maxY = innerBounds.maxY;
+            const boxW = innerBounds.width;
+            const boxH = innerBounds.height;
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+
+            const p1 = glassPoly[0];
+            const p2 = glassPoly[1];
+            const p3 = glassPoly[2];
+            const p4 = glassPoly[3];
 
             ctx.save();
 
-            // Hoja exterior ocupando exactamente el hueco
+            if (ap === 'fija') {
+                // Solo X, sin dibujar hoja
+                ctx.beginPath();
+                ctx.moveTo(clipPoly[0].x, clipPoly[0].y);
+                for(let k=1;k<clipPoly.length;k++) ctx.lineTo(clipPoly[k].x, clipPoly[k].y);
+                ctx.closePath();
+                ctx.clip();
+
+                const crossPad = Math.max(4, Math.min(boxW, boxH) * 0.12);
+                const x1 = minX + crossPad;
+                const x2 = maxX - crossPad;
+                const y1 = minY + crossPad;
+                const y2 = maxY - crossPad;
+
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = Math.max(2.2, strokeWidth * 0.6);
+                ctx.lineCap = 'round';
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.moveTo(x2, y1);
+                ctx.lineTo(x1, y2);
+                ctx.stroke();
+
+                ctx.restore();
+                return;
+            }
+
+            // Hoja exterior dibujada con geometría "normal" para que en el fijo superior
+            // no salga más gruesa que una hoja del resto de la serie.
             ctx.beginPath();
-            ctx.moveTo(poly[0].x, poly[0].y);
-            for(let k=1;k<poly.length;k++) ctx.lineTo(poly[k].x, poly[k].y);
+            ctx.moveTo(drawPoly[0].x, drawPoly[0].y);
+            for(let k=1;k<drawPoly.length;k++) ctx.lineTo(drawPoly[k].x, drawPoly[k].y);
             ctx.closePath();
             ctx.fillStyle = colorMarco;
             ctx.fill();
@@ -2547,17 +2629,11 @@ function cambiarColorMarco(c) {
             ctx.lineWidth = strokeWidth;
             ctx.stroke();
 
-            // Cristal interior con el mismo retranqueo que una hoja normal
             _dibujarCristalPoligono(ctx, glassPoly, colorCristalGlobal);
 
-            const p1 = glassPoly[0];
-            const p2 = glassPoly[1];
-            const p3 = glassPoly[2];
-            const p4 = glassPoly[3];
-            const centerX = (p1.x + p2.x) / 2;
             const centerYTop = (p1.y + p2.y) / 2;
             const centerYBot = (p3.y + p4.y) / 2;
-            const centerY = (centerYTop + centerYBot) / 2;
+            const centerYMid = (centerYTop + centerYBot) / 2;
 
             ctx.strokeStyle = '#0074D9';
             ctx.lineWidth = 1.8;
@@ -2565,14 +2641,14 @@ function cambiarColorMarco(c) {
             if (ap === "izquierda" || ap === "izq-ob") {
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, centerY);
+                ctx.lineTo(p2.x, centerYMid);
                 ctx.lineTo(p4.x, p4.y);
                 ctx.closePath();
                 ctx.stroke();
             } else if (ap === "derecha" || ap === "der-ob") {
                 ctx.beginPath();
                 ctx.moveTo(p2.x, p2.y);
-                ctx.lineTo(p1.x, centerY);
+                ctx.lineTo(p1.x, centerYMid);
                 ctx.lineTo(p3.x, p3.y);
                 ctx.closePath();
                 ctx.stroke();
@@ -2590,50 +2666,42 @@ function cambiarColorMarco(c) {
                 ctx.lineTo(p4.x, p4.y);
                 ctx.closePath();
                 ctx.stroke();
+            } else if (ap === "corredera") {
+                ctx.beginPath();
+                ctx.moveTo(minX + boxW * 0.18, centerYMid);
+                ctx.lineTo(maxX - boxW * 0.18, centerYMid);
+                ctx.stroke();
             }
 
-            const minX = Math.min(p1.x,p2.x,p3.x,p4.x);
-            const maxX = Math.max(p1.x,p2.x,p3.x,p4.x);
-            const minY = Math.min(p1.y,p2.y,p3.y,p4.y);
-            const maxY = Math.max(p1.y,p2.y,p3.y,p4.y);
-            const boxW = maxX-minX;
-            const boxH = maxY-minY;
-
             if(cfg.bisagras) {
-                if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, minX, minY, boxH, 'izquierda', 'black');
-                else if(ap === 'derecha' || ap === 'der-ob') dibujarBisagras(ctx, maxX, minY, boxH, 'derecha', 'black');
-                else if(ap === 'proyectante') dibujarBisagras(ctx, minX, minY, boxW, 'arriba', 'black');
-                else if(ap === 'abatible-inf') dibujarBisagras(ctx, minX, maxY, boxW, 'abajo', 'black');
+                if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, outerBounds.minX, outerBounds.minY, outerBounds.height, 'izquierda', 'black');
+                else if(ap === 'derecha' || ap === 'der-ob') dibujarBisagras(ctx, outerBounds.maxX, outerBounds.minY, outerBounds.height, 'derecha', 'black');
+                else if(ap === 'proyectante') dibujarBisagras(ctx, outerBounds.minX, outerBounds.minY, outerBounds.width, 'arriba', 'black');
+                else if(ap === 'abatible-inf') dibujarBisagras(ctx, outerBounds.minX, outerBounds.maxY, outerBounds.width, 'abajo', 'black');
             }
 
             if(cfg.manilla) {
-                const outerMinX = Math.min(poly[0].x, poly[1].x, poly[2].x, poly[3].x);
-                const outerMaxX = Math.max(poly[0].x, poly[1].x, poly[2].x, poly[3].x);
-                const outerMinY = Math.min(poly[0].y, poly[1].y, poly[2].y, poly[3].y);
-                const outerMaxY = Math.max(poly[0].y, poly[1].y, poly[2].y, poly[3].y);
-
                 let mx=minX+boxW/2, my=minY+boxH/2;
                 let vertical=true;
 
-                // La manilla debe apoyarse sobre el larguero de hoja, no sobre el cristal.
                 if (ap === "izquierda" || ap === "izq-ob") {
-                    mx = (outerMaxX + maxX) / 2;
+                    mx = (outerBounds.maxX + maxX) / 2;
                     my = minY + boxH/2;
                     vertical = true;
                 }
                 else if (ap === "derecha" || ap === "der-ob") {
-                    mx = (outerMinX + minX) / 2;
+                    mx = (outerBounds.minX + minX) / 2;
                     my = minY + boxH/2;
                     vertical = true;
                 }
                 else if (ap === "proyectante") {
                     mx = minX + boxW/2;
-                    my = (outerMaxY + maxY) / 2;
+                    my = (outerBounds.maxY + maxY) / 2;
                     vertical = false;
                 }
                 else if (ap === "abatible-inf") {
                     mx = minX + boxW/2;
-                    my = (outerMinY + minY) / 2;
+                    my = (outerBounds.minY + minY) / 2;
                     vertical = false;
                 }
 
@@ -2643,7 +2711,6 @@ function cambiarColorMarco(c) {
             ctx.restore();
         });
     }
-
 
     function getCurvedY(x, x0, y0, x1, y1, x2, y2) {
         const t = (x - x0) / (x2 - x0);
@@ -5264,7 +5331,7 @@ if (mostrarAltoTotalDer) {
         const junqH = hojaWidth - 119;
         const junqV = hojaHeight - 142;
         pushPiezaDespiece600(piezas, perfilHoja, 'Hoja horizontal ' + etiqueta, hojaWidth, 2, '45°', etiqueta);
-        pushPiezaDespiece600(piezas, perfilHoja, 'Hoja vertical ' + etiqueta, hojaHeight, 2, '45°', etiqueta);
+        pushPiezaDespiece600(piezas, perfilHoja, 'Hoja vertical ' + etiqueta, hojaHeight, 2, conMarcoInferior ? '45°' : '45°/Recto', etiqueta);
         pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo horizontal ' + etiqueta, junqH, 2, 'Recto', etiqueta);
         pushPiezaDespiece600(piezas, 'Junquillo 600', 'Junquillo vertical ' + etiqueta, junqV, 2, 'Recto', etiqueta);
 
@@ -5986,6 +6053,9 @@ if (mostrarAltoTotalDer) {
         if (esSerie600Seleccionada()) {
             data = window.__ultimoDespiece600 || generarDespiece600();
             serieNombre = 'Ventana 600';
+        } else if (typeof esSeriePuerta800Seleccionada === 'function' && esSeriePuerta800Seleccionada()) {
+            data = window.__ultimoDespiecePuerta800 || generarDespiecePuerta800();
+            serieNombre = 'Puerta 800';
         } else if (esSerieNichoSeleccionada()) {
             data = window.__ultimoDespieceNicho || generarDespieceNicho();
             serieNombre = 'Nicho';
@@ -6013,7 +6083,7 @@ if (mostrarAltoTotalDer) {
                 label: p.pieza || ('Pieza ' + (idx + 1)),
                 length: Number(p.length) || 0,
                 qty: Number(p.qty) || 0,
-                cutType: String(p.cutType || '').toLowerCase().includes('45') ? '45' : 'recto'
+                cutType: normalizeCutType(p.cutType || 'recto')
             });
         });
 
@@ -6371,7 +6441,17 @@ if (mostrarAltoTotalDer) {
   }
 
   function normalizeCutType(cutType){
-    const raw = String(cutType || '').toLowerCase();
+    const raw = String(cutType == null ? '' : cutType).trim().toLowerCase();
+    if(!raw) return 'recto';
+    if(raw === 'recto' || raw === 'recto/recto' || raw === 'recto / recto') return 'recto';
+    if(raw === '45-45' || raw === '45°' || raw === '45' || raw === '45/45' || raw === '45 / 45' || raw === '45°/45°' || raw === '45° / 45°') return '45-45';
+    if(raw === '45-recto' || raw === '45/recto' || raw === '45 / recto' || raw === '45°/recto' || raw === '45° / recto' || raw === '45°/recto abajo' || raw === '45° / recto abajo') return '45-recto';
+    if(raw === 'recto-45' || raw === 'recto/45' || raw === 'recto / 45' || raw === 'recto/45°' || raw === 'recto / 45°') return 'recto-45';
+    if(raw.includes('45') && raw.includes('rect')){
+      const pos45 = raw.indexOf('45');
+      const posRect = raw.indexOf('rect');
+      return pos45 <= posRect ? '45-recto' : 'recto-45';
+    }
     if(raw.includes('45')) return '45-45';
     return 'recto';
   }
