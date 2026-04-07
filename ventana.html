@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v87.0</title>
-    <!-- v87.0: Puerta 800 sin marco inferior mantiene la HOJA con 4 cortes a 45°; solo el MARCO vertical pasa a 45°/Recto. -->
+    <title>Ventana Pro v88.2</title>
+    <!-- v88.2: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
         body {
@@ -542,7 +542,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v87.0"><span class="title-main">Ventana Pro</span><span class="title-version">v87.0</span></div>
+<div class="top-title" aria-label="Ventana Pro v88.2"><span class="title-main">Ventana Pro</span><span class="title-version">v88.2</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1405,6 +1405,177 @@ function cambiarColorMarco(c) {
             }
         }
         return normalizados;
+    }
+
+    function calcularFontSizeTextoCota(ctx, texto, anchoDisponible, maxFontSize, minFontSize) {
+        const anchoUtil = Math.max(12, Number(anchoDisponible) || 0);
+        let size = Math.max(minFontSize, maxFontSize);
+        while (size > minFontSize) {
+            ctx.font = `${size}px Arial`;
+            if (ctx.measureText(texto).width <= anchoUtil) break;
+            size -= 1;
+        }
+        return Math.max(minFontSize, size);
+    }
+
+    function dibujarTextosCotaHorizontales(ctx, segmentos, baseY) {
+        if (!segmentos || !segmentos.length) return;
+
+        const maxFontSize = 70;
+        const minFontSize = 26;
+        const minFontSizeLaterales = 18;
+        const paddingInterior = 12;
+        const separacionMinima = 10;
+        const saltoFila = 34;
+        const filas = [[], []];
+        const layout = [];
+
+        const segmentosOrdenados = [...segmentos].sort((a, b) => a.x1 - b.x1);
+
+        function construirCaja(seg, fontSize) {
+            ctx.font = `${fontSize}px Arial`;
+            const textWidth = ctx.measureText(seg.texto).width;
+            const centroIdeal = (seg.x1 + seg.x2) / 2;
+            const minCx = seg.x1 + paddingInterior + (textWidth / 2);
+            const maxCx = seg.x2 - paddingInterior - (textWidth / 2);
+            let cx = centroIdeal;
+            if (minCx <= maxCx) cx = Math.max(minCx, Math.min(maxCx, centroIdeal));
+            return {
+                cx,
+                textWidth,
+                caja: { left: cx - (textWidth / 2), right: cx + (textWidth / 2) }
+            };
+        }
+
+        segmentosOrdenados.forEach((seg, index) => {
+            const anchoSegmento = Math.max(18, (seg.x2 - seg.x1) - (paddingInterior * 2));
+            const esLateralExtremo = (index === 0 || index === segmentosOrdenados.length - 1);
+            let fontSize = calcularFontSizeTextoCota(ctx, seg.texto, anchoSegmento, maxFontSize, minFontSize);
+            let { cx, textWidth, caja } = construirCaja(seg, fontSize);
+
+            const ultimaFila0 = filas[0][filas[0].length - 1];
+            if (esLateralExtremo && ultimaFila0) {
+                while (fontSize > minFontSizeLaterales && caja.left < ultimaFila0.right + separacionMinima) {
+                    fontSize -= 1;
+                    ({ cx, textWidth, caja } = construirCaja(seg, fontSize));
+                }
+            }
+
+            let filaElegida = 0;
+            for (let fila = 0; fila < filas.length; fila++) {
+                const ultima = filas[fila][filas[fila].length - 1];
+                if (!ultima || caja.left >= ultima.right + separacionMinima) {
+                    filaElegida = fila;
+                    break;
+                }
+                if (fila === filas.length - 1) {
+                    filaElegida = fila;
+                    const nuevoLeft = ultima.right + separacionMinima;
+                    const nuevoRight = nuevoLeft + textWidth;
+                    const segmentoMin = seg.x1 + paddingInterior;
+                    const segmentoMax = seg.x2 - paddingInterior;
+                    if (nuevoRight <= segmentoMax) {
+                        cx = nuevoLeft + (textWidth / 2);
+                    } else if ((segmentoMax - segmentoMin) >= textWidth) {
+                        cx = segmentoMax - (textWidth / 2);
+                    }
+                    caja = { left: cx - (textWidth / 2), right: cx + (textWidth / 2) };
+                }
+            }
+
+            filas[filaElegida].push(caja);
+            layout.push({
+                texto: seg.texto,
+                cx,
+                y: baseY + (filaElegida * saltoFila),
+                fontSize
+            });
+        });
+
+        layout.forEach(item => {
+            ctx.font = `${item.fontSize}px Arial`;
+            ctx.fillText(item.texto, item.cx, item.y);
+        });
+    }
+
+
+    function dibujarTextosCotaVerticales(ctx, segmentos, config = {}) {
+        if (!segmentos || !segmentos.length) return;
+
+        const side = config.side === 'right' ? 'right' : 'left';
+        const baseX = Number(config.baseX) || 0;
+        const columnGap = Number(config.columnGap) || 26;
+        const maxFontSize = Number(config.maxFontSize) || 90;
+        const minFontSize = Number(config.minFontSize) || 22;
+        const minFontSizeExtremos = Number(config.minFontSizeExtremos) || 18;
+        const paddingInterior = Number(config.paddingInterior) || 12;
+        const separacionMinima = Number(config.separacionMinima) || 8;
+        const maxColumns = Number(config.maxColumns) || 3;
+
+        const columnas = Array.from({ length: maxColumns }, () => []);
+        const layout = [];
+        const segmentosOrdenados = [...segmentos].sort((a, b) => a.y1 - b.y1);
+
+        function construirCaja(seg, fontSize) {
+            ctx.font = `${fontSize}px Arial`;
+            const textWidth = ctx.measureText(seg.texto).width;
+            const centroIdeal = (seg.y1 + seg.y2) / 2;
+            const minCy = seg.y1 + paddingInterior + (textWidth / 2);
+            const maxCy = seg.y2 - paddingInterior - (textWidth / 2);
+            let cy = centroIdeal;
+            if (minCy <= maxCy) cy = Math.max(minCy, Math.min(maxCy, centroIdeal));
+            return {
+                cy,
+                textWidth,
+                caja: { top: cy - (textWidth / 2), bottom: cy + (textWidth / 2) }
+            };
+        }
+
+        segmentosOrdenados.forEach((seg, index) => {
+            const altoSegmento = Math.max(18, (seg.y2 - seg.y1) - (paddingInterior * 2));
+            const esExtremo = (index === 0 || index === segmentosOrdenados.length - 1);
+            let fontSize = calcularFontSizeTextoCota(ctx, seg.texto, altoSegmento, maxFontSize, minFontSize);
+            let { cy, textWidth, caja } = construirCaja(seg, fontSize);
+
+            const ultimaCol0 = columnas[0][columnas[0].length - 1];
+            if (esExtremo && ultimaCol0) {
+                while (fontSize > minFontSizeExtremos && caja.top < ultimaCol0.bottom + separacionMinima) {
+                    fontSize -= 1;
+                    ({ cy, textWidth, caja } = construirCaja(seg, fontSize));
+                }
+            }
+
+            let columnaElegida = 0;
+            for (let col = 0; col < columnas.length; col++) {
+                const ultima = columnas[col][columnas[col].length - 1];
+                if (!ultima || caja.top >= ultima.bottom + separacionMinima) {
+                    columnaElegida = col;
+                    break;
+                }
+                if (col === columnas.length - 1) {
+                    columnaElegida = col;
+                }
+            }
+
+            columnas[columnaElegida].push(caja);
+            const x = side === 'left' ? (baseX - (columnaElegida * columnGap)) : (baseX + (columnaElegida * columnGap));
+            layout.push({
+                texto: seg.texto,
+                x,
+                cy,
+                fontSize,
+                side
+            });
+        });
+
+        layout.forEach(item => {
+            ctx.font = `${item.fontSize}px Arial`;
+            ctx.save();
+            ctx.translate(item.x, item.cy);
+            ctx.rotate(item.side === 'left' ? -Math.PI / 2 : Math.PI / 2);
+            ctx.fillText(item.texto, 0, 0);
+            ctx.restore();
+        });
     }
 
     function ajustarAltosConFijos() {
@@ -3699,6 +3870,7 @@ function cambiarColorMarco(c) {
             const sideMeasureTextOffset = 18;
             const verticalMeasureXLeft = x0 - sideMeasureOffset;
             const verticalMeasureXRight = conjuntoXRight + sideMeasureOffset;
+            let segmentosCotaVerticalDer = [];
 
             let mx_altura_ventana_principal = verticalMeasureXLeft;
             let y_top_ventana_med_izq = mainWinY0 + (maxAltoPrincipalSidesMM * esc - altoIzqEsc);
@@ -3718,7 +3890,11 @@ function cambiarColorMarco(c) {
             ctx.lineTo(mx_altura_ventana_principal, y_bottom_ventana_med);
             ctx.stroke();
 
-            ctx.save(); ctx.translate(mx_altura_ventana_principal - sideMeasureTextOffset, y_top_ventana_med_izq + (y_bottom_ventana_med - y_top_ventana_med_izq) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(altoIzqMM.toString(), 0, 0); ctx.restore();
+            const segmentosCotaVerticalIzq = [{
+                y1: y_top_ventana_med_izq,
+                y2: y_bottom_ventana_med,
+                texto: altoIzqMM.toString()
+            }];
 
 // MEDIDA DCHA SOLO MARCO
 
@@ -3774,7 +3950,11 @@ function cambiarColorMarco(c) {
 
 //DASPLZAZA MEDIDA DCHA AZUL
 
-                ctx.save(); ctx.translate(mx_altura_der + sideMeasureTextOffset, y_top_der_med + (y_bottom_ventana_med - y_top_der_med) / 2); ctx.rotate(Math.PI / 2); ctx.fillText(altoDerMM.toString(), 0, 0); ctx.restore();
+                segmentosCotaVerticalDer = [{
+                    y1: y_top_der_med,
+                    y2: y_bottom_ventana_med,
+                    texto: altoDerMM.toString()
+                }];
             }
             
             if (hojas > 0) {
@@ -3841,51 +4021,7 @@ function cambiarColorMarco(c) {
 
                 segmentosCotaInferior.sort((a, b) => a.x1 - b.x1);
                 const baseTextoY = my + 60;
-                const maxFontSizeInferior = 70;
-                const minFontSizeInferior = 10;
-                const paddingInteriorTexto = 10;
-                const separacionMinimaTextos = 8;
-
-                let fontSizeInferiorGlobal = maxFontSizeInferior;
-                while (fontSizeInferiorGlobal > minFontSizeInferior) {
-                    ctx.font = `${fontSizeInferiorGlobal}px Arial`;
-                    let cabeTodo = true;
-
-                    for (let i = 0; i < segmentosCotaInferior.length; i++) {
-                        const seg = segmentosCotaInferior[i];
-                        const anchoDisponibleSegmento = Math.max(12, (seg.x2 - seg.x1) - paddingInteriorTexto * 2);
-                        const anchoTextoActual = ctx.measureText(seg.texto).width;
-
-                        if (anchoTextoActual > anchoDisponibleSegmento) {
-                            cabeTodo = false;
-                            break;
-                        }
-
-                        if (i < segmentosCotaInferior.length - 1) {
-                            const segSig = segmentosCotaInferior[i + 1];
-                            const centroActual = (seg.x1 + seg.x2) / 2;
-                            const centroSiguiente = (segSig.x1 + segSig.x2) / 2;
-                            const anchoTextoSiguiente = ctx.measureText(segSig.texto).width;
-                            const separacionCentros = centroSiguiente - centroActual;
-                            const separacionNecesaria = (anchoTextoActual / 2) + (anchoTextoSiguiente / 2) + separacionMinimaTextos;
-
-                            if (separacionCentros < separacionNecesaria) {
-                                cabeTodo = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (cabeTodo) break;
-                    fontSizeInferiorGlobal -= 1;
-                }
-
-                ctx.font = `${Math.max(minFontSizeInferior, fontSizeInferiorGlobal)}px Arial`;
-                segmentosCotaInferior.forEach(seg => {
-                    const cx = (seg.x1 + seg.x2) / 2;
-                    ctx.fillText(seg.texto, cx, baseTextoY);
-                });
-
+                dibujarTextosCotaHorizontales(ctx, segmentosCotaInferior, baseTextoY);
                 ctx.font = "70px Arial";
             }
 
@@ -4089,11 +4225,11 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 ctx.moveTo(fixedMeasureX + arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureX, fijoSupYBottom);
                 ctx.stroke();
                 
-                ctx.save();
-                ctx.translate(fixedMeasureX - sideMeasureTextOffset, fijoSupLeftYTop + (fijoSupYBottom - fijoSupLeftYTop) / 2);
-                ctx.rotate(-Math.PI / 2);
-                ctx.fillText(altoFijoSupIzqMM.toString(), 0, 0);
-                ctx.restore();
+                segmentosCotaVerticalIzq.push({
+                    y1: fijoSupLeftYTop,
+                    y2: fijoSupYBottom,
+                    texto: altoFijoSupIzqMM.toString()
+                });
                 
                 if (altoFijoSupIzqMM !== altoFijoSupDerMM) {
                     const fixedMeasureXRight = verticalMeasureXRight;
@@ -4111,11 +4247,11 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                     ctx.moveTo(fixedMeasureXRight + arrowSize, fijoSupYBottom - arrowSize); ctx.lineTo(fixedMeasureXRight, fijoSupYBottom);
                     ctx.stroke();
                     
-                    ctx.save();
-                    ctx.translate(fixedMeasureXRight + sideMeasureTextOffset, fijoSupRightYTop + (fijoSupYBottom - fijoSupRightYTop) / 2);
-                    ctx.rotate(Math.PI / 2);
-                    ctx.fillText(altoFijoSupDerMM.toString(), 0, 0);
-                    ctx.restore();
+                    segmentosCotaVerticalDer.push({
+                        y1: fijoSupRightYTop,
+                        y2: fijoSupYBottom,
+                        texto: altoFijoSupDerMM.toString()
+                    });
                 }
             }
 
@@ -4135,11 +4271,32 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 ctx.moveTo(fixedMeasureX + arrowSize, fijoInfY1Abs - arrowSize); ctx.lineTo(fixedMeasureX, fijoInfY1Abs);
                 ctx.stroke();
 
-                ctx.save();
-                ctx.translate(fixedMeasureX - sideMeasureTextOffset, fijoInfY0Abs + (fijoInfY1Abs - fijoInfY0Abs) / 2);
-                ctx.rotate(-Math.PI / 2);
-                ctx.fillText(altoFijoInferiorMM.toString(), 0, 0);
-                ctx.restore();
+                segmentosCotaVerticalIzq.push({
+                    y1: fijoInfY0Abs,
+                    y2: fijoInfY1Abs,
+                    texto: altoFijoInferiorMM.toString()
+                });
+            }
+
+            dibujarTextosCotaVerticales(ctx, segmentosCotaVerticalIzq, {
+                side: 'left',
+                baseX: verticalMeasureXLeft - sideMeasureTextOffset,
+                columnGap: 22,
+                maxFontSize: 90,
+                minFontSize: 22,
+                minFontSizeExtremos: 18,
+                maxColumns: 3
+            });
+            if (typeof segmentosCotaVerticalDer !== 'undefined' && segmentosCotaVerticalDer.length) {
+                dibujarTextosCotaVerticales(ctx, segmentosCotaVerticalDer, {
+                    side: 'right',
+                    baseX: verticalMeasureXRight + sideMeasureTextOffset,
+                    columnGap: 22,
+                    maxFontSize: 90,
+                    minFontSize: 22,
+                    minFontSizeExtremos: 18,
+                    maxColumns: 3
+                });
             }
             
             let alturaTotalSinPersianaMM = Math.max(altoIzqMM, altoDerMM) + (fijoSuperior ? (modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM)) : 0) + (fijoInferior ? altoFijoInferiorMM : 0);
@@ -4154,6 +4311,8 @@ if (mostrarAltoTotalDer) {
                 
                 ctx.strokeStyle = "black";
                 ctx.fillStyle = "black";
+                ctx.font = "90px Arial";
+                ctx.textAlign = "center";
 
                 ctx.beginPath();
                 ctx.moveTo(mx_altura_total_completa, startYTotal);
