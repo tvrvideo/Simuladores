@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Ventanas Rey - Factura Pro v25.7.18</title>
+  <title>Ventanas Rey - Factura Pro v25.7.38</title>
   <style>
     :root {
       --catalogo-bg:#eaf2ff;
@@ -515,12 +515,208 @@
 .list-card.docrey-card{ align-items:center; }
 .list-card.docrey-card .list-left{ flex:1 1 auto; }
 
+
+/* v25.7.38: versión visible junto a Resumen */
+.header-version-badge{
+  display:inline-flex;
+  align-items:center;
+  margin-left:7px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.18);
+  border:1px solid rgba(255,255,255,0.22);
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.2;
+  vertical-align:middle;
+  white-space:nowrap;
+}
+#headerTitle{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+@media print{
+  .header-version-badge{display:none!important;}
+}
+
+
+
+/* v25.7.38: tirador visible para menú lateral */
+#swipeOpenZone{
+  position:fixed;
+  left:0;
+  top:92px;
+  bottom:auto;
+  width:28px;
+  height:132px;
+  z-index:1499;
+  background:rgba(74,118,168,.92);
+  border-radius:0 18px 18px 0;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  touch-action:none !important;
+  -webkit-user-select:none;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:4px;
+  height:74px;
+  border-radius:999px;
+  background:rgba(255,255,255,.86);
+  box-shadow:8px 0 0 rgba(255,255,255,.62), -8px 0 0 rgba(255,255,255,.62);
+}
+#swipeOpenZone::after{
+  content:"";
+  position:absolute;
+  right:-8px;
+  top:50%;
+  transform:translateY(-50%);
+  border-left:8px solid rgba(74,118,168,.92);
+  border-top:10px solid transparent;
+  border-bottom:10px solid transparent;
+}
+.drawer.open ~ #swipeOpenZone{display:none;}
+@media (max-width:520px){
+  #swipeOpenZone{
+    top:88px;
+    width:26px;
+    height:118px;
+  }
+}
+@media print{#swipeOpenZone{display:none!important;}}
+
+
+/* v25.7.38: tirador más fino y bajo */
+#swipeOpenZone{
+  position:fixed;
+  left:0;
+  top:160px;
+  width:18px;
+  height:90px;
+  z-index:1499;
+  background:rgba(74,118,168,.9);
+  border-radius:0 14px 14px 0;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:3px;
+  height:50px;
+  border-radius:999px;
+  background:rgba(255,255,255,.85);
+}
+.drawer.open ~ #swipeOpenZone{display:none;}
+
+
+/* v25.7.38: tirador más bajo y más fino */
+#swipeOpenZone{
+  position:fixed;
+  left:0;
+  top:220px;
+  width:12px;
+  height:70px;
+  z-index:1499;
+  background:rgba(74,118,168,.85);
+  border-radius:0 10px 10px 0;
+  box-shadow:0 3px 8px rgba(0,0,0,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:2px;
+  height:36px;
+  border-radius:999px;
+  background:rgba(255,255,255,.8);
+}
+.drawer.open ~ #swipeOpenZone{display:none;}
+
+
+/* v25.7.38: tirador en zona blanca, más largo y fino */
+#swipeOpenZone{
+  position:fixed;
+  left:0;
+  top:340px;
+  width:12px;
+  height:160px;
+  z-index:1499;
+  background:rgba(74,118,168,.85);
+  border-radius:0 10px 10px 0;
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:2px;
+  height:90px;
+  border-radius:999px;
+  background:rgba(255,255,255,.85);
+}
+.drawer.open ~ #swipeOpenZone{display:none;}
+
+
+/* v25.7.38: tirador más abajo y más corto */
+#swipeOpenZone{
+  position:fixed;
+  left:0;
+  top:420px;
+  width:12px;
+  height:110px;
+  z-index:1499;
+  background:rgba(74,118,168,.85);
+  border-radius:0 10px 10px 0;
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:2px;
+  height:60px;
+  border-radius:999px;
+  background:rgba(255,255,255,.85);
+}
+.drawer.open ~ #swipeOpenZone{display:none;}
+
+
+/* v25.7.38: zona táctil invisible ampliada; el tirador visible queda intacto */
+#swipeTouchZone{
+  position:fixed;
+  left:0;
+  top:420px;
+  width:54px;
+  height:110px;
+  z-index:1500;
+  background:transparent;
+  touch-action:none !important;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.drawer.open ~ #swipeTouchZone{
+  display:none;
+}
+@media print{
+  #swipeTouchZone{display:none!important;}
+}
+
 </style>
 
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.18">
+  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.38">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
@@ -538,12 +734,14 @@
 </div>
 
 <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<div id="swipeOpenZone" role="button" aria-label="Abrir menú lateral" title="Abrir menú"></div>
+<div id="swipeTouchZone" aria-hidden="true"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header"><span id="drawerCompanyName">Empresa</span></div>
   <div class="drawer-content">
     <div class="drawer-fixed">
       <div class="drawer-item active" onclick="irInicio()">
-        <span class="drawer-text">Inicio (Facturación v25.7.18)</span>
+        <span class="drawer-text">Inicio (Facturación v25.7.38)</span>
       </div>
     </div>
     <div class="drawer-scroll">
@@ -615,7 +813,7 @@
   
   <button class="btn-menu" type="button" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
 <div class="menu-icon" onclick="toggleDrawer()">⋮</div>
-  <div id="headerTitle">Resumen</div>
+  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.38</span></div>
   <div class="right-actions">
     <button id="headerActionBtn" class="header-action" type="button" style="display:none">+ Nuevo</button>
     <div class="home-icon" onclick="irInicio()" title="Inicio">🏠</div>
@@ -2636,7 +2834,12 @@ function setDocType(type){
 
     resetAllSearches();
 
-    document.getElementById('headerTitle').textContent = titulo;
+    var headerTitleEl = document.getElementById('headerTitle');
+    if(titulo === 'Resumen'){
+      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.38</span>';
+    }else{
+      headerTitleEl.textContent = titulo;
+    }
     setHeaderAction(activeId);
     ['homeView','vista-diseno','facturacionView','presupuestosView','albaranesView','clientesView','catalogoView','gastosView'].forEach(id => {
       document.getElementById(id).classList.remove('active');
@@ -11906,6 +12109,189 @@ async function compartirBackupJSON(){
 })();
 </script>
 
+
+
+
+<script>
+/* v25.7.38: volver index + abrir menú con deslizamiento real */
+(function(){
+  'use strict';
+
+  function volverIndexSeguro(){
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+        window.parent.volverMenu();
+        return false;
+      }
+    }catch(e){}
+
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+        window.parent.postMessage('volverMenu', '*');
+        return false;
+      }
+    }catch(e){}
+
+    try{ window.location.href = 'index.html'; }catch(e){}
+    return false;
+  }
+
+  window.solicitarVolverIndex = volverIndexSeguro;
+  window.volverIndex = volverIndexSeguro;
+
+  var btnMenu = document.querySelector('.btn-menu');
+  if(btnMenu){
+    btnMenu.onclick = function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      return volverIndexSeguro();
+    };
+    btnMenu.addEventListener('touchend', function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      volverIndexSeguro();
+    }, {passive:false});
+  }
+
+  function setDrawerOpen(open){
+    var d = document.getElementById('drawer');
+    var o = document.getElementById('drawerOverlay');
+    if(!d || !o) return;
+    d.classList.toggle('open', !!open);
+    o.style.display = open ? 'block' : 'none';
+  }
+
+  window.abrirDrawerPorGesto = function(){ setDrawerOpen(true); };
+  window.cerrarDrawerPorGesto = function(){ setDrawerOpen(false); };
+
+  var zone = document.getElementById('swipeOpenZone');
+  var sx = 0, sy = 0, tracking = false;
+
+  function start(x,y){
+    sx = x; sy = y; tracking = true;
+  }
+
+  function move(x,y, ev){
+    if(!tracking) return;
+    var dx = x - sx;
+    var dy = Math.abs(y - sy);
+    if(dx > 45 && dy < 70){
+      try{ if(ev) ev.preventDefault(); }catch(e){}
+      tracking = false;
+      setDrawerOpen(true);
+    }
+  }
+
+  function end(){ tracking = false; }
+
+  if(zone){
+    zone.addEventListener('touchstart', function(ev){
+      if(!ev.touches || ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      start(t.clientX, t.clientY);
+    }, {passive:false});
+
+    zone.addEventListener('touchmove', function(ev){
+      if(!ev.touches || ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      move(t.clientX, t.clientY, ev);
+    }, {passive:false});
+
+    zone.addEventListener('touchend', end, {passive:true});
+
+    zone.addEventListener('pointerdown', function(ev){
+      if(ev.pointerType === 'mouse') return;
+      start(ev.clientX, ev.clientY);
+    }, false);
+
+    zone.addEventListener('pointermove', function(ev){
+      if(ev.pointerType === 'mouse') return;
+      move(ev.clientX, ev.clientY, ev);
+    }, false);
+
+    zone.addEventListener('pointerup', end, false);
+
+    zone.addEventListener('click', function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      setDrawerOpen(true);
+    }, false);
+  }
+
+  // Cerrar deslizando el menú hacia la izquierda
+  var drawer = document.getElementById('drawer');
+  var dsx = 0, dsy = 0, dtrack = false;
+  if(drawer){
+    drawer.addEventListener('touchstart', function(ev){
+      if(!ev.touches || ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      dsx = t.clientX; dsy = t.clientY; dtrack = true;
+    }, {passive:true});
+    drawer.addEventListener('touchmove', function(ev){
+      if(!dtrack || !ev.touches || ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      var dx = t.clientX - dsx;
+      var dy = Math.abs(t.clientY - dsy);
+      if(dx < -45 && dy < 70){
+        dtrack = false;
+        setDrawerOpen(false);
+      }
+    }, {passive:true});
+    drawer.addEventListener('touchend', function(){ dtrack = false; }, {passive:true});
+  }
+})();
+</script>
+
+
+<script>
+/* v25.7.38: ampliar zona táctil del tirador sin cambiar su diseño */
+(function(){
+  'use strict';
+
+  function openDrawer(){
+    var d = document.getElementById('drawer');
+    var o = document.getElementById('drawerOverlay');
+    if(d && o){
+      d.classList.add('open');
+      o.style.display = 'block';
+    }
+  }
+
+  var z = document.getElementById('swipeTouchZone');
+  if(!z) return;
+
+  var sx = 0;
+  var sy = 0;
+  var tracking = false;
+
+  z.addEventListener('click', function(ev){
+    try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+    openDrawer();
+  }, false);
+
+  z.addEventListener('touchstart', function(ev){
+    if(!ev.touches || ev.touches.length !== 1) return;
+    var t = ev.touches[0];
+    sx = t.clientX;
+    sy = t.clientY;
+    tracking = true;
+  }, {passive:false});
+
+  z.addEventListener('touchmove', function(ev){
+    if(!tracking || !ev.touches || ev.touches.length !== 1) return;
+    var t = ev.touches[0];
+    var dx = t.clientX - sx;
+    var dy = Math.abs(t.clientY - sy);
+    if(dx > 35 && dy < 70){
+      try{ ev.preventDefault(); }catch(e){}
+      tracking = false;
+      openDrawer();
+    }
+  }, {passive:false});
+
+  z.addEventListener('touchend', function(){
+    tracking = false;
+  }, {passive:true});
+})();
+</script>
 
 </body>
 </html>
