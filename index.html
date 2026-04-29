@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
     <title>Ventanas Rey</title>
+    <!-- index v1.4: menú directo + PIN propio solo Facturación -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -30,10 +31,10 @@
         }
 
         #lock {
+            display: none;
             position: fixed;
             inset: 0;
             background: #d1c7bb;
-            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -166,19 +167,19 @@
 
     <div class="empresa">Ventanas Rey</div>
     <h1>Simuladores técnicos</h1>
-    <p>Introduce el código de acceso</p>
+    <p>Introduce el código para acceder a Facturación</p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button onclick="unlock()">Entrar</button>
 </div>
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey</div>
+    <div class="subtitulo">Ventanas Rey v1.4</div>
 </header>
 
 <div id="menu">
-    <button class="menu-btn" onclick="abrir('factura.html')"><div class="icon">🧾</div><div class="texto"><div>Facturación Pro</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
-<button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño V80</div></div></button>
+    <button class="menu-btn" onclick="abrirFacturacion()"><div class="icon">🧾</div><div class="texto"><div>Facturación</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
+<button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño</div></div></button>
 <button class="menu-btn" onclick="abrir('presupuestos.html')"><div class="icon">💶</div><div class="texto"><div>Presupuestos</div><div class="subtitulo-btn">Cálculo guardable</div></div></button>
 <button class="menu-btn" onclick="abrir('cierre.html')"><div class="icon">🔒</div><div class="texto"><div>Cierre</div><div class="subtitulo-btn">Selección y cálculo</div></div></button>
 <button class="menu-btn" onclick="abrir('poligono.html')"><div class="icon">📐</div><div class="texto"><div>Polígono / Modulación</div><div class="subtitulo-btn">Geometría y medidas</div></div></button>
@@ -235,12 +236,17 @@ function unlock() {
         const pin = document.getElementById("pin").value;
         if (pin === PIN_CORRECTO) {
             try{document.getElementById('pin').blur();}catch(e){}
-        document.getElementById("lock").style.display = "none";
-        
-        // Abrir Facturación Pro automáticamente tras el código
-        abrir('factura.html');
-    } else {
+            document.getElementById("lock").style.display = "none";
+
+            if (window.appDestino) {
+                const destino = window.appDestino;
+                window.appDestino = null;
+                abrir(destino);
+            }
+        } else {
             alert("Código incorrecto");
+            try{ document.getElementById("pin").value = ""; }catch(e){}
+            try{ document.getElementById("pin").focus({preventScroll:true}); }catch(e){ try{document.getElementById("pin").focus();}catch(e2){} }
         }
     }
 
@@ -259,6 +265,22 @@ function unlock() {
         visor.style.display = 'none';
         document.getElementById('cabecera').style.display = 'block';
         document.getElementById('menu').style.display = 'flex';
+    }
+
+    function abrirFacturacion() {
+        window.appDestino = 'factura.html';
+
+        const lock = document.getElementById('lock');
+        const pin = document.getElementById('pin');
+
+        if (pin) pin.value = '';
+
+        if (lock) {
+            lock.style.display = 'flex';
+            setTimeout(function(){
+                try{ pin && pin.focus({preventScroll:true}); }catch(e){ try{ pin && pin.focus(); }catch(e2){} }
+            }, 100);
+        }
     }
 </script>
 
