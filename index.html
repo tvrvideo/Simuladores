@@ -198,7 +198,7 @@
     <button class="menu-btn" onclick="abrir('calculadora.html')"><div class="icon">🧮</div><div class="texto"><div>Calculadora</div><div class="subtitulo-btn">Cálculos rápidos</div></div></button>
     <button class="menu-btn" onclick="abrir('paleta.html')"><div class="icon">🎨</div><div class="texto"><div>Paleta de color</div><div class="subtitulo-btn">Acabados y referencias</div></div></button>
     <button class="menu-btn" onclick="abrir('presupuestos.html')"><div class="icon">💶</div><div class="texto"><div>Presupuestos</div><div class="subtitulo-btn">Cálculo guardable</div></div></button>
-    <button class="menu-btn" onclick="abrir('climalit.html')"><div class="icon">🪟</div><div class="texto"><div>Climalit</div><div class="subtitulo-btn">Cálculo de vidrios</div></div></button>
+    <button class="menu-btn" onclick="abrir('climalit.html?v=1.3')"><div class="icon">🪟</div><div class="texto"><div>Climalit</div><div class="subtitulo-btn">Cálculo de vidrios</div></div></button>
     <button class="menu-btn" onclick="abrir('cierre.html')"><div class="icon">🔒</div><div class="texto"><div>Cierre</div><div class="subtitulo-btn">Selección y cálculo</div></div></button>
     <button class="menu-btn" onclick="abrir('poligono.html')"><div class="icon">📐</div><div class="texto"><div>Polígono / Modulación</div><div class="subtitulo-btn">Geometría y medidas</div></div></button>
     <button class="menu-btn" onclick="abrir('grados.html')"><div class="icon">📏</div><div class="texto"><div>Grados de corte</div><div class="subtitulo-btn">Ángulos y precisión</div></div></button>
@@ -280,6 +280,64 @@ function unlock() {
         document.getElementById('cabecera').style.display = 'block';
         document.getElementById('menu').style.display = 'flex';
     }
+
+    // FIX v2.0: volver desde apps dentro de iframe incluso en iPhone/local/GitHub
+    function volverMenu() {
+        const visor = document.getElementById('visor');
+        try { visor.src = 'about:blank'; } catch(e) {}
+        try { visor.removeAttribute('src'); } catch(e) {}
+        visor.style.display = 'none';
+
+        const cabecera = document.getElementById('cabecera');
+        const menu = document.getElementById('menu');
+        if (cabecera) cabecera.style.display = 'block';
+        if (menu) menu.style.display = 'flex';
+
+        window.appDestino = null;
+        return false;
+    }
+
+    // Alias para cualquier app antigua/nueva
+    window.volverMenu = volverMenu;
+    window.volverIndex = volverMenu;
+    window.solicitarVolverIndex = volverMenu;
+
+    window.addEventListener('message', function(ev){
+        const data = ev && ev.data;
+        const raw = (typeof data === 'string') ? data : '';
+
+        const isVolver =
+            raw === 'volver' ||
+            raw === 'volverMenu' ||
+            raw === 'volverIndex' ||
+            (data && typeof data === 'object' && (
+                data.type === 'volver' ||
+                data.type === 'volverMenu' ||
+                data.type === 'volverIndex' ||
+                data.action === 'volver' ||
+                data.action === 'volverMenu' ||
+                data.action === 'volverIndex' ||
+                data.target === 'index'
+            ));
+
+        if(isVolver){
+            volverMenu();
+            return;
+        }
+
+        if(data && typeof data === 'object' && (data.type === 'openApp' || data.action === 'openApp')){
+            var url = String(data.url || '');
+            if(url === 'facturacion.html') url = 'factura.html';
+            if(
+                url === 'factura.html' || url.indexOf('factura.html?') === 0 ||
+                url === 'documentos.html' || url.indexOf('documentos.html?') === 0 ||
+                url === 'ventana.html' || url.indexOf('ventana.html?') === 0 ||
+                url === 'climalit.html' || url.indexOf('climalit.html?') === 0
+            ){
+                abrir(url);
+            }
+        }
+    }, false);
 
     function abrirFacturacion() {
         window.appDestino = 'factura.html';

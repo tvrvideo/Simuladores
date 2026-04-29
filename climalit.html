@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Unificada v1.2 FIX VOLVER</title>
+  <title>Ramos Unificada v1.3</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -123,7 +123,7 @@
     <header class="topbar">
       <button class="btnMenuRojo" onclick="volverIndex()" type="button">← MENÚ</button>
 <div class="brand">
-        <div class="title">Ramos <small>Unificada v1.2</small></div>
+        <div class="title">Ramos <small>Unificada v1.3</small></div>
         <div class="subtitle">Selector rápido entre Climalit y Monolítico, manteniendo cada app tal como la tenías.</div>
       </div>
     </header>
@@ -4446,8 +4446,62 @@ function volverIndex(){
 
 </script>
 <script>
-/* FIX volver al index v2026-04-29 */
-(function(){'use strict';window.solicitarVolverIndex=function(){var d=false;try{d=!!(window.parent&&window.parent!==window);}catch(e){d=true;}if(d){try{window.parent.postMessage({type:'volverMenu'},'*');}catch(e){}return false;}try{window.location.href='index.html';}catch(e){}return false;};})();
+/* v1.3 - volver seguro al index desde iframe/local/GitHub/iPhone */
+(function(){
+  "use strict";
+
+  var volviendo = false;
+
+  function solicitarVolverIndex(){
+    if(volviendo) return false;
+    volviendo = true;
+
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.volverMenu === "function"){
+        window.parent.volverMenu();
+        return false;
+      }
+    }catch(e){}
+
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({type:"volverMenu", action:"volverMenu", target:"index"}, "*");
+        window.parent.postMessage({type:"volver", action:"volverIndex", target:"index"}, "*");
+        window.parent.postMessage("volverMenu", "*");
+        window.parent.postMessage("volverIndex", "*");
+      }
+    }catch(e){}
+
+    setTimeout(function(){
+      try{
+        if(window.top && window.top !== window){
+          window.top.location.href = "index.html";
+        }else{
+          window.location.href = "index.html";
+        }
+      }catch(e){
+        try{ window.location.href = "index.html"; }catch(_){}
+      }
+    }, 120);
+
+    return false;
+  }
+
+  window.solicitarVolverIndex = solicitarVolverIndex;
+  window.volverIndex = solicitarVolverIndex;
+
+  var btn = document.querySelector(".btnMenuRojo");
+  if(btn){
+    btn.onclick = function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      return solicitarVolverIndex();
+    };
+    btn.addEventListener("touchend", function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      solicitarVolverIndex();
+    }, {passive:false});
+  }
+})();
 </script>
 </body>
 </html>
