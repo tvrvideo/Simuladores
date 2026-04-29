@@ -1,0 +1,4453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1224" />
+  <title>Ramos Unificada v1.2 FIX VOLVER</title>
+  <style>
+    :root{
+      --bg0:#060816; --bg1:#0b1224;
+      --card:rgba(255,255,255,.06); --card2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.12);
+      --text:#eef3ff; --muted:rgba(238,243,255,.72);
+      --accent:#6ee7ff; --shadow:0 18px 44px rgba(0,0,0,.45);
+      --radius:18px;
+      --btn:#2f7dff; --btn2:#1f5fff;
+    }
+    *{box-sizing:border-box;}
+    html,body{height:100%; overflow:hidden;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:transparent !important;
+      -webkit-font-smoothing:antialiased;
+      -webkit-text-size-adjust:100%;
+      touch-action:manipulation;
+    }
+    .bgFixed{
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(114, 214, 255, .14), transparent 58%),
+        radial-gradient(900px 520px at 85% 16%, rgba(167, 139, 250, .14), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+    .wrap{max-width:900px; height:100dvh; margin:0 auto; padding:12px 10px calc(env(safe-area-inset-bottom) + 10px); display:flex; flex-direction:column; min-height:0;}
+    .topbar{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:6px 6px 14px;}
+    .brand{display:flex; flex-direction:column; gap:4px;}
+    .brand .title{font-size:22px; font-weight:950; letter-spacing:.2px; line-height:1.1; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;}
+    .brand .title small{font-size:12px; font-weight:900; color:var(--accent); opacity:.95; letter-spacing:.6px; text-transform:uppercase;}
+    .brand .subtitle{font-size:12px; color:var(--muted); font-weight:800; letter-spacing:.3px;}
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+    .seg{
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .seg button{
+      border:none; border-radius:16px; padding:14px 12px;
+      font-size:14px; font-weight:950; letter-spacing:.4px;
+      cursor:pointer; color:white;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .seg button.active{
+      background: linear-gradient(180deg, var(--btn), var(--btn2));
+      box-shadow: 0 10px 22px rgba(0,0,0,.32);
+      border-color: rgba(255,255,255,.10);
+    }
+    .hint{font-size:12px; color:var(--muted); font-weight:800; padding:4px 4px 0;}
+    .frameWrap{position:relative; flex:1 1 auto; min-height:0; overflow:hidden;}
+    iframe.appFrame{
+      width:100%; height:100%; border:none; border-radius:22px; background:transparent;
+      display:none; overflow:auto;
+      min-height:0;
+      -webkit-overflow-scrolling: touch;
+    }
+    iframe.appFrame.active{display:block;}
+  
+.btnMenuRojo{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:132px;
+  height:58px;
+  padding:0 22px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(180deg,#ff5a4f,#e63f36);
+  color:#fff;
+  font-size:22px;
+  font-weight:950;
+  letter-spacing:.3px;
+  white-space:nowrap;
+  box-shadow:0 9px 18px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.22);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.btnMenuRojo:active{transform:scale(.97);}
+.topbar{
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:18px !important;
+}
+.topbar .brand{
+  flex:1 1 auto;
+  min-width:0;
+}
+@media (max-width:520px){
+  .btnMenuRojo{
+    min-width:116px;
+    height:52px;
+    padding:0 18px;
+    font-size:19px;
+  }
+  .topbar{gap:14px !important;}
+}
+
+</style>
+</head>
+<body>
+  <div class="bgFixed" aria-hidden="true"></div>
+  <main class="wrap">
+    <header class="topbar">
+      <button class="btnMenuRojo" onclick="volverIndex()" type="button">← MENÚ</button>
+<div class="brand">
+        <div class="title">Ramos <small>Unificada v1.2</small></div>
+        <div class="subtitle">Selector rápido entre Climalit y Monolítico, manteniendo cada app tal como la tenías.</div>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="seg">
+        <button type="button" id="btnClimalit" class="active">CLIMALIT</button>
+        <button type="button" id="btnMono">MONOLÍTICO</button>
+      </div>
+      <div class="hint" id="modeHint">Modo activo: Climalit.</div>
+    </section>
+
+    <div class="frameWrap">
+      <iframe id="frameClimalit" class="appFrame active" title="App Climalit"></iframe>
+      <iframe id="frameMono" class="appFrame" title="App Monolítico"></iframe>
+    </div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+
+  const htmlClimalit = `<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="#0b1224" name="theme-color"/>
+<title>Ramos Tarifa 2026 Climalit v4.0</title>
+<style>
+    :root{
+      --bg0:#060816;
+      --bg1:#0b1224;
+      --card:rgba(255,255,255,.06);
+      --card2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.12);
+      --text:#eef3ff;
+      --muted:rgba(238,243,255,.72);
+      --accent:#6ee7ff;
+      --good:#34d399;
+
+      --priceGreen:#22c55e;
+      --priceGreen2:#16a34a;
+      --priceGlow: rgba(34,197,94,.35);
+      --warn:#fbbf24;
+      --bad:#fb7185;
+
+      --shadow:0 18px 44px rgba(0,0,0,.45);
+      --radius:18px;
+
+      --inputBg:#fff3c9;
+      --inputBg2:#ffe7a0;
+      --inputText:#111827;
+      --focus:rgba(255, 214, 102, .35);
+
+      --btn:#2f7dff;
+      --btn2:#1f5fff;
+
+      --chip:rgba(110,231,255,.12);
+      --chipBorder:rgba(110,231,255,.28);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:transparent !important;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+      -webkit-font-smoothing:antialiased;
+      -webkit-text-size-adjust:100%;
+      touch-action:manipulation;
+    }
+    .bgFixed{
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(114, 214, 255, .14), transparent 58%),
+        radial-gradient(900px 520px at 85% 16%, rgba(167, 139, 250, .14), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    .wrap{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 12px 4px 180px;
+    }
+
+    /* Header */
+    .topbar{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      padding: 6px 6px 14px;
+    }
+    .brand{ display:flex; flex-direction:column; gap:4px; }
+    .brand .title{
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: .2px;
+      line-height: 1.1;
+      display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;
+    }
+    .brand .title small{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--accent);
+      opacity: .95;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+    .brand .subtitle{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 10px 26px rgba(0,0,0,.35);
+      font-weight: 900;
+      letter-spacing:.4px;
+      font-size: 12px;
+      white-space:nowrap;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:99px;background:var(--good);
+      box-shadow:0 0 0 4px rgba(52,211,153,.12);
+    }
+
+    /* Cards */
+    .sectionTitle{
+      margin: 14px 6px 10px;
+      font-size: 12px;
+      color: rgba(170,219,255,.95);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 2px 2px 12px;
+    }
+    .cardHead .h{
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+
+    /* Medidas siempre en horizontal (izq/dcha), también en móvil */
+    .gridMeasures{
+      grid-template-columns: 1fr 1fr;
+    }
+    .gridMeasures .full{ grid-column: 1 / -1; }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap: 12px;
+    }
+    
+    /* FORZAR Medidas en 2 columnas (móvil incluido) */
+    .grid.gridMeasures{
+      grid-template-columns: 1fr 1fr !important;
+    }
+
+    @media (min-width: 640px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .full{ grid-column: 1 / -1; }
+    }
+
+    .field{
+      border: 1px solid rgba(0,0,0,.22);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(0,0,0,.12);
+    }
+
+    label{
+      display:block;
+      font-weight:900;
+      font-size: 11px;
+      letter-spacing:.6px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    input[type="number"], select{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--inputBg), var(--inputBg2));
+      color: var(--inputText);
+      padding: 14px 12px;
+      font-size: 18px;
+      font-weight: 950;
+      outline:none;
+      -webkit-appearance:none;
+      appearance:none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.1);
+    }
+    input[type="number"]:focus, select:focus{
+      box-shadow: inset 0 0 0 1px rgba(255,214,102,.55), 0 0 0 4px var(--focus);
+    }
+    select option{ color:#000; font-weight:bold; }
+
+    .micro{
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(238,243,255,.78);
+      font-weight: 800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .chipRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .chip{
+      border:1px solid var(--chipBorder);
+      background: var(--chip);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 900;
+      letter-spacing:.3px;
+      font-size: 12px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .chip:active{ transform: scale(.98); }
+
+    /* Dock */
+    .resultDock{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 14px);
+      z-index: 9998;
+      border-radius: 22px;
+      border: 1px solid rgba(34,197,94,.22);
+      background: linear-gradient(180deg, rgba(11,18,36,.98), rgba(11,18,36,.92));
+      box-shadow: 0 -12px 54px rgba(0,0,0,.62), 0 0 0 1px rgba(34,197,94,.10) inset;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .dockMain{
+      flex: 1 1 auto;
+      min-width: 0;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      justify-content:flex-start;
+      gap: 10px;
+    }
+        .price{
+      display:inline-flex;
+      align-items:baseline;
+      gap:6px;
+      padding: 9px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(34,197,94,.40);
+      background: linear-gradient(180deg, rgba(34,197,94,.20), rgba(22,163,74,.14));
+      box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 0 6px rgba(34,197,94,.10);
+      min-width: 0;
+      justify-content: center;
+      flex: 1 1 auto;
+      max-width: 320px;
+    }
+    .price .num{
+      font-size: clamp(30px, 10vw, 42px);
+      font-weight: 1000;
+      color: var(--priceGreen);
+      letter-spacing: -1px;
+      line-height:1;
+    }
+    .price .unit{
+      font-size: 16px;
+      font-weight: 950;
+      color: var(--priceGreen);
+    }
+
+    .dockMeta{
+      font-size: 14px;
+      color: rgba(255,255,255,.80);
+      white-space: nowrap;
+    }
+    
+    .dockMetaStack{
+      white-space: normal;
+      text-align: right;
+      line-height: 1.15;
+      font-size: 13px;
+      min-width: 72px;
+    }
+    .dockMetaStack strong{ font-variant-numeric: tabular-nums; }
+.dockMeta strong{ color: var(--text); font-size: 13px; }
+/* Botón M² (dock) */
+.m2Btn{
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  border: 1px solid rgba(34,197,94,.35);
+  background: linear-gradient(180deg, rgba(34,197,94,.24), rgba(34,197,94,.10));
+  box-shadow: 0 10px 22px rgba(0,0,0,.35);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 3px;
+  padding: 0;
+  color: rgba(255,255,255,.92);
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.m2Btn .num strong{
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  line-height: 1;
+  color: rgba(255,255,255,.92);
+}
+.m2Btn .lbl{
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .10em;
+  opacity: .90;
+}
+.m2Btn.isMin{
+  border-color: rgba(239,68,68,.55);
+  background: linear-gradient(180deg, rgba(239,68,68,.28), rgba(239,68,68,.12));
+}
+.m2Btn:active{ transform: translateY(1px); }
+
+    .badge{
+      display:none;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing:.6px;
+      border:1px solid rgba(255,255,255,.12);
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .badge.min{
+      background: rgba(251, 113, 133, .14);
+      border-color: rgba(251, 113, 133, .35);
+      color: #fb7185;
+    }
+    .badge.size{
+      background: rgba(251,191,36,.15);
+      border-color: rgba(251,191,36,.35);
+      color: var(--warn);
+    }
+    .minLine{
+      display:none;
+      font-weight:900;
+      color: rgba(238,243,255,.86);
+    }
+    .minLine em{
+      font-style:normal;
+      color: var(--bad);
+      font-weight: 950;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .btn{
+      flex:1;
+      border:none;
+      border-radius: 16px;
+      padding: 16px 14px;
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing:.8px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn.primary{
+      background: linear-gradient(180deg, var(--btn), var(--btn2));
+      color: white;
+      box-shadow: 0 10px 22px rgba(0,0,0,.32);
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .btn:active{ transform: scale(.99); }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto !important; }
+      .btn:active, .chip:active{ transform:none; }
+    }
+  
+/* ---- Composición v4.0 (estilo croquis) ---- */
+:root{ --triple:#f59e0b; --triple2:#fb923c; }
+
+/* Quitamos “tarjetas” alargadas: cada celda ajusta su ancho al texto superior */
+.compStrip{
+  display:flex;
+  gap: 18px;
+  padding: 18px 22px;
+  width: 100%;
+  align-items:flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* La celda se ajusta al ancho del título (VIDRIO/CÁMARA) */
+.compCell{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  width: min-content; /* usa el ancho intrínseco del .compTop (nowrap) */
+  min-width: 0;
+}
+
+.compTop{
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 900;
+  opacity: .90;
+  white-space: nowrap;
+  text-align:center;
+}
+
+/* Botón “real” con relleno por grupo (verde/naranja) */
+.compPick{
+  width: 100%;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 10px 22px rgba(0,0,0,.26);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.compPick:active{ transform: translateY(1px) scale(.99); }
+.compPick.empty{ opacity: .55; }
+
+/* relleno interior (verde para dobles, naranja para triples) */
+.compCell.double .compPick{
+  background: linear-gradient(180deg, rgba(16,185,129,.35), rgba(16,185,129,.18));
+  border-color: rgba(16,185,129,.55);
+}
+.compCell.triple .compPick{
+  background: linear-gradient(180deg, rgba(245,158,11,.35), rgba(245,158,11,.18));
+  border-color: rgba(245,158,11,.55);
+}
+
+.compCell.double .compTop{ color: rgba(16,185,129,.95); }
+.compCell.triple .compTop{ color: rgba(245,158,11,.95); }
+
+/* Valor: se ajusta al ancho del botón y puede partir línea */
+.compVal{
+  width: 100%;
+  text-align:center;
+  font-weight: 700;
+  opacity: .92;
+  line-height: 1.05;
+}
+
+@media (max-width: 420px){
+  .compStrip{ gap: 12px; padding: 14px 14px; justify-content:center; }
+  .compPick{ height: 42px; border-radius: 13px; }
+}
+  .compPick{
+  width: 100%;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 6px 14px rgba(0,0,0,.22);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.compPick[data-kind="glass"]{
+  background: rgba(59,130,246,.18);
+  border-color: rgba(59,130,246,.40);
+}
+.compPick[data-kind="camera"]{
+  background: rgba(16,185,129,.16);
+  border-color: rgba(16,185,129,.40);
+}
+.compPick:active{ transform: translateY(1px) scale(.99); }
+.compPick.empty{ opacity: .55; }
+  .compTop{ font-size: 11px; }
+  .compVal{ font-size: 11px; }
+}
+
+
+/* ---- Composición v4.0 (botones coloreados) ---- */
+.compStrip{
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.compPick{
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 10px 18px rgba(0,0,0,.22);
+  cursor: pointer;
+}
+
+/* Interior según su color: 3 primeros (double) verde, 2 últimos (triple) naranja */
+.compCell.double .compPick{
+  border-color: rgba(34,197,94,.55);
+  background: linear-gradient(180deg, rgba(34,197,94,.38), rgba(34,197,94,.18));
+}
+.compCell.triple .compPick{
+  border-color: rgba(245,158,11,.62);
+  background: linear-gradient(180deg, rgba(245,158,11,.40), rgba(245,158,11,.18));
+}
+
+.compPick:active{
+  transform: translateY(1px) scale(.99);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 7px 14px rgba(0,0,0,.22);
+}
+
+.compPick.empty{ opacity: .55; }
+
+.compSummary{
+  margin-top: 14px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+
+@media (max-width: 520px){
+  .compStrip{ gap: 10px; padding: 12px; }
+  .compPick{ height: 42px; border-radius: 12px; }
+  .compTop{ font-size: 11px; }
+  .compVal{ font-size: 11px; }
+  .compSummary{ flex-direction:column; align-items:flex-start; }
+}
+
+
+/* ---- Composición: texto dentro + botones mismo ancho (aprovecha TODO el ancho) ---- */
+.cardComp{ padding-top: 10px !important; }
+.cardComp .cardHead{ display:none !important; padding:0 !important; }
+
+.compStrip{
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+
+  /* Menos hueco = más ancho útil para cada botón */
+  gap: 8px !important;
+
+  /* "Sacar" la tira a los bordes del card (el card tiene padding:14px) */
+  margin-left: -14px !important;
+  margin-right: -14px !important;
+
+  /* Sin padding lateral: el grid usa TODO el ancho disponible */
+  padding: 8px 0 14px !important;
+
+  width: calc(100% + 28px) !important;
+  justify-items: stretch !important;
+  align-items: start !important;
+}
+.compCell{ width: 100% !important; }
+.compPick{ width: 100% !important; max-width: none !important; }
+
+
+
+/* Quitamos el texto de arriba */
+.compTop{ display:none !important; }
+
+/* Botón: rectangular (alto ajustado al texto) */
+.compPick{
+  width: 100% !important;
+  height: auto !important;
+  min-height: 52px !important;
+  padding: 12px 0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius: 16px !important;
+}
+
+/* Texto dentro del botón */
+.compIn{
+  display:block;
+  color: rgba(255,255,255,.92) !important;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-align:center;
+  white-space: nowrap;
+  pointer-events:none;
+}
+
+/* En móvil, un pelín más compacto aún */
+@media (max-width: 520px){
+  .compStrip{ gap: 8px !important; margin-left:-14px !important; margin-right:-14px !important; padding: 8px 8px 12px !important; }
+  .compPick{ min-height: 46px !important; padding: 10px 0 !important; border-radius: 14px !important; }
+  .compIn{ font-size: 11px; letter-spacing: .10em; }
+}
+
+
+
+    .noteSmall{
+      font-size:12px;
+      opacity:.82;
+      font-weight:800;
+      line-height:1.35;
+    }
+    .extrasBox{ display:flex; flex-direction:column; gap:8px; }
+    .extraGroup{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      overflow:hidden;
+      background: rgba(255,255,255,.03);
+    }
+    .extraGroupHead{
+      padding:10px 12px;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(170,219,255,.95);
+      background: rgba(255,255,255,.04);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .extraRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:11px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .extraRow:last-child{ border-bottom:none; }
+    .extraRow input[type="checkbox"], .extraRow input[type="radio"]{
+      width:18px; height:18px; margin:0;
+      accent-color:#22c55e;
+      flex:0 0 auto;
+    }
+    .extraMain{ flex:1; min-width:0; }
+    .extraName{ font-weight:900; color:rgba(255,255,255,.94); }
+    .extraMeta{ font-size:12px; opacity:.78; font-weight:800; margin-top:3px; }
+    .extraPrice{ font-weight:950; white-space:nowrap; font-size:12px; opacity:.92; }
+
+</style>
+<style>
+    .iconBtn{display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:16px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:var(--text);}
+    .iconBtn:active{ transform: translateY(1px); }
+
+    .modalOverlay{position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 20000;}
+    .modalOverlay.open{ opacity: 1; pointer-events: auto; }
+    .modalSheet{position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); transform: translateY(120%); transition: transform .22s ease; z-index: 20001; max-width: 980px; margin: 0 auto;}
+    .modalSheet.open{ transform: translateY(0); }
+
+
+    
+    .btnResetIcon{
+      flex: 0 0 auto;
+      font-size: 16px;
+      line-height: 1;
+      padding: 6px 8px;
+      border-radius: 10px;
+
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.55);
+      cursor: pointer;
+
+      transition: transform .12s ease, color .12s ease, border-color .12s ease, background .12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+.dockBtn{
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.92);
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 16px;
+  font-weight: 980;
+  letter-spacing: .2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align:center;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: 0 10px 22px rgba(0,0,0,.35);
+  transition: transform .12s ease, filter .12s ease, opacity .12s ease, background .12s ease, border-color .12s ease;
+  user-select:none;
+  -webkit-user-select:none;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.dockBtn:active{ transform: translateY(1px); }
+
+/* Reset gris */
+.dockBtn.reset{
+  background: linear-gradient(180deg, rgba(148,163,184,.26), rgba(100,116,139,.18));
+  border-color: rgba(148,163,184,.28);
+  color: rgba(255,255,255,.85);
+  font-size: 18px;
+}
+
+/* IVA: gris OFF / rojo ON */
+.dockBtn.iva{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.14);
+  opacity: .95;
+  font-size: 14px;
+}
+.dockBtn.iva.ivaOn{
+  background: linear-gradient(180deg, rgba(239,68,68,.95), rgba(220,38,38,.95));
+  border-color: rgba(220,38,38,.55);
+  opacity: 1;
+}
+.dockBtn.iva.ivaOn::after{
+  content: "21";
+  font-size: 10px;
+  font-weight: 1000;
+  margin-left: 4px;
+  opacity: .95;
+}
+
+    .btnResetIcon:active{ transform: scale(.96); }
+    .btnResetIcon:hover{
+      color: rgba(255,255,255,.92);
+      border-color: rgba(255,255,255,.30);
+      background: rgba(255,255,255,.06);
+    }
+/* Picker a pantalla completa (más fácil para elegir en móvil) */
+    #pickerSheet.modalSheet{
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: 0;
+      max-width: none;
+    }
+    #pickerSheet .sheetCard{
+      border-radius: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #pickerSheet .sheetHead{
+      padding-top: calc(12px + env(safe-area-inset-top));
+    }
+    #pickerSheet .sheetBody{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
+      gap: 10px;
+    }
+    #pickerSheet .listBox{
+      flex: 1;
+      max-height: none;
+      min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    
+    /* Configuración a pantalla completa desde arriba */
+    #settingsSheet.modalSheet{
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: 0;
+      max-width: none;
+      transform: translateY(-120%);
+    }
+    #settingsSheet.modalSheet.open{ transform: translateY(0); }
+    #settingsSheet .sheetCard{
+      border-radius: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #settingsSheet .sheetHead{
+      padding-top: calc(12px + env(safe-area-inset-top));
+    }
+    #settingsSheet .sheetBody{
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
+    }
+
+}
+
+    .sheetCard{border-radius: 18px; border: 1px solid rgba(255,255,255,.12); background: rgba(10, 16, 33, .92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.6);}
+    .sheetHead{display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.10);}
+    .sheetTitle{ font-weight: 800; }
+    .sheetBody{ padding: 12px 14px; }
+
+    .listBox{max-height: 48vh; overflow:auto; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(255,255,255,.04);}
+    .listRow{display:flex; justify-content:space-between; align-items:center; gap:10px; padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px;}
+    .listRow:last-child{ border-bottom:none; }
+    .listKey{ color: rgba(255,255,255,.92); }
+    .listVal{ color: rgba(255,255,255,.88); font-weight: 900; white-space: nowrap; }
+    .listRow:active{ background: rgba(255,255,255,.06); }
+
+    .seg{ display:flex; gap:8px; flex-wrap:wrap; }
+    .seg button{ width:auto; }
+
+        /* Constructor: que entren los 5 campos en pantalla (sin scroll horizontal) */
+    .builderRow{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:10px;
+      align-items:stretch;
+    }
+    .slot{ min-width:0; }
+    .slot.small{ min-width:0; }
+
+    .slotLabel{ font-size: 12px; opacity: .85; margin: 0 0 6px 4px; }
+
+    .slotBtn{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      text-align:left;
+      font-weight: 900;
+      letter-spacing: .2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .slotBtn .main{
+      display:block;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .slotBtn .sub{ display:block; font-weight: 700; opacity: .75; margin-top: 2px; font-size: 12px; }
+    .slotBtn:active{ transform: translateY(1px); }
+    .slotBtn.empty{ font-weight: 800; opacity: .8; }
+
+    /* Ajustes extra en móvil para reducir "largo" */
+    @media (max-width: 520px){
+      .builderRow{ gap:8px; }
+      .slotBtn{ padding: 11px 10px; border-radius: 15px; }
+      .slotBtn .sub{ font-size: 11px; }
+    }
+    /* Pantallas muy estrechas: 3 + 2 en dos filas (sigue sin scroll) */
+    @media (max-width: 360px){
+      .builderRow{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    .searchBox{display:flex; gap:10px; align-items:center; margin-bottom: 10px;}
+    .searchBox input{width:100%; border-radius: 14px; padding: 12px 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: var(--text);}
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  
+    .hideDock{ display:none !important; }
+    /* Cuando hay un modal abierto, ocultamos el dock de resultado para ver más lista */
+    body.modalOpen .resultDock{ opacity: 0; pointer-events: none; transform: translateY(20px); }
+
+
+  </style>
+</head>
+<body>
+<div aria-hidden="true" class="bgFixed"></div>
+<main class="wrap">
+<header class="topbar">
+<div class="brand">
+<div class="title">Ramos <small>Tarifa 2026 Climalit v4.0</small></div>
+</div>
+<button aria-label="Configuración" class="iconBtn" id="btnSettings" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="2"></path>
+<path d="M19.4 15a8 8 0 0 0 .1-1l2-1.3-2-3.4-2.3.7a7.9 7.9 0 0 0-1.7-1L15 6.6 11 6l-.5 2.3a7.9 7.9 0 0 0-1.7 1l-2.3-.7-2 3.4 2 1.3a8 8 0 0 0 0 2l-2 1.3 2 3.4 2.3-.7a7.9 7.9 0 0 0 1.7 1L11 22l4 .6.5-2.3a7.9 7.9 0 0 0 1.7-1l2.3.7 2-3.4-2-1.3Z" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</header>
+<div class="sectionTitle">Medidas</div>
+<section class="card">
+<div class="cardHead">
+
+</div>
+<div class="grid gridMeasures">
+<div class="field">
+<input aria-label="Ancho en milímetros" id="ancho" inputmode="decimal" placeholder="ANCHO (mm)" type="number" value="1000"/>
+</div>
+<div class="field">
+<input aria-label="Alto en milímetros" id="alto" inputmode="decimal" placeholder="ALTO (mm)" type="number" value="1000"/>
+</div>
+<div class="field full">
+<div class="micro">
+<span>m² reales: <strong id="m2Real">0.00</strong></span>
+<span>m² fact.: <strong id="m2Fac">0.00</strong></span>
+<span>€/m²: <strong id="eurM2">0.00</strong></span>
+</div>
+</div>
+</div>
+</section>
+<div class="sectionTitle">Composición</div>
+<section class="card cardComp">
+<div class="cardHead"></div>
+<div aria-label="Constructor de composición" class="compStrip" role="group">
+<div class="compCell double">
+
+<button aria-label="Elegir vidrio 1" class="compPick" data-kind="glass" data-slot="v1" id="slot_v1" type="button"><span class="compIn">VIDRIO</span></button>
+<div class="compVal" id="val_v1">—</div>
+</div>
+<div class="compCell double">
+
+<button aria-label="Elegir cámara 1" class="compPick" data-kind="camera" data-slot="c1" id="slot_c1" type="button"><span class="compIn">CÁMARA</span></button>
+<div class="compVal" id="val_c1">—</div>
+</div>
+<div class="compCell double">
+
+<button aria-label="Elegir vidrio 2" class="compPick" data-kind="glass" data-slot="v2" id="slot_v2" type="button"><span class="compIn">VIDRIO</span></button>
+<div class="compVal" id="val_v2">—</div>
+</div>
+<div class="compCell triple">
+
+<button aria-label="Elegir cámara 2 (triple)" class="compPick empty" data-kind="camera" data-slot="c2" id="slot_c2" type="button"><span class="compIn">CÁMARA</span></button>
+<div class="compVal" id="val_c2">—</div>
+</div>
+<div class="compCell triple">
+
+<button aria-label="Elegir vidrio 3 (triple)" class="compPick empty" data-kind="glass" data-slot="v3" id="slot_v3" type="button"><span class="compIn">VIDRIO</span></button>
+<div class="compVal" id="val_v3">—</div>
+</div>
+</div>
+<div class="compSummary">
+<div class="micro">
+<span>comp.: <strong class="mono" id="compTxt">—</strong></span>
+</div>
+<div class="micro">
+<span>grosor: <strong id="grosorTxt">0</strong> mm</span>
+</div>
+</div>
+</section>
+
+<div class="sectionTitle">Extras</div>
+<section class="card">
+<div class="cardHead">
+<div class="h">Manufactura y recargos</div>
+<div class="hint">Sin tocar tu diseño principal</div>
+</div>
+<div class="grid">
+<div class="field full">
+<button class="btn primary" id="btnExtras" type="button" style="width:100%;">Seleccionar extras</button>
+<div class="noteSmall" id="extrasSummary" style="margin-top:10px;">Sin extras seleccionados.</div>
+<div class="micro" style="margin-top:10px;">
+<span>extras m²: <strong id="extrasM2">0.00</strong></span>
+<span>extras ml: <strong id="extrasML">0.00</strong></span>
+<span>extras ud: <strong id="extrasUD">0.00</strong></span>
+</div>
+<div class="micro" style="margin-top:8px;">
+<span>recargo forma: <strong id="shapePct">0%</strong></span>
+<span>recargo superficie: <strong id="surfacePct">0%</strong></span>
+<span>lado mayor: <strong id="longSidePct">0%</strong></span>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+<div class="resultDock" id="dockResult">
+<div class="dockMain">
+<div aria-live="polite" class="price">
+<span class="num" id="totalPrecio">0,00</span>
+<span class="unit">€</span>
+</div>
+<button aria-label="Reset" class="dockBtn reset" id="btnReset" title="Reset" type="button">⟳</button>
+<button aria-label="IVA" aria-pressed="false" class="dockBtn iva" id="btnIVA" title="IVA" type="button">IVA</button>
+</div>
+<div aria-label="Medidas" class="dockMeta dockMetaStack">
+<button aria-label="M² facturados (cambia a rojo si aplica mínimo)" class="m2Btn" id="dockM2Btn" type="button">
+<span class="num"><strong id="dockM2">0.00</strong></span>
+<span class="lbl">M²</span>
+</button>
+</div>
+</div>
+<!-- CONFIG -->
+<div aria-hidden="true" class="modalOverlay" id="settingsOverlay"></div>
+<div aria-hidden="true" class="modalSheet" id="settingsSheet">
+<div class="sheetCard">
+<div class="sheetHead">
+<div class="sheetTitle">Configuración</div>
+<div style="display:flex; gap:10px; align-items:center;">
+<button aria-label="Inicio" class="iconBtn" id="btnHome" title="Inicio" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button aria-label="Cerrar" class="iconBtn" id="btnCloseSettings" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<div class="sheetBody">
+<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+<label class="check" style="display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.4px; color:rgba(255,255,255,.92);">
+<input id="mul6" type="checkbox"/>
+<span>MÚLTIPLOS DE 6</span>
+</label>
+<div style="display:flex; align-items:center; gap:8px;">
+<span style="opacity:.85; font-weight:900; color:rgba(255,255,255,.9);">mm</span>
+<input id="mul6mm" inputmode="numeric" min="6" step="1" style="width:86px; text-align:center; border-radius:12px; padding:10px 10px; background: linear-gradient(180deg, rgba(255,240,179,1), rgba(255,225,140,1)); border:1px solid rgba(0,0,0,.15); color:#000; font-weight:900;" type="number" value="60"/>
+</div>
+</div>
+<div style="display:flex; gap:10px; margin-top:16px;">
+<button class="btn" id="btnTarifaEditor" style="flex:1; background:rgba(59,130,246,.95); border:1px solid rgba(255,255,255,.18); color:white;" type="button">Tarifa</button>
+<button class="btn" id="btnTarifaExport" style="flex:1; background:rgba(59,130,246,.95); border:1px solid rgba(255,255,255,.18); color:white;" type="button">Exportar</button>
+<button class="btn" id="btnTarifaImport" style="flex:1; background:rgba(59,130,246,.95); border:1px solid rgba(255,255,255,.18); color:white;" type="button">Importar</button>
+<input accept="application/json" id="tarifaFile" style="display:none" type="file"/>
+</div>
+</div>
+</div>
+</div>
+
+<!-- EXTRAS -->
+<div aria-hidden="true" class="modalOverlay" id="extrasOverlay"></div>
+<div aria-hidden="true" class="modalSheet" id="extrasSheet">
+<div class="sheetCard">
+<div class="sheetHead">
+<div class="sheetTitle">Extras Climalit</div>
+<button aria-label="Cerrar" class="iconBtn" id="btnCloseExtras" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="sheetBody">
+<div class="noteSmall" style="margin-bottom:10px;">Aquí van los extras reales sin tocar tu pantalla principal. Los recargos por superficie y lado mayor se aplican automáticos.</div>
+<div class="listBox" id="extrasList" style="max-height:55vh; overflow:auto;"></div>
+<div style="display:flex; gap:10px; margin-top:12px;">
+<button class="btn primary" id="btnSaveExtras" style="flex:1;" type="button">Aplicar</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- PICKER -->
+<!-- TARIFA (LISTA EDITABLE) -->
+<div aria-hidden="true" class="modalOverlay" id="tarifaOverlay"></div>
+<div aria-hidden="true" class="modalSheet" id="tarifaSheet">
+<div class="sheetCard">
+<div class="sheetHead">
+<div class="sheetTitle">Editar Tarifa</div>
+<button aria-label="Cerrar" class="iconBtn" id="btnCloseTarifa" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="sheetBody">
+<div class="listBox" id="tarifaList" style="max-height:55vh; overflow:auto;"></div>
+<div style="margin-top:12px;">
+<button class="btn" id="btnSaveTarifa" style="width:100%;">Guardar cambios</button>
+</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="modalOverlay" id="pickerOverlay"></div>
+<div aria-hidden="true" class="modalSheet" id="pickerSheet">
+<div class="sheetCard">
+<div class="sheetHead">
+<div class="sheetTitle" id="pickerTitle">Seleccionar</div>
+<button aria-label="Cerrar" class="iconBtn" id="btnClosePicker" type="button">
+<svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
+<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="sheetBody">
+<div class="searchBox">
+<input id="pickerSearch" placeholder="Buscar…" type="text"/>
+</div>
+<div class="listBox" id="pickerList"></div>
+<div class="micro" style="margin-top:10px;">
+<button class="btn btnGhost" id="btnClearSlot" type="button">Vaciar este campo</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+(function(){
+  "use strict";
+  function qs(id){ return document.getElementById(id); }
+
+  // ---- Tarifa (embebida) ----
+  var EMBED_TARIFF = {"min_m2":0.7,"glasses":[{"name":"Luna 4mm","eur_m2":14.38},{"name":"Luna 5mm","eur_m2":20.14},{"name":"Luna 6mm","eur_m2":24.18},{"name":"Luna 8mm","eur_m2":33.46},{"name":"Luna 10mm","eur_m2":48.55},{"name":"Parsol 4mm gris/bronce/verde","eur_m2":28.61},{"name":"Clarglas incoloro 4mm","eur_m2":26.86},{"name":"Clarglas new 4mm","eur_m2":37.98},{"name":"Clarglas incoloro 6mm","eur_m2":40.32},{"name":"Mate 4mm","eur_m2":23.21},{"name":"Mate 5mm","eur_m2":29.49},{"name":"Mate 6mm","eur_m2":36.17},{"name":"Planitherm XN 4mm","eur_m2":24.3},{"name":"Planitherm XN 6mm","eur_m2":33.88},{"name":"Planitherm 4S 4mm","eur_m2":25.98},{"name":"Planitherm 4S 6mm","eur_m2":36.17},{"name":"Planistar ONE 4mm","eur_m2":36.23},{"name":"Planistar ONE 6mm","eur_m2":50.38},{"name":"Cool-Lite Xtreme 6mm","eur_m2":63.21},{"name":"Planitherrm XN Silence 44,1","eur_m2":51.83},{"name":"Cool-Lite ST150, ST120","eur_m2":52.5},{"name":"Cool-Lite STB120","eur_m2":66.53},{"name":"Stopsol 6mm","eur_m2":61.95},{"name":"Más de 5 m2 28%","eur_m2":80.49},{"name":"Más de 6 m2 40%","eur_m2":92.25},{"name":"Más de 8 m2 55%","eur_m2":82.59},{"name":"Más de 10m2 85% SP510 - P5A","eur_m2":100.8},{"name":"Lado de mayor de","eur_m2":3.2},{"name":"Ángulo distinto de 90º 15%","eur_m2":2.71},{"name":"Barrotillo blanco 25mm","eur_m2":6.68},{"name":"Barrotillo color madera (ral 2178007)","eur_m2":13.81},{"name":"Barrotillo color(ral 3005/9-6005/9 )","eur_m2":14.4},{"name":"Varilla blanca","eur_m2":10.3},{"name":"Varilla dorada","eur_m2":10.62},{"name":"Incorporación de barrotillo limpio","eur_m2":12.0},{"name":"Limpiar y aprovechar barrotillo","eur_m2":18.0},{"name":"Medir o presentar plantillas en Autocad","eur_m2":8.0},{"name":"Escanear plantillas","eur_m2":22.0},{"name":"Incorporación de vidrios o chapas","eur_m2":25.0},{"name":"Facturación mínimo","eur_m2":0.7},{"name":"Facturación mínima incoporación de gas argón","eur_m2":0.7},{"name":"Recogida de vidrio para reciclar","eur_m2":0.3}],"cameras":[{"mm":6,"eur_m2":0},{"mm":8,"eur_m2":0},{"mm":10,"eur_m2":0},{"mm":12,"eur_m2":0},{"mm":14,"eur_m2":1.2},{"mm":16,"eur_m2":1.2},{"mm":18,"eur_m2":1.5},{"mm":20,"eur_m2":1.8},{"mm":22,"eur_m2":2.1},{"mm":24,"eur_m2":2.4}]};
+
+  // ---- Storage ----
+  var LS_KEY = "ramos_climalit_tarifa_componentes_v40";
+  function safeClone(obj){ try{ return JSON.parse(JSON.stringify(obj)); }catch(e){ return obj; } }
+  function loadTariff(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if(!raw) return safeClone(EMBED_TARIFF);
+      var obj = JSON.parse(raw);
+      if(!obj || typeof obj !== "object") return safeClone(EMBED_TARIFF);
+      if(!Array.isArray(obj.glasses) || !Array.isArray(obj.cameras)) return safeClone(EMBED_TARIFF);
+      return obj;
+    } catch(e) {
+      return safeClone(EMBED_TARIFF);
+    }
+  }
+  function saveTariff(t){ try{ localStorage.setItem(LS_KEY, JSON.stringify(t)); }catch(e){} }
+
+  // ---- IVA (simple) ----
+  var IVA_KEY = "ramos_climalit_iva_v1";
+  function loadIVA(){
+    try{
+      var raw = localStorage.getItem(IVA_KEY);
+      if(!raw) return { rate:21, on:false };
+      var o = JSON.parse(raw);
+      return { rate:21, on: !!(o && o.on) };
+    }catch(e){
+      return { rate:21, on:false };
+    }
+  }
+  function saveIVAState(on){
+    try{ localStorage.setItem(IVA_KEY, JSON.stringify({ on: !!on })); }catch(e){}
+  }
+  function updateIVAUI(){
+    var iva = loadIVA();
+    if(btnIVA){
+      btnIVA.classList.toggle("ivaOn", !!iva.on);
+      btnIVA.setAttribute("aria-pressed", iva.on ? "true" : "false");
+      // Mantener el texto corto para que siempre quepa la info de m²/ml
+      btnIVA.textContent = "IVA";
+    }
+  }
+  function toggleIVA(){
+    var iva = loadIVA();
+    iva.on = !iva.on;
+    saveIVAState(iva.on);
+    updateIVAUI();
+    recalc();
+  }
+
+  // ---- DOM: medidas ----
+  var elAncho = qs("ancho");
+  var elAlto  = qs("alto");
+  var elM2Real = qs("m2Real");
+  var elM2Fac  = qs("m2Fac");
+  var elEurM2  = qs("eurM2");
+
+  // ---- Dock ----
+  var dockResult = qs("dockResult");
+  var elTotalPrecio = qs("totalPrecio");
+  var elDockM2 = qs("dockM2");
+  var elDockML = qs("dockML");
+  var elDockM2Btn = qs("dockM2Btn");
+  var btnReset = qs("btnReset");
+  var btnIVA = qs("btnIVA");
+
+  // ---- Composición slots ----
+  var slots = {
+    v1: qs("slot_v1"),
+    c1: qs("slot_c1"),
+    v2: qs("slot_v2"),
+    c2: qs("slot_c2"),
+    v3: qs("slot_v3")
+  };
+  var vals = {
+    v1: qs("val_v1"),
+    c1: qs("val_c1"),
+    v2: qs("val_v2"),
+    c2: qs("val_c2"),
+    v3: qs("val_v3")
+  };
+  var elCompTxt = qs("compTxt");
+  var elGrosorTxt = qs("grosorTxt");
+
+  // ---- Extras ----
+  var btnExtras = qs("btnExtras");
+  var elExtrasSummary = qs("extrasSummary");
+  var elExtrasM2 = qs("extrasM2");
+  var elExtrasML = qs("extrasML");
+  var elExtrasUD = qs("extrasUD");
+  var elShapePct = qs("shapePct");
+  var elSurfacePct = qs("surfacePct");
+  var elLongSidePct = qs("longSidePct");
+  var extrasOverlay = qs("extrasOverlay");
+  var extrasSheet = qs("extrasSheet");
+  var btnCloseExtras = qs("btnCloseExtras");
+  var extrasList = qs("extrasList");
+  var btnSaveExtras = qs("btnSaveExtras");
+
+  // ---- Settings modal (simple) ----
+  var btnSettings = qs("btnSettings");
+  var settingsOverlay = qs("settingsOverlay");
+  var settingsSheet = qs("settingsSheet");
+  var btnHome = qs("btnHome");
+  var btnCloseSettings = qs("btnCloseSettings");
+  var elMul6 = qs("mul6");
+  var elMul6mm = qs("mul6mm");
+  var btnTarifaEditor = qs("btnTarifaEditor");
+  var btnTarifaExport = qs("btnTarifaExport");
+  var btnTarifaImport = qs("btnTarifaImport");
+  var tarifaFile = qs("tarifaFile");
+
+  // Tarifa modal
+  var tarifaOverlay = qs("tarifaOverlay");
+  var tarifaSheet = qs("tarifaSheet");
+  var btnCloseTarifa = qs("btnCloseTarifa");
+  var tarifaList = qs("tarifaList");
+  var btnSaveTarifa = qs("btnSaveTarifa");
+
+  // ---- Picker modal ----
+  var pickerOverlay = qs("pickerOverlay");
+  var pickerSheet = qs("pickerSheet");
+  var btnClosePicker = qs("btnClosePicker");
+  var pickerTitle = qs("pickerTitle");
+  var pickerList = qs("pickerList");
+  var pickerSearch = qs("pickerSearch");
+  var btnClearSlot = qs("btnClearSlot");
+
+  // ---- Estado ----
+  var tariff = loadTariff();
+  ensureCamerasBase(tariff);
+  ensureExtrasBase(tariff);
+  // ---- Normalización tarifa (v4.0) ----
+  // Añade vidrios laminados Stadip (RG E55) y corrige espesores conocidos.
+  function addGlassIfMissing(name, eur_m2, mm){
+    if(!tariff.glasses) tariff.glasses = [];
+    for(var i=0;i<tariff.glasses.length;i++){
+      if(String(tariff.glasses[i].name||"").trim().toLowerCase() === String(name).trim().toLowerCase()) return;
+    }
+    var obj = { name: name, eur_m2: eur_m2 };
+    if(mm && isFinite(mm)) obj.mm = mm;
+    tariff.glasses.push(obj);
+  }
+
+  // Stadip (laminar) — precios RG E55
+  addGlassIfMissing("Stadip 33,1", 30.44);
+  addGlassIfMissing("Stadip 44,1", 37.44);
+  addGlassIfMissing("Stadip 55,1", 43.22);
+  addGlassIfMissing("Stadip 33,2", 36.44);
+  addGlassIfMissing("Stadip 44,2", 43.44);
+  addGlassIfMissing("Stadip 55,2", 49.22);
+  addGlassIfMissing("Stadip 66,2", 52.99);
+  addGlassIfMissing("Stadip 88,2", 77.43);
+  addGlassIfMissing("Stadip 1010,2", 98.67);
+
+  // Stadip con PVB Silence (acústico)
+  addGlassIfMissing("Stadip 33,1 Silence", 39.44);
+  addGlassIfMissing("Stadip 44,1 Silence", 46.44);
+  addGlassIfMissing("Stadip 55,1 Silence", 52.22);
+  addGlassIfMissing("Stadip 66,2 Silence", 64.99);
+  addGlassIfMissing("Stadip 88,2 Silence", 89.43);
+
+  // Bajo emisivo laminado (Planitherm / Planistar) — RG E55
+  addGlassIfMissing("Planitherm XN 33,1", 38.18);
+  addGlassIfMissing("Planitherm XN 44,1", 44.03);
+  addGlassIfMissing("Planitherm XN 44,2", 53.03);
+  addGlassIfMissing("Planitherm XN 66,2", 66.35);
+
+  addGlassIfMissing("Planitherm 4S 44,1", 49.98);
+  addGlassIfMissing("Planitherm 4S 44,2", 58.98);
+  addGlassIfMissing("Planitherm 4S 66,2", 75.36);
+
+  addGlassIfMissing("Planistar ONE 44,1", 59.81);
+  addGlassIfMissing("Planistar ONE 44,2", 68.81);
+  addGlassIfMissing("Planistar ONE 66,2", 94.82);
+
+  addGlassIfMissing("Planitherrm XN Silence 44,1", 51.83); // ya estaba en algunas versiones
+  addGlassIfMissing("Planitherrm XN Silence 66,2", 79.48);
+
+  addGlassIfMissing("Planistar ONE Silence 44,1", 72.57);
+  addGlassIfMissing("Planistar ONE Silence 66,2", 108.22);
+
+  // Control solar laminado con Cool-Lite (RG E55)
+  addGlassIfMissing("Stadip 44,1 Cool-Lite Xtreme", 76.68);
+  addGlassIfMissing("Stadip 66,2 Cool-Lite Xtreme", 97.59);
+  addGlassIfMissing("Stadip 66,2 Cool-Lite ST150, ST120", 80.49);
+  addGlassIfMissing("Stadip 66,2 Cool-Lite STB120", 92.25);
+
+  // Asegura espesor explícito para Cool-Lite Xtreme (6 mm monolítico)
+  for(var ii=0; ii<(tariff.glasses||[]).length; ii++){
+    var nm = String((tariff.glasses[ii]||{}).name||"").toLowerCase();
+    if(nm.indexOf("cool-lite xtreme") !== -1 && nm.indexOf("6mm") !== -1){
+      tariff.glasses[ii].mm = 6;
+    }
+  }
+
+  // Guarda la tarifa normalizada (incluye nuevos vidrios)
+  saveTariff(tariff);
+
+  saveTariff(tariff);
+
+  // ---- Catálogo (solo vidrios) ----
+  // Nota: La tarifa incluye recargos/manufacturas (barrotillos, escaneos, mínimos, etc.) que NO son vidrios.
+  // Aquí filtramos para que los selectores de vidrio solo muestren vidrios.
+  var GLASS_CATALOG = buildGlassCatalog((tariff && tariff.glasses) || []);
+
+  function buildGlassCatalog(glasses){
+    var out = [];
+    var blacklist = [
+      "barrotillo","varilla","autocad","escanear","plantilla","plantillas",
+      "facturación","facturacion","recogida","recogida de vidrio","reciclar",
+      "canto pulido","canto","estria","bisel",
+      "ángulo","angulo","lado curvo","circulo",
+      "incorporación","incorporacion","limpiar","aprovechar","medir","presentar",
+      "más de","mas de","%","recargo","superficie","m2","m²","lado de mayor"
+    ];
+    for(var i=0;i<glasses.length;i++){
+      var g = glasses[i];
+      var name = String((g && g.name) || "").trim();
+      if(!name) continue;
+      var low = name.toLowerCase();
+
+      var skip = false;
+      for(var k=0;k<blacklist.length;k++){
+        if(low.indexOf(blacklist[k]) !== -1){ skip = true; break; }
+      }
+      if(skip) continue;
+
+      // Añade grosor explícito si se puede inferir del nombre (mm / 44,1 / etc.)
+      // (No cambia precio, solo mejora cálculo y visualización.)
+      if(g && (g.mm === undefined || g.mm === null || g.mm === 0)){
+        try{
+          var mm = parseGlassThicknessMM(name);
+          if(mm && isFinite(mm) && mm > 0) g.mm = mm;
+        }catch(e){}
+      }
+
+      out.push(g);
+    }
+    // Orden alfabético
+    out.sort(function(a,b){
+      return String(a.name||"").localeCompare(String(b.name||""), "es");
+    });
+    return out;
+  }
+
+  var selected = { v1:null, c1:null, v2:null, c2:null, v3:null };
+
+  function ensureCamerasBase(t){
+    try {
+      if(!t || !Array.isArray(t.cameras)) return;
+      var base = [6,8,10,12];
+      for(var k=0;k<base.length;k++){
+        var mm = base[k];
+        var has = false;
+        for(var i=0;i<t.cameras.length;i++){ if(Number(t.cameras[i].mm) === mm){ has = true; break; } }
+        if(!has) t.cameras.push({ mm:mm, eur_m2:0 });
+        // si existe pero sin precio, fuerza 0
+        for(var j=0;j<t.cameras.length;j++){
+          if(Number(t.cameras[j].mm) === mm && (t.cameras[j].eur_m2 == null || isNaN(Number(t.cameras[j].eur_m2)))) {
+            t.cameras[j].eur_m2 = 0;
+          }
+        }
+      }
+      // Ordena por mm asc
+      t.cameras.sort(function(a,b){ return Number(a.mm||0) - Number(b.mm||0); });
+    } catch(e){}
+  }
+
+
+  function ensureExtrasBase(t){
+    if(!t.extras || !Array.isArray(t.extras.items)){
+      t.extras = {
+        items: [
+          {id:"butiral_color", name:"Butiral color", unit:"m2", price:9.30, category:"Butiral", mode:"single"},
+          {id:"butiral_translucido", name:"Butiral translúcido", unit:"m2", price:11.80, category:"Butiral", mode:"single"},
+          {id:"gas_argon", name:"Gas argón", unit:"m2", price:0.00, category:"Gas", mode:"multi"},
+          {id:"barrotillo_blanco", name:"Barrotillo blanco 25mm", unit:"ml", price:6.68, category:"Barrotillo", mode:"single"},
+          {id:"barrotillo_madera", name:"Barrotillo color madera", unit:"ml", price:13.81, category:"Barrotillo", mode:"single"},
+          {id:"barrotillo_color", name:"Barrotillo color", unit:"ml", price:14.40, category:"Barrotillo", mode:"single"},
+          {id:"varilla_blanca", name:"Varilla blanca", unit:"ml", price:10.30, category:"Varilla", mode:"single"},
+          {id:"varilla_dorada", name:"Varilla dorada", unit:"ml", price:10.62, category:"Varilla", mode:"single"},
+          {id:"barrotillo_limpio", name:"Incorporación de barrotillo limpio", unit:"ud", price:12.00, category:"Servicios barrotillo", mode:"multi"},
+          {id:"barrotillo_aprovechar", name:"Limpiar y aprovechar barrotillo", unit:"ud", price:18.00, category:"Servicios barrotillo", mode:"multi"},
+          {id:"canto_46", name:"Canto pulido 4-6 mm", unit:"ml", price:1.20, category:"Manufactura", mode:"single"},
+          {id:"canto_810", name:"Canto pulido 8-10 mm", unit:"ml", price:2.40, category:"Manufactura", mode:"single"},
+          {id:"canto_stadip_33_44", name:"Canto pulido stadip 3+3 y 4+4", unit:"ml", price:2.50, category:"Manufactura", mode:"single"},
+          {id:"canto_stadip_55_66", name:"Canto pulido stadip 5+5 y 6+6", unit:"ml", price:3.60, category:"Manufactura", mode:"single"},
+          {id:"canto_stadip_88", name:"Canto pulido stadip 8+8", unit:"ml", price:4.50, category:"Manufactura", mode:"single"},
+          {id:"canto_stadip_1010", name:"Canto pulido stadip 10+10", unit:"ml", price:6.00, category:"Manufactura", mode:"single"},
+          {id:"canto_ind_456", name:"Canto pulido industrial 4-5-6 mm", unit:"ml", price:1.00, category:"Manufactura industrial", mode:"single"},
+          {id:"canto_ind_810", name:"Canto pulido industrial 8 y 10 mm", unit:"ml", price:1.50, category:"Manufactura industrial", mode:"single"},
+          {id:"canto_ind_33_44", name:"Canto pulido industrial 3+3 y 4+4", unit:"ml", price:1.80, category:"Manufactura industrial", mode:"single"},
+          {id:"canto_ind_55_66", name:"Canto pulido industrial 5+5 y 6+6", unit:"ml", price:2.50, category:"Manufactura industrial", mode:"single"},
+          {id:"estria_simple", name:"Estría simple", unit:"ml", price:4.70, category:"Estrías", mode:"single"},
+          {id:"estria_doble", name:"Estría doble", unit:"ml", price:6.80, category:"Estrías", mode:"single"},
+          {id:"estria_triple", name:"Estría triple", unit:"ml", price:8.90, category:"Estrías", mode:"single"},
+          {id:"bisel_6", name:"Bisel en vidrio de hasta 6mm", unit:"ml", price:4.70, category:"Bisel", mode:"multi"},
+          {id:"forma_angulo", name:"Ángulo distinto de 90º", unit:"pct", price:15, category:"Forma", mode:"single"},
+          {id:"forma_curvo", name:"Lado curvo", unit:"pct", price:55, category:"Forma", mode:"single"},
+          {id:"forma_circulo", name:"Círculo", unit:"pct", price:115, category:"Forma", mode:"single"},
+          {id:"servicio_autocad", name:"Medir o presentar plantillas en Autocad", unit:"ud", price:8.00, category:"Otros servicios", mode:"multi"},
+          {id:"servicio_escanear", name:"Escanear plantillas", unit:"ud", price:22.00, category:"Otros servicios", mode:"multi"},
+          {id:"servicio_chapas", name:"Incorporación de vidrios o chapas", unit:"ud", price:25.00, category:"Otros servicios", mode:"multi"}
+        ],
+        recargos_superficie: [
+          {over:4, pct:18},
+          {over:5, pct:28},
+          {over:6, pct:40},
+          {over:7, pct:48},
+          {over:8, pct:55},
+          {over:9, pct:65},
+          {over:10, pct:85}
+        ],
+        recargo_lado_mayor_pct: 30,
+        min_m2_argon: 0.70
+      };
+      return;
+    }
+    if(!Array.isArray(t.extras.recargos_superficie)) t.extras.recargos_superficie = [];
+    if(!isFinite(Number(t.extras.recargo_lado_mayor_pct))) t.extras.recargo_lado_mayor_pct = 30;
+    if(!isFinite(Number(t.extras.min_m2_argon))) t.extras.min_m2_argon = 0.70;
+  }
+
+  function buildExtrasState(){
+    return {
+      single:{},
+      multi:{}
+    };
+  }
+
+  var extrasSelected = buildExtrasState();
+  var extrasDraft = buildExtrasState();
+
+  function cloneExtrasState(st){
+    return JSON.parse(JSON.stringify(st || buildExtrasState()));
+  }
+
+  function resetExtrasState(){
+    extrasSelected = buildExtrasState();
+    extrasDraft = buildExtrasState();
+    renderExtrasSummary(0, 0, 0, { items:[], m2:0, ml:0, ud:0, shapePct:0 }, 0, 0);
+    renderExtrasList();
+  }
+
+  function setMultiChecked(state, id, on){
+    state.multi[id] = !!on;
+  }
+
+  function isExtraChecked(state, item){
+    if(!item) return false;
+    if(item.mode === "single") return state.single[item.category] === item.id;
+    return !!state.multi[item.id];
+  }
+
+  function setExtraChecked(state, item, on){
+    if(!item) return;
+    if(item.mode === "single"){
+      if(on) state.single[item.category] = item.id;
+      else if(state.single[item.category] === item.id) delete state.single[item.category];
+    } else {
+      setMultiChecked(state, item.id, on);
+    }
+  }
+
+  function getSelectedExtraItems(state){
+    var items = ((tariff.extras||{}).items || []);
+    return items.filter(function(it){ return isExtraChecked(state, it); });
+  }
+
+  function computeExtraBreakdown(m2_calc, m2_fac, ml){
+    var items = getSelectedExtraItems(extrasSelected);
+    var baseM2 = 0, baseML = 0, baseUD = 0, shapePct = 0;
+    items.forEach(function(it){
+      var price = Number(it.price||0);
+      if(it.unit === "m2"){
+        var factM2 = m2_fac;
+        if(it.id === "gas_argon"){
+          factM2 = Math.max(m2_calc, Number((tariff.extras||{}).min_m2_argon || 0.70));
+        }
+        baseM2 += factM2 * price;
+      } else if(it.unit === "ml"){
+        baseML += ml * price;
+      } else if(it.unit === "ud"){
+        baseUD += price;
+      } else if(it.unit === "pct"){
+        shapePct += price;
+      }
+    });
+    return { items:items, m2:baseM2, ml:baseML, ud:baseUD, shapePct:shapePct };
+  }
+
+  function getSurfacePct(m2_calc){
+    var rules = (((tariff.extras||{}).recargos_superficie)||[]).slice().sort(function(a,b){
+      return Number(a.over||0)-Number(b.over||0);
+    });
+    var pct = 0;
+    rules.forEach(function(r){
+      if(m2_calc > Number(r.over||0)) pct = Number(r.pct||0);
+    });
+    return pct;
+  }
+
+  function getLongSidePct(anchoMM, altoMM){
+    var maxLado = Math.max(Number(anchoMM||0), Number(altoMM||0));
+    return maxLado > 3200 ? Number((tariff.extras||{}).recargo_lado_mayor_pct || 30) : 0;
+  }
+
+  function renderExtrasSummary(m2_calc, m2_fac, ml, extraInfo, surfacePct, longPct){
+    if(elExtrasM2) elExtrasM2.textContent = money(extraInfo.m2);
+    if(elExtrasML) elExtrasML.textContent = money(extraInfo.ml);
+    if(elExtrasUD) elExtrasUD.textContent = money(extraInfo.ud);
+    if(elShapePct) elShapePct.textContent = money(extraInfo.shapePct).replace(",00","") + "%";
+    if(elSurfacePct) elSurfacePct.textContent = money(surfacePct).replace(",00","") + "%";
+    if(elLongSidePct) elLongSidePct.textContent = money(longPct).replace(",00","") + "%";
+    if(elExtrasSummary){
+      var names = extraInfo.items.map(function(it){ return it.name; });
+      if(!names.length){
+        elExtrasSummary.textContent = "Sin extras seleccionados.";
+      } else {
+        elExtrasSummary.textContent = names.join(" · ");
+      }
+    }
+  }
+
+  function openExtras(){
+    extrasDraft = cloneExtrasState(extrasSelected);
+    renderExtrasList();
+    if(extrasOverlay) extrasOverlay.classList.add("open");
+    if(extrasSheet) extrasSheet.classList.add("open");
+    if(extrasOverlay) extrasOverlay.setAttribute("aria-hidden","false");
+    if(extrasSheet) extrasSheet.setAttribute("aria-hidden","false");
+    if(dockResult) dockResult.classList.add("hideDock");
+    setModalOpen(true);
+  }
+
+  function closeExtras(){
+    if(extrasOverlay) extrasOverlay.classList.remove("open");
+    if(extrasSheet) extrasSheet.classList.remove("open");
+    if(extrasOverlay) extrasOverlay.setAttribute("aria-hidden","true");
+    if(extrasSheet) extrasSheet.setAttribute("aria-hidden","true");
+    if(dockResult) dockResult.classList.remove("hideDock");
+    if(!anyModalOpen()) setModalOpen(false);
+  }
+
+  function renderExtrasList(){
+    if(!extrasList) return;
+    extrasList.innerHTML = "";
+    var items = ((tariff.extras||{}).items || []);
+    var order = ["Butiral","Gas","Barrotillo","Varilla","Servicios barrotillo","Manufactura","Manufactura industrial","Estrías","Bisel","Forma","Otros servicios"];
+    order.forEach(function(cat){
+      var catItems = items.filter(function(it){ return it.category === cat; });
+      if(!catItems.length) return;
+      var group = document.createElement("div");
+      group.className = "extraGroup";
+      var head = document.createElement("div");
+      head.className = "extraGroupHead";
+      head.textContent = cat;
+      group.appendChild(head);
+
+      catItems.forEach(function(it){
+        var row = document.createElement("div");
+        row.className = "extraRow";
+        row.setAttribute("role", "button");
+        row.setAttribute("tabindex", "0");
+
+        var input = document.createElement("input");
+        input.type = "checkbox";
+        input.name = "extra_" + it.category;
+        input.checked = isExtraChecked(extrasDraft, it);
+
+        function toggleExtra(nextState){
+          setExtraChecked(extrasDraft, it, !!nextState);
+          if(it.mode === "single"){
+            renderExtrasList();
+          } else {
+            input.checked = !!nextState;
+          }
+        }
+
+        row.addEventListener("click", function(ev){
+          if(ev.target === input) return;
+          ev.preventDefault();
+          toggleExtra(!isExtraChecked(extrasDraft, it));
+        }, false);
+        row.addEventListener("keydown", function(ev){
+          if(ev.key === "Enter" || ev.key === " "){
+            ev.preventDefault();
+            toggleExtra(!isExtraChecked(extrasDraft, it));
+          }
+        }, false);
+        input.addEventListener("click", function(ev){
+          ev.stopPropagation();
+        }, false);
+        input.addEventListener("change", function(ev){
+          ev.preventDefault();
+          toggleExtra(input.checked);
+        }, false);
+
+        var main = document.createElement("div");
+        main.className = "extraMain";
+        var nm = document.createElement("div");
+        nm.className = "extraName";
+        nm.textContent = it.name;
+        var meta = document.createElement("div");
+        meta.className = "extraMeta";
+        meta.textContent = (it.unit === "pct" ? "recargo %" : ("aplica por " + it.unit));
+        main.appendChild(nm);
+        main.appendChild(meta);
+        var price = document.createElement("div");
+        price.className = "extraPrice";
+        price.textContent = (it.unit === "pct" ? (money(it.price).replace(",00","") + "%") : (money(it.price) + " €/" + it.unit));
+        row.appendChild(input);
+        row.appendChild(main);
+        row.appendChild(price);
+        group.appendChild(row);
+      });
+      extrasList.appendChild(group);
+    });
+  }
+  function pickDefaults(){
+    var g = null;
+    for(var i=0;i<(tariff.glasses||[]).length;i++) {
+      var nm = String(tariff.glasses[i].name||"").toLowerCase();
+      if(nm.indexOf("luna 4") > -1 || nm.indexOf("4mm") > -1 || nm.indexOf("4 mm") > -1) { g = tariff.glasses[i]; break; }
+    }
+    if(!g) g = (tariff.glasses && tariff.glasses.length) ? tariff.glasses[0] : {name:"Luna 4mm", eur_m2:0};
+
+    var c = null;
+    for(var j=0;j<(tariff.cameras||[]).length;j++) {
+      if(Number(tariff.cameras[j].mm) === 16) { c = tariff.cameras[j]; break; }
+    }
+    if(!c) c = (tariff.cameras && tariff.cameras.length) ? tariff.cameras[0] : {mm:16, eur_m2:0};
+
+    selected.v1 = g;
+    selected.v2 = g;
+    selected.c1 = c;
+    selected.c2 = null;
+    selected.v3 = null;
+  }
+  pickDefaults();
+
+  // ---- Utils ----
+  function money(n){
+    var v = (isFinite(n)? n:0);
+    return v.toLocaleString("es-ES", {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function ceilToMultiple(value, step){
+    var v = Number(value) || 0;
+    var s = Number(step) || 0;
+    if(s <= 0) return v;
+    return Math.ceil(v / s) * s;
+  }
+  function setBtn(btn, valEl, text, empty){
+    if(!btn) return;
+    if(valEl) valEl.textContent = text;
+    if(empty) btn.classList.add("empty"); else btn.classList.remove("empty");
+  }
+
+  function refreshSlots(){
+    var sv1 = selected.v1, sv2 = selected.v2, sv3 = selected.v3;
+    var sc1 = selected.c1, sc2 = selected.c2;
+
+    setBtn(slots.v1, vals.v1, sv1 ? String(sv1.name) : "—", !sv1);
+    setBtn(slots.v2, vals.v2, sv2 ? String(sv2.name) : "—", !sv2);
+    setBtn(slots.v3, vals.v3, sv3 ? String(sv3.name) : "—", !sv3);
+
+    setBtn(slots.c1, vals.c1, sc1 ? (String(Number(sc1.mm)) + " mm") : "—", !sc1);
+    setBtn(slots.c2, vals.c2, sc2 ? (String(Number(sc2.mm)) + " mm") : "—", !sc2);
+  }
+
+  function getParts(){
+    var parts = [];
+    function addGlass(g){ if(g && g.name) parts.push(String(g.name).trim()); }
+    function addCam(c){ if(c && isFinite(Number(c.mm))) parts.push(String(Number(c.mm))); }
+    addGlass(selected.v1);
+    addCam(selected.c1);
+    addGlass(selected.v2);
+    if(selected.c2 && selected.v3){ addCam(selected.c2); addGlass(selected.v3); }
+    return parts;
+  }
+
+  
+  // --- v4.0: grosor correcto (vidrios + cámaras) ---
+  function parseGlassThicknessMM(name){
+    var s = String(name||"").toLowerCase();
+
+    // Caso directo "4mm", "6 mm", "8.8mm", etc.
+    var m = s.match(/(\\d+(?:[.,]\\d+)?)\\s*mm/);
+    if(m){
+      var v = Number(String(m[1]).replace(",", "."));
+      if(isFinite(v)) return v;
+    }
+
+    // Nomenclatura laminado tipo 44,1 / 33.2 / 55,2
+    // Regla: XY.Z => X mm + Y mm + (0.38 * Z) interlayer
+    // (Z=1 ->0.38, Z=2 ->0.76, etc.)
+    var lam = s.match(/\\b(\\d)(\\d)\\s*[.,]\\s*(\\d)\\b/);
+    if(lam){
+      var g1 = Number(lam[1]), g2 = Number(lam[2]), z = Number(lam[3]);
+      if(isFinite(g1) && isFinite(g2) && isFinite(z)){
+        return (g1 + g2) + (0.38 * z);
+      }
+    }
+
+    return 0;
+  }
+
+  function getGlassThicknessMM(g){
+    if(!g) return 0;
+    var direct = Number(g.mm);
+    if(isFinite(direct) && direct > 0) return direct;
+    return parseGlassThicknessMM(g.name);
+  }
+
+  function getCameraMM(c){
+    if(!c) return 0;
+    var v = Number(c.mm);
+    return isFinite(v) ? v : 0;
+  }
+
+  function selectedThicknessMM(){
+    // Suma: vidrio + cámara + vidrio (+ cámara + vidrio si triple)
+    var t = 0;
+    t += getGlassThicknessMM(selected.v1);
+    t += getCameraMM(selected.c1);
+    t += getGlassThicknessMM(selected.v2);
+    if(selected.c2 && selected.v3){
+      t += getCameraMM(selected.c2);
+      t += getGlassThicknessMM(selected.v3);
+    }
+    // Redondeo a 2 decimales para laminados tipo 44,1 (8.38)
+    return Math.round(t * 100) / 100;
+  }
+
+function sumEurM2(){
+    var sum = 0;
+    function add(x){ if(!x) return; var v = Number(x.eur_m2); if(isFinite(v)) sum += v; }
+    add(selected.v1); add(selected.c1); add(selected.v2);
+    if(selected.c2 && selected.v3){ add(selected.c2); add(selected.v3); }
+    return sum;
+  }
+
+  function recalc(){
+    var anchoIn = Number(elAncho && elAncho.value || 0);
+    var altoIn  = Number(elAlto  && elAlto.value  || 0);
+
+    var stepMM = Number(elMul6mm && elMul6mm.value || 60);
+    var anchoMM = anchoIn;
+    var altoMM  = altoIn;
+    if(elMul6 && elMul6.checked) {
+      anchoMM = ceilToMultiple(anchoIn, stepMM);
+      altoMM  = ceilToMultiple(altoIn, stepMM);
+    }
+
+    if(anchoMM <= 0 || altoMM <= 0) {
+      if(elM2Real) elM2Real.textContent = "0.00";
+      if(elM2Fac)  elM2Fac.textContent  = "0.00";
+      if(elEurM2)  elEurM2.textContent  = "0.00";
+      if(elDockM2) elDockM2.textContent = "0.00";
+      if(elDockML) elDockML.textContent = "0.00";
+      if(elTotalPrecio) elTotalPrecio.textContent = "0,00";
+      if(elCompTxt) elCompTxt.textContent = "—";
+      if(elGrosorTxt) elGrosorTxt.textContent = "0";
+      if(elDockM2Btn) elDockM2Btn.classList.remove("isMin");
+      return;
+    }
+
+    var anchoM = anchoMM / 1000;
+    var altoM  = altoMM  / 1000;
+
+    var m2_real = (anchoIn/1000) * (altoIn/1000);
+    var m2_calc = anchoM * altoM;
+
+    var minFact = Number(tariff.min_m2);
+    if(!isFinite(minFact)) minFact = 0.70;
+
+    var m2_fac = Math.max(m2_calc, minFact);
+    var ml = (anchoM*2) + (altoM*2);
+
+    var usedMinFact = (m2_calc < minFact);
+    if(elDockM2Btn) elDockM2Btn.classList.toggle("isMin", usedMinFact);
+
+    if(elM2Real) elM2Real.textContent = m2_real.toFixed(2);
+    if(elM2Fac)  elM2Fac.textContent  = m2_fac.toFixed(2);
+
+    var parts = getParts();
+    if(elCompTxt) elCompTxt.textContent = parts.join("/") || "—";
+
+    var grosor = selectedThicknessMM();
+    if(elGrosorTxt) elGrosorTxt.textContent = String(grosor);
+
+    var eurM2 = sumEurM2();
+    if(elEurM2) elEurM2.textContent = eurM2.toFixed(2);
+
+    var baseTotal = m2_fac * eurM2;
+    var extraInfo = computeExtraBreakdown(m2_calc, m2_fac, ml);
+    var surfacePct = getSurfacePct(m2_calc);
+    var longPct = getLongSidePct(anchoMM, altoMM);
+
+    var total = baseTotal + extraInfo.m2 + extraInfo.ml + extraInfo.ud;
+    var totalPct = surfacePct + longPct + extraInfo.shapePct;
+    if(totalPct > 0) total = total * (1 + totalPct/100);
+
+    var iva = loadIVA();
+    if(iva && iva.on){ total = total * (1 + (Number(iva.rate)||21)/100); }
+
+    renderExtrasSummary(m2_calc, m2_fac, ml, extraInfo, surfacePct, longPct);
+
+    if(elDockM2) elDockM2.textContent = m2_fac.toFixed(2);
+    if(elDockML) elDockML.textContent = ml.toFixed(2);
+    if(elTotalPrecio) elTotalPrecio.textContent = money(total);
+  }
+
+  // ---- Settings open/close ----
+  function openSettings(){
+    if(dockResult) dockResult.classList.add("hideDock");
+    setModalOpen(true);
+    if(settingsOverlay) settingsOverlay.classList.add("open");
+    if(settingsSheet) settingsSheet.classList.add("open");
+    if(settingsOverlay) settingsOverlay.setAttribute("aria-hidden","false");
+    if(settingsSheet) settingsSheet.setAttribute("aria-hidden","false");
+  }
+  function closeSettings(){
+    if(settingsOverlay) settingsOverlay.classList.remove("open");
+    if(settingsSheet) settingsSheet.classList.remove("open");
+    if(settingsOverlay) settingsOverlay.setAttribute("aria-hidden","true");
+    if(settingsSheet) settingsSheet.setAttribute("aria-hidden","true");
+    if(dockResult) dockResult.classList.remove("hideDock");
+    if(!anyModalOpen()) setModalOpen(false);
+  }
+
+  // ---- Picker ----
+  var currentPick = { slot:null, kind:null };
+
+  function setModalOpen(isOpen){
+    try{
+      if(isOpen) document.body.classList.add("modalOpen");
+      else document.body.classList.remove("modalOpen");
+    }catch(e){}
+  }
+
+  function anyModalOpen(){
+    return (settingsOverlay && settingsOverlay.classList.contains("open")) ||
+           (tarifaOverlay && tarifaOverlay.classList.contains("open")) ||
+           (extrasOverlay && extrasOverlay.classList.contains("open")) ||
+           (pickerOverlay && pickerOverlay.classList.contains("open"));
+  }
+
+
+  function openPicker(slotKey, kind){
+    currentPick.slot = slotKey;
+    currentPick.kind = kind;
+
+    if(pickerSearch) pickerSearch.value = "";
+    if(pickerTitle) pickerTitle.textContent = (kind === "glass") ? "Seleccionar vidrio" : "Seleccionar cámara";
+    if(btnClearSlot) btnClearSlot.style.display = (slotKey === "v1" || slotKey === "c1" || slotKey === "v2") ? "none" : "inline-flex";
+
+    if(pickerOverlay) pickerOverlay.classList.add("open");
+    if(pickerSheet) pickerSheet.classList.add("open");
+    if(pickerOverlay) pickerOverlay.setAttribute("aria-hidden","false");
+    if(pickerSheet) pickerSheet.setAttribute("aria-hidden","false");
+
+    if(dockResult) dockResult.classList.add("hideDock");
+    setModalOpen(true);
+
+    renderPickerList();
+    setTimeout(function(){ try{ if(pickerSearch) pickerSearch.focus(); }catch(e){} }, 50);
+  }
+
+  function closePicker(){
+    if(pickerOverlay) pickerOverlay.classList.remove("open");
+    if(pickerSheet) pickerSheet.classList.remove("open");
+    if(pickerOverlay) pickerOverlay.setAttribute("aria-hidden","true");
+    if(pickerSheet) pickerSheet.setAttribute("aria-hidden","true");
+ 
+    if(dockResult) dockResult.classList.remove("hideDock");
+    if(!anyModalOpen()) setModalOpen(false);
+  }
+
+  function renderPickerList(){
+    if(!pickerList) return;
+    var q = String((pickerSearch && pickerSearch.value) || "").trim().toLowerCase();
+    pickerList.innerHTML = "";
+
+    var items = [];
+    if(currentPick.kind === "glass") {
+      for(var i=0;i<(GLASS_CATALOG||[]).length;i++) {
+        var it = GLASS_CATALOG[i];
+        items.push({ label:String(it.name||"—"), eur:Number(it.eur_m2||0), raw:it });
+      }
+      items.sort(function(a,b){ return a.label.localeCompare(b.label, "es"); });
+    } else {
+      for(var j=0;j<(tariff.cameras||[]).length;j++) {
+        var it2 = tariff.cameras[j];
+        items.push({ label:String(Number(it2.mm||0)) + " mm", eur:Number(it2.eur_m2||0), raw:it2 });
+      }
+      items.sort(function(a,b){ return Number(a.raw.mm||0) - Number(b.raw.mm||0); });
+    }
+
+    if(q) {
+      items = items.filter(function(it){ return it.label.toLowerCase().indexOf(q) > -1 || String(it.eur).indexOf(q) > -1; });
+    }
+
+    if(!items.length) {
+      var row0 = document.createElement("div");
+      row0.className = "listRow";
+      row0.innerHTML = '<span class="listKey">Sin resultados</span><span class="listVal">—</span>';
+      pickerList.appendChild(row0);
+      return;
+    }
+
+    items.forEach(function(it) {
+      var row = document.createElement("div");
+      row.className = "listRow";
+      row.setAttribute("role","button");
+      row.tabIndex = 0;
+      row.innerHTML = '<span class="listKey">' + it.label + '</span><span class="listVal">' + money(it.eur) + '</span>';
+      row.addEventListener("click", function(e){ e.preventDefault(); applyPick(it.raw); }, { passive:false });
+      row.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); applyPick(it.raw); } });
+      pickerList.appendChild(row);
+    });
+  }
+
+  function applyPick(raw){
+    var s = currentPick.slot;
+    if(!s) return;
+    selected[s] = raw;
+    refreshSlots();
+    recalc();
+    closePicker();
+  }
+
+  function clearCurrentSlot(){
+    var s = currentPick.slot;
+    if(!s) return;
+    if(s === "v1" || s === "c1" || s === "v2") return;
+    selected[s] = null;
+    refreshSlots();
+    recalc();
+    closePicker();
+  }
+
+  
+  // ---- Tarifa: lista editable ----
+  function openTarifa(){
+    if(!tarifaOverlay || !tarifaSheet) return;
+    if(dockResult) dockResult.classList.add("hideDock");
+    renderTarifa();
+    tarifaOverlay.classList.add("open");
+    tarifaSheet.classList.add("open");
+    tarifaOverlay.setAttribute("aria-hidden","false");
+    tarifaSheet.setAttribute("aria-hidden","false");
+  }
+  function closeTarifa(){
+    if(!tarifaOverlay || !tarifaSheet) return;
+    tarifaOverlay.classList.remove("open");
+    tarifaSheet.classList.remove("open");
+    tarifaOverlay.setAttribute("aria-hidden","true");
+    tarifaSheet.setAttribute("aria-hidden","true");
+    if(dockResult) dockResult.classList.remove("hideDock");
+    if(!anyModalOpen()) setModalOpen(false);
+  }
+  function renderTarifa(){
+    if(!tarifaList) return;
+    tarifaList.innerHTML = "";
+
+    function header(txt){
+      var h = document.createElement("div");
+      h.className = "listRow";
+      h.innerHTML = '<span class="listKey"><b>' + txt + '</b></span><span class="listVal">€/m²</span>';
+      tarifaList.appendChild(h);
+    }
+    function row(label, value, type, idx){
+      var r = document.createElement("div");
+      r.className = "listRow";
+
+      var left = document.createElement("span");
+      left.className = "listKey";
+      left.textContent = label;
+
+      var input = document.createElement("input");
+      input.type = "number";
+      input.step = "0.01";
+      input.inputMode = "decimal";
+      input.value = (isFinite(Number(value)) ? Number(value).toFixed(2) : "0.00");
+      input.dataset.type = type;
+      input.dataset.idx = String(idx);
+      input.style.width = "92px";
+      input.style.textAlign = "right";
+      input.style.borderRadius = "10px";
+      input.style.padding = "8px 10px";
+      input.style.background = "rgba(255,255,255,.08)";
+      input.style.border = "1px solid rgba(255,255,255,.14)";
+      input.style.color = "var(--text)";
+      input.style.fontWeight = "900";
+
+      r.appendChild(left);
+      r.appendChild(input);
+      tarifaList.appendChild(r);
+    }
+
+    header("VIDRIOS");
+    (tariff.glasses||[]).forEach(function(g,i){
+      row(String(g.name||"—"), Number(g.eur_m2||0), "glass", i);
+    });
+
+    header("CÁMARAS");
+    (tariff.cameras||[]).forEach(function(c,i){
+      row("Cámara " + String(Number(c.mm||0)) + " mm", Number(c.eur_m2||0), "camera", i);
+    });
+  }
+
+  function saveTarifaFromList(){
+    if(!tarifaList) return;
+    var inputs = tarifaList.querySelectorAll("input[data-type]");
+    for(var i=0;i<inputs.length;i++){
+      var inp = inputs[i];
+      var val = Number(String(inp.value||"").replace(",", "."));
+      if(!isFinite(val)) val = 0;
+      var type = inp.dataset.type;
+      var idx = Number(inp.dataset.idx);
+      if(type === "glass" && tariff.glasses && tariff.glasses[idx]) tariff.glasses[idx].eur_m2 = val;
+      if(type === "camera" && tariff.cameras && tariff.cameras[idx]) tariff.cameras[idx].eur_m2 = val;
+    }
+    // garantiza cámara 10
+    try{
+      var has10=false;
+      for(var j=0;j<(tariff.cameras||[]).length;j++){ if(Number(tariff.cameras[j].mm)===10){ has10=true; break; } }
+      if(!has10) tariff.cameras.push({mm:10, eur_m2:0});
+      tariff.cameras.sort(function(a,b){ return Number(a.mm||0)-Number(b.mm||0); });
+    }catch(e){}
+    saveTariff(tariff);
+    refreshSlots();
+    recalc();
+  }
+
+  // ---- Export / Import (.json) ----
+  function buildTarifaPayload(){
+    return {
+      app: "RAMOS_CLIMALIT",
+      version: "2.5",
+      ts: new Date().toISOString(),
+      tariff: tariff
+    };
+  }
+
+  function exportTarifa(){
+    try {
+      var payload = buildTarifaPayload();
+      var txt = JSON.stringify(payload, null, 2);
+
+      var d = new Date();
+      var y = d.getFullYear();
+      var mo = String(d.getMonth()+1).padStart(2,"0");
+      var da = String(d.getDate()).padStart(2,"0");
+      var filename = "RAMOS_Climalit_tarifa_" + y + "-" + mo + "-" + da + ".json";
+
+      // iOS share si se puede
+      try {
+        if(window.File) {
+          var file = new File([txt], filename, { type:"application/json" });
+          if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+            navigator.share({ files:[file], title:"Tarifa Climalit", text:"Tarifa Ramos Climalit" }).catch(function(){});
+            return;
+          }
+        }
+      } catch(e){}
+
+      // fallback download
+      var blob = new Blob([txt], {type:"application/json"});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 800);
+    } catch(e) {
+      try{ alert("No se pudo exportar."); }catch(_e){}
+    }
+  }
+
+  function triggerImportTarifa(){
+    if(tarifaFile) {
+      try{ tarifaFile.value = ""; }catch(e){}
+      tarifaFile.click();
+    }
+  }
+
+  function applyImportedTariff(newTariff){
+    if(!newTariff || typeof newTariff !== "object") throw new Error("bad");
+    if(!Array.isArray(newTariff.glasses) || !Array.isArray(newTariff.cameras)) throw new Error("bad");
+    if(typeof newTariff.min_m2 !== "number") newTariff.min_m2 = 0.70;
+    ensureCamerasBase(newTariff);
+    ensureExtrasBase(newTariff);
+
+    tariff = newTariff;
+    saveTariff(tariff);
+
+    // Reset selección a defaults con la nueva tarifa
+    pickDefaults();
+    refreshSlots();
+    recalc();
+  }
+
+  function importTarifaFromFile(file){
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var obj = JSON.parse(String(reader.result || ""));
+        var newTariff = (obj && obj.tariff) ? obj.tariff : obj;
+        applyImportedTariff(newTariff);
+        try{ alert("Tarifa importada."); }catch(_e){}
+      } catch(e) {
+        try{ alert("Tarifa no válida."); }catch(_e){}
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---- Bind events ----
+  function bindRecalc(el) {
+    if(!el) return;
+    el.addEventListener("input", recalc, { passive:true });
+    el.addEventListener("change", recalc, { passive:true });
+  }
+  bindRecalc(elAncho); bindRecalc(elAlto);
+  if(elMul6) elMul6.addEventListener("change", recalc, { passive:true });
+  if(elMul6mm) bindRecalc(elMul6mm);
+
+  Object.keys(slots).forEach(function(k){
+    var btn = slots[k];
+    if(!btn) return;
+    btn.addEventListener("click", function(e){ e.preventDefault(); openPicker(k, btn.dataset.kind); }, { passive:false });
+  });
+
+  if(pickerSearch) pickerSearch.addEventListener("input", renderPickerList, { passive:true });
+  if(btnClosePicker) btnClosePicker.addEventListener("click", function(e){ e.preventDefault(); closePicker(); }, { passive:false });
+  if(pickerOverlay) pickerOverlay.addEventListener("click", function(e){ e.preventDefault(); closePicker(); }, { passive:false });
+  if(btnClearSlot) btnClearSlot.addEventListener("click", function(e){ e.preventDefault(); clearCurrentSlot(); }, { passive:false });
+
+  if(btnSettings) btnSettings.addEventListener("click", function(e){ e.preventDefault(); openSettings(); }, { passive:false });
+  if(btnCloseSettings) btnCloseSettings.addEventListener("click", function(e){ e.preventDefault(); closeSettings(); }, { passive:false });
+  if(settingsOverlay) settingsOverlay.addEventListener("click", function(e){ e.preventDefault(); closeSettings(); }, { passive:false });
+  if(btnHome) btnHome.addEventListener("click", function(e){ 
+    e.preventDefault(); 
+    closeSettings();
+    try{ window.scrollTo({ top:0, left:0, behavior:"smooth" }); }catch(err){ window.scrollTo(0,0); }
+  }, { passive:false });
+
+
+  if(btnTarifaEditor) btnTarifaEditor.addEventListener("click", function(e){ e.preventDefault(); openTarifa(); }, { passive:false });
+  if(btnCloseTarifa) btnCloseTarifa.addEventListener("click", function(e){ e.preventDefault(); closeTarifa(); }, { passive:false });
+  if(tarifaOverlay) tarifaOverlay.addEventListener("click", function(e){ e.preventDefault(); closeTarifa(); }, { passive:false });
+  if(btnSaveTarifa) btnSaveTarifa.addEventListener("click", function(e){ e.preventDefault(); saveTarifaFromList(); closeTarifa(); }, { passive:false });
+
+  if(btnTarifaExport) btnTarifaExport.addEventListener("click", function(e){ e.preventDefault(); exportTarifa(); }, { passive:false });
+  if(btnTarifaImport) btnTarifaImport.addEventListener("click", function(e){ e.preventDefault(); triggerImportTarifa(); }, { passive:false });
+
+  if(btnExtras) btnExtras.addEventListener("click", function(e){ e.preventDefault(); openExtras(); }, { passive:false });
+  if(btnCloseExtras) btnCloseExtras.addEventListener("click", function(e){ e.preventDefault(); closeExtras(); }, { passive:false });
+  if(extrasOverlay) extrasOverlay.addEventListener("click", function(e){ e.preventDefault(); closeExtras(); }, { passive:false });
+  if(btnSaveExtras) btnSaveExtras.addEventListener("click", function(e){
+    e.preventDefault();
+    extrasSelected = cloneExtrasState(extrasDraft);
+    closeExtras();
+    recalc();
+  }, { passive:false });
+  if(tarifaFile) tarifaFile.addEventListener("change", function(e){ 
+    var f = (e.target && e.target.files && e.target.files[0]) ? e.target.files[0] : null;
+    importTarifaFromFile(f);
+    try{ e.target.value = ""; }catch(_e){}
+  }, { passive:true });
+
+  if(btnReset) btnReset.addEventListener("click", function(e){
+    e.preventDefault();
+    if(elAncho) elAncho.value = 1000;
+    if(elAlto) elAlto.value = 1000;
+    if(elMul6) elMul6.checked = false;
+    if(elMul6mm) elMul6mm.value = 60;
+    pickDefaults();
+    resetExtrasState();
+    refreshSlots();
+    recalc();
+  }, { passive:false });
+
+  if(btnIVA) btnIVA.addEventListener("click", function(e){ e.preventDefault(); toggleIVA(); }, { passive:false });
+
+  // Init
+  refreshSlots();
+  updateIVAUI();
+  recalc();
+  document.addEventListener("touchend", function(){}, { passive:true });
+})();
+<\/script>
+</body>
+</html>`;
+  const htmlMono = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1224" />
+  <title>Ramos Tarifa 2025 Monolítico · V4.0</title>
+  <style>
+    :root{
+      --bg0:#060816; --bg1:#0b1224;
+      --card:rgba(255,255,255,.06); --card2:rgba(255,255,255,.04);
+      --border:rgba(255,255,255,.12);
+      --text:#eef3ff; --muted:rgba(238,243,255,.72);
+      --accent:#6ee7ff; --good:#34d399; --warn:#fbbf24; --bad:#fb7185;
+      --shadow:0 18px 44px rgba(0,0,0,.45);
+      --radius:18px;
+      --inputBg:#fff3c9; --inputBg2:#ffe7a0; --inputText:#111827; --focus:rgba(255, 214, 102, .35);
+      --btn:#2f7dff; --btn2:#1f5fff;
+      --chip:rgba(110,231,255,.12); --chipBorder:rgba(110,231,255,.28);
+      --line:rgba(255,255,255,.12);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:transparent !important;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+      -webkit-font-smoothing:antialiased;
+      -webkit-text-size-adjust:100%;
+      touch-action:manipulation;
+    }
+    .bgFixed{
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(114, 214, 255, .14), transparent 58%),
+        radial-gradient(900px 520px at 85% 16%, rgba(167, 139, 250, .14), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+    .wrap{ max-width: 820px; margin: 0 auto; padding: 12px 4px 190px; }
+    .topbar{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding: 6px 6px 14px; }
+    .brand{ display:flex; flex-direction:column; gap:4px; }
+    .brand .title{ font-size: 22px; font-weight: 950; letter-spacing: .2px; line-height: 1.1; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+    .brand .title small{ font-size: 12px; font-weight: 900; color: var(--accent); opacity: .95; letter-spacing: .6px; text-transform: uppercase; }
+    .brand .subtitle{ font-size: 12px; color: var(--muted); font-weight: 800; letter-spacing: .3px; }
+    .iconBtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:44px; height:44px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select:none; -webkit-user-select:none;
+      cursor:pointer;
+    }
+    .iconBtn:active{ transform: translateY(1px); }
+    .sectionTitle{
+      margin: 14px 6px 10px;
+      font-size: 12px;
+      color: rgba(170,219,255,.95);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .cardHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 2px 2px 12px; }
+    .cardHead .h{ font-size: 15px; font-weight: 950; letter-spacing:.2px; }
+    .hint{ font-size:12px; color: var(--muted); font-weight: 800; }
+    .grid{ display:grid; grid-template-columns:1fr; gap: 12px; }
+    .gridMeasures{ grid-template-columns: 1fr 1fr; }
+    .gridMeasures .full{ grid-column: 1 / -1; }
+    @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } .full{ grid-column: 1 / -1; } }
+    .field{ border: 1px solid rgba(0,0,0,.22); border-radius: 14px; padding: 12px; background: rgba(0,0,0,.12); }
+    label{ display:block; font-weight:900; font-size: 11px; letter-spacing:.6px; margin-bottom: 8px; color: var(--muted); text-transform: uppercase; }
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(180deg, var(--inputBg), var(--inputBg2));
+      color: var(--inputText);
+      padding: 14px 12px;
+      font-size: 18px;
+      font-weight: 950;
+      outline:none;
+      -webkit-appearance:none;
+      appearance:none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.1);
+    }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus{
+      box-shadow: inset 0 0 0 1px rgba(255,214,102,.55), 0 0 0 4px var(--focus);
+    }
+    select option{ color:#000; font-weight:bold; }
+    .micro{
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(238,243,255,.78);
+      font-weight: 800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .extrasBox{ display:flex; flex-direction:column; gap:8px; padding:10px; border:1px solid var(--line); border-radius:12px; background: rgba(0,0,0,.10); }
+    .extraItem{ display:flex; align-items:center; gap:10px; padding:10px 10px; border:1px solid var(--line); border-radius:12px; background: rgba(255,255,255,0.03); }
+    .extraItem input[type="checkbox"]{ width:18px; height:18px; }
+    .extraMeta{ margin-left:auto; font-variant-numeric: tabular-nums; opacity:.85; font-size:12px; font-weight:900; }
+    .tarGroup.catAccentYellow{
+      background: rgba(255,214,102,.22);
+      border: 1px solid rgba(255,214,102,.45);
+      color: #ffe08a;
+      box-shadow: inset 0 0 0 1px rgba(255,214,102,.12);
+    }
+    .pickItem.catAccentYellow,
+    .extraItem.catAccentYellow{
+      border-color: rgba(255,214,102,.34);
+      background: rgba(255,214,102,.10);
+      box-shadow: inset 0 0 0 1px rgba(255,214,102,.08);
+    }
+    .pickItem.catAccentYellow.active{
+      border-color: rgba(255,214,102,.78);
+      background: rgba(255,214,102,.20);
+      box-shadow: inset 0 0 0 1px rgba(255,214,102,.26);
+    }
+    .pickItem{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      text-align:left;
+      cursor:pointer;
+    }
+    .pickItem.active{
+      border-color: rgba(47,125,255,.75);
+      background: rgba(47,125,255,.18);
+      box-shadow: inset 0 0 0 1px rgba(47,125,255,.28);
+    }
+    .pickItemMain{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .pickItemName{ font-weight:900; }
+    .pickItemSub{ font-size:12px; opacity:.78; font-weight:800; }
+    .pickItemPrice{ margin-left:auto; white-space:nowrap; font-variant-numeric:tabular-nums; font-size:12px; font-weight:900; opacity:.92; }
+    .noteSmall{ font-size:12px; opacity:.78; margin-top:6px; font-weight:800; }
+    .resultDock{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 14px);
+      z-index: 9998;
+      border-radius: 22px;
+      border: 1px solid rgba(34,197,94,.22);
+      background: linear-gradient(180deg, rgba(11,18,36,.98), rgba(11,18,36,.92));
+      box-shadow: 0 -12px 54px rgba(0,0,0,.62), 0 0 0 1px rgba(34,197,94,.10) inset;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .dockMain{
+      flex: 1 1 auto;
+      min-width: 0;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      justify-content:flex-start;
+      gap: 10px;
+    }
+    .price{
+      display:inline-flex;
+      align-items:baseline;
+      gap:6px;
+      padding: 9px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(34,197,94,.40);
+      background: linear-gradient(180deg, rgba(34,197,94,.20), rgba(22,163,74,.14));
+      box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 0 6px rgba(34,197,94,.10);
+      min-width: 0;
+      justify-content: center;
+      flex: 1 1 auto;
+      max-width: 320px;
+    }
+    .price .num{ font-size: clamp(30px, 10vw, 42px); font-weight: 1000; color: #22c55e; letter-spacing: -1px; line-height:1; }
+    .price .unit{ font-size: 16px; font-weight: 950; color: #22c55e; }
+    .dockBtn{
+      width: 58px; height: 58px; border-radius: 18px; border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(49,61,97,.98), rgba(36,46,74,.98));
+      color: rgba(255,255,255,.92); font-weight: 1000; font-size: 14px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 10px 22px rgba(0,0,0,.32);
+      cursor:pointer; -webkit-tap-highlight-color: transparent;
+      user-select:none; -webkit-user-select:none;
+    }
+    .dockBtn:active{ transform: translateY(1px); }
+    .dockBtn.iva[aria-pressed="true"]{
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      color: #fff;
+      border-color: rgba(255,255,255,.14);
+    }
+    .dockBtn.info{ display:none !important; }
+    .dockMeta{ font-size: 14px; color: rgba(255,255,255,.80); white-space: nowrap; }
+    .dockMetaStack{
+      white-space: normal;
+      text-align: right;
+      line-height: 1.15;
+      font-size: 13px;
+      min-width: 72px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+    }
+    .dockMetaStack strong, .dockMeta strong{ color: var(--text); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .m2Btn{
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      border: 1px solid rgba(34,197,94,.35);
+      background: linear-gradient(180deg, rgba(34,197,94,.24), rgba(34,197,94,.10));
+      box-shadow: 0 10px 22px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap: 3px;
+      padding: 0;
+      color: rgba(255,255,255,.92);
+      cursor: default;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .m2Btn .num strong{ font-variant-numeric: tabular-nums; font-size: 15px; line-height: 1; color: rgba(255,255,255,.92); }
+    .m2Btn .lbl{ font-size: 11px; font-weight: 950; letter-spacing: .10em; opacity: .90; }
+    .m2Btn.isMin{ border-color: rgba(239,68,68,.55); background: linear-gradient(180deg, rgba(239,68,68,.28), rgba(239,68,68,.12)); }
+    .m2Btn:active{ transform: translateY(1px); }
+    .dockInfoLine{ display:none; }
+    .badge{
+      display:none;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing:.6px;
+      border:1px solid rgba(255,255,255,.12);
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    .badge.min{ background: rgba(251, 113, 133, .14); border-color: rgba(251, 113, 133, .35); color: #fb7185; }
+    .badge.size{ background: rgba(251,191,36,.15); border-color: rgba(251,191,36,.35); color: var(--warn); }
+
+    /* Modales */
+    .modalOverlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity .18s ease;
+      z-index: 20000;
+    }
+    .modalOverlay.open{ opacity: 1; pointer-events: auto; }
+    .modalSheet{
+      position: fixed;
+      left: 0; right: 0; top: 0; bottom: 0;
+      transform: translateY(-120%);
+      transition: transform .22s ease;
+      z-index: 20001;
+      margin: 0;
+      max-width: none;
+    }
+    .modalSheet.open{ transform: translateY(0); }
+    .sheetCard{
+      border-radius: 0;
+      height: 100vh;
+      display:flex;
+      flex-direction:column;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10, 16, 33, .92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+    }
+    .sheetHead{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .sheetTitle{ font-weight: 950; letter-spacing:.2px; }
+    .sheetBody{
+      flex: 1; min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      padding: 12px 14px calc(140px + env(safe-area-inset-bottom));
+    }
+    body.modalOpen .resultDock{ opacity: 0; pointer-events:none; transform: translateY(20px); }
+
+    .btn{
+      border:none;
+      border-radius: 16px;
+      padding: 16px 14px;
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing:.8px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none; -webkit-user-select:none;
+    }
+    .btn.primary{ background: linear-gradient(180deg, var(--btn), var(--btn2)); color: white; box-shadow: 0 10px 22px rgba(0,0,0,.32); }
+    .btn.success{ background: linear-gradient(180deg, #22c55e, #16a34a); color:#06210f; box-shadow: 0 10px 22px rgba(0,0,0,.32); }
+    .btn.ghost{ background: rgba(255,255,255,.06); color: var(--text); border:1px solid rgba(255,255,255,.14); }
+    .btn:active{ transform: scale(.99); }
+    .btnRow{ display:flex; gap:10px; margin-top:14px; }
+
+    /* Tarifa editor */
+    .tabBar{ display:flex; gap:8px; margin-bottom:10px; }
+    .tabBtn{ flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); font-weight:950; color: var(--text); }
+    .tabBtn.active{ background: rgba(110,231,255,.14); border-color: rgba(110,231,255,.28); }
+    .listBox{ border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(255,255,255,.04); overflow: hidden; }
+    .tarGroup{ padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 12px; font-weight: 950; color: rgba(255,255,255,.86); background: rgba(255,255,255,.03); }
+    .tarRow{ display:flex; align-items:center; gap:10px; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .tarRow:last-child{ border-bottom:none; }
+    .tarKey{ flex:1; min-width:0; }
+    .tarName{ font-weight: 750; font-size: 18px; color: rgba(255,255,255,.92); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tarSub{ margin-top: 2px; font-size: 12px; opacity: .78; white-space: nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tarVal{
+      width: 110px; border-radius: 12px; padding: 10px 10px;
+      background: linear-gradient(180deg, rgba(255,240,179,1), rgba(255,225,140,1));
+      border: 1px solid rgba(0,0,0,.15);
+      color:#000; font-weight: 950; font-size: 14px; outline: none; text-align: right;
+      -webkit-appearance:none; appearance:none;
+    }
+    
+    .tarNameInput{
+      width:100% !important;
+      border:none !important;
+      background: transparent !important;
+      color: rgba(255,255,255,.92) !important;
+      font-weight: 800 !important;
+      font-size: 18px !important;
+      line-height: 1.2 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline:none !important;
+      -webkit-appearance:none !important;
+      appearance:none !important;
+    }
+    .tarNameInput::placeholder{ color: rgba(255,255,255,.45); }
+    .tarPricePill{
+      width: 120px !important;
+      text-align: right !important;
+      border-radius: 16px !important;
+      padding: 12px 12px !important;
+      background: rgba(255,255,255,.06) !important;
+      border: 1px solid rgba(255,255,255,.14) !important;
+      color: rgba(255,255,255,.95) !important;
+      font-weight: 950 !important;
+      font-size: 20px !important;
+      outline:none !important;
+      box-shadow: none !important;
+      -webkit-appearance:none !important;
+      appearance:none !important;
+    }
+    .tarPricePill:focus{ box-shadow: 0 0 0 4px rgba(110,231,255,.18) !important; border-color: rgba(110,231,255,.28) !important; }
+
+    .miniIcon.danger{
+      width:44px;
+      height:44px;
+      border-radius: 18px;
+      background: #ff0033 !important;
+      border: 1px solid rgba(255,255,255,.18) !important;
+      color: #fff !important;
+      font-size: 20px;
+      font-weight: 1000;
+      box-shadow: 0 10px 18px rgba(255,0,51,.22);
+    }
+    .miniIcon.danger:active{ transform: translateY(1px) scale(.99); }
+    .miniIcon{
+      width:38px; height:38px; border-radius:14px;
+      display:inline-flex; align-items:center; justify-content:center;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      -webkit-tap-highlight-color: transparent;
+      cursor:pointer;
+    }
+    .miniIcon:active{ transform: translateY(1px); }
+    .addBox{
+      margin-top:12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .row3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+    .small{ padding: 12px 10px; font-size: 14px; font-weight: 950; }
+    .note{
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 850;
+      color: rgba(238,243,255,.75);
+      line-height: 1.3;
+    }
+    
+    .tarAddOverlay{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0,0,0,.45);
+      z-index: 22050;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      touch-action: manipulation;
+    }
+    .tarAddOverlay.show{ display:flex; }
+    .tarAddOverlay .addBox{
+      width: min(720px, 96vw);
+      max-height: min(76vh, 720px);
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      background: rgba(10, 16, 33, .96);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom: calc(env(safe-area-inset-bottom) + 92px);
+      transform: translateX(-50%);
+      background: rgba(17,24,39,.92);
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+      max-width: min(92vw, 520px);
+      font-weight: 850;
+      font-size: 13px;
+      letter-spacing: .2px;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 30000;
+    }
+    .toast.show{ opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  </style>
+</head>
+<body>
+  <div class="bgFixed" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <div class="title">Ramos <small>Tarifa 2025 Monolítico · V4.0</small></div>
+        <div class="subtitle">Tarifa editable (Vidrios + Extras) · Exportar / Importar JSON</div>
+      </div>
+
+      <button aria-label="Configuración" class="iconBtn" id="btnSettings" type="button">
+        <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="2"></path>
+          <path d="M19.4 15a8 8 0 0 0 .1-1l2-1.3-2-3.4-2.3.7a7.9 7.9 0 0 0-1.7-1L15 6.6 11 6l-.5 2.3a7.9 7.9 0 0 0-1.7 1l-2.3-.7-2 3.4 2 1.3a8 8 0 0 0 0 2l-2 1.3 2 3.4 2.3-.7a7.9 7.9 0 0 0 1.7 1L11 22l4 .6.5-2.3a7.9 7.9 0 0 0 1.7-1l2.3.7 2-3.4-2-1.3Z" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="sectionTitle">1) Medidas</div>
+    <section class="card">
+      <div class="cardHead">
+        <div class="h">Dimensiones (mm)</div>
+      </div>
+      <div class="grid gridMeasures">
+        <div class="field">
+          <input id="ancho" type="number" inputmode="decimal" placeholder="ANCHO (mm)" value="1000" aria-label="Ancho en milímetros" />
+        </div>
+        <div class="field">
+          <input id="alto" type="number" inputmode="decimal" placeholder="ALTO (mm)" value="1000" aria-label="Alto en milímetros" />
+        </div>
+        <div class="field full">
+          <div class="micro">
+            <span>m² reales: <strong id="m2Real">0.00</strong></span>
+            <span>m² facturables: <strong id="m2Fac">0.00</strong></span>
+            <span>perímetro: <strong id="mlPer">0.00</strong> ml</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sectionTitle">2) Vidrio</div>
+    <section class="card">
+      <div class="cardHead">
+        <div class="h">Catálogo</div>
+        <div class="hint">Monolítico mín. 0,25 · Laminar mín. 0,50</div>
+      </div>
+
+      <div class="grid">
+        <div class="field full">
+          <label>Vidrio</label>
+          <button class="btn primary" id="btnPickVidrio" type="button" style="width:100%;">Seleccionar el vidrio</button>
+          <div class="noteSmall" id="vidrioSummary">—</div>
+        </div>
+
+        <div class="field full">
+          <label>Extras</label>
+          <button class="btn primary" id="btnExtras" type="button" style="width:100%;">Seleccionar extras</button>
+          <div class="noteSmall" id="extrasSummary">Ningún extra seleccionado.</div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <div class="resultDock" id="dockResult">
+    <div class="dockMain">
+      <div class="price" aria-live="polite">
+        <span class="num" id="totalPrecio">0,00</span>
+        <span class="unit">€</span>
+      </div>
+      <button aria-label="Reset" class="dockBtn reset" id="btnReset" title="Reset" type="button">⟳</button>
+      <button aria-label="IVA" aria-pressed="false" class="dockBtn iva" id="btnIVA" title="IVA" type="button">IVA</button>
+      <button aria-label="Info" class="dockBtn info" id="btnInfo" title="Info" type="button">Info</button>
+    </div>
+    <div class="dockMeta dockMetaStack">
+      <button aria-label="M² facturados" class="m2Btn" id="dockM2Btn" type="button">
+        <span class="num"><strong id="dockM2">0.00</strong></span>
+        <span class="lbl">M²</span>
+      </button>
+      <span id="badgeMinimo" class="badge min">MÍNIMO</span>
+      <span id="badgeRecargo" class="badge size">+ RECARGO</span>
+      <span id="dockML" style="display:none;">0.00</span>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modalOverlay" id="settingsOverlay"></div>
+  <div aria-hidden="true" class="modalSheet" id="settingsSheet">
+    <div class="sheetCard">
+      <div class="sheetHead">
+        <div class="sheetTitle">Configuración</div>
+        <button aria-label="Cerrar" class="iconBtn" id="btnCloseSettings" type="button">
+          <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="sheetBody">
+        <div class="note" style="margin-top:2px;">
+          Tarifa editable: puedes ver precios, añadir vidrios/extras, guardar y Exportar/Importar JSON.
+        </div>
+
+        <div class="btnRow">
+          <button class="btn primary" id="btnTarifa" style="flex:1;" type="button">Tarifa</button>
+          <button class="btn primary" id="btnExport" style="flex:1;" type="button">Exportar</button>
+          <button class="btn primary" id="btnImport" style="flex:1;" type="button">Importar</button>
+          <input id="tarifaFile" type="file" accept="application/json" style="display:none" />
+        </div>
+
+        <div class="note">
+          Consejo: exporta una tarifa “actualizada” y guárdala en Archivos para volver a importarla cuando quieras.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modalOverlay" id="tarifaOverlay"></div>
+  <div aria-hidden="true" class="modalSheet" id="tarifaSheet" style="z-index:21001;"></div>
+  
+  <div aria-hidden="true" class="modalOverlay" id="extrasOverlay"></div>
+  <div aria-hidden="true" class="modalSheet" id="extrasSheet" style="z-index:21011;">
+    <div class="sheetCard">
+      <div class="sheetHead">
+        <div class="sheetTitle">Extras</div>
+        <button aria-label="Cerrar" class="iconBtn" id="btnCloseExtras" type="button">
+          <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="sheetBody">
+        <div class="note" style="margin-top:2px;">
+          Selecciona los extras que necesites. Se aplican automáticamente (m² / ml / ud).
+        </div>
+        <div class="listBox" id="extrasList" style="margin-top:12px;"></div>
+        <div class="note" style="margin-top:12px;">
+          Nota: algunas categorías son exclusivas (solo 1 opción).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modalOverlay" id="vidrioOverlay"></div>
+  <div aria-hidden="true" class="modalSheet" id="vidrioSheet" style="z-index:21010;">
+    <div class="sheetCard">
+      <div class="sheetHead">
+        <div class="sheetTitle">Vidrio</div>
+        <button aria-label="Cerrar" class="iconBtn" id="btnCloseVidrio" type="button">
+          <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="sheetBody">
+        <div class="note" style="margin-top:2px;">
+          Selecciona el vidrio tocando una sola opción. Se aplica al instante.
+        </div>
+        <div class="listBox" id="vidrioList" style="margin-top:12px;"></div>
+        <div style="display:none;">
+          <label for="vidrio">Selecciona el vidrio</label>
+          <select id="vidrio"></select>
+        </div>
+        <div class="note" style="margin-top:12px;">
+          Consejo: el mínimo de vidrio se aplica automáticamente según el tipo (monolítico / laminar).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div aria-hidden="true" class="modalOverlay" id="infoOverlay"></div>
+  <div aria-hidden="true" class="modalSheet" id="infoSheet" style="z-index:21020;">
+    <div class="sheetCard">
+      <div class="sheetHead">
+        <div class="sheetTitle">Info</div>
+        <button aria-label="Cerrar" class="iconBtn" id="btnCloseInfo" type="button">
+          <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="sheetBody">
+        <div class="note" style="margin-top:2px;">Resumen del trabajo actual.</div>
+        <div class="infoGrid" id="infoGrid" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const LS_KEY = "RAMOS_MONOLITICO_TARIFA_V3";
+  const IVA_KEY = "RAMOS_MONOLITICO_IVA_V1";
+  const qs = (id)=>document.getElementById(id);
+
+  // ===== Nuevas Funciones Faltantes Reparadas =====
+  function loadIVA(){
+    return { on: localStorage.getItem(IVA_KEY) === "1", rate: 21 };
+  }
+  function saveIVAState(isOn){
+    localStorage.setItem(IVA_KEY, isOn ? "1" : "0");
+  }
+  function updateIVAUI(){
+    const btnIVA = qs("btnIVA");
+    if(btnIVA){
+      const isOn = loadIVA().on;
+      btnIVA.setAttribute("aria-pressed", isOn ? "true" : "false");
+    }
+  }
+  function toggleIVA(){
+    const isOn = loadIVA().on;
+    saveIVAState(!isOn);
+    updateIVAUI();
+    calcular();
+  }
+  function escapeHtml(str) {
+    if(!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+  // ================================================
+
+  function onTap(el, fn){
+    if(!el) return;
+    el.addEventListener("click", fn, false);
+    el.addEventListener("keydown", (ev)=>{
+      if(ev.key==="Enter" || ev.key===" "){
+        ev.preventDefault();
+        fn(ev);
+      }
+    }, false);
+  }
+
+  const elToast = qs("toast");
+  let toastTimer = null;
+  function showToast(msg){
+    if(!elToast) return;
+    elToast.textContent = String(msg||"");
+    elToast.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> elToast.classList.remove("show"), 2400);
+  }
+
+  function moneyEUR(n){
+    const v = Number.isFinite(n) ? n : 0;
+    return v.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function uid(prefix){
+    return (prefix||"id") + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+  }
+
+  function defaultTariff(){
+    const t = {
+      app:"RAMOS_MONOLITICO",
+      version:"3.0",
+      ts:new Date().toISOString(),
+      vidrios:[
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 3mm", eur_m2:14.97, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 4mm", eur_m2:16.75, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 5mm", eur_m2:21.26, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 6mm", eur_m2:25.52, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 8mm", eur_m2:35.75, tipo:"mono", cp:2.40, cpi:1.50},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 10mm", eur_m2:46.61, tipo:"mono", cp:2.40, cpi:1.50},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 4mm gris/bronce/verde", eur_m2:29.26, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 5mm gris/bronce/verde", eur_m2:40.72, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 6mm gris/bronce/verde", eur_m2:51.35, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 3mm", eur_m2:22.58, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 5mm", eur_m2:31.99, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 4mm", eur_m2:27.17, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas new", eur_m2:28.32, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 6mm", eur_m2:37.03, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Picks 4mm", eur_m2:120.14, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Escarcha / Espiga 4mm", eur_m2:120.14, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Delta 4mm", eur_m2:64.99, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Gaudi 4mm", eur_m2:174.88, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Bambú", eur_m2:142.46, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 3mm", eur_m2:31.11, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 4mm", eur_m2:26.83, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 5mm", eur_m2:33.54, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 6mm", eur_m2:39.76, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm ST150 / ST120", eur_m2:46.36, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm STB120", eur_m2:60.90, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Reflectante", name:"Stopsol 6mm", eur_m2:74.99, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 33,1", eur_m2:32.40, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 44,1", eur_m2:39.63, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 55,1", eur_m2:45.77, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 33,2", eur_m2:38.40, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 44,2", eur_m2:45.63, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 55,2", eur_m2:51.77, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 66,2", eur_m2:57.11, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 88,2", eur_m2:89.51, tipo:"lam", cp:4.50, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 1010,2", eur_m2:120.39, tipo:"lam", cp:6.00, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 33,1 Silence", eur_m2:41.40, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 44,1 Silence", eur_m2:48.63, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 55,1 Silence", eur_m2:54.77, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 66,1 Silence", eur_m2:69.11, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 88,1 Silence", eur_m2:113.08, tipo:"lam", cp:4.50, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite ST150 / ST120", eur_m2:83.56, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite STB120", eur_m2:95.77, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Reflectante", name:"Stopsol 55,1", eur_m2:83.20, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Seguridad", name:"SP 510 - P5A", eur_m2:102.90, tipo:"lam", cp:0, cpi:0},
+        {id:uid("v"), group:"Seguridad", name:"SP 615 - P6B", eur_m2:155.31, tipo:"lam", cp:0, cpi:0},
+      ],
+      extras:[
+        {id:uid("e"), name:"Butiral color", unit:"m2", price:9.30, category:"Butiral", mode:"single"},
+        {id:uid("e"), name:"Butiral translúcido", unit:"m2", price:11.80, category:"Butiral", mode:"single"},
+        {id:uid("e"), name:"Bisel (hasta 6mm)", unit:"ml", price:4.70, category:"Perímetro", mode:"single"},
+        {id:uid("e"), name:"Estría simple", unit:"ml", price:4.70, category:"Perímetro", mode:"single"},
+        {id:uid("e"), name:"Estría doble", unit:"ml", price:6.80, category:"Perímetro", mode:"single"},
+        {id:uid("e"), name:"Estría triple", unit:"ml", price:8.90, category:"Perímetro", mode:"single"},
+        {id:uid("e"), name:"Medir o presentar plantillas en Autocad", unit:"ud", price:8.00, category:"Otros servicios", mode:"multi"},
+        {id:uid("e"), name:"Escanear plantillas", unit:"ud", price:22.00, category:"Otros servicios", mode:"multi"},
+      ]
+    };
+    return t;
+  }
+
+  function normalizeTariff(obj){
+    if(!obj) return null;
+    if(obj.tariff) obj = obj.tariff;
+    if(Array.isArray(obj.vidrios) && Array.isArray(obj.extras)){
+      obj.vidrios = obj.vidrios.map(v=>({ id: v.id||uid("v"), group:String(v.group||""), name:String(v.name||""), eur_m2:+v.eur_m2||0, tipo:(v.tipo==="lam"?"lam":"mono"), cp:+v.cp||0, cpi:+v.cpi||0 }));
+      obj.extras  = obj.extras.map(e=>({ id: e.id||uid("e"), name:String(e.name||""), unit:(["m2","ml","ud","pct"].includes(e.unit)?e.unit:"m2"), price:+e.price||0, category:String(e.category||"Extras"), mode:(e.mode==="single"?"single":"multi") }));
+      obj.app = obj.app || "RAMOS_MONOLITICO";
+      obj.version = obj.version || "3.0";
+      obj.ts = obj.ts || new Date().toISOString();
+      return obj;
+    }
+    if(Array.isArray(obj.items)){
+      return {
+        app:"RAMOS_MONOLITICO", version:"3.0", ts:new Date().toISOString(),
+        vidrios: obj.items.map(it=>({ id:uid("v"), group:"", name:String(it.name||""), eur_m2:+it.eur_m2||0, tipo:(it.tipo==="lam"?"lam":"mono"), cp:+it.cp||0, cpi:+it.cpi||0 })),
+        extras:[]
+      };
+    }
+    return null;
+  }
+
+  function loadTariff(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return null;
+      return normalizeTariff(JSON.parse(raw));
+    }catch(e){ return null; }
+  }
+  function saveTariff(t){
+    try{
+      t.ts = new Date().toISOString();
+      localStorage.setItem(LS_KEY, JSON.stringify(t));
+      return true;
+    }catch(e){ return false; }
+  }
+
+  let tariff = null;
+  let _minState = { applied:false, min:0, tipo:'' };
+  let currentCalc = { total:0, m2:0, m2fac:0, ml:0, pctTotal:0, recargoLadoPct:0, pctForma:0, pctSup:0, ivaOn:false, ivaAmount:0, totalBase:0, vidrio:null, extras:[] };
+
+  const elVidrio = qs("vidrio");
+  const btnPickVidrio = qs("btnPickVidrio");
+  const elVidrioSummary = qs("vidrioSummary");
+  const btnExtras = qs("btnExtras");
+  const elExtrasSummary = qs("extrasSummary");
+  const btnManufactura = qs("btnManufactura");
+  const elManufacturaSummary = qs("manufacturaSummary");
+  const manufacturaOverlay = qs("manufacturaOverlay");
+  const manufacturaSheet = qs("manufacturaSheet");
+  const btnCloseManufactura = qs("btnCloseManufactura");
+  const manufacturaList = qs("manufacturaList");
+  const vidrioOverlay = qs("vidrioOverlay");
+  const vidrioSheet = qs("vidrioSheet");
+  const btnCloseVidrio = qs("btnCloseVidrio");
+  const vidrioList = qs("vidrioList");
+  const extrasOverlay = qs("extrasOverlay");
+  const extrasSheet = qs("extrasSheet");
+  const btnCloseExtras = qs("btnCloseExtras");
+  const extrasList = qs("extrasList");
+  const elAncho = qs("ancho");
+  const elAlto  = qs("alto");
+  const elForma = qs("forma");
+  const btnReset = qs("btnReset");
+  const btnIVA = qs("btnIVA");
+  const btnInfo = qs("btnInfo");
+  const infoOverlay = qs("infoOverlay");
+  const infoSheet = qs("infoSheet");
+  const btnCloseInfo = qs("btnCloseInfo");
+  const infoGrid = qs("infoGrid");
+
+  function rebuildVidrioSelect(){
+    if(!elVidrio) return;
+    elVidrio.innerHTML = "";
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "-- Selecciona el vidrio --";
+    elVidrio.appendChild(opt0);
+
+    const map = new Map();
+    (tariff.vidrios||[]).forEach(v=>{
+      const g = (v.group||"Otros").trim() || "Otros";
+      if(!map.has(g)) map.set(g, []);
+      map.get(g).push(v);
+    });
+
+    Array.from(map.keys()).sort((a,b)=>a.localeCompare(b,"es")).forEach(g=>{
+      const og = document.createElement("optgroup");
+      og.label = g;
+      map.get(g).forEach(v=>{
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = v.name;
+        og.appendChild(opt);
+      });
+      elVidrio.appendChild(og);
+    });
+  }
+
+  function trySelectDefaultVidrio(){
+    if(!elVidrio) return;
+    const current = elVidrio.value;
+    if(current && (tariff.vidrios||[]).some(v=>v.id===current)) return;
+
+    const target = (tariff.vidrios||[]).find(v=>String(v.name||"").toLowerCase().includes("luna 4mm"));
+    if(target){
+      elVidrio.value = target.id;
+      return;
+    }
+    const first = (tariff.vidrios||[])[0];
+    if(first) elVidrio.value = first.id;
+  }
+
+  let selectedExtraIds = new Set();
+  let selectedManufactura = { type:"none", id:"" };
+
+  function isPerimeterCategory(name){
+    const norm = String(name||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+    return norm === "perimetro" || norm === "manufactura";
+  }
+
+  function pruneSelectedExtras(){
+    const valid = new Set((tariff.extras||[]).map(e=>e.id));
+    selectedExtraIds = new Set(Array.from(selectedExtraIds).filter(id=>valid.has(id)));
+    if(selectedManufactura.type==="extra"){
+      const ok = (tariff.extras||[]).some(e=>e.id===selectedManufactura.id && isPerimeterCategory(e.category));
+      if(!ok) selectedManufactura = { type:"none", id:"" };
+    }
+    if(selectedManufactura.type==="cp" || selectedManufactura.type==="cpi"){
+      const v = getSelectedVidrio ? getSelectedVidrio() : null;
+      if(!v || !(+v[selectedManufactura.type] > 0)) selectedManufactura = { type:"none", id:"" };
+    }
+  }
+
+  function updateExtrasSummary(){
+    if(!elExtrasSummary) return;
+    const ids = Array.from(selectedExtraIds);
+    if(ids.length===0){
+      elExtrasSummary.textContent = "Ningún extra seleccionado.";
+      return;
+    }
+    const names = ids.map(id=>{
+      const e = (tariff.extras||[]).find(x=>x.id===id);
+      return e ? e.name : "";
+    }).filter(Boolean);
+    const head = names.slice(0,2).join(" · ");
+    const more = names.length>2 ? \` +\${names.length-2}\` : "";
+    elExtrasSummary.textContent = \`\${names.length} seleccionado(s): \${head}\${more}\`;
+  }
+
+  function getManufacturaOptions(){
+    const out = [{ type:"none", id:"", name:"Solo corte", sub:"Sin coste adicional de perímetro", price:0, unit:"ml" }];
+    const vidrio = getSelectedVidrio();
+    if(vidrio){
+      const cp = +vidrio.cp||0;
+      const cpi = +vidrio.cpi||0;
+      if(cp>0) out.push({ type:"cp", id:"cp", name:"Canto pulido", sub:\`Según vidrio seleccionado · \${moneyEUR(cp)} €/ml\`, price:cp, unit:"ml" });
+      if(cpi>0) out.push({ type:"cpi", id:"cpi", name:"Canto pulido industrial", sub:\`Según vidrio seleccionado · \${moneyEUR(cpi)} €/ml\`, price:cpi, unit:"ml" });
+    }
+    (tariff.extras||[]).filter(e=>isPerimeterCategory(e.category)).forEach(e=>{
+      out.push({ type:"extra", id:e.id, name:e.name, sub:\`\${e.category||"Manufactura"} · \${(e.unit==="ml"?moneyEUR(+e.price||0)+" €/ml":(e.unit==="ud"?moneyEUR(+e.price||0)+" €/ud":(e.unit==="pct"?(+e.price||0)+" %":moneyEUR(+e.price||0)+" €/m²")))}\`, price:+e.price||0, unit:e.unit||"ml" });
+    });
+    return out;
+  }
+
+  function updateManufacturaSummary(){
+    if(!elManufacturaSummary || !btnManufactura) return;
+    const options = getManufacturaOptions();
+    const current = options.find(o=>o.type===selectedManufactura.type && o.id===selectedManufactura.id) || options[0];
+    elManufacturaSummary.textContent = current.type==="none" ? "Solo corte." : \`\${current.name} · \${current.sub}\`;
+    btnManufactura.textContent = current.type==="none" ? "Seleccionar manufactura" : \`Manufactura: \${current.name}\`;
+  }
+
+  function rebuildManufacturaModal(){
+    if(!manufacturaList) return;
+    manufacturaList.innerHTML = "";
+    const options = getManufacturaOptions();
+    options.forEach(opt=>{
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "pickItem catAccentYellow" + ((selectedManufactura.type===opt.type && selectedManufactura.id===opt.id) ? " active" : "");
+
+      const main = document.createElement("div");
+      main.className = "pickItemMain";
+
+      const name = document.createElement("div");
+      name.className = "pickItemName";
+      name.textContent = opt.name;
+
+      const sub = document.createElement("div");
+      sub.className = "pickItemSub";
+      sub.textContent = opt.sub;
+
+      const price = document.createElement("div");
+      price.className = "pickItemPrice";
+      price.textContent = opt.type==="none" ? "—" : (opt.unit==="pct" ? \`\${opt.price} %\` : \`\${moneyEUR(opt.price)} €/\${opt.unit==="ml"?"ml":(opt.unit==="ud"?"ud":"m²")}\`);
+
+      main.appendChild(name);
+      main.appendChild(sub);
+      row.appendChild(main);
+      row.appendChild(price);
+      row.addEventListener("click", ()=>{
+        selectedManufactura = { type:opt.type, id:opt.id };
+        updateManufacturaSummary();
+        rebuildManufacturaModal();
+        calcular();
+        closeModal(manufacturaOverlay, manufacturaSheet);
+      });
+      manufacturaList.appendChild(row);
+    });
+  }
+
+  function getCategoryAccentClass(name){
+    const norm = String(name||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+    if(!norm) return "";
+    return "catAccentYellow";
+  }
+
+  function updateVidrioSummary(){
+    if(!elVidrioSummary && !btnPickVidrio) return;
+    let name = "Sin seleccionar";
+    if(elVidrio && elVidrio.value){
+      const opt = elVidrio.options[elVidrio.selectedIndex];
+      if(opt && opt.textContent) name = opt.textContent;
+    }
+    if(elVidrioSummary) elVidrioSummary.textContent = name;
+    if(btnPickVidrio){
+      btnPickVidrio.textContent = (elVidrio && elVidrio.value) ? ("Vidrio: " + name) : "Seleccionar el vidrio";
+    }
+  }
+
+  function rebuildVidrioModal(){
+    if(!vidrioList) return;
+    vidrioList.innerHTML = "";
+
+    const vidrios = tariff.vidrios || [];
+    if(vidrios.length===0){
+      const d = document.createElement("div");
+      d.className = "noteSmall";
+      d.textContent = "No hay vidrios configurados en la tarifa.";
+      vidrioList.appendChild(d);
+      return;
+    }
+
+    const byGroup = new Map();
+    vidrios.forEach(v=>{
+      const g = (v.group||"Otros").trim() || "Otros";
+      if(!byGroup.has(g)) byGroup.set(g, []);
+      byGroup.get(g).push(v);
+    });
+
+    Array.from(byGroup.keys()).sort((a,b)=>a.localeCompare(b,"es")).forEach(group=>{
+      const title = document.createElement("div");
+      const accentClass = getCategoryAccentClass(group);
+      title.className = "tarGroup" + (accentClass ? (" " + accentClass) : "");
+      title.textContent = group;
+      vidrioList.appendChild(title);
+
+      byGroup.get(group).forEach(v=>{
+        const row = document.createElement("button");
+        row.type = "button";
+        const accentClass = getCategoryAccentClass(group);
+        row.className = "pickItem" + (accentClass ? (" " + accentClass) : "") + ((elVidrio && elVidrio.value===v.id) ? " active" : "");
+
+        const main = document.createElement("div");
+        main.className = "pickItemMain";
+
+        const name = document.createElement("div");
+        name.className = "pickItemName";
+        name.textContent = v.name;
+
+        const sub = document.createElement("div");
+        sub.className = "pickItemSub";
+        sub.textContent = \`\${v.tipo==="lam"?"Laminar":"Monolítico"} · CP \${moneyEUR(+v.cp||0)} · CPI \${moneyEUR(+v.cpi||0)}\`;
+
+        const price = document.createElement("div");
+        price.className = "pickItemPrice";
+        price.textContent = \`\${moneyEUR(+v.eur_m2||0)} €/m²\`;
+
+        main.appendChild(name);
+        main.appendChild(sub);
+        row.appendChild(main);
+        row.appendChild(price);
+
+        row.addEventListener("click", ()=>{
+          if(elVidrio) elVidrio.value = v.id;
+          pruneSelectedExtras();
+          updateVidrioSummary();
+          rebuildVidrioModal();
+          calcular();
+          closeModal(vidrioOverlay, vidrioSheet);
+        });
+
+        vidrioList.appendChild(row);
+      });
+    });
+  }
+
+  function rebuildExtrasModal(){
+    if(!extrasList) return;
+    extrasList.innerHTML = "";
+
+    const extras = (tariff.extras || []);
+    if(extras.length===0){
+      const d = document.createElement("div");
+      d.className = "noteSmall";
+      d.textContent = "No hay extras configurados en la tarifa.";
+      extrasList.appendChild(d);
+      updateExtrasSummary();
+      return;
+    }
+
+    const byCat = new Map();
+    extras.forEach(e=>{
+      const cat = (e.category||"Extras").trim() || "Extras";
+      if(!byCat.has(cat)) byCat.set(cat, []);
+      byCat.get(cat).push(e);
+    });
+
+    const cats = Array.from(byCat.keys()).sort((a,b)=>a.localeCompare(b,"es"));
+    cats.forEach(cat=>{
+      const title = document.createElement("div");
+      const accentClass = getCategoryAccentClass(cat);
+      title.className = "tarGroup" + (accentClass ? (" " + accentClass) : "");
+      title.textContent = cat;
+      extrasList.appendChild(title);
+
+      const arr = byCat.get(cat);
+      const isExclusive = arr.some(x=>x.mode==="single");
+
+      arr.forEach(e=>{
+        const wrap = document.createElement("label");
+        wrap.className = "extraItem" + (accentClass ? (" " + accentClass) : "");
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = selectedExtraIds.has(e.id);
+
+        cb.addEventListener("change", ()=>{
+          if(cb.checked){
+            if(isExclusive){
+              arr.forEach(o=>{
+                if(o.id!==e.id) selectedExtraIds.delete(o.id);
+              });
+            }
+            selectedExtraIds.add(e.id);
+          }else{
+            selectedExtraIds.delete(e.id);
+          }
+
+          if(isExclusive){
+            const inputs = extrasList.querySelectorAll('input[type="checkbox"][data-id]');
+            inputs.forEach(inp=>{
+              const id = inp.getAttribute("data-id");
+              inp.checked = selectedExtraIds.has(id);
+            });
+          }
+
+          updateExtrasSummary();
+          calcular();
+        });
+
+        cb.setAttribute("data-id", e.id);
+
+        const name = document.createElement("span");
+        name.textContent = e.name;
+
+        const meta = document.createElement("span");
+        meta.className = "extraMeta";
+        const unitLbl = (e.unit==="ml") ? "€/ml" : (e.unit==="ud" ? "€/ud" : (e.unit==="pct" ? "%": "€/m²"));
+        meta.textContent = (e.unit==="pct") ? \`+\${moneyEUR(e.price)}%\` : \`\${moneyEUR(e.price)} \${unitLbl}\`;
+
+        wrap.appendChild(cb);
+        wrap.appendChild(name);
+        wrap.appendChild(meta);
+        extrasList.appendChild(wrap);
+      });
+    });
+
+    updateExtrasSummary();
+  }
+
+  function applyTariffToUI(){
+    rebuildVidrioSelect();
+    trySelectDefaultVidrio();
+    updateVidrioSummary();
+    rebuildVidrioModal();
+    pruneSelectedExtras();
+    rebuildExtrasModal();
+    updateExtrasSummary();
+    calcular();
+  }
+
+  function getSelectedVidrio(){
+    const id = elVidrio && elVidrio.value ? elVidrio.value : "";
+    if(!id) return null;
+    return (tariff.vidrios||[]).find(v=>v.id===id) || null;
+  }
+
+  function getCheckedExtras(){
+    const ids = Array.from(selectedExtraIds);
+    return ids
+      .map(id=>(tariff.extras||[]).find(e=>e.id===id))
+      .filter(Boolean);
+  }
+
+  function getSelectedManufacturaItem(){
+    if(selectedManufactura.type==="cp" || selectedManufactura.type==="cpi"){
+      const vidrio = getSelectedVidrio();
+      const price = vidrio ? (+vidrio[selectedManufactura.type]||0) : 0;
+      if(!vidrio || !price) return null;
+      return { type:selectedManufactura.type, unit:"ml", price, name:selectedManufactura.type==="cp"?"Canto pulido":"Canto pulido industrial" };
+    }
+    if(selectedManufactura.type==="extra"){
+      return (tariff.extras||[]).find(e=>e.id===selectedManufactura.id && isPerimeterCategory(e.category)) || null;
+    }
+    return null;
+  }
+
+  function areaAndPerimeter(){
+    const w = Math.max(0, parseFloat((elAncho && elAncho.value) || "0")) / 1000;
+    const h = Math.max(0, parseFloat((elAlto && elAlto.value) || "0")) / 1000;
+    const m2 = w*h;
+    const ml = 2*(w+h);
+    const sideMax = Math.max(w,h);
+    return { w,h,m2,ml,sideMax };
+  }
+
+  function minAreaForTipo(tipo){
+    return tipo==="lam" ? 0.50 : 0.25;
+  }
+
+  function formaRecargoPct(){
+    const v = (elForma && elForma.value) || "recto";
+    if(v==="angulo") return 15;
+    if(v==="curvo") return 55;
+    if(v==="circulo") return 115;
+    return 0;
+  }
+
+  function superficieRecargoPct(m2){
+    if(m2>10) return 85;
+    if(m2>9) return 65;
+    if(m2>8) return 55;
+    if(m2>7) return 48;
+    if(m2>6) return 40;
+    if(m2>5) return 28;
+    if(m2>4) return 18;
+    return 0;
+  }
+
+  function xFinite(n){ return Number.isFinite(+n); }
+
+  function calcular(){
+    const {m2, ml, sideMax} = areaAndPerimeter();
+    const vidrio = getSelectedVidrio();
+    const tipo = vidrio ? vidrio.tipo : "mono";
+
+    let m2fac = m2;
+    let appliedMin = false;
+    if(vidrio){
+      const min = minAreaForTipo(tipo);
+      if(m2fac < min){
+        m2fac = min;
+        appliedMin = true;
+        if(!_minState.applied || _minState.min!==min || _minState.tipo!==tipo){
+          _minState = { applied:true, min:min, tipo:tipo };
+          showToast(\`Se aplica mínimo: \${min.toFixed(2)} m² (\${tipo==="lam"?"Laminar":"Monolítico"})\`);
+        }
+      }
+    }
+
+    if(!appliedMin && _minState.applied){ _minState = { applied:false, min:0, tipo:'' }; }
+
+    const recargoLadoPct = sideMax > 3.20 ? 30 : 0;
+    const pctForma = formaRecargoPct();
+    const pctSup = superficieRecargoPct(m2); 
+    const pctTotal = pctForma + pctSup + recargoLadoPct;
+
+    let total = 0;
+    if(vidrio){
+      total += (+vidrio.eur_m2||0) * m2fac;
+    }
+
+    const checked = getCheckedExtras();
+    checked.forEach(e=>{
+      const p = +e.price||0;
+      if(!p) return;
+      if(e.unit==="ml") total += p*ml;
+      else if(e.unit==="ud") total += p*1;
+      else if(e.unit==="m2") total += p*m2fac;
+      else if(e.unit==="pct") { 
+        total *= (1 + (p/100));
+      }
+    });
+
+    if(pctTotal>0){
+      total *= (1 + (pctTotal/100));
+    }
+
+    const totalBase = total;
+    const iva = loadIVA();
+    let ivaAmount = 0;
+    if(iva && iva.on){
+      ivaAmount = totalBase * ((Number(iva.rate)||21)/100);
+      total = totalBase + ivaAmount;
+    }
+
+    currentCalc = {
+      total,
+      totalBase,
+      ivaOn: !!(iva && iva.on),
+      ivaAmount,
+      m2,
+      m2fac,
+      ml,
+      pctTotal,
+      recargoLadoPct,
+      pctForma,
+      pctSup,
+      vidrio,
+      extras: checked.slice()
+    };
+
+    qs("m2Real").textContent = m2.toFixed(2);
+    qs("m2Fac").textContent = m2fac.toFixed(2);
+    qs("mlPer").textContent = ml.toFixed(2);
+    qs("dockM2").textContent = m2fac.toFixed(2);
+    qs("dockML").textContent = ml.toFixed(2);
+    qs("totalPrecio").textContent = moneyEUR(total);
+
+    const badgeMin = qs("badgeMinimo");
+    badgeMin.style.display = appliedMin ? "inline-block" : "none";
+    const badgeRec = qs("badgeRecargo");
+    badgeRec.style.display = (pctTotal>0) ? "inline-block" : "none";
+
+    updateVidrioSummary();
+  }
+
+  function renderInfo(){
+    if(!infoGrid) return;
+    const vidrio = currentCalc.vidrio;
+    const extras = currentCalc.extras || [];
+    const extraNames = extras.length ? extras.map(e=>e.name).join(" · ") : "Ninguno";
+    const recargos = [];
+    if(currentCalc.pctForma) recargos.push(\`Forma \${currentCalc.pctForma}%\`);
+    if(currentCalc.pctSup) recargos.push(\`Superficie \${currentCalc.pctSup}%\`);
+    if(currentCalc.recargoLadoPct) recargos.push(\`Lado mayor \${currentCalc.recargoLadoPct}%\`);
+    if(_minState.applied) recargos.push(\`Mínimo \${_minState.min.toFixed(2)} m²\`);
+    const ivaTxt = currentCalc.ivaOn ? \`Activo · +\${moneyEUR(currentCalc.ivaAmount)} €\` : "No aplicado";
+    infoGrid.innerHTML = \`
+      <div class="infoCard">
+        <div class="infoCardTitle">Vidrio</div>
+        <div class="infoMain">\${vidrio ? escapeHtml(vidrio.name || "—") : "Sin seleccionar"}</div>
+        <div class="infoSub">\${vidrio ? \`\${vidrio.tipo === "lam" ? "Laminar" : "Monolítico"} · \${moneyEUR(+vidrio.eur_m2||0)} €/m²\` : "Selecciona un vidrio para calcular."}</div>
+      </div>
+      <div class="infoCard">
+        <div class="infoCardTitle">Extras</div>
+        <div class="infoMain">\${escapeHtml(extraNames)}</div>
+        <div class="infoSub">\${extras.length ? \`\${extras.length} seleccionado(s)\` : "Sin extras"}</div>
+      </div>
+      <div class="infoCard">
+        <div class="infoCardTitle">Medidas</div>
+        <div class="infoMain">\${escapeHtml((elAncho && elAncho.value) || "0")} × \${escapeHtml((elAlto && elAlto.value) || "0")} mm</div>
+        <div class="infoSub">\${currentCalc.m2.toFixed(2)} m² reales · \${currentCalc.m2fac.toFixed(2)} m² facturables · \${currentCalc.ml.toFixed(2)} ml</div>
+      </div>
+      <div class="infoCard">
+        <div class="infoCardTitle">Recargos</div>
+        <div class="infoMain">\${escapeHtml(recargos.length ? recargos.join(" · ") : "Sin recargos")}</div>
+        <div class="infoSub">IVA: \${escapeHtml(ivaTxt)}</div>
+      </div>
+      <div class="infoCard">
+        <div class="infoCardTitle">Resultado</div>
+        <div class="infoMain">\${moneyEUR(currentCalc.total)} €</div>
+        <div class="infoSub">Base: \${moneyEUR(currentCalc.totalBase)} €</div>
+      </div>
+    \`;
+  }
+  function openInfo(){
+    renderInfo();
+    openModal(infoOverlay, infoSheet);
+  }
+  function resetApp(){
+    saveIVAState(false);
+    try{ window.scrollTo({ top:0, behavior:"instant" }); }catch(e){ try{ window.scrollTo(0,0); }catch(err){} }
+    window.location.reload();
+  }
+
+  function bindRecalc(el){
+    if(!el) return;
+    el.addEventListener("input", calcular, false);
+    el.addEventListener("change", calcular, false);
+  }
+
+  function openModal(overlay, sheet){
+    if(!overlay || !sheet) return;
+    overlay.classList.add("open");
+    sheet.classList.add("open");
+    document.body.classList.add("modalOpen");
+    overlay.setAttribute("aria-hidden","false");
+    sheet.setAttribute("aria-hidden","false");
+  }
+  function closeModal(overlay, sheet){
+    if(!overlay || !sheet) return;
+    overlay.classList.remove("open");
+    sheet.classList.remove("open");
+    overlay.setAttribute("aria-hidden","true");
+    sheet.setAttribute("aria-hidden","true");
+    const anyOpen = document.querySelector(".modalOverlay.open") || document.querySelector(".modalSheet.open");
+    if(!anyOpen) document.body.classList.remove("modalOpen");
+  }
+
+  const tarifaOverlay = qs("tarifaOverlay");
+  const tarifaSheet = qs("tarifaSheet");
+
+  function buildTarifaSheet(){
+    tarifaSheet.innerHTML = \`
+      <div class="sheetCard">
+        <div class="sheetHead">
+          <div class="sheetTitle">Tarifa</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn success" id="btnAddTop" type="button" style="padding:10px 14px; border-radius:16px; font-weight:950;">+ Añadir</button>
+            <button class="btn primary" id="btnSaveTop" type="button" style="padding:10px 14px; border-radius:16px; font-weight:950;">Guardar</button>
+            <button aria-label="Cerrar" class="iconBtn" id="btnCloseTarifa" type="button">
+              <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="sheetBody" id="tarifaBody">
+          <div class="tabBar">
+            <button class="tabBtn active" id="tabVidrios" type="button">Vidrios</button>
+            <button class="tabBtn" id="tabExtras" type="button">Extras</button>
+          </div>
+
+          <div class="listBox" id="tarifaList"></div>
+
+          <div class="tarAddOverlay" id="addOverlay" style="display:none;">
+            <div class="addBox" id="addBox">
+            <div class="note" id="addTitle" style="margin:0 0 10px 0;">Añadir elemento</div>
+            <div class="row2">
+              <select id="addTipo" class="small">
+                <option value="vidrio">Vidrio</option>
+                <option value="extra">Extra</option>
+              </select>
+              <input id="addNombre" class="small" type="text" placeholder="Nombre" />
+            </div>
+
+            <div id="addFieldsVidrio" style="margin-top:10px;">
+              <div class="row2">
+                <input id="addEurM2" class="small" type="number" step="0.01" min="0" inputmode="decimal" placeholder="€/m²" />
+                <select id="addVidTipo" class="small">
+                  <option value="mono">mono</option>
+                  <option value="lam">lam</option>
+                </select>
+              </div>
+              <div class="row2" style="margin-top:10px;">
+                <input id="addCP" class="small" type="number" step="0.01" min="0" inputmode="decimal" placeholder="CP €/ml (opcional)" />
+                <input id="addCPI" class="small" type="number" step="0.01" min="0" inputmode="decimal" placeholder="CPI €/ml (opcional)" />
+              </div>
+              <div style="margin-top:10px;">
+                <input id="addGrupo" class="small" type="text" placeholder="Grupo (ej. Monolítico · Luna)" />
+              </div>
+            </div>
+
+            <div id="addFieldsExtra" style="display:none; margin-top:10px;">
+              <div class="row2">
+                <select id="addUnidad" class="small">
+                  <option value="m2">m2</option>
+                  <option value="ml">ml</option>
+                  <option value="ud">ud</option>
+                  <option value="pct">%</option>
+                </select>
+                <input id="addPrecio" class="small" type="number" step="0.01" min="0" inputmode="decimal" placeholder="Precio" />
+              </div>
+              <div class="row2" style="margin-top:10px;">
+                <input id="addCategoria" class="small" type="text" placeholder="Categoría (ej. Butiral / Perímetro)" />
+                <select id="addModo" class="small">
+                  <option value="multi">multi</option>
+                  <option value="single">single</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btnRow" style="margin-top:12px;">
+              <button class="btn ghost" id="btnCancelAdd" style="flex:1;" type="button">Cancelar</button>
+              <button class="btn primary" id="btnConfirmAdd" style="flex:1;" type="button">Añadir</button>
+            </div>
+          </div>
+          </div>
+
+          <div class="note" style="margin-top:12px;">
+            Puedes editar o borrar. El botón de editar abre el mismo cuadro completo de + Añadir.
+          </div>
+        </div>
+      </div>
+\`;
+  }
+
+  let openEditVidrio = null;
+  let openEditExtra = null;
+
+  function setActiveTab(which){
+    const tabV = qs("tabVidrios");
+    const tabE = qs("tabExtras");
+    if(which==="vidrios"){
+      tabV.classList.add("active"); tabE.classList.remove("active");
+    }else{
+      tabE.classList.add("active"); tabV.classList.remove("active");
+    }
+  }
+
+  function renderTarifaList(which){
+    const box = qs("tarifaList");
+    if(!box) return;
+    box.innerHTML = "";
+
+    if(which==="vidrios"){
+      const by = new Map();
+      (tariff.vidrios||[]).forEach(v=>{
+        const g = (v.group||"Otros").trim() || "Otros";
+        if(!by.has(g)) by.set(g, []);
+        by.get(g).push(v);
+      });
+      const groups = Array.from(by.keys()).sort((a,b)=>a.localeCompare(b,"es"));
+      groups.forEach(g=>{
+        const gh = document.createElement("div");
+        const accentClass = getCategoryAccentClass(g);
+        gh.className = "tarGroup" + (accentClass ? (" " + accentClass) : "");
+        gh.textContent = g;
+        box.appendChild(gh);
+        by.get(g).forEach(v=>{
+          box.appendChild(makeVidrioRow(v, openEditVidrio));
+        });
+      });
+    }else{
+      const by = new Map();
+      (tariff.extras||[]).forEach(e=>{
+        const c = (e.category||"Extras").trim() || "Extras";
+        if(!by.has(c)) by.set(c, []);
+        by.get(c).push(e);
+      });
+      const cats = Array.from(by.keys()).sort((a,b)=>a.localeCompare(b,"es"));
+      cats.forEach(c=>{
+        const gh = document.createElement("div");
+        const accentClass = getCategoryAccentClass(c);
+        gh.className = "tarGroup" + (accentClass ? (" " + accentClass) : "");
+        gh.textContent = c;
+        box.appendChild(gh);
+        by.get(c).forEach(e=>{
+          box.appendChild(makeExtraRow(e, openEditExtra));
+        });
+      });
+    }
+  }
+
+function makeVidrioRow(v, onEdit){
+  const row = document.createElement("div");
+  row.className = "tarRow";
+
+  const left = document.createElement("div");
+  left.className = "tarKey";
+
+  const nameInput = document.createElement("input");
+  nameInput.className = "tarNameInput";
+  nameInput.type = "text";
+  nameInput.value = v.name || "";
+  nameInput.placeholder = "Nombre del vidrio";
+  nameInput.addEventListener("input", ()=>{
+    v.name = String(nameInput.value || "").trim();
+  });
+
+  const sub = document.createElement("div");
+  sub.className = "tarSub";
+  sub.textContent = \`\${v.tipo==="lam" ? "LAMINAR" : "MONO"} · Grupo \${v.group||"Otros"} · CP \${moneyEUR(+v.cp||0)} €/ml · CPI \${moneyEUR(+v.cpi||0)} €/ml\`;
+
+  left.appendChild(nameInput);
+  left.appendChild(sub);
+
+  const price = document.createElement("input");
+  price.className = "tarPricePill";
+  price.type = "number";
+  price.step = "0.01";
+  price.min = "0";
+  price.inputMode = "decimal";
+  price.value = String(+v.eur_m2||0);
+  price.addEventListener("input", ()=>{
+    v.eur_m2 = parseFloat(price.value)||0;
+  });
+
+  const edit = document.createElement("button");
+  edit.type = "button";
+  edit.className = "miniIcon";
+  edit.textContent = "✎";
+  edit.setAttribute("aria-label","Editar");
+  edit.addEventListener("click", ()=>{
+    if(typeof onEdit==="function") onEdit(v);
+  });
+
+  const del = document.createElement("button");
+  del.type = "button";
+  del.className = "miniIcon danger";
+  del.textContent = "✕";
+  del.setAttribute("aria-label","Eliminar");
+  del.addEventListener("click", ()=>{
+    tariff.vidrios = (tariff.vidrios||[]).filter(x=>x.id!==v.id);
+    renderTarifaList("vidrios");
+  });
+
+  row.appendChild(left);
+  row.appendChild(price);
+  row.appendChild(edit);
+  row.appendChild(del);
+  return row;
+}
+
+function makeExtraRow(e, onEdit){
+  const row = document.createElement("div");
+  row.className = "tarRow";
+
+  const left = document.createElement("div");
+  left.className = "tarKey";
+
+  const nameInput = document.createElement("input");
+  nameInput.className = "tarNameInput";
+  nameInput.type = "text";
+  nameInput.value = e.name || "";
+  nameInput.placeholder = "Nombre del extra";
+  nameInput.addEventListener("input", ()=>{
+    e.name = String(nameInput.value || "").trim();
+  });
+
+  const sub = document.createElement("div");
+  sub.className = "tarSub";
+  const unitLbl = e.unit==="ml"?"€/ml":(e.unit==="ud"?"€/ud":(e.unit==="pct"?"%":"€/m²"));
+  sub.textContent = \`\${(e.category||"Extras")} · \${unitLbl} · modo \${e.mode||"multi"}\`;
+
+  left.appendChild(nameInput);
+  left.appendChild(sub);
+
+  const price = document.createElement("input");
+  price.className = "tarPricePill";
+  price.type = "number";
+  price.step = "0.01";
+  price.min = "0";
+  price.inputMode = "decimal";
+  price.value = String(+e.price||0);
+  price.addEventListener("input", ()=>{
+    e.price = parseFloat(price.value)||0;
+  });
+
+  const edit = document.createElement("button");
+  edit.type = "button";
+  edit.className = "miniIcon";
+  edit.textContent = "✎";
+  edit.setAttribute("aria-label","Editar");
+  edit.addEventListener("click", ()=>{
+    if(typeof onEdit==="function") onEdit(e);
+  });
+
+  const del = document.createElement("button");
+  del.type = "button";
+  del.className = "miniIcon danger";
+  del.textContent = "✕";
+  del.setAttribute("aria-label","Eliminar");
+  del.addEventListener("click", ()=>{
+    tariff.extras = (tariff.extras||[]).filter(x=>x.id!==e.id);
+    renderTarifaList("extras");
+  });
+
+  row.appendChild(left);
+  row.appendChild(price);
+  row.appendChild(edit);
+  row.appendChild(del);
+  return row;
+}
+
+  function wireTarifaSheet(){
+    onTap(qs("btnCloseTarifa"), ()=> closeModal(tarifaOverlay, tarifaSheet));
+
+    let current = "vidrios";
+    let editState = null;
+    const tabV = qs("tabVidrios");
+    const tabE = qs("tabExtras");
+    onTap(tabV, ()=>{
+      current = "vidrios";
+      setActiveTab("vidrios");
+      renderTarifaList("vidrios");
+    });
+    onTap(tabE, ()=>{
+      current = "extras";
+      setActiveTab("extras");
+      renderTarifaList("extras");
+    });
+
+    const addOverlay = qs("addOverlay");
+    const btnAddTop = qs("btnAddTop");
+    const btnCancelAdd = qs("btnCancelAdd");
+    const btnConfirmAdd = qs("btnConfirmAdd");
+    const addTipo = qs("addTipo");
+    const addTitle = qs("addTitle");
+    const addFieldsVidrio = qs("addFieldsVidrio");
+    const addFieldsExtra = qs("addFieldsExtra");
+
+    function resetAddForm(){
+      qs("addNombre").value = "";
+      qs("addEurM2").value = "";
+      qs("addCP").value = "";
+      qs("addCPI").value = "";
+      qs("addGrupo").value = "";
+      qs("addPrecio").value = "";
+      qs("addCategoria").value = "";
+      qs("addUnidad").value = "m2";
+      qs("addModo").value = "multi";
+      qs("addVidTipo").value = "mono";
+    }
+
+    function fillFormForVidrio(v){
+      addTipo.value = "vidrio";
+      qs("addNombre").value = v.name || "";
+      qs("addEurM2").value = String(+v.eur_m2||0);
+      qs("addVidTipo").value = v.tipo==="lam" ? "lam" : "mono";
+      qs("addCP").value = String(+v.cp||0);
+      qs("addCPI").value = String(+v.cpi||0);
+      qs("addGrupo").value = v.group || "";
+    }
+
+    function fillFormForExtra(e){
+      addTipo.value = "extra";
+      qs("addNombre").value = e.name || "";
+      qs("addPrecio").value = String(+e.price||0);
+      qs("addCategoria").value = e.category || "";
+      qs("addUnidad").value = ["m2","ml","ud","pct"].includes(e.unit) ? e.unit : "m2";
+      qs("addModo").value = e.mode==="single" ? "single" : "multi";
+    }
+
+    function updateAddFields(){
+      const t = addTipo.value;
+      if(t==="vidrio"){
+        addFieldsVidrio.style.display = "";
+        addFieldsExtra.style.display = "none";
+      }else{
+        addFieldsVidrio.style.display = "none";
+        addFieldsExtra.style.display = "";
+      }
+    }
+
+    function showAddOverlay(mode, payload){
+      if(!addOverlay) return;
+      editState = null;
+      resetAddForm();
+
+      if(mode==="edit" && payload){
+        editState = payload;
+        if(payload.type==="vidrio"){
+          fillFormForVidrio(payload.item);
+        }else{
+          fillFormForExtra(payload.item);
+        }
+      }else{
+        addTipo.value = current==="extras" ? "extra" : "vidrio";
+      }
+
+      if(addTitle) addTitle.textContent = editState ? "Editar elemento" : "Añadir elemento";
+      if(btnConfirmAdd) btnConfirmAdd.textContent = editState ? "Guardar cambios" : "Añadir";
+      updateAddFields();
+      if(editState) addTipo.disabled = true; else addTipo.disabled = false;
+      addOverlay.style.display = "flex";
+
+      const nm = qs("addNombre");
+      if(nm) setTimeout(()=>nm.focus(), 60);
+    }
+
+    function hideAddOverlay(){
+      if(!addOverlay) return;
+      addOverlay.style.display = "none";
+      editState = null;
+      addTipo.disabled = false;
+      resetAddForm();
+      if(addTitle) addTitle.textContent = "Añadir elemento";
+      if(btnConfirmAdd) btnConfirmAdd.textContent = "Añadir";
+      updateAddFields();
+    }
+
+    function handleEditVidrio(v){
+      current = "vidrios";
+      setActiveTab("vidrios");
+      showAddOverlay("edit", { type:"vidrio", item:v });
+    }
+
+    function handleEditExtra(e){
+      current = "extras";
+      setActiveTab("extras");
+      showAddOverlay("edit", { type:"extra", item:e });
+    }
+
+    openEditVidrio = handleEditVidrio;
+    openEditExtra = handleEditExtra;
+
+    onTap(btnAddTop, ()=> showAddOverlay("add"));
+    onTap(btnCancelAdd, ()=> hideAddOverlay());
+    if(addOverlay){
+      addOverlay.addEventListener("click", (ev)=>{
+        if(ev.target === addOverlay) hideAddOverlay();
+      });
+    }
+    addTipo.addEventListener("change", updateAddFields);
+
+    onTap(btnConfirmAdd, ()=>{
+      const tipo = addTipo.value;
+      const nombre = String(qs("addNombre").value||"").trim();
+      if(!nombre){ showToast("Pon un nombre."); return; }
+
+      if(tipo==="vidrio"){
+        const eur = parseFloat(qs("addEurM2").value||"0")||0;
+        const vt = qs("addVidTipo").value==="lam" ? "lam" : "mono";
+        const cp = parseFloat(qs("addCP").value||"0")||0;
+        const cpi= parseFloat(qs("addCPI").value||"0")||0;
+        const grupo = String(qs("addGrupo").value||"").trim() || "Otros";
+
+        if(editState && editState.type==="vidrio" && editState.item){
+          Object.assign(editState.item, { group:grupo, name:nombre, eur_m2:eur, tipo:vt, cp:cp, cpi:cpi });
+        }else{
+          tariff.vidrios.push({ id:uid("v"), group:grupo, name:nombre, eur_m2:eur, tipo:vt, cp:cp, cpi:cpi });
+        }
+        current = "vidrios";
+        setActiveTab("vidrios");
+        renderTarifaList("vidrios");
+      }else{
+        const unidad = qs("addUnidad").value;
+        const precio = parseFloat(qs("addPrecio").value||"0")||0;
+        const cat = String(qs("addCategoria").value||"").trim() || "Extras";
+        const modo = qs("addModo").value==="single" ? "single":"multi";
+
+        if(editState && editState.type==="extra" && editState.item){
+          Object.assign(editState.item, { name:nombre, unit:unidad, price:precio, category:cat, mode:modo });
+        }else{
+          tariff.extras.push({ id:uid("e"), name:nombre, unit:unidad, price:precio, category:cat, mode:modo });
+        }
+        current = "extras";
+        setActiveTab("extras");
+        renderTarifaList("extras");
+      }
+
+      const msg = editState ? "Elemento actualizado (recuerda Guardar)." : "Elemento añadido (recuerda Guardar).";
+      hideAddOverlay();
+      showToast(msg);
+    });
+
+    onTap(qs("btnSaveTop"), ()=>{
+      if(!saveTariff(tariff)){
+        showToast("No se pudo guardar (storage).");
+        return;
+      }
+      applyTariffToUI();
+      showToast("Tarifa guardada.");
+    });
+
+    setActiveTab("vidrios");
+    renderTarifaList("vidrios");
+  }
+
+  function openTarifaEditor(){
+    buildTarifaSheet();
+    wireTarifaSheet();
+    openModal(tarifaOverlay, tarifaSheet);
+  }
+
+  async function exportTariff(){
+    const payload = JSON.stringify(tariff, null, 2);
+    const filename = \`tarifa_ramos_\${new Date().toISOString().slice(0,10)}.json\`;
+    const blob = new Blob([payload], { type:"application/json" });
+
+    try{
+      const file = new File([blob], filename, { type:"application/json" });
+      if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+        await navigator.share({ files:[file], title:"Tarifa Ramos", text:"Tarifa JSON" });
+        return;
+      }
+    }catch(_e){}
+
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(payload);
+        showToast("JSON copiado al portapapeles. Pégalo en Archivos o Notas y guárdalo como .json");
+        return;
+      }
+    }catch(_e){}
+
+    showToast("No se pudo compartir automáticamente. Copia la tarifa desde un navegador compatible.");
+  }
+
+  function importTariffFromFile(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const obj = JSON.parse(String(reader.result||"{}"));
+        const norm = normalizeTariff(obj);
+        if(!norm) throw new Error("Formato no válido");
+        tariff = norm;
+        saveTariff(tariff);
+        applyTariffToUI();
+        showToast("Tarifa importada y aplicada.");
+      }catch(e){
+        showToast("JSON inválido o formato no compatible.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  const settingsOverlay = qs("settingsOverlay");
+  const settingsSheet = qs("settingsSheet");
+  const btnSettings = qs("btnSettings");
+  const btnCloseSettings = qs("btnCloseSettings");
+  const btnTarifa = qs("btnTarifa");
+  const btnExport = qs("btnExport");
+  const btnImport = qs("btnImport");
+  const fileInput = qs("tarifaFile");
+
+  onTap(settingsOverlay, ()=> closeModal(settingsOverlay, settingsSheet));
+  onTap(tarifaOverlay, ()=> closeModal(tarifaOverlay, tarifaSheet));
+  onTap(vidrioOverlay, ()=> closeModal(vidrioOverlay, vidrioSheet));
+  onTap(extrasOverlay, ()=> closeModal(extrasOverlay, extrasSheet));
+  onTap(btnSettings, ()=> openModal(settingsOverlay, settingsSheet));
+  onTap(btnCloseSettings, ()=> closeModal(settingsOverlay, settingsSheet));
+
+  onTap(btnPickVidrio, ()=>{
+    rebuildVidrioModal();
+    openModal(vidrioOverlay, vidrioSheet);
+  });
+  onTap(btnCloseVidrio, ()=> closeModal(vidrioOverlay, vidrioSheet));
+
+  onTap(btnExtras, ()=>{
+    pruneSelectedExtras();
+    rebuildExtrasModal();
+    openModal(extrasOverlay, extrasSheet);
+  });
+  onTap(btnCloseExtras, ()=> closeModal(extrasOverlay, extrasSheet));
+
+  onTap(btnTarifa, ()=>{
+    closeModal(settingsOverlay, settingsSheet);
+    setTimeout(()=> openTarifaEditor(), 140);
+  });
+
+  onTap(btnExport, ()=>{
+    exportTariff();
+  });
+
+  onTap(btnImport, ()=>{
+    fileInput.value = "";
+    setTimeout(()=> fileInput.click(), 0);
+  });
+
+  fileInput.addEventListener("change", ()=>{
+    const f = fileInput.files && fileInput.files[0];
+    if(f) importTariffFromFile(f);
+  });
+
+  [elAncho, elAlto, elForma].forEach(bindRecalc);
+  if(btnIVA) onTap(btnIVA, toggleIVA);
+  if(btnReset) onTap(btnReset, resetApp);
+  if(btnInfo) onTap(btnInfo, openInfo);
+  if(btnCloseInfo) onTap(btnCloseInfo, ()=> closeModal(infoOverlay, infoSheet));
+  if(infoOverlay) onTap(infoOverlay, ()=> closeModal(infoOverlay, infoSheet));
+  ["pointerdown","pointerup","click","touchstart","touchend"].forEach(ev=>{ if(infoSheet) infoSheet.addEventListener(ev, e => e.stopPropagation()); });
+  
+  updateIVAUI();
+  bindRecalc(elVidrio);
+  if(elVidrio){
+    elVidrio.addEventListener("change", ()=>{
+      pruneSelectedExtras();
+      updateVidrioSummary();
+    });
+  }
+
+  function init(){
+    tariff = loadTariff() || defaultTariff();
+    saveTariff(tariff); 
+    applyTariffToUI();
+
+    try{
+      const sel = qs("vidrio");
+      if(sel && (!sel.value || sel.value==="")){
+        const v4 = (tariff.vidrios||[]).find(v=>String(v.name||"").toLowerCase().includes("luna 4mm"));
+        if(v4){ sel.value = v4.id; }
+      }
+    }catch(_e){}
+
+    calcular();
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  }else{
+    init();
+  }
+})();
+<\/script>
+</body>
+</html>
+`;
+
+  const frameClimalit = document.getElementById("frameClimalit");
+  const frameMono = document.getElementById("frameMono");
+  const btnClimalit = document.getElementById("btnClimalit");
+  const btnMono = document.getElementById("btnMono");
+  const modeHint = document.getElementById("modeHint");
+
+  frameClimalit.srcdoc = htmlClimalit;
+  frameMono.srcdoc = htmlMono;
+  function fitFrames(){
+    try {
+      const wrapRect = document.querySelector(".frameWrap").getBoundingClientRect();
+      const h = Math.max(320, Math.floor(window.innerHeight - wrapRect.top - 10));
+      frameClimalit.style.height = h + "px";
+      frameMono.style.height = h + "px";
+    } catch(e){}
+  }
+
+  function setMode(mode){
+    const isCli = mode === "climalit";
+    btnClimalit.classList.toggle("active", isCli);
+    btnMono.classList.toggle("active", !isCli);
+    frameClimalit.classList.toggle("active", isCli);
+    frameMono.classList.toggle("active", !isCli);
+    modeHint.textContent = isCli ? "Modo activo: Climalit." : "Modo activo: Monolítico.";
+    localStorage.setItem("RAMOS_UNIFICADA_MODE_V1", mode);
+    setTimeout(fitFrames, 50);
+    setTimeout(fitFrames, 250);
+  }
+
+  function bindFrame(frame){
+    frame.addEventListener("load", function(){
+      fitFrames();
+      try {
+        const win = frame.contentWindow;
+        win.addEventListener("resize", function(){ fitFrames(); }, { passive:true });
+        frame.contentDocument.addEventListener("input", function(){ setTimeout(function(){ fitFrames(); }, 30); }, { passive:true });
+        frame.contentDocument.addEventListener("change", function(){ setTimeout(function(){ fitFrames(); }, 30); }, { passive:true });
+        frame.contentDocument.addEventListener("click", function(){ setTimeout(function(){ fitFrames(); }, 30); }, { passive:true });
+      } catch(e){}
+    });
+  }
+
+  bindFrame(frameClimalit);
+  bindFrame(frameMono);
+
+  btnClimalit.addEventListener("click", function(){ setMode("climalit"); }, false);
+  btnMono.addEventListener("click", function(){ setMode("monolitico"); }, false);
+  window.addEventListener("resize", fitFrames, { passive:true });
+
+  const saved = localStorage.getItem("RAMOS_UNIFICADA_MODE_V1");
+  setMode(saved === "monolitico" ? "monolitico" : "climalit");
+
+  setTimeout(fitFrames, 200);
+  setTimeout(fitFrames, 800);
+})();
+
+function volverIndex(){
+  return solicitarVolverIndex();
+}
+
+</script>
+<script>
+/* FIX volver al index v2026-04-29 */
+(function(){'use strict';window.solicitarVolverIndex=function(){var d=false;try{d=!!(window.parent&&window.parent!==window);}catch(e){d=true;}if(d){try{window.parent.postMessage({type:'volverMenu'},'*');}catch(e){}return false;}try{window.location.href='index.html';}catch(e){}return false;};})();
+</script>
+</body>
+</html>
