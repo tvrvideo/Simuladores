@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey</title>
-    <!-- index v1.6: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v2.1</title>
+    <!-- index v2.1: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -182,12 +182,12 @@
     <p>Introduce el código para acceder a Facturación</p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button onclick="unlock()">Entrar</button>
-    <button id="lockCancel" type="button" onclick="cancelarPinFacturacion()">Cancelar</button>
+    <button id="lockCancel" type="button" onclick="return cancelarDesbloqueo()">Cancelar</button>
 </div>
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v1.6</div>
+    <div class="subtitulo">Ventanas Rey v2.1</div>
 </header>
 
 <div id="menu">
@@ -301,6 +301,28 @@ function unlock() {
     window.volverMenu = volverMenu;
     window.volverIndex = volverMenu;
     window.solicitarVolverIndex = volverMenu;
+
+    function cancelarDesbloqueo() {
+        const lock = document.getElementById('lock');
+        const pin = document.getElementById('pin');
+        const visor = document.getElementById('visor');
+
+        if (pin) pin.value = '';
+        if (lock) lock.style.display = 'none';
+
+        try { if (visor) visor.src = 'about:blank'; } catch(e) {}
+        if (visor) visor.style.display = 'none';
+
+        const cabecera = document.getElementById('cabecera');
+        const menu = document.getElementById('menu');
+        if (cabecera) cabecera.style.display = 'block';
+        if (menu) menu.style.display = 'flex';
+
+        window.appDestino = null;
+        return false;
+    }
+    window.cancelarDesbloqueo = cancelarDesbloqueo;
+
 
     window.addEventListener('message', function(ev){
         const data = ev && ev.data;
@@ -463,6 +485,25 @@ function unlock() {
   pin.addEventListener('focus', () => setTimeout(ajustarTecladoSubir, 0), {passive:true});
   pin.addEventListener('blur', resetTeclado, {passive:true});
 
+})();
+</script>
+
+
+<script>
+/* v2.1 cancel desbloqueo seguro */
+(function(){
+  var cancel = document.getElementById('lockCancel');
+  if(cancel){
+    cancel.onclick = function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      if(typeof window.cancelarDesbloqueo === 'function') return window.cancelarDesbloqueo();
+      return false;
+    };
+    cancel.addEventListener('touchend', function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      if(typeof window.cancelarDesbloqueo === 'function') window.cancelarDesbloqueo();
+    }, {passive:false});
+  }
 })();
 </script>
 
