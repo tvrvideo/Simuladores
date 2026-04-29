@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
     <title>Ventanas Rey</title>
-    <!-- index v1.4: menú directo + PIN propio solo Facturación -->
+    <!-- index v1.5: PIN Facturación con cancelar -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -158,6 +158,18 @@
   pointer-events: auto;
 }
 
+
+        #lockCancel {
+            margin-top: 10px;
+            padding: 10px 22px;
+            border-radius: 12px;
+            border: 1px solid #b7aa9c;
+            font-size: 0.95em;
+            font-weight: 700;
+            background: #efe7da;
+            color: #3b3328;
+        }
+
 </style>
 </head>
 <body>
@@ -170,11 +182,12 @@
     <p>Introduce el código para acceder a Facturación</p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button onclick="unlock()">Entrar</button>
+    <button id="lockCancel" type="button" onclick="cancelarPinFacturacion()">Cancelar</button>
 </div>
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v1.4</div>
+    <div class="subtitulo">Ventanas Rey v1.5</div>
 </header>
 
 <div id="menu">
@@ -281,6 +294,14 @@ function unlock() {
                 try{ pin && pin.focus({preventScroll:true}); }catch(e){ try{ pin && pin.focus(); }catch(e2){} }
             }, 100);
         }
+    }
+
+    function cancelarPinFacturacion() {
+        window.appDestino = null;
+        const lock = document.getElementById('lock');
+        const pin = document.getElementById('pin');
+        if (pin) pin.value = '';
+        if (lock) lock.style.display = 'none';
     }
 </script>
 
