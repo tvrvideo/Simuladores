@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.85.71 ESTABLE</title>
+  <title>Documentos Rey v2.85.79</title>
   <style>
     :root{
       --app-vh:100vh;
@@ -633,10 +633,43 @@ body.editing-field .return-app-btn{
 .saved-status-pendiente{background:#fee2e2;color:#991b1b}
 .saved-status-pagada{background:#dcfce7;color:#166534}
 
+
+/* v2.85.79 - botón rojo volver a index */
+.btn-menu-index{
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:10050;
+  padding:10px 15px;
+  border-radius:20px;
+  border:none;
+  background:#e74c3c;
+  color:#fff;
+  font-weight:bold;
+  box-shadow:0 2px 5px rgba(0,0,0,0.2);
+  cursor:pointer;
+  font-size:0.9rem;
+  width:auto !important;
+  min-width:0 !important;
+  height:auto !important;
+  min-height:0 !important;
+  line-height:1.15;
+  margin:0 !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.btn-menu-index:active{transform:scale(.97);}
+.topbar{padding-left:110px !important;}
+@media (max-width:600px){.topbar{padding-left:100px !important;}}
+@media print{.btn-menu-index{display:none!important}.topbar{padding-left:0!important;}}
+
 </style>
 </head>
 <body>
-
+<button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="app">
   <div class="shell">
@@ -644,7 +677,7 @@ body.editing-field .return-app-btn{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.85.71 ESTABLE</div>
+          <div class="version-inline">v2.85.79</div>
         </div>
       </div>
 
@@ -5561,5 +5594,37 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 </script>
+
+<script>
+(function(){
+  function solicitarVolverIndex(){
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+        window.parent.volverMenu();
+        return false;
+      }
+    }catch(e){}
+    try{
+      window.location.href = 'index.html';
+    }catch(e){}
+    return false;
+  }
+
+  window.solicitarVolverIndex = solicitarVolverIndex;
+
+  var btn = document.getElementById('btnVolverIndex');
+  if(btn){
+    btn.onclick = function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      return solicitarVolverIndex();
+    };
+    btn.addEventListener('touchend', function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      solicitarVolverIndex();
+    }, {passive:false});
+  }
+})();
+</script>
+
 </body>
 </html>
