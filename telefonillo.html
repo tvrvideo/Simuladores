@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V5.0</title>
+  <title>Puerta telefonillo / Nicho V5.1</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -637,14 +637,14 @@
 </head>
 
 <body>
-  <button class="btn-menu" type="button" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+  <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
   <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 
   <div class="wrap">
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V5.0</div>
+        <div class="ver">V5.1</div>
       </div>
     </header>
 
@@ -760,7 +760,7 @@
       </div>
     </section>
   </div>
-  <footer>App V5.0</footer>
+  <footer>App V5.1</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -1441,5 +1441,31 @@ if(showCristalMed){
     })();
 
 </script>
+
+<script>
+/* V5.1 - Volver seguro al index desde iframe/iPhone/GitHub */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+  return false;
+}
+</script>
+
 </body>
 </html>

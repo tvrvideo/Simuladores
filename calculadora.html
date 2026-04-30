@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras v2.1</title>
+  <title>Calculadoras v2.2</title>
 
   <style>
     :root{
@@ -853,8 +853,7 @@
   <div class="bgFixed" aria-hidden="true"></div>
   <div class="topbar" aria-hidden="false">
     <!-- Botón rojo MENÚ: se mantiene tal cual el original -->
-    <button class="btn-menu" type="button"
-      onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+    <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 
     <!-- Casa: solo para volver al menú de calculadoras (se mostrará solo dentro de calculadoras) -->
     <button id="btnHome" class="btn btn-ghost btn-home" type="button" title="Ir al menú">🏠</button>
@@ -863,7 +862,7 @@
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
-      <div class="title">Calculadoras <small>v2.1</small></div>
+      <div class="title">Calculadoras <small>v2.2</small></div>
 
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
@@ -2917,5 +2916,31 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
     })();
   </script>
+
+<script>
+/* v2.2 - Volver seguro al index desde iframe/iPhone/GitHub */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+  return false;
+}
+</script>
+
 </body>
 </html>
