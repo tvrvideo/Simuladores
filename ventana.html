@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v88.7 conectada</title>
+    <title>Ventana Pro v88.8 conectada</title>
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
@@ -677,7 +677,7 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 <button id="btnEnviarDocumentos" class="btn-enviar-documentos" type="button">✓ Documentos</button>
 
 
-<button class="btn-menu" onclick="return volverIndexSeguro()" data-old="){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
 
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 <button id="btnVisualAjustes" class="btn-visual-ajustes" type="button" onclick="abrirAjustesVisuales()" title="Ajustes visuales">⚙️</button>
@@ -762,7 +762,7 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v88.7 conectada"><span class="title-main">Ventana Pro</span><span class="title-version">v88.7 conectada</span></div>
+<div class="top-title" aria-label="Ventana Pro v88.8 conectada"><span class="title-main">Ventana Pro</span><span class="title-version">v88.8 conectada</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -7687,7 +7687,7 @@ if (mostrarAltoTotalDer) {
 
 
 <script>
-/* v88.7 conectada: devuelve el canvas a Documentos Rey */
+/* v88.8 conectada: devuelve el canvas a Documentos Rey */
 (function(){
   'use strict';
 
@@ -7795,6 +7795,59 @@ if (mostrarAltoTotalDer) {
     document.addEventListener('DOMContentLoaded', initConexionDocumentos, false);
   }else{
     initConexionDocumentos();
+  }
+})();
+</script>
+
+
+<script>
+/* v88.8 - Botón rojo volver a index sin tocar otros botones */
+(function(){
+  function volverIndexSeguro(){
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+        window.parent.volverMenu();
+        return false;
+      }
+    }catch(e){}
+
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+        window.parent.postMessage('volverMenu', '*');
+        return false;
+      }
+    }catch(e){}
+
+    try{ window.location.href = 'index.html'; }catch(e){}
+    return false;
+  }
+
+  window.volverIndexSeguro = volverIndexSeguro;
+
+  function bindMenuButton(){
+    var btn = document.querySelector('.btn-menu');
+    if(!btn || btn.dataset.volverIndexOk === '1') return;
+
+    btn.dataset.volverIndexOk = '1';
+
+    btn.addEventListener('click', function(ev){
+      try{ ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation(); }catch(e){}
+      volverIndexSeguro();
+      return false;
+    }, true);
+
+    btn.addEventListener('touchend', function(ev){
+      try{ ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation(); }catch(e){}
+      volverIndexSeguro();
+      return false;
+    }, {capture:true, passive:false});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindMenuButton, {once:true});
+  }else{
+    bindMenuButton();
   }
 })();
 </script>
