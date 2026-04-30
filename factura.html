@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Ventanas Rey - Factura Pro v25.7.38</title>
+  <title>Ventanas Rey - Factura Pro v25.7.41</title>
   <style>
     :root {
       --catalogo-bg:#eaf2ff;
@@ -516,7 +516,7 @@
 .list-card.docrey-card .list-left{ flex:1 1 auto; }
 
 
-/* v25.7.38: versión visible junto a Resumen */
+/* v25.7.41: versión visible junto a Resumen */
 .header-version-badge{
   display:inline-flex;
   align-items:center;
@@ -543,7 +543,7 @@
 
 
 
-/* v25.7.38: tirador visible para menú lateral */
+/* v25.7.41: tirador visible para menú lateral */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -591,7 +591,7 @@
 @media print{#swipeOpenZone{display:none!important;}}
 
 
-/* v25.7.38: tirador más fino y bajo */
+/* v25.7.41: tirador más fino y bajo */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -616,7 +616,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.38: tirador más bajo y más fino */
+/* v25.7.41: tirador más bajo y más fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -641,7 +641,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.38: tirador en zona blanca, más largo y fino */
+/* v25.7.41: tirador en zona blanca, más largo y fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -666,7 +666,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.38: tirador más abajo y más corto */
+/* v25.7.41: tirador más abajo y más corto */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -691,7 +691,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.38: zona táctil invisible ampliada; el tirador visible queda intacto */
+/* v25.7.41: zona táctil invisible ampliada; el tirador visible queda intacto */
 #swipeTouchZone{
   position:fixed;
   left:0;
@@ -711,12 +711,23 @@
   #swipeTouchZone{display:none!important;}
 }
 
+
+/* v25.7.41: tarjetas resumen táctiles */
+.summary-clickable{
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:rgba(74,118,168,.18);
+}
+.summary-clickable:active{
+  transform:scale(.99);
+}
+
 </style>
 
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.38">
+  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.41">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
@@ -741,7 +752,7 @@
   <div class="drawer-content">
     <div class="drawer-fixed">
       <div class="drawer-item active" onclick="irInicio()">
-        <span class="drawer-text">Inicio (Facturación v25.7.38)</span>
+        <span class="drawer-text">Inicio (Facturación v25.7.41)</span>
       </div>
     </div>
     <div class="drawer-scroll">
@@ -811,9 +822,9 @@
 
 <header class="header">
   
-  <button class="btn-menu" type="button" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+  <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <div class="menu-icon" onclick="toggleDrawer()">⋮</div>
-  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.38</span></div>
+  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.41</span></div>
   <div class="right-actions">
     <button id="headerActionBtn" class="header-action" type="button" style="display:none">+ Nuevo</button>
     <div class="home-icon" onclick="irInicio()" title="Inicio">🏠</div>
@@ -823,7 +834,7 @@
 <div id="homeView" class="active">
   <div class="sub-header">Resumen contabilidad 2026-1T</div>
   <div class="container-resumen">
-    <div class="card">
+    <div class="card summary-clickable" onclick="irFacturacion()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Ingresos</span>
         <span class="card-sub" id="count-ingresos">0 documentos</span>
@@ -834,7 +845,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card summary-clickable" onclick="irGastos()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Gastos</span>
 
@@ -855,7 +866,7 @@
       </div>
     </div>
 
-    <div class="card card-catalogo" style="background:var(--catalogo-bg);border:1px solid var(--catalogo-border);">
+    <div class="card card-catalogo summary-clickable" onclick="irCatalogo()" role="button" tabindex="0" style="background:var(--catalogo-bg);border:1px solid var(--catalogo-border);">
       <div class="card-info">
         <span class="card-title">Catálogo</span>
         <span class="card-sub">Productos registrados</span>
@@ -865,7 +876,7 @@
         <span class="amount-iva" id="homeCatalogoSinStock" style="display:none;color:#c0392b;font-weight:700;"></span>
       </div>
     </div>
-    <div class="card">
+    <div class="card summary-clickable" onclick="irClientes()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Clientes</span>
         <span class="card-sub">Clientes registrados</span>
@@ -2836,7 +2847,7 @@ function setDocType(type){
 
     var headerTitleEl = document.getElementById('headerTitle');
     if(titulo === 'Resumen'){
-      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.38</span>';
+      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.41</span>';
     }else{
       headerTitleEl.textContent = titulo;
     }
@@ -4383,17 +4394,28 @@ if(numG){
   function cargarFacturaDeHistorial(index) { cargarDocumentoDeHistorial('factura', index); }
   function actualizarHomeStats() {
     const historial = JSON.parse(localStorage.getItem('rey_history') || '[]');
-    let totalIngresos = 0; let totalIva = 0;
+
+    // v25.7.41:
+    // Ingresos contables = BASE IMPONIBLE, no el total factura con IVA.
+    // Antes se sumaba totalStr completo y por eso la pantalla inicial subía de más.
+    let totalIngresos = 0;
+    let totalIva = 0;
+
     historial.forEach(h => {
-      const val = parseFloat(h.totalStr.replace(/[^0-9,-]+/g,"").replace(",",".")) || 0;
-      const ivaVal = parseFloat(h.ivaStr.replace(/[^0-9,-]+/g,"").replace(",",".")) || 0;
-      totalIngresos += val; totalIva += ivaVal;
+      const totalFactura = parseFloat(String(h.totalStr || '0').replace(/[^0-9,-]+/g,"").replace(",",".")) || 0;
+      const ivaVal = parseFloat(String(h.ivaStr || '0').replace(/[^0-9,-]+/g,"").replace(",",".")) || 0;
+      const baseVal = totalFactura - ivaVal;
+
+      totalIngresos += baseVal;
+      totalIva += ivaVal;
     });
+
     document.getElementById('val-ingresos').textContent = fmt(totalIngresos);
     document.getElementById('iva-ingresos').textContent = "IVA: " + fmt(totalIva);
     document.getElementById('count-ingresos').textContent = historial.length + " documentos";
     document.getElementById('val-resultado').textContent = fmt(totalIngresos);
     document.getElementById('iva-resultado').textContent = "IVA IMPUTABLE: " + fmt(totalIva);
+
     const barHeight = Math.min(totalIngresos / 20, 180);
     document.getElementById('grafica-barra').style.height = barHeight + "px";
   }
@@ -12113,7 +12135,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.38: volver index + abrir menú con deslizamiento real */
+/* v25.7.41: volver index + abrir menú con deslizamiento real */
 (function(){
   'use strict';
 
@@ -12242,7 +12264,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.38: ampliar zona táctil del tirador sin cambiar su diseño */
+/* v25.7.41: ampliar zona táctil del tirador sin cambiar su diseño */
 (function(){
   'use strict';
 
@@ -12291,6 +12313,30 @@ async function compartirBackupJSON(){
     tracking = false;
   }, {passive:true});
 })();
+</script>
+
+
+<script>
+/* v25.7.41 - Volver seguro al index desde iframe/iPhone/GitHub */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{ window.location.href='index.html'; }catch(e){}
+  return false;
+}
 </script>
 
 </body>
