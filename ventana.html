@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v88.4</title>
+    <title>Ventana Pro v88.7 conectada</title>
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
@@ -637,6 +637,33 @@ body.dock-off #canvasDock{
   .visual-row.value-row{grid-template-columns:1fr minmax(110px, 1fr) 54px}
 }
 
+
+/* Conexión Documentos Rey: enviar diseño como imagen al concepto */
+.btn-enviar-documentos{
+  position:fixed;
+  right:10px;
+  top:108px;
+  z-index:10000;
+  width:auto !important;
+  min-height:38px;
+  padding:9px 13px;
+  border-radius:20px;
+  border:none;
+  background:#16a34a;
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  cursor:pointer;
+  font-size:0.9rem;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
+.btn-enviar-documentos:active{transform:translateY(1px) scale(.98)}
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -647,8 +674,10 @@ body.dock-off #canvasDock{
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="manifest" href="manifest.json"></head>
 <body class="dock-off">
+<button id="btnEnviarDocumentos" class="btn-enviar-documentos" type="button">✓ Documentos</button>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+
+<button class="btn-menu" onclick="return volverIndexSeguro()" data-old="){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
 
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 <button id="btnVisualAjustes" class="btn-visual-ajustes" type="button" onclick="abrirAjustesVisuales()" title="Ajustes visuales">⚙️</button>
@@ -733,7 +762,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v88.4"><span class="title-main">Ventana Pro</span><span class="title-version">v88.4</span></div>
+<div class="top-title" aria-label="Ventana Pro v88.7 conectada"><span class="title-main">Ventana Pro</span><span class="title-version">v88.7 conectada</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -7653,6 +7682,120 @@ if (mostrarAltoTotalDer) {
     try{ actualizarVisibilidadDespiece600(); }catch(e){}
     try{ actualizarEstadoDespiece600(); }catch(e){}
   }, { once:true });
+})();
+</script>
+
+
+<script>
+/* v88.7 conectada: devuelve el canvas a Documentos Rey */
+(function(){
+  'use strict';
+
+  var DESIGN_RETURN_IMG_KEY = 'presupuesto_visual_design_return_img_v1';
+  var DESIGN_RETURN_INDEX_KEY = 'presupuesto_visual_design_target_index_v1';
+  var DOCUMENTOS_URL = 'documentos.html';
+
+  function isFromDocumentos(){
+    try{
+      return new URLSearchParams(window.location.search).get('from_budget') === '1' ||
+             sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY) !== null;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function canvasToWhitePng(canvas){
+    // Captura REAL del canvas completo, no solo la zona visible.
+    // Además genera una imagen optimizada aprox. 1200 px de ancho para Documentos.
+    var sourceW = canvas.width || canvas.offsetWidth || 1;
+    var sourceH = canvas.height || canvas.offsetHeight || 1;
+
+    var targetW = 1200;
+    var scale = targetW / sourceW;
+    var targetH = Math.max(1, Math.round(sourceH * scale));
+
+    var out = document.createElement('canvas');
+    out.width = targetW;
+    out.height = targetH;
+
+    var ctx = out.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(canvas, 0, 0, sourceW, sourceH, 0, 0, targetW, targetH);
+
+    return out.toDataURL('image/jpeg', 0.88);
+  }
+
+  function enviarDisenoADocumentos(){
+    try{
+      var canvas = document.getElementById('canvas');
+      if(!canvas){
+        alert('No se encontró el dibujo de la ventana.');
+        return;
+      }
+
+      // Forzar redibujado COMPLETO con cotas/medidas.
+      // Importante: NO llamar a dibujar() sin parámetro porque oculta las medidas.
+      try{
+        if(typeof mostrarMedidas !== 'undefined') mostrarMedidas = true;
+        if(typeof actualizarVista === 'function') actualizarVista();
+        else if(typeof dibujar === 'function') dibujar(true);
+      }catch(e){}
+
+      // Esperamos un frame para que el último redibujado termine antes de capturar.
+      requestAnimationFrame(function(){
+        try{
+          var dataUrl = canvasToWhitePng(canvas);
+
+          try{ sessionStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
+          try{ localStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
+
+          try{
+            if(window.parent && window.parent !== window){
+              window.parent.postMessage({
+                type:'presupuestoVisualDesignImage',
+                image:dataUrl
+              }, '*');
+
+              if(typeof window.parent.abrir === 'function'){
+                window.parent.abrir(DOCUMENTOS_URL);
+                return;
+              }
+            }
+          }catch(_){}
+
+          window.location.href = DOCUMENTOS_URL;
+        }catch(err){
+          alert('No se pudo capturar el diseño completo.');
+        }
+      });
+      return;
+
+      // El índice ya lo deja Documentos antes de abrir ventana.html.
+      // No lo tocamos para no perder el concepto de destino.
+    }catch(e){
+      alert('No se pudo enviar el diseño a Documentos.');
+    }
+  }
+
+  function initConexionDocumentos(){
+    if(isFromDocumentos()){
+      document.body.classList.add('from-documentos');
+    }
+    var btn = document.getElementById('btnEnviarDocumentos');
+    if(btn){
+      btn.addEventListener('click', function(ev){
+        try{ ev.preventDefault(); }catch(e){}
+        enviarDisenoADocumentos();
+      }, false);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initConexionDocumentos, false);
+  }else{
+    initConexionDocumentos();
+  }
 })();
 </script>
 

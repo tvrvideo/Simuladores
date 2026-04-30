@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v2.6</title>
-    <!-- index v2.6: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v2.7</title>
+    <!-- index v2.7: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -179,7 +179,7 @@
 
     <div class="empresa">Ventanas Rey</div>
     <h1>Simuladores técnicos</h1>
-    <p>Introduce el código para acceder a Facturación</p>
+    <p id="lockText">Introduce el código para acceder</p>
     <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button onclick="unlock()">Entrar</button>
     <button id="lockCancel" type="button" onclick="return cancelarDesbloqueo()">Cancelar</button>
@@ -187,12 +187,12 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v2.6</div>
+    <div class="subtitulo">Ventanas Rey v2.7</div>
 </header>
 
 <div id="menu">
 <button class="menu-btn" onclick="abrirFacturacion()"><div class="icon">🧾</div><div class="texto"><div>Facturación</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
-<button class="menu-btn" onclick="abrir('documentos.html')"><div class="icon">📄</div><div class="texto"><div>Documentos</div><div class="subtitulo-btn">Presupuestos, facturas y albaranes</div></div></button>
+<button class="menu-btn" onclick="abrirDocumentos()"><div class="icon">📄</div><div class="texto"><div>Documentos</div><div class="subtitulo-btn">Presupuestos, facturas y albaranes</div></div></button>
 <button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño</div></div></button>
 <button class="menu-btn" onclick="abrir('telefonillo.html')"><div class="icon">📞</div><div class="texto"><div>Telefonillo / Nicho</div><div class="subtitulo-btn">Medidas y diseño</div></div></button>
 <button class="menu-btn" onclick="abrir('climalit.html?v=1.3')"><div class="icon">🪟</div><div class="texto"><div>Climalit</div><div class="subtitulo-btn">Cálculo de vidrios</div></div></button>
@@ -363,12 +363,14 @@ function unlock() {
         }
     }, false);
 
-    function abrirFacturacion() {
-        window.appDestino = 'factura.html';
+    function abrirConDesbloqueo(url, nombre) {
+        window.appDestino = url;
 
         const lock = document.getElementById('lock');
         const pin = document.getElementById('pin');
+        const txt = document.getElementById('lockText');
 
+        if (txt) txt.textContent = 'Introduce el código para acceder a ' + (nombre || 'la app');
         if (pin) pin.value = '';
 
         if (lock) {
@@ -377,6 +379,14 @@ function unlock() {
                 try{ pin && pin.focus({preventScroll:true}); }catch(e){ try{ pin && pin.focus(); }catch(e2){} }
             }, 100);
         }
+    }
+
+    function abrirFacturacion() {
+        abrirConDesbloqueo('factura.html', 'Facturación');
+    }
+
+    function abrirDocumentos() {
+        abrirConDesbloqueo('documentos.html', 'Documentos');
     }
 
     function cancelarPinFacturacion() {
