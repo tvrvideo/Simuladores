@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Presupuestos Guardables</title>
+    <title>Presupuestos v2.2</title>
     <style>
         body {
             font-family: Arial black, sans-serif;
@@ -21,7 +21,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
+        h1 { font-size:18px; margin-left:90px;
             color: #0061FE;
             text-align: center;
             border-bottom: 2px 
@@ -341,11 +341,11 @@ solid #ccc;
 <link rel="manifest" href="manifest.json"></head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 
 
 <div class="container">
-    <h1>PRESUPUESTOS</h1>
+    <h1>PRESUPUESTOS <small>v2.2</small></h1>
     
     <div class="section">
         <h2>Precios m²</h2>
@@ -357,30 +357,30 @@ solid #ccc;
                 </tr>
             </thead>
             <tbody>
-                <tr><td>Persiana Blanca</td><td><input type="number" id="precio_persiana_blanca_m2" value="60" min="0"></td></tr>
-                <tr><td>Persiana Color</td><td><input type="number" id="precio_persiana_color_m2" value="70" min="0"></td></tr>
-                <tr><td>Persiana Madera</td><td><input type="number" id="precio_persiana_madera_m2" value="80" min="0"></td></tr>
-                <tr><td>Mano de Obra Persiana</td><td><input type="number" id="precio_persiana_mo" value="60" min="0"></td></tr>
-                <tr><td>Guías Persiana Metro</td><td><input type="number" id="precio_guia_ml" value="10" min="0"></td></tr>
-                <tr><td>Eje Persiana Metro</td><td><input type="number" id="precio_eje_ml" value="15" min="0"></td></tr>
-                <tr><td>Motor 15 Nm</td><td><input type="number" id="precio_motor_15nm" value="95" min="0"></td></tr>
-                <tr><td>Motor 20 Nm</td><td><input type="number" id="precio_motor_20nm" value="115" min="0"></td></tr>
-                <tr><td>Motor 30 Nm</td><td><input type="number" id="precio_motor_30nm" value="145" min="0"></td></tr>
-                <tr><td>Mando a Distancia</td><td><input type="number" id="precio_mando_distancia" value="50" min="0"></td></tr>
-                <tr><td>Mosquitera Blanca</td><td><input type="number" id="precio_mosquitera_blanca_m2" value="60" min="0"></td></tr>
-                <tr><td>Mosquitera Color</td><td><input type="number" id="precio_mosquitera_color_m2" value="70" min="0"></td></tr>
-                <tr><td>Mosquitera Madera</td><td><input type="number" id="precio_mosquitera_madera_m2" value="90" min="0"></td></tr>
-                <tr><td>Mosquitera Plisada</td><td><input type="number" id="precio_mosquitera_plisada_m2" value="15" min="0"></td></tr>
-                <tr><td>Mano de Obra Mosquitera</td><td><input type="number" id="precio_mosquitera_mo" value="30" min="0"></td></tr>
-                <tr><td>Chapa Natural</td><td><input type="number" id="precio_chapa_natural_m2" value="65" min="0"></td></tr>
-                <tr><td>Chapa Blanca</td><td><input type="number" id="precio_chapa_blanca_m2" value="55" min="0"></td></tr>
-                <tr><td>Chapa Sándwich</td><td><input type="number" id="precio_chapa_sandwich_m2" value="70" min="0"></td></tr>
-                <tr><td>Mano de Obra Chapa</td><td><input type="number" id="precio_chapa_mo" value="30" min="0"></td></tr>
-                <tr><td>Vidrio Climalit</td><td><input type="number" id="precio_vidrio_climalit_m2" value="70" min="0"></td></tr>
-                <tr><td>Vidrio Bajo Emisivo</td><td><input type="number" id="precio_vidrio_bajo_emisivo_m2" value="80" min="0"></td></tr>
-                <tr><td>Mano de Obra Vidrio</td><td><input type="number" id="precio_vidrio_mo" value="30" min="0"></td></tr>
-                <tr><td>Mínimo m²</td><td><input type="number" id="area_minima" value="1" min="0.1" step="0.1"></td></tr>
-                <tr><td>Peso Persiana Alum. (kg/m²)</td><td><input type="number" id="peso_aluminio_m2" value="4" min="1" step="0.1"></td></tr>
+                <tr><td>Persiana Blanca</td><td><input type="number" id="precio_persiana_blanca_m2" value="" min="0"></td></tr>
+                <tr><td>Persiana Color</td><td><input type="number" id="precio_persiana_color_m2" value="" min="0"></td></tr>
+                <tr><td>Persiana Madera</td><td><input type="number" id="precio_persiana_madera_m2" value="" min="0"></td></tr>
+                <tr><td>Mano de Obra Persiana</td><td><input type="number" id="precio_persiana_mo" value="" min="0"></td></tr>
+                <tr><td>Guías Persiana Metro</td><td><input type="number" id="precio_guia_ml" value="" min="0"></td></tr>
+                <tr><td>Eje Persiana Metro</td><td><input type="number" id="precio_eje_ml" value="" min="0"></td></tr>
+                <tr><td>Motor 15 Nm</td><td><input type="number" id="precio_motor_15nm" value="" min="0"></td></tr>
+                <tr><td>Motor 20 Nm</td><td><input type="number" id="precio_motor_20nm" value="" min="0"></td></tr>
+                <tr><td>Motor 30 Nm</td><td><input type="number" id="precio_motor_30nm" value="" min="0"></td></tr>
+                <tr><td>Mando a Distancia</td><td><input type="number" id="precio_mando_distancia" value="" min="0"></td></tr>
+                <tr><td>Mosquitera Blanca</td><td><input type="number" id="precio_mosquitera_blanca_m2" value="" min="0"></td></tr>
+                <tr><td>Mosquitera Color</td><td><input type="number" id="precio_mosquitera_color_m2" value="" min="0"></td></tr>
+                <tr><td>Mosquitera Madera</td><td><input type="number" id="precio_mosquitera_madera_m2" value="" min="0"></td></tr>
+                <tr><td>Mosquitera Plisada</td><td><input type="number" id="precio_mosquitera_plisada_m2" value="" min="0"></td></tr>
+                <tr><td>Mano de Obra Mosquitera</td><td><input type="number" id="precio_mosquitera_mo" value="" min="0"></td></tr>
+                <tr><td>Chapa Natural</td><td><input type="number" id="precio_chapa_natural_m2" value="" min="0"></td></tr>
+                <tr><td>Chapa Blanca</td><td><input type="number" id="precio_chapa_blanca_m2" value="" min="0"></td></tr>
+                <tr><td>Chapa Sándwich</td><td><input type="number" id="precio_chapa_sandwich_m2" value="" min="0"></td></tr>
+                <tr><td>Mano de Obra Chapa</td><td><input type="number" id="precio_chapa_mo" value="" min="0"></td></tr>
+                <tr><td>Vidrio Climalit</td><td><input type="number" id="precio_vidrio_climalit_m2" value="" min="0"></td></tr>
+                <tr><td>Vidrio Bajo Emisivo</td><td><input type="number" id="precio_vidrio_bajo_emisivo_m2" value="" min="0"></td></tr>
+                <tr><td>Mano de Obra Vidrio</td><td><input type="number" id="precio_vidrio_mo" value="" min="0"></td></tr>
+                <tr><td>Mínimo m²</td><td><input type="number" id="area_minima" value="" min="0.1" step="0.1"></td></tr>
+                <tr><td>Peso Persiana Alum. (kg/m²)</td><td><input type="number" id="peso_aluminio_m2" value="" min="1" step="0.1"></td></tr>
             </tbody>
         </table>
         
@@ -876,6 +876,18 @@ solid #ccc;
     }
 
     // Función principal para calcular el TOTAL
+    
+    function actualizarAvisoPreciosVacios() {
+        const aviso = document.getElementById('aviso_precios_vacios');
+        if (!aviso) return;
+        const inputs = document.querySelectorAll('#price_table input[type="number"]');
+        let algunoConValor = false;
+        inputs.forEach(input => {
+            if (String(input.value).trim() !== '') algunoConValor = true;
+        });
+        aviso.style.display = algunoConValor ? 'none' : 'block';
+    }
+
     function calcularPresupuestoTotal() {
         const PRECIOS = getPrecios();
         
@@ -887,6 +899,7 @@ solid #ccc;
         const total = persiana.coste + mosquitera.coste + chapa.coste + vidrio.coste;
         
         document.getElementById('total_resultado').textContent = `TOTAL: ${total.toFixed(2)} €`;
+        actualizarAvisoPreciosVacios();
     }
 
     // ----------------------------------------------------------------------
@@ -1210,5 +1223,31 @@ solid #ccc;
     });
 
 </script>
+
+<script>
+/* v2.2 - Precios reseteados para GitHub + volver seguro al index desde iframe/iPhone/GitHub */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+  return false;
+}
+</script>
+
 </body>
 </html>
