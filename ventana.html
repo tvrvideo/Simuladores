@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v88.8 conectada</title>
+    <title>Ventana Pro v91.9</title>
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
@@ -664,6 +664,103 @@ body.dock-off #canvasDock{
 body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 .btn-enviar-documentos:active{transform:translateY(1px) scale(.98)}
 
+
+/* v91.8 - retorno a Documentos sin aire + texturas integradas */
+.btn-ajustes-final,
+.btn-persiana-rapida,
+.btn-png-hd{
+  position: fixed;
+  right: 10px;
+  z-index: 9999;
+  width: 72px !important;
+  height: 38px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 !important;
+  border-radius: 19px;
+  border: none;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn-ajustes-final{ top: 56px; background:#111827; font-size:10px; }
+.btn-persiana-rapida{ top: 102px; background:#6b7280; font-size:8.5px; }
+.btn-persiana-rapida.active{ background:#e74c3c; }
+.btn-png-hd{ top: 148px; background:#16a34a; font-size:9px; }
+body.from-documentos .btn-enviar-documentos{ top: 194px; }
+
+
+/* v89.6 - botones madera visibles y textura 256px */
+.color-option.wood-nogal{
+  background:linear-gradient(90deg,#3b2416,#7b4a2a,#2b170d) !important;
+  border:2px solid #4a2a18 !important;
+  position:relative;
+}
+.color-option.wood-roble{
+  background:linear-gradient(90deg,#b87935,#e2b56d,#9a5e25) !important;
+  border:2px solid #9a6a32 !important;
+  position:relative;
+}
+.color-option.wood-pino{
+  background:linear-gradient(90deg,#183f31,#2f6b57,#0f2f25) !important;
+  border:2px solid #1e4f40 !important;
+  position:relative;
+}
+.color-option.wood-nogal::after,
+.color-option.wood-roble::after,
+.color-option.wood-pino::after{
+  content:attr(data-label);
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
+  pointer-events:none;
+}
+
+/* v90.3 - Botón blanco para cargar textura madera personalizada */
+.color-option.wood-custom-loader{
+  background:#ffffff !important;
+  border:2px solid #111827 !important;
+  position:relative;
+}
+.color-option.wood-custom-loader::after{
+  content:'TXT';
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#111827;
+  font-size:8px;
+  font-weight:900;
+  text-shadow:none;
+  pointer-events:none;
+}
+.color-option.wood-custom-loader.loaded{
+  border-color:#16a34a !important;
+  box-shadow:0 0 0 2px rgba(22,163,74,.35), 0 4px 6px rgba(0,0,0,0.55);
+}
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -680,7 +777,9 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 <button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
 
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
-<button id="btnVisualAjustes" class="btn-visual-ajustes" type="button" onclick="abrirAjustesVisuales()" title="Ajustes visuales">⚙️</button>
+<button id="btnVisualAjustes" class="btn-ajustes-final btn-float-hide" type="button" onclick="abrirAjustesVisuales()" title="Ajustes visuales">AJUSTES</button>
+<button id="btnPersianaRapida" class="btn-persiana-rapida btn-float-hide" type="button" onclick="togglePersiana()" title="Cajón persiana">PERSIANA</button>
+<button id="btnPngHD" class="btn-png-hd btn-float-hide" type="button" onclick="exportarPNG(3)" title="Exportar PNG HD">PNG HD</button>
 
 <div id="visualSettingsBackdrop" class="visual-modal-backdrop" onclick="if(event.target===this) cerrarAjustesVisuales()">
   <div class="visual-modal">
@@ -762,7 +861,7 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v88.8 conectada"><span class="title-main">Ventana Pro</span><span class="title-version">v88.8 conectada</span></div>
+<div class="top-title" aria-label="Ventana Pro v91.9"><span class="title-main">Ventana Pro</span><span class="title-version">v91.9</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -998,6 +1097,12 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
         <span class="color-option" style="background:#653521" onclick="cambiarColorMarco('#653521')"></span>
         <span class="color-option" style="background:#44322d" onclick="cambiarColorMarco('#44322d')"></span>
         <span class="color-option" style="background:#654321" onclick="cambiarColorMarco('#654321')"></span>
+        <span class="color-option wood-nogal" data-label="N" title="Nogal" onclick="cambiarColorMarco('NOGAL')"></span>
+        <span class="color-option wood-roble" data-label="R" title="Roble dorado" onclick="cambiarColorMarco('ROBLE')"></span>
+        <span class="color-option wood-pino" data-label="P" title="Verde pino" onclick="cambiarColorMarco('PINO')"></span>
+        <span id="btnCargarTexturaMadera" class="color-option wood-custom-loader" title="Cargar textura madera" onclick="abrirCargadorTexturaMadera()"></span>
+        <input id="inputTexturaMadera" class="hidden-input" type="file" accept="image/*">
+
         <span class="color-option" style="background:#2ECC71" onclick="cambiarColorMarco('#2ECC71')"></span>
         <span class="color-option" style="background:#006400" onclick="cambiarColorMarco('#006400')"></span>
         <span class="color-option" style="background:#114232" onclick="cambiarColorMarco('#114232')"></span>
@@ -1115,9 +1220,14 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
             <button onclick="toggleMedidas()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Medidas</button>
             <button onclick="toggleAltoTotalDer()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Alto Total</button>
             
-            <button onclick="exportarPNG()" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 0; background-color: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                Exportar PNG (iPhone)
-            </button>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button onclick="exportarPNG(1)" style="width:100%; padding:14px 8px; font-size:15px; margin-top:0; background-color:#28a745; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
+                    PNG SD
+                </button>
+                <button onclick="exportarPNG(3)" style="width:100%; padding:14px 8px; font-size:15px; margin-top:0; background-color:#0f766e; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
+                    PNG HD
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1164,7 +1274,122 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 
 
 <script>
-    let colorMarco = "#FFFFFF", mostrarPersiana = true, mostrarMedidas = true;
+    let colorMarco = "#F0F0F0", mostrarPersiana = true, mostrarMedidas = true;
+/* v89.6 - piel de madera 256px segura para PNG */
+let marcoTextura = "";
+let nogalTextureImg = new Image();
+let robleTextureImg = new Image();
+let pinoTextureImg = new Image();
+/* v90.6 - textura madera personalizada en IndexedDB para no llenar localStorage y no romper exportar PNG */
+const CUSTOM_WOOD_TEXTURE_KEY = 'ventanas_rey_madera_custom_base64_v1'; // clave antigua: solo se limpia esta textura, no el resto de localStorage
+const CUSTOM_WOOD_DB_NAME = 'ventanas_rey_texturas_db_v1';
+const CUSTOM_WOOD_DB_STORE = 'texturas';
+const CUSTOM_WOOD_DB_ID = 'madera_custom';
+let customWoodTextureImg = new Image();
+let customWoodTextureReady = false;
+
+nogalTextureImg.onload = function(){ try{ if(marcoTextura === "nogal") actualizarVista(); }catch(e){} };
+robleTextureImg.onload = function(){ try{ if(marcoTextura === "roble") actualizarVista(); }catch(e){} };
+pinoTextureImg.onload = function(){ try{ if(marcoTextura === "pino") actualizarVista(); }catch(e){} };
+customWoodTextureImg.onload = function(){
+    customWoodTextureReady = true;
+    try{
+        const btn = document.getElementById('btnCargarTexturaMadera');
+        if(btn) btn.classList.add('loaded');
+    }catch(e){}
+    try{ if(marcoTextura === "custom") actualizarVista(); }catch(e){}
+};
+customWoodTextureImg.onerror = function(){ customWoodTextureReady = false; };
+
+nogalTextureImg.src = "data:image/jpeg;base64,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";
+robleTextureImg.src = "data:image/jpeg;base64,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";
+
+pinoTextureImg.src = "data:image/jpeg;base64,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";
+
+function crearPatronMaderaRepetido(ctx, img, escala){
+  try{
+    if(!ctx || !img || !img.naturalWidth) return null;
+    const p = ctx.createPattern(img, "repeat");
+    if(!p) return null;
+
+    // Importante: usar patrón repetido dentro de cada perfil, no dibujar la foto completa.
+    // Para texturas cargadas por el usuario reducimos visualmente el mosaico para que
+    // se comporte como Nogal/Roble y no parezca una imagen grande encima de la ventana.
+    if(typeof p.setTransform === 'function' && escala && escala !== 1){
+      try{ p.setTransform(new DOMMatrix([escala, 0, 0, escala, 0, 0])); }catch(_e){}
+    }
+    return p;
+  }catch(e){ return null; }
+}
+
+function getMarcoFill(ctx){
+  try{
+    if(marcoTextura === "nogal" && nogalTextureImg && nogalTextureImg.complete && nogalTextureImg.naturalWidth){
+      const p = crearPatronMaderaRepetido(ctx, nogalTextureImg, 1);
+      if(p) return p;
+    }
+    if(marcoTextura === "roble" && robleTextureImg && robleTextureImg.complete && robleTextureImg.naturalWidth){
+      const p = crearPatronMaderaRepetido(ctx, robleTextureImg, 0.35);
+      if(p) return p;
+    }
+    if(marcoTextura === "pino" && pinoTextureImg && pinoTextureImg.complete && pinoTextureImg.naturalWidth){
+      const p = crearPatronMaderaRepetido(ctx, pinoTextureImg, 0.75);
+      if(p) return p;
+    }
+    if(marcoTextura === "custom" && customWoodTextureImg && customWoodTextureReady && customWoodTextureImg.naturalWidth){
+      const p = crearPatronMaderaRepetido(ctx, customWoodTextureImg, 0.35);
+      if(p) return p;
+    }
+  }catch(e){}
+  return colorMarco;
+}
+
+
+/* v91.0 - Patrón específico para el cajón de persiana en acabados con textura.
+   Nogal, Roble, Verde Pino y textura cargada usan la veta girada 90º para que el cajón
+   no quede como una continuación plana del marco. No toca FIJAR, PNG ni Documentos. */
+function crearPatronPersianaTextura(ctx, img, escala){
+  try{
+    if(!ctx || !img || !img.naturalWidth) return null;
+    const p = ctx.createPattern(img, "repeat");
+    if(!p) return null;
+    if(typeof p.setTransform === 'function'){
+      try{
+        const sc = escala || 1;
+        // Rotación 90º + escala: orienta la veta del cajón distinta a los perfiles.
+        p.setTransform(new DOMMatrix([0, sc, -sc, 0, 0, 0]));
+      }catch(_e){}
+    }
+    return p;
+  }catch(e){ return null; }
+}
+
+function getPersianaFill(ctx){
+  try{
+    if(marcoTextura === "nogal" && nogalTextureImg && nogalTextureImg.complete && nogalTextureImg.naturalWidth){
+      const p = crearPatronPersianaTextura(ctx, nogalTextureImg, 1);
+      if(p) return p;
+    }
+    if(marcoTextura === "roble" && robleTextureImg && robleTextureImg.complete && robleTextureImg.naturalWidth){
+      const p = crearPatronPersianaTextura(ctx, robleTextureImg, 0.35);
+      if(p) return p;
+    }
+    if(marcoTextura === "pino" && pinoTextureImg && pinoTextureImg.complete && pinoTextureImg.naturalWidth){
+      const p = crearPatronPersianaTextura(ctx, pinoTextureImg, 0.75);
+      if(p) return p;
+    }
+    if(marcoTextura === "custom" && customWoodTextureImg && customWoodTextureReady && customWoodTextureImg.naturalWidth){
+      const p = crearPatronPersianaTextura(ctx, customWoodTextureImg, 0.35);
+      if(p) return p;
+    }
+  }catch(e){}
+  return getMarcoFill(ctx);
+}
+
+function aplicarRellenoMarco(ctx){
+  ctx.fillStyle = getMarcoFill(ctx);
+}
+
     let mostrarAltoTotalDer = true;
 
     const VISUAL_SETTINGS_KEY = 'ventana_pro_visual_settings_v88_7';
@@ -1175,7 +1400,7 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
         shadowY: 5,
         lightStrokeColor: '#333333',
         lightStrokeWidth: 1.6,
-        darkStrokeColor: '#ffffff',
+        darkStrokeColor: '#ADADAD',
         darkStrokeWidth: 2,
         outerFrameColor: '#333333',
         outerFrameWidth: 1.4,
@@ -1760,12 +1985,178 @@ function dibujarSombraExteriorVentana(ctx, x, y, w, h) {
 // --- FIN CONTRASTE BORDE HOJA ---
 
 
+
+// v90.6 - cargar cualquier imagen, ajustarla y guardarla en IndexedDB para no llenar localStorage
+function abrirDBTexturasMadera(){
+    return new Promise(function(resolve, reject){
+        try{
+            if(!('indexedDB' in window)){ reject(new Error('IndexedDB no disponible')); return; }
+            const req = indexedDB.open(CUSTOM_WOOD_DB_NAME, 1);
+            req.onupgradeneeded = function(ev){
+                const db = ev.target.result;
+                if(!db.objectStoreNames.contains(CUSTOM_WOOD_DB_STORE)) db.createObjectStore(CUSTOM_WOOD_DB_STORE);
+            };
+            req.onsuccess = function(){ resolve(req.result); };
+            req.onerror = function(){ reject(req.error || new Error('No se pudo abrir IndexedDB')); };
+        }catch(e){ reject(e); }
+    });
+}
+function guardarTexturaMaderaIndexedDB(dataUrl){
+    return abrirDBTexturasMadera().then(function(db){
+        return new Promise(function(resolve, reject){
+            try{
+                const tx = db.transaction(CUSTOM_WOOD_DB_STORE, 'readwrite');
+                tx.objectStore(CUSTOM_WOOD_DB_STORE).put(dataUrl, CUSTOM_WOOD_DB_ID);
+                tx.oncomplete = function(){ try{db.close();}catch(e){} resolve(true); };
+                tx.onerror = function(){ try{db.close();}catch(e){} reject(tx.error || new Error('No se pudo guardar textura')); };
+            }catch(e){ try{db.close();}catch(_e){} reject(e); }
+        });
+    });
+}
+function leerTexturaMaderaIndexedDB(){
+    return abrirDBTexturasMadera().then(function(db){
+        return new Promise(function(resolve, reject){
+            try{
+                const tx = db.transaction(CUSTOM_WOOD_DB_STORE, 'readonly');
+                const req = tx.objectStore(CUSTOM_WOOD_DB_STORE).get(CUSTOM_WOOD_DB_ID);
+                req.onsuccess = function(){ resolve(req.result || ''); };
+                req.onerror = function(){ reject(req.error || new Error('No se pudo leer textura')); };
+                tx.oncomplete = function(){ try{db.close();}catch(e){} };
+            }catch(e){ try{db.close();}catch(_e){} reject(e); }
+        });
+    });
+}
+function borrarTexturaMaderaLocalStorageAntigua(){
+    // Limpia solo la textura personalizada antigua para liberar espacio. No toca presupuestos ni estado de otras apps.
+    try{ localStorage.removeItem(CUSTOM_WOOD_TEXTURE_KEY); }catch(e){}
+}
+function cargarTexturaMaderaGuardada(){
+    return leerTexturaMaderaIndexedDB().then(function(dataUrl){
+        if(!dataUrl || typeof dataUrl !== 'string' || !/^data:image\//.test(dataUrl)) return false;
+        customWoodTextureReady = false;
+        customWoodTextureImg.src = dataUrl;
+        const btn = document.getElementById('btnCargarTexturaMadera');
+        if(btn) btn.classList.add('loaded');
+        return true;
+    }).catch(function(){ return false; });
+}
+function abrirCargadorTexturaMadera(){
+    try{
+        const input = document.getElementById('inputTexturaMadera');
+        if(!input) return;
+        input.value = '';
+        input.click();
+    }catch(e){ alert('No se pudo abrir el selector de imagen.'); }
+}
+function aplicarTexturaMaderaPersonalizada(dataUrl, guardar){
+    try{
+        if(!dataUrl || !/^data:image\//.test(dataUrl)){ alert('Selecciona una imagen válida.'); return Promise.resolve(false); }
+        const aplicar = function(){
+            customWoodTextureReady = false;
+            customWoodTextureImg.src = dataUrl;
+            marcoTextura = 'custom';
+            colorMarco = '#8a6a44';
+            try{ const btn = document.getElementById('btnCargarTexturaMadera'); if(btn) btn.classList.add('loaded'); }catch(e){}
+            actualizarHojas(); actualizarOpcionesFijos(); actualizarVista();
+            try{ if(typeof saveState === 'function') saveState(); }catch(e){}
+            return true;
+        };
+        if(!guardar) return Promise.resolve(aplicar());
+        return guardarTexturaMaderaIndexedDB(dataUrl).then(function(){ borrarTexturaMaderaLocalStorageAntigua(); return aplicar(); }).catch(function(){
+            alert('No se pudo guardar la textura. He cambiado el sistema a IndexedDB, pero el navegador puede estar sin espacio libre.');
+            return false;
+        });
+    }catch(e){ alert('No se pudo cargar la textura.'); return Promise.resolve(false); }
+}
+function optimizarImagenTexturaMadera(dataUrl){
+    return new Promise(function(resolve, reject){
+        try{
+            const img = new Image();
+            img.onload = function(){
+                try{
+                    const sourceW = img.naturalWidth || img.width || 1;
+                    const sourceH = img.naturalHeight || img.height || 1;
+                    const side = Math.min(sourceW, sourceH);
+                    const sx = Math.max(0, Math.floor((sourceW - side) / 2));
+                    const sy = Math.max(0, Math.floor((sourceH - side) / 2));
+                    const canvas = document.createElement('canvas');
+                    const tamaños = [192,160,128];
+                    const calidades = [0.68,0.62,0.56];
+                    let out = '';
+                    for(let i=0;i<tamaños.length;i++){
+                        const size = tamaños[i];
+                        canvas.width = size; canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        if(!ctx){ reject(new Error('canvas')); return; }
+                        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,size,size);
+                        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+                        out = canvas.toDataURL('image/jpeg', calidades[i]);
+                        if(out.length <= 260000) break;
+                    }
+                    resolve(out);
+                }catch(err){ reject(err); }
+            };
+            img.onerror = function(){ reject(new Error('imagen')); };
+            img.src = dataUrl;
+        }catch(e){ reject(e); }
+    });
+}
+function inicializarCargadorTexturaMadera(){
+    try{
+        borrarTexturaMaderaLocalStorageAntigua();
+        cargarTexturaMaderaGuardada();
+        const input = document.getElementById('inputTexturaMadera');
+        if(!input || input.__textureBound) return;
+        input.__textureBound = true;
+        input.addEventListener('change', function(){
+            try{
+                const file = input.files && input.files[0];
+                if(!file) return;
+                if(!/^image\//.test(file.type || '')){ alert('Selecciona una imagen.'); return; }
+                const reader = new FileReader();
+                reader.onload = function(ev){
+                    const originalDataUrl = String((ev && ev.target && ev.target.result) || '');
+                    optimizarImagenTexturaMadera(originalDataUrl)
+                        .then(function(dataUrlOptimizada){ return aplicarTexturaMaderaPersonalizada(dataUrlOptimizada, true); })
+                        .then(function(ok){ if(ok){ try{ alert('Textura cargada, ajustada y guardada fuera de localStorage.'); }catch(_e){} } })
+                        .catch(function(){ alert('No se pudo ajustar la imagen. Prueba con otra imagen.'); });
+                };
+                reader.onerror = function(){ alert('No se pudo leer la imagen.'); };
+                reader.readAsDataURL(file);
+            }catch(e){ alert('No se pudo cargar la textura.'); }
+        }, false);
+    }catch(e){}
+}
+
 // 2. Esta es la función principal modificada
 function cambiarColorMarco(c) {
-    colorMarco = c;
-    
+    if(c === 'NOGAL'){
+        marcoTextura = 'nogal';
+        colorMarco = '#654321';
+    } else if(c === 'ROBLE'){
+        marcoTextura = 'roble';
+        colorMarco = '#8a6a44';
+    } else if(c === 'PINO'){
+        marcoTextura = 'pino';
+        colorMarco = '#2f6b57';
+    } else if(c === 'CUSTOM_TEXTURE'){
+        if(customWoodTextureReady){
+            marcoTextura = 'custom';
+            colorMarco = '#8a6a44';
+        } else {
+            cargarTexturaMaderaGuardada().then(function(ok){
+                if(ok){ cambiarColorMarco('CUSTOM_TEXTURE'); }
+                else { abrirCargadorTexturaMadera(); }
+            });
+            return;
+        }
+    } else {
+        marcoTextura = '';
+        colorMarco = c;
+    }
     // Calculamos el color oscuro (el 0.7 significa que es un 30% más oscuro)
-    const colorOscuro = oscurecerColor(c, 0.92);
+    const colorOscuro = oscurecerColor(colorMarco, 0.92);
     
     // Ahora aplicamos el color OSCURO al selector de cristal, no el del marco
     document.getElementById('glass-color-match').style.background = colorOscuro;
@@ -2893,7 +3284,8 @@ function cambiarColorMarco(c) {
 
     function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
         if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
-            ctx.fillStyle = baseColor;
+            if(baseColor === colorMarco) aplicarRellenoMarco(ctx);
+            else ctx.fillStyle = baseColor;
             ctx.fillRect(x, y, w, h);
             ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
             return;
@@ -2937,7 +3329,8 @@ function cambiarColorMarco(c) {
         }
     
         if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
-            ctx.fillStyle = baseColor;
+            if(baseColor === colorMarco) aplicarRellenoMarco(ctx);
+            else ctx.fillStyle = baseColor;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -3288,7 +3681,7 @@ function cambiarColorMarco(c) {
             ctx.moveTo(drawPoly[0].x, drawPoly[0].y);
             for(let k=1;k<drawPoly.length;k++) ctx.lineTo(drawPoly[k].x, drawPoly[k].y);
             ctx.closePath();
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.fill();
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = strokeWidth;
@@ -3545,9 +3938,15 @@ function cambiarColorMarco(c) {
         // Limpiamos las zonas interactivas anteriores
         zonasInteractivas = [];
         
-        c.height = 700;
-        c.width = 900;
-        ctx.clearRect(0, 0, c.width, c.height);
+        const logicalCanvasWidth = 900;
+        const logicalCanvasHeight = 700;
+        const renderScale = Math.max(1, Number(window.__VENTANA_EXPORT_SCALE || 1));
+
+        c.width = Math.round(logicalCanvasWidth * renderScale);
+        c.height = Math.round(logicalCanvasHeight * renderScale);
+
+        ctx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
+        ctx.clearRect(0, 0, logicalCanvasWidth, logicalCanvasHeight);
         
 // MEDIDAS CANVAS Y MARGEN
 
@@ -3582,8 +3981,8 @@ function cambiarColorMarco(c) {
         const horizontalMeasureSpace = mostrarMedidasFlag ? 170 : 0;
         const verticalMeasureSpace = mostrarMedidasFlag ? 80 : 0;
 
-        const availableWidth = c.width - (2 * margin);
-        const availableHeight = c.height - (2 * margin);
+        const availableWidth = logicalCanvasWidth - (2 * margin);
+        const availableHeight = logicalCanvasHeight - (2 * margin);
 
         const scaleX = (availableWidth - horizontalMeasureSpace) / totalDrawingWidthMM;
         const scaleY = (availableHeight - verticalMeasureSpace) / totalDrawingHeightMM;
@@ -3663,14 +4062,27 @@ function cambiarColorMarco(c) {
             const cajonHeight = cajonHEsc;
 
             let persianaColor;
-            if (colorMarco === "#FFFFFF") {
+            const persianaConTextura = (marcoTextura === "nogal" || marcoTextura === "roble" || marcoTextura === "pino" || marcoTextura === "custom");
+            if (persianaConTextura) {
+                ctx.fillStyle = getPersianaFill(ctx);
+                persianaColor = colorMarco;
+            } else if (colorMarco === "#FFFFFF") {
                 persianaColor = "#D3D3D3";
+                ctx.fillStyle = persianaColor;
             } else {
                 persianaColor = mezclarColor(colorMarco, "#808080", 0.25);
+                ctx.fillStyle = persianaColor;
             }
 
-            ctx.fillStyle = persianaColor;
             ctx.fillRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
+            if (marcoTextura === "pino") {
+                // Veladura suave: un tono más profundo solo en el cajón de persiana.
+                ctx.save();
+                ctx.fillStyle = "rgba(0, 36, 24, 0.22)";
+                ctx.fillRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
+                ctx.restore();
+                persianaColor = "#1f4f3f";
+            }
             ctx.strokeStyle = "#666"; ctx.strokeRect(cajonX0, cajonY0, cajonWidth, cajonHeight);
 
             const isDark = esColorOscuro(persianaColor);
@@ -3694,7 +4106,7 @@ function cambiarColorMarco(c) {
             const fijoSupYBottom = mainWinY0 + maxAltoFijoSupMM * esc;
             
             // Dibujar Marco Fondo
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.beginPath();
             const p1 = { x: x0, y: fijoSupYBottom - altoFijoSupIzqEsc };
             const p3 = { x: x0 + anchoVentanaTotalEsc, y: fijoSupYBottom - altoFijoSupDerEsc };
@@ -3810,7 +4222,7 @@ function cambiarColorMarco(c) {
             }
 
             // DIBUJAR TRAVESAÑOS (ENCIMA)
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.strokeStyle = "#333";
             
             // Horizontales
@@ -3867,7 +4279,7 @@ function cambiarColorMarco(c) {
             return conjuntoTopYLeft + (conjuntoTopYRight - conjuntoTopYLeft) * t;
         };
 
-        ctx.fillStyle = colorMarco;
+        aplicarRellenoMarco(ctx);
         ctx.beginPath();
         const marcoX0 = x0 + anchoFijoIzqEsc;
         const marcoY0SuperiorIzq = yTopConjuntoAt(marcoX0);
@@ -3901,7 +4313,7 @@ function cambiarColorMarco(c) {
                 const yTopTravesano = y_top_frame(travesanoX) + marcoThicknessEsc;
                 const yBottomTravesano = y_top_frame(travesanoX) + (altoVentanaPrincipalRealMM - 2 * hojaThickness) * esc + marcoThicknessEsc;
 
-                ctx.fillStyle = colorMarco;
+                aplicarRellenoMarco(ctx);
                 ctx.fillRect(travesanoX, yTopTravesano, travesanoThicknessEsc, yBottomTravesano - yTopTravesano);
 
                 currentHojaXPosForTravesano += separacionHoja * esc;
@@ -3954,7 +4366,7 @@ function cambiarColorMarco(c) {
                     ctx.lineTo(xHojaRight, yHojaBottom);
                     ctx.lineTo(xHojaLeft, yHojaBottom);
                     ctx.closePath();
-                    ctx.fillStyle = colorMarco;
+                    aplicarRellenoMarco(ctx);
                     ctx.fill();
                     ctx.stroke();
                 }
@@ -4000,7 +4412,7 @@ function cambiarColorMarco(c) {
                             currentYGlassSection -= huecoHeightEsc;
                         }
 
-                        ctx.fillStyle = colorMarco;
+                        aplicarRellenoMarco(ctx);
                         ctx.fillRect(hojaGlassPoints[0].x, currentYGlassSection - travesanoThicknessEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
                         ctx.strokeStyle = getBordeHojaColor();
                         ctx.lineWidth = getBordeHojaGrosor();
@@ -4028,7 +4440,7 @@ function cambiarColorMarco(c) {
                     const sortedVerticales = [...travesanosHojas[i].posicionesV].sort((a,b) => a - b);
                     sortedVerticales.forEach(posicion => {
                         const travesanoX = hojaGlassPoints[0].x + posicion * esc;
-                        ctx.fillStyle = colorMarco;
+                        aplicarRellenoMarco(ctx);
                         ctx.fillRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
                         ctx.strokeStyle = getBordeHojaColor(); ctx.lineWidth = getBordeHojaGrosor(); ctx.strokeRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
                     });
@@ -4186,7 +4598,7 @@ function cambiarColorMarco(c) {
             const fijoIzqYTopR = yTopConjuntoAt(fijoIzqX1);
             const fijoIzqYBottom = conjuntoBottomY;
 
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.beginPath();
             ctx.moveTo(fijoIzqX0, fijoIzqYTopL);
             ctx.lineTo(fijoIzqX1, fijoIzqYTopR);
@@ -4231,14 +4643,14 @@ function cambiarColorMarco(c) {
 
                 [...travesanosIzqHorizontales].sort((a,b) => a.altura - b.altura).forEach(t => {
                     const yVal = yGlassBottom - t.altura * esc - travesanoThicknessEsc;
-                    ctx.fillStyle = colorMarco;
+                    aplicarRellenoMarco(ctx);
                     ctx.fillRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
                     if (drawBorderLeft) ctx.strokeRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
                 });
 
                 [...travesanosIzqVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
                     const xVal = xGlassLeft + t.posicion * esc;
-                    ctx.fillStyle = colorMarco;
+                    aplicarRellenoMarco(ctx);
                     ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                     if (drawBorderLeft) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                 });
@@ -4253,7 +4665,7 @@ function cambiarColorMarco(c) {
             const fijoDerYTopR = yTopConjuntoAt(fijoDerX1);
             const fijoDerYBottom = conjuntoBottomY;
 
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.beginPath();
             ctx.moveTo(fijoDerX0, fijoDerYTopL);
             ctx.lineTo(fijoDerX1, fijoDerYTopR);
@@ -4298,14 +4710,14 @@ function cambiarColorMarco(c) {
 
                 [...travesanosDerHorizontales].sort((a,b) => a.altura - b.altura).forEach(t => {
                     const yVal = yGlassBottom - t.altura * esc - travesanoThicknessEsc;
-                    ctx.fillStyle = colorMarco;
+                    aplicarRellenoMarco(ctx);
                     ctx.fillRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
                     if (drawBorderRight) ctx.strokeRect(xGlassLeft, yVal, xGlassRight - xGlassLeft, travesanoThicknessEsc);
                 });
 
                 [...travesanosDerVerticales].sort((a,b) => a.posicion - b.posicion).forEach(t => {
                     const xVal = xGlassLeft + t.posicion * esc;
-                    ctx.fillStyle = colorMarco;
+                    aplicarRellenoMarco(ctx);
                     ctx.fillRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                     if (drawBorderRight) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yGlassTopMin, travesanoThicknessEsc, yGlassBottom - yGlassTopMin);
                 });
@@ -4319,7 +4731,7 @@ function cambiarColorMarco(c) {
             const fijoInfWidth = anchoVentanaTotalEsc;
             const fijoInfHeight = altoFijoInferiorEsc;
 
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.fillRect(fijoInfX0, fijoInfY0, fijoInfWidth, fijoInfHeight);
             aplicarEstiloMarcoExterior(ctx); ctx.strokeRect(fijoInfX0, fijoInfY0, fijoInfWidth, fijoInfHeight);
             
@@ -4371,7 +4783,7 @@ function cambiarColorMarco(c) {
             }
 
             // DIBUJAR TRAVESAÑOS (ENCIMA)
-            ctx.fillStyle = colorMarco;
+            aplicarRellenoMarco(ctx);
             ctx.strokeStyle = "#333";
             
             sortedH.forEach(t => {
@@ -6589,111 +7001,96 @@ if (mostrarAltoTotalDer) {
         descargarTextoComoArchivoSeguro('despiece-telefonillo.csv', 'text/csv;charset=utf-8;', csv);
     }
 
-    function exportarPNG() {
+
+    function exportarPNG(scale) {
+        scale = Math.max(1, Math.min(4, Number(scale) || 1));
         const canvas = document.getElementById('canvas');
-        
-        // Para iOS es mejor abrir en una pestaña nueva o usar un método que permita "Guardar en Fotos"
-        try {
-            const dataUrl = canvas.toDataURL('image/png');
-            
-            // Crear un enlace temporal
-            const link = document.createElement('a');
-            link.download = `diseno-ventana-${Date.now()}.png`;
-            link.href = dataUrl;
-            
-            // En iOS, a veces el "download" falla, así que mostramos la imagen para que el usuario mantenga pulsado
+
+        function mostrarPNG(dataUrl){
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            
+
             if (isIOS) {
-                const newTab = window.open();
-                newTab.document.write('<img src="' + dataUrl + '" style="width:100%;">');
-                newTab.document.write('<p style="text-align:center;font-family:sans-serif;">Manten pulsada la imagen para "Guardar en Fotos"</p>');
-                newTab.document.close();
+                const old = document.getElementById('export-overlay');
+                if(old) old.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'export-overlay';
+                overlay.style.position = 'fixed';
+                overlay.style.inset = '0';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                overlay.style.zIndex = '10000';
+                overlay.style.display = 'flex';
+                overlay.style.flexDirection = 'column';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.padding = '20px';
+                overlay.style.boxSizing = 'border-box';
+
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '70%';
+                img.style.border = '2px solid white';
+                img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 0 20px rgba(255,255,255,0.2)';
+
+                const text = document.createElement('p');
+                text.innerHTML = '<span style="font-size:1.2em; color:#ffd700;">¡DISEÑO LISTO!</span><br><br>1. Mantén pulsada la imagen<br>2. Selecciona <b>Guardar en Fotos</b>';
+                text.style.color = 'white';
+                text.style.textAlign = 'center';
+                text.style.marginTop = '20px';
+                text.style.fontFamily = 'sans-serif';
+                text.style.lineHeight = '1.5';
+
+                const closeBtn = document.createElement('button');
+                closeBtn.innerText = 'VOLVER AL DISEÑO';
+                closeBtn.style.marginTop = '30px';
+                closeBtn.style.padding = '12px 25px';
+                closeBtn.style.background = '#444';
+                closeBtn.style.color = 'white';
+                closeBtn.style.border = '1px solid #666';
+                closeBtn.style.borderRadius = '5px';
+                closeBtn.style.fontSize = '16px';
+                closeBtn.style.fontWeight = 'bold';
+                closeBtn.onclick = () => overlay.remove();
+
+                overlay.appendChild(img);
+                overlay.appendChild(text);
+                overlay.appendChild(closeBtn);
+                document.body.appendChild(overlay);
             } else {
+                const link = document.createElement('a');
+                link.download = `diseno-ventana-${Date.now()}.png`;
+                link.href = dataUrl;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
-        } catch (err) {
-            alert('Error al exportar: ' + err.message);
         }
-    }
 
-    function exportarPNG() {
-        const canvas = document.getElementById('canvas');
-        
         try {
-            // Aseguramos que el canvas esté actualizado antes de capturar
+            window.__VENTANA_EXPORT_SCALE = scale;
             actualizarVista();
-            
-            // Usamos un pequeño delay para asegurar que el canvas se haya redibujado
+
             setTimeout(() => {
-                const dataUrl = canvas.toDataURL('image/png');
-                
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                
-                if (isIOS) {
-                    // Crear un modal o superposición con la imagen para que sea fácil de guardar
-                    const overlay = document.createElement('div');
-                    overlay.id = 'export-overlay';
-                    overlay.style.position = 'fixed';
-                    overlay.style.top = '0';
-                    overlay.style.left = '0';
-                    overlay.style.width = '100%';
-                    overlay.style.height = '100%';
-                    overlay.style.backgroundColor = 'rgba(0,0,0,0.95)';
-                    overlay.style.zIndex = '10000';
-                    overlay.style.display = 'flex';
-                    overlay.style.flexDirection = 'column';
-                    overlay.style.alignItems = 'center';
-                    overlay.style.justifyContent = 'center';
-                    overlay.style.padding = '20px';
-                    overlay.style.boxSizing = 'border-box';
-
-                    // En iOS, a veces es mejor usar un objeto Blob para dataUrls muy grandes
-                    const img = document.createElement('img');
-                    img.src = dataUrl;
-                    img.style.maxWidth = '100%';
-                    img.style.maxHeight = '70%';
-                    img.style.border = '2px solid white';
-                    img.style.borderRadius = '8px';
-                    img.style.boxShadow = '0 0 20px rgba(255,255,255,0.2)';
-
-                    const text = document.createElement('p');
-                    text.innerHTML = '<span style="font-size:1.2em; color:#ffd700;">¡DISEÑO LISTO!</span><br><br>1. Mantén pulsada la imagen<br>2. Selecciona <b>"Guardar en Fotos"</b>';
-                    text.style.color = 'white';
-                    text.style.textAlign = 'center';
-                    text.style.marginTop = '20px';
-                    text.style.fontFamily = 'sans-serif';
-                    text.style.lineHeight = '1.5';
-
-                    const closeBtn = document.createElement('button');
-                    closeBtn.innerText = 'VOLVER AL DISEÑO';
-                    closeBtn.style.marginTop = '30px';
-                    closeBtn.style.padding = '12px 25px';
-                    closeBtn.style.background = '#444';
-                    closeBtn.style.color = 'white';
-                    closeBtn.style.border = '1px solid #666';
-                    closeBtn.style.borderRadius = '5px';
-                    closeBtn.style.fontSize = '16px';
-                    closeBtn.style.fontWeight = 'bold';
-                    closeBtn.onclick = () => document.body.removeChild(overlay);
-
-                    overlay.appendChild(img);
-                    overlay.appendChild(text);
-                    overlay.appendChild(closeBtn);
-                    document.body.appendChild(overlay);
-                } else {
-                    const link = document.createElement('a');
-                    link.download = `diseno-ventana-${Date.now()}.png`;
-                    link.href = dataUrl;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                try{
+                    const dataUrl = canvas.toDataURL('image/png');
+                    mostrarPNG(dataUrl);
+                }catch(err){
+                    alert('Error al exportar PNG: ' + (err && err.message ? err.message : err));
+                }finally{
+                    try{
+                        window.__VENTANA_EXPORT_SCALE = 1;
+                        actualizarVista();
+                    }catch(e){}
                 }
-            }, 100);
+            }, scale > 1 ? 180 : 120);
         } catch (err) {
-            alert('Error al exportar: ' + err.message);
+            try{
+                window.__VENTANA_EXPORT_SCALE = 1;
+                actualizarVista();
+            }catch(e){}
+            alert('Error al preparar PNG: ' + (err && err.message ? err.message : err));
         }
     }
 
@@ -7250,6 +7647,7 @@ if (mostrarAltoTotalDer) {
         if(typeof window[key] !== 'undefined') data.globals[key] = clone(window[key]);
       }catch(e){}
     });
+    try{ data.globals.marcoTextura = marcoTextura; }catch(e){}
     try{ data.globals.__dockEnabled = !!document.getElementById('btnFijar')?.classList.contains('active'); }catch(e){}
     try{ localStorage.setItem(STATE_KEY, JSON.stringify(data)); }catch(e){}
   }
@@ -7267,6 +7665,8 @@ if (mostrarAltoTotalDer) {
     });
 
     const globals = data.globals || {};
+    try{ if(typeof globals.marcoTextura === 'string') marcoTextura = globals.marcoTextura; }catch(e){}
+    try{ if(marcoTextura === 'custom' && typeof cargarTexturaMaderaGuardada === 'function') cargarTexturaMaderaGuardada(); }catch(e){}
     Object.keys(globals).forEach(function(key){
       if(key === '__dockEnabled') return;
       try{ window[key] = clone(globals[key]); }catch(e){}
@@ -7687,7 +8087,7 @@ if (mostrarAltoTotalDer) {
 
 
 <script>
-/* v88.8 conectada: devuelve el canvas a Documentos Rey */
+/* v89.6 conectada: devuelve el canvas a Documentos Rey */
 (function(){
   'use strict';
 
@@ -7705,14 +8105,68 @@ if (mostrarAltoTotalDer) {
   }
 
   function canvasToWhitePng(canvas){
-    // Captura REAL del canvas completo, no solo la zona visible.
-    // Además genera una imagen optimizada aprox. 1200 px de ancho para Documentos.
+    // v91.8: captura para Documentos SIN aire exterior.
+    // Recorta el contenido real tomando como fondo el color de la esquina superior izquierda.
     var sourceW = canvas.width || canvas.offsetWidth || 1;
     var sourceH = canvas.height || canvas.offsetHeight || 1;
 
+    var srcCtx = canvas.getContext('2d');
+    var imgData = srcCtx.getImageData(0, 0, sourceW, sourceH);
+    var data = imgData.data;
+
+    function pxIndex(x, y){ return (y * sourceW + x) * 4; }
+
+    // Fondo de referencia: esquina superior izquierda.
+    var bgI = pxIndex(0, 0);
+    var bgR = data[bgI], bgG = data[bgI + 1], bgB = data[bgI + 2], bgA = data[bgI + 3];
+    var tolerance = 18;
+
+    function isBackground(x, y){
+      var i = pxIndex(x, y);
+      var a = data[i + 3];
+
+      // Transparente cuenta como fondo.
+      if(a < 8) return true;
+
+      // Blanco/fondo similar a la esquina.
+      return Math.abs(data[i] - bgR) <= tolerance &&
+             Math.abs(data[i + 1] - bgG) <= tolerance &&
+             Math.abs(data[i + 2] - bgB) <= tolerance &&
+             Math.abs(a - bgA) <= tolerance;
+    }
+
+    var left = sourceW, top = sourceH, right = -1, bottom = -1;
+
+    for(var y = 0; y < sourceH; y++){
+      for(var x = 0; x < sourceW; x++){
+        if(!isBackground(x, y)){
+          if(x < left) left = x;
+          if(x > right) right = x;
+          if(y < top) top = y;
+          if(y > bottom) bottom = y;
+        }
+      }
+    }
+
+    // Si no detecta contenido, usa canvas completo.
+    if(right < left || bottom < top){
+      left = 0; top = 0; right = sourceW - 1; bottom = sourceH - 1;
+    }
+
+    // Margen pequeño para que no corte cotas ni flechas.
+    var pad = Math.max(2, Math.round(Math.min(sourceW, sourceH) * 0.005));
+    left = Math.max(0, left - pad);
+    top = Math.max(0, top - pad);
+    right = Math.min(sourceW - 1, right + pad);
+    bottom = Math.min(sourceH - 1, bottom + pad);
+
+    var cropW = Math.max(1, right - left + 1);
+    var cropH = Math.max(1, bottom - top + 1);
+
+    // Igual que antes: salida optimizada para Documentos, pero ya recortada.
     var targetW = 1200;
-    var scale = targetW / sourceW;
-    var targetH = Math.max(1, Math.round(sourceH * scale));
+    var scale = targetW / cropW;
+    var targetH = Math.max(1, Math.round(cropH * scale));
 
     var out = document.createElement('canvas');
     out.width = targetW;
@@ -7721,9 +8175,9 @@ if (mostrarAltoTotalDer) {
     var ctx = out.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, out.width, out.height);
-    ctx.drawImage(canvas, 0, 0, sourceW, sourceH, 0, 0, targetW, targetH);
+    ctx.drawImage(canvas, left, top, cropW, cropH, 0, 0, targetW, targetH);
 
-    return out.toDataURL('image/jpeg', 0.88);
+    return out.toDataURL('image/jpeg', 0.9);
   }
 
   function enviarDisenoADocumentos(){
@@ -7801,7 +8255,7 @@ if (mostrarAltoTotalDer) {
 
 
 <script>
-/* v88.8 - Botón rojo volver a index sin tocar otros botones */
+/* v89.6 - Botón rojo volver a index sin tocar otros botones */
 (function(){
   function volverIndexSeguro(){
     try{
@@ -7849,6 +8303,81 @@ if (mostrarAltoTotalDer) {
   }else{
     bindMenuButton();
   }
+})();
+</script>
+
+
+<script>
+/* v90.2 - sincroniza color rojo de PERSIANA. No toca FIJAR, scroll ni localStorage. */
+(function(){
+  'use strict';
+  function syncPersianaRapida(){
+    try{
+      var btn = document.getElementById('btnPersianaRapida');
+      if(!btn) return;
+      var activa = false;
+      try{
+        // mostrarPersiana está declarado con let en el script principal,
+        // por eso NO siempre aparece como window.mostrarPersiana.
+        activa = (typeof mostrarPersiana !== 'undefined') ? !!mostrarPersiana : !!window.mostrarPersiana;
+      }catch(_){
+        activa = !!window.mostrarPersiana;
+      }
+      btn.classList.toggle('active', activa);
+    }catch(e){}
+  }
+
+  function reforzarTogglePersianaRapida(){
+    try{
+      if(typeof window.__togglePersianaOriginal_v902 === 'function') return;
+      if(typeof togglePersiana !== 'function') return;
+      window.__togglePersianaOriginal_v902 = togglePersiana;
+      togglePersiana = function(){
+        var r = window.__togglePersianaOriginal_v902.apply(this, arguments);
+        setTimeout(syncPersianaRapida, 0);
+        return r;
+      };
+    }catch(e){}
+  }
+
+  function setFloatButtonsVisible(visible){
+    try{
+      document.querySelectorAll('.btn-float-hide').forEach(function(btn){
+        btn.style.display = visible ? '' : 'none';
+      });
+    }catch(e){}
+  }
+  window.addEventListener('load', function(){
+    reforzarTogglePersianaRapida();
+    syncPersianaRapida();
+    document.addEventListener('click', function(ev){
+      var t = ev.target && ev.target.closest ? ev.target.closest('button') : null;
+      if(!t) return;
+      if(t.id === 'btnPersianaRapida' || t.id === 'btnTogglePersiana'){
+        setTimeout(syncPersianaRapida, 30);
+      }
+    }, { passive:true });
+    var modal = document.getElementById('visualSettingsBackdrop');
+    if(modal && window.MutationObserver){
+      var mo = new MutationObserver(function(){ setFloatButtonsVisible(!modal.classList.contains('show')); });
+      mo.observe(modal, { attributes:true, attributeFilter:['class'] });
+      setFloatButtonsVisible(!modal.classList.contains('show'));
+    }
+  }, { once:true });
+})();
+</script>
+
+
+<script>
+/* v90.3 - inicializa botón blanco de textura madera personalizada */
+(function(){
+  'use strict';
+  function init(){
+    try{ if(typeof inicializarCargadorTexturaMadera === 'function') inicializarCargadorTexturaMadera(); }catch(e){}
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+  window.addEventListener('load', init, {once:true});
 })();
 </script>
 
