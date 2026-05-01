@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v91.9</title>
+    <title>Ventana Pro v92.8</title>
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
@@ -861,7 +861,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v91.9"><span class="title-main">Ventana Pro</span><span class="title-version">v91.9</span></div>
+<div class="top-title" aria-label="Ventana Pro v92.8"><span class="title-main">Ventana Pro</span><span class="title-version">v92.8</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1322,6 +1322,69 @@ function crearPatronMaderaRepetido(ctx, img, escala){
   }catch(e){ return null; }
 }
 
+
+/* v92.5 - helpers para chapa/contra texturada */
+function crearPatronMaderaRotado90(ctx, img, escala){
+  try{
+    if(!ctx || !img || !img.naturalWidth) return null;
+    const p = ctx.createPattern(img, "repeat");
+    if(!p) return null;
+    if(typeof p.setTransform === 'function'){
+      try{
+        const sc = escala || 1;
+        p.setTransform(new DOMMatrix([0, sc, -sc, 0, 0, 0]));
+      }catch(_e){}
+    }
+    return p;
+  }catch(e){ return null; }
+}
+
+function getMarcoFillChapa90(ctx){
+  try{
+    if(marcoTextura === "nogal" && nogalTextureImg && nogalTextureImg.complete && nogalTextureImg.naturalWidth){
+      const p = crearPatronMaderaRotado90(ctx, nogalTextureImg, 1);
+      if(p) return p;
+    }
+    if(marcoTextura === "roble" && robleTextureImg && robleTextureImg.complete && robleTextureImg.naturalWidth){
+      const p = crearPatronMaderaRotado90(ctx, robleTextureImg, 0.35);
+      if(p) return p;
+    }
+    if(marcoTextura === "pino" && pinoTextureImg && pinoTextureImg.complete && pinoTextureImg.naturalWidth){
+      const p = crearPatronMaderaRotado90(ctx, pinoTextureImg, 0.75);
+      if(p) return p;
+    }
+    if(marcoTextura === "custom" && customWoodTextureImg && customWoodTextureReady && customWoodTextureImg.naturalWidth){
+      const p = crearPatronMaderaRotado90(ctx, customWoodTextureImg, 0.35);
+      if(p) return p;
+    }
+  }catch(e){}
+  return colorMarco;
+}
+
+
+function getTonoChapaSobreMarco(){
+  try{
+    // Texturas: pequeño oscurecido para separar chapa y marco.
+    if(marcoTextura === "nogal" || marcoTextura === "roble" || marcoTextura === "pino" || marcoTextura === "custom"){
+      return "rgba(0,0,0,0.075)";
+    }
+
+    // Colores sólidos: si es oscuro, aclaramos; si es claro/medio, oscurecemos.
+    if(_esColorOscuro(colorMarco)){
+      return "rgba(255,255,255,0.085)";
+    }
+  }catch(e){}
+  return "rgba(0,0,0,0.065)";
+}
+
+function getLineaSobreAcabadoColor(){
+  try{
+    if(marcoTextura === "nogal" || marcoTextura === "pino" || marcoTextura === "custom") return "rgba(255,255,255,0.48)";
+    if(_esColorOscuro(colorMarco)) return "rgba(255,255,255,0.48)";
+  }catch(e){}
+  return "rgba(25,25,25,0.68)";
+}
+
 function getMarcoFill(ctx){
   try{
     if(marcoTextura === "nogal" && nogalTextureImg && nogalTextureImg.complete && nogalTextureImg.naturalWidth){
@@ -1640,6 +1703,15 @@ function aplicarRellenoMarco(ctx){
     let colorActivo = "rgba(173, 216, 230, 1)";
     let colorCristalGlobal = "rgba(173, 216, 230, 1)"; // Mantenemos referencia del global
 
+    // v92.0: el cristal puede usar el mismo acabado real que la ventana.
+    // Antes solo copiaba un color plano; ahora también copia madera, verde pino o textura cargada.
+    const COLOR_CRISTAL_MISMO_MARCO = "__MISMO_MARCO_TEXTURA__";
+
+    function esColorCristalMismoMarco(valor){
+        return valor === COLOR_CRISTAL_MISMO_MARCO;
+    }
+
+
     // --- HOJA DENTRO DE HUECO (sub-hoja) ---
     // subHojas[key] = { apertura, manilla, bisagras }
     let subHojas = {};
@@ -1669,6 +1741,32 @@ function aplicarRellenoMarco(ctx){
         if(!key) return;
         if(subHojas[key]) delete subHojas[key];
         actualizarVista();
+    }
+
+    // v92.1: obtiene el color real del hueco. Así una hoja insertada sobre un hueco
+    // pintado como chapa/madera hereda ese acabado y también cambia si luego repintas el hueco.
+    function obtenerColorDeZona(data){
+        if(!data || !data.type) return colorCristalGlobal;
+
+        if(data.type === 'fijoSup'){
+            return (matrixColoresFijoSup[data.row] && matrixColoresFijoSup[data.row][data.col]) || colorCristalGlobal;
+        }
+        if(data.type === 'fijoInf'){
+            return (matrixColoresFijoInf[data.row] && matrixColoresFijoInf[data.row][data.col]) || colorCristalGlobal;
+        }
+        if(data.type === 'fijoIzq'){
+            return (matrixColoresFijoIzq[data.row] && matrixColoresFijoIzq[data.row][data.col]) || colorCristalGlobal;
+        }
+        if(data.type === 'fijoDer'){
+            return (matrixColoresFijoDer[data.row] && matrixColoresFijoDer[data.row][data.col]) || colorCristalGlobal;
+        }
+        if(data.type === 'hoja'){
+            return (hojasData[data.index] && hojasData[data.index].colorCristal) || colorCristalGlobal;
+        }
+        if(data.type === 'hojaTrav'){
+            return (travesanosHojas[data.index] && travesanosHojas[data.index].coloresHuecosH && travesanosHojas[data.index].coloresHuecosH[data.subIndex]) || colorCristalGlobal;
+        }
+        return colorCristalGlobal;
     }
 
 
@@ -2155,16 +2253,17 @@ function cambiarColorMarco(c) {
         marcoTextura = '';
         colorMarco = c;
     }
-    // Calculamos el color oscuro (el 0.7 significa que es un 30% más oscuro)
+    // v92.0: botón de cristal "mismo acabado que ventana".
+    // Si la ventana usa textura, el cristal también usará textura, no un color plano.
     const colorOscuro = oscurecerColor(colorMarco, 0.92);
-    
-    // Ahora aplicamos el color OSCURO al selector de cristal, no el del marco
-    document.getElementById('glass-color-match').style.background = colorOscuro;
-    
-    // Configuramos para que al hacer click use ese color oscuro
-    document.getElementById('glass-color-match').onclick = function() { 
-        seleccionarColorPincel(colorOscuro); 
-    };
+    const btnMatch = document.getElementById('glass-color-match');
+    if(btnMatch){
+        btnMatch.style.background = colorOscuro;
+        btnMatch.title = 'Mismo acabado que ventana';
+        btnMatch.onclick = function() {
+            seleccionarColorPincel(COLOR_CRISTAL_MISMO_MARCO);
+        };
+    }
 
     actualizarHojas();
     actualizarOpcionesFijos();
@@ -2174,11 +2273,22 @@ function cambiarColorMarco(c) {
 
     function seleccionarColorPincel(c) {
         colorActivo = c;
-        document.getElementById('pincel-muestra').style.background = c;
-        
+
+        const muestra = document.getElementById('pincel-muestra');
+        if(muestra){
+            if(esColorCristalMismoMarco(c)){
+                const matchBtn = document.getElementById('glass-color-match');
+                muestra.style.background = matchBtn ? matchBtn.style.background : colorMarco;
+                muestra.title = 'Mismo acabado que ventana';
+            } else {
+                muestra.style.background = c;
+                muestra.title = '';
+            }
+        }
+
         const glassPalette = document.getElementById('glass-palette');
         glassPalette.querySelectorAll('.color-option').forEach(opt => {
-             if (opt.style.background === c || (opt.id === 'glass-color-match' && c === colorMarco)) {
+             if ((esColorCristalMismoMarco(c) && opt.id === 'glass-color-match') || opt.style.background === c) {
                  opt.classList.add('selected-pincel');
              } else {
                  opt.classList.remove('selected-pincel');
@@ -3283,16 +3393,16 @@ function cambiarColorMarco(c) {
     }
 
     function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
-        if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
-            if(baseColor === colorMarco) aplicarRellenoMarco(ctx);
+        if (esColorCristalMismoMarco(baseColor) || baseColor === "#FFFFFF" || baseColor === colorMarco) {
+            if(esColorCristalMismoMarco(baseColor) || baseColor === colorMarco) aplicarRellenoMarco(ctx);
             else ctx.fillStyle = baseColor;
             ctx.fillRect(x, y, w, h);
             ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
             return;
         }
 
-        if (baseColor.startsWith("rgba")) {
-            const rgbaMatch = baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        if (typeof baseColor === 'string' && baseColor.startsWith("rgba")) {
+            const rgbaMatch = (typeof baseColor === 'string') ? baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/) : null;
             if (!rgbaMatch) {
                 ctx.fillStyle = baseColor;
                 ctx.fillRect(x, y, w, h);
@@ -3328,8 +3438,8 @@ function cambiarColorMarco(c) {
             registrarZonaInteractiva([p1, p2, p3, p4], idData);
         }
     
-        if (baseColor === "#FFFFFF" || baseColor === colorMarco) {
-            if(baseColor === colorMarco) aplicarRellenoMarco(ctx);
+        if (esColorCristalMismoMarco(baseColor) || baseColor === "#FFFFFF" || baseColor === colorMarco) {
+            if(esColorCristalMismoMarco(baseColor) || baseColor === colorMarco) aplicarRellenoMarco(ctx);
             else ctx.fillStyle = baseColor;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -3344,7 +3454,7 @@ function cambiarColorMarco(c) {
             return;
         }
         
-        const rgbaMatch = baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        const rgbaMatch = (typeof baseColor === 'string') ? baseColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/) : null;
         if (!rgbaMatch) {
             ctx.fillStyle = baseColor;
             ctx.beginPath();
@@ -3548,7 +3658,9 @@ function cambiarColorMarco(c) {
 
         let fillStyle = baseColor;
 
-        if (typeof baseColor === 'string' && baseColor.startsWith("rgba")) {
+        if (esColorCristalMismoMarco(baseColor) || baseColor === colorMarco) {
+            fillStyle = getMarcoFill(ctx);
+        } else if (typeof baseColor === 'string' && baseColor.startsWith("rgba")) {
             // Efecto cristal: Color -> Blanco -> Color (diagonal)
             let gradient = ctx.createLinearGradient(minX, minY, minX + w, minY + h);
             gradient.addColorStop(0, baseColor);
@@ -3677,23 +3789,54 @@ function cambiarColorMarco(c) {
 
             // Hoja exterior dibujada con geometría "normal" para que en el fijo superior
             // no salga más gruesa que una hoja del resto de la serie.
+            const colorCristalSubHoja = obtenerColorDeZona(zona.data);
+            const esContraTexturadaSubHoja = esColorCristalMismoMarco(colorCristalSubHoja);
+            const lineaContraColor = getLineaSobreAcabadoColor();
+
             ctx.beginPath();
             ctx.moveTo(drawPoly[0].x, drawPoly[0].y);
             for(let k=1;k<drawPoly.length;k++) ctx.lineTo(drawPoly[k].x, drawPoly[k].y);
             ctx.closePath();
             aplicarRellenoMarco(ctx);
             ctx.fill();
-            ctx.strokeStyle = strokeColor;
+            ctx.strokeStyle = esContraTexturadaSubHoja ? lineaContraColor : strokeColor;
             ctx.lineWidth = strokeWidth;
             ctx.stroke();
 
-            _dibujarCristalPoligono(ctx, glassPoly, colorCristalGlobal);
+            if(esContraTexturadaSubHoja){
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(glassPoly[0].x, glassPoly[0].y);
+                for(let gp=1; gp<glassPoly.length; gp++) ctx.lineTo(glassPoly[gp].x, glassPoly[gp].y);
+                ctx.closePath();
+                ctx.fillStyle = getMarcoFillChapa90(ctx);
+                ctx.fill();
+
+                // v92.7: tono diferenciado para chapa, también con colores sólidos.
+                // Mantiene el material de la ventana, pero separa visualmente la contra del marco.
+                ctx.fillStyle = getTonoChapaSobreMarco();
+                ctx.fill();
+
+                ctx.strokeStyle = lineaContraColor;
+                ctx.lineWidth = Math.max(0.95, strokeWidth * 0.34);
+                ctx.stroke();
+                ctx.restore();
+            }else{
+                _dibujarCristalPoligono(ctx, glassPoly, colorCristalSubHoja);
+            }
 
             const centerYTop = (p1.y + p2.y) / 2;
             const centerYBot = (p3.y + p4.y) / 2;
             const centerYMid = (centerYTop + centerYBot) / 2;
 
-            aplicarEstiloApertura(ctx, false);
+            if(esContraTexturadaSubHoja){
+                ctx.strokeStyle = lineaContraColor;
+                ctx.lineWidth = Math.max(1.05, strokeWidth * 0.42);
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            }else{
+                aplicarEstiloApertura(ctx, false);
+            }
 
             if (ap === "izquierda" || ap === "izq-ob") {
                 ctx.beginPath();
@@ -7006,7 +7149,54 @@ if (mostrarAltoTotalDer) {
         scale = Math.max(1, Math.min(4, Number(scale) || 1));
         const canvas = document.getElementById('canvas');
 
+        function dataUrlToBlob(dataUrl){
+            const parts = String(dataUrl).split(',');
+            const mime = (parts[0].match(/:(.*?);/) || [,'image/png'])[1];
+            const bin = atob(parts[1] || '');
+            const len = bin.length;
+            const arr = new Uint8Array(len);
+            for(let i=0; i<len; i++) arr[i] = bin.charCodeAt(i);
+            return new Blob([arr], {type:mime});
+        }
+
+        async function guardarPngDirecto(dataUrl, filename){
+            // Botón directo: en iPhone intenta compartir/guardar; en GitHub/desktop descarga por <a download>.
+            try{
+                const blob = dataUrlToBlob(dataUrl);
+                const file = new File([blob], filename, {type:'image/png'});
+
+                if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+                    await navigator.share({
+                        files:[file],
+                        title:'Diseño ventana',
+                        text:'Diseño exportado desde Ventana Pro'
+                    });
+                    return true;
+                }
+            }catch(e){
+                // seguimos con descarga normal
+            }
+
+            try{
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = dataUrl;
+                link.rel = 'noopener';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return true;
+            }catch(e){
+                try{
+                    window.open(dataUrl, '_blank');
+                    return true;
+                }catch(_e){}
+            }
+            return false;
+        }
+
         function mostrarPNG(dataUrl){
+            const filename = `diseno-ventana-${Date.now()}.png`;
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
             if (isIOS) {
@@ -7029,42 +7219,54 @@ if (mostrarAltoTotalDer) {
                 const img = document.createElement('img');
                 img.src = dataUrl;
                 img.style.maxWidth = '100%';
-                img.style.maxHeight = '70%';
+                img.style.maxHeight = '62%';
                 img.style.border = '2px solid white';
                 img.style.borderRadius = '8px';
                 img.style.boxShadow = '0 0 20px rgba(255,255,255,0.2)';
 
                 const text = document.createElement('p');
-                text.innerHTML = '<span style="font-size:1.2em; color:#ffd700;">¡DISEÑO LISTO!</span><br><br>1. Mantén pulsada la imagen<br>2. Selecciona <b>Guardar en Fotos</b>';
+                text.innerHTML = '<span style="font-size:1.2em; color:#ffd700;">¡DISEÑO LISTO!</span><br><br>Pulsa <b>GUARDAR PNG</b> para abrir guardar/compartir.<br><small>Si tu iPhone no lo permite, mantén pulsada la imagen.</small>';
                 text.style.color = 'white';
                 text.style.textAlign = 'center';
-                text.style.marginTop = '20px';
+                text.style.marginTop = '16px';
                 text.style.fontFamily = 'sans-serif';
-                text.style.lineHeight = '1.5';
+                text.style.lineHeight = '1.45';
+
+                const saveBtn = document.createElement('button');
+                saveBtn.innerText = 'GUARDAR PNG';
+                saveBtn.style.marginTop = '16px';
+                saveBtn.style.padding = '14px 28px';
+                saveBtn.style.background = '#16a34a';
+                saveBtn.style.color = 'white';
+                saveBtn.style.border = 'none';
+                saveBtn.style.borderRadius = '10px';
+                saveBtn.style.fontSize = '17px';
+                saveBtn.style.fontWeight = '900';
+                saveBtn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.35)';
+                saveBtn.onclick = async () => {
+                    const ok = await guardarPngDirecto(dataUrl, filename);
+                    if(!ok) alert('No se pudo guardar directamente. Mantén pulsada la imagen para guardarla.');
+                };
 
                 const closeBtn = document.createElement('button');
                 closeBtn.innerText = 'VOLVER AL DISEÑO';
-                closeBtn.style.marginTop = '30px';
+                closeBtn.style.marginTop = '12px';
                 closeBtn.style.padding = '12px 25px';
                 closeBtn.style.background = '#444';
                 closeBtn.style.color = 'white';
                 closeBtn.style.border = '1px solid #666';
-                closeBtn.style.borderRadius = '5px';
-                closeBtn.style.fontSize = '16px';
+                closeBtn.style.borderRadius = '8px';
+                closeBtn.style.fontSize = '15px';
                 closeBtn.style.fontWeight = 'bold';
                 closeBtn.onclick = () => overlay.remove();
 
                 overlay.appendChild(img);
                 overlay.appendChild(text);
+                overlay.appendChild(saveBtn);
                 overlay.appendChild(closeBtn);
                 document.body.appendChild(overlay);
             } else {
-                const link = document.createElement('a');
-                link.download = `diseno-ventana-${Date.now()}.png`;
-                link.href = dataUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                guardarPngDirecto(dataUrl, filename);
             }
         }
 
