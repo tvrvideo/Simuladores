@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Unificada v1.3</title>
+  <title>Ramos Unificada v1.4</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -123,7 +123,7 @@
     <header class="topbar">
       <button class="btnMenuRojo" onclick="volverIndex()" type="button">← MENÚ</button>
 <div class="brand">
-        <div class="title">Ramos <small>Unificada v1.3</small></div>
+        <div class="title">Ramos <small>Unificada v1.4</small></div>
         <div class="subtitle">Selector rápido entre Climalit y Monolítico, manteniendo cada app tal como la tenías.</div>
       </div>
     </header>
@@ -154,7 +154,7 @@
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="#0b1224" name="theme-color"/>
-<title>Ramos Tarifa 2026 Climalit v4.0</title>
+<title>Ramos Tarifa 2026 Climalit v4.1</title>
 <style>
     :root{
       --bg0:#060816;
@@ -1068,7 +1068,7 @@
 <main class="wrap">
 <header class="topbar">
 <div class="brand">
-<div class="title">Ramos <small>Tarifa 2026 Climalit v4.0</small></div>
+<div class="title">Ramos <small>Tarifa 2026 Climalit v4.1</small></div>
 </div>
 <button aria-label="Configuración" class="iconBtn" id="btnSettings" type="button">
 <svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
@@ -1209,6 +1209,13 @@
 <input id="mul6mm" inputmode="numeric" min="6" step="1" style="width:86px; text-align:center; border-radius:12px; padding:10px 10px; background: linear-gradient(180deg, rgba(255,240,179,1), rgba(255,225,140,1)); border:1px solid rgba(0,0,0,.15); color:#000; font-weight:900;" type="number" value="60"/>
 </div>
 </div>
+<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(255,255,255,.04);">
+  <div>
+    <div style="font-weight:950; letter-spacing:.4px; color:rgba(255,255,255,.94);">PVP</div>
+    <div style="font-size:12px; font-weight:800; color:rgba(255,255,255,.68); margin-top:3px;">Precio venta al público · duplica la tarifa</div>
+  </div>
+  <button class="dockBtn iva ivaOn" id="btnPVP" type="button" aria-pressed="true" style="width:72px;">PVP</button>
+</div>
 <div style="display:flex; gap:10px; margin-top:16px;">
 <button class="btn" id="btnTarifaEditor" style="flex:1; background:rgba(59,130,246,.95); border:1px solid rgba(255,255,255,.18); color:white;" type="button">Tarifa</button>
 <button class="btn" id="btnTarifaExport" style="flex:1; background:rgba(59,130,246,.95); border:1px solid rgba(255,255,255,.18); color:white;" type="button">Exportar</button>
@@ -1341,6 +1348,38 @@
     recalc();
   }
 
+  // ---- PVP (precio venta al público) ----
+  var PVP_KEY = "ramos_climalit_pvp_v1";
+  function loadPVP(){
+    try{
+      var raw = localStorage.getItem(PVP_KEY);
+      if(raw === null) return { on:true }; // activo por defecto
+      return { on: raw !== "0" };
+    }catch(e){
+      return { on:true };
+    }
+  }
+  function savePVPState(on){
+    try{ localStorage.setItem(PVP_KEY, on ? "1" : "0"); }catch(e){}
+  }
+  function updatePVPUI(){
+    var pvp = loadPVP();
+    var btn = qs("btnPVP");
+    if(btn){
+      btn.classList.toggle("ivaOn", !!pvp.on);
+      btn.setAttribute("aria-pressed", pvp.on ? "true" : "false");
+      btn.textContent = pvp.on ? "PVP" : "NETO";
+      btn.title = pvp.on ? "PVP activo: tarifa x2" : "PVP desactivado: tarifa sin aumento";
+    }
+  }
+  function togglePVP(){
+    var pvp = loadPVP();
+    pvp.on = !pvp.on;
+    savePVPState(pvp.on);
+    updatePVPUI();
+    recalc();
+  }
+
   // ---- DOM: medidas ----
   var elAncho = qs("ancho");
   var elAlto  = qs("alto");
@@ -1356,6 +1395,7 @@
   var elDockM2Btn = qs("dockM2Btn");
   var btnReset = qs("btnReset");
   var btnIVA = qs("btnIVA");
+  var btnPVP = qs("btnPVP");
 
   // ---- Composición slots ----
   var slots = {
@@ -1995,6 +2035,9 @@ function sumEurM2(){
     var totalPct = surfacePct + longPct + extraInfo.shapePct;
     if(totalPct > 0) total = total * (1 + totalPct/100);
 
+    var pvp = loadPVP();
+    if(pvp && pvp.on){ total = total * 2; }
+
     var iva = loadIVA();
     if(iva && iva.on){ total = total * (1 + (Number(iva.rate)||21)/100); }
 
@@ -2385,6 +2428,8 @@ function sumEurM2(){
   // Init
   refreshSlots();
   updateIVAUI();
+  updatePVPUI();
+  if(btnPVP) btnPVP.addEventListener("click", function(e){ e.preventDefault(); togglePVP(); }, { passive:false });
   recalc();
   document.addEventListener("touchend", function(){}, { passive:true });
 })();
@@ -2398,7 +2443,7 @@ function sumEurM2(){
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Tarifa 2025 Monolítico · V4.0</title>
+  <title>Ramos Tarifa 2025 Monolítico · V4.1</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -2864,7 +2909,7 @@ function sumEurM2(){
   <main class="wrap">
     <header class="topbar">
       <div class="brand">
-        <div class="title">Ramos <small>Tarifa 2025 Monolítico · V4.0</small></div>
+        <div class="title">Ramos <small>Tarifa 2025 Monolítico · V4.1</small></div>
         <div class="subtitle">Tarifa editable (Vidrios + Extras) · Exportar / Importar JSON</div>
       </div>
 
@@ -2959,6 +3004,14 @@ function sumEurM2(){
       <div class="sheetBody">
         <div class="note" style="margin-top:2px;">
           Tarifa editable: puedes ver precios, añadir vidrios/extras, guardar y Exportar/Importar JSON.
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(255,255,255,.04);">
+          <div>
+            <div style="font-weight:950; letter-spacing:.4px; color:rgba(255,255,255,.94);">PVP</div>
+            <div style="font-size:12px; font-weight:800; color:rgba(255,255,255,.68); margin-top:3px;">Precio venta al público · duplica la tarifa</div>
+          </div>
+          <button class="dockBtn iva ivaOn" id="btnPVP" type="button" aria-pressed="true" style="width:72px;">PVP</button>
         </div>
 
         <div class="btnRow">
@@ -3063,6 +3116,7 @@ function sumEurM2(){
   }
   function updateIVAUI(){
     const btnIVA = qs("btnIVA");
+  const btnPVP = qs("btnPVP");
     if(btnIVA){
       const isOn = loadIVA().on;
       btnIVA.setAttribute("aria-pressed", isOn ? "true" : "false");
@@ -3072,6 +3126,37 @@ function sumEurM2(){
     const isOn = loadIVA().on;
     saveIVAState(!isOn);
     updateIVAUI();
+    calcular();
+  }
+
+  // ---- PVP (precio venta al público) ----
+  const PVP_KEY = "RAMOS_MONOLITICO_PVP_V1";
+  function loadPVP(){
+    try{
+      const raw = localStorage.getItem(PVP_KEY);
+      if(raw === null) return { on:true }; // activo por defecto
+      return { on: raw !== "0" };
+    }catch(e){
+      return { on:true };
+    }
+  }
+  function savePVPState(isOn){
+    try{ localStorage.setItem(PVP_KEY, isOn ? "1" : "0"); }catch(e){}
+  }
+  function updatePVPUI(){
+    const btnPVP = qs("btnPVP");
+    if(btnPVP){
+      const isOn = loadPVP().on;
+      btnPVP.classList.toggle("ivaOn", !!isOn);
+      btnPVP.setAttribute("aria-pressed", isOn ? "true" : "false");
+      btnPVP.textContent = isOn ? "PVP" : "NETO";
+      btnPVP.title = isOn ? "PVP activo: tarifa x2" : "PVP desactivado: tarifa sin aumento";
+    }
+  }
+  function togglePVP(){
+    const isOn = loadPVP().on;
+    savePVPState(!isOn);
+    updatePVPUI();
     calcular();
   }
   function escapeHtml(str) {
@@ -3680,6 +3765,11 @@ function sumEurM2(){
       total *= (1 + (pctTotal/100));
     }
 
+    const pvp = loadPVP();
+    if(pvp && pvp.on){
+      total = total * 2;
+    }
+
     const totalBase = total;
     const iva = loadIVA();
     let ivaAmount = 0;
@@ -3691,6 +3781,7 @@ function sumEurM2(){
     currentCalc = {
       total,
       totalBase,
+      pvpOn: !!(pvp && pvp.on),
       ivaOn: !!(iva && iva.on),
       ivaAmount,
       m2,
@@ -4342,6 +4433,7 @@ function makeExtraRow(e, onEdit){
 
   [elAncho, elAlto, elForma].forEach(bindRecalc);
   if(btnIVA) onTap(btnIVA, toggleIVA);
+  if(btnPVP) onTap(btnPVP, togglePVP);
   if(btnReset) onTap(btnReset, resetApp);
   if(btnInfo) onTap(btnInfo, openInfo);
   if(btnCloseInfo) onTap(btnCloseInfo, ()=> closeModal(infoOverlay, infoSheet));
@@ -4349,6 +4441,7 @@ function makeExtraRow(e, onEdit){
   ["pointerdown","pointerup","click","touchstart","touchend"].forEach(ev=>{ if(infoSheet) infoSheet.addEventListener(ev, e => e.stopPropagation()); });
   
   updateIVAUI();
+  updatePVPUI();
   bindRecalc(elVidrio);
   if(elVidrio){
     elVidrio.addEventListener("change", ()=>{
