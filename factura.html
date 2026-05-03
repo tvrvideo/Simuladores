@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Ventanas Rey - Factura Pro v25.7.41</title>
+  <title>Ventanas Rey - Factura Pro v25.7.60</title>
   <style>
     :root {
       --catalogo-bg:#eaf2ff;
@@ -516,7 +516,7 @@
 .list-card.docrey-card .list-left{ flex:1 1 auto; }
 
 
-/* v25.7.41: versión visible junto a Resumen */
+/* v25.7.60: versión visible junto a Resumen */
 .header-version-badge{
   display:inline-flex;
   align-items:center;
@@ -543,7 +543,7 @@
 
 
 
-/* v25.7.41: tirador visible para menú lateral */
+/* v25.7.60: tirador visible para menú lateral */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -591,7 +591,7 @@
 @media print{#swipeOpenZone{display:none!important;}}
 
 
-/* v25.7.41: tirador más fino y bajo */
+/* v25.7.60: tirador más fino y bajo */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -616,7 +616,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.41: tirador más bajo y más fino */
+/* v25.7.60: tirador más bajo y más fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -641,7 +641,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.41: tirador en zona blanca, más largo y fino */
+/* v25.7.60: tirador en zona blanca, más largo y fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -666,7 +666,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.41: tirador más abajo y más corto */
+/* v25.7.60: tirador más abajo y más corto */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -691,7 +691,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.41: zona táctil invisible ampliada; el tirador visible queda intacto */
+/* v25.7.60: zona táctil invisible ampliada; el tirador visible queda intacto */
 #swipeTouchZone{
   position:fixed;
   left:0;
@@ -712,7 +712,7 @@
 }
 
 
-/* v25.7.41: tarjetas resumen táctiles */
+/* v25.7.60: tarjetas resumen táctiles */
 .summary-clickable{
   cursor:pointer;
   user-select:none;
@@ -722,12 +722,322 @@
   transform:scale(.99);
 }
 
+
+/* v25.7.60 - Panel Gastos estilo Documentos Rey */
+#gastoActionsOverlay .form-card,
+#gastoOverlay .form-card{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+  border-radius:24px 24px 0 0;
+  border:1px solid #d5dfeb;
+  box-shadow:0 -18px 48px rgba(15,23,42,.18);
+}
+
+#gastoActionsOverlay h3,
+#gastoOverlay h3{
+  font-size:28px !important;
+  font-weight:900 !important;
+  letter-spacing:-0.03em;
+  color:#0f172a !important;
+}
+
+#gastoActionsInfo{
+  font-size:18px !important;
+  line-height:1.35 !important;
+  color:#64748b !important;
+  margin:8px 0 18px 0 !important;
+}
+
+.gasto-action-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.gasto-action-grid.single{
+  grid-template-columns:1fr;
+}
+
+.gasto-btn{
+  min-height:56px;
+  border-radius:16px;
+  border:1px solid transparent;
+  padding:0 14px;
+  font-weight:900;
+  font-size:17px;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20), 0 10px 22px rgba(15,23,42,.10);
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.gasto-btn:active{
+  transform:translateY(1px) scale(.985);
+}
+
+.gasto-btn-edit{
+  background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);
+  color:#fff;
+  border-color:#2563eb;
+}
+
+.gasto-btn-delete{
+  background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
+  color:#fff;
+  border-color:#dc2626;
+}
+
+.gasto-btn-cancel{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  color:#0f172a;
+  border-color:#d4dde9;
+}
+
+@media(max-width:520px){
+  .gasto-action-grid{
+    grid-template-columns:1fr;
+  }
+  .gasto-btn{
+    min-height:54px;
+    font-size:16px;
+  }
+}
+
+
+/* v25.7.60 - Gastos con estilo Documentos Rey real */
+#accionesGastoOverlay .form-card,
+#gastoOverlay .form-card{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+  border-radius:24px 24px 0 0 !important;
+  border:1px solid #d5dfeb !important;
+  box-shadow:0 -18px 48px rgba(15,23,42,.18) !important;
+  padding:22px !important;
+}
+
+.gasto-title-modern{
+  font-size:30px !important;
+  font-weight:900 !important;
+  letter-spacing:-0.04em !important;
+  color:#0f172a !important;
+  margin:0 0 12px 0 !important;
+}
+
+#gastoOverlay .input-group label{
+  color:#0f172a !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+}
+
+#accionesGastoInfo{
+  font-size:20px !important;
+  line-height:1.35 !important;
+  color:#64748b !important;
+  margin:8px 0 20px 0 !important;
+}
+
+.gasto-action-grid{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:12px !important;
+  margin-top:12px !important;
+  width:100% !important;
+}
+
+.gasto-action-grid.single{
+  grid-template-columns:1fr !important;
+}
+
+.gasto-btn{
+  width:100% !important;
+  min-height:58px !important;
+  border-radius:16px !important;
+  border:1px solid transparent !important;
+  padding:0 14px !important;
+  font-weight:900 !important;
+  font-size:18px !important;
+  cursor:pointer !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20), 0 10px 22px rgba(15,23,42,.10) !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent !important;
+  margin:0 !important;
+  line-height:1 !important;
+}
+
+.gasto-btn:active{
+  transform:translateY(1px) scale(.985) !important;
+}
+
+.gasto-btn-save,
+.gasto-btn-edit{
+  background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%) !important;
+  color:#fff !important;
+  border-color:#2563eb !important;
+}
+
+.gasto-btn-delete{
+  background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%) !important;
+  color:#fff !important;
+  border-color:#dc2626 !important;
+}
+
+.gasto-btn-cancel{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%) !important;
+  color:#0f172a !important;
+  border-color:#d4dde9 !important;
+}
+
+.gasto-btn-new{
+  background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%) !important;
+  color:#fff !important;
+  border-color:#16a34a !important;
+}
+
+@media(max-width:520px){
+  .gasto-action-grid{
+    grid-template-columns:1fr !important;
+  }
+  .gasto-btn{
+    min-height:56px !important;
+    font-size:17px !important;
+  }
+}
+
+
+/* v25.7.60 - Gastos: 3 botones en una línea + campo concepto */
+#gastoOverlay .gasto-action-grid,
+#gastoOverlay .gasto-action-grid.single,
+#accionesGastoOverlay .gasto-action-grid,
+#accionesGastoOverlay .gasto-action-grid.single{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-top:14px !important;
+  width:100% !important;
+}
+#gastoOverlay .gasto-btn,
+#accionesGastoOverlay .gasto-btn{
+  width:100% !important;
+  min-height:48px !important;
+  height:48px !important;
+  border-radius:14px !important;
+  padding:0 6px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+@media(max-width:420px){
+  #gastoOverlay .gasto-action-grid,
+  #gastoOverlay .gasto-action-grid.single,
+  #accionesGastoOverlay .gasto-action-grid,
+  #accionesGastoOverlay .gasto-action-grid.single{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+  }
+  #gastoOverlay .gasto-btn,
+  #accionesGastoOverlay .gasto-btn{
+    min-height:46px !important;
+    height:46px !important;
+    font-size:12px !important;
+    padding:0 3px !important;
+  }
+}
+
+
+/* v25.7.60 - Menú lateral rehecho: simple, sin overlay táctil ni swipe */
+.drawer{
+  z-index:10000 !important;
+  pointer-events:auto !important;
+  touch-action:auto !important;
+}
+.drawer.open{
+  left:0 !important;
+}
+.drawer *{
+  pointer-events:auto !important;
+  touch-action:auto !important;
+}
+.drawer-overlay{
+  display:none !important;
+  pointer-events:none !important;
+}
+#swipeOpenZone,
+#swipeTouchZone{
+  display:none !important;
+  pointer-events:none !important;
+}
+.drawer-header{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+}
+.drawer-close-btn{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  font-size:26px;
+  font-weight:900;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.drawer-close-btn:active{
+  transform:scale(.96);
+}
+
+
+/* v25.7.60 - Tirador lateral seguro, sin desplazar pantalla */
+#swipeOpenZone{
+  display:flex !important;
+  position:fixed !important;
+  left:0 !important;
+  top:420px !important;
+  width:12px !important;
+  height:110px !important;
+  z-index:9998 !important;
+  background:rgba(74,118,168,.78) !important;
+  border-radius:0 10px 10px 0 !important;
+  box-shadow:0 3px 10px rgba(0,0,0,.18) !important;
+  pointer-events:auto !important;
+  touch-action:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#swipeOpenZone::before{
+  content:"";
+  width:2px;
+  height:60px;
+  border-radius:999px;
+  background:rgba(255,255,255,.85);
+}
+#swipeTouchZone{
+  display:block !important;
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:22px !important;
+  height:auto !important;
+  z-index:9997 !important;
+  background:transparent !important;
+  pointer-events:auto !important;
+  touch-action:none !important;
+}
+.drawer.open ~ #swipeOpenZone,
+.drawer.open ~ #swipeTouchZone{
+  display:none !important;
+  pointer-events:none !important;
+}
+
 </style>
 
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.41">
+  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.60">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
@@ -744,52 +1054,52 @@
   </div>
 </div>
 
-<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
 <div id="swipeOpenZone" role="button" aria-label="Abrir menú lateral" title="Abrir menú"></div>
 <div id="swipeTouchZone" aria-hidden="true"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header"><span id="drawerCompanyName">Empresa</span></div>
   <div class="drawer-content">
     <div class="drawer-fixed">
-      <div class="drawer-item active" onclick="irInicio()">
-        <span class="drawer-text">Inicio (Facturación v25.7.41)</span>
+      <div class="drawer-item active" onclick="irInicio(); cerrarDrawerSeguro()">
+        <span class="drawer-text">Inicio (Facturación v25.7.60)</span>
       </div>
     </div>
     <div class="drawer-scroll">
       <div class="drawer-divider">CARPETAS</div>
-      <div class="drawer-item" onclick="irFacturacion()">
+      <div class="drawer-item" onclick="irFacturacion(); cerrarDrawerSeguro()">
         <span class="drawer-text">Facturación</span>
       </div>
-      <div class="drawer-item" onclick="irPresupuestos()">
+      <div class="drawer-item" onclick="irPresupuestos(); cerrarDrawerSeguro()">
         <span class="drawer-text">Presupuestos</span>
       </div>
-      <div class="drawer-item" onclick="irAlbaranes()">
+      <div class="drawer-item" onclick="irAlbaranes(); cerrarDrawerSeguro()">
         <span class="drawer-text">Albaranes</span>
       </div>
-      <div class="drawer-item" onclick="irCatalogo()">
+      <div class="drawer-item" onclick="irCatalogo(); cerrarDrawerSeguro()">
         <span class="drawer-text">Catálogo</span>
       </div>
-      <div class="drawer-item" onclick="irClientes()">
+      <div class="drawer-item" onclick="irClientes(); cerrarDrawerSeguro()">
         <span class="drawer-text">Clientes</span>
       </div>
-      <div class="drawer-item" onclick="irGastos()">
+      <div class="drawer-item" onclick="irGastos(); cerrarDrawerSeguro()">
         <span class="drawer-text">Gastos</span>
       </div>
 
       <div class="drawer-divider">DATOS</div>
-      <div class="drawer-item" onclick="abrirBackup()">
+      <div class="drawer-item" onclick="abrirBackup(); cerrarDrawerSeguro()">
         <span class="drawer-text">Copia de seguridad</span>
       </div>
-      <div class="drawer-item" onclick="abrirRestore()">
+      <div class="drawer-item" onclick="abrirRestore(); cerrarDrawerSeguro()">
         <span class="drawer-text">Restaurar copia</span>
       </div>
 
-      <div class="drawer-item" onclick="abrirPostalCarga()">
+      <div class="drawer-item" onclick="abrirPostalCarga(); cerrarDrawerSeguro()">
         <span class="drawer-text">Base postal</span>
       </div>
 
 
-      <div class="drawer-item" onclick="abrirEmpresa()">
+      <div class="drawer-item" onclick="abrirEmpresa(); cerrarDrawerSeguro()">
         <span class="drawer-text">Datos de empresa</span>
       </div>
 
@@ -824,17 +1134,17 @@
   
   <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <div class="menu-icon" onclick="toggleDrawer()">⋮</div>
-  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.41</span></div>
+  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.60</span></div>
   <div class="right-actions">
     <button id="headerActionBtn" class="header-action" type="button" style="display:none">+ Nuevo</button>
-    <div class="home-icon" onclick="irInicio()" title="Inicio">🏠</div>
+    <div class="home-icon" onclick="irInicio(); cerrarDrawerSeguro()" title="Inicio">🏠</div>
   </div>
 </header>
 
 <div id="homeView" class="active">
   <div class="sub-header">Resumen contabilidad 2026-1T</div>
   <div class="container-resumen">
-    <div class="card summary-clickable" onclick="irFacturacion()" role="button" tabindex="0">
+    <div class="card summary-clickable" onclick="irFacturacion(); cerrarDrawerSeguro()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Ingresos</span>
         <span class="card-sub" id="count-ingresos">0 documentos</span>
@@ -845,7 +1155,7 @@
       </div>
     </div>
 
-    <div class="card summary-clickable" onclick="irGastos()" role="button" tabindex="0">
+    <div class="card summary-clickable" onclick="irGastos(); cerrarDrawerSeguro()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Gastos</span>
 
@@ -866,7 +1176,7 @@
       </div>
     </div>
 
-    <div class="card card-catalogo summary-clickable" onclick="irCatalogo()" role="button" tabindex="0" style="background:var(--catalogo-bg);border:1px solid var(--catalogo-border);">
+    <div class="card card-catalogo summary-clickable" onclick="irCatalogo(); cerrarDrawerSeguro()" role="button" tabindex="0" style="background:var(--catalogo-bg);border:1px solid var(--catalogo-border);">
       <div class="card-info">
         <span class="card-title">Catálogo</span>
         <span class="card-sub">Productos registrados</span>
@@ -876,7 +1186,7 @@
         <span class="amount-iva" id="homeCatalogoSinStock" style="display:none;color:#c0392b;font-weight:700;"></span>
       </div>
     </div>
-    <div class="card summary-clickable" onclick="irClientes()" role="button" tabindex="0">
+    <div class="card summary-clickable" onclick="irClientes(); cerrarDrawerSeguro()" role="button" tabindex="0">
       <div class="card-info">
         <span class="card-title">Clientes</span>
         <span class="card-sub">Clientes registrados</span>
@@ -2847,7 +3157,7 @@ function setDocType(type){
 
     var headerTitleEl = document.getElementById('headerTitle');
     if(titulo === 'Resumen'){
-      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.41</span>';
+      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.60</span>';
     }else{
       headerTitleEl.textContent = titulo;
     }
@@ -3542,7 +3852,22 @@ seedDefaults(); renderFacturacion(); refreshSearch('facturacion'); actualizarHom
   }
 
   function formatFechaSVG(fechaStr) { if(!fechaStr) return ""; const parts = fechaStr.split('-'); return `${parts[2]}/${parts[1]}/${parts[0]}`; }
-  function toggleDrawer() { const d = document.getElementById('drawer'); const o = document.getElementById('drawerOverlay'); const isOpen = d.classList.contains('open'); d.classList.toggle('open'); o.style.display = isOpen ? 'none' : 'block'; }
+  function abrirDrawerSeguro(){
+    const d = document.getElementById('drawer');
+    if(d) d.classList.add('open');
+  }
+
+  function cerrarDrawerSeguro(){
+    const d = document.getElementById('drawer');
+    if(d) d.classList.remove('open');
+  }
+
+  function toggleDrawer() {
+    const d = document.getElementById('drawer');
+    if(!d) return;
+    if(d.classList.contains('open')) cerrarDrawerSeguro();
+    else abrirDrawerSeguro();
+  }
   function abrirSelectorLogo() { document.getElementById('file-input').click(); }
   function setSvgImageHref(el, val) { el.setAttribute('href', val); el.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', val); }
   function mostrarAyudaLogo(mostrar) { var t=document.getElementById('logo_help_text'); if(t){ t.style.display='none'; t.style.opacity=0; } }
@@ -4395,7 +4720,7 @@ if(numG){
   function actualizarHomeStats() {
     const historial = JSON.parse(localStorage.getItem('rey_history') || '[]');
 
-    // v25.7.41:
+    // v25.7.60:
     // Ingresos contables = BASE IMPONIBLE, no el total factura con IVA.
     // Antes se sumaba totalStr completo y por eso la pantalla inicial subía de más.
     let totalIngresos = 0;
@@ -6985,15 +7310,16 @@ function irAlbaranesDesdeInicio(){ __homeQuickOpenType = 'albaran'; irAlbaranes(
 
 <div id="gastoOverlay" class="overlay">
   <div class="form-card" style="max-width:520px;">
-    <div style="font-weight:700; font-size:22px; margin-bottom:10px;">Nuevo gasto</div>
+    <div class="gasto-title-modern">Nuevo gasto</div>
     <div class="input-group"><label>Nº gasto</label><input type="text" id="g_num" readonly></div>
     <div class="input-group"><label>Fecha</label><input type="date" id="g_fecha"></div>
     <div class="input-group"><label>Proveedor</label><input type="text" id="g_proveedor" placeholder="Proveedor"></div>
+    <div class="input-group"><label>Concepto</label><input type="text" id="g_concepto" placeholder="Ej: material, transporte, pago contado"></div>
     <div class="input-group"><label>Importe</label><input type="text" id="g_importe" placeholder="1.000,45"></div>
-    <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
-      <button class="btn-cancelar" onclick="cerrarGasto()">Cancelar</button>
-      <button class="btn-guardar" onclick="guardarGasto()">Guardar</button>
-      <button class="btn-eliminar" onclick="eliminarGasto()" style="background:#e74c3c;color:#fff;">Eliminar</button>
+    <div class="gasto-action-grid">
+      <button class="gasto-btn gasto-btn-cancel" type="button" onclick="cerrarGasto()">CANCELAR</button>
+      <button class="gasto-btn gasto-btn-save" type="button" onclick="guardarGasto()">GUARDAR</button>
+      <button class="gasto-btn gasto-btn-delete" type="button" onclick="eliminarGasto()">ELIMINAR</button>
     </div>
   </div>
 </div>
@@ -7029,11 +7355,13 @@ function abrirGastoOverlay(n, modo, gasto){
   document.getElementById('g_num').value = 'G-' + String(n).padStart(3,'0');
   document.getElementById('g_fecha').valueAsDate = new Date();
   document.getElementById('g_proveedor').value = '';
+  if(document.getElementById('g_concepto')) document.getElementById('g_concepto').value = '';
   document.getElementById('g_importe').value = '';
 
   if(modo==='edit' && gasto){
     if(gasto.fecha) document.getElementById('g_fecha').value = gasto.fecha;
     document.getElementById('g_proveedor').value = gasto.proveedor || '';
+    if(document.getElementById('g_concepto')) document.getElementById('g_concepto').value = gasto.concepto || '';
     document.getElementById('g_importe').value = String(gasto.importe).replace('.',',');
   }
 
@@ -7059,6 +7387,7 @@ function guardarGasto(){
   const n = parseInt(ov.getAttribute('data-n')||'0',10);
   const fecha = document.getElementById('g_fecha').value || '';
   const proveedor = (document.getElementById('g_proveedor').value||'').trim() || 'pago contado';
+  const concepto = ((document.getElementById('g_concepto')||{}).value||'').trim();
   const importe = _parseMoney(document.getElementById('g_importe').value);
   if(!importe){
     alert('Introduce un importe válido');
@@ -7067,7 +7396,7 @@ function guardarGasto(){
   const gs = getGastos();
   const modo = (ov.getAttribute('data-modo')||'new');
   const idx = gs.findIndex(x => Number(x.n)===n);
-  const obj = { n, num:'G-'+String(n).padStart(3,'0'), fecha, proveedor, importe };
+  const obj = { n, num:'G-'+String(n).padStart(3,'0'), fecha, proveedor, concepto, importe };
   if(modo==='edit' && idx>=0){
     gs[idx] = obj;
   } else {
@@ -7123,7 +7452,7 @@ function accionesEliminarGasto(){
   const n = __gastoAccionN;
   cerrarAccionesGasto();
   if(n==null) return;
-  // eliminar directo
+  if(!confirm('¿Eliminar este gasto?')) return;
   let gs = getGastos();
   gs = gs.filter(g => Number(g.n)!==Number(n));
   setGastos(gs);
@@ -7159,7 +7488,7 @@ function renderGastos(){
       <div style="font-weight:700;color:#c0392b;">-${_fmtMoney(g.importe)}</div>
     `;
     row.style.cursor = 'pointer';
-    row.onclick = ()=>abrirAccionesGasto(Number(g.n));
+    row.onclick = ()=>editarGasto(Number(g.n));
     host.appendChild(row);
   });
 }
@@ -7665,13 +7994,13 @@ window.actualizarHomeStats = function(){
 
 <div id="accionesGastoOverlay" class="overlay">
   <div class="form-card" style="max-width:560px;">
-    <div style="font-weight:700; font-size:22px; margin-bottom:8px;">Gasto</div>
+    <div class="gasto-title-modern">Gasto</div>
     <div id="accionesGastoInfo" style="color:#666; margin-bottom:14px;"></div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn-guardar" onclick="accionesEditarGasto()" style="background:#4a76a8;color:#fff;">EDITAR</button>
-      <button class="btn-eliminar" onclick="accionesEliminarGasto()" style="background:#e74c3c;color:#fff;">ELIMINAR</button>
-      <button class="btn-cancelar" onclick="cerrarAccionesGasto()">CANCELAR</button>
+    <div class="gasto-action-grid">
+      <button class="gasto-btn gasto-btn-edit" type="button" onclick="accionesEditarGasto()">EDITAR</button>
+      <button class="gasto-btn gasto-btn-delete" type="button" onclick="accionesEliminarGasto()">ELIMINAR</button>
+      <button class="gasto-btn gasto-btn-cancel" type="button" onclick="cerrarAccionesGasto()">CANCELAR</button>
     </div>
   </div>
 </div>
@@ -8984,15 +9313,16 @@ function irAlbaranesDesdeInicio(){ __homeQuickOpenType = 'albaran'; irAlbaranes(
 
 <div id="gastoOverlay" class="overlay">
   <div class="form-card" style="max-width:520px;">
-    <div style="font-weight:700; font-size:22px; margin-bottom:10px;">Nuevo gasto</div>
+    <div class="gasto-title-modern">Nuevo gasto</div>
     <div class="input-group"><label>Nº gasto</label><input type="text" id="g_num" readonly></div>
     <div class="input-group"><label>Fecha</label><input type="date" id="g_fecha"></div>
     <div class="input-group"><label>Proveedor</label><input type="text" id="g_proveedor" placeholder="Proveedor"></div>
+    <div class="input-group"><label>Concepto</label><input type="text" id="g_concepto" placeholder="Ej: material, transporte, pago contado"></div>
     <div class="input-group"><label>Importe</label><input type="text" id="g_importe" placeholder="1.000,45"></div>
-    <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
-      <button class="btn-cancelar" onclick="cerrarGasto()">Cancelar</button>
-      <button class="btn-guardar" onclick="guardarGasto()">Guardar</button>
-      <button class="btn-eliminar" onclick="eliminarGasto()" style="background:#e74c3c;color:#fff;">Eliminar</button>
+    <div class="gasto-action-grid">
+      <button class="gasto-btn gasto-btn-cancel" type="button" onclick="cerrarGasto()">CANCELAR</button>
+      <button class="gasto-btn gasto-btn-save" type="button" onclick="guardarGasto()">GUARDAR</button>
+      <button class="gasto-btn gasto-btn-delete" type="button" onclick="eliminarGasto()">ELIMINAR</button>
     </div>
   </div>
 </div>
@@ -9028,11 +9358,13 @@ function abrirGastoOverlay(n, modo, gasto){
   document.getElementById('g_num').value = 'G-' + String(n).padStart(3,'0');
   document.getElementById('g_fecha').valueAsDate = new Date();
   document.getElementById('g_proveedor').value = '';
+  if(document.getElementById('g_concepto')) document.getElementById('g_concepto').value = '';
   document.getElementById('g_importe').value = '';
 
   if(modo==='edit' && gasto){
     if(gasto.fecha) document.getElementById('g_fecha').value = gasto.fecha;
     document.getElementById('g_proveedor').value = gasto.proveedor || '';
+    if(document.getElementById('g_concepto')) document.getElementById('g_concepto').value = gasto.concepto || '';
     document.getElementById('g_importe').value = String(gasto.importe).replace('.',',');
   }
 
@@ -9058,6 +9390,7 @@ function guardarGasto(){
   const n = parseInt(ov.getAttribute('data-n')||'0',10);
   const fecha = document.getElementById('g_fecha').value || '';
   const proveedor = (document.getElementById('g_proveedor').value||'').trim() || 'pago contado';
+  const concepto = ((document.getElementById('g_concepto')||{}).value||'').trim();
   const importe = _parseMoney(document.getElementById('g_importe').value);
   if(!importe){
     alert('Introduce un importe válido');
@@ -9066,7 +9399,7 @@ function guardarGasto(){
   const gs = getGastos();
   const modo = (ov.getAttribute('data-modo')||'new');
   const idx = gs.findIndex(x => Number(x.n)===n);
-  const obj = { n, num:'G-'+String(n).padStart(3,'0'), fecha, proveedor, importe };
+  const obj = { n, num:'G-'+String(n).padStart(3,'0'), fecha, proveedor, concepto, importe };
   if(modo==='edit' && idx>=0){
     gs[idx] = obj;
   } else {
@@ -9122,7 +9455,7 @@ function accionesEliminarGasto(){
   const n = __gastoAccionN;
   cerrarAccionesGasto();
   if(n==null) return;
-  // eliminar directo
+  if(!confirm('¿Eliminar este gasto?')) return;
   let gs = getGastos();
   gs = gs.filter(g => Number(g.n)!==Number(n));
   setGastos(gs);
@@ -9158,7 +9491,7 @@ function renderGastos(){
       <div style="font-weight:700;color:#c0392b;">-${_fmtMoney(g.importe)}</div>
     `;
     row.style.cursor = 'pointer';
-    row.onclick = ()=>abrirAccionesGasto(Number(g.n));
+    row.onclick = ()=>editarGasto(Number(g.n));
     host.appendChild(row);
   });
 }
@@ -9664,13 +9997,13 @@ window.actualizarHomeStats = function(){
 
 <div id="accionesGastoOverlay" class="overlay">
   <div class="form-card" style="max-width:560px;">
-    <div style="font-weight:700; font-size:22px; margin-bottom:8px;">Gasto</div>
+    <div class="gasto-title-modern">Gasto</div>
     <div id="accionesGastoInfo" style="color:#666; margin-bottom:14px;"></div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn-guardar" onclick="accionesEditarGasto()" style="background:#4a76a8;color:#fff;">EDITAR</button>
-      <button class="btn-eliminar" onclick="accionesEliminarGasto()" style="background:#e74c3c;color:#fff;">ELIMINAR</button>
-      <button class="btn-cancelar" onclick="cerrarAccionesGasto()">CANCELAR</button>
+    <div class="gasto-action-grid">
+      <button class="gasto-btn gasto-btn-edit" type="button" onclick="accionesEditarGasto()">EDITAR</button>
+      <button class="gasto-btn gasto-btn-delete" type="button" onclick="accionesEliminarGasto()">ELIMINAR</button>
+      <button class="gasto-btn gasto-btn-cancel" type="button" onclick="cerrarAccionesGasto()">CANCELAR</button>
     </div>
   </div>
 </div>
@@ -12135,7 +12468,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.41: volver index + abrir menú con deslizamiento real */
+/* v25.7.60: volver index + abrir menú con deslizamiento real */
 (function(){
   'use strict';
 
@@ -12264,7 +12597,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.41: ampliar zona táctil del tirador sin cambiar su diseño */
+/* v25.7.60: ampliar zona táctil del tirador sin cambiar su diseño */
 (function(){
   'use strict';
 
@@ -12317,7 +12650,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.41 - Volver seguro al index desde iframe/iPhone/GitHub */
+/* v25.7.60 - Volver seguro al index desde iframe/iPhone/GitHub */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
@@ -12339,5 +12672,249 @@ function volverIndexSeguro(){
 }
 </script>
 
+
+
+<!-- v25.7.60: Resumen contable conectado a Documentos Rey.
+     Ingresos = suma de BASE IMPONIBLE de facturas guardadas en Documentos, no historial antiguo rey_history. -->
+<script>
+(function(){
+  'use strict';
+
+  function vrSafeEl(id){ return document.getElementById(id); }
+
+  function vrParseMoney(value){
+    if(value == null) return 0;
+    if(typeof value === 'number') return isFinite(value) ? value : 0;
+    let s = String(value).trim();
+    if(!s) return 0;
+    s = s.replace(/\s/g, '').replace(/€/g, '');
+    const negative = s.indexOf('-') >= 0;
+    s = s.replace(/[^0-9,.-]/g, '');
+
+    const lastComma = s.lastIndexOf(',');
+    const lastDot = s.lastIndexOf('.');
+    if(lastComma > lastDot){
+      s = s.replace(/\./g, '').replace(',', '.');
+    }else if(lastDot > lastComma){
+      s = s.replace(/,/g, '');
+    }else{
+      s = s.replace(',', '.');
+    }
+
+    const n = parseFloat(s);
+    if(!isFinite(n)) return 0;
+    return negative ? -Math.abs(n) : n;
+  }
+
+  function vrFmtMoney(n){
+    try{
+      if(typeof fmt === 'function') return fmt(Number(n) || 0);
+    }catch(_){ }
+    try{
+      if(typeof _fmtMoney === 'function') return _fmtMoney(Number(n) || 0);
+    }catch(_){ }
+    return (Number(n) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  function vrNumberFromAny(obj, keys){
+    for(const k of keys){
+      if(obj && obj[k] != null && obj[k] !== ''){
+        const raw = obj[k];
+        const n = (typeof raw === 'number') ? raw : vrParseMoney(raw);
+        if(isFinite(n) && n !== 0) return n;
+      }
+    }
+    return 0;
+  }
+
+  function vrLineBase(line){
+    line = line || {};
+    const uds = vrNumberFromAny(line, ['uds','units','cantidad','qty','unidades']) || 1;
+    const precio = vrNumberFromAny(line, ['precio','price','unitPrice','importe','base','pvp']);
+    const dto = Math.max(0, Math.min(100, vrNumberFromAny(line, ['dto','discount','descuento'])));
+    const base = uds * precio * (1 - dto / 100);
+    return isFinite(base) ? base : 0;
+  }
+
+  function vrDocRows(doc){
+    const src = (doc && (doc._source || doc)) || {};
+    const candidates = [doc && doc.filas, doc && doc.items, src.items, src.filas, src.conceptos, src.lines];
+    for(const arr of candidates){
+      if(Array.isArray(arr) && arr.length) return arr;
+    }
+    return [];
+  }
+
+  function vrBaseIvaFromDoc(doc){
+    const src = (doc && (doc._source || doc)) || {};
+    const rows = vrDocRows(doc);
+    let baseRows = 0;
+    if(rows.length){
+      baseRows = rows.reduce((s, it) => s + vrLineBase(it), 0);
+    }
+
+    const explicitBase = vrNumberFromAny(src, ['base','baseTotal','totalBase','baseImponible','totalBaseImponible']) ||
+                         vrNumberFromAny(doc || {}, ['base','baseTotal','totalBase','baseImponible','totalBaseImponible']);
+    let total = vrNumberFromAny(src, ['total','totalConIva']) ||
+                vrParseMoney((doc && doc.totalStr) || src.totalStr || src.totalTexto || '0');
+    let iva = vrNumberFromAny(src, ['iva','ivaTotal','totalIva']) ||
+              vrParseMoney((doc && doc.ivaStr) || src.ivaStr || src.ivaTexto || '0');
+
+    let base = 0;
+    if(explicitBase > 0){
+      base = explicitBase;
+    }else if(baseRows > 0){
+      base = baseRows;
+      // Si no viene IVA guardado pero sí viene total, lo deducimos para mostrarlo informativo.
+      if(!iva && total > baseRows) iva = Math.max(0, total - baseRows);
+    }else if(total && iva){
+      base = total - iva;
+    }else{
+      // Último recurso: en documentos antiguos sin desglose se considera total como base.
+      base = total || 0;
+    }
+
+    if(!total && (base || iva)) total = base + iva;
+    if(iva < 0) iva = 0;
+    if(base < 0) base = 0;
+    return { base, iva, total };
+  }
+
+  async function vrGetFacturasDocumentos(){
+    try{
+      if(typeof docReyHistory === 'function'){
+        const list = await docReyHistory('factura');
+        if(Array.isArray(list)) return list;
+      }
+    }catch(e){ console.warn('No se pudo leer docReyHistory(factura)', e); }
+
+    // Fallback directo a la misma clave de Documentos Rey si algo impide usar docReyHistory.
+    try{
+      const key = (typeof DOC_REY_LIST_KEY !== 'undefined') ? DOC_REY_LIST_KEY : 'presupuesto_directo_pdf_v2_05_list';
+      let raw = localStorage.getItem(key) || '[]';
+      let arr = JSON.parse(raw);
+      if(!Array.isArray(arr)) arr = [];
+      return arr.filter(x => String((x && x.documentoTipo) || 'presupuesto') === 'factura');
+    }catch(_){ return []; }
+  }
+
+  async function vrActualizarHomeStatsDocumentos(){
+    const facturas = await vrGetFacturasDocumentos();
+
+    let totalIngresos = 0;
+    let totalIvaIngresos = 0;
+    facturas.forEach(f => {
+      const t = vrBaseIvaFromDoc(f);
+      totalIngresos += t.base;
+      totalIvaIngresos += t.iva;
+    });
+
+    let gastos = 0;
+    let gastosCount = 0;
+    try{ gastos = (typeof totalGastos === 'function') ? Number(totalGastos()) || 0 : 0; }catch(_){ gastos = 0; }
+    try{ const gs = (typeof getGastos === 'function') ? getGastos() : []; gastosCount = Array.isArray(gs) ? gs.length : 0; }catch(_){ gastosCount = 0; }
+
+    const valIngresos = vrSafeEl('val-ingresos');
+    const ivaIngresos = vrSafeEl('iva-ingresos');
+    const countIngresos = vrSafeEl('count-ingresos');
+    const valGastos = vrSafeEl('val-gastos');
+    const countGastos = vrSafeEl('count-gastos');
+    const ivaGastos = vrSafeEl('iva-gastos');
+    const valResultado = vrSafeEl('val-resultado');
+    const ivaResultado = vrSafeEl('iva-resultado');
+    const barra = vrSafeEl('grafica-barra');
+
+    if(valIngresos) valIngresos.textContent = vrFmtMoney(totalIngresos);
+    if(ivaIngresos) ivaIngresos.textContent = 'IVA: ' + vrFmtMoney(totalIvaIngresos);
+    if(countIngresos) countIngresos.textContent = facturas.length + ' documentos';
+
+    if(valGastos) valGastos.textContent = vrFmtMoney(gastos);
+    if(countGastos) countGastos.textContent = gastosCount + ' documentos';
+    if(ivaGastos) ivaGastos.textContent = 'IVA: 0,00 €';
+
+    const resultadoFinal = totalIngresos - gastos;
+    if(valResultado) valResultado.textContent = vrFmtMoney(resultadoFinal);
+
+    // v25.7.60: esta es la función que manda ahora (con Documentos Rey).
+    // Por eso el color debe aplicarse aquí, no en el cálculo antiguo.
+    const cardResultado = document.querySelector('.card.resultado');
+    if(cardResultado){
+      cardResultado.style.background = resultadoFinal < 0 ? '#b04141' : 'var(--resultado-color)';
+      cardResultado.style.color = '#ffffff';
+    }
+
+    if(ivaResultado) ivaResultado.textContent = 'IVA IMPUTABLE: ' + vrFmtMoney(totalIvaIngresos);
+    if(barra) barra.style.height = Math.min(Math.max(totalIngresos, 0) / 20, 180) + 'px';
+
+    try{ if(typeof updateHomeCatalogoYClientes === 'function') updateHomeCatalogoYClientes(); }catch(_){ }
+  }
+
+  // Sustituye el cálculo antiguo del resumen por el conectado a Documentos Rey.
+  window.actualizarHomeStats = function(){
+    vrActualizarHomeStatsDocumentos();
+  };
+
+  // Refresco inicial y al volver a la pestaña/app para recoger cambios hechos en Documentos.
+  try{ window.addEventListener('storage', function(){ vrActualizarHomeStatsDocumentos(); }); }catch(_){ }
+  try{ document.addEventListener('visibilitychange', function(){ if(!document.hidden) vrActualizarHomeStatsDocumentos(); }); }catch(_){ }
+  try{ setTimeout(vrActualizarHomeStatsDocumentos, 150); }catch(_){ }
+
+  /* v25.7.60 - Gesto lateral seguro integrado dentro del script principal */
+  function instalarSwipeMenuSeguro(){
+    const zonas = [
+      document.getElementById('swipeOpenZone'),
+      document.getElementById('swipeTouchZone')
+    ].filter(Boolean);
+
+    if(!zonas.length) return;
+
+    let sx = 0;
+    let sy = 0;
+    let activo = false;
+
+    function start(ev){
+      const t = (ev.touches && ev.touches[0]) || ev;
+      sx = t.clientX || 0;
+      sy = t.clientY || 0;
+      activo = true;
+    }
+
+    function move(ev){
+      if(!activo) return;
+      const t = (ev.touches && ev.touches[0]) || ev;
+      const dx = (t.clientX || 0) - sx;
+      const dy = Math.abs((t.clientY || 0) - sy);
+
+      if(dx > 46 && dy < 42){
+        activo = false;
+        if(ev.cancelable) ev.preventDefault();
+        abrirDrawerSeguro();
+      }
+    }
+
+    function end(){
+      activo = false;
+    }
+
+    zonas.forEach(function(z){
+      z.addEventListener('touchstart', start, {passive:true});
+      z.addEventListener('touchmove', move, {passive:false});
+      z.addEventListener('touchend', end, {passive:true});
+      z.addEventListener('click', function(ev){
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        abrirDrawerSeguro();
+      }, false);
+    });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', instalarSwipeMenuSeguro);
+  }else{
+    instalarSwipeMenuSeguro();
+  }
+
+
+})();
+</script>
 </body>
 </html>

@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v2.7</title>
-    <!-- index v2.7: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v2.9</title>
+    <!-- index v2.9: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -151,12 +151,7 @@
         }
 
 
-/* PIN: teclado iPhone fiable (type=tel) pero con ocultación tipo password */
-#lock input#pin{
-  -webkit-text-security: disc;
-  text-security: disc;
-  pointer-events: auto;
-}
+
 
 
         #lockCancel {
@@ -170,6 +165,15 @@
             color: #3b3328;
         }
 
+
+/* v2.9 - Compatibilidad iOS PIN sin cambiar diseño */
+#lock input#pin{
+  pointer-events:auto !important;
+  user-select:text !important;
+  -webkit-user-select:text !important;
+  touch-action:manipulation !important;
+}
+
 </style>
 </head>
 <body>
@@ -180,14 +184,14 @@
     <div class="empresa">Ventanas Rey</div>
     <h1>Simuladores técnicos</h1>
     <p id="lockText">Introduce el código para acceder</p>
-    <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="4">
     <button onclick="unlock()">Entrar</button>
     <button id="lockCancel" type="button" onclick="return cancelarDesbloqueo()">Cancelar</button>
 </div>
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v2.7</div>
+    <div class="subtitulo">Ventanas Rey v2.9</div>
 </header>
 
 <div id="menu">
@@ -217,7 +221,8 @@
 <iframe id="visor" src="about:blank"></iframe>
 
 <script>
-    const PIN_CORRECTO = "1234";
+    const PIN_CORRECTO = "0000";
+    window.PIN_CORRECTO = PIN_CORRECTO;
 
     
     // iPhone: asegurar que el teclado aparezca al tocar el campo PIN
@@ -251,6 +256,7 @@
 function unlock() {
         const pin = document.getElementById("pin").value;
         if (pin === PIN_CORRECTO) {
+            try{ sessionStorage.setItem('vr_index_unlock_ok','1'); }catch(e){}
             try{document.getElementById('pin').blur();}catch(e){}
             document.getElementById("lock").style.display = "none";
 
@@ -364,6 +370,15 @@ function unlock() {
     }, false);
 
     function abrirConDesbloqueo(url, nombre) {
+        // v2.9: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
+        try{
+            if(sessionStorage.getItem('vr_index_unlock_ok') === '1'){
+                window.appDestino = null;
+                abrir(url);
+                return;
+            }
+        }catch(e){}
+
         window.appDestino = url;
 
         const lock = document.getElementById('lock');
@@ -434,7 +449,7 @@ function unlock() {
     const originalUnlock = window.unlock;
     window.unlock = function(){
       const valor = String(pin.value || '');
-      if(valor !== String(window.PIN_CORRECTO || '1234')){
+      if(valor !== String(window.PIN_CORRECTO || '0000')){
         // llama al original para que muestre su alert
         const r = originalUnlock.apply(this, arguments);
         // después del alert (bloqueante), limpiamos y pedimos de nuevo
@@ -516,6 +531,64 @@ function unlock() {
       if(typeof window.cancelarDesbloqueo === 'function') window.cancelarDesbloqueo();
     }, {passive:false});
   }
+})();
+</script>
+
+
+<script>
+/* v2.9 - PIN iOS: foco fiable sin cambiar diseño */
+(function(){
+  function setupPinIOS(){
+    var pin = document.getElementById('pin');
+    if(!pin) return;
+
+    pin.setAttribute('type','tel');
+    pin.setAttribute('inputmode','numeric');
+    pin.setAttribute('pattern','[0-9]*');
+    pin.setAttribute('autocomplete','one-time-code');
+    pin.setAttribute('maxlength','4');
+
+    function focusPin(){
+      pin.disabled = false;
+      pin.readOnly = false;
+      try{ pin.focus(); }catch(e){}
+      setTimeout(function(){ try{ pin.focus(); }catch(e){} }, 60);
+    }
+
+    pin.addEventListener('touchend', function(){ focusPin(); }, {passive:true});
+    pin.addEventListener('click', function(){ focusPin(); }, false);
+
+    pin.addEventListener('input', function(){
+      pin.value = String(pin.value || '').replace(/\D/g,'').slice(0,4);
+    }, false);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setupPinIOS);
+  }else{
+    setupPinIOS();
+  }
+})();
+</script>
+
+
+<script>
+/* v2.9 - No volver a pedir PIN durante la misma sesión */
+(function(){
+  function aplicarSesionDesbloqueada(){
+    try{
+      if(sessionStorage.getItem('vr_index_unlock_ok') !== '1') return;
+      var lock = document.getElementById('lock');
+      if(lock) lock.style.display = 'none';
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', aplicarSesionDesbloqueada);
+  }else{
+    aplicarSesionDesbloqueada();
+  }
+  window.addEventListener('pageshow', aplicarSesionDesbloqueada);
 })();
 </script>
 

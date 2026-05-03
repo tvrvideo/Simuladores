@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.85.80</title>
+  <title>Documentos Rey v2.85.84</title>
   <style>
     :root{
       --app-vh:100vh;
@@ -634,7 +634,7 @@ body.editing-field .return-app-btn{
 .saved-status-pagada{background:#dcfce7;color:#166534}
 
 
-/* v2.85.80 - botón rojo volver a index */
+/* v2.85.84 - botón rojo volver a index */
 .btn-menu-index{
   position:fixed;
   top:10px;
@@ -666,6 +666,78 @@ body.editing-field .return-app-btn{
 @media (max-width:600px){.topbar{padding-left:100px !important;}}
 @media print{.btn-menu-index{display:none!important}.topbar{padding-left:0!important;}}
 
+
+/* v2.85.84 - Seguridad borrados */
+.btn-danger-protected{
+  background:#fff7f7 !important;
+  color:#991b1b !important;
+  border:1px solid #fecaca !important;
+  box-shadow:none !important;
+}
+.danger-note{
+  font-size:12px;
+  color:#991b1b;
+  font-weight:800;
+  line-height:1.25;
+  margin-top:8px;
+}
+
+
+/* v2.85.84 - Confirmación propia iOS para borrados */
+#safeDeleteOverlay{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  background:rgba(15,23,42,.62);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  box-sizing:border-box;
+}
+#safeDeleteOverlay.show{display:flex!important;}
+.safe-delete-card{
+  width:min(390px,100%);
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.30);
+  padding:18px;
+  box-sizing:border-box;
+}
+.safe-delete-title{
+  font-size:19px;
+  font-weight:900;
+  color:#991b1b;
+  margin:0 0 8px 0;
+}
+.safe-delete-text{
+  font-size:14px;
+  color:#334155;
+  line-height:1.35;
+  margin:0 0 16px 0;
+  white-space:pre-line;
+}
+.safe-delete-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.safe-delete-actions button{
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+#safeDeleteCancel{
+  background:#f8fafc;
+  color:#0f172a;
+}
+#safeDeleteOk{
+  background:#dc2626;
+  border-color:#dc2626;
+  color:#fff;
+}
+
 </style>
 </head>
 <body>
@@ -677,7 +749,7 @@ body.editing-field .return-app-btn{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.85.80</div>
+          <div class="version-inline">v2.85.84</div>
         </div>
       </div>
 
@@ -802,7 +874,7 @@ body.editing-field .return-app-btn{
       <span>−</span>
     </button>
     <button type="button" class="settings-item menu-clear" id="btnClear">
-      <span>Borrar almacenamiento local<small>Elimina documento actual y lista guardada de este dispositivo.</small></span>
+      <span>⚠️ Zona peligrosa: eliminar TODOS los documentos<small>Protegido con confirmación escrita y copia automática.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-reset" id="btnHardReset">
@@ -812,6 +884,18 @@ body.editing-field .return-app-btn{
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<div id="safeDeleteOverlay" aria-hidden="true">
+  <div class="safe-delete-card" role="dialog" aria-modal="true">
+    <h3 class="safe-delete-title" id="safeDeleteTitle">Eliminar documento</h3>
+    <p class="safe-delete-text" id="safeDeleteText">¿Seguro?</p>
+    <div class="safe-delete-actions">
+      <button type="button" id="safeDeleteCancel">Cancelar</button>
+      <button type="button" id="safeDeleteOk">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <button type="button" class="return-app-btn show" id="btnReturnApp" title="Volver a Facturación">← Facturación</button>
 <div class="png-screen" id="pngScreen" aria-hidden="true">
   <div class="png-card">
@@ -833,6 +917,46 @@ body.editing-field .return-app-btn{
 <script>
 (function(){
   'use strict';
+
+  function confirmarBorradoSeguro(titulo, texto){
+    return new Promise(function(resolve){
+      const overlay = document.getElementById('safeDeleteOverlay');
+      const titleEl = document.getElementById('safeDeleteTitle');
+      const textEl = document.getElementById('safeDeleteText');
+      const cancelBtn = document.getElementById('safeDeleteCancel');
+      const okBtn = document.getElementById('safeDeleteOk');
+
+      if(!overlay || !cancelBtn || !okBtn){
+        resolve(false);
+        return;
+      }
+
+      if(titleEl) titleEl.textContent = titulo || 'Eliminar documento';
+      if(textEl) textEl.textContent = texto || '¿Seguro que quieres eliminarlo?';
+
+      function cerrar(valor){
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden','true');
+        cancelBtn.onclick = null;
+        okBtn.onclick = null;
+        resolve(valor);
+      }
+
+      cancelBtn.onclick = function(ev){
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        cerrar(false);
+      };
+      okBtn.onclick = function(ev){
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        cerrar(true);
+      };
+
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+    });
+  }
+
+
   const NS = 'http://www.w3.org/2000/svg';
   const STORAGE_KEY = 'presupuesto_directo_pdf_v2_05_current';
   const RETURN_APP_PENDING_KEY = 'presupuesto_directo_png_return_pending';
@@ -844,7 +968,7 @@ body.editing-field .return-app-btn{
   const PRESUPUESTO_VISUAL_BRIDGE_KEY = 'rey_presupuesto_visual_bridge_v1';
   const DESIGN_RETURN_IMG_KEY = 'presupuesto_visual_design_return_img_v1';
   const DESIGN_RETURN_INDEX_KEY = 'presupuesto_visual_design_target_index_v1';
-  const DESIGN_APP_URL = 'ventana.html'; // v2.85.80: Ventana Pro conectada con retorno de imagen
+  const DESIGN_APP_URL = 'ventana.html'; // v2.85.84: Ventana Pro conectada con retorno de imagen
   const DEFAULT_LOGO_PATH = 'cabecera.jpg';
   const DEFAULT_PROVIDER_LOGO_PATH = 'pie.png';
   const BUILTIN_PROVIDER_LOGO_1 = 'data:image/png;base64,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';
@@ -4172,7 +4296,7 @@ COLOCACIÓN INCLUIDA` }
 
     try{ await persistCurrent(); }catch(_){}
 
-    // v2.85.80: guardamos el concepto destino por duplicado.
+    // v2.85.84: guardamos el concepto destino por duplicado.
     // sessionStorage funciona en local; localStorage ayuda si Safari/iPhone recrea el iframe.
     try{ sessionStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
     try{ localStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
@@ -4228,7 +4352,7 @@ COLOCACIÓN INCLUIDA` }
     }
   }
 
-  // v2.85.80: retorno alternativo si Ventana Pro manda postMessage en lugar de navegar.
+  // v2.85.84: retorno alternativo si Ventana Pro manda postMessage en lugar de navegar.
   window.addEventListener('message', function(ev){
     const msg = ev && ev.data;
     if(!msg || typeof msg !== 'object') return;
@@ -4648,6 +4772,8 @@ COLOCACIÓN INCLUIDA` }
       Array.from(body.querySelectorAll('[data-template-delete]')).forEach(btn => {
         btn.onclick = async function(){
           const idx = Number(btn.getAttribute('data-template-delete'));
+          const tpl = conceptTemplates[idx] || {};
+          if(!confirm('¿Eliminar esta plantilla?\n\n' + (tpl.name || 'Sin título'))) return;
           conceptTemplates.splice(idx, 1);
           await saveConceptTemplates();
           openEdit('templates', 'Editar plantillas');
@@ -5042,12 +5168,25 @@ COLOCACIÓN INCLUIDA` }
   }, false);
   $('btnClear').addEventListener('click', async function(){
     hideReturnAppButton();
+
+    const texto = prompt('⚠️ ELIMINAR TODOS LOS DOCUMENTOS\n\nSe hará una copia automática antes de borrar.\nPara confirmar escribe exactamente: BORRAR TODO');
+    if(texto !== 'BORRAR TODO'){
+      toast('Operación cancelada');
+      return;
+    }
+
+    const current = await loadSavedList();
+    try{
+      await storageSetJSON('backup_documentos_antes_borrado_total_' + Date.now(), current);
+      try{ localStorage.setItem('backup_documentos_antes_borrado_total_' + Date.now(), JSON.stringify(current)); }catch(_){}
+    }catch(_){}
+
     closeSettings();
     await storageRemove(STORAGE_KEY);
     await storageRemove(SAVE_LIST_KEY);
     state = await createDefaultState();
     render();
-    toast('Borrado');
+    toast('Documentos eliminados con copia previa');
   }, false);
 
   $('btnHardReset').addEventListener('click', async function(){
@@ -5457,11 +5596,52 @@ $('btnExport').addEventListener('click', async function(){
       });
 
       Array.from(document.querySelectorAll('[data-delete-index]')).forEach(function(btn){
-        btn.addEventListener('click', async function(){
-          const idx = Number(btn.getAttribute('data-delete-index'));
-          const current = await loadSavedList();
-          current.splice(idx, 1);
+        btn.addEventListener('click', async function(ev){
+          if(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+
+          const originalIdx = Number(btn.getAttribute('data-delete-index'));
+          let current = await loadSavedList();
+          let picked = current[originalIdx];
+
+          if(!picked){
+            toast('No se encontró el documento');
+            return;
+          }
+
+          const pickedId = picked.documentId || '';
+          const nombreDoc = documentTypeLabel(tipo) + ' ' + (picked.numero || 'sin número');
+          const clienteDoc = picked.clienteNombre ? (' de ' + picked.clienteNombre) : '';
+
+          const ok = await confirmarBorradoSeguro(
+            'Eliminar documento',
+            nombreDoc + clienteDoc + '\n\nSolo se eliminará este documento.'
+          );
+          if(!ok){
+            toast('Operación cancelada');
+            return;
+          }
+
+          try{
+            try{ localStorage.setItem('backup_documentos_antes_borrar_individual_' + Date.now(), JSON.stringify(current)); }catch(_){}
+          }catch(_){}
+
+          let deleteIndex = originalIdx;
+          if(pickedId){
+            const byId = current.findIndex(function(d){ return d && d.documentId === pickedId; });
+            if(byId >= 0) deleteIndex = byId;
+          }
+
+          if(deleteIndex < 0 || deleteIndex >= current.length){
+            toast('No se pudo eliminar');
+            return;
+          }
+
+          current.splice(deleteIndex, 1);
           await storageSetJSON(SAVE_LIST_KEY, current);
+
           toast(documentTypeLabel(tipo) + ' eliminado');
           openSavedDocumentsByType(tipo);
         }, false);
@@ -5485,9 +5665,9 @@ $('btnExport').addEventListener('click', async function(){
         </select>
       </div>
       <div id="docSavedList"></div>
-      <div class="sheet-actions">
+      <div class="sheet-actions" style="grid-template-columns:1fr;">
         <button type="button" class="btn btn-light" id="sheetCancel">Cerrar</button>
-        <button type="button" class="btn btn-danger" id="sheetDeleteList">Vaciar ${documentTypeListTitle(tipo).toLowerCase()}</button>
+        <button type="button" class="hidden" id="sheetDeleteList" aria-hidden="true" tabindex="-1" style="display:none!important;">Vaciar ${documentTypeListTitle(tipo).toLowerCase()}</button>
       </div>`;
 
     $('sheetBackdrop').classList.add('show');
@@ -5508,13 +5688,24 @@ $('btnExport').addEventListener('click', async function(){
     $('docListSearch').addEventListener('input', renderFilteredList, false);
     $('docListSort').addEventListener('change', renderFilteredList, false);
 
-    $('sheetDeleteList').onclick = async function(){
-      const current = await loadSavedList();
-      const kept = current.filter(function(d){ return (d.documentoTipo || 'presupuesto') !== tipo; });
-      await storageSetJSON(SAVE_LIST_KEY, kept);
-      closeSheet();
-      toast(documentTypeListTitle(tipo) + ' borrados');
-    };
+    if($('sheetDeleteList')){
+      $('sheetDeleteList').onclick = async function(){
+        const texto = prompt('⚠️ Para eliminar TODOS los documentos de tipo ' + documentTypeListTitle(tipo).toUpperCase() + ', escribe: BORRAR TODO');
+        if(texto !== 'BORRAR TODO'){
+          toast('Operación cancelada');
+          return;
+        }
+        const current = await loadSavedList();
+        try{
+          await storageSetJSON('backup_documentos_antes_vaciar_' + tipo + '_' + Date.now(), current);
+          try{ localStorage.setItem('backup_documentos_antes_vaciar_' + tipo + '_' + Date.now(), JSON.stringify(current)); }catch(_){}
+        }catch(_){}
+        const kept = current.filter(function(d){ return (d.documentoTipo || 'presupuesto') !== tipo; });
+        await storageSetJSON(SAVE_LIST_KEY, kept);
+        closeSheet();
+        toast(documentTypeListTitle(tipo) + ' borrados');
+      };
+    }
 
     renderFilteredList();
   }
