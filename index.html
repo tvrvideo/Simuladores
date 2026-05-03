@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- v3.4 - Anticaché fuerte GitHub/iPhone -->
+    <!-- v3.2 - Anticaché fuerte GitHub/iPhone -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.4</title>
-    <!-- index v3.4: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v3.2</title>
+    <!-- index v3.2: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -171,7 +171,7 @@
         }
 
 
-/* v3.4 - PIN iOS con teclado propio sin cambiar diseño */
+/* v3.2 - PIN iOS con teclado propio sin cambiar diseño */
 #lock input#pin{
   pointer-events:auto !important;
   user-select:text !important;
@@ -180,7 +180,7 @@
 }
 
 
-/* v3.4 - Teclado PIN propio para iPhone 15 / GitHub */
+/* v3.2 - Teclado PIN propio para iPhone 15 / GitHub */
 #pin{
   caret-color: transparent;
 }
@@ -216,7 +216,7 @@
 }
 
 
-/* v3.4 - Teclado PIN propio visible */
+/* v3.2 - Teclado PIN propio visible */
 #pin{ caret-color:transparent; }
 .pin-pad{
   margin-top:14px;
@@ -273,7 +273,7 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.4</div>
+    <div class="subtitulo">Ventanas Rey v3.2</div>
 </header>
 
 <div id="menu">
@@ -307,7 +307,7 @@
     window.PIN_CORRECTO = PIN_CORRECTO;
 
 
-    const INDEX_VERSION = "3.4";
+    const INDEX_VERSION = "3.2";
     function urlConVersion(url){
         url = String(url || '');
         if(!url) return url;
@@ -318,7 +318,7 @@
 
 
 
-    // v3.4: teclado PIN propio, sin depender del teclado nativo de iOS.
+    // v3.2: teclado PIN propio, sin depender del teclado nativo de iOS.
     function pinKey(n){
         const pinEl = document.getElementById('pin');
         if(!pinEl) return false;
@@ -364,7 +364,7 @@ function unlock() {
         } else {
             alert("Código incorrecto");
             try{ document.getElementById("pin").value = ""; }catch(e){}
-            /* v3.4: no forzar teclado iOS tras PIN incorrecto */
+            /* v3.2: no forzar teclado iOS tras PIN incorrecto */
         }
     }
 
@@ -472,7 +472,7 @@ function unlock() {
     }, false);
 
     function abrirConDesbloqueo(url, nombre) {
-        // v3.4: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
+        // v3.2: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
         try{
             if(sessionStorage.getItem('vr_index_unlock_ok') === '1'){
                 window.appDestino = null;
@@ -492,7 +492,7 @@ function unlock() {
 
         if (lock) {
             lock.style.display = 'flex';
-            // v3.4: no forzar focus; se usa teclado propio.
+            // v3.2: no forzar focus; se usa teclado propio.
         }
     }
 
@@ -501,13 +501,7 @@ function unlock() {
     }
 
     function abrirDocumentos() {
-        // v3.4: Documentos es una app pesada con formularios.
-        // En iPhone/GitHub no debe ir dentro de iframe porque Safari puede bloquear el teclado.
-        try{
-            window.location.href = urlConVersion('documentos.html');
-        }catch(e){
-            window.location.href = 'documentos.html?v=' + Date.now();
-        }
+        abrirConDesbloqueo('documentos.html', 'Documentos');
     }
 
     function cancelarPinFacturacion() {
@@ -521,7 +515,7 @@ function unlock() {
 
 
 <script>
-/* v3.4 - Limpiar Service Worker antiguo para que no cargue index viejo */
+/* v3.2 - Limpiar Service Worker antiguo para que no cargue index viejo */
 (function(){
   if('serviceWorker' in navigator){
     try{
@@ -561,7 +555,7 @@ function unlock() {
 
 
 <script>
-/* v3.4 - No volver a pedir PIN durante la misma sesión */
+/* v3.2 - No volver a pedir PIN durante la misma sesión */
 (function(){
   function aplicarSesionDesbloqueada(){
     try{
