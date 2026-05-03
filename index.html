@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- v3.3 - Anticaché fuerte GitHub/iPhone -->
+    <!-- v3.4 - Anticaché fuerte GitHub/iPhone -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.3</title>
-    <!-- index v3.3: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v3.4</title>
+    <!-- index v3.4: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -171,7 +171,7 @@
         }
 
 
-/* v3.3 - PIN iOS con teclado propio sin cambiar diseño */
+/* v3.4 - PIN iOS con teclado propio sin cambiar diseño */
 #lock input#pin{
   pointer-events:auto !important;
   user-select:text !important;
@@ -180,7 +180,7 @@
 }
 
 
-/* v3.3 - Teclado PIN propio para iPhone 15 / GitHub */
+/* v3.4 - Teclado PIN propio para iPhone 15 / GitHub */
 #pin{
   caret-color: transparent;
 }
@@ -216,7 +216,7 @@
 }
 
 
-/* v3.3 - Teclado PIN propio visible */
+/* v3.4 - Teclado PIN propio visible */
 #pin{ caret-color:transparent; }
 .pin-pad{
   margin-top:14px;
@@ -273,7 +273,7 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.3</div>
+    <div class="subtitulo">Ventanas Rey v3.4</div>
 </header>
 
 <div id="menu">
@@ -307,7 +307,7 @@
     window.PIN_CORRECTO = PIN_CORRECTO;
 
 
-    const INDEX_VERSION = "3.2";
+    const INDEX_VERSION = "3.4";
     function urlConVersion(url){
         url = String(url || '');
         if(!url) return url;
@@ -318,7 +318,7 @@
 
 
 
-    // v3.3: teclado PIN propio, sin depender del teclado nativo de iOS.
+    // v3.4: teclado PIN propio, sin depender del teclado nativo de iOS.
     function pinKey(n){
         const pinEl = document.getElementById('pin');
         if(!pinEl) return false;
@@ -364,35 +364,19 @@ function unlock() {
         } else {
             alert("Código incorrecto");
             try{ document.getElementById("pin").value = ""; }catch(e){}
-            /* v3.3: no forzar teclado iOS tras PIN incorrecto */
+            /* v3.4: no forzar teclado iOS tras PIN incorrecto */
         }
     }
 
     function abrir(url) {
-        const finalUrl = urlConVersion(url);
-
-        // v3.3: en iPhone abrir Documentos fuera del iframe para evitar fallos de teclado.
-        try{
-            const ua = navigator.userAgent || '';
-            const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            const cleanUrl = String(url || '').toLowerCase();
-
-            if(isIOS && cleanUrl.indexOf('documentos') >= 0){
-                window.location.href = finalUrl;
-                return;
-            }
-        }catch(e){}
-
         const visor = document.getElementById('visor');
+        const finalUrl = urlConVersion(url);
 
         try { visor.src = 'about:blank'; } catch(e) {}
         try { visor.removeAttribute('src'); } catch(e) {}
 
         visor.style.display = 'block';
-
-        setTimeout(function(){
-            visor.src = finalUrl;
-        }, 30);
+        setTimeout(function(){ visor.src = finalUrl; }, 30);
 
         document.getElementById('cabecera').style.display = 'none';
         document.getElementById('menu').style.display = 'none';
@@ -488,7 +472,7 @@ function unlock() {
     }, false);
 
     function abrirConDesbloqueo(url, nombre) {
-        // v3.3: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
+        // v3.4: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
         try{
             if(sessionStorage.getItem('vr_index_unlock_ok') === '1'){
                 window.appDestino = null;
@@ -508,7 +492,7 @@ function unlock() {
 
         if (lock) {
             lock.style.display = 'flex';
-            // v3.3: no forzar focus; se usa teclado propio.
+            // v3.4: no forzar focus; se usa teclado propio.
         }
     }
 
@@ -517,7 +501,13 @@ function unlock() {
     }
 
     function abrirDocumentos() {
-        abrirConDesbloqueo('documentos.html', 'Documentos');
+        // v3.4: Documentos es una app pesada con formularios.
+        // En iPhone/GitHub no debe ir dentro de iframe porque Safari puede bloquear el teclado.
+        try{
+            window.location.href = urlConVersion('documentos.html');
+        }catch(e){
+            window.location.href = 'documentos.html?v=' + Date.now();
+        }
     }
 
     function cancelarPinFacturacion() {
@@ -531,7 +521,7 @@ function unlock() {
 
 
 <script>
-/* v3.3 - Limpiar Service Worker antiguo para que no cargue index viejo */
+/* v3.4 - Limpiar Service Worker antiguo para que no cargue index viejo */
 (function(){
   if('serviceWorker' in navigator){
     try{
@@ -571,7 +561,7 @@ function unlock() {
 
 
 <script>
-/* v3.3 - No volver a pedir PIN durante la misma sesión */
+/* v3.4 - No volver a pedir PIN durante la misma sesión */
 (function(){
   function aplicarSesionDesbloqueada(){
     try{
