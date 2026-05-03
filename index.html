@@ -2,6 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- v3.2 - Anticaché fuerte GitHub/iPhone -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -10,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.0</title>
-    <!-- index v3.0: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v3.2</title>
+    <!-- index v3.2: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -166,7 +171,7 @@
         }
 
 
-/* v3.0 - PIN iOS con teclado propio sin cambiar diseño */
+/* v3.2 - PIN iOS con teclado propio sin cambiar diseño */
 #lock input#pin{
   pointer-events:auto !important;
   user-select:text !important;
@@ -175,7 +180,7 @@
 }
 
 
-/* v3.0 - Teclado PIN propio para iPhone 15 / GitHub */
+/* v3.2 - Teclado PIN propio para iPhone 15 / GitHub */
 #pin{
   caret-color: transparent;
 }
@@ -210,6 +215,34 @@
   background:#d8cfc4 !important;
 }
 
+
+/* v3.2 - Teclado PIN propio visible */
+#pin{ caret-color:transparent; }
+.pin-pad{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(3,64px);
+  gap:9px;
+  justify-content:center;
+}
+.pin-key{
+  width:64px;
+  height:48px;
+  border-radius:14px;
+  border:1px solid #b7aa9c !important;
+  background:#efe7da !important;
+  color:#3b3328 !important;
+  font-size:1.15em !important;
+  font-weight:800 !important;
+  margin:0 !important;
+  padding:0 !important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);
+}
+.pin-key.ok{ background:#e6c98a !important; color:#3a2a00 !important; }
+.pin-key.del{ background:#d8cfc4 !important; }
+
 </style>
 </head>
 <body>
@@ -240,7 +273,7 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.0</div>
+    <div class="subtitulo">Ventanas Rey v3.2</div>
 </header>
 
 <div id="menu">
@@ -274,7 +307,18 @@
     window.PIN_CORRECTO = PIN_CORRECTO;
 
 
-    // v3.0: teclado PIN propio, sin depender del teclado nativo de iOS.
+    const INDEX_VERSION = "3.2";
+    function urlConVersion(url){
+        url = String(url || '');
+        if(!url) return url;
+        if(url.indexOf('http') === 0 || url.indexOf('data:') === 0 || url.indexOf('about:') === 0) return url;
+        const sep = url.indexOf('?') >= 0 ? '&' : '?';
+        return url + sep + 'vr=' + encodeURIComponent(INDEX_VERSION) + '&t=' + Date.now();
+    }
+
+
+
+    // v3.2: teclado PIN propio, sin depender del teclado nativo de iOS.
     function pinKey(n){
         const pinEl = document.getElementById('pin');
         if(!pinEl) return false;
@@ -320,14 +364,20 @@ function unlock() {
         } else {
             alert("Código incorrecto");
             try{ document.getElementById("pin").value = ""; }catch(e){}
-            /* v3.0: no forzar teclado iOS tras PIN incorrecto */
+            /* v3.2: no forzar teclado iOS tras PIN incorrecto */
         }
     }
 
     function abrir(url) {
         const visor = document.getElementById('visor');
+        const finalUrl = urlConVersion(url);
+
+        try { visor.src = 'about:blank'; } catch(e) {}
+        try { visor.removeAttribute('src'); } catch(e) {}
+
         visor.style.display = 'block';
-        setTimeout(() => visor.src = url, 10);
+        setTimeout(function(){ visor.src = finalUrl; }, 30);
+
         document.getElementById('cabecera').style.display = 'none';
         document.getElementById('menu').style.display = 'none';
     }
@@ -422,7 +472,7 @@ function unlock() {
     }, false);
 
     function abrirConDesbloqueo(url, nombre) {
-        // v2.9: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
+        // v3.2: si ya se desbloqueó en esta sesión, no pedir PIN otra vez
         try{
             if(sessionStorage.getItem('vr_index_unlock_ok') === '1'){
                 window.appDestino = null;
@@ -442,7 +492,7 @@ function unlock() {
 
         if (lock) {
             lock.style.display = 'flex';
-            // v3.0: no forzar focus; se usa teclado propio.
+            // v3.2: no forzar focus; se usa teclado propio.
         }
     }
 
@@ -465,12 +515,16 @@ function unlock() {
 
 
 <script>
-  // Service Worker (offline)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    });
+/* v3.2 - Limpiar Service Worker antiguo para que no cargue index viejo */
+(function(){
+  if('serviceWorker' in navigator){
+    try{
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(reg){ try{ reg.unregister(); }catch(e){} });
+      }).catch(function(){});
+    }catch(e){}
   }
+})();
 </script>
 
 
@@ -501,7 +555,7 @@ function unlock() {
 
 
 <script>
-/* v3.0 - No volver a pedir PIN durante la misma sesión */
+/* v3.2 - No volver a pedir PIN durante la misma sesión */
 (function(){
   function aplicarSesionDesbloqueada(){
     try{
