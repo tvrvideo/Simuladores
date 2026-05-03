@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v2.9</title>
-    <!-- index v2.9: base v1.5 buena + orden botones + Documentos/Climalit -->
+    <title>Ventanas Rey v3.0</title>
+    <!-- index v3.0: base v1.5 buena + orden botones + Documentos/Climalit -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -166,12 +166,48 @@
         }
 
 
-/* v2.9 - Compatibilidad iOS PIN sin cambiar diseño */
+/* v3.0 - PIN iOS con teclado propio sin cambiar diseño */
 #lock input#pin{
   pointer-events:auto !important;
   user-select:text !important;
   -webkit-user-select:text !important;
   touch-action:manipulation !important;
+}
+
+
+/* v3.0 - Teclado PIN propio para iPhone 15 / GitHub */
+#pin{
+  caret-color: transparent;
+}
+.pin-pad{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(3,64px);
+  gap:9px;
+  justify-content:center;
+}
+.pin-key{
+  width:64px;
+  height:48px;
+  border-radius:14px;
+  border:1px solid #b7aa9c !important;
+  background:#efe7da !important;
+  color:#3b3328 !important;
+  font-size:1.15em !important;
+  font-weight:800 !important;
+  margin:0 !important;
+  padding:0 !important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);
+}
+.pin-key:active{ transform:scale(.96); }
+.pin-key.ok{
+  background:#e6c98a !important;
+  color:#3a2a00 !important;
+}
+.pin-key.del{
+  background:#d8cfc4 !important;
 }
 
 </style>
@@ -184,14 +220,27 @@
     <div class="empresa">Ventanas Rey</div>
     <h1>Simuladores técnicos</h1>
     <p id="lockText">Introduce el código para acceder</p>
-    <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="4">
-    <button onclick="unlock()">Entrar</button>
+    <input id="pin" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4" readonly aria-label="Código PIN">
+    <div class="pin-pad" aria-label="Teclado PIN">
+        <button class="pin-key" type="button" onclick="return pinKey('1')">1</button>
+        <button class="pin-key" type="button" onclick="return pinKey('2')">2</button>
+        <button class="pin-key" type="button" onclick="return pinKey('3')">3</button>
+        <button class="pin-key" type="button" onclick="return pinKey('4')">4</button>
+        <button class="pin-key" type="button" onclick="return pinKey('5')">5</button>
+        <button class="pin-key" type="button" onclick="return pinKey('6')">6</button>
+        <button class="pin-key" type="button" onclick="return pinKey('7')">7</button>
+        <button class="pin-key" type="button" onclick="return pinKey('8')">8</button>
+        <button class="pin-key" type="button" onclick="return pinKey('9')">9</button>
+        <button class="pin-key del" type="button" onclick="return pinDelete()">⌫</button>
+        <button class="pin-key" type="button" onclick="return pinKey('0')">0</button>
+        <button class="pin-key ok" type="button" onclick="unlock(); return false;">OK</button>
+    </div>
     <button id="lockCancel" type="button" onclick="return cancelarDesbloqueo()">Cancelar</button>
 </div>
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v2.9</div>
+    <div class="subtitulo">Ventanas Rey v3.0</div>
 </header>
 
 <div id="menu">
@@ -224,33 +273,36 @@
     const PIN_CORRECTO = "0000";
     window.PIN_CORRECTO = PIN_CORRECTO;
 
-    
-    // iPhone: asegurar que el teclado aparezca al tocar el campo PIN
+
+    // v3.0: teclado PIN propio, sin depender del teclado nativo de iOS.
+    function pinKey(n){
+        const pinEl = document.getElementById('pin');
+        if(!pinEl) return false;
+        const current = String(pinEl.value || '').replace(/\D/g,'').slice(0,4);
+        if(current.length >= 4) return false;
+        pinEl.value = (current + String(n || '').replace(/\D/g,'')).slice(0,4);
+        if(pinEl.value.length === 4){
+            setTimeout(function(){ unlock(); }, 80);
+        }
+        return false;
+    }
+
+    function pinDelete(){
+        const pinEl = document.getElementById('pin');
+        if(!pinEl) return false;
+        pinEl.value = String(pinEl.value || '').slice(0,-1);
+        return false;
+    }
+
+    window.pinKey = pinKey;
+    window.pinDelete = pinDelete;
+
     window.addEventListener('load', () => {
         const pinEl = document.getElementById('pin');
-        const lockEl = document.getElementById('lock');
-        if(!pinEl || !lockEl) return;
-
-        // Si tocan la pantalla del bloqueo, enfocamos el PIN
-        const focusPin = () => {
-            try { pinEl.focus({preventScroll:true}); } catch(e) { pinEl.focus(); }
-        };
-
-        lockEl.addEventListener('click', (e) => {
-            // Evitar que un click en el botón "Entrar" interfiera
-            if(e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'button') return;
-            focusPin();
-        }, {passive:true});
-
-        pinEl.addEventListener('touchend', () => { focusPin(); }, {passive:true});
-        pinEl.addEventListener('click', () => { focusPin(); }, {passive:true});
-
-        // Enter / Done -> entrar
-        pinEl.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter'){
-                e.preventDefault();
-                unlock();
-            }
+        if(!pinEl) return;
+        pinEl.addEventListener('input', function(){
+            pinEl.value = String(pinEl.value || '').replace(/\D/g,'').slice(0,4);
+            if(pinEl.value.length === 4) unlock();
         });
     });
 function unlock() {
@@ -268,7 +320,7 @@ function unlock() {
         } else {
             alert("Código incorrecto");
             try{ document.getElementById("pin").value = ""; }catch(e){}
-            try{ document.getElementById("pin").focus({preventScroll:true}); }catch(e){ try{document.getElementById("pin").focus();}catch(e2){} }
+            /* v3.0: no forzar teclado iOS tras PIN incorrecto */
         }
     }
 
@@ -390,9 +442,7 @@ function unlock() {
 
         if (lock) {
             lock.style.display = 'flex';
-            setTimeout(function(){
-                try{ pin && pin.focus({preventScroll:true}); }catch(e){ try{ pin && pin.focus(); }catch(e2){} }
-            }, 100);
+            // v3.0: no forzar focus; se usa teclado propio.
         }
     }
 
@@ -427,93 +477,6 @@ function unlock() {
 
 
 
-<script>
-(function(){
-  const lock = document.getElementById('lock');
-  const pin  = document.getElementById('pin');
-  if(!lock || !pin) return;
-
-  const btnEntrar = lock.querySelector('button[onclick*="unlock"]') || lock.querySelector('button');
-  const PIN_LEN = Number(pin.getAttribute('maxlength')) || 4;
-
-  let entrando = false;
-
-  function limpiarYReintentar(){
-    // Mantener lock visible, limpiar pin y reenfocar
-    try { pin.value = ''; } catch(e) {}
-    try { pin.focus({preventScroll:true}); } catch(e) { try{pin.focus();}catch(e2){} }
-  }
-
-  // Envolver unlock para que al PIN incorrecto no "escape" al menú
-  if(typeof window.unlock === 'function' && !window.__unlock_wrapped){
-    const originalUnlock = window.unlock;
-    window.unlock = function(){
-      const valor = String(pin.value || '');
-      if(valor !== String(window.PIN_CORRECTO || '0000')){
-        // llama al original para que muestre su alert
-        const r = originalUnlock.apply(this, arguments);
-        // después del alert (bloqueante), limpiamos y pedimos de nuevo
-        limpiarYReintentar();
-        return r;
-      }
-      return originalUnlock.apply(this, arguments);
-    };
-    window.__unlock_wrapped = true;
-  }
-
-  function ejecutarEntradaOriginal(){
-    if(entrando) return;
-    entrando = true;
-    // dispara EXACTAMENTE lo mismo que el botón
-    if(btnEntrar && typeof btnEntrar.click === 'function'){
-      btnEntrar.click();
-    } else if(typeof window.unlock === 'function'){
-      window.unlock();
-    }
-    setTimeout(()=>{ entrando = false; }, 250);
-  }
-
-  // Auto-entrar al completar PIN -> ejecuta unlock (no ocultar lock por nuestra cuenta)
-  pin.addEventListener('input', () => {
-    if(String(pin.value || '').length >= PIN_LEN){
-      setTimeout(ejecutarEntradaOriginal, 0);
-    }
-  }, {passive:true});
-
-  // Teclado: subida tipo "antigua" pero fiable en iPhone/PWA (baseInnerHeight)
-  const baseInnerHeight = window.innerHeight;
-
-  function ajustarTecladoSubir(){
-    if(!window.visualViewport) return;
-
-    const vv = window.visualViewport;
-    const diff = Math.max(0, baseInnerHeight - vv.height);
-
-    const maxShift = 120;
-    const factor   = 0.35;
-    let shiftUp = Math.min(maxShift, diff * factor);
-
-    const margen = 14;
-    const rect = pin.getBoundingClientRect();
-    const tapado = (rect.bottom + margen) - vv.height;
-    if(tapado > 0){
-      shiftUp = Math.min(maxShift, Math.max(shiftUp, tapado));
-    }
-
-    lock.style.transform = `translateY(-${shiftUp}px)`;
-  }
-
-  function resetTeclado(){ lock.style.transform = 'translateY(0px)'; }
-
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', ajustarTecladoSubir);
-    window.visualViewport.addEventListener('scroll', ajustarTecladoSubir);
-  }
-  pin.addEventListener('focus', () => setTimeout(ajustarTecladoSubir, 0), {passive:true});
-  pin.addEventListener('blur', resetTeclado, {passive:true});
-
-})();
-</script>
 
 
 <script>
@@ -535,45 +498,10 @@ function unlock() {
 </script>
 
 
-<script>
-/* v2.9 - PIN iOS: foco fiable sin cambiar diseño */
-(function(){
-  function setupPinIOS(){
-    var pin = document.getElementById('pin');
-    if(!pin) return;
-
-    pin.setAttribute('type','tel');
-    pin.setAttribute('inputmode','numeric');
-    pin.setAttribute('pattern','[0-9]*');
-    pin.setAttribute('autocomplete','one-time-code');
-    pin.setAttribute('maxlength','4');
-
-    function focusPin(){
-      pin.disabled = false;
-      pin.readOnly = false;
-      try{ pin.focus(); }catch(e){}
-      setTimeout(function(){ try{ pin.focus(); }catch(e){} }, 60);
-    }
-
-    pin.addEventListener('touchend', function(){ focusPin(); }, {passive:true});
-    pin.addEventListener('click', function(){ focusPin(); }, false);
-
-    pin.addEventListener('input', function(){
-      pin.value = String(pin.value || '').replace(/\D/g,'').slice(0,4);
-    }, false);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupPinIOS);
-  }else{
-    setupPinIOS();
-  }
-})();
-</script>
 
 
 <script>
-/* v2.9 - No volver a pedir PIN durante la misma sesión */
+/* v3.0 - No volver a pedir PIN durante la misma sesión */
 (function(){
   function aplicarSesionDesbloqueada(){
     try{
