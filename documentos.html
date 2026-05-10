@@ -415,7 +415,7 @@ left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom) + var(--vv-bott
   }
 
 
-/* v2.85.71 selector tipo de presupuesto */
+/* v2.86.03 selector tipo de presupuesto */
 .budget-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
 .budget-type-card{
   border:1px solid var(--line);
@@ -434,7 +434,7 @@ left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom) + var(--vv-bott
 @media (max-width:640px){.budget-type-grid{grid-template-columns:1fr}}
 
 
-/* v2.85.71 - teclado iPhone seguro SOLO en panel de edición */
+/* v2.86.03 - teclado iPhone seguro SOLO en panel de edición */
 #editSheet.field-focus-mode{
   top: 72px !important;
   bottom: auto !important;
@@ -469,7 +469,7 @@ body.editing-field .return-app-btn{
 }
 
 
-/* v2.85.71 - menú ajustes con colores diferenciados */
+/* v2.86.03 - menú ajustes con colores diferenciados */
 .settings-item.menu-open{background:linear-gradient(135deg,#0f766e,#14b8a6);border-color:#0f766e;color:#fff}
 .settings-item.menu-import{background:linear-gradient(135deg,#2563eb,#60a5fa);border-color:#2563eb;color:#fff}
 .settings-item.menu-export{background:linear-gradient(135deg,#7c3aed,#a78bfa);border-color:#7c3aed;color:#fff}
@@ -490,7 +490,7 @@ body.editing-field .return-app-btn{
 .settings-item.menu-reset{background:linear-gradient(135deg,#7f1d1d,#ef4444);border-color:#7f1d1d;color:#fff}
 
 
-/* v2.85.71 - acciones PNG agrupadas abajo */
+/* v2.86.03 - acciones PNG agrupadas abajo */
 .png-head #btnClosePngScreen{
   display:none !important;
 }
@@ -519,7 +519,7 @@ body.editing-field .return-app-btn{
 }
 
 
-/* v2.85.71 - selector tipo de documento */
+/* v2.86.03 - selector tipo de documento */
 .doc-type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
 .doc-type-card{
   border:1px solid var(--line);
@@ -542,7 +542,7 @@ body.editing-field .return-app-btn{
 .settings-item.menu-albaranes{background:linear-gradient(135deg,#c2410c,#fdba74);border-color:#c2410c;color:#fff}
 
 
-/* v2.85.71 - búsqueda y orden en listas de documentos */
+/* v2.86.03 - búsqueda y orden en listas de documentos */
 .doc-list-tools{
   display:grid;
   grid-template-columns:1fr auto;
@@ -567,7 +567,7 @@ body.editing-field .return-app-btn{
 }
 
 
-/* v2.85.71 - buscador catálogo facturación */
+/* v2.86.03 - buscador catálogo facturación */
 .catalog-search-box{
   display:grid;
   grid-template-columns:1fr;
@@ -579,7 +579,7 @@ body.editing-field .return-app-btn{
 }
 
 
-/* v2.85.71 - Mostrar etiqueta/estado del documento en Documentos */
+/* v2.86.03 - Mostrar etiqueta/estado del documento en Documentos */
 .doc-status-badge{
   position:fixed;
   top:calc(42px + env(safe-area-inset-top));
@@ -611,7 +611,7 @@ body.editing-field .return-app-btn{
 @media print{.doc-status-badge{display:none!important}}
 
 
-/* v2.85.71 - Etiquetas solo en listas de ajustes, no encima del documento */
+/* v2.86.03 - Etiquetas solo en listas de ajustes, no encima del documento */
 .doc-status-badge{display:none!important}
 .saved-status-badge{
   display:inline-flex;
@@ -804,6 +804,61 @@ body.editing-field .return-app-btn{
   border-color:#dc2626;
 }
 
+
+
+/* v2.86.03 - Barra inferior estable conservando btnReturnApp original */
+.app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
+.page-floating-actions{
+  position:fixed;
+  left:6px;
+  right:6px;
+  bottom:calc(62px + env(safe-area-inset-bottom) + var(--vv-bottom));
+  z-index:45;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;
+  width:min(860px, calc(100vw - 12px));
+  margin:0 auto;
+  padding:4px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 14px 26px rgba(15,23,42,.14);
+  touch-action:manipulation;
+}
+.page-floating-actions button,
+.page-floating-actions .return-app-btn{
+  position:static !important;
+  display:flex !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:auto !important;
+  min-height:34px !important;
+  margin:0 !important;
+  padding:7px 3px !important;
+  border-radius:12px !important;
+  border:1px solid transparent !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  color:#fff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 8px 16px rgba(15,23,42,.08) !important;
+  touch-action:manipulation;
+}
+.page-floating-actions #btnReturnApp{background:linear-gradient(180deg,#14b8a6 0%,#0f766e 100%) !important;border-color:#0f766e !important;}
+#btnPageAdd{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%) !important;}
+#btnPageRemove{background:linear-gradient(180deg,#fb923c 0%,#f59e0b 100%) !important;}
+#btnPageIva{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%) !important;}
+#btnPageIva.iva-off{background:linear-gradient(180deg,#64748b 0%,#475569 100%) !important;}
+.sheet.show ~ .page-floating-actions,
+body.png-open .page-floating-actions,
+body.editing-field .page-floating-actions{display:none!important;}
+@media print{.page-floating-actions{display:none!important;}}
+
 </style>
 <style>.exportar-ligero,.exportar-imagenes{display:none!important;}</style>
 </head>
@@ -933,6 +988,7 @@ body.editing-field .return-app-btn{
       <span>Catálogo facturación<small>Lee productos desde la lista compartida de facturación.</small></span>
       <span>›</span>
     </button>
+    <button type="button" class="settings-item menu-style" id="btnThemeConfig"><span>Configuración<small>Modo claro, oscuro, beige y tamaño.</small></span><span>›</span></button>
     <button type="button" class="settings-item menu-style" id="btnStyle">
       <span>Estilo plantilla<small>Cambia colores, grosores y tamaños de texto.</small></span>
       <span>›</span>
@@ -980,8 +1036,12 @@ body.editing-field .return-app-btn{
     </div>
   </div>
 </div>
-
-<button type="button" class="return-app-btn show" id="btnReturnApp" title="Volver a Facturación">← Facturación</button>
+<div class="page-floating-actions" id="pageFloatingActions">
+  <button type="button" class="return-app-btn show" id="btnReturnApp" title="Volver a Facturación">← Facturación</button>
+  <button type="button" id="btnPageAdd" onclick="document.getElementById('btnAddPage').click(); return false;">+ Página</button>
+  <button type="button" id="btnPageRemove" onclick="document.getElementById('btnRemovePage').click(); return false;">− Página</button>
+  <button type="button" id="btnPageIva" onclick="return window.__docToggleIva && window.__docToggleIva();">IVA ON</button>
+</div>
 <div class="png-screen" id="pngScreen" aria-hidden="true">
   <div class="png-card">
     <div class="png-head">
@@ -1356,7 +1416,7 @@ body.editing-field .return-app-btn{
   }
 
   function updateDocumentStatusBadge(){
-    // v2.85.71: no se muestra encima del documento.
+    // v2.86.03: no se muestra encima del documento.
     // El estado se ve en las listas de Ajustes.
   }
 
@@ -1756,22 +1816,28 @@ body.editing-field .return-app-btn{
     }
   }
 
+  function ivaEnabled(){
+    try{ return !(state && state.ivaEnabled === false); }catch(e){ return true; }
+  }
+  function ivaRate(){
+    return ivaEnabled() ? IVA : 0;
+  }
   function calcItem(item){
     const uds = Number(item.units || 0);
     const price = Number(item.price || 0);
     const dto = Math.max(0, Math.min(100, Number(item.discount || item.dto || 0)));
     const base = uds * price * (1 - (dto / 100));
-    const iva = base * IVA;
+    const iva = base * ivaRate();
     return { base, iva, dto };
   }
   function totals(){
     const base = state.items.reduce((s,it)=>s + calcItem(it).base, 0);
-    const iva = base * IVA;
+    const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
   function totalsFromItems(items){
     const base = (items || []).reduce((s,it)=>s + calcItem(it).base, 0);
-    const iva = base * IVA;
+    const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
   function footerTotalsForPage(pageNumber, forExport){
@@ -1782,7 +1848,7 @@ body.editing-field .return-app-btn{
     let previousBase = 0;
     for(let i=0;i<currentIndex;i++) previousBase += totalsFromItems(getPageItems(i, !!forExport)).base;
     const accumulatedBase = previousBase + current.base;
-    const accumulatedIva = accumulatedBase * IVA;
+    const accumulatedIva = accumulatedBase * ivaRate();
     return {
       multiPage: totalPages > 1 && currentIndex > 0,
       currentBase: current.base,
@@ -2025,7 +2091,7 @@ body.editing-field .return-app-btn{
     try{
       const payload = {
         app: 'Documentos Rey',
-        version: state && state.version ? state.version : 'v2.85.71',
+        version: state && state.version ? state.version : 'v2.86.03',
         timestamp: new Date().toISOString(),
         current: state,
         saved: await loadSavedList()
@@ -2108,12 +2174,27 @@ body.editing-field .return-app-btn{
     };
   }
 
+
+  function applyVisualTheme(){
+    try{
+      document.body.classList.remove('theme-doc-dark','theme-doc-beige','theme-doc-gray','font-doc-small','font-doc-large');
+      const mode = localStorage.getItem('documentos_rey_visual_theme_mode_v1') || 'light';
+      const font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
+      if(mode === 'dark') document.body.classList.add('theme-doc-dark');
+      if(mode === 'beige') document.body.classList.add('theme-doc-beige');
+      if(mode === 'gray') document.body.classList.add('theme-doc-gray');
+      if(font === 'small') document.body.classList.add('font-doc-small');
+      if(font === 'large') document.body.classList.add('font-doc-large');
+    }catch(e){}
+  }
+
   function defaultState(){
     return {
       version:'v2.86.03',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
+      ivaEnabled:true,
       estado:'creado',
       tipoPresupuesto:'visual',
       simpleExtraPages: 1,
@@ -2238,7 +2319,7 @@ COLOCACIÓN INCLUIDA` }
 
   function applyConceptTemplate(mode){
     const select = $('conceptTemplateSelect');
-    // v2.85.71: mismo selector en documentos con imágenes y sin imágenes.
+    // v2.86.03: mismo selector en documentos con imágenes y sin imágenes.
     const textarea = $('editConceptText') || $('editSimpleText');
     if(!select || !textarea) return;
     const idx = Number(select.value);
@@ -2531,6 +2612,7 @@ COLOCACIÓN INCLUIDA` }
     merged.items = ensureConceptList(raw && raw.items);
     merged.documentId = raw && raw.documentId ? String(raw.documentId) : ('doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
     merged.documentoTipo = (raw && ['presupuesto','factura','albaran'].includes(raw.documentoTipo)) ? raw.documentoTipo : 'presupuesto';
+    merged.ivaEnabled = raw && raw.ivaEnabled === false ? false : true;
     merged.tipoPresupuesto = (raw && raw.tipoPresupuesto === 'sencillo') ? 'sencillo' : 'visual';
     merged.simpleExtraPages = Math.max(1, Number(raw && raw.simpleExtraPages || 1));
     merged.textoLegal = String(raw && raw.textoLegal != null ? raw.textoLegal : base.textoLegal);
@@ -2630,7 +2712,7 @@ COLOCACIÓN INCLUIDA` }
     return {
       bridgeId: 'pv_' + Date.now(),
       facturacionId: String(state.facturacionId || '').trim(),
-      sourceApp: 'documentos_rey_v2.85.71',
+      sourceApp: 'documentos_rey_v2.86.03',
       numero: String(state.numero || '').trim(),
       fecha: String(state.fecha || ''),
       venc: String(state.validez || ''),
@@ -2741,7 +2823,7 @@ COLOCACIÓN INCLUIDA` }
   }
 
   async function saveNamed(){
-    // 1) Guardar SIEMPRE primero en la lista propia del presupuesto (base robusta v2.85.71)
+    // 1) Guardar SIEMPRE primero en la lista propia del presupuesto (base robusta v2.86.03)
     const payload = clone(state);
     const list = await loadSavedList();
     payload.documentId = payload.documentId || ('doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
@@ -2762,7 +2844,7 @@ COLOCACIÓN INCLUIDA` }
 
     payload.facturacionId = state.facturacionId || '';
     if(idx >= 0) list[idx] = payload; else list.unshift(payload);
-    saveStoredBankInfo(); // v2.85.71 bank before save
+    saveStoredBankInfo(); // v2.86.03 bank before save
     const okList = await storageSetJSON(SAVE_LIST_KEY, list.slice(0,50));
     const okCurrent = await persistCurrent();
 
@@ -2865,48 +2947,8 @@ COLOCACIÓN INCLUIDA` }
     a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 800);
   }
-  function sanitizeFilenamePart(v){
-    return String(v == null ? '' : v)
-      .trim()
-      .replace(/[\\/:*?"<>|]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function firstClientNameForFilename(){
-    const raw = sanitizeFilenamePart(
-      state.clienteNombre ||
-      state.cliente ||
-      state.nombreCliente ||
-      state.clientName ||
-      ''
-    );
-
-    if(!raw) return '';
-
-    const lower = raw.toLowerCase();
-    if(lower === 'cliente' || lower === 'sin cliente' || lower === 'ninguno' || lower === 'cliente nuevo'){
-      return '';
-    }
-
-    return raw.split(/\s+/)[0] || '';
-  }
-
-  function documentFileBaseName(){
-    const tipo = getDocumentType();
-    const label = tipo === 'factura' ? 'Factura' : (tipo === 'albaran' ? 'Albaran' : 'Presupuesto');
-    const numero = sanitizeFilenamePart(state.numero || '');
-    const cliente = firstClientNameForFilename();
-
-    let parts = [label];
-    if(numero) parts.push(numero);
-    if(cliente) parts.push(cliente);
-
-    return parts.join('_');
-  }
-
   function safeFilename(){
-    return documentFileBaseName().replace(/[^a-z0-9_\- ]+/gi,'_').replace(/\s+/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'') || 'documento';
+    return String(state.numero || 'presupuesto').replace(/[^a-z0-9_-]+/gi,'_');
   }
 
   function timestampForFilename(){
@@ -3484,27 +3526,19 @@ COLOCACIÓN INCLUIDA` }
     }
 
 
-  function esperarRenderAntesDePNG(){
-    return new Promise(function(resolve){
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          // v2.86.03: iPhone/GitHub necesita un margen corto extra para imágenes/SVG.
-          setTimeout(resolve, 300);
-        });
-      });
-    });
-  }
-
   async function exportPNG(){
     try{
       const exportSvg = svg.cloneNode(false);
       await renderDocument(exportSvg, true);
 
-      // v2.86.03: esperar a que Safari/iOS termine de pintar antes de capturar PNG.
-      // Evita PNG vacío sin meter retardos largos.
-      await esperarRenderAntesDePNG();
+      // v2.86.03 FIX: dar tiempo a cargar imágenes (GitHub/iPhone)
+      await new Promise(resolve => setTimeout(resolve, 400));
 
       const img = await svgToImage(exportSvg);
+
+      // pequeño extra por seguridad en iOS
+      await new Promise(resolve => setTimeout(resolve, 50));
+
       const viewBox = String(exportSvg.getAttribute('viewBox') || ('0 0 ' + PAGE_W + ' ' + PAGE_H)).trim().split(/\s+/).map(Number);
       const svgWidth = viewBox[2] || PAGE_W;
       const svgHeight = viewBox[3] || PAGE_H;
@@ -3517,7 +3551,8 @@ COLOCACIÓN INCLUIDA` }
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL('image/png');
       openPngScreen(dataUrl);
-    }catch(_){
+    }catch(err){
+      console.error(err);
       toast('Error al exportar PNG');
     }
   }
@@ -3786,7 +3821,7 @@ COLOCACIÓN INCLUIDA` }
     addText(root, colBaseUds + (((showDto ? colDto : colBaseTotal)-colBaseUds)/2), y+16, 'BASE UDS', { fs:headFs, fw:'800', anchor:'middle', fill:s.titleColor || '#111827' });
     if(showDto) addText(root, colDto + ((colBaseTotal-colDto)/2), y+16, 'DESCUENTO', { fs:headFs, fw:'800', anchor:'middle', fill:s.titleColor || '#111827' });
     addText(root, colBaseTotal + ((colIvaPct-colBaseTotal)/2), y+16, 'BASE TOTAL', { fs:headFs, fw:'800', anchor:'middle', fill:s.titleColor || '#111827' });
-    addText(root, colIvaPct + ((colIva-colIvaPct)/2), y+16, 'IVA 21%', { fs:headFs, fw:'800', anchor:'middle', fill:s.titleColor || '#111827' });
+    if(ivaEnabled()) addText(root, colIvaPct + ((colIva-colIvaPct)/2), y+16, 'IVA 21%', { fs:headFs, fw:'800', anchor:'middle', fill:s.titleColor || '#111827' });
     addText(root, x+w-8, y+16, 'IVA', { fs:headFs, fw:'800', anchor:'end', fill:s.titleColor || '#111827' });
 
     let cy = y + headerH;
@@ -3815,8 +3850,8 @@ COLOCACIÓN INCLUIDA` }
         addText(root, (showDto ? colDto : colBaseTotal)-6, cy+14, price ? money(price) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
         if(showDto) addText(root, colBaseTotal-6, cy+14, dto ? (dto + '%') : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
         addText(root, colIvaPct-6, cy+14, calc.base ? money(calc.base) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
-        addText(root, colIvaPct + ((colIva-colIvaPct)/2), cy+14, '21%', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
-        addText(root, x+w-8, cy+14, calc.iva ? money(calc.iva) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
+        if(ivaEnabled()) addText(root, colIvaPct + ((colIva-colIvaPct)/2), cy+14, '21%', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
+        if(ivaEnabled()) addText(root, x+w-8, cy+14, calc.iva ? money(calc.iva) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
       }
 
       if(!forExport) hit(root, x, cy, w, rowH, () => openEdit('simpleLine', isEmpty ? 'Nueva línea' : ('Línea ' + (globalIndex+1)), globalIndex), isEmpty ? 'Añadir línea' : ('Editar línea ' + (globalIndex+1)));
@@ -4129,11 +4164,10 @@ COLOCACIÓN INCLUIDA` }
     const itemDiscount = Math.max(0, Math.min(100, Number(item.discount || item.dto || 0)));
     const showDiscountColumn = itemDiscount > 0.0001;
 
-    // v2.86.03: tabla con descuento más compacta y equilibrada
-    const subW = showDiscountColumn ? 276 : 248;
+    const subW = showDiscountColumn ? 312 : 248;
     const subCol1 = showDiscountColumn ? 44 : 48;   // Uds
-    const subCol2 = showDiscountColumn ? 92 : 96;   // Precio
-    const subCol3 = showDiscountColumn ? 54 : (subW - subCol1 - subCol2); // Descuento o Importe
+    const subCol2 = showDiscountColumn ? 82 : 96;   // Precio
+    const subCol3 = showDiscountColumn ? 60 : (subW - subCol1 - subCol2); // Descuento o Importe
     const subCol4 = showDiscountColumn ? (subW - subCol1 - subCol2 - subCol3) : 0; // Importe
     const subX = x + w - subW;
 
@@ -4254,7 +4288,7 @@ COLOCACIÓN INCLUIDA` }
   }
 
   async function importarEmpresaDesdeFacturacionSiVacia(){
-    // v2.85.71: la empresa de Facturación manda siempre.
+    // v2.86.03: la empresa de Facturación manda siempre.
     const ok = sincronizarEmpresaDesdeFacturacion();
     if(ok) await persistCurrent();
     return ok;
@@ -4381,7 +4415,7 @@ COLOCACIÓN INCLUIDA` }
     const totalH = 76;
     add(root, 'rect', { x:totalX, y:totalY, width:totalW, height:totalH, fill:'#fff', stroke:s.lineColor, 'stroke-width':s.lineWidth });
     addText(root, totalX+totalW-8, totalY+22, 'Total Base Imponible:   ' + money(baseValue), { fs:11.5, fw:'700', anchor:'end', fill:s.textColor });
-    addText(root, totalX+totalW-8, totalY+42, 'Total IVA:   ' + money(ivaValue), { fs:11.5, fw:'700', anchor:'end', fill:s.textColor });
+    if(ivaEnabled()) addText(root, totalX+totalW-8, totalY+42, 'Total IVA:   ' + money(ivaValue), { fs:11.5, fw:'700', anchor:'end', fill:s.textColor });
     addText(root, totalX+totalW-8, totalY+64, 'TOTAL:   ' + money(totalValue), { fs:13.5, fw:'800', anchor:'end', fill:s.titleColor });
 
     // Forma de pago abajo izquierda. En FACTURA se muestra siempre por defecto.
@@ -4451,12 +4485,12 @@ COLOCACIÓN INCLUIDA` }
       addText(root, v2-6, y+39, money(t.base), { fs:fsBody, anchor:'end' });
     }
 
-    addText(root, v2 + c3/2, y+16, 'TIPO IMPUESTO', { fs:fsHeader, anchor:'middle' });
-    addText(root, v3 + c4/2, y+16, 'IMPUESTO', { fs:fsHeader, anchor:'middle' });
+    addText(root, v2 + c3/2, y+16, ivaEnabled() ? 'TIPO IMPUESTO' : '', { fs:fsHeader, anchor:'middle' });
+    addText(root, v3 + c4/2, y+16, ivaEnabled() ? 'IMPUESTO' : '', { fs:fsHeader, anchor:'middle' });
 
     addText(root, x+8, y+39, fmtDate(state.validez), { fs:Math.max(8, Math.min(14, Number(numStyle('dateSize')) || 0)), fw:'700' });
-    addText(root, v3-6, y+39, 'IVA 21%', { fs:fsBody, anchor:'end' });
-    addText(root, x+w-8, y+39, money(ft.multiPage ? ft.accumulatedIva : t.iva), { fs:fsBody, anchor:'end' });
+    if(ivaEnabled()) addText(root, v3-6, y+39, 'IVA 21%', { fs:fsBody, anchor:'end' });
+    if(ivaEnabled()) addText(root, x+w-8, y+39, money(ft.multiPage ? ft.accumulatedIva : t.iva), { fs:fsBody, anchor:'end' });
 
     const legalWidth = Math.max(120, v2 - x - 20);
     const legalFs = Number(numStyle('legalTextSize')) || fsSmall;
@@ -4482,14 +4516,14 @@ COLOCACIÓN INCLUIDA` }
     if(ft.multiPage){
       addText(root, v3+12, splitY+15, 'Base acumulada', { fs:fsBody });
       addText(root, rightX, splitY+20, money(ft.accumulatedBase), { fs:fsBody, anchor:'end' });
-      addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
-      addText(root, rightX, splitY+38, money(ft.accumulatedIva), { fs:fsBody, anchor:'end' });
+      if(ivaEnabled()) addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
+      if(ivaEnabled()) addText(root, rightX, splitY+38, money(ft.accumulatedIva), { fs:fsBody, anchor:'end' });
       addText(root, rightX, splitY+72, 'TOTAL ' + money(ft.accumulatedTotal), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     } else {
       addText(root, v3+12, splitY+20, 'Base imponible', { fs:fsBody });
       addText(root, rightX, splitY+20, money(t.base), { fs:fsBody, anchor:'end' });
-      addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
-      addText(root, rightX, splitY+38, money(t.iva), { fs:fsBody, anchor:'end' });
+      if(ivaEnabled()) addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
+      if(ivaEnabled()) addText(root, rightX, splitY+38, money(t.iva), { fs:fsBody, anchor:'end' });
       addText(root, rightX, splitY+72, 'TOTAL ' + money(t.total), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     }
 
@@ -4628,6 +4662,49 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-light" id="sheetLogoBtn">Cambiar logo</button>
         </div>`;
       $('sheetLogoBtn').onclick = () => $('fileLogo').click();
+
+    } else if(type === 'themeConfig'){
+      body.innerHTML = `
+        <label>Tema</label>
+        <select id="themeMode">
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+          <option value="beige">Beige</option>
+          <option value="gray">Gris</option>
+        </select>
+        <label>Tamaño texto</label>
+        <select id="themeFont">
+          <option value="normal">Normal</option>
+          <option value="small">Pequeño</option>
+          <option value="large">Grande</option>
+        </select>
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-primary" id="themeSaveBtn">Guardar</button>
+          <button type="button" class="btn btn-light" id="themeResetBtn">Restaurar</button>
+        </div>`;
+      try{
+        $('themeMode').value = localStorage.getItem('documentos_rey_visual_theme_mode_v1') || 'light';
+        $('themeFont').value = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
+      }catch(e){}
+      $('themeSaveBtn').onclick = function(){
+        try{
+          localStorage.setItem('documentos_rey_visual_theme_mode_v1', $('themeMode').value);
+          localStorage.setItem('documentos_rey_visual_theme_font_v1', $('themeFont').value);
+        }catch(e){}
+        applyVisualTheme();
+        toast('Configuración guardada');
+        closeSheet();
+      };
+      $('themeResetBtn').onclick = function(){
+        try{
+          localStorage.removeItem('documentos_rey_visual_theme_mode_v1');
+          localStorage.removeItem('documentos_rey_visual_theme_font_v1');
+        }catch(e){}
+        applyVisualTheme();
+        toast('Tema restaurado');
+        closeSheet();
+      };
+
     } else if(type === 'client'){
       body.innerHTML = `
         <label>Nombre</label><input id="editClienteNombre" value="${esc(state.clienteNombre)}">
@@ -5461,6 +5538,12 @@ COLOCACIÓN INCLUIDA` }
     await loadProducts();
     openEdit('catalog', 'Catálogo compartido');
   }, false);
+  $('btnThemeConfig').addEventListener('click', function(){
+    hideReturnAppButton();
+    closeSettings();
+    openEdit('themeConfig', 'Configuración');
+  }, false);
+
   $('btnStyle').addEventListener('click', function(){
     hideReturnAppButton();
     closeSettings();
@@ -5843,7 +5926,7 @@ $('btnExport').addEventListener('click', async function(){
       .map(function(item, originalIndex){ return { item, originalIndex }; })
       .filter(function(x){ return (x.item.documentoTipo || 'presupuesto') === tipo; });
 
-    // v2.85.71: aunque no existan documentos de este tipo,
+    // v2.86.03: aunque no existan documentos de este tipo,
     // abrimos igualmente la pantalla para poder crear el primero.
 
     function renderFilteredList(){
@@ -6037,7 +6120,7 @@ $('btnExport').addEventListener('click', async function(){
     $('sheetCancel').onclick = closeSheet;
 
     $('btnCreateDocFromList').onclick = function(){
-      // v2.85.71: crear directamente desde la lista del tipo elegido.
+      // v2.86.03: crear directamente desde la lista del tipo elegido.
       // Si es presupuesto preguntamos si lleva imágenes; factura y albarán usan el formato completo por defecto.
       if(tipo === 'presupuesto'){
         openBudgetTypeChooser();
@@ -6119,10 +6202,10 @@ $('btnExport').addEventListener('click', async function(){
 
   (async function init(){
     state = await loadState();
-    await importarEmpresaDesdeFacturacionSiVacia(); // v2.85.71 empresa facturación manda    if(!state.accountLine2 && !state.accountLine3){ const bankInfo = getStoredBankInfo(); state.accountLine2 = String(bankInfo.accountLine2 || ''); state.accountLine3 = String(bankInfo.accountLine3 || ''); } if(state.accountLine2 || state.accountLine3) saveStoredBankInfo(); // v2.85.71 bank init
+    await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.03 empresa facturación manda    if(!state.accountLine2 && !state.accountLine3){ const bankInfo = getStoredBankInfo(); state.accountLine2 = String(bankInfo.accountLine2 || ''); state.accountLine3 = String(bankInfo.accountLine3 || ''); } if(state.accountLine2 || state.accountLine3) saveStoredBankInfo(); // v2.86.03 bank init
 
     await applyFacturacionBridge();
-    await importarEmpresaDesdeFacturacionSiVacia(); // v2.85.71 tras bridge
+    await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.03 tras bridge
     await applyReturnedDesignImage();
     await tryLoadDefaultLogo();
     await loadConceptTemplates();
@@ -6140,7 +6223,57 @@ $('btnExport').addEventListener('click', async function(){
     render();
     updateDocumentStatusBadge();
     handleStartFromFacturacion();
-  })();
+  
+  /* v2.86.03 - IVA conectado al motor principal */
+  function updateDocIvaButton(){
+    try{
+      const btn = $('btnPageIva');
+      if(!btn) return;
+      const enabled = ivaEnabled();
+      btn.textContent = enabled ? 'IVA ON' : 'IVA OFF';
+      btn.classList.toggle('iva-off', !enabled);
+    }catch(e){}
+  }
+
+  window.__docToggleIva = function(){
+    try{
+      state.ivaEnabled = !ivaEnabled();
+      render();
+      try{ persistCurrent(); }catch(e){}
+      updateDocIvaButton();
+      try{ toast(state.ivaEnabled === false ? 'Documento sin IVA' : 'Documento con IVA'); }catch(e){}
+    }catch(e){
+      try{ toast('No se pudo cambiar IVA'); }catch(_){}
+      try{ console.error(e); }catch(_){}
+    }
+    return false;
+  };
+
+  try{
+    const __renderOriginalIva = render;
+    render = async function(){
+      const r = await __renderOriginalIva.apply(this, arguments);
+      updateDocIvaButton();
+      return r;
+    };
+  }catch(e){}
+
+  try{
+    const ivaBtn = $('btnPageIva');
+    if(ivaBtn){
+      ivaBtn.addEventListener('click', function(ev){
+        try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+        window.__docToggleIva();
+      }, {passive:false});
+      ivaBtn.addEventListener('touchend', function(ev){
+        try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+        window.__docToggleIva();
+      }, {passive:false});
+    }
+    setTimeout(updateDocIvaButton, 250);
+  }catch(e){}
+
+})();
 })();
 
 // === conexión v2.82 ===
@@ -6154,7 +6287,7 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 
-// === ajuste botón volver único v2.85.71 ===
+// === ajuste botón volver único v2.86.03 ===
 document.addEventListener("DOMContentLoaded", function(){
   var btnBottom = document.getElementById("btnReturnApp");
   if(btnBottom){
@@ -6169,7 +6302,7 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 
 
-// === v2.85.71 estable: solo rutas y volver ===
+// === v2.86.03 estable: solo rutas y volver ===
 document.addEventListener('DOMContentLoaded', function(){
   var btnBottom = document.getElementById('btnReturnApp');
   if(btnBottom){
