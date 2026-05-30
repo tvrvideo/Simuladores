@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Ventanas Rey - Factura Pro v25.7.62</title>
+  <title>Ventanas Rey - Factura Pro v25.7.71</title>
   <style>
     :root {
       --catalogo-bg:#eaf2ff;
@@ -516,7 +516,7 @@
 .list-card.docrey-card .list-left{ flex:1 1 auto; }
 
 
-/* v25.7.62: versión visible junto a Resumen */
+/* v25.7.71: versión visible junto a Resumen */
 .header-version-badge{
   display:inline-flex;
   align-items:center;
@@ -543,7 +543,7 @@
 
 
 
-/* v25.7.62: tirador visible para menú lateral */
+/* v25.7.71: tirador visible para menú lateral */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -591,7 +591,7 @@
 @media print{#swipeOpenZone{display:none!important;}}
 
 
-/* v25.7.62: tirador más fino y bajo */
+/* v25.7.71: tirador más fino y bajo */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -616,7 +616,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.62: tirador más bajo y más fino */
+/* v25.7.71: tirador más bajo y más fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -641,7 +641,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.62: tirador en zona blanca, más largo y fino */
+/* v25.7.71: tirador en zona blanca, más largo y fino */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -666,7 +666,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.62: tirador más abajo y más corto */
+/* v25.7.71: tirador más abajo y más corto */
 #swipeOpenZone{
   position:fixed;
   left:0;
@@ -691,7 +691,7 @@
 .drawer.open ~ #swipeOpenZone{display:none;}
 
 
-/* v25.7.62: zona táctil invisible ampliada; el tirador visible queda intacto */
+/* v25.7.71: zona táctil invisible ampliada; el tirador visible queda intacto */
 #swipeTouchZone{
   position:fixed;
   left:0;
@@ -712,7 +712,7 @@
 }
 
 
-/* v25.7.62: tarjetas resumen táctiles */
+/* v25.7.71: tarjetas resumen táctiles */
 .summary-clickable{
   cursor:pointer;
   user-select:none;
@@ -723,7 +723,7 @@
 }
 
 
-/* v25.7.62 - Panel Gastos estilo Documentos Rey */
+/* v25.7.71 - Panel Gastos estilo Documentos Rey */
 #gastoActionsOverlay .form-card,
 #gastoOverlay .form-card{
   background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
@@ -804,7 +804,7 @@
 }
 
 
-/* v25.7.62 - Gastos con estilo Documentos Rey real */
+/* v25.7.71 - Gastos con estilo Documentos Rey real */
 #accionesGastoOverlay .form-card,
 #gastoOverlay .form-card{
   background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
@@ -903,7 +903,7 @@
 }
 
 
-/* v25.7.62 - Gastos: 3 botones en una línea + campo concepto */
+/* v25.7.71 - Gastos: 3 botones en una línea + campo concepto */
 #gastoOverlay .gasto-action-grid,
 #gastoOverlay .gasto-action-grid.single,
 #accionesGastoOverlay .gasto-action-grid,
@@ -942,7 +942,7 @@
 }
 
 
-/* v25.7.62 - Menú lateral rehecho: simple, sin overlay táctil ni swipe */
+/* v25.7.71 - Menú lateral rehecho: simple, sin overlay táctil ni swipe */
 .drawer{
   z-index:10000 !important;
   pointer-events:auto !important;
@@ -989,7 +989,7 @@
 }
 
 
-/* v25.7.62 - Tirador lateral seguro, sin desplazar pantalla */
+/* v25.7.71 - Tirador lateral seguro, sin desplazar pantalla */
 #swipeOpenZone{
   display:flex !important;
   position:fixed !important;
@@ -1032,12 +1032,82 @@
   pointer-events:none !important;
 }
 
+
+/* v25.7.71 - Ajustes finales seguros: fecha/stock + cerrar menú tocando fuera */
+#productoOverlay .row-params[style*="grid-template-columns:1fr 1fr"]{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  gap:14px !important;
+}
+#productoOverlay .row-params[style*="grid-template-columns:1fr 1fr"] .input-group{ min-width:0 !important; }
+#productoOverlay input{ min-width:0 !important; box-sizing:border-box !important; }
+#pro_fecha{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  font-size:16px !important;
+  padding-left:12px !important;
+  padding-right:8px !important;
+  overflow:hidden !important;
+}
+.drawer-overlay.drawer-overlay-active{
+  display:block !important;
+  pointer-events:auto !important;
+  position:fixed !important;
+  left:0 !important; top:0 !important; right:0 !important; bottom:0 !important;
+  width:100% !important; height:100% !important;
+  background:rgba(0,0,0,.35) !important;
+  z-index:9999 !important;
+}
+.drawer{ z-index:10000 !important; }
+
+
+/* v25.7.71 - Fecha/Stock catálogo sin solape */
+.catalogo-date-stock-fix{
+  display:grid !important;
+  grid-template-columns: 42% 58% !important;
+  column-gap:14px !important;
+  align-items:end !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+.catalogo-date-stock-fix > .input-group{
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+.catalogo-date-stock-fix input{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+}
+.catalogo-date-stock-fix input[type="date"]{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  text-align:left !important;
+  padding-left:12px !important;
+  padding-right:6px !important;
+}
+@media(max-width:430px){
+  .catalogo-date-stock-fix{
+    grid-template-columns:40% 60% !important;
+    column-gap:12px !important;
+  }
+}
+
+
+/* v25.7.71 - Menú lateral: cierre por toque exterior sin bloquear tarjetas */
+.drawer{
+  z-index:10000 !important;
+}
+
 </style>
 
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.62">
+  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.7.71">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
@@ -1062,7 +1132,7 @@
   <div class="drawer-content">
     <div class="drawer-fixed">
       <div class="drawer-item active" onclick="irInicio(); cerrarDrawerSeguro()">
-        <span class="drawer-text">Inicio (Facturación v25.7.62)</span>
+        <span class="drawer-text">Inicio (Facturación v25.7.71)</span>
       </div>
     </div>
     <div class="drawer-scroll">
@@ -1134,7 +1204,7 @@
   
   <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <div class="menu-icon" onclick="toggleDrawer()">⋮</div>
-  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.62</span></div>
+  <div id="headerTitle">Resumen <span class="header-version-badge">v25.7.71</span></div>
   <div class="right-actions">
     <button id="headerActionBtn" class="header-action" type="button" style="display:none">+ Nuevo</button>
     <div class="home-icon" onclick="irInicio(); cerrarDrawerSeguro()" title="Inicio">🏠</div>
@@ -1312,7 +1382,7 @@
       <button class="mini-btn" onclick="abrirNuevoProducto()">+ Añadir</button>
     </div>
     <div class="search-bar" style="margin: 8px 0;">
-      <input id="search_catalogo_q" class="search-input" type="text" inputmode="search" autocomplete="off" autocapitalize="none" placeholder="Buscar por producto, precio, stock…">
+      <input id="search_catalogo_q" class="search-input" type="text" inputmode="search" autocomplete="off" autocapitalize="none" placeholder="Buscar por producto, referencia, proveedor, fecha, precio, stock…">
       <button id="search_catalogo_btn" class="mini-btn secondary" type="button">Buscar</button>
     </div>
     <div class="search-results">
@@ -1502,10 +1572,18 @@
   <div class="form-card">
     <h3 style="margin:0; color:#2c3e50;">Producto</h3>
     <div class="input-group"><label>Nombre</label><input type="text" id="pro_nombre"></div>
+    <div class="row-params" style="grid-template-columns:1fr 1fr;">
+      <div class="input-group"><label>Referencia</label><input type="text" id="pro_referencia" autocomplete="off" placeholder="Ref. proveedor"></div>
+      <div class="input-group"><label>Proveedor</label><input type="text" id="pro_proveedor" autocomplete="off" placeholder="Proveedor"></div>
+    </div>
+    <div class="row-params" style="grid-template-columns:1fr 1fr;">
+      <div class="input-group"><label>Fecha</label><input type="date" id="pro_fecha" autocomplete="off"></div>
+      <div class="input-group"><label>Stock</label><input type="number" id="pro_stock" step="1" inputmode="numeric" onfocus="proClearZeroOnFocus(this)" onblur="proZeroIfEmpty(this)"></div>
+    </div>
     <div class="row-params">
-      <div class="input-group"><label>Precio (€)</label><input type="number" id="pro_precio" step="0.01"></div>
-      <div class="input-group"><label>Stock</label><input type="number" id="pro_stock" step="1"></div>
-      <div class="input-group"><label>Precio compra (€)</label><input type="number" id="pro_precio_compra" step="0.01" placeholder="Solo interno"></div>
+      <div class="input-group"><label>Precio venta (€)</label><input type="number" id="pro_precio" step="0.01" inputmode="decimal" onfocus="proClearZeroOnFocus(this)" onblur="proZeroIfEmpty(this)" oninput="proPrecioVentaChanged()"></div>
+      <div class="input-group"><label>Ganancia (%)</label><input type="number" id="pro_ganancia" step="0.01" inputmode="decimal" value="100" onfocus="proClearZeroOnFocus(this)" onblur="proDefaultGananciaIfEmpty(this)" oninput="proGananciaChanged()"></div>
+      <div class="input-group"><label>Precio compra (€)</label><input type="number" id="pro_precio_compra" step="0.01" inputmode="decimal" placeholder="Coste" onfocus="proClearZeroOnFocus(this)" onblur="proZeroIfEmpty(this)" oninput="proPrecioCompraChanged()"></div>
     </div>
     
     <div class="input-group">
@@ -3157,7 +3235,7 @@ function setDocType(type){
 
     var headerTitleEl = document.getElementById('headerTitle');
     if(titulo === 'Resumen'){
-      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.62</span>';
+      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.7.71</span>';
     }else{
       headerTitleEl.textContent = titulo;
     }
@@ -3511,17 +3589,116 @@ function marcarAlbaranCreado(){
   function guardarCliente() { const nombre = document.getElementById('cli_nombre').value.trim(); if (!nombre) { alert('Pon un nombre de cliente.'); return; } const clients = JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]'); /*DUPLICADOS*/const nifNorm=(document.getElementById('cli_nif').value||'').trim().toUpperCase();const nombreNorm=nombre.trim().toUpperCase();const dirNorm=(document.getElementById('cli_dir').value||'').trim().toUpperCase();if(nifNorm){const dupNif=clients.find((c,idx)=>idx!==clienteEditIndex&&((c.nif||'').trim().toUpperCase()===nifNorm));if(dupNif){alert('! Ya existe un cliente con ese NIF.');return;}}if(nombreNorm&&dirNorm){const dupND=clients.find((c,idx)=>idx!==clienteEditIndex&&((c.nombre||'').trim().toUpperCase()===nombreNorm)&&((c.direccion||'').trim().toUpperCase()===dirNorm));if(dupND){alert('! Ya existe un cliente con ese nombre y dirección.');return;}}const nuevo = { id: clienteEditId || uid(), nombre, nif: document.getElementById('cli_nif').value.trim(), direccion: document.getElementById('cli_dir').value.trim(), localidad: document.getElementById('cli_localidad').value.trim(), provincia: document.getElementById('cli_prov').value.trim(), telefono: document.getElementById('cli_tel').value.trim() }; if (clienteEditIndex === null || clienteEditIndex === undefined) { clients.push(nuevo); } else { nuevo.id = (clients[clienteEditIndex] && clients[clienteEditIndex].id) || nuevo.id; clients[clienteEditIndex] = nuevo; } localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients)); cerrarCliente(); renderClientes(); refreshSearch('clientes'); }
   function eliminarClienteActual() { if (!clienteEditId) return; const clients = JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]'); const idx = clients.findIndex(c => String(c.id) === String(clienteEditId)); if (idx < 0) return; if (idx === 0) { alert('No puedes eliminar el cliente por defecto.'); return; } abrirConfirmacion('¿Eliminar este cliente?', () => { clients.splice(idx, 1); localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients)); cerrarCliente(); renderClientes(); refreshSearch('clientes'); }); }
 
+  function proNum(v){
+    v = String(v == null ? '' : v).replace(',', '.').trim();
+    const n = parseFloat(v);
+    return isFinite(n) ? n : 0;
+  }
+  function proRound2(n){
+    n = Number(n || 0);
+    return Math.round(n * 100) / 100;
+  }
+  function proToday(){
+    try{ return new Date().toISOString().slice(0,10); }catch(e){ return ''; }
+  }
+  function proDateToInput(value){
+    const s = String(value || '').trim();
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m) return s;
+    m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m) return m[3] + '-' + String(m[2]).padStart(2,'0') + '-' + String(m[1]).padStart(2,'0');
+    return s;
+  }
+  function proDateToDisplay(value){
+    const s = String(value || '').trim();
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m) return m[3] + '/' + m[2] + '/' + m[1];
+    m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m) return String(m[1]).padStart(2,'0') + '/' + String(m[2]).padStart(2,'0') + '/' + m[3];
+    return s;
+  }
+  function proDateToStorage(value){
+    return proDateToInput(value);
+  }
+  function proClearZeroOnFocus(el){
+    try{
+      const v = String(el && el.value != null ? el.value : '').trim();
+      if(v === '0' || v === '0.0' || v === '0.00') el.value = '';
+    }catch(e){}
+  }
+  function proZeroIfEmpty(el){
+    try{ if(el && String(el.value || '').trim() === '') el.value = '0'; }catch(e){}
+  }
+  function proDefaultGananciaIfEmpty(el){
+    try{ if(el && String(el.value || '').trim() === '') el.value = '100'; }catch(e){}
+  }
+  function proGet(id){ return document.getElementById(id); }
+  function proSetValue(id, value){ const el = proGet(id); if(el) el.value = value; }
+  function proGetValue(id){ const el = proGet(id); return el ? el.value : ''; }
+  function proFormatNumberInput(n){
+    n = proRound2(n);
+    return String(n).replace('.', '.');
+  }
+  function proCalcVentaDesdeCompraGanancia(){
+    const compra = proNum(proGetValue('pro_precio_compra'));
+    const ganancia = proNum(proGetValue('pro_ganancia'));
+    const venta = proRound2(compra * (1 + (ganancia / 100)));
+    proSetValue('pro_precio', proFormatNumberInput(venta));
+  }
+  function proCalcGananciaDesdeVenta(){
+    const compra = proNum(proGetValue('pro_precio_compra'));
+    const venta = proNum(proGetValue('pro_precio'));
+    if(compra > 0){
+      const gan = proRound2(((venta / compra) - 1) * 100);
+      proSetValue('pro_ganancia', proFormatNumberInput(gan));
+    }
+  }
+  function proPrecioCompraChanged(){
+    if(!proGetValue('pro_ganancia')) proSetValue('pro_ganancia', '100');
+    proCalcVentaDesdeCompraGanancia();
+  }
+  function proGananciaChanged(){
+    proCalcVentaDesdeCompraGanancia();
+  }
+  function proPrecioVentaChanged(){
+    proCalcGananciaDesdeVenta();
+  }
+  function getProductoReferencia(p){
+    return String((p && (p.referencia || p.ref || p.codigo)) || '').trim();
+  }
+  function getProductoProveedor(p){
+    return String((p && p.proveedor) || '').trim();
+  }
+  function getProductoFecha(p){
+    return String((p && p.fecha) || '').trim();
+  }
+  function getProductoGanancia(p){
+    if(p && p.gananciaPct !== undefined && p.gananciaPct !== null && p.gananciaPct !== '') return proNum(p.gananciaPct);
+    const compra = proNum(p && p.precioCompra);
+    const venta = proNum(p && p.precio);
+    if(compra > 0) return proRound2(((venta / compra) - 1) * 100);
+    return 100;
+  }
+
   function renderCatalogo() {
     const list = document.getElementById('catalogoList');
     const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
-    if (!prods.length) { list.innerHTML = '<div class="empty">No hay productos. Pulsa + para anadir.</div>'; return; }
+    if (!prods.length) { list.innerHTML = '<div class="empty">No hay productos. Pulsa + para añadir.</div>'; return; }
 
-    // Limpiar lista
     while (list.firstChild) list.removeChild(list.firstChild);
 
     prods.forEach((p, idx) => {
       const sub = [];
-      if (p.precio !== undefined) sub.push('Precio: ' + fmt(parseFloat(p.precio) || 0));
+      const ref = getProductoReferencia(p);
+      const proveedor = getProductoProveedor(p);
+      const gan = getProductoGanancia(p);
+      if (ref) sub.push('Ref: ' + ref);
+      if (proveedor) sub.push('Prov: ' + proveedor);
+      const fechaProd = proDateToDisplay(getProductoFecha(p));
+      if (fechaProd) sub.push('Fecha: ' + fechaProd);
+      if (p.precio !== undefined) sub.push('Venta: ' + fmt(parseFloat(p.precio) || 0));
+      if (p.precioCompra !== undefined) sub.push('Compra: ' + fmt(parseFloat(p.precioCompra) || 0));
+      if (gan !== undefined && gan !== null && isFinite(gan)) sub.push('Ganancia: ' + proFormatNumberInput(gan) + '%');
       if (p.stock !== undefined) sub.push('Stock: ' + (parseInt(p.stock, 10) || 0));
 
       const card = document.createElement('div');
@@ -3551,7 +3728,7 @@ function marcarAlbaranCreado(){
 
       const subline = document.createElement('div');
       subline.className = 'list-sub';
-      subline.textContent = (sub.join(' - ') || 'Sin datos');
+      subline.textContent = (sub.join(' · ') || 'Sin datos');
 
       left.appendChild(title);
       left.appendChild(subline);
@@ -3569,10 +3746,97 @@ function marcarAlbaranCreado(){
       list.appendChild(card);
     });
   }
-  function abrirNuevoProducto() { _bindProductoImgInput(); _productoImgThumb=''; _productoImgFull=''; _productoImgPath=''; _productoImgPreviewTemp=''; productoEditId = null; productoEditIndex = null; document.getElementById('pro_nombre').value = ''; document.getElementById('pro_precio').value = 0; document.getElementById('pro_stock').value = 0; document.getElementById('pro_precio_compra').value = 0; document.getElementById('pro_img_name').value = ''; _productoPreviewUpdate(); document.getElementById('btnEliminarProducto').style.display = 'none'; document.getElementById('productoOverlay').style.display = 'flex'; }
-  function editarProducto(index) { const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]'); const p = prods[index]; if (!p) return; productoEditIndex = index; productoEditId = String(p.id || ''); document.getElementById('pro_nombre').value = p.nombre || ''; document.getElementById('pro_precio').value = (p.precio === undefined || p.precio === null) ? 0 : p.precio; document.getElementById('pro_stock').value = (p.stock === undefined || p.stock === null) ? 0 : p.stock; document.getElementById('pro_precio_compra').value = (p.precioCompra === undefined || p.precioCompra === null) ? 0 : p.precioCompra; _bindProductoImgInput(); const _productoImgRaw = p.img || p.imgFull || p.imgThumb || p.imagen || p.foto || p.image || p.imageName || p.imgName || ''; _productoImgPath = normalizeImagePath(_productoImgRaw); _productoImgThumb = sanitizeDataUrl(_productoImgRaw) || ''; _productoImgFull = sanitizeDataUrl(_productoImgRaw) || ''; _productoImgPreviewTemp=''; document.getElementById('pro_img_name').value = _productoImgPath || ''; _productoPreviewUpdate(); document.getElementById('btnEliminarProducto').style.display = (index === 0) ? 'none' : 'block'; document.getElementById('productoOverlay').style.display = 'flex'; }
-  function cerrarProducto() { document.getElementById('productoOverlay').style.display = 'none'; productoEditId = null; productoEditIndex = null; _productoImgThumb=''; _productoImgFull=''; _productoImgPath=''; _productoImgPreviewTemp=''; try{ document.getElementById('pro_img_name').value=''; }catch(e){} _productoPreviewUpdate(); }
-  function guardarProducto() { const nombre = document.getElementById('pro_nombre').value.trim(); if (!nombre) { alert('Pon un nombre de producto.'); return; } const imgName = normalizeImagePath(document.getElementById('pro_img_name').value || _productoImgPath || ''); _productoImgPath = imgName; const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]'); const nuevo = { id: productoEditId || uid(), nombre, precio: parseFloat(document.getElementById('pro_precio').value) || 0, precioCompra: parseFloat(document.getElementById('pro_precio_compra').value) || 0, stock: parseInt(document.getElementById('pro_stock').value || '0', 10) || 0, img: imgName || '' }; if (productoEditIndex === null || productoEditIndex === undefined) { prods.push(nuevo); } else { nuevo.id = (prods[productoEditIndex] && prods[productoEditIndex].id) || nuevo.id; prods[productoEditIndex] = nuevo; } localStorage.setItem(PRODUCTS_KEY, JSON.stringify(prods)); cerrarProducto(); renderCatalogo(); refreshSearch('catalogo'); try{ actualizarHomeStats(); }catch(e){} }
+
+  function abrirNuevoProducto() {
+    _bindProductoImgInput();
+    _productoImgThumb=''; _productoImgFull=''; _productoImgPath=''; _productoImgPreviewTemp='';
+    productoEditId = null; productoEditIndex = null;
+    proSetValue('pro_nombre', '');
+    proSetValue('pro_referencia', '');
+    proSetValue('pro_proveedor', '');
+    proSetValue('pro_fecha', proToday());
+    proSetValue('pro_precio_compra', 0);
+    proSetValue('pro_ganancia', 100);
+    proSetValue('pro_precio', 0);
+    proSetValue('pro_stock', 0);
+    proSetValue('pro_img_name', '');
+    _productoPreviewUpdate();
+    document.getElementById('btnEliminarProducto').style.display = 'none';
+    document.getElementById('productoOverlay').style.display = 'flex';
+  }
+
+  function editarProducto(index) {
+    const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
+    const p = prods[index];
+    if (!p) return;
+    productoEditIndex = index;
+    productoEditId = String(p.id || '');
+    proSetValue('pro_nombre', p.nombre || '');
+    proSetValue('pro_referencia', getProductoReferencia(p));
+    proSetValue('pro_proveedor', getProductoProveedor(p));
+    proSetValue('pro_fecha', proDateToInput(getProductoFecha(p)));
+    proSetValue('pro_precio', (p.precio === undefined || p.precio === null) ? 0 : p.precio);
+    proSetValue('pro_stock', (p.stock === undefined || p.stock === null) ? 0 : p.stock);
+    proSetValue('pro_precio_compra', (p.precioCompra === undefined || p.precioCompra === null) ? 0 : p.precioCompra);
+    proSetValue('pro_ganancia', proFormatNumberInput(getProductoGanancia(p)));
+    _bindProductoImgInput();
+    const _productoImgRaw = p.img || p.imgFull || p.imgThumb || p.imagen || p.foto || p.image || p.imageName || p.imgName || '';
+    _productoImgPath = normalizeImagePath(_productoImgRaw);
+    _productoImgThumb = sanitizeDataUrl(_productoImgRaw) || '';
+    _productoImgFull = sanitizeDataUrl(_productoImgRaw) || '';
+    _productoImgPreviewTemp='';
+    proSetValue('pro_img_name', _productoImgPath || '');
+    _productoPreviewUpdate();
+    document.getElementById('btnEliminarProducto').style.display = (index === 0) ? 'none' : 'block';
+    document.getElementById('productoOverlay').style.display = 'flex';
+  }
+
+  function cerrarProducto() {
+    document.getElementById('productoOverlay').style.display = 'none';
+    productoEditId = null; productoEditIndex = null;
+    _productoImgThumb=''; _productoImgFull=''; _productoImgPath=''; _productoImgPreviewTemp='';
+    try{ proSetValue('pro_img_name',''); }catch(e){}
+    _productoPreviewUpdate();
+  }
+
+  function guardarProducto() {
+    const nombre = proGetValue('pro_nombre').trim();
+    if (!nombre) { alert('Pon un nombre de producto.'); return; }
+    const imgName = normalizeImagePath(proGetValue('pro_img_name') || _productoImgPath || '');
+    _productoImgPath = imgName;
+    const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]');
+    const referencia = proGetValue('pro_referencia').trim();
+    const proveedor = proGetValue('pro_proveedor').trim();
+    const fecha = proDateToStorage(proGetValue('pro_fecha').trim());
+    const precioCompra = proRound2(proNum(proGetValue('pro_precio_compra')));
+    const gananciaPct = proRound2(proNum(proGetValue('pro_ganancia')));
+    const precio = proRound2(proNum(proGetValue('pro_precio')));
+    const nuevo = {
+      id: productoEditId || uid(),
+      nombre,
+      referencia: referencia,
+      ref: referencia,
+      proveedor: proveedor,
+      fecha: fecha,
+      precio: precio,
+      precioCompra: precioCompra,
+      gananciaPct: gananciaPct,
+      stock: parseInt(proGetValue('pro_stock') || '0', 10) || 0,
+      img: imgName || ''
+    };
+    if (productoEditIndex === null || productoEditIndex === undefined) {
+      prods.push(nuevo);
+    } else {
+      nuevo.id = (prods[productoEditIndex] && prods[productoEditIndex].id) || nuevo.id;
+      prods[productoEditIndex] = Object.assign({}, prods[productoEditIndex] || {}, nuevo);
+    }
+    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(prods));
+    cerrarProducto();
+    renderCatalogo();
+    refreshSearch('catalogo');
+    try{ actualizarHomeStats(); }catch(e){}
+  }
+
   function eliminarProductoActual() { if (!productoEditId) return; const prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]'); const idx = prods.findIndex(p => String(p.id) === String(productoEditId)); if (idx < 0) return; if (idx === 0) { alert('No puedes eliminar el producto por defecto.'); return; } abrirConfirmacion('¿Eliminar este producto?', () => { prods.splice(idx, 1); localStorage.setItem(PRODUCTS_KEY, JSON.stringify(prods)); cerrarProducto(); renderCatalogo(); refreshSearch('catalogo'); }); }
 
   
@@ -4081,7 +4345,11 @@ function abrirForm() { document.getElementById('formOverlay').style.display = 'f
           sub.textContent = [nif, locp].filter(Boolean).join(' - ');
         }else{
           const precio = (typeof r.precio === 'number') ? fmt(r.precio) : (r.precio ? String(r.precio) : '');
-          sub.textContent = precio ? ('Precio: ' + precio) : '';
+          const parts = [];
+          const ref = getProductoReferencia(r);
+          if(ref) parts.push('Ref: ' + ref);
+          if(precio) parts.push('Precio: ' + precio);
+          sub.textContent = parts.join(' · ');
         }
 
         left.appendChild(t);
@@ -4720,7 +4988,7 @@ if(numG){
   function actualizarHomeStats() {
     const historial = JSON.parse(localStorage.getItem('rey_history') || '[]');
 
-    // v25.7.62:
+    // v25.7.71:
     // Ingresos contables = BASE IMPONIBLE, no el total factura con IVA.
     // Antes se sumaba totalStr completo y por eso la pantalla inicial subía de más.
     let totalIngresos = 0;
@@ -8396,7 +8664,7 @@ function _applyBackupObject(obj){
   const storage = _getBackupStorageFromObject(obj);
   const normalized = _normalizeBackupStorage(storage);
 
-  // v25.7.62: restauración segura.
+  // v25.7.71: restauración segura.
   // NO se eliminan claves rey_ ni se reemplazan listas completas.
   // Se mezclan arrays y solo se escriben escalares presentes en la copia.
   const arrayKeys = [
@@ -11219,7 +11487,11 @@ async function compartirBackupJSON(){
         onOpen: function(_p, idx){ editarProducto(idx); },
         html: function(p){
           const sub = [];
-          if(p.precio !== undefined) sub.push("Precio: " + fmt(parseFloat(p.precio) || 0));
+          const ref = getProductoReferencia(p);
+          const proveedor = getProductoProveedor(p);
+          if(ref) sub.push("Ref: " + ref);
+          if(proveedor) sub.push("Prov: " + proveedor);
+          if(p.precio !== undefined) sub.push("Venta: " + fmt(parseFloat(p.precio) || 0));
           if(p.stock !== undefined) sub.push("Stock: " + (parseInt(p.stock) || 0));
           const thumbData = getProductImageRef(p);
           const imgHtml = thumbData
@@ -12562,7 +12834,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.62: volver index + abrir menú con deslizamiento real */
+/* v25.7.71: volver index + abrir menú con deslizamiento real */
 (function(){
   'use strict';
 
@@ -12691,7 +12963,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.62: ampliar zona táctil del tirador sin cambiar su diseño */
+/* v25.7.71: ampliar zona táctil del tirador sin cambiar su diseño */
 (function(){
   'use strict';
 
@@ -12744,7 +13016,7 @@ async function compartirBackupJSON(){
 
 
 <script>
-/* v25.7.62 - Volver seguro al index desde iframe/iPhone/GitHub */
+/* v25.7.71 - Volver seguro al index desde iframe/iPhone/GitHub */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
@@ -12768,7 +13040,7 @@ function volverIndexSeguro(){
 
 
 
-<!-- v25.7.62: Resumen contable conectado a Documentos Rey.
+<!-- v25.7.71: Resumen contable conectado a Documentos Rey.
      Ingresos = suma de BASE IMPONIBLE de facturas guardadas en Documentos, no historial antiguo rey_history. -->
 <script>
 (function(){
@@ -12929,7 +13201,7 @@ function volverIndexSeguro(){
     const resultadoFinal = totalIngresos - gastos;
     if(valResultado) valResultado.textContent = vrFmtMoney(resultadoFinal);
 
-    // v25.7.62: esta es la función que manda ahora (con Documentos Rey).
+    // v25.7.71: esta es la función que manda ahora (con Documentos Rey).
     // Por eso el color debe aplicarse aquí, no en el cálculo antiguo.
     const cardResultado = document.querySelector('.card.resultado');
     if(cardResultado){
@@ -12953,7 +13225,7 @@ function volverIndexSeguro(){
   try{ document.addEventListener('visibilitychange', function(){ if(!document.hidden) vrActualizarHomeStatsDocumentos(); }); }catch(_){ }
   try{ setTimeout(vrActualizarHomeStatsDocumentos, 150); }catch(_){ }
 
-  /* v25.7.62 - Gesto lateral seguro integrado dentro del script principal */
+  /* v25.7.71 - Gesto lateral seguro integrado dentro del script principal */
   function instalarSwipeMenuSeguro(){
     const zonas = [
       document.getElementById('swipeOpenZone'),
@@ -13010,5 +13282,121 @@ function volverIndexSeguro(){
 
 })();
 </script>
+
+<script>
+/* v25.7.71 - Aplicar clase a la fila Fecha/Stock del catálogo */
+(function(){
+  function txt(el){
+    return String(el && el.textContent || '').trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  }
+  function applyFix(){
+    try{
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.form-card'));
+      cards.forEach(function(card){
+        var groups = Array.prototype.slice.call(card.querySelectorAll('.input-group'));
+        var fecha = null, stock = null;
+        groups.forEach(function(g){
+          var l = txt(g.querySelector('label'));
+          if(l === 'fecha') fecha = g;
+          if(l === 'stock') stock = g;
+        });
+        if(fecha && stock && fecha.parentElement === stock.parentElement){
+          fecha.parentElement.classList.add('catalogo-date-stock-fix');
+        }
+      });
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    applyFix();
+    setTimeout(applyFix, 200);
+    setTimeout(applyFix, 600);
+  });
+  document.addEventListener('click', function(){ setTimeout(applyFix, 80); }, true);
+  document.addEventListener('focusin', function(){ setTimeout(applyFix, 80); }, true);
+})();
+</script>
+
+
+<script>
+/* v25.7.71 - Cerrar menú lateral tocando fuera, sin impedir pulsar dentro */
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  function isInside(el, target){
+    try{ return !!(el && target && (el === target || el.contains(target))); }
+    catch(e){ return false; }
+  }
+
+  function getMenuButton(target){
+    try{
+      if(target && target.closest){
+        return target.closest('.menu-icon, .drawer-close-btn, #swipeOpenZone, #swipeTouchZone');
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function closeDrawerOnly(){
+    try{
+      var drawer = byId('drawer');
+      var overlay = byId('drawerOverlay');
+      if(drawer) drawer.classList.remove('open');
+      if(overlay) overlay.classList.remove('drawer-overlay-active');
+    }catch(e){}
+  }
+
+  function drawerIsOpen(){
+    var drawer = byId('drawer');
+    return !!(drawer && drawer.classList.contains('open'));
+  }
+
+  function handleOutsidePointer(ev){
+    try{
+      if(!drawerIsOpen()) return;
+
+      var drawer = byId('drawer');
+      var target = ev && ev.target;
+
+      // Dentro del menú se puede pulsar normalmente.
+      if(isInside(drawer, target)) return;
+
+      // El botón de abrir/cerrar menú no debe provocar cierre doble.
+      if(getMenuButton(target)) return;
+
+      closeDrawerOnly();
+    }catch(e){}
+  }
+
+  // Captura temprana: funciona aunque haya elementos encima.
+  document.addEventListener('touchstart', handleOutsidePointer, true);
+  document.addEventListener('mousedown', handleOutsidePointer, true);
+  document.addEventListener('click', handleOutsidePointer, true);
+
+  // Refuerzo: mantener overlay sincronizado si existe, pero sin depender de él.
+  var oldAbrir = window.abrirDrawerSeguro;
+  window.abrirDrawerSeguro = function(){
+    if(typeof oldAbrir === 'function'){
+      try{ oldAbrir.apply(this, arguments); }catch(e){}
+    }else{
+      var d = byId('drawer');
+      if(d) d.classList.add('open');
+    }
+    try{
+      var o = byId('drawerOverlay');
+      if(o) o.classList.add('drawer-overlay-active');
+    }catch(e){}
+  };
+
+  var oldCerrar = window.cerrarDrawerSeguro;
+  window.cerrarDrawerSeguro = function(){
+    closeDrawerOnly();
+    if(typeof oldCerrar === 'function'){
+      try{ return oldCerrar.apply(this, arguments); }catch(e){}
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
