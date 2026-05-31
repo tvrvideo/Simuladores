@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.87.62</title>
+  <title>Documentos Rey v2.87.64</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1734,7 +1734,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.87.62</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.87.64</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -1814,7 +1814,7 @@ body.editing-field .brand-idb-pill{
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-backup" id="btnExportAll">
-      <span>Guardar copia completa<small>Guarda todos los documentos con sus imágenes en un solo archivo.</small></span>
+      <span>Guardar copia general ligera<small>Guarda ajustes, facturas y albaranes. No incluye presupuestos con imágenes.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-backup" id="btnExportPresuRange">
@@ -1825,16 +1825,16 @@ body.editing-field .brand-idb-pill{
       <span>Exportar solo ajustes<small>Guarda diseño, tamaños, empresa, pagos, logos y configuración sin documentos.</small></span>
       <span>›</span>
     </button>
-    <button type="button" class="settings-item menu-restore" id="btnRestoreSettingsOnly">
-      <span>Restaurar solo ajustes<small>Recupera ajustes sin tocar presupuestos, facturas ni albaranes.</small></span>
-      <span>+</span>
-    </button>
     <button type="button" class="settings-item menu-restore" id="btnRestoreAll">
-      <span>Restaurar copia (mezclar)<small>Mezcla la copia con lo actual sin borrar documentos nuevos.</small></span>
+      <span>Restaurar copia<small>Detecta automáticamente ajustes, copia general ligera o presupuestos por rango.</small></span>
       <span>+</span>
     </button>
-    <button type="button" class="settings-item menu-reset" id="btnRestoreAllReplace">
-      <span>Restaurar copia (sustituir)<small>Borra la lista actual y deja exactamente lo que trae la copia.</small></span>
+    <button type="button" class="settings-item menu-restore hidden" id="btnRestoreSettingsOnly" aria-hidden="true">
+      <span>Restaurar solo ajustes<small>Oculto: ahora se usa Restaurar copia.</small></span>
+      <span>+</span>
+    </button>
+    <button type="button" class="settings-item menu-reset hidden" id="btnRestoreAllReplace" aria-hidden="true">
+      <span>Restaurar copia (sustituir)<small>Oculto: ahora se usa Restaurar copia.</small></span>
       <span>↺</span>
     </button>
     <button type="button" class="settings-item menu-logo" id="btnLogo">
@@ -3591,7 +3591,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v2.87.62',
+      version:'v2.87.64',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -4095,7 +4095,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v2.87.62',
+      version:'v2.87.64',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -4149,7 +4149,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v2.87.62',
+      version:'v2.87.64',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -7671,60 +7671,87 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     return Array.from(map.values());
   }
 
+  async function restoreAnyBackupFromParsed(parsed){
+    if(!parsed || typeof parsed !== 'object'){
+      toast('Archivo no válido');
+      return false;
+    }
+
+    const hasSettings = !!normalizeSettingsPayload(parsed);
+    const hasDocuments = Array.isArray(parsed.all) || Array.isArray(parsed.saved) || !!parsed.current;
+
+    if(hasSettings){
+      const cfg = normalizeSettingsPayload(parsed);
+      applySettingsSnapshotToState(state, cfg, { keepDocumentFields:false });
+      await saveSettingsSnapshot(buildSettingsSnapshot());
+      restoreFacturaLogoFromBackupPayload(parsed, false);
+    }
+
+    const currentListBeforeRestore = await loadSavedList();
+
+    // Copia interna de seguridad antes de restaurar cualquier archivo.
+    try{
+      const safety = {
+        app:'Documentos Rey',
+        version:'v2.87.64',
+        timestamp:new Date().toISOString(),
+        backupType:'seguridad_antes_restaurar',
+        current:state,
+        all:currentListBeforeRestore,
+        settings: buildBackupSettingsPayload()
+      };
+      localStorage.setItem('documentos_rey_backup_antes_restore_' + Date.now(), JSON.stringify(safety));
+    }catch(_){ }
+
+    let finalList = currentListBeforeRestore;
+    let importedList = [];
+    if(Array.isArray(parsed.all)) importedList = parsed.all;
+    else if(Array.isArray(parsed.saved)) importedList = parsed.saved;
+
+    if(importedList.length){
+      finalList = mergeDocumentoListas(currentListBeforeRestore, importedList);
+      await storageSetJSON(SAVE_LIST_KEY, finalList);
+    }
+
+    if(parsed.current && typeof parsed.current === 'object'){
+      const normalizedCurrent = normalizeLoadedState(parsed.current);
+      if(normalizedCurrent){
+        const existsBefore = finalList.some(function(d){
+          return mergeDocumentoListas([d], [normalizedCurrent]).length === 1;
+        });
+        if(!existsBefore){
+          finalList.push(normalizedCurrent);
+          await storageSetJSON(SAVE_LIST_KEY, finalList);
+        }
+        state = normalizedCurrent;
+        await persistCurrent();
+      }
+    }else if(hasSettings){
+      await persistCurrent();
+    }
+
+    render();
+
+    const bt = String(parsed.backupType || '').toLowerCase();
+    if(bt.indexOf('presupuestos_rango') >= 0){
+      toast('Presupuestos restaurados: ' + importedList.length);
+    }else if(bt.indexOf('general_ligera') >= 0){
+      toast('Copia general ligera restaurada: ' + importedList.length + ' documentos');
+    }else if(!hasDocuments && hasSettings){
+      toast('Ajustes restaurados');
+    }else{
+      toast('Copia restaurada: ' + (importedList.length || finalList.length) + ' documentos');
+    }
+    return true;
+  }
+
   $('fileImportAll').addEventListener('change', async function(e){
     const file = e.target.files && e.target.files[0];
     if(!file) return;
     try{
       const txt = await file.text();
       const parsed = JSON.parse(txt);
-
-      restoreFacturaLogoFromBackupPayload(parsed, false);
-
-      const currentListBeforeRestore = await loadSavedList();
-
-      // Copia interna de seguridad antes de restaurar
-      try{
-        const safety = {
-          app:'Documentos Rey',
-          version:'v2.87.62',
-          timestamp:new Date().toISOString(),
-          current:state,
-          all:currentListBeforeRestore,
-          settings: buildBackupSettingsPayload()
-        };
-        localStorage.setItem('documentos_rey_backup_antes_restore_' + Date.now(), JSON.stringify(safety));
-      }catch(_){}
-
-      let restoredCount = 0;
-      let finalList = currentListBeforeRestore;
-
-      if(parsed && Array.isArray(parsed.all)){
-        finalList = mergeDocumentoListas(currentListBeforeRestore, parsed.all);
-        await storageSetJSON(SAVE_LIST_KEY, finalList);
-        restoredCount = finalList.length;
-      }
-
-      if(parsed && parsed.current){
-        const normalizedCurrent = normalizeLoadedState(parsed.current);
-        const currentKey = mergeDocumentoListas([], [normalizedCurrent])[0];
-        const alreadyExists = finalList.some(function(d, i){
-          return mergeDocumentoListas([d], [currentKey]).length === 1;
-        });
-
-        // Si el documento actual del backup no existe en la lista, también se añade.
-        if(!alreadyExists && normalizedCurrent){
-          finalList.push(normalizedCurrent);
-          await storageSetJSON(SAVE_LIST_KEY, finalList);
-        }
-
-        // Se carga en pantalla el documento actual del backup, pero la lista queda mezclada.
-        state = normalizedCurrent;
-        restoreFacturaLogoFromBackupPayload(parsed, false);
-        await persistCurrent();
-      }
-
-      render();
-      toast('Copia restaurada y mezclada: ' + (restoredCount || finalList.length) + ' documentos');
+      await restoreAnyBackupFromParsed(parsed);
     }catch(_){
       toast('Archivo no válido');
     }
@@ -7813,7 +7840,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v2.87.62',
+      version: 'v2.87.64',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -7896,7 +7923,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v2.87.62', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v2.87.64', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -7942,21 +7969,31 @@ $('btnExportAll').addEventListener('click', async function(){
     closeSettings();
     try{
       const savedList = await loadSavedList();
+      const nonPresupuestos = (savedList || []).filter(function(doc){
+        return doc && String(doc.documentoTipo || 'presupuesto') !== 'presupuesto';
+      });
+      const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v2.87.62',
+        version: 'v2.87.64',
+        backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
-        current: state,
-        all: savedList,
+        current: currentIsPresupuesto ? null : state,
+        all: nonPresupuestos,
+        excluded: {
+          presupuestos: (savedList || []).length - nonPresupuestos.length,
+          motivo: 'Los presupuestos se exportan por rango para evitar copias grandes con imágenes.'
+        },
         settings: buildBackupSettingsPayload()
       };
-      const filename = 'documentos_rey_backup_total_' + timestampForFilename() + '.json';
+      const filename = 'documentos_rey_copia_general_ligera_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
         try{
           const file = new File([blob], filename, { type:'application/json' });
           if(navigator.canShare({ files:[file] })){
-            await navigator.share({ files:[file], title: filename, text:'Backup completo de presupuestos' });
+            await navigator.share({ files:[file], title: filename, text:'Copia general ligera sin presupuestos' });
+            toast('Copia general ligera exportada');
             return;
           }
         }catch(err){
@@ -7964,9 +8001,9 @@ $('btnExportAll').addEventListener('click', async function(){
         }
       }
       downloadBlob(filename, blob);
-      toast('Backup completo exportado');
+      toast('Copia general ligera exportada');
     }catch(_){
-      toast('Error al exportar backup');
+      toast('Error al exportar copia general');
     }
   }, false);
 
@@ -9060,7 +9097,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 <script>
-/* v2.87.49 - Diagnóstico IndexedDB/localStorage solo lectura */
+/* v2.87.64 - Diagnóstico IndexedDB/localStorage con detalle de documentos */
 (function(){
   function byId(id){ return document.getElementById(id); }
 
@@ -9140,13 +9177,150 @@ document.addEventListener('DOMContentLoaded', function(){
     return '<div class="storage-diag-card '+(cls||'')+'"><strong>'+escHtml(title)+'</strong><span>'+escHtml(value)+'</span><small>'+escHtml(small||'')+'</small></div>';
   }
 
+  function docType(doc){
+    var t = String((doc && (doc.documentoTipo || doc.tipo || doc.type || doc.docType)) || '').toLowerCase();
+    if(t.indexOf('fact') >= 0) return 'factura';
+    if(t.indexOf('alb') >= 0) return 'albaran';
+    return 'presupuesto';
+  }
+
+  function docNumber(doc){
+    var n = (doc && (doc.numero || doc.num || doc.number || doc.documentNumber || doc.codigo)) || '';
+    return String(n || '').trim();
+  }
+
+  function docNumericPart(doc){
+    var n = docNumber(doc);
+    var m = n.match(/(\d{4})(?!.*\d)/);
+    if(m) return m[1];
+    m = n.match(/(\d+)/g);
+    return m && m.length ? String(m[m.length-1]).padStart(4,'0').slice(-4) : '';
+  }
+
+  function docClient(doc){
+    return String((doc && (doc.clienteNombre || doc.cliente || doc.clientName || doc.nombreCliente)) || '').trim();
+  }
+
+  function docDate(doc){
+    return String((doc && (doc.fecha || doc.date || doc.createdAt || doc.updatedAt || doc.timestamp)) || '').trim();
+  }
+
+  function findDataImages(value, out){
+    out = out || [];
+    if(value == null) return out;
+    if(typeof value === 'string'){
+      if(/^data:image\//i.test(value)) out.push(value);
+      return out;
+    }
+    if(Array.isArray(value)){
+      for(var i=0;i<value.length;i++) findDataImages(value[i], out);
+      return out;
+    }
+    if(typeof value === 'object'){
+      Object.keys(value).forEach(function(k){ findDataImages(value[k], out); });
+    }
+    return out;
+  }
+
+  function imageBytesFromDataUrl(s){
+    s = String(s || '');
+    var idx = s.indexOf(',');
+    var b64 = idx >= 0 ? s.slice(idx+1) : s;
+    b64 = b64.replace(/\s+/g,'');
+    if(!b64) return 0;
+    var padding = (b64.endsWith('==') ? 2 : (b64.endsWith('=') ? 1 : 0));
+    return Math.max(0, Math.floor((b64.length * 3) / 4) - padding);
+  }
+
+  function analyzeDocuments(docs){
+    docs = Array.isArray(docs) ? docs : [];
+    var stats = {
+      total: docs.length,
+      byType:{presupuesto:0, factura:0, albaran:0},
+      provisional0000:0,
+      withImages:0,
+      imageCount:0,
+      totalBytes:0,
+      imageBytes:0,
+      topHeavy:[],
+      ranges:[]
+    };
+
+    docs.forEach(function(doc, idx){
+      var type = docType(doc);
+      if(!stats.byType[type]) stats.byType[type] = 0;
+      stats.byType[type]++;
+      var numPart = docNumericPart(doc);
+      if(numPart === '0000') stats.provisional0000++;
+      var bytes = approxBytes(doc);
+      var imgs = findDataImages(doc, []);
+      var imgBytes = imgs.reduce(function(a,img){ return a + imageBytesFromDataUrl(img); }, 0);
+      if(imgs.length) stats.withImages++;
+      stats.imageCount += imgs.length;
+      stats.totalBytes += bytes;
+      stats.imageBytes += imgBytes;
+      stats.topHeavy.push({
+        tipo:type,
+        numero:docNumber(doc) || '(sin número)',
+        numeroFinal:numPart,
+        cliente:docClient(doc),
+        fecha:docDate(doc),
+        imagenes:imgs.length,
+        tamano:formatBytes(bytes),
+        bytes:bytes,
+        id:String((doc && (doc.documentId || doc.id || doc._id)) || idx)
+      });
+    });
+
+    stats.topHeavy.sort(function(a,b){ return b.bytes - a.bytes; });
+    stats.topHeavy = stats.topHeavy.slice(0, 20);
+
+    // Simulación por rangos de numeración de presupuestos, incluyendo todos los 0000 en el primer bloque.
+    var presupuestos = docs.filter(function(d){ return docType(d) === 'presupuesto'; });
+    for(var from=0; from<=300; from+=20){
+      var to = from + 20;
+      var selected = presupuestos.filter(function(d){
+        var part = docNumericPart(d);
+        if(part === '0000') return from === 0;
+        var n = parseInt(part || '0', 10) || 0;
+        return n >= Math.max(1, from) && n <= to;
+      });
+      if(!selected.length && from > 120) break;
+      if(!selected.length) continue;
+      var rb = selected.reduce(function(a,d){ return a + approxBytes(d); }, 0);
+      var ri = 0, ic = 0;
+      selected.forEach(function(d){
+        var imgs = findDataImages(d, []);
+        ic += imgs.length;
+        ri += imgs.reduce(function(a,img){ return a + imageBytesFromDataUrl(img); }, 0);
+      });
+      stats.ranges.push({
+        rango:(from === 0 ? '0000' : String(from).padStart(4,'0')) + '-' + String(to).padStart(4,'0'),
+        documentos:selected.length,
+        imagenes:ic,
+        tamano:formatBytes(rb),
+        imagenesTamano:formatBytes(ri)
+      });
+    }
+    return stats;
+  }
+
+  function topHeavyHtml(items){
+    if(!items || !items.length) return '<div class="storage-diag-card"><strong>Documentos pesados</strong><span>0</span><small>No hay documentos para analizar</small></div>';
+    var rows = items.slice(0,10).map(function(d){
+      var small = [d.tipo, d.cliente, d.fecha, (d.imagenes ? (d.imagenes + ' img') : 'sin imágenes')].filter(Boolean).join(' · ');
+      return '<div class="storage-diag-card '+(d.imagenes ? 'storage-diag-warn' : '')+'"><strong>'+escHtml(d.numero)+'</strong><span>'+escHtml(d.tamano)+'</span><small>'+escHtml(small)+'</small></div>';
+    }).join('');
+    return rows;
+  }
+
   async function runDiagnostic(){
     var grid = byId('storageDiagGrid');
     var raw = byId('storageDiagRaw');
     if(!grid || !raw) return;
 
     grid.innerHTML = card('Estado','Leyendo…','Solo lectura','');
-    raw.textContent = 'Leyendo…';
+    raw.textContent = 'Leyendo documentos e imágenes…';
 
     var keys = {
       current: 'presupuesto_directo_pdf_v2_05_current',
@@ -9168,8 +9342,11 @@ document.addEventListener('DOMContentLoaded', function(){
       return Array.isArray(r.value) ? r.value.length : 0;
     }
 
+    var docs = Array.isArray(list.value) ? list.value : [];
+    var docStats = analyzeDocuments(docs);
+
     var report = {
-      version: 'v2.87.49',
+      version: 'v2.87.64',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
@@ -9185,26 +9362,41 @@ document.addEventListener('DOMContentLoaded', function(){
       conteos: {
         documentoActual: current.value ? 1 : 0,
         documentos: countArray(list),
+        presupuestos: docStats.byType.presupuesto || 0,
+        facturas: docStats.byType.factura || 0,
+        albaranes: docStats.byType.albaran || 0,
+        provisionales0000: docStats.provisional0000,
+        documentosConImagenes: docStats.withImages,
+        imagenesEnDocumentos: docStats.imageCount,
         clientes: countArray(clients),
         catalogo: countArray(products),
         codigosPostales: countArray(postal)
       },
       tamanos: {
-        documentoActual: formatBytes(current.bytes),
-        documentos: formatBytes(list.bytes),
+        documentosLista: formatBytes(list.bytes),
+        documentosCalculado: formatBytes(docStats.totalBytes),
+        imagenesDocumentos: formatBytes(docStats.imageBytes),
         clientes: formatBytes(clients.bytes),
         catalogo: formatBytes(products.bytes),
-        codigosPostales: formatBytes(postal.bytes)
-      }
+        codigosPostales: formatBytes(postal.bytes),
+        documentoActual: formatBytes(current.bytes)
+      },
+      documentosMasPesados: docStats.topHeavy,
+      simulacionRangosPresupuestos: docStats.ranges
     };
 
     grid.innerHTML =
       card('IndexedDB', stores.length ? 'ON' : 'NO', stores.length ? ('Stores: ' + stores.join(', ')) : 'Base no encontrada', stores.length ? 'storage-diag-ok' : 'storage-diag-danger') +
-      card('Documentos', report.conteos.documentos, list.source + ' · ' + report.tamanos.documentos, report.conteos.documentos ? 'storage-diag-ok' : 'storage-diag-warn') +
+      card('Documentos', report.conteos.documentos, list.source + ' · ' + report.tamanos.documentosLista, report.conteos.documentos ? 'storage-diag-ok' : 'storage-diag-warn') +
+      card('Presupuestos', report.conteos.presupuestos, 'Provisionales 0000: ' + report.conteos.provisionales0000, report.conteos.presupuestos ? 'storage-diag-ok' : 'storage-diag-warn') +
+      card('Facturas', report.conteos.facturas, 'Guardadas en documentos compartidos', report.conteos.facturas ? 'storage-diag-ok' : '') +
+      card('Albaranes', report.conteos.albaranes, 'Guardados en documentos compartidos', report.conteos.albaranes ? 'storage-diag-ok' : '') +
+      card('Imágenes docs.', report.conteos.imagenesEnDocumentos, report.conteos.documentosConImagenes + ' documentos con imágenes · ' + report.tamanos.imagenesDocumentos, report.conteos.imagenesEnDocumentos ? 'storage-diag-warn' : 'storage-diag-ok') +
+      card('Peso docs.', report.tamanos.documentosCalculado, 'Suma estimada documento por documento', docStats.totalBytes > 5*1024*1024 ? 'storage-diag-warn' : 'storage-diag-ok') +
       card('Clientes', report.conteos.clientes, clients.source + ' · ' + report.tamanos.clientes, report.conteos.clientes ? 'storage-diag-ok' : 'storage-diag-warn') +
+      card('Catálogo', report.conteos.catalogo, products.source + ' · ' + report.tamanos.catalogo, report.conteos.catalogo ? 'storage-diag-ok' : 'storage-diag-warn') +
       card('Códigos postales', report.conteos.codigosPostales, postal.source + ' · ' + report.tamanos.codigosPostales, report.conteos.codigosPostales ? 'storage-diag-ok' : 'storage-diag-warn') +
-      card('Documento actual', report.conteos.documentoActual ? 'Sí' : 'No', current.source + ' · ' + report.tamanos.documentoActual, report.conteos.documentoActual ? 'storage-diag-ok' : 'storage-diag-warn') +
-      card('Catálogo', report.conteos.catalogo, products.source + ' · ' + report.tamanos.catalogo, report.conteos.catalogo ? 'storage-diag-ok' : 'storage-diag-warn');
+      topHeavyHtml(docStats.topHeavy);
 
     raw.textContent = JSON.stringify(report, null, 2);
   }
