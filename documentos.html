@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.87.64</title>
+  <title>Documentos Rey v2.87.68</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1724,6 +1724,125 @@ body.editing-field .brand-idb-pill{
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
+
+
+<script>
+/* v2.87.68 - Normalizar imagen catálogo compartido (GitHub/img/base64) */
+(function(){
+  if(window.normalizeCatalogImageSrc) return;
+  window.normalizeCatalogImageSrc = function(src){
+    src = String(src || '').trim();
+    if(!src) return '';
+    if(/^data:image\//i.test(src)) return src;
+    if(/^https?:\/\//i.test(src)) return src;
+    if(/^\.?\//.test(src)) return src;
+    if(/^img\//i.test(src)) return src;
+    return 'img/' + src;
+  };
+})();
+</script>
+
+<style>
+/* v2.87.68 - Catálogo estilo Facturación: tarjetas sin botones */
+#sheetContent .catalog-card-media{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  width:100% !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+#sheetContent .catalog-card-compact,
+#sheetContent .catalog-fact-card{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  padding:10px 12px !important;
+  min-height:76px !important;
+  margin:8px 0 !important;
+  border-radius:16px !important;
+  cursor:pointer !important;
+  overflow:hidden !important;
+}
+#sheetContent .catalog-fact-card:active,
+#sheetContent .catalog-card-compact:active{
+  transform:translateY(1px) scale(.99) !important;
+}
+#sheetContent .catalog-fact-card .catalog-card-media,
+#sheetContent .catalog-card-compact .catalog-card-media{
+  margin:0 !important;
+}
+#sheetContent .catalog-fact-card .catalog-thumb,
+#sheetContent .catalog-card-compact .catalog-thumb,
+#settingsSheet .catalog-card-media .catalog-thumb,
+#productImagePreviewWrap .catalog-thumb{
+  width:54px !important;
+  height:54px !important;
+  min-width:54px !important;
+  max-width:54px !important;
+  min-height:54px !important;
+  max-height:54px !important;
+  flex:0 0 54px !important;
+  border-radius:12px !important;
+  padding:4px !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  background:#fff !important;
+  border:1px solid #d6e0ec !important;
+  box-shadow:none !important;
+}
+#sheetContent .catalog-name{
+  font-size:16px !important;
+  line-height:1.18 !important;
+  font-weight:900 !important;
+  color:#0f172a !important;
+  white-space:normal !important;
+  overflow:hidden !important;
+  display:-webkit-box !important;
+  -webkit-line-clamp:2 !important;
+  -webkit-box-orient:vertical !important;
+}
+#sheetContent .catalog-meta{
+  font-size:13px !important;
+  color:#64748b !important;
+  margin-top:4px !important;
+  font-weight:700 !important;
+}
+#sheetContent .catalog-actions{display:none !important;}
+.catalog-product-action-head{
+  display:flex;align-items:center;gap:12px;margin:4px 0 14px;
+}
+.catalog-product-action-head .catalog-thumb{
+  width:64px !important;height:64px !important;min-width:64px !important;max-width:64px !important;
+  object-fit:contain !important;border:1px solid #d6e0ec !important;border-radius:14px !important;background:#fff !important;padding:5px !important;
+}
+.catalog-product-action-title{font-size:19px;font-weight:900;color:#0f172a;line-height:1.15;}
+.catalog-product-action-sub{font-size:14px;font-weight:800;color:#64748b;margin-top:4px;}
+.catalog-product-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.catalog-product-action-grid .btn{min-height:50px !important;font-size:15px !important;font-weight:900 !important;}
+.catalog-product-action-grid .btn-wide{grid-column:1 / -1;}
+#productImagePreviewWrap{
+  margin-top:8px !important;
+  padding:10px !important;
+  border:1px solid #d6e0ec !important;
+  border-radius:16px !important;
+  background:#fff !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  overflow:hidden !important;
+}
+#productImagePreviewWrap img.catalog-thumb{
+  width:88px !important;height:88px !important;max-width:88px !important;max-height:88px !important;object-fit:contain !important;
+}
+@media(max-width:520px){
+  #sheetContent .catalog-fact-card .catalog-thumb,
+  #sheetContent .catalog-card-compact .catalog-thumb{width:50px !important;height:50px !important;min-width:50px !important;max-width:50px !important;}
+  #sheetContent .catalog-name{font-size:15px !important;}
+  #sheetContent .catalog-meta{font-size:12px !important;}
+}
+</style>
+
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -1734,7 +1853,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.87.64</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.87.68</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3591,7 +3710,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v2.87.64',
+      version:'v2.87.68',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -4095,7 +4214,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v2.87.64',
+      version:'v2.87.68',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -4149,7 +4268,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v2.87.64',
+      version:'v2.87.68',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -6652,20 +6771,15 @@ COLOCACIÓN INCLUIDA` }
       const products = getProducts();
       let listHtml = '';
       products.forEach((p, idx) => {
-        const img = String(p.imgThumb || p.imgFull || '');
+        const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
         listHtml += `
-          <div class="saved-item template-card" style="margin-top:8px;padding:12px 14px">
+          <div class="saved-item template-card catalog-card-compact catalog-fact-card" data-catalog-action="${idx}" role="button" tabindex="0">
             <div class="catalog-card-media">
-              ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px">Sin imagen</div>`}
+              ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
               <div style="min-width:0;flex:1">
-                <div style="font-weight:700">${esc(p.nombre || 'Sin nombre')}</div>
-                <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
+                <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
+                <div class="catalog-meta">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
               </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
-              <button type="button" class="btn btn-primary" data-catalog-use="${idx}">Usar</button>
-              <button type="button" class="btn btn-success" data-catalog-edit="${idx}">Editar</button>
-              <button type="button" class="btn btn-danger" data-catalog-delete="${idx}">🗑</button>
             </div>
           </div>`;
       });
@@ -6676,40 +6790,59 @@ COLOCACIÓN INCLUIDA` }
         </div>
         ${listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay productos</div>'}`;
       $('btnCatalogAdd').onclick = async function(){ productEditIndex = null; productImageDraft=''; await loadProducts(); openEdit('catalogForm', 'Nuevo producto'); };
-      Array.from(body.querySelectorAll('[data-catalog-use]')).forEach(btn => {
-        btn.onclick = async function(){
+      Array.from(body.querySelectorAll('[data-catalog-action]')).forEach(card => {
+        card.onclick = async function(){
           await loadProducts();
-          const idx = Number(btn.getAttribute('data-catalog-use'));
-          if(currentEdit && currentEdit.type === 'catalogPicker'){
-            applyCatalogProductToCurrentConcept(idx);
-            const targetIndex = currentEdit.index;
-            if(isSimpleBudget()) openEdit('simpleLine', 'Línea ' + (Number(targetIndex) + 1), targetIndex);
-            else openEdit('conceptText', 'Texto ' + state.items[targetIndex].code, targetIndex);
-            return;
-          }
-          const p = getProducts()[idx];
-          if(!p) return;
-          toast('Producto seleccionado');
+          const idx = Number(card.getAttribute('data-catalog-action'));
+          openEdit('catalogProductActions', 'Producto', idx);
         };
       });
-      Array.from(body.querySelectorAll('[data-catalog-edit]')).forEach(btn => {
-        btn.onclick = async function(){
-          await loadProducts();
-          productEditIndex = Number(btn.getAttribute('data-catalog-edit'));
-          openEdit('catalogForm', 'Editar producto', productEditIndex);
-        };
-      });
-      Array.from(body.querySelectorAll('[data-catalog-delete]')).forEach(btn => {
-        btn.onclick = async function(){
-          await loadProducts();
-          const idx = Number(btn.getAttribute('data-catalog-delete'));
-          savedProducts.splice(idx, 1);
+    } else if(type === 'catalogProductActions'){
+      await loadProducts();
+      const idx = index == null ? productEditIndex : Number(index);
+      productEditIndex = idx;
+      const p = getProducts()[idx];
+      if(!p){ openEdit('catalog', 'Catálogo compartido'); return; }
+      const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
+      body.innerHTML = `
+        <div class="catalog-product-action-head">
+          ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
+          <div style="min-width:0;flex:1">
+            <div class="catalog-product-action-title">${esc(p.nombre || 'Sin nombre')}</div>
+            <div class="catalog-product-action-sub">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
+          </div>
+        </div>
+        <div class="catalog-product-action-grid">
+          <button type="button" class="btn btn-primary" id="btnCatalogActionUse">Usar producto</button>
+          <button type="button" class="btn btn-success" id="btnCatalogActionEdit">Editar</button>
+          <button type="button" class="btn btn-danger btn-wide" id="btnCatalogActionDelete">Eliminar producto</button>
+          <button type="button" class="btn btn-light btn-wide" id="btnCatalogActionCancel">Cancelar</button>
+        </div>`;
+      $('btnCatalogActionUse').onclick = async function(){
+        if(currentEdit && currentEdit.type === 'catalogPicker'){
+          applyCatalogProductToCurrentConcept(idx);
+          const targetIndex = currentEdit.index;
+          if(isSimpleBudget()) openEdit('simpleLine', 'Línea ' + (Number(targetIndex) + 1), targetIndex);
+          else openEdit('conceptText', 'Texto ' + state.items[targetIndex].code, targetIndex);
+          return;
+        }
+        toast('Producto seleccionado');
+        openEdit('catalog', 'Catálogo compartido');
+      };
+      $('btnCatalogActionEdit').onclick = function(){ productEditIndex = idx; openEdit('catalogForm', 'Editar producto', idx); };
+      $('btnCatalogActionDelete').onclick = async function(){
+        await loadProducts();
+        const arr = getProducts();
+        if(idx >= 0 && idx < arr.length){
+          arr.splice(idx, 1);
+          savedProducts = arr;
           await saveProducts();
           await loadProducts();
-          openEdit('catalog', 'Catálogo compartido');
           toast('Producto eliminado');
-        };
-      });
+        }
+        openEdit('catalog', 'Catálogo compartido');
+      };
+      $('btnCatalogActionCancel').onclick = function(){ openEdit('catalog', 'Catálogo compartido'); };
         } else if(type === 'catalogPicker'){
       const conceptIndex = index == null ? null : Number(index);
       currentEdit = { type:'catalogPicker', index:conceptIndex };
@@ -6736,18 +6869,15 @@ COLOCACIÓN INCLUIDA` }
         let listHtml = '';
         filtered.forEach((p) => {
           const idx = products.indexOf(p);
-          const img = String(p.imgThumb || p.imgFull || '');
+          const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
           listHtml += `
-            <div class="saved-item template-card" style="margin-top:8px;padding:12px 14px">
+            <div class="saved-item template-card catalog-fact-card" data-catalog-pick="${idx}" style="margin-top:8px">
               <div class="catalog-card-media">
-                ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px">Sin imagen</div>`}
+                ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
                 <div style="min-width:0;flex:1">
-                  <div style="font-weight:700">${esc(p.nombre || 'Sin nombre')}</div>
-                  <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
+                  <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
+                  <div class="catalog-meta">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
                 </div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px">
-                <button type="button" class="btn btn-primary" data-catalog-pick="${idx}">Insertar en concepto</button>
               </div>
             </div>`;
         });
@@ -7693,7 +7823,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v2.87.64',
+        version:'v2.87.68',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -7840,7 +7970,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v2.87.64',
+      version: 'v2.87.68',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -7923,7 +8053,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v2.87.64', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v2.87.68', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -7975,7 +8105,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v2.87.64',
+        version: 'v2.87.68',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -9346,7 +9476,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v2.87.64',
+      version: 'v2.87.68',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
