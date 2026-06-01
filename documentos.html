@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.87.68</title>
+  <title>Documentos Rey v2.87.75</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1721,6 +1721,87 @@ body.editing-field .brand-idb-pill{
   font-weight:900 !important;
   box-shadow:0 6px 14px rgba(15,23,42,.08) !important;
 }
+
+/* v2.87.69 - Recupera estado compacto en tarjetas como v2.87.61 */
+.saved-status-clickable{
+  cursor:pointer !important;
+  flex:0 0 auto !important;
+  margin-left:auto !important;
+  box-shadow:0 5px 12px rgba(15,23,42,.10) !important;
+  touch-action:manipulation !important;
+}
+.saved-status-clickable:active{transform:scale(.96)}
+
+
+
+/* v2.87.71 - Tarjetas documentos guardados pulidas */
+.saved-doc-card-compact{
+  min-height:0 !important;
+}
+.saved-doc-title-compact{
+  font-size:16px !important;
+  line-height:1.15 !important;
+}
+.saved-doc-meta-compact{
+  font-size:15px !important;
+  line-height:1.22 !important;
+  font-weight:900 !important;
+  color:#2d1c12 !important;
+  letter-spacing:-0.01em !important;
+}
+.saved-doc-actions-compact{
+  display:grid !important;
+  grid-template-columns:42px repeat(4,minmax(0,1fr)) !important;
+  gap:6px !important;
+  margin-top:10px !important;
+  align-items:center !important;
+}
+.saved-doc-actions-compact .btn{
+  min-height:38px !important;
+  height:38px !important;
+  padding:0 5px !important;
+  border-radius:13px !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  margin:0 !important;
+  float:none !important;
+  white-space:normal !important;
+  letter-spacing:-0.02em !important;
+}
+.saved-doc-actions-compact .btn-convert-albaran{
+  background:linear-gradient(180deg,#fb923c 0%,#ea580c 100%) !important;
+  color:#fff !important;
+  border-color:#ea580c !important;
+}
+.saved-doc-actions-compact .btn-convert-factura{
+  background:linear-gradient(180deg,#8b5cf6 0%,#7c3aed 100%) !important;
+  color:#fff !important;
+  border-color:#7c3aed !important;
+}
+.saved-doc-actions-compact .saved-trash-compact,
+#sheetContent .saved-doc-actions-compact .saved-trash-compact{
+  min-width:42px !important;
+  width:42px !important;
+  max-width:42px !important;
+  height:38px !important;
+  min-height:38px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:13px !important;
+  font-size:16px !important;
+  float:none !important;
+}
+@media (max-width:420px){
+  .saved-doc-actions-compact{grid-template-columns:40px repeat(4,minmax(0,1fr)) !important;gap:5px !important;}
+  .saved-doc-actions-compact .btn{font-size:10px !important;padding:0 3px !important;}
+  .saved-doc-meta-compact{font-size:14px !important;}
+}
+
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -1843,6 +1924,292 @@ body.editing-field .brand-idb-pill{
 }
 </style>
 
+
+<style>
+/* v2.87.72 - Suavizado visual de tarjetas y estados más destacados */
+.saved-budget-card{
+  background:linear-gradient(180deg,#d9bfa5 0%,#c9a584 100%) !important;
+  border:1px solid #9b7655 !important;
+  box-shadow:0 8px 20px rgba(86,55,32,.13) !important;
+}
+.saved-doc-card-compact{
+  background:linear-gradient(180deg,#d9bfa5 0%,#c9a584 100%) !important;
+}
+.saved-doc-title-compact{
+  color:#21150d !important;
+}
+.saved-doc-meta-compact{
+  color:#26170e !important;
+  font-weight:900 !important;
+  opacity:.96 !important;
+}
+.saved-doc-actions-compact{
+  gap:7px !important;
+}
+.saved-doc-actions-compact .btn{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 5px 11px rgba(15,23,42,.11) !important;
+}
+.saved-doc-actions-compact .btn-convert-albaran{
+  background:linear-gradient(180deg,#e3914a 0%,#d06f24 100%) !important;
+  border-color:#bd641f !important;
+  color:#fff !important;
+}
+.saved-doc-actions-compact .btn-convert-factura{
+  background:linear-gradient(180deg,#7f70d8 0%,#6655c4 100%) !important;
+  border-color:#5b4bb2 !important;
+  color:#fff !important;
+}
+
+/* Estados más visibles */
+.saved-status-badge{
+  min-height:28px !important;
+  padding:5px 12px !important;
+  border-radius:999px !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+  letter-spacing:.02em !important;
+  border:2px solid rgba(255,255,255,.72) !important;
+  box-shadow:0 7px 15px rgba(15,23,42,.18) !important;
+}
+.saved-status-clickable{
+  box-shadow:0 8px 16px rgba(15,23,42,.20) !important;
+}
+.saved-status-creado{
+  background:linear-gradient(180deg,#f8fafc 0%,#dbe4f0 100%) !important;
+  color:#26364b !important;
+  border-color:#ffffff !important;
+}
+.saved-status-enviado{
+  background:linear-gradient(180deg,#6366f1 0%,#4338ca 100%) !important;
+  color:#fff !important;
+}
+.saved-status-aceptado{
+  background:linear-gradient(180deg,#22c55e 0%,#15803d 100%) !important;
+  color:#fff !important;
+}
+.saved-status-rechazado{
+  background:linear-gradient(180deg,#e11d48 0%,#9f1239 100%) !important;
+  color:#fff !important;
+}
+.saved-status-facturado{
+  background:linear-gradient(180deg,#f59e0b 0%,#b45309 100%) !important;
+  color:#fff !important;
+}
+.saved-status-pendiente{
+  background:linear-gradient(180deg,#ef4444 0%,#b91c1c 100%) !important;
+  color:#fff !important;
+}
+.saved-status-pagada{
+  background:linear-gradient(180deg,#16a34a 0%,#166534 100%) !important;
+  color:#fff !important;
+}
+</style>
+
+
+<style>
+/* v2.87.75 - Suavizado final tarjetas y botones conversión */
+.saved-budget-card{
+  background:linear-gradient(180deg,#f8f1ea 0%, #f1e4d6 100%) !important;
+  border:1px solid #d9c9b8 !important;
+  box-shadow:0 8px 18px rgba(108,72,44,.08) !important;
+}
+.saved-doc-actions-compact .btn-convert-albaran,
+.saved-doc-actions-compact .btn-convert-factura{
+  background:linear-gradient(180deg,#f8e8aa 0%,#efd57d 100%) !important;
+  color:#4a3a08 !important;
+  border-color:#dcc36f !important;
+  box-shadow:0 6px 12px rgba(148,116,28,.10) !important;
+}
+.saved-status-badge.saved-status-clickable{
+  min-height:34px !important;
+  padding:6px 15px !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+  letter-spacing:.02em !important;
+  border-width:1px !important;
+  box-shadow:0 8px 18px rgba(15,23,42,.14) !important;
+}
+.saved-status-creado{background:#dbe4ee !important;color:#263445 !important;border-color:#aab8c8 !important;}
+.saved-status-enviado{background:#dbeafe !important;color:#1d4ed8 !important;border-color:#93c5fd !important;}
+.saved-status-aceptado{background:#c9f5d8 !important;color:#166534 !important;border-color:#86efac !important;}
+.saved-status-rechazado{background:#ffe1e7 !important;color:#9f1239 !important;border-color:#fda4af !important;}
+.saved-status-facturado{background:#fff0bd !important;color:#92400e !important;border-color:#facc15 !important;}
+.saved-status-pendiente{background:#ffd7d7 !important;color:#991b1b !important;border-color:#fca5a5 !important;}
+.saved-status-pagada{background:#c9f5d8 !important;color:#14532d !important;border-color:#86efac !important;}
+.saved-doc-meta-compact{
+  color:#30251a !important;
+}
+</style>
+
+<style>
+/* v2.87.75 - Tarjetas cálidas, borde definido y estados fuertes */
+#sheetContent .saved-budget-card,
+#settingsSheet .saved-budget-card,
+.saved-budget-card{
+  background:linear-gradient(180deg,#ead1b4 0%,#dfc09c 100%) !important;
+  border:2px solid #b98958 !important;
+  box-shadow:0 10px 24px rgba(108,72,44,.14) !important;
+}
+
+#sheetContent .saved-doc-actions-compact .btn-convert-albaran,
+#sheetContent .saved-doc-actions-compact .btn-convert-factura,
+.saved-doc-actions-compact .btn-convert-albaran,
+.saved-doc-actions-compact .btn-convert-factura{
+  background:linear-gradient(180deg,#d7c3a0 0%,#c9b089 100%) !important;
+  color:#2f2a22 !important;
+  border:1px solid #aa8f68 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 6px 12px rgba(89,67,39,.16) !important;
+}
+
+#sheetContent .saved-status-badge,
+#settingsSheet .saved-status-badge,
+.saved-status-badge{
+  min-height:34px !important;
+  padding:6px 16px !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  letter-spacing:.04em !important;
+  border-width:2px !important;
+  box-shadow:0 7px 16px rgba(15,23,42,.18) !important;
+}
+
+#sheetContent .saved-status-creado,
+#settingsSheet .saved-status-creado,
+.saved-status-creado{
+  background:linear-gradient(180deg,#f8fafc 0%,#e2e8f0 100%) !important;
+  color:#1e293b !important;
+  border-color:#94a3b8 !important;
+}
+#sheetContent .saved-status-enviado,
+#settingsSheet .saved-status-enviado,
+.saved-status-enviado{
+  background:linear-gradient(180deg,#4f46e5 0%,#3730a3 100%) !important;
+  color:#fff !important;
+  border-color:#312e81 !important;
+}
+#sheetContent .saved-status-aceptado,
+#settingsSheet .saved-status-aceptado,
+.saved-status-aceptado{
+  background:linear-gradient(180deg,#22c55e 0%,#15803d 100%) !important;
+  color:#fff !important;
+  border-color:#166534 !important;
+}
+#sheetContent .saved-status-rechazado,
+#settingsSheet .saved-status-rechazado,
+.saved-status-rechazado{
+  background:linear-gradient(180deg,#e11d48 0%,#9f1239 100%) !important;
+  color:#fff !important;
+  border-color:#881337 !important;
+}
+#sheetContent .saved-status-facturado,
+#settingsSheet .saved-status-facturado,
+.saved-status-facturado{
+  background:linear-gradient(180deg,#f59e0b 0%,#b45309 100%) !important;
+  color:#fff !important;
+  border-color:#92400e !important;
+}
+#sheetContent .saved-status-pendiente,
+#settingsSheet .saved-status-pendiente,
+.saved-status-pendiente{
+  background:linear-gradient(180deg,#ef4444 0%,#b91c1c 100%) !important;
+  color:#fff !important;
+  border-color:#991b1b !important;
+}
+#sheetContent .saved-status-pagada,
+#settingsSheet .saved-status-pagada,
+.saved-status-pagada{
+  background:linear-gradient(180deg,#22c55e 0%,#166534 100%) !important;
+  color:#fff !important;
+  border-color:#14532d !important;
+}
+</style>
+
+
+<style>
+/* v2.87.75 - Botones conversión con contraste gris claro */
+#sheetContent .saved-doc-actions-compact .btn-convert-albaran,
+#sheetContent .saved-doc-actions-compact .btn-convert-factura,
+.saved-doc-actions-compact .btn-convert-albaran,
+.saved-doc-actions-compact .btn-convert-factura{
+  background:linear-gradient(180deg,#f4f7fb 0%,#dfe7f0 100%) !important;
+  color:#1f2937 !important;
+  border:2px solid #9aa8b8 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 5px 12px rgba(15,23,42,.14) !important;
+  text-shadow:none !important;
+}
+
+#sheetContent .saved-doc-actions-compact .btn-convert-albaran:active,
+#sheetContent .saved-doc-actions-compact .btn-convert-factura:active,
+.saved-doc-actions-compact .btn-convert-albaran:active,
+.saved-doc-actions-compact .btn-convert-factura:active{
+  background:linear-gradient(180deg,#e8edf4 0%,#d5dee9 100%) !important;
+}
+
+/* Mantiene los estados fuertes por encima de reglas anteriores */
+#sheetContent .saved-status-badge,
+#settingsSheet .saved-status-badge,
+.saved-status-badge{
+  min-height:34px !important;
+  padding:6px 16px !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  letter-spacing:.04em !important;
+  border-width:2px !important;
+  box-shadow:0 7px 16px rgba(15,23,42,.18) !important;
+}
+#sheetContent .saved-status-creado,
+#settingsSheet .saved-status-creado,
+.saved-status-creado{
+  background:linear-gradient(180deg,#f8fafc 0%,#e2e8f0 100%) !important;
+  color:#1e293b !important;
+  border-color:#94a3b8 !important;
+}
+#sheetContent .saved-status-enviado,
+#settingsSheet .saved-status-enviado,
+.saved-status-enviado{
+  background:linear-gradient(180deg,#4f46e5 0%,#3730a3 100%) !important;
+  color:#fff !important;
+  border-color:#312e81 !important;
+}
+#sheetContent .saved-status-aceptado,
+#settingsSheet .saved-status-aceptado,
+.saved-status-aceptado{
+  background:linear-gradient(180deg,#22c55e 0%,#15803d 100%) !important;
+  color:#fff !important;
+  border-color:#166534 !important;
+}
+#sheetContent .saved-status-rechazado,
+#settingsSheet .saved-status-rechazado,
+.saved-status-rechazado{
+  background:linear-gradient(180deg,#e11d48 0%,#9f1239 100%) !important;
+  color:#fff !important;
+  border-color:#881337 !important;
+}
+#sheetContent .saved-status-facturado,
+#settingsSheet .saved-status-facturado,
+.saved-status-facturado{
+  background:linear-gradient(180deg,#f59e0b 0%,#b45309 100%) !important;
+  color:#fff !important;
+  border-color:#92400e !important;
+}
+#sheetContent .saved-status-pendiente,
+#settingsSheet .saved-status-pendiente,
+.saved-status-pendiente{
+  background:linear-gradient(180deg,#ef4444 0%,#b91c1c 100%) !important;
+  color:#fff !important;
+  border-color:#991b1b !important;
+}
+#sheetContent .saved-status-pagada,
+#settingsSheet .saved-status-pagada,
+.saved-status-pagada{
+  background:linear-gradient(180deg,#22c55e 0%,#166534 100%) !important;
+  color:#fff !important;
+  border-color:#14532d !important;
+}
+</style>
+
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -1853,7 +2220,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.87.68</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.87.75</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -8233,27 +8600,24 @@ $('btnExport').addEventListener('click', async function(){
           const it = entry.item;
           const idx = entry.originalIndex;
           html += `
-            <div class="saved-item template-card saved-budget-card" style="margin-top:8px;padding:12px 14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-                <div style="font-weight:800;color:#2d1c12">${esc(documentTypeLabel(tipo) + ' · ' + (it.numero || 'Sin número'))}</div>
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                  <span class="saved-status-badge saved-status-${documentStatusClass(it.estado)}">${esc(documentStatusLabel(it.estado))}</span>
-                  <button type="button" class="btn-status-mini" data-status-index="${idx}">Estado</button>
-                </div>
+            <div class="saved-item template-card saved-budget-card saved-doc-card-compact" style="margin-top:8px;padding:10px 12px">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:nowrap">
+                <div class="saved-doc-title-compact" style="font-weight:900;color:#2d1c12;min-width:0;flex:1 1 auto;word-break:break-word">${esc(documentTypeLabel(tipo) + ' · ' + (it.numero || 'Sin número'))}</div>
+                <span role="button" tabindex="0" title="Cambiar estado" class="saved-status-badge saved-status-clickable saved-status-${documentStatusClass(it.estado)}" data-status-index="${idx}">${esc(documentStatusLabel(it.estado))}</span>
               </div>
-              <div style="font-size:12px;color:#4b3322;margin-top:4px">${esc(it.clienteNombre || 'Cliente contado')}</div>
-              <div style="font-size:12px;color:#4b3322;margin-top:2px">${esc(it.fecha || '')} · ${esc(it.totalStr || '')}</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
+              <div class="saved-doc-meta-compact" style="margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((it.clienteNombre || 'Cliente contado') + (it.fecha ? ' · ' + it.fecha : '') + (it.totalStr ? ' · ' + it.totalStr : ''))}</div>
+              <div class="saved-doc-actions-compact">
+                <button type="button" class="btn btn-danger saved-trash-btn saved-trash-compact" data-delete-index="${idx}" aria-label="Eliminar">🗑</button>
                 <button type="button" class="btn btn-primary" data-load-index="${idx}">Abrir</button>
                 <button type="button" class="btn btn-success" data-duplicate-index="${idx}">Duplicar</button>
-                <button type="button" class="btn btn-danger saved-trash-btn" data-delete-index="${idx}">🗑</button>
+                ${conversionTargetsForType(tipo).map(function(target){
+                  const fullLabel = target === 'albaran' ? 'A albarán' : (target === 'factura' ? 'A factura' : conversionButtonLabel(target));
+                  const colorClass = target === 'albaran' ? 'btn-convert-albaran' : (target === 'factura' ? 'btn-convert-factura' : 'btn-neutral');
+                  return `<button type="button" class="btn ${colorClass}" data-convert-target="${target}" data-convert-index="${idx}">${fullLabel}</button>`;
+                }).join('')}
+                ${conversionTargetsForType(tipo).length < 2 ? '<span></span>' : ''}
+                ${conversionTargetsForType(tipo).length < 1 ? '<span></span>' : ''}
               </div>
-              ${conversionTargetsForType(tipo).length ? `
-                <div style="display:grid;grid-template-columns:${conversionTargetsForType(tipo).length === 2 ? '1fr 1fr' : '1fr'};gap:8px;margin-top:8px">
-                  ${conversionTargetsForType(tipo).map(function(target){
-                    return `<button type="button" class="btn btn-neutral" data-convert-target="${target}" data-convert-index="${idx}">${conversionButtonLabel(target)}</button>`;
-                  }).join('')}
-                </div>` : ''}
             </div>`;
         });
       }
