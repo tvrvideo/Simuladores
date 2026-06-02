@@ -2,7 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v92.8</title>
+    <title>Ventana Pro v93.0</title>
+    <!-- v93.1: Selector visible de lado de cierre para corredera al insertar hoja en huecos. -->
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
 
@@ -861,7 +862,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v92.8"><span class="title-main">Ventana Pro</span><span class="title-version">v92.8</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.0"><span class="title-main">Ventana Pro</span><span class="title-version">v93.0</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1173,7 +1174,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
     </select>
 
     <label style="margin:0;">Apertura hoja interior:</label>
-    <select id="subHojaApertura">
+    <select id="subHojaApertura" onchange="actualizarControlLadoCorrederaSubHoja()">
       <option value="izquierda">Izquierda</option>
       <option value="derecha" selected>Derecha</option>
       <option value="izq-ob">Izquierda Oscilobatiente</option>
@@ -1183,6 +1184,14 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
       <option value="corredera">Corredera</option>
       <option value="fija">Fija</option>
     </select>
+
+    <label id="subHojaCorrederaSideLabel" style="margin:0; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:8px 10px;">
+      Cierre corredera:
+      <select id="subHojaCorrederaSide" onchange="actualizarVista()" style="width:auto; min-width:120px;">
+        <option value="izquierda">Izquierda</option>
+        <option value="derecha" selected>Derecha</option>
+      </select>
+    </label>
 
     <label style="margin:0; display:flex; align-items:center; gap:6px;">
       <input type="checkbox" id="subHojaManilla" checked> Manilla
@@ -1726,13 +1735,24 @@ function aplicarRellenoMarco(ctx){
         return parts.join(':');
     }
 
+    function actualizarControlLadoCorrederaSubHoja() {
+        // v93.1: el selector queda siempre visible para que en iPhone no se oculte
+        // y se pueda elegir izquierda/derecha antes de tocar el hueco.
+        const ladoLabel = document.getElementById('subHojaCorrederaSideLabel');
+        if(!ladoLabel) return;
+        ladoLabel.style.display = 'flex';
+    }
+
     function insertarSubHojaEnZona(data) {
         const key = zonaKey(data);
         if(!key) return;
         const apertura = (document.getElementById('subHojaApertura') || {}).value || 'derecha';
         const manilla = !!(document.getElementById('subHojaManilla') && document.getElementById('subHojaManilla').checked);
         const bisagras = !!(document.getElementById('subHojaBisagras') && document.getElementById('subHojaBisagras').checked);
-        subHojas[key] = { apertura, manilla, bisagras };
+        const correderaSide = (document.getElementById('subHojaCorrederaSide') || {}).value || 'derecha';
+        // v93.0: en hojas correderas insertadas dentro de huecos se guarda
+        // el lado del cierre/manilla para que no quede en el centro.
+        subHojas[key] = { apertura, manilla, bisagras, correderaSide };
         actualizarVista();
     }
 
@@ -3873,6 +3893,26 @@ function cambiarColorMarco(c) {
                 ctx.stroke();
             }
 
+            // v92.9: las hojas insertadas dentro de un hueco también dibujan
+            // la marca oscilobatiente roja, igual que las hojas principales.
+            if (ap === "izq-ob" || ap === "der-ob") {
+                aplicarEstiloApertura(ctx, true);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerYTop);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.closePath();
+                ctx.stroke();
+                if(esContraTexturadaSubHoja){
+                    ctx.strokeStyle = lineaContraColor;
+                    ctx.lineWidth = Math.max(1.05, strokeWidth * 0.42);
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                }else{
+                    aplicarEstiloApertura(ctx, false);
+                }
+            }
+
             if(cfg.bisagras) {
                 if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, outerBounds.minX, outerBounds.minY, outerBounds.height, 'izquierda', 'black');
                 else if(ap === 'derecha' || ap === 'der-ob') dibujarBisagras(ctx, outerBounds.maxX, outerBounds.minY, outerBounds.height, 'derecha', 'black');
@@ -3903,6 +3943,16 @@ function cambiarColorMarco(c) {
                     mx = minX + boxW/2;
                     my = (outerBounds.minY + minY) / 2;
                     vertical = false;
+                }
+                else if (ap === "corredera") {
+                    const ladoCorredera = cfg.correderaSide || 'derecha';
+                    if (ladoCorredera === 'izquierda') {
+                        mx = (outerBounds.minX + minX) / 2;
+                    } else {
+                        mx = (outerBounds.maxX + maxX) / 2;
+                    }
+                    my = minY + boxH/2;
+                    vertical = true;
                 }
 
                 dibujarManilla(ctx, mx, my, 'black', vertical, ap === 'corredera');
