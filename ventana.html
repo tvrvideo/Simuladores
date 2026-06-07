@@ -2,7 +2,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v93.4</title>
+    <title>Ventana Pro v93.5</title>
+    <!-- v93.4.6: Solo barrotillos no duplica, actualiza y borra correctamente. -->
+    <!-- v93.4.5: restaura barrotillos y usa capa segura por polígonos guardados. -->
+    <!-- v93.4.3: Solo barrotillos por encima del cristal degradado y antes de aperturas. -->
+    <!-- v93.4.2: corrige barrotillos en hoja fija sin travesaños antes de pintar. -->
+    <!-- v93.4.1: Solo barrotillos también en huecos de hojas fijas. -->
     <!-- v93.3.2: Solo barrotillos se dibuja antes de aperturas. -->
     <!-- v93.3.1: corrige modo Solo barrotillos sobre huecos. -->
     <!-- v93.3: modo Solo barrotillos para huecos sin insertar hoja. -->
@@ -1058,7 +1063,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v93.4"><span class="title-main">Ventana Pro</span><span class="title-version">v93.4</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.5"><span class="title-main">Ventana Pro</span><span class="title-version">v93.5</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -2064,11 +2069,16 @@ function aplicarRellenoMarco(ctx){
         const h = parseInt(cfg.h || 0, 10) || 0;
         const v = parseInt(cfg.v || 0, 10) || 0;
 
+        if (typeof barrotillosHuecos === 'undefined') barrotillosHuecos = {};
+        if (typeof barrotillosHuecosPolys === 'undefined') barrotillosHuecosPolys = {};
+
+        // v93.4.6: H/V a 0 o vacío = borrar ese hueco.
         if (h <= 0 && v <= 0) {
             delete barrotillosHuecos[key];
-            if (typeof barrotillosHuecosPolys !== 'undefined') delete barrotillosHuecosPolys[key];
+            delete barrotillosHuecosPolys[key];
         } else {
-            barrotillosHuecos[key] = cfg;
+            // Sustituye siempre, no acumula.
+            barrotillosHuecos[key] = Object.assign({}, cfg, { h, v });
             if (poly && Array.isArray(poly)) {
                 barrotillosHuecosPolys[key] = poly.map(p => ({x:p.x, y:p.y}));
             }
@@ -4112,22 +4122,13 @@ function cambiarColorMarco(c) {
         }
 
         dibujarRectanguloBase(ctx, x, y, w, h, baseColor);
+        dibujarBarrotillosSoloConKey(ctx, [
+            {x:x, y:y},
+            {x:x+w, y:y},
+            {x:x+w, y:y+h},
+            {x:x, y:y+h}
+        ], idData);
 
-        // v93.3: barrotillos directamente sobre huecos rectangulares, sin insertar hoja.
-        try {
-            if (idData && typeof barrotillosHuecos !== 'undefined') {
-                const keyBarrotillos = keyHuecoBarrotillos(idData);
-                const cfgHueco = barrotillosHuecos[keyBarrotillos];
-                if (cfgHueco && typeof dibujarBarrotillosEnPoligono === 'function') {
-                    dibujarBarrotillosEnPoligono(ctx, [
-                        {x:x, y:y},
-                        {x:x+w, y:y},
-                        {x:x+w, y:y+h},
-                        {x:x, y:y+h}
-                    ], cfgHueco, esc);
-                }
-            }
-        } catch(e) {}
     }
 
     function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
@@ -4186,6 +4187,7 @@ function cambiarColorMarco(c) {
             ctx.lineTo(p4.x, p4.y);
             ctx.closePath();
             ctx.fill();
+
             ctx.strokeStyle = getTecnicoColor();
             ctx.lineWidth = getTecnicoGrosor();
             ctx.stroke();
@@ -4234,6 +4236,7 @@ function cambiarColorMarco(c) {
         ctx.lineTo(p4.x, p4.y);
         ctx.closePath();
         ctx.fill();
+
         aplicarEstiloApertura(ctx, false);
         ctx.stroke();
     }
@@ -4286,16 +4289,6 @@ function cambiarColorMarco(c) {
         }
         ctx.closePath();
         ctx.fill();
-        // v93.3.1: barrotillos en fijo superior con huecos curvos/inclinados.
-        try {
-            if (idData && typeof barrotillosHuecos !== 'undefined') {
-                const keyBarrotillos = keyHuecoBarrotillos(idData);
-                const cfgHueco = barrotillosHuecos[keyBarrotillos];
-                if (cfgHueco && typeof dibujarBarrotillosEnPoligono === 'function') {
-                    dibujarBarrotillosEnPoligono(ctx, points, cfgHueco, esc);
-                }
-            }
-        } catch(e) {}
 
         try {
             if (idData && typeof barrotillosHuecos !== 'undefined') {
@@ -4439,6 +4432,50 @@ function cambiarColorMarco(c) {
     }
 
 
+
+
+
+    function obtenerCfgBarrotillosCompatible(data) {
+        try {
+            if (!data || typeof barrotillosHuecos === 'undefined') return null;
+
+            const claves = [];
+            if (typeof keyHuecoBarrotillos === 'function') claves.push(keyHuecoBarrotillos(data));
+
+            // v93.4.2: compatibilidad para hoja fija sin travesaños.
+            // Según la ruta de dibujo/clic puede registrarse como hoja, hojaCristal u hojaTrav 0.
+            if (data.type === 'hoja' && data.index != null) {
+                claves.push(['hojaCristal', data.index, '', '', '', '', ''].join('_'));
+                claves.push(['hojaTrav', data.index, '', '', 0, '', ''].join('_'));
+                claves.push(['hoja', data.index, '', '', '', '', ''].join('_'));
+            }
+            if (data.type === 'hojaCristal' && data.index != null) {
+                claves.push(['hoja', data.index, '', '', '', '', ''].join('_'));
+                claves.push(['hojaTrav', data.index, '', '', 0, '', ''].join('_'));
+            }
+            if (data.type === 'hojaTrav' && data.index != null && (data.subIndex == null || data.subIndex === 0)) {
+                claves.push(['hoja', data.index, '', '', '', '', ''].join('_'));
+                claves.push(['hojaCristal', data.index, '', '', '', '', ''].join('_'));
+            }
+
+            for (let i = 0; i < claves.length; i++) {
+                const k = claves[i];
+                if (k && barrotillosHuecos[k]) return barrotillosHuecos[k];
+            }
+        } catch(e) {}
+        return null;
+    }
+
+    function dibujarBarrotillosSoloConKey(ctx, poly, data) {
+        try {
+            if (!data || !poly || !Array.isArray(poly)) return;
+            const cfg = obtenerCfgBarrotillosCompatible(data);
+            if (!cfg) return;
+            if (typeof dibujarBarrotillosEnPoligono === 'function') {
+                dibujarBarrotillosEnPoligono(ctx, poly, cfg, esc);
+            }
+        } catch(e) {}
+    }
 
     function dibujarBarrotillosEnPoligono(ctx, poly, cfgBarrotes, esc) {
         if (!ctx || !Array.isArray(poly) || poly.length < 4 || !cfgBarrotes) return;
@@ -5495,6 +5532,9 @@ function cambiarColorMarco(c) {
                 const centerYGlassBottomLine = (p3.y + p4.y) / 2;
                 const centerYGlassMid = (centerYGlassTopLine + centerYGlassBottomLine) / 2;
 
+                // v93.4.5: barrotillos por hueco guardado antes de aperturas.
+                dibujarBarrotillosHuecosGuardados(ctx);
+
                 // v93.0.20: estado de apertura exterior solo para esta hoja principal.
                 window.__aperturaExteriorActiva = !!(hojasData[i] && hojasData[i].aperturaExterior);
                 aplicarEstiloApertura(ctx, false);
@@ -6436,6 +6476,27 @@ if (mostrarAltoTotalDer) {
         const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
         return brightness < 128;
     }
+
+    function dibujarBarrotillosHuecosGuardados(ctx) {
+        try {
+            if (typeof barrotillosHuecos === 'undefined' || typeof barrotillosHuecosPolys === 'undefined') return;
+            const dibujados = new Set();
+            Object.keys(barrotillosHuecos).forEach(key => {
+                if (dibujados.has(key)) return;
+                const cfg = barrotillosHuecos[key];
+                const poly = barrotillosHuecosPolys[key];
+                const h = parseInt(cfg && cfg.h || 0, 10) || 0;
+                const v = parseInt(cfg && cfg.v || 0, 10) || 0;
+                if (!cfg || h <= 0 && v <= 0 || !poly || !Array.isArray(poly) || poly.length < 4) return;
+
+                dibujados.add(key);
+                if (typeof dibujarBarrotillosEnPoligono === 'function') {
+                    dibujarBarrotillosEnPoligono(ctx, poly, cfg, esc);
+                }
+            });
+        } catch(e) {}
+    }
+
     function actualizarVista() {
         dibujar(mostrarMedidas);
     }
