@@ -2,7 +2,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v93.2</title>
+    <title>Ventana Pro v93.3</title>
+    <!-- v93.3.2: Solo barrotillos se dibuja antes de aperturas. -->
+    <!-- v93.3.1: corrige modo Solo barrotillos sobre huecos. -->
+    <!-- v93.3: modo Solo barrotillos para huecos sin insertar hoja. -->
     <!-- v93.2: corrige color por defecto de barrotillos en hojas principales. -->
     <!-- v93.0.20 experimental: cotas individuales de travesaños H/V. -->
     <!-- v93.1: Selector visible de lado de cierre para corredera al insertar hoja en huecos. -->
@@ -1055,7 +1058,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v93.2"><span class="title-main">Ventana Pro</span><span class="title-version">v93.2</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.3"><span class="title-main">Ventana Pro</span><span class="title-version">v93.3</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1364,6 +1367,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
       <option value="pintar" selected>Pintar cristal</option>
       <option value="insertar">Poner hoja dentro del hueco</option>
       <option value="borrar">Borrar hoja del hueco</option>
+      <option value="barrotillos">Solo barrotillos</option>
     </select>
 
     <label style="margin:0;">Apertura hoja interior:</label>
@@ -1419,7 +1423,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
       <input class="subbarrotes-color-custom hidden" type="color" id="subBarrotesColor" value="#FFFFFF" onchange="this.dataset.tocado=\'1\'">
     </div>
 
-    <small style="color:#555; flex-basis:100%;">Tip: Cambia a “Poner hoja…” y toca un hueco. Para quitarla, cambia a “Borrar hoja…”.</small>
+    <small style="color:#555; flex-basis:100%;">Tip: Usa “Poner hoja…” para insertar hoja, “Solo barrotillos” para añadirlos al vidrio, y “Borrar hoja…” para quitar la hoja interior.</small>
   </div>
 </div>
 
@@ -1950,6 +1954,8 @@ function aplicarRellenoMarco(ctx){
     // --- HOJA DENTRO DE HUECO (sub-hoja) ---
     // subHojas[key] = { apertura, manilla, bisagras }
     let subHojas = {};
+    let barrotillosHuecos = {};
+    let barrotillosHuecosPolys = {};
 
     function zonaKey(data) {
         if(!data || !data.type) return '';
@@ -2030,6 +2036,40 @@ function aplicarRellenoMarco(ctx){
         let color = colorMode === 'ventana' ? colorBarrotePorDefectoSubHoja() : (cInput && cInput.value ? cInput.value : colorBarrotePorDefectoSubHoja());
 
         return { h, v, grosor, colorMode, color };
+    }
+
+
+    function keyHuecoBarrotillos(data) {
+        if (!data) return '';
+        if (data.id != null) return String(data.id);
+        const tipo = data.type || data.tipo || 'hueco';
+        const idx = data.index != null ? data.index : '';
+        const sub = data.subIndex != null ? data.subIndex : '';
+        const extra = data.extra != null ? data.extra : '';
+        return [tipo, idx, sub, extra].join('_');
+    }
+
+    function aplicarBarrotillosSoloHueco(data, poly) {
+        if (!data) return false;
+        const key = keyHuecoBarrotillos(data);
+        if (!key) return false;
+
+        const cfg = normalizarSubBarrotesDesdePanel();
+        const h = parseInt(cfg.h || 0, 10) || 0;
+        const v = parseInt(cfg.v || 0, 10) || 0;
+
+        if (h <= 0 && v <= 0) {
+            delete barrotillosHuecos[key];
+            if (typeof barrotillosHuecosPolys !== 'undefined') delete barrotillosHuecosPolys[key];
+        } else {
+            barrotillosHuecos[key] = cfg;
+            if (poly && Array.isArray(poly)) {
+                barrotillosHuecosPolys[key] = poly.map(p => ({x:p.x, y:p.y}));
+            }
+        }
+
+        actualizarVista();
+        return false;
     }
 
     function insertarSubHojaEnZona(data) {
@@ -4066,6 +4106,22 @@ function cambiarColorMarco(c) {
         }
 
         dibujarRectanguloBase(ctx, x, y, w, h, baseColor);
+
+        // v93.3: barrotillos directamente sobre huecos rectangulares, sin insertar hoja.
+        try {
+            if (idData && typeof barrotillosHuecos !== 'undefined') {
+                const keyBarrotillos = keyHuecoBarrotillos(idData);
+                const cfgHueco = barrotillosHuecos[keyBarrotillos];
+                if (cfgHueco && typeof dibujarBarrotillosEnPoligono === 'function') {
+                    dibujarBarrotillosEnPoligono(ctx, [
+                        {x:x, y:y},
+                        {x:x+w, y:y},
+                        {x:x+w, y:y+h},
+                        {x:x, y:y+h}
+                    ], cfgHueco, esc);
+                }
+            }
+        } catch(e) {}
     }
 
     function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
@@ -4224,6 +4280,17 @@ function cambiarColorMarco(c) {
         }
         ctx.closePath();
         ctx.fill();
+
+        try {
+            if (idData && typeof barrotillosHuecos !== 'undefined') {
+                const keyBarrotillos = keyHuecoBarrotillos(idData);
+                const cfgHueco = barrotillosHuecos[keyBarrotillos];
+                if (cfgHueco && typeof dibujarBarrotillosEnPoligono === 'function') {
+                    dibujarBarrotillosEnPoligono(ctx, poly, cfgHueco, esc);
+                }
+            }
+        } catch(e) {}
+
         aplicarEstiloApertura(ctx, false);
         ctx.stroke();
     }
@@ -6259,19 +6326,23 @@ if (mostrarAltoTotalDer) {
         
         // Buscar si el clic cae en alguna zona
         let zonaEncontrada = null;
+        let zonaEncontradaPoly = null;
         for (let i = zonasInteractivas.length - 1; i >= 0; i--) {
             if (pointInPolygon({x:x, y:y}, zonasInteractivas[i].poly)) {
                 zonaEncontrada = zonasInteractivas[i].data;
+                zonaEncontradaPoly = zonasInteractivas[i].poly;
                 break;
             }
         }
-        
+
         if (zonaEncontrada) {
             const modoSel = (document.getElementById('touchMode') ? document.getElementById('touchMode').value : 'pintar');
             if (modoSel === 'insertar') {
                 insertarSubHojaEnZona(zonaEncontrada);
             } else if (modoSel === 'borrar') {
                 borrarSubHojaDeZona(zonaEncontrada);
+            } else if (modoSel === 'barrotillos') {
+                aplicarBarrotillosSoloHueco(zonaEncontrada, zonaEncontradaPoly);
             } else {
                 aplicarColorAZona(zonaEncontrada, colorActivo);
             }
@@ -6349,7 +6420,6 @@ if (mostrarAltoTotalDer) {
         const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
         return brightness < 128;
     }
-
     function actualizarVista() {
         dibujar(mostrarMedidas);
     }
