@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v93.3</title>
+    <title>Ventana Pro v93.4</title>
     <!-- v93.3.2: Solo barrotillos se dibuja antes de aperturas. -->
     <!-- v93.3.1: corrige modo Solo barrotillos sobre huecos. -->
     <!-- v93.3: modo Solo barrotillos para huecos sin insertar hoja. -->
@@ -1058,7 +1058,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v93.3"><span class="title-main">Ventana Pro</span><span class="title-version">v93.3</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.4"><span class="title-main">Ventana Pro</span><span class="title-version">v93.4</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -2042,11 +2042,17 @@ function aplicarRellenoMarco(ctx){
     function keyHuecoBarrotillos(data) {
         if (!data) return '';
         if (data.id != null) return String(data.id);
+
+        // v93.3.1: incluir fila/columna para que cada hueco de fijo sea independiente.
         const tipo = data.type || data.tipo || 'hueco';
         const idx = data.index != null ? data.index : '';
+        const row = data.row != null ? data.row : '';
+        const col = data.col != null ? data.col : '';
         const sub = data.subIndex != null ? data.subIndex : '';
+        const panel = data.panel != null ? data.panel : '';
         const extra = data.extra != null ? data.extra : '';
-        return [tipo, idx, sub, extra].join('_');
+
+        return [tipo, idx, row, col, sub, panel, extra].join('_');
     }
 
     function aplicarBarrotillosSoloHueco(data, poly) {
@@ -4280,6 +4286,16 @@ function cambiarColorMarco(c) {
         }
         ctx.closePath();
         ctx.fill();
+        // v93.3.1: barrotillos en fijo superior con huecos curvos/inclinados.
+        try {
+            if (idData && typeof barrotillosHuecos !== 'undefined') {
+                const keyBarrotillos = keyHuecoBarrotillos(idData);
+                const cfgHueco = barrotillosHuecos[keyBarrotillos];
+                if (cfgHueco && typeof dibujarBarrotillosEnPoligono === 'function') {
+                    dibujarBarrotillosEnPoligono(ctx, points, cfgHueco, esc);
+                }
+            }
+        } catch(e) {}
 
         try {
             if (idData && typeof barrotillosHuecos !== 'undefined') {
