@@ -2,7 +2,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v93.0</title>
+    <title>Ventana Pro v93.2</title>
+    <!-- v93.2: corrige color por defecto de barrotillos en hojas principales. -->
+    <!-- v93.0.20 experimental: cotas individuales de travesaños H/V. -->
     <!-- v93.1: Selector visible de lado de cierre para corredera al insertar hoja en huecos. -->
     <!-- v88.9: Ajuste inteligente de cotas verticales con fijos; reduce texto y reparte en columnas cuando hace falta. -->
     <style>
@@ -762,6 +764,197 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
   box-shadow:0 0 0 2px rgba(22,163,74,.35), 0 4px 6px rgba(0,0,0,0.55);
 }
 
+
+/* v93.0.20 - checkbox Cota por travesaño H/V */
+.cota-travesano-check{
+  display:inline-flex!important; align-items:center; justify-content:center; gap:6px;
+  background:#fff7d6; border:1px solid #d6b85a; border-radius:8px;
+  padding:7px 9px; margin:0 0 0 4px!important; font-size:13px; font-weight:800;
+  color:#3b3328; white-space:nowrap; flex:0 0 auto;
+}
+.cota-travesano-check input{ width:20px!important; height:20px!important; margin:0!important; flex:0 0 auto; }
+.cota-travesano-check span{ display:inline-block; }
+
+
+/* v93.0.20 - opción apertura exterior */
+.apertura-exterior-linea{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:#eef6ff;
+  border:1px solid #9cc5f2;
+  border-radius:8px;
+  padding:8px 10px;
+  margin:8px 0;
+  font-weight:800;
+  color:#1f3a5f;
+}
+.apertura-exterior-linea input{
+  width:20px !important;
+  height:20px !important;
+  margin:0 !important;
+}
+.apertura-exterior-linea label{
+  margin:0 !important;
+  width:auto !important;
+  flex-basis:auto !important;
+  font-size:14px;
+}
+
+
+/* v93.0.20 - barrotes en vidrio */
+.barrotes-config{
+  background:#f7fbff;
+  border:1px solid #b9d6f2;
+  border-radius:10px;
+  padding:10px;
+  margin:10px 0;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  align-items:center;
+}
+.barrotes-config .barrotes-title{
+  grid-column:1/-1;
+  font-weight:900;
+  color:#1f3a5f;
+  text-align:center;
+}
+.barrotes-config label{
+  margin:0 !important;
+  font-size:13px;
+  font-weight:800;
+  color:#334155;
+  text-align:center;
+}
+.barrotes-config input[type="number"]{
+  width:100% !important;
+  box-sizing:border-box;
+  text-align:center;
+  font-size:15px;
+  padding:7px 4px;
+}
+.barrotes-config input[type="color"]{
+  width:100% !important;
+  height:38px;
+  padding:2px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  background:#fff;
+}
+
+
+/* v93.0.20 - botón plegable barrotillos */
+.btn-barrotillos-toggle{
+  width:100%;
+  margin:8px 0 0;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #7fb3e6;
+  background:#e8f4ff;
+  color:#1f3a5f;
+  font-weight:900;
+  font-size:15px;
+  box-shadow:none;
+}
+.btn-barrotillos-toggle.active{
+  background:#cfe8ff;
+  border-color:#4d9be6;
+}
+.barrotes-config.collapsed{
+  display:none !important;
+}
+
+
+/* v93.0.20 - barrotillos en hojas insertadas al tocar cristal */
+.subbarrotillos-panel{
+  display:none;
+  flex-basis:100%;
+  background:#f7fbff;
+  border:1px solid #b9d6f2;
+  border-radius:10px;
+  padding:10px;
+  margin-top:8px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  align-items:center;
+}
+.subbarrotillos-panel.show{
+  display:grid;
+}
+.subbarrotillos-panel label{
+  margin:0 !important;
+  font-size:13px;
+  font-weight:800;
+  color:#334155;
+  text-align:center;
+}
+.subbarrotillos-panel input[type="number"]{
+  width:100% !important;
+  box-sizing:border-box;
+  text-align:center;
+  font-size:15px;
+  padding:7px 4px;
+}
+.subbarrotillos-panel input[type="color"]{
+  width:100% !important;
+  height:38px;
+  padding:2px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  background:#fff;
+}
+.btn-subbarrotillos{
+  width:auto !important;
+  margin:0 !important;
+  padding:8px 12px !important;
+  border-radius:8px;
+  background:#e8f4ff;
+  color:#1f3a5f;
+  border:1px solid #7fb3e6;
+  font-size:14px;
+  font-weight:900;
+}
+
+
+/* v93.2 - selector color barrotillos */
+.barrotes-color-mode,
+.subbarrotes-color-mode{
+  grid-column:1/-1;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  background:#eef6ff;
+  border:1px solid #b9d6f2;
+  border-radius:8px;
+  padding:8px;
+  font-weight:800;
+  color:#1f3a5f;
+}
+.barrotes-color-mode label,
+.subbarrotes-color-mode label{
+  width:auto !important;
+  flex-basis:auto !important;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin:0 !important;
+  font-size:13px;
+}
+.barrotes-color-mode input,
+.subbarrotes-color-mode input{
+  width:18px !important;
+  height:18px !important;
+  margin:0 !important;
+}
+.barrotes-color-custom.hidden,
+.subbarrotes-color-custom.hidden{
+  display:none !important;
+}
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -862,7 +1055,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v93.0"><span class="title-main">Ventana Pro</span><span class="title-version">v93.0</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.2"><span class="title-main">Ventana Pro</span><span class="title-version">v93.2</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1200,6 +1393,32 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
       <input type="checkbox" id="subHojaBisagras" checked> Bisagras
     </label>
 
+    <label style="margin:0; display:flex; align-items:center; gap:6px;">
+      <input type="checkbox" id="subHojaAperturaExterior"> Apertura exterior
+    </label>
+
+    <button type="button" class="btn-subbarrotillos" onclick="toggleSubBarrotillosPanel()">Barrotillos</button>
+
+    <div id="subBarrotillosPanel" class="subbarrotillos-panel">
+      <label for="subBarrotesH">Horizontales</label>
+      <input type="number" id="subBarrotesH" min="0" max="20" placeholder="0">
+
+      <label for="subBarrotesV">Verticales</label>
+      <input type="number" id="subBarrotesV" min="0" max="20" placeholder="0">
+
+      <label for="subBarrotesGrosor">Grosor mm</label>
+      <input type="number" id="subBarrotesGrosor" min="1" max="150" value="25">
+
+      <div class="subbarrotes-color-mode">
+        <span>Color:</span>
+        <label><input type="radio" name="subBarrotesColorMode" value="ventana" checked onchange="actualizarModoColorSubBarrotes()"> Ventana</label>
+        <label><input type="radio" name="subBarrotesColorMode" value="personalizado" onchange="actualizarModoColorSubBarrotes()"> Personalizado</label>
+      </div>
+
+      <label class="subbarrotes-color-custom hidden" for="subBarrotesColor">Color personalizado</label>
+      <input class="subbarrotes-color-custom hidden" type="color" id="subBarrotesColor" value="#FFFFFF" onchange="this.dataset.tocado=\'1\'">
+    </div>
+
     <small style="color:#555; flex-basis:100%;">Tip: Cambia a “Poner hoja…” y toca un hueco. Para quitarla, cambia a “Borrar hoja…”.</small>
   </div>
 </div>
@@ -1489,7 +1708,7 @@ function aplicarRellenoMarco(ctx){
         measureLineWidth: 2,
         measureVerticalTextColor: '#0033aa',
         measureVerticalLineColor: '#0033aa',
-        measureVerticalFontSize: 60,
+        measureVerticalFontSize: 70,
         measureVerticalLineWidth: 2,
         measureTotalTextColor: '#333333',
         measureTotalLineColor: '#000000',
@@ -1669,6 +1888,13 @@ function aplicarRellenoMarco(ctx){
     function aplicarEstiloApertura(ctx, extra){
         ctx.strokeStyle = extra ? getAperturaExtraColor() : getAperturaColor();
         ctx.lineWidth = extra ? getAperturaExtraGrosor() : getAperturaGrosor();
+
+        // v93.0.20: si la hoja está marcada como apertura exterior,
+        // las líneas de apertura se dibujan discontinuas.
+        try {
+            if (window.__aperturaExteriorActiva) ctx.setLineDash([10, 7]);
+            else ctx.setLineDash([]);
+        } catch(e) {}
     }
     function getTecnicoColor(){ return visualSettings.technicalColor || DEFAULT_VISUAL_SETTINGS.technicalColor; }
     function getTecnicoGrosor(){ return Math.max(0.5, Number(visualSettings.technicalWidth) || DEFAULT_VISUAL_SETTINGS.technicalWidth); }
@@ -1743,16 +1969,81 @@ function aplicarRellenoMarco(ctx){
         ladoLabel.style.display = 'flex';
     }
 
+
+    function colorBarrotePorDefectoSubHoja() {
+        try {
+            if (typeof colorPerfilActualParaBarrotillos === 'function') {
+                return colorPerfilActualParaBarrotillos();
+            }
+        } catch(e) {}
+        try {
+            if (typeof normalizarColorHexBarrote === 'function') {
+                return normalizarColorHexBarrote(colorMarco || '#FFFFFF');
+            }
+        } catch(e) {}
+        return '#FFFFFF';
+    }
+
+
+    function actualizarModoColorSubBarrotes() {
+        const modo = (document.querySelector('input[name="subBarrotesColorMode"]:checked') || {}).value || 'ventana';
+        const customs = document.querySelectorAll('.subbarrotes-color-custom');
+        customs.forEach(el => {
+            if (modo === 'personalizado') el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        });
+
+        const colorInput = document.getElementById('subBarrotesColor');
+        if (colorInput && modo === 'ventana') {
+            colorInput.value = colorBarrotePorDefectoSubHoja();
+            colorInput.dataset.tocado = '0';
+        }
+        return false;
+    }
+    window.actualizarModoColorSubBarrotes = actualizarModoColorSubBarrotes;
+
+    function toggleSubBarrotillosPanel() {
+        const panel = document.getElementById('subBarrotillosPanel');
+        if (!panel) return false;
+        panel.classList.toggle('show');
+
+        // Al abrir, si no hay color elegido manualmente, ponemos el color actual del perfil.
+        const colorInput = document.getElementById('subBarrotesColor');
+        actualizarModoColorSubBarrotes();
+        if (colorInput && (!colorInput.dataset.tocado || colorInput.dataset.tocado !== '1')) {
+            colorInput.value = colorBarrotePorDefectoSubHoja();
+        }
+        return false;
+    }
+    window.toggleSubBarrotillosPanel = toggleSubBarrotillosPanel;
+
+    function normalizarSubBarrotesDesdePanel() {
+        const hInput = document.getElementById('subBarrotesH');
+        const vInput = document.getElementById('subBarrotesV');
+        const gInput = document.getElementById('subBarrotesGrosor');
+        const cInput = document.getElementById('subBarrotesColor');
+
+        const h = Math.max(0, Math.min(20, parseInt((hInput && hInput.value) || 0, 10) || 0));
+        const v = Math.max(0, Math.min(20, parseInt((vInput && vInput.value) || 0, 10) || 0));
+        const grosor = Math.max(1, Math.min(150, Number((gInput && gInput.value) || 25) || 25));
+        const colorMode = (document.querySelector('input[name="subBarrotesColorMode"]:checked') || {}).value === 'personalizado' ? 'personalizado' : 'ventana';
+        let color = colorMode === 'ventana' ? colorBarrotePorDefectoSubHoja() : (cInput && cInput.value ? cInput.value : colorBarrotePorDefectoSubHoja());
+
+        return { h, v, grosor, colorMode, color };
+    }
+
     function insertarSubHojaEnZona(data) {
         const key = zonaKey(data);
         if(!key) return;
         const apertura = (document.getElementById('subHojaApertura') || {}).value || 'derecha';
         const manilla = !!(document.getElementById('subHojaManilla') && document.getElementById('subHojaManilla').checked);
         const bisagras = !!(document.getElementById('subHojaBisagras') && document.getElementById('subHojaBisagras').checked);
+        const aperturaExterior = !!(document.getElementById('subHojaAperturaExterior') && document.getElementById('subHojaAperturaExterior').checked);
+        const barrotillos = normalizarSubBarrotesDesdePanel();
         const correderaSide = (document.getElementById('subHojaCorrederaSide') || {}).value || 'derecha';
         // v93.0: en hojas correderas insertadas dentro de huecos se guarda
         // el lado del cierre/manilla para que no quede en el centro.
-        subHojas[key] = { apertura, manilla, bisagras, correderaSide };
+        subHojas[key] = { apertura, manilla, bisagras, correderaSide, aperturaExterior, barrotillos, barrotes: barrotillos };
         actualizarVista();
     }
 
@@ -2596,6 +2887,180 @@ function cambiarColorMarco(c) {
         });
     }
 
+
+    function dibujarCotasTravesanosHoja(ctx, hojaGlassPoints, hojaTrav, esc, travEsc) {
+        if (!hojaGlassPoints || !hojaTrav) return;
+
+        const leftX = hojaGlassPoints[0].x;
+        const rightX = hojaGlassPoints[1].x;
+        const topY = hojaGlassPoints[0].y;
+        const bottomY = hojaGlassPoints[3].y;
+
+        // v93.0.20:
+        // La medida NO debe salir del alto del vidrio, sino de la referencia real
+        // del campo "Travesaño H. (desde abajo)".
+        // Usamos el alto real de la zona principal de hojas.
+        let altoRefMM = 0;
+        try {
+            altoRefMM = Number(typeof altoVentanaPrincipalRealMM !== 'undefined' ? altoVentanaPrincipalRealMM : 0) || 0;
+        } catch(e) {}
+
+        if (!altoRefMM || altoRefMM <= 0) {
+            try {
+                altoRefMM = Number(document.getElementById('alto') && document.getElementById('alto').value) || 0;
+            } catch(e) {}
+        }
+
+        if (!altoRefMM || altoRefMM <= 0) {
+            altoRefMM = Math.max(1, Math.round((bottomY - topY) / esc));
+        }
+
+        // Para travesaños verticales usamos el ancho real de la hoja si está disponible.
+        let anchoRefMM = 0;
+        try {
+            // xHoja puede venir de input anchoHojaN; si no, usamos el ancho interior de dibujo.
+            anchoRefMM = Math.max(1, Math.round((rightX - leftX) / esc));
+        } catch(e) {
+            anchoRefMM = Math.max(1, Math.round((rightX - leftX) / esc));
+        }
+
+        const altoPx = bottomY - topY;
+        const anchoPx = rightX - leftX;
+        const escalaY = altoPx / Math.max(1, altoRefMM);
+        const escalaX = anchoPx / Math.max(1, anchoRefMM);
+
+        ctx.save();
+        ctx.fillStyle = (typeof getMeasureVerticalTextColor === 'function') ? getMeasureVerticalTextColor() : '#1d4ed8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        function drawVerticalTextOnly(x, y1, y2, text) {
+            if (!isFinite(y1) || !isFinite(y2) || Math.abs(y2 - y1) < 16) return;
+            const yy1 = Math.min(y1, y2);
+            const yy2 = Math.max(y1, y2);
+            const fs = Math.min(30, Math.max(12, Math.abs(yy2 - yy1) * 0.22));
+            ctx.font = fs + 'px Arial';
+            ctx.save();
+            ctx.translate(x, (yy1 + yy2) / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.fillText(String(text), 0, 0);
+            ctx.restore();
+        }
+
+        function drawHorizontalTextOnly(x1, x2, y, text) {
+            if (!isFinite(x1) || !isFinite(x2) || Math.abs(x2 - x1) < 22) return;
+            const xx1 = Math.min(x1, x2);
+            const xx2 = Math.max(x1, x2);
+            const fs = Math.min(28, Math.max(11, Math.abs(xx2 - xx1) * 0.18));
+            ctx.font = fs + 'px Arial';
+            ctx.fillText(String(text), (xx1 + xx2) / 2, y);
+        }
+
+        // Horizontales: medidas entre POSICIONES reales.
+        // Ejemplo: alto 2000 y travesaño a 1000 => 1000 / 1000.
+        if (Array.isArray(hojaTrav.alturasH) && Array.isArray(hojaTrav.cotasH) && hojaTrav.cotasH.some(Boolean)) {
+            const posiciones = hojaTrav.alturasH
+                .map(v => Number(v))
+                .filter(v => isFinite(v) && v > 0)
+                .map(v => Math.max(0, Math.min(v, altoRefMM)))
+                .sort((a, b) => a - b);
+
+            if (posiciones.length) {
+                const puntos = [0, ...posiciones, altoRefMM];
+                const xTexto = rightX - 24;
+
+                for (let k = 0; k < puntos.length - 1; k++) {
+                    const a = puntos[k];
+                    const b = puntos[k + 1];
+                    const mm = Math.round(b - a);
+                    if (mm <= 0) continue;
+                    const y2 = bottomY - a * escalaY;
+                    const y1 = bottomY - b * escalaY;
+                    drawVerticalTextOnly(xTexto, y1, y2, mm);
+                }
+            }
+        }
+
+        // Verticales: seguimos usando referencia interior por ahora,
+        // porque el campo V se reparte sobre la anchura interna dibujada.
+        if (Array.isArray(hojaTrav.posicionesV) && Array.isArray(hojaTrav.cotasV) && hojaTrav.cotasV.some(Boolean)) {
+            const posicionesV = hojaTrav.posicionesV
+                .map(v => Number(v))
+                .filter(v => isFinite(v) && v > 0)
+                .map(v => Math.max(0, Math.min(v, anchoRefMM)))
+                .sort((a, b) => a - b);
+
+            if (posicionesV.length) {
+                const puntosV = [0, ...posicionesV, anchoRefMM];
+                const yTexto = bottomY - 24;
+
+                for (let k = 0; k < puntosV.length - 1; k++) {
+                    const a = puntosV[k];
+                    const b = puntosV[k + 1];
+                    const mm = Math.round(b - a);
+                    if (mm <= 0) continue;
+                    const x1 = leftX + a * escalaX;
+                    const x2 = leftX + b * escalaX;
+                    drawHorizontalTextOnly(x1, x2, yTexto, mm);
+                }
+            }
+        }
+
+        ctx.restore();
+    }
+
+
+    function dibujarBarrotesVidrioHoja(ctx, hojaGlassPoints, cfgBarrotes, esc) {
+        if (!ctx || !hojaGlassPoints || !cfgBarrotes) return;
+
+        const h = Math.max(0, parseInt(cfgBarrotes.h || 0, 10) || 0);
+        const v = Math.max(0, parseInt(cfgBarrotes.v || 0, 10) || 0);
+        if (h <= 0 && v <= 0) return;
+
+        const p1 = hojaGlassPoints[0], p2 = hojaGlassPoints[1], p3 = hojaGlassPoints[2], p4 = hojaGlassPoints[3];
+        const leftX = Math.min(p1.x, p4.x);
+        const rightX = Math.max(p2.x, p3.x);
+        const topY = Math.min(p1.y, p2.y);
+        const bottomY = Math.max(p3.y, p4.y);
+        const w = rightX - leftX;
+        const hh = bottomY - topY;
+        if (w <= 4 || hh <= 4) return;
+
+        const grosorPx = Math.max(1, (Number(cfgBarrotes.grosor) || 25) * esc);
+        const color = (cfgBarrotes.colorMode === 'ventana' && typeof colorPerfilActualParaBarrotillos === 'function') ? colorPerfilActualParaBarrotillos() : (cfgBarrotes.color || '#FFFFFF');
+
+        ctx.save();
+
+        // Recorte al vidrio para que los barrotes no salgan fuera.
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
+        ctx.closePath();
+        ctx.clip();
+
+        ctx.fillStyle = color;
+        ctx.strokeStyle = (color === '#FFFFFF' || color.toLowerCase() === '#ffffff') ? '#555' : 'rgba(0,0,0,0.35)';
+        ctx.lineWidth = Math.max(0.8, grosorPx * 0.08);
+
+        // Horizontales: número de barrotes repartidos en el vidrio.
+        for (let n = 1; n <= h; n++) {
+            const y = topY + (hh * n / (h + 1));
+            ctx.fillRect(leftX, y - grosorPx / 2, w, grosorPx);
+            ctx.strokeRect(leftX, y - grosorPx / 2, w, grosorPx);
+        }
+
+        // Verticales: número de barrotes repartidos en el vidrio.
+        for (let n = 1; n <= v; n++) {
+            const x = leftX + (w * n / (v + 1));
+            ctx.fillRect(x - grosorPx / 2, topY, grosorPx, hh);
+            ctx.strokeRect(x - grosorPx / 2, topY, grosorPx, hh);
+        }
+
+        ctx.restore();
+    }
+
     function ajustarAltosConFijos() {
         let altoTotalInput = +document.getElementById('alto').value;
         let altosFijosCombinados = 0;
@@ -3069,7 +3534,7 @@ function cambiarColorMarco(c) {
         hojasData.splice(n);
         
         while (travesanosHojas.length < n) {
-            travesanosHojas.push({ numH: 0, alturasH: [], coloresHuecosH: [], numV: 0, posicionesV: [] }); 
+            travesanosHojas.push({ numH: 0, alturasH: [], coloresHuecosH: [], cotasH: [], numV: 0, posicionesV: [], cotasV: [] }); 
         }
         travesanosHojas.splice(n);
 
@@ -3111,6 +3576,10 @@ function cambiarColorMarco(c) {
                             <div class="color-picker-group">
                                 <span class="hueco-color-option" style="background:${currentColor}; border:2px solid black;"></span>
                             </div>
+                            <label class="cota-travesano-check" title="Mostrar cota de este hueco">
+                                <input type="checkbox" ${travesanosHojas[i].cotasH && travesanosHojas[i].cotasH[j] ? 'checked' : ''} onchange="toggleCotaTravesanoH(${i}, ${j}, this.checked)">
+                                <span>Cota</span>
+                            </label>
                             <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'horizontal')">Quitar</button>
                         </div>
                     `;
@@ -3120,6 +3589,10 @@ function cambiarColorMarco(c) {
                         <div class="travesano-config">
                             <label>Travesaño V. ${j + 1} (desde izq):</label>
                             <input type="number" id="travesanoPosicionV${i}-${j}" value="${travesanosHojas[i].posicionesV[j] || 400}" min="1" onchange="actualizarTravesanoHoja(${i}, ${j}, 'posicionV', this.value);">
+                            <label class="cota-travesano-check" title="Mostrar cota de este hueco">
+                                <input type="checkbox" ${travesanosHojas[i].cotasV && travesanosHojas[i].cotasV[j] ? 'checked' : ''} onchange="toggleCotaTravesanoV(${i}, ${j}, this.checked)">
+                                <span>Cota</span>
+                            </label>
                             <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'vertical')">Quitar</button>
                         </div>
                     `;
@@ -3139,6 +3612,38 @@ function cambiarColorMarco(c) {
 
                 const travesanoButtonsDisplay = (aperturaSeleccionada === 'fijo-con-travesano') ? 'flex' : 'flex';
                 
+                if (!travesanosHojas[i]) {
+                    travesanosHojas[i] = { numH: 0, alturasH: [], coloresHuecosH: [], cotasH: [], numV: 0, posicionesV: [], cotasV: [] };
+                }
+                if (!Array.isArray(travesanosHojas[i].cotasH)) travesanosHojas[i].cotasH = [];
+                if (!Array.isArray(travesanosHojas[i].cotasV)) travesanosHojas[i].cotasV = [];
+
+                if (typeof hojasData[i].aperturaExterior === 'undefined') {
+                    hojasData[i].aperturaExterior = false;
+                }
+                const aperturaExteriorChecked = hojasData[i].aperturaExterior ? 'checked' : '';
+
+                if (!hojasData[i].barrotes) {
+                    hojasData[i].barrotes = { h: 0, v: 0, grosor: 25, color: '#FFFFFF' };
+                }
+                if (typeof hojasData[i].barrotes.h === 'undefined') hojasData[i].barrotes.h = 0;
+                if (typeof hojasData[i].barrotes.v === 'undefined') hojasData[i].barrotes.v = 0;
+                if (typeof hojasData[i].barrotes.grosor === 'undefined') hojasData[i].barrotes.grosor = 25;
+                if (!hojasData[i].barrotes.colorMode) hojasData[i].barrotes.colorMode = 'ventana';
+                if (!hojasData[i].barrotes.color) hojasData[i].barrotes.color = colorPerfilActualParaBarrotillos();
+                if (hojasData[i].barrotes.colorMode === 'ventana') hojasData[i].barrotes.color = colorPerfilActualParaBarrotillos();
+                if (typeof hojasData[i].barrotes.abierto === 'undefined') hojasData[i].barrotes.abierto = false;
+                const barrotesPanelClass = hojasData[i].barrotes.abierto ? '' : ' collapsed';
+                const barrotesBtnClass = hojasData[i].barrotes.abierto ? ' active' : '';
+                const barrotesHValue = hojasData[i].barrotes.h > 0 ? hojasData[i].barrotes.h : '';
+                const barrotesVValue = hojasData[i].barrotes.v > 0 ? hojasData[i].barrotes.v : '';
+                const barrotesSinCantidad = !(parseInt(hojasData[i].barrotes.h || 0, 10) || parseInt(hojasData[i].barrotes.v || 0, 10));
+                const barrotesColorMode = hojasData[i].barrotes.colorMode || 'ventana';
+                const barrotesColorVentanaChecked = barrotesColorMode === 'ventana' ? 'checked' : '';
+                const barrotesColorPersonalizadoChecked = barrotesColorMode === 'personalizado' ? 'checked' : '';
+                const barrotesColorCustomClass = barrotesColorMode === 'personalizado' ? '' : ' hidden';
+                const barrotesColorValue = normalizarColorHexBarrote(barrotesColorMode === 'ventana' ? colorPerfilActualParaBarrotillos() : (hojasData[i].barrotes.color || colorPerfilActualParaBarrotillos()));
+
                 const currentGlassColor = hojasData[i].colorCristal;
                 
                 cont.innerHTML += `
@@ -3157,10 +3662,39 @@ function cambiarColorMarco(c) {
                         <option value="fijo-con-travesano" ${aperturaSeleccionada === 'fijo-con-travesano' ? 'selected' : ''}>Fijo con travesaño</option>
                     </select>
                     
+                    <div class="apertura-exterior-linea">
+                        <input type="checkbox" id="aperturaExterior${i}" ${aperturaExteriorChecked} onchange="toggleAperturaExteriorHoja(${i}, this.checked)">
+                        <label for="aperturaExterior${i}">Apertura exterior</label>
+                    </div>
+
                     <div class="option-group">
                         <label>Color Cristal Hoja ${i+1}:</label>
                          <span class="hueco-color-option" style="background:${currentGlassColor}; border:2px solid #000; width:50px; height:25px;"></span>
                          <small style="color:#666; margin-left:5px;"</small>
+                    </div>
+
+                    <button type="button" class="btn-barrotillos-toggle${barrotesBtnClass}" onclick="togglePanelBarrotillos(${i})">Barrotillos</button>
+
+                    <div class="barrotes-config${barrotesPanelClass}">
+                        <div class="barrotes-title">Ajustes barrotillos</div>
+
+                        <label for="barrotesH${i}">Horizontales</label>
+                        <input type="number" id="barrotesH${i}" min="0" max="20" placeholder="0" value="${barrotesHValue}" onchange="actualizarBarrotesHoja(${i}, 'h', this.value)">
+
+                        <label for="barrotesV${i}">Verticales</label>
+                        <input type="number" id="barrotesV${i}" min="0" max="20" placeholder="0" value="${barrotesVValue}" onchange="actualizarBarrotesHoja(${i}, 'v', this.value)">
+
+                        <label for="barrotesGrosor${i}">Grosor mm</label>
+                        <input type="number" id="barrotesGrosor${i}" min="1" max="150" value="${hojasData[i].barrotes.grosor || 25}" onchange="actualizarBarrotesHoja(${i}, 'grosor', this.value)">
+
+                        <div class="barrotes-color-mode">
+                            <span>Color:</span>
+                            <label><input type="radio" name="barrotesColorMode${i}" value="ventana" ${barrotesColorVentanaChecked} onchange="actualizarBarrotesHoja(${i}, 'colorMode', 'ventana')"> Ventana</label>
+                            <label><input type="radio" name="barrotesColorMode${i}" value="personalizado" ${barrotesColorPersonalizadoChecked} onchange="actualizarBarrotesHoja(${i}, 'colorMode', 'personalizado')"> Personalizado</label>
+                        </div>
+
+                        <label class="barrotes-color-custom${barrotesColorCustomClass}" for="barrotesColor${i}">Color personalizado</label>
+                        <input class="barrotes-color-custom${barrotesColorCustomClass}" type="color" id="barrotesColor${i}" value="${barrotesColorValue}" onchange="actualizarBarrotesHoja(${i}, 'color', this.value)">
                     </div>
 
                     <label>Ancho hoja ${i + 1}:</label>
@@ -3229,7 +3763,7 @@ function cambiarColorMarco(c) {
 
     function addTravesanoHoja(hojaIndex, orientation) {
         if (!travesanosHojas[hojaIndex]) {
-             travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [colorActivo], numV: 0, posicionesV: [] };
+             travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [colorActivo], cotasH: [], numV: 0, posicionesV: [], cotasV: [] };
         }
 
         if (orientation === 'horizontal') {
@@ -3259,6 +3793,8 @@ function cambiarColorMarco(c) {
                 else newColors.push(hojasData[hojaIndex].colorCristal || colorActivo);
             }
             travesanosHojas[hojaIndex].coloresHuecosH = newColors;
+            const oldCotasH = Array.isArray(travesanosHojas[hojaIndex].cotasH) ? travesanosHojas[hojaIndex].cotasH : [];
+            travesanosHojas[hojaIndex].cotasH = Array.from({length:newCount}, (_, k) => !!oldCotasH[k]);
 
         } else if (orientation === 'vertical') {
             const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
@@ -3277,6 +3813,8 @@ function cambiarColorMarco(c) {
             
             travesanosHojas[hojaIndex].posicionesV = newPosiciones;
             travesanosHojas[hojaIndex].numV = newCount;
+            const oldCotasV = Array.isArray(travesanosHojas[hojaIndex].cotasV) ? travesanosHojas[hojaIndex].cotasV : [];
+            travesanosHojas[hojaIndex].cotasV = Array.from({length:newCount}, (_, k) => !!oldCotasV[k]);
         }
         actualizarHojas();
         actualizarVista();
@@ -3290,6 +3828,7 @@ function cambiarColorMarco(c) {
             if (hojaData.numH > 0) {
                 hojaData.numH--;
                 hojaData.alturasH.splice(tIndex, 1);
+                if (Array.isArray(hojaData.cotasH)) hojaData.cotasH.splice(tIndex, 1);
                 
                 // Recalculate Equal Gaps
                 const totalHeight = altoVentanaPrincipalRealMM - (2 * hojaThickness);
@@ -3317,6 +3856,7 @@ function cambiarColorMarco(c) {
             if (hojaData.numV > 0) {
                 hojaData.numV--;
                 hojaData.posicionesV.splice(tIndex, 1);
+                if (Array.isArray(hojaData.cotasV)) hojaData.cotasV.splice(tIndex, 1);
                 
                 const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
                 const newCount = hojaData.numV;
@@ -3349,6 +3889,122 @@ function cambiarColorMarco(c) {
         }
         actualizarVista();
     }
+
+
+    function toggleCotaTravesanoH(hojaIndex, travIndex, checked) {
+        if (!travesanosHojas[hojaIndex]) travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [], cotasH: [], numV: 0, posicionesV: [], cotasV: [] };
+        if (!Array.isArray(travesanosHojas[hojaIndex].cotasH)) travesanosHojas[hojaIndex].cotasH = [];
+        travesanosHojas[hojaIndex].cotasH[travIndex] = !!checked;
+        actualizarVista();
+        return false;
+    }
+    window.toggleCotaTravesanoH = toggleCotaTravesanoH;
+
+    function toggleCotaTravesanoV(hojaIndex, travIndex, checked) {
+        if (!travesanosHojas[hojaIndex]) travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [], cotasH: [], numV: 0, posicionesV: [], cotasV: [] };
+        if (!Array.isArray(travesanosHojas[hojaIndex].cotasV)) travesanosHojas[hojaIndex].cotasV = [];
+        travesanosHojas[hojaIndex].cotasV[travIndex] = !!checked;
+        actualizarVista();
+        return false;
+    }
+    window.toggleCotaTravesanoV = toggleCotaTravesanoV;
+
+
+    function toggleAperturaExteriorHoja(hojaIndex, checked) {
+        if (!hojasData[hojaIndex]) return false;
+        hojasData[hojaIndex].aperturaExterior = !!checked;
+        actualizarVista();
+        return false;
+    }
+    window.toggleAperturaExteriorHoja = toggleAperturaExteriorHoja;
+
+
+    function normalizarColorHexBarrote(valor) {
+        if (!valor || typeof valor !== 'string') return '#FFFFFF';
+        if (/^#[0-9a-fA-F]{6}$/.test(valor)) return valor;
+        if (valor.toUpperCase && valor.toUpperCase() === 'NOGAL') return '#7b4a2a';
+        if (valor.toUpperCase && valor.toUpperCase() === 'ROBLE') return '#c98a3a';
+        if (valor.toUpperCase && valor.toUpperCase() === 'PINO') return '#2f6b57';
+
+        const rgba = valor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if (rgba) {
+            const r = Math.max(0, Math.min(255, parseInt(rgba[1], 10))).toString(16).padStart(2, '0');
+            const g = Math.max(0, Math.min(255, parseInt(rgba[2], 10))).toString(16).padStart(2, '0');
+            const b = Math.max(0, Math.min(255, parseInt(rgba[3], 10))).toString(16).padStart(2, '0');
+            return '#' + r + g + b;
+        }
+
+        return '#FFFFFF';
+    }
+    window.normalizarColorHexBarrote = normalizarColorHexBarrote;
+
+    function togglePanelBarrotillos(hojaIndex) {
+        if (!hojasData[hojaIndex]) return false;
+        if (!hojasData[hojaIndex].barrotes) {
+            hojasData[hojaIndex].barrotes = { h: 0, v: 0, grosor: 25, color: '#FFFFFF', abierto: false };
+        }
+        const sinBarrotes = !(parseInt(hojasData[hojaIndex].barrotes.h || 0, 10) || parseInt(hojasData[hojaIndex].barrotes.v || 0, 10));
+        if (sinBarrotes && (!hojasData[hojaIndex].barrotes.color || hojasData[hojaIndex].barrotes.color === '#FFFFFF')) {
+            hojasData[hojaIndex].barrotes.color = colorPerfilActualParaBarrotillos();
+        }
+
+        hojasData[hojaIndex].barrotes.abierto = !hojasData[hojaIndex].barrotes.abierto;
+        actualizarHojas();
+        actualizarVista();
+        return false;
+    }
+    window.togglePanelBarrotillos = togglePanelBarrotillos;
+
+
+    function colorPerfilActualParaBarrotillos() {
+        try {
+            if (typeof normalizarColorHexBarrote === 'function') {
+                return normalizarColorHexBarrote(colorMarco || '#FFFFFF');
+            }
+        } catch(e) {}
+        return '#FFFFFF';
+    }
+    window.colorPerfilActualParaBarrotillos = colorPerfilActualParaBarrotillos;
+
+    function actualizarBarrotesHoja(hojaIndex, campo, valor) {
+        if (!hojasData[hojaIndex]) return false;
+        if (!hojasData[hojaIndex].barrotes) {
+            hojasData[hojaIndex].barrotes = { h: 0, v: 0, grosor: 25, color: '#FFFFFF' };
+        }
+
+        if (campo === 'h' || campo === 'v') {
+            hojasData[hojaIndex].barrotes[campo] = Math.max(0, Math.min(20, parseInt(valor || 0, 10) || 0));
+
+            // v93.2: al añadir barrotillos por primera vez, tomar color actual de la ventana.
+            if (!hojasData[hojaIndex].barrotes.color || hojasData[hojaIndex].barrotes.color === '#FFFFFF') {
+                hojasData[hojaIndex].barrotes.color = colorPerfilActualParaBarrotillos();
+            }
+        } else if (campo === 'grosor') {
+            hojasData[hojaIndex].barrotes.grosor = Math.max(1, Math.min(150, Number(valor) || 25));
+        } else if (campo === 'colorMode') {
+            hojasData[hojaIndex].barrotes.colorMode = valor === 'personalizado' ? 'personalizado' : 'ventana';
+            if (hojasData[hojaIndex].barrotes.colorMode === 'ventana') {
+                hojasData[hojaIndex].barrotes.color = colorPerfilActualParaBarrotillos();
+            }
+            actualizarHojas();
+        } else if (campo === 'color') {
+            hojasData[hojaIndex].barrotes.colorMode = 'personalizado';
+            hojasData[hojaIndex].barrotes.color = valor || colorPerfilActualParaBarrotillos();
+        }
+
+        actualizarVista();
+
+        // Si el usuario borra el 0, dejamos el campo visualmente vacío.
+        try {
+            if ((campo === 'h' || campo === 'v') && hojasData[hojaIndex].barrotes[campo] === 0) {
+                const input = document.getElementById(campo === 'h' ? ('barrotesH' + hojaIndex) : ('barrotesV' + hojaIndex));
+                if (input) input.value = '';
+            }
+        } catch(e) {}
+
+        return false;
+    }
+    window.actualizarBarrotesHoja = actualizarBarrotesHoja;
 
     function ajustarAnchos(cambiada) {
         let n = +document.getElementById('hojas').value;
@@ -3700,6 +4356,61 @@ function cambiarColorMarco(c) {
     }
 
 
+
+    function dibujarBarrotillosEnPoligono(ctx, poly, cfgBarrotes, esc) {
+        if (!ctx || !Array.isArray(poly) || poly.length < 4 || !cfgBarrotes) return;
+
+        const h = Math.max(0, parseInt(cfgBarrotes.h || 0, 10) || 0);
+        const v = Math.max(0, parseInt(cfgBarrotes.v || 0, 10) || 0);
+        if (h <= 0 && v <= 0) return;
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        poly.forEach(p => {
+            if (!p) return;
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+        });
+
+        const w = maxX - minX;
+        const hh = maxY - minY;
+        if (w <= 4 || hh <= 4) return;
+
+        const grosorPx = Math.max(1, (Number(cfgBarrotes.grosor) || 25) * esc);
+        const color = (cfgBarrotes.colorMode === 'ventana' && typeof colorPerfilActualParaBarrotillos === 'function') ? colorPerfilActualParaBarrotillos() : (cfgBarrotes.color || '#FFFFFF');
+
+        ctx.save();
+
+        ctx.beginPath();
+        ctx.moveTo(poly[0].x, poly[0].y);
+        for (let i = 1; i < poly.length; i++) ctx.lineTo(poly[i].x, poly[i].y);
+        ctx.closePath();
+        ctx.clip();
+
+        ctx.setLineDash([]);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = (String(color).toLowerCase() === '#ffffff') ? 'rgba(0,0,0,0.70)' : 'rgba(0,0,0,0.45)';
+        ctx.lineWidth = Math.max(1, grosorPx * 0.12);
+
+        function dibujarRectBarrote(x, y, ww, hh2) {
+            ctx.fillRect(x, y, ww, hh2);
+            ctx.strokeRect(x, y, ww, hh2);
+        }
+
+        for (let n = 1; n <= h; n++) {
+            const y = minY + (hh * n / (h + 1));
+            dibujarRectBarrote(minX, y - grosorPx / 2, w, grosorPx);
+        }
+
+        for (let n = 1; n <= v; n++) {
+            const x = minX + (w * n / (v + 1));
+            dibujarRectBarrote(x - grosorPx / 2, minY, grosorPx, hh);
+        }
+
+        ctx.restore();
+    }
+
     function dibujarSubHojas(ctx) {
         // Dibuja por encima de los cristales ya renderizados
         const keys = Object.keys(subHojas || {});
@@ -3845,6 +4556,13 @@ function cambiarColorMarco(c) {
                 _dibujarCristalPoligono(ctx, glassPoly, colorCristalSubHoja);
             }
 
+            const cfgBarrotillosSub = cfg.barrotillos || cfg.barrotes || null;
+            if (cfgBarrotillosSub && ((parseInt(cfgBarrotillosSub.h || 0, 10) || 0) > 0 || (parseInt(cfgBarrotillosSub.v || 0, 10) || 0) > 0)) {
+                // v93.0.20: pintar barrotillos sobre el vidrio visible de la subhoja,
+                // antes de dibujar las líneas de apertura.
+                dibujarBarrotillosEnPoligono(ctx, [p1, p2, p3, p4], cfgBarrotillosSub, esc);
+            }
+
             const centerYTop = (p1.y + p2.y) / 2;
             const centerYBot = (p3.y + p4.y) / 2;
             const centerYMid = (centerYTop + centerYBot) / 2;
@@ -3854,7 +4572,9 @@ function cambiarColorMarco(c) {
                 ctx.lineWidth = Math.max(1.05, strokeWidth * 0.42);
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
+                try { ctx.setLineDash(cfg.aperturaExterior ? [10, 7] : []); } catch(e) {}
             }else{
+                window.__aperturaExteriorActiva = !!cfg.aperturaExterior;
                 aplicarEstiloApertura(ctx, false);
             }
 
@@ -3896,6 +4616,7 @@ function cambiarColorMarco(c) {
             // v92.9: las hojas insertadas dentro de un hueco también dibujan
             // la marca oscilobatiente roja, igual que las hojas principales.
             if (ap === "izq-ob" || ap === "der-ob") {
+                window.__aperturaExteriorActiva = !!cfg.aperturaExterior;
                 aplicarEstiloApertura(ctx, true);
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerYTop);
@@ -3912,6 +4633,9 @@ function cambiarColorMarco(c) {
                     aplicarEstiloApertura(ctx, false);
                 }
             }
+
+            window.__aperturaExteriorActiva = false;
+            try { ctx.setLineDash([]); } catch(e) {}
 
             if(cfg.bisagras) {
                 if(ap === 'izquierda' || ap === 'izq-ob') dibujarBisagras(ctx, outerBounds.minX, outerBounds.minY, outerBounds.height, 'izquierda', 'black');
@@ -3994,7 +4718,7 @@ function cambiarColorMarco(c) {
     function dibujarManilla(ctx, manillaX, manillaY, color, verticalManilla, isSliding) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color === 'white' ? 'black' : 'white';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
 
         const manillaWidthMM = 50; 
         const manillaHeightMM = 110;
@@ -4069,7 +4793,7 @@ function cambiarColorMarco(c) {
 
         ctx.fillStyle = color;
         ctx.strokeStyle = color === 'white' ? 'black' : 'white';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
 
         if (lado === 'izquierda') {
             const bisagraX = x - bisagraWidthEsc;
@@ -4592,11 +5316,22 @@ function cambiarColorMarco(c) {
 
                     let currentYGlassSection = hojaGlassPoints[3].y;
 
+                    // v93.0.20: el travesaño H se pinta con la misma referencia que la cota.
+                    // Si alto principal = 2000 y travesaño = 1000, debe quedar justo al centro.
+                    let altoRefTravesanoHMM = 0;
+                    try {
+                        altoRefTravesanoHMM = Number(typeof altoVentanaPrincipalRealMM !== 'undefined' ? altoVentanaPrincipalRealMM : 0) || 0;
+                    } catch(e) {}
+                    if (!altoRefTravesanoHMM || altoRefTravesanoHMM <= 0) {
+                        altoRefTravesanoHMM = Math.max(1, Math.round((hojaGlassPoints[3].y - hojaGlassPoints[0].y) / esc));
+                    }
+                    const escalaTravesanoHY = (hojaGlassPoints[3].y - hojaGlassPoints[0].y) / Math.max(1, altoRefTravesanoHMM);
+
                     for (let j = 0; j < sortedTravesanos.length; j++) {
                         let travesanoAltoDesdeAbajoMM = sortedTravesanos[j].altura;
                         let huecoColor = sortedTravesanos[j].colorHueco;
                         
-                        let travesanoYposAbs = hojaGlassPoints[3].y - (travesanoAltoDesdeAbajoMM * esc);
+                        let travesanoYposAbs = hojaGlassPoints[3].y - (Math.max(0, Math.min(travesanoAltoDesdeAbajoMM, altoRefTravesanoHMM)) * escalaTravesanoHY);
                         let huecoHeightEsc = currentYGlassSection - travesanoYposAbs;
 
                         if (huecoHeightEsc > 0) {
@@ -4606,12 +5341,15 @@ function cambiarColorMarco(c) {
                         }
 
                         aplicarRellenoMarco(ctx);
-                        ctx.fillRect(hojaGlassPoints[0].x, currentYGlassSection - travesanoThicknessEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
+                        // v93.0.20: la medida introducida es el eje del travesaño, no el borde.
+                        const travesanoYCentroAbs = currentYGlassSection;
+                        const travesanoYTopAbs = travesanoYCentroAbs - (travesanoThicknessEsc / 2);
+                        ctx.fillRect(hojaGlassPoints[0].x, travesanoYTopAbs, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
                         ctx.strokeStyle = getBordeHojaColor();
                         ctx.lineWidth = getBordeHojaGrosor();
-                        ctx.strokeRect(hojaGlassPoints[0].x, currentYGlassSection - travesanoThicknessEsc, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
-                        
-                        currentYGlassSection -= travesanoThicknessEsc;
+                        ctx.strokeRect(hojaGlassPoints[0].x, travesanoYTopAbs, hojaGlassPoints[1].x - hojaGlassPoints[0].x, travesanoThicknessEsc);
+
+                        currentYGlassSection = travesanoYTopAbs;
                     }
 
                     if (currentYGlassSection > hojaGlassPoints[0].y) {
@@ -4631,26 +5369,51 @@ function cambiarColorMarco(c) {
                 // Dibujar travesaños verticales HOJA
                 if (travesanosHojas[i] && travesanosHojas[i].numV > 0) {
                     const sortedVerticales = [...travesanosHojas[i].posicionesV].sort((a,b) => a - b);
+
+                    // v93.0.20: la posición V también se interpreta como eje sobre el ancho real de hoja.
+                    let anchoRefTravesanoVMM = 0;
+                    try {
+                        const anchoInput = document.getElementById('anchoHoja' + i);
+                        anchoRefTravesanoVMM = Number(anchoInput && anchoInput.value) || 0;
+                    } catch(e) {}
+                    if (!anchoRefTravesanoVMM || anchoRefTravesanoVMM <= 0) {
+                        try { anchoRefTravesanoVMM = Number(hojasData[i] && hojasData[i].savedAncho) || 0; } catch(e) {}
+                    }
+                    if (!anchoRefTravesanoVMM || anchoRefTravesanoVMM <= 0) {
+                        anchoRefTravesanoVMM = Math.max(1, Math.round((hojaGlassPoints[1].x - hojaGlassPoints[0].x) / esc));
+                    }
+                    const escalaTravesanoVX = (hojaGlassPoints[1].x - hojaGlassPoints[0].x) / Math.max(1, anchoRefTravesanoVMM);
+
                     sortedVerticales.forEach(posicion => {
-                        const travesanoX = hojaGlassPoints[0].x + posicion * esc;
+                        const posClamped = Math.max(0, Math.min(Number(posicion) || 0, anchoRefTravesanoVMM));
+                        const travesanoX = hojaGlassPoints[0].x + posClamped * escalaTravesanoVX;
                         aplicarRellenoMarco(ctx);
                         ctx.fillRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
                         ctx.strokeStyle = getBordeHojaColor(); ctx.lineWidth = getBordeHojaGrosor(); ctx.strokeRect(travesanoX - travesanoThicknessEsc / 2, hojaGlassPoints[0].y, travesanoThicknessEsc, hojaGlassPoints[3].y - hojaGlassPoints[0].y);
                     });
                 }
+                if (travesanosHojas[i]) {
+                    dibujarCotasTravesanosHoja(ctx, hojaGlassPoints, travesanosHojas[i], esc, travesanoThicknessEsc);
+                }
                 
 
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = 2;
                 const p1 = hojaGlassPoints[0];
                 const p2 = hojaGlassPoints[1];
                 const p3 = hojaGlassPoints[2];
                 const p4 = hojaGlassPoints[3];
+
+                if (hojasData[i] && hojasData[i].barrotes) {
+                    dibujarBarrotesVidrioHoja(ctx, hojaGlassPoints, hojasData[i].barrotes, esc);
+                }
 
                 const centerXGlass = (p1.x + p2.x) / 2;
                 const centerYGlassTopLine = (p1.y + p2.y) / 2;
                 const centerYGlassBottomLine = (p3.y + p4.y) / 2;
                 const centerYGlassMid = (centerYGlassTopLine + centerYGlassBottomLine) / 2;
 
+                // v93.0.20: estado de apertura exterior solo para esta hoja principal.
+                window.__aperturaExteriorActiva = !!(hojasData[i] && hojasData[i].aperturaExterior);
                 aplicarEstiloApertura(ctx, false);
                 if (ap === "izquierda" || ap === "izq-ob") {
                     ctx.beginPath();
@@ -4725,6 +5488,9 @@ function cambiarColorMarco(c) {
                     aplicarEstiloApertura(ctx, false);
                 }
                 
+                window.__aperturaExteriorActiva = false;
+                try { ctx.setLineDash([]); } catch(e) {}
+
                 if (hojasData[i] && hojasData[i].manilla.enabled) {
                     const manillaColor = hojasData[i].manilla.color;
                     
@@ -5034,7 +5800,7 @@ function cambiarColorMarco(c) {
 // MEDIDA DCHA SOLO MARCO
 
             if (mostrarPersiana) {
-                ctx.strokeStyle = "blue"; ctx.lineWidth = 1;
+                ctx.strokeStyle = "blue"; ctx.lineWidth = 2;
                 let mx_cajon = verticalMeasureXLeft;
                 
                 const cajonY0Abs = y0;
@@ -6582,7 +7348,7 @@ if (mostrarAltoTotalDer) {
         totalWidth = Number(totalWidth) || 0;
         totalHeight = Number(totalHeight) || 0;
         if (totalWidth <= 0 || totalHeight <= 0) return [];
-        const edgeX = 60;
+        const edgeX = 70;
         const edgeY = 57;
         const halfDiv = 13;
         const posV = (Array.isArray(posicionesV) ? posicionesV : []).map(v => Number(v) || 0).filter(v => v > 0 && v < totalWidth).sort((a,b) => a-b);
