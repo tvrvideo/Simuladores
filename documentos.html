@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.87.75</title>
+  <title>Documentos Rey v2.88</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1802,6 +1802,81 @@ body.editing-field .brand-idb-pill{
   .saved-doc-meta-compact{font-size:14px !important;}
 }
 
+
+
+/* v2.88 - Ganancia en importes de presupuesto */
+.price-gain-preview{
+  margin:10px 0 4px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:linear-gradient(180deg,#f8fafc 0%,#eef4fb 100%);
+  border:1px solid #cbd5e1;
+  color:#0f172a;
+  font-size:13px;
+  font-weight:900;
+  line-height:1.25;
+}
+.price-gain-preview small{
+  display:block;
+  margin-top:3px;
+  color:#64748b;
+  font-size:11px;
+  font-weight:800;
+}
+
+/* v2.88 - Importes con ganancia €/% y colores */
+.import-field-label{
+  display:block !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  margin:10px 0 6px !important;
+  color:#0f172a !important;
+}
+.import-field{
+  width:100% !important;
+  border-radius:14px !important;
+  padding:13px 14px !important;
+  font-weight:700 !important;
+}
+.import-neutral{
+  background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%) !important;
+  border:1px solid #cbd5e1 !important;
+}
+.import-gain{
+  background:linear-gradient(180deg,#fff8d8 0%,#ffef9f 100%) !important;
+  border:1px solid #e8c94d !important;
+}
+.import-discount{
+  background:linear-gradient(180deg,#fff1f2 0%,#ffe4e6 100%) !important;
+  border:1px solid #fca5a5 !important;
+}
+.import-gain-grid{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:10px !important;
+}
+@media(max-width:520px){
+  .import-gain-grid{grid-template-columns:1fr 1fr !important;gap:8px !important;}
+}
+.price-gain-preview{
+  margin:12px 0 6px !important;
+  padding:12px 14px !important;
+  border-radius:16px !important;
+  background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%) !important;
+  border:1px solid #93c5fd !important;
+  color:#0f172a !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1.25 !important;
+}
+.price-gain-preview small{
+  display:block !important;
+  margin-top:4px !important;
+  color:#475569 !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+}
+
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -3411,6 +3486,81 @@ body.editing-field .brand-idb-pill{
   }
   function ivaRate(){
     return ivaEnabled() ? IVA : 0;
+  }
+
+  function parseDecimalInputValue(value){
+    return Number(String(value == null ? '' : value).replace(',', '.')) || 0;
+  }
+  function calcPriceWithGain(basePrice, gainPercent){
+    const base = Math.max(0, parseDecimalInputValue(basePrice));
+    const gain = Math.max(0, parseDecimalInputValue(gainPercent));
+    return base * (1 + (gain / 100));
+  }
+  function calcPriceWithGainAmount(basePrice, gainAmount){
+    const base = Math.max(0, parseDecimalInputValue(basePrice));
+    const gain = Math.max(0, parseDecimalInputValue(gainAmount));
+    return base + gain;
+  }
+  function priceForGainEditor(item){
+    if(item && item.costPrice != null && String(item.costPrice).trim() !== '') return String(item.costPrice);
+    if(item && item.basePrice != null && String(item.basePrice).trim() !== '') return String(item.basePrice);
+    return String((item && item.price != null) ? item.price : '0');
+  }
+  function gainForEditor(item){
+    if(item && item.gain != null && String(item.gain).trim() !== '') return String(item.gain);
+    if(item && item.margin != null && String(item.margin).trim() !== '') return String(item.margin);
+    return '';
+  }
+  function gainAmountForEditor(item){
+    if(item && item.gainAmount != null && String(item.gainAmount).trim() !== '') return String(item.gainAmount);
+    const base = Math.max(0, parseDecimalInputValue(priceForGainEditor(item)));
+    const pct = Math.max(0, parseDecimalInputValue(gainForEditor(item)));
+    if(base && pct) return String((base * pct / 100).toFixed(2));
+    if(item && item.price != null && base){
+      const diff = Math.max(0, parseDecimalInputValue(item.price) - base);
+      if(diff) return String(diff.toFixed(2));
+    }
+    return '';
+  }
+  function bindGainPreview(priceId, gainPctId, gainAmountId, previewId){
+    const priceEl = $(priceId);
+    const gainPctEl = $(gainPctId);
+    const gainAmountEl = $(gainAmountId);
+    const previewEl = $(previewId);
+    if(!priceEl || !gainPctEl || !gainAmountEl || !previewEl) return;
+    let gainMode = gainAmountEl.value ? 'amount' : 'pct';
+
+    const normalize = (v) => Math.max(0, parseDecimalInputValue(v));
+    const setVal = (el, val) => {
+      if(!el) return;
+      el.value = val === '' ? '' : String(Number(val).toFixed(2)).replace(/\.00$/, '');
+    };
+    const update = (mode) => {
+      if(mode) gainMode = mode;
+      const base = normalize(priceEl.value);
+      let pct = normalize(gainPctEl.value);
+      let amount = normalize(gainAmountEl.value);
+
+      if(gainMode === 'amount'){
+        pct = base ? (amount / base) * 100 : 0;
+        setVal(gainPctEl, amount ? pct : '');
+      }else{
+        amount = base * pct / 100;
+        setVal(gainAmountEl, pct ? amount : '');
+      }
+
+      const finalPrice = base + amount;
+      const hasGain = amount > 0 || pct > 0;
+      previewEl.innerHTML = 'Precio en presupuesto: ' + money(finalPrice) +
+        '<small>Precio base ' + money(base) +
+        (hasGain ? ' + ganancia ' + money(amount) + ' (' + String(Number(pct).toFixed(2)).replace('.', ',').replace(',00','') + '%)' : ' · sin ganancia') +
+        '</small>';
+    };
+
+    gainAmountEl.addEventListener('input', () => update('amount'));
+    gainPctEl.addEventListener('input', () => update('pct'));
+    priceEl.addEventListener('input', () => update(gainMode));
+    update(gainMode);
   }
   function calcItem(item){
     const uds = Number(item.units || 0);
@@ -7116,9 +7266,18 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
         </div>
         <label>Concepto</label><textarea id="editSimpleText" class="concept-editor-field">${esc(it.text || '')}</textarea>
-        <label>Unidades</label><input id="editSimpleUnits" inputmode="decimal" value="${esc(it.units || '1')}">
-        <label>Precio</label><input id="editSimplePrice" inputmode="decimal" value="${esc(it.price || '0')}">
-        <label>Descuento (%)</label><input id="editSimpleDiscount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
+        <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
+        <label class="import-field-label">Precio base</label><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
+        <div class="import-gain-grid">
+          <div>
+            <label class="import-field-label">Ganancia (€)</label><input id="editSimpleGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€">
+          </div>
+          <div>
+            <label class="import-field-label">Ganancia (%)</label><input id="editSimpleGain" class="import-field import-gain" inputmode="decimal" value="${esc(gainForEditor(it))}" placeholder="%">
+          </div>
+        </div>
+        <div id="simpleGainPreview" class="price-gain-preview"></div>
+        <label class="import-field-label">Descuento (%)</label><input id="editSimpleDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
         <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
@@ -7127,13 +7286,24 @@ COLOCACIÓN INCLUIDA` }
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       $('sheetCatalogBtn').onclick = async () => { currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
+      bindGainPreview('editSimplePrice', 'editSimpleGain', 'editSimpleGainAmount', 'simpleGainPreview');
     } else if(type === 'conceptMeta'){
       const it = state.items[index];
       body.innerHTML = `
-        <label>Unidades ${it.code}</label><input id="editUnits" inputmode="decimal" value="${esc(it.units)}">
-        <label>Precio ${it.code}</label><input id="editPrice" inputmode="decimal" value="${esc(it.price)}">
-        <label>Descuento (%) ${it.code}</label><input id="editDiscount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
+        <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
+        <label class="import-field-label">Precio base ${it.code}</label><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
+        <div class="import-gain-grid">
+          <div>
+            <label class="import-field-label">Ganancia (€) ${it.code}</label><input id="editGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€">
+          </div>
+          <div>
+            <label class="import-field-label">Ganancia (%) ${it.code}</label><input id="editGain" class="import-field import-gain" inputmode="decimal" value="${esc(gainForEditor(it))}" placeholder="%">
+          </div>
+        </div>
+        <div id="gainPreview" class="price-gain-preview"></div>
+        <label class="import-field-label">Descuento (%) ${it.code}</label><input id="editDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
         <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
     } else if(type === 'catalog'){
       const products = getProducts();
       let listHtml = '';
@@ -7718,7 +7888,24 @@ COLOCACIÓN INCLUIDA` }
       it.code = it.code || conceptCodeForIndex(currentEdit.index);
       it.text = $('editSimpleText').value || '';
       it.units = String(($('editSimpleUnits').value || '1').replace(',','.'));
-      it.price = String(($('editSimplePrice').value || '0').replace(',','.'));
+      const simpleBasePrice = String(($('editSimplePrice').value || '0').replace(',','.')).trim() || '0';
+      const simpleGain = String(($('editSimpleGain') ? $('editSimpleGain').value : '') || '').replace(',','.').trim();
+      const simpleGainAmount = String(($('editSimpleGainAmount') ? $('editSimpleGainAmount').value : '') || '').replace(',','.').trim();
+      it.costPrice = simpleBasePrice;
+      if(simpleGainAmount || simpleGain){
+        const baseNum = parseDecimalInputValue(simpleBasePrice);
+        let amountNum = parseDecimalInputValue(simpleGainAmount);
+        let pctNum = parseDecimalInputValue(simpleGain);
+        if(!amountNum && pctNum) amountNum = baseNum * pctNum / 100;
+        if(amountNum && !pctNum && baseNum) pctNum = amountNum / baseNum * 100;
+        it.gain = String(Number(pctNum || 0).toFixed(2));
+        it.gainAmount = String(Number(amountNum || 0).toFixed(2));
+        it.price = String(calcPriceWithGainAmount(simpleBasePrice, amountNum));
+      }else{
+        delete it.gain;
+        delete it.gainAmount;
+        it.price = simpleBasePrice;
+      }
       const d = String(($('editSimpleDiscount').value || '').replace(',','.')).trim();
       if(d) it.discount = d; else delete it.discount;
       it.image = '';
@@ -7726,7 +7913,24 @@ COLOCACIÓN INCLUIDA` }
       state.items[currentEdit.index] = it;
     } else if(currentEdit.type === 'conceptMeta') {
       state.items[currentEdit.index].units = $('editUnits').value || '1';
-      state.items[currentEdit.index].price = String(($('editPrice').value || '0').replace(',','.'));
+      const basePrice = String(($('editPrice').value || '0').replace(',','.')).trim() || '0';
+      const gain = String(($('editGain') ? $('editGain').value : '') || '').replace(',','.').trim();
+      const gainAmount = String(($('editGainAmount') ? $('editGainAmount').value : '') || '').replace(',','.').trim();
+      state.items[currentEdit.index].costPrice = basePrice;
+      if(gainAmount || gain){
+        const baseNum = parseDecimalInputValue(basePrice);
+        let amountNum = parseDecimalInputValue(gainAmount);
+        let pctNum = parseDecimalInputValue(gain);
+        if(!amountNum && pctNum) amountNum = baseNum * pctNum / 100;
+        if(amountNum && !pctNum && baseNum) pctNum = amountNum / baseNum * 100;
+        state.items[currentEdit.index].gain = String(Number(pctNum || 0).toFixed(2));
+        state.items[currentEdit.index].gainAmount = String(Number(amountNum || 0).toFixed(2));
+        state.items[currentEdit.index].price = String(calcPriceWithGainAmount(basePrice, amountNum));
+      }else{
+        delete state.items[currentEdit.index].gain;
+        delete state.items[currentEdit.index].gainAmount;
+        state.items[currentEdit.index].price = basePrice;
+      }
       const d = String(($('editDiscount').value || '').replace(',','.')).trim();
       if(d) state.items[currentEdit.index].discount = d; else delete state.items[currentEdit.index].discount;
     } else if(currentEdit.type === 'catalogForm') {
@@ -9936,5 +10140,6 @@ document.addEventListener('DOMContentLoaded', function(){
   window.runStorageDiagnostic = runDiagnostic;
 })();
 </script>
+
 </body>
 </html>
