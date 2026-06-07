@@ -1682,7 +1682,7 @@ body.editing-field .brand-idb-pill{
 }
 
 
-/* v2.87.62 - Panel estados desde Documentos */
+/* v2.88 - Panel estados desde Documentos */
 .doc-status-actions-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -1722,7 +1722,7 @@ body.editing-field .brand-idb-pill{
   box-shadow:0 6px 14px rgba(15,23,42,.08) !important;
 }
 
-/* v2.87.69 - Recupera estado compacto en tarjetas como v2.87.61 */
+/* v2.88 - Recupera estado compacto en tarjetas como v2.88 */
 .saved-status-clickable{
   cursor:pointer !important;
   flex:0 0 auto !important;
@@ -1734,7 +1734,7 @@ body.editing-field .brand-idb-pill{
 
 
 
-/* v2.87.71 - Tarjetas documentos guardados pulidas */
+/* v2.88 - Tarjetas documentos guardados pulidas */
 .saved-doc-card-compact{
   min-height:0 !important;
 }
@@ -1883,7 +1883,7 @@ body.editing-field .brand-idb-pill{
 
 
 <script>
-/* v2.87.68 - Normalizar imagen catálogo compartido (GitHub/img/base64) */
+/* v2.88 - Normalizar imagen catálogo compartido (GitHub/img/base64) */
 (function(){
   if(window.normalizeCatalogImageSrc) return;
   window.normalizeCatalogImageSrc = function(src){
@@ -1899,7 +1899,7 @@ body.editing-field .brand-idb-pill{
 </script>
 
 <style>
-/* v2.87.68 - Catálogo estilo Facturación: tarjetas sin botones */
+/* v2.88 - Catálogo estilo Facturación: tarjetas sin botones */
 #sheetContent .catalog-card-media{
   display:flex !important;
   align-items:center !important;
@@ -2001,7 +2001,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.87.72 - Suavizado visual de tarjetas y estados más destacados */
+/* v2.88 - Suavizado visual de tarjetas y estados más destacados */
 .saved-budget-card{
   background:linear-gradient(180deg,#d9bfa5 0%,#c9a584 100%) !important;
   border:1px solid #9b7655 !important;
@@ -2082,7 +2082,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.87.75 - Suavizado final tarjetas y botones conversión */
+/* v2.88 - Suavizado final tarjetas y botones conversión */
 .saved-budget-card{
   background:linear-gradient(180deg,#f8f1ea 0%, #f1e4d6 100%) !important;
   border:1px solid #d9c9b8 !important;
@@ -2117,7 +2117,7 @@ body.editing-field .brand-idb-pill{
 </style>
 
 <style>
-/* v2.87.75 - Tarjetas cálidas, borde definido y estados fuertes */
+/* v2.88 - Tarjetas cálidas, borde definido y estados fuertes */
 #sheetContent .saved-budget-card,
 #settingsSheet .saved-budget-card,
 .saved-budget-card{
@@ -2201,7 +2201,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.87.75 - Botones conversión con contraste gris claro */
+/* v2.88 - Botones conversión con contraste gris claro */
 #sheetContent .saved-doc-actions-compact .btn-convert-albaran,
 #sheetContent .saved-doc-actions-compact .btn-convert-factura,
 .saved-doc-actions-compact .btn-convert-albaran,
@@ -2295,7 +2295,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.87.75</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.88</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -2664,13 +2664,13 @@ body.editing-field .brand-idb-pill{
   function editFieldFocusMode(on){
     const sh = $('editSheet');
     if(!sh) return;
-    // v2.87.49: solo marca estado visual; no cambia geometría del panel.
+    // v2.88: solo marca estado visual; no cambia geometría del panel.
     document.body.classList.toggle('editing-field', !!on);
     sh.classList.toggle('field-focus-mode', !!on);
   }
 
   function scrollEditFieldToTop(el){
-    // v2.87.49: sin scroll automático agresivo.
+    // v2.88: sin scroll automático agresivo.
     // iOS gestionará el teclado y el usuario puede desplazar el panel naturalmente.
     return;
   }
@@ -3051,7 +3051,7 @@ body.editing-field .brand-idb-pill{
   function isPlaceholderDocumentNumber(num){
     const s = String(num || '').trim();
 
-    // v2.87.49: permite usar 0000 como número provisional/borrador.
+    // v2.88: permite usar 0000 como número provisional/borrador.
     // También acepta formatos tipo P-2026-0000, A-2026-0000 o F-2026-0000.
     if(/^0+$/.test(s)) return true;
     if(/^[A-Z]-\d{4}-0+$/i.test(s)) return true;
@@ -3100,7 +3100,7 @@ body.editing-field .brand-idb-pill{
   }
 
 
-  // v2.87.62 - Cambio de estado desde Documentos (misma base compartida con Facturación)
+  // v2.88 - Cambio de estado desde Documentos (misma base compartida con Facturación)
   let docStatusContext = null;
 
   function statusOptionsForDocumentType(tipo){
@@ -3477,7 +3477,7 @@ body.editing-field .brand-idb-pill{
   }
 
   function ensureFieldVisible(field){
-    // v2.87.49: función neutralizada para evitar rebotes con teclado iPhone.
+    // v2.88: función neutralizada para evitar rebotes con teclado iPhone.
     return;
   }
 
@@ -3755,7 +3755,7 @@ body.editing-field .brand-idb-pill{
 
   async function fileToDataURL(file){
     const raw = await readFileAsDataURL(file);
-    // v2.87.49: compresión automática para evitar documentos gigantes en iPhone.
+    // v2.88: compresión automática para evitar documentos gigantes en iPhone.
     return optimizeImageDataURL(raw, {
       maxW: 1400,
       maxH: 1400,
@@ -3865,7 +3865,7 @@ body.editing-field .brand-idb-pill{
     try{
       let raw = await idbGet(key);
       if(raw == null || raw === ''){
-        // v2.87.49: migración silenciosa desde localStorage a IndexedDB
+        // v2.88: migración silenciosa desde localStorage a IndexedDB
         const legacy = lsGet(key);
         if(legacy != null && legacy !== ''){
           try{ await idbSet(key, legacy); }catch(__){}
@@ -3886,7 +3886,7 @@ body.editing-field .brand-idb-pill{
   }
   async function storageSetJSON(key, value){
     const raw = JSON.stringify(value);
-    const maxLocalStorageMirror = 1800000; // v2.87.49: espejo ligero para evitar límite iPhone/Safari
+    const maxLocalStorageMirror = 1800000; // v2.88: espejo ligero para evitar límite iPhone/Safari
     let idbOk = false;
 
     try{
@@ -4227,7 +4227,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v2.87.68',
+      version:'v2.88',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -4731,7 +4731,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v2.87.68',
+      version:'v2.88',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -4785,7 +4785,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v2.87.68',
+      version:'v2.88',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -4907,7 +4907,7 @@ COLOCACIÓN INCLUIDA` }
     return {
       bridgeId: 'pv_' + Date.now(),
       facturacionId: String(state.facturacionId || '').trim(),
-      sourceApp: 'documentos_rey_v2.87.62',
+      sourceApp: 'documentos_rey_v2.88',
       numero: String(state.numero || '').trim(),
       fecha: String(state.fecha || ''),
       venc: String(state.validez || ''),
@@ -4953,7 +4953,7 @@ COLOCACIÓN INCLUIDA` }
       if(targetId){
         idx = historial.findIndex(h => String((h && h.id) || '') === targetId);
       }
-      // v2.87.59: los números provisionales pueden repetirse,
+      // v2.88: los números provisionales pueden repetirse,
       // así que no se usan como clave para reemplazar en el historial de Facturación.
       if(idx < 0 && incomingNum && !isPlaceholderDocumentNumber(incomingNum)){
         idx = historial.findIndex(h => String((h && (h.num || h.numero)) || '').trim() === incomingNum);
@@ -5030,7 +5030,7 @@ COLOCACIÓN INCLUIDA` }
 
     let idx = -1;
 
-    // v2.87.49: prioridad absoluta al documentId.
+    // v2.88: prioridad absoluta al documentId.
     // Así cambiar el número no crea un documento nuevo.
     if(payload.documentId){
       idx = list.findIndex(function(x){
@@ -5039,7 +5039,7 @@ COLOCACIÓN INCLUIDA` }
     }
 
     // Fallback solo para documentos antiguos sin documentId.
-    // IMPORTANTE v2.87.59: los números provisionales (0000 / P-2026-0000)
+    // IMPORTANTE v2.88: los números provisionales (0000 / P-2026-0000)
     // pueden repetirse. Nunca se deben usar para sustituir otro documento.
     if(idx < 0){
       const payloadNumIsPlaceholder = isPlaceholderDocumentNumber(payload.numero);
@@ -6271,7 +6271,7 @@ COLOCACIÓN INCLUIDA` }
 
   function resolveFacturaLogoSrc(){
     try{
-      // v2.87.59: el logo de facturas es un ajuste global de la app.
+      // v2.88: el logo de facturas es un ajuste global de la app.
       // No depende de cada factura guardada, porque al abrir documentos antiguos
       // podían traer facturaLogoEnabled=false y ocultar el logo ya cargado.
       const storedLogo = getStoredFacturaLogo();
@@ -6368,9 +6368,9 @@ COLOCACIÓN INCLUIDA` }
     const titleY = 81 + (Number(numStyle('titleYOffset')) || 0);
     addText(root, 420, titleY, documentTypeLabel(), { fs:numStyle('budgetTitleSize'), fw:'700', fill:s.titleColor });
 
-    // v2.87.49 - Caja cliente compacta: sin etiquetas vacías
+    // v2.88 - Caja cliente compacta: sin etiquetas vacías
     const clientYOffset = Number(numStyle('clientYOffset')) || 0;
-    const clientX = 420; // v2.87.49 limpia: título y cliente alineados
+    const clientX = 420; // v2.88 limpia: título y cliente alineados
     let clientY = 124 + clientYOffset; // más separado de PRESUPUESTO
 
     function prettyClientText(value){
@@ -6395,7 +6395,7 @@ COLOCACIÓN INCLUIDA` }
     const clientePais = prettyClientText(state.clientePais || 'España') || 'España';
     const clienteNif = String(state.clienteNif || '').trim();
 
-    // v2.87.49 - Cliente separado del título + CP propio
+    // v2.88 - Cliente separado del título + CP propio
     addText(root, clientX, clientY, safe(clienteNombre), {
       fs: Math.max(15, Number(numStyle('clientTextSize')) + 3),
       fw:'800',
@@ -7854,7 +7854,7 @@ COLOCACIÓN INCLUIDA` }
       }
     } else if(currentEdit.type === 'facturaLogo') {
       state.facturaLogoEnabled = !!$('editFacturaLogoEnabled').checked;
-      // v2.87.59: si se desmarca, se oculta/borrará el logo global de facturas.
+      // v2.88: si se desmarca, se oculta/borrará el logo global de facturas.
       if(!state.facturaLogoEnabled){
         state.facturaLogo = '';
         saveStoredFacturaLogo('');
@@ -8254,7 +8254,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
       state.facturaLogoEnabled = true;
       saveStoredFacturaLogo(state.facturaLogo);
 
-      // v2.87.59: también actualiza la lista guardada si el documento actual ya existe,
+      // v2.88: también actualiza la lista guardada si el documento actual ya existe,
       // para que al salir y volver a entrar no se pierda el logo visible.
       try{
         const list = await loadSavedList();
@@ -8394,7 +8394,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v2.87.68',
+        version:'v2.88',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -8541,7 +8541,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v2.87.68',
+      version: 'v2.88',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -8624,7 +8624,7 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v2.87.68', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v2.88', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:snapshot, settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -8676,7 +8676,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v2.87.68',
+        version: 'v2.88',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -8835,7 +8835,7 @@ $('btnExport').addEventListener('click', async function(){
           if(!picked) return;
           state = normalizeLoadedState(picked);
 
-          // v2.87.49: si el documento venía de una versión antigua sin ID,
+          // v2.88: si el documento venía de una versión antigua sin ID,
           // se fija el ID en la lista antes de editarlo.
           if(!picked.documentId || String(picked.documentId) !== String(state.documentId)){
             picked.documentId = state.documentId;
@@ -9222,7 +9222,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-/* v2.87.49 - Pintar Clientes compartidos en amarillo */
+/* v2.88 - Pintar Clientes compartidos en amarillo */
 (function(){
   function paintClientesCompartidos(){
     var buttons = document.querySelectorAll('#sheetContent button, .sheet-actions button');
@@ -9272,7 +9272,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 })();
 </script><script>
-/* v2.87.49 - Carga robusta base códigos postales */
+/* v2.88 - Carga robusta base códigos postales */
 (function(){
   function $(id){ return document.getElementById(id); }
 
@@ -9429,7 +9429,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }, true);
 })();
 </script><script>
-/* v2.87.49 - Estado CP estable y botón cargar */
+/* v2.88 - Estado CP estable y botón cargar */
 (function(){
   function byId(id){ return document.getElementById(id); }
 
@@ -9527,7 +9527,7 @@ document.addEventListener('DOMContentLoaded', function(){
   window.refreshCpStatus = refreshCpStatus;
 })();
 </script><script>
-/* v2.87.49 - Mostrar coincidencias al escribir población */
+/* v2.88 - Mostrar coincidencias al escribir población */
 (function(){
   function byId(id){ return document.getElementById(id); }
 
@@ -9699,7 +9699,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }, true);
 })();
 </script><script>
-/* v2.87.49 - Precio: borrar cero inicial al escribir */
+/* v2.88 - Precio: borrar cero inicial al escribir */
 (function(){
   function isPriceInput(input){
     if(!input || input.tagName !== 'INPUT') return false;
@@ -9795,7 +9795,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 <script>
-/* v2.87.64 - Diagnóstico IndexedDB/localStorage con detalle de documentos */
+/* v2.88 - Diagnóstico IndexedDB/localStorage con detalle de documentos */
 (function(){
   function byId(id){ return document.getElementById(id); }
 
@@ -10044,7 +10044,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v2.87.68',
+      version: 'v2.88',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
