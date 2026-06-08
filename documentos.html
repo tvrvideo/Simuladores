@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.88</title>
+  <title>Documentos Rey v2.89</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1877,6 +1877,10 @@ body.editing-field .brand-idb-pill{
   font-weight:800 !important;
 }
 
+
+/* v2.89 - Multipágina: pagos solo en última hoja y cabecera de primera hoja corregida */
+
+/* v2.89 - Validez por días y resumen final limpio */
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -2295,7 +2299,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.88</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.89</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -2790,6 +2794,25 @@ body.editing-field .brand-idb-pill{
     d.setDate(d.getDate() + Number(days || 0));
     return d.toISOString().slice(0,10);
   }
+  function diffDays(startDate, endDate){
+    const a = new Date((startDate || today()) + 'T12:00:00');
+    const b = new Date((endDate || startDate || today()) + 'T12:00:00');
+    return Math.round((b - a) / 86400000);
+  }
+  function getDefaultBudgetValidityDays(){
+    try{
+      const v = Number(localStorage.getItem('documentos_rey_validez_presupuesto_dias_v1') || '15');
+      return Number.isFinite(v) && v >= 0 ? Math.round(v) : 15;
+    }catch(_){
+      return 15;
+    }
+  }
+  function setDefaultBudgetValidityDays(days){
+    try{
+      const v = Math.max(0, Math.min(3650, Math.round(Number(days || 0))));
+      localStorage.setItem('documentos_rey_validez_presupuesto_dias_v1', String(v));
+    }catch(_){}
+  }
   function fmtDate(dateStr){
     if(!dateStr) return '';
     const [y,m,d] = String(dateStr).split('-');
@@ -3248,7 +3271,7 @@ body.editing-field .brand-idb-pill{
     converted.numero = await nextDocumentNumberForType(targetType);
     converted.fecha = today();
     converted.facturaVencimientoManual = false;
-    converted.validez = (targetType === 'factura') ? converted.fecha : addDays(converted.fecha, 15);
+    converted.validez = (targetType === 'factura') ? converted.fecha : addDays(converted.fecha, getDefaultBudgetValidityDays());
     converted.convertidoDesde = {
       tipo: source.documentoTipo || 'presupuesto',
       numero: source.numero || '',
@@ -3591,7 +3614,14 @@ body.editing-field .brand-idb-pill{
     const accumulatedIva = accumulatedBase * ivaRate();
     return {
       multiPage: totalPages > 1 && currentIndex > 0,
+      anyMultiPage: totalPages > 1,
+      pageIndex: currentIndex,
+      pageNumber: currentIndex + 1,
+      isFirstPage: currentIndex === 0,
+      isLastPage: currentIndex === totalPages - 1,
       currentBase: current.base,
+      currentIva: current.iva,
+      currentTotal: current.total,
       previousBase,
       accumulatedBase,
       accumulatedIva,
@@ -4236,7 +4266,7 @@ async function updateIndexedDBStatus(){
       tipoPresupuesto:'visual',
       simpleExtraPages: 1,
       fecha: today(),
-      validez: addDays(today(), 15),
+      validez: addDays(today(), getDefaultBudgetValidityDays()),
       empresaNombre:'',
       empresaLine1:'',
       empresaLine2:'',
@@ -4737,7 +4767,7 @@ COLOCACIÓN INCLUIDA` }
       tipoPresupuesto:'visual',
       simpleExtraPages: 1,
       fecha: today(),
-      validez: addDays(today(), 15),
+      validez: addDays(today(), getDefaultBudgetValidityDays()),
       empresaNombre:'',
       empresaLine1:'',
       empresaLine2:'',
@@ -6770,13 +6800,16 @@ COLOCACIÓN INCLUIDA` }
     add(root, 'line', { x1:v1, y1:tableY, x2:v1, y2:tableY+headH+rowH, stroke:s.lineColor, 'stroke-width':s.lineWidth });
     add(root, 'line', { x1:v2, y1:tableY, x2:v2, y2:tableY+headH+rowH, stroke:s.lineColor, 'stroke-width':s.lineWidth });
 
-    addText(root, v1-8, tableY+16, 'BASE IMPONIBLE', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'end', fill:s.titleColor });
+    addText(root, v1-8, tableY+16, (ft.pageCount > 1 && ft.isFirstPage) ? 'BASE HOJA' : 'BASE IMPONIBLE', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'end', fill:s.titleColor });
     addText(root, v1 + c2/2, tableY+16, 'TIPO IMPUESTO', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'middle', fill:s.titleColor });
     addText(root, x+w-8, tableY+16, 'IMPUESTO', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'end', fill:s.titleColor });
 
-    const baseValue = ft.multiPage ? ft.accumulatedBase : t.base;
-    const ivaValue = ft.multiPage ? ft.accumulatedIva : t.iva;
-    const totalValue = ft.multiPage ? ft.accumulatedTotal : t.total;
+    // v2.89: en documentos multipágina cada hoja muestra su acumulado real.
+    // Antes la primera hoja usaba el total general completo, aunque solo mostrase parte de los conceptos.
+    const usePageAccumulatedTotals = ft.pageCount > 1;
+    const baseValue = usePageAccumulatedTotals ? ft.accumulatedBase : t.base;
+    const ivaValue = usePageAccumulatedTotals ? ft.accumulatedIva : t.iva;
+    const totalValue = usePageAccumulatedTotals ? ft.accumulatedTotal : t.total;
 
     addText(root, v1-8, tableY+40, money(baseValue), { fs:isFacturaDocument() ? 12 : 11, anchor:'end', fill:s.textColor });
     addText(root, v1 + c2/2, tableY+40, 'IVA 21%', { fs:isFacturaDocument() ? 12 : 11, anchor:'middle', fill:s.textColor });
@@ -6846,6 +6879,11 @@ COLOCACIÓN INCLUIDA` }
 
     addText(root, x+8, y+16, 'VÁLIDO HASTA:', { fs:fsHeader });
 
+    const usePageAccumulatedTotals = ft.pageCount > 1;
+    const footerBaseValue = usePageAccumulatedTotals ? ft.accumulatedBase : t.base;
+    const footerIvaValue = usePageAccumulatedTotals ? ft.accumulatedIva : t.iva;
+    const footerTotalValue = usePageAccumulatedTotals ? ft.accumulatedTotal : t.total;
+
     if(ft.multiPage){
       const half = c2 / 2;
       const vmid = v1 + half;
@@ -6855,8 +6893,10 @@ COLOCACIÓN INCLUIDA` }
       addText(root, vmid - 6, y+39, money(ft.previousBase), { fs:fsBody, anchor:'end' });
       addText(root, v2 - 6, y+39, money(ft.currentBase), { fs:fsBody, anchor:'end' });
     } else {
-      addText(root, v1 + c2/2, y+16, 'BASE IMPONIBLE', { fs:fsHeader, anchor:'middle' });
-      addText(root, v2-6, y+39, money(t.base), { fs:fsBody, anchor:'end' });
+      const firstPageLabel = ft.pageCount > 1 ? 'BASE HOJA' : 'BASE IMPONIBLE';
+      const firstPageBase = ft.pageCount > 1 ? ft.currentBase : t.base;
+      addText(root, v1 + c2/2, y+16, firstPageLabel, { fs:fsHeader, anchor:'middle' });
+      addText(root, v2-6, y+39, money(firstPageBase), { fs:fsBody, anchor:'end' });
     }
 
     addText(root, v2 + c3/2, y+16, ivaEnabled() ? 'TIPO IMPUESTO' : '', { fs:fsHeader, anchor:'middle' });
@@ -6864,7 +6904,7 @@ COLOCACIÓN INCLUIDA` }
 
     addText(root, x+8, y+39, fmtDate(state.validez), { fs:Math.max(8, Math.min(14, Number(numStyle('dateSize')) || 0)), fw:'700' });
     if(ivaEnabled()) addText(root, v3-6, y+39, 'IVA 21%', { fs:fsBody, anchor:'end' });
-    if(ivaEnabled()) addText(root, x+w-8, y+39, money(ft.multiPage ? ft.accumulatedIva : t.iva), { fs:fsBody, anchor:'end' });
+    if(ivaEnabled()) addText(root, x+w-8, y+39, money(footerIvaValue), { fs:fsBody, anchor:'end' });
 
     const legalWidth = Math.max(120, v2 - x - 20);
     const legalFs = Number(numStyle('legalTextSize')) || fsSmall;
@@ -6874,31 +6914,37 @@ COLOCACIÓN INCLUIDA` }
 
     const pagosCenterX = v2 + c3/2;
     const pagosFs = Math.max(8, Number(numStyle('pagosTextSize')) || 12);
-    hit(root, v2, y, c3, h, () => openEdit('pagos', 'Pagos'), 'Editar pagos');
-    addText(root, pagosCenterX, splitY+15, 'PAGOS', { fs:pagosFs, anchor:'middle' });
-    const pagosTotal = ft.multiPage ? ft.accumulatedTotal : t.total;
-    const pago1Pct = Math.max(0, Math.min(100, Number(state.pago1Percent || 0)));
-    const pago2Pct = Math.max(0, Math.min(100, Number(state.pago2Percent != null ? state.pago2Percent : (100 - pago1Pct))));
-    const pago1Amount = pagosTotal * (pago1Pct / 100);
-    const pago2Amount = pagosTotal * (pago2Pct / 100);
-    addText(root, v2+6, splitY+35, safe(state.pago1Label || 'Entrega'), { fs:pagosFs });
-    addText(root, v2+6, splitY+53, safe(state.pago2Label || 'Resto'), { fs:pagosFs });
-    addText(root, v3-4, splitY+35, money(pago1Amount), { fs:pagosFs, anchor:'end' });
-    addText(root, v3-4, splitY+53, money(pago2Amount), { fs:pagosFs, anchor:'end' });
+    const showPayments = ft.pageCount <= 1 || ft.isLastPage;
+    if(showPayments){
+      hit(root, v2, y, c3, h, () => openEdit('pagos', 'Pagos'), 'Editar pagos');
+      addText(root, pagosCenterX, splitY+15, 'PAGOS', { fs:pagosFs, anchor:'middle' });
+      const pagosTotal = footerTotalValue;
+      const pago1Pct = Math.max(0, Math.min(100, Number(state.pago1Percent || 0)));
+      const pago2Pct = Math.max(0, Math.min(100, Number(state.pago2Percent != null ? state.pago2Percent : (100 - pago1Pct))));
+      const pago1Amount = pagosTotal * (pago1Pct / 100);
+      const pago2Amount = pagosTotal * (pago2Pct / 100);
+      addText(root, v2+6, splitY+35, safe(state.pago1Label || 'Entrega'), { fs:pagosFs });
+      addText(root, v2+6, splitY+53, safe(state.pago2Label || 'Resto'), { fs:pagosFs });
+      addText(root, v3-4, splitY+35, money(pago1Amount), { fs:pagosFs, anchor:'end' });
+      addText(root, v3-4, splitY+53, money(pago2Amount), { fs:pagosFs, anchor:'end' });
+    }
 
     const rightX = x + w - 10;
-    if(ft.multiPage){
-      addText(root, v3+12, splitY+15, 'Base acumulada', { fs:fsBody });
-      addText(root, rightX, splitY+20, money(ft.accumulatedBase), { fs:fsBody, anchor:'end' });
-      if(ivaEnabled()) addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
-      if(ivaEnabled()) addText(root, rightX, splitY+38, money(ft.accumulatedIva), { fs:fsBody, anchor:'end' });
-      addText(root, rightX, splitY+72, 'TOTAL ' + money(ft.accumulatedTotal), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
+    if(ft.pageCount > 1){
+      const baseLabel = ft.isFirstPage ? 'Base hoja' : (ft.isLastPage ? 'Base imponible' : 'Base acumulada');
+      const ivaLabel = ft.isFirstPage ? 'IVA hoja' : (ft.isLastPage ? 'Total IVA' : 'IVA acumulado');
+      const totalLabel = ft.isFirstPage ? 'TOTAL HOJA ' : (ft.isLastPage ? 'TOTAL ' : 'TOTAL ACUM. ');
+      addText(root, v3+12, splitY+15, baseLabel, { fs:fsBody });
+      addText(root, rightX, splitY+20, money(footerBaseValue), { fs:fsBody, anchor:'end' });
+      if(ivaEnabled()) addText(root, v3+12, splitY+38, ivaLabel, { fs:fsBody });
+      if(ivaEnabled()) addText(root, rightX, splitY+38, money(footerIvaValue), { fs:fsBody, anchor:'end' });
+      addText(root, rightX, splitY+72, totalLabel + money(footerTotalValue), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     } else {
       addText(root, v3+12, splitY+20, 'Base imponible', { fs:fsBody });
-      addText(root, rightX, splitY+20, money(t.base), { fs:fsBody, anchor:'end' });
+      addText(root, rightX, splitY+20, money(footerBaseValue), { fs:fsBody, anchor:'end' });
       if(ivaEnabled()) addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
-      if(ivaEnabled()) addText(root, rightX, splitY+38, money(t.iva), { fs:fsBody, anchor:'end' });
-      addText(root, rightX, splitY+72, 'TOTAL ' + money(t.total), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
+      if(ivaEnabled()) addText(root, rightX, splitY+38, money(footerIvaValue), { fs:fsBody, anchor:'end' });
+      addText(root, rightX, splitY+72, 'TOTAL ' + money(footerTotalValue), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     }
 
     hit(root, x, y, c1, headH + valuesH, () => openEdit('validez', 'Válido hasta'), 'Editar validez');
@@ -7138,7 +7184,33 @@ COLOCACIÓN INCLUIDA` }
         };
       }
     } else if(type === 'validez'){
-      body.innerHTML = `<label>Válido hasta</label><input id="editValidez" type="date" value="${esc(state.validez)}"><div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+      const fechaDoc = state.fecha || today();
+      const diasActuales = Math.max(0, diffDays(fechaDoc, state.validez || addDays(fechaDoc, getDefaultBudgetValidityDays())));
+      body.innerHTML = `
+        <label>Fecha del documento</label>
+        <input id="editValidezFechaDoc" type="date" value="${esc(fechaDoc)}">
+        <label>Validez presupuesto (días)</label>
+        <input id="editValidezDias" type="number" min="0" step="1" inputmode="numeric" value="${esc(String(diasActuales || getDefaultBudgetValidityDays()))}">
+        <label>Válido hasta</label>
+        <input id="editValidez" type="date" value="${esc(state.validez || addDays(fechaDoc, diasActuales || getDefaultBudgetValidityDays()))}">
+        <div class="postal-hint">Si cambias los días, se recalcula la fecha. Si cambias la fecha manualmente, se actualizan los días.</div>
+        <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+      const fechaEl = $('editValidezFechaDoc');
+      const diasEl = $('editValidezDias');
+      const validEl = $('editValidez');
+      const recalcDate = () => {
+        const base = fechaEl.value || state.fecha || today();
+        const days = Math.max(0, Math.round(Number(diasEl.value || 0)));
+        validEl.value = addDays(base, days);
+      };
+      const recalcDays = () => {
+        const base = fechaEl.value || state.fecha || today();
+        const days = Math.max(0, diffDays(base, validEl.value || base));
+        diasEl.value = String(days);
+      };
+      diasEl.addEventListener('input', recalcDate);
+      fechaEl.addEventListener('input', recalcDate);
+      validEl.addEventListener('input', recalcDays);
     } else if(type === 'facturaLogo'){
       const facturaLogoPreview = resolveFacturaLogoSrc();
       const hasLogo = !!facturaLogoPreview;
@@ -7841,16 +7913,24 @@ COLOCACIÓN INCLUIDA` }
       state.clienteNif = $('editClienteNif').value;
     } else if(currentEdit.type === 'fecha') {
       state.fecha = $('editFecha').value || today();
+      if(!isFacturaDocument()){
+        const dias = Number(state.validezDias != null ? state.validezDias : getDefaultBudgetValidityDays());
+        state.validez = addDays(state.fecha, dias);
+      }
       syncFacturaVencimientoDefault();
     } else if(currentEdit.type === 'numero') {
       const tipoNumeroDoc = getDocumentType();
       state.numero = String(($('editNumero').value || '').trim() || await nextDocumentNumberForType(tipoNumeroDoc)).toUpperCase();
     } else if(currentEdit.type === 'validez') {
+      if($('editValidezFechaDoc')) state.fecha = $('editValidezFechaDoc').value || state.fecha || today();
       if(isFacturaDocument()){
         state.validez = $('editValidez').value || (state.fecha || today());
         state.facturaVencimientoManual = true;
       }else{
-        state.validez = $('editValidez').value || addDays(state.fecha,15);
+        const dias = Math.max(0, Math.round(Number(($('editValidezDias') ? $('editValidezDias').value : getDefaultBudgetValidityDays()) || 0)));
+        setDefaultBudgetValidityDays(dias);
+        state.validezDias = String(dias);
+        state.validez = $('editValidez').value || addDays(state.fecha, dias);
       }
     } else if(currentEdit.type === 'facturaLogo') {
       state.facturaLogoEnabled = !!$('editFacturaLogoEnabled').checked;
