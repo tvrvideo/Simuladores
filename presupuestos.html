@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Presupuestos v2.2</title>
+    <title>Presupuestos v2.3</title>
     <style>
         body {
             font-family: Arial black, sans-serif;
@@ -345,7 +345,7 @@ solid #ccc;
 
 
 <div class="container">
-    <h1>PRESUPUESTOS <small>v2.2</small></h1>
+    <h1>PRESUPUESTOS <small>v2.3</small></h1>
     
     <div class="section">
         <h2>Precios m²</h2>
@@ -1179,7 +1179,8 @@ solid #ccc;
                 });
 
                 if (count > 0) {
-                    alert(`Precios cargados correctamente desde ${format.toUpperCase()}. Se actualizaron ${count} campos.`);
+                    guardarPreciosEnMemoria();
+                    alert(`Precios cargados correctamente desde ${format.toUpperCase()}. Se actualizaron ${count} campos y quedaron guardados en memoria.`);
                     calcularPresupuestoTotal();
                 } else {
                     alert(`Error: No se encontraron precios válidos para cargar en el archivo ${format.toUpperCase()}.`);
@@ -1195,9 +1196,57 @@ solid #ccc;
     }
 
 
+    // ----------------------------------------------------------------------
+    // --- MEMORIA LOCAL DE PRECIOS v2.3 ---
+    // ----------------------------------------------------------------------
+    const STORAGE_KEY_PRECIOS = 'ventanas_rey_presupuestos_precios_v23';
+
+    function obtenerPreciosTablaParaMemoria() {
+        const precios = {};
+        document.querySelectorAll('#price_table input[type="number"]').forEach(input => {
+            precios[input.id] = input.value;
+        });
+        return precios;
+    }
+
+    function guardarPreciosEnMemoria() {
+        try {
+            const precios = obtenerPreciosTablaParaMemoria();
+            localStorage.setItem(STORAGE_KEY_PRECIOS, JSON.stringify(precios));
+        } catch (error) {
+            console.warn('No se pudieron guardar los precios en memoria local:', error);
+        }
+    }
+
+    function cargarPreciosDesdeMemoria() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEY_PRECIOS);
+            if (!data) return false;
+
+            const preciosGuardados = JSON.parse(data);
+            let count = 0;
+
+            document.querySelectorAll('#price_table input[type="number"]').forEach(input => {
+                if (Object.prototype.hasOwnProperty.call(preciosGuardados, input.id)) {
+                    input.value = preciosGuardados[input.id];
+                    count++;
+                }
+            });
+
+            return count > 0;
+        } catch (error) {
+            console.warn('No se pudieron cargar los precios guardados:', error);
+            return false;
+        }
+    }
+
+
 
     // Inicialización y eventos
     document.addEventListener('DOMContentLoaded', () => {
+        // Cargar precios guardados en este dispositivo/navegador antes del cálculo inicial
+        cargarPreciosDesdeMemoria();
+
         // Inicializar todas las medidas 
         toggleMedidas('persiana');
         toggleMedidas('mosquitera');
@@ -1210,8 +1259,14 @@ solid #ccc;
         // Escuchar cambios en todos los inputs de control (precios, medidas, checkboxes, selectores)
         const inputs = document.querySelectorAll('input[type="number"], select, input[type="checkbox"]');
         inputs.forEach(input => {
-            input.addEventListener('input', calcularPresupuestoTotal);
-            input.addEventListener('change', calcularPresupuestoTotal); 
+            input.addEventListener('input', () => {
+                if (input.closest('#price_table')) guardarPreciosEnMemoria();
+                calcularPresupuestoTotal();
+            });
+            input.addEventListener('change', () => {
+                if (input.closest('#price_table')) guardarPreciosEnMemoria();
+                calcularPresupuestoTotal();
+            }); 
         });
         
         // Escuchar el cambio en el selector de motor y en el checkbox del motor
@@ -1225,7 +1280,7 @@ solid #ccc;
 </script>
 
 <script>
-/* v2.2 - Precios reseteados para GitHub + volver seguro al index desde iframe/iPhone/GitHub */
+/* v2.3 - Precios reseteados para GitHub + memoria local de precios + volver seguro al index desde iframe/iPhone/GitHub */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
