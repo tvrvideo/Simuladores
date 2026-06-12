@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.88</title>
+  <title>Documentos Rey v2.90</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1878,7 +1878,7 @@ body.editing-field .brand-idb-pill{
 }
 
 
-/* v2.89.05 - Plantillas Fase 1: buscador, orden y tarjetas compactas */
+/* v2.89.08.10 - Plantillas Fase 1: buscador, orden y tarjetas compactas */
 .template-tools-v28901{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 12px;padding:10px;border:1px solid #dbe7fb;border-radius:18px;background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%);box-shadow:0 8px 18px rgba(15,23,42,.06)}
 .template-tools-v28901 input,.template-tools-v28901 select{width:100%;min-height:44px;border:1px solid #d4dde9;border-radius:14px;padding:0 12px;background:#fff;color:#0f172a;font-weight:800;font-size:15px}
 .template-tools-grid-v28901{display:grid;grid-template-columns:1fr 1fr;gap:8px}.template-count-v28901{font-size:12px;font-weight:900;color:#64748b;padding:2px 2px 0}
@@ -2298,7 +2298,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.89.05 - Plantillas: compactas, sin parpadeo y acciones pequeñas */
+/* v2.89.08.10 - Plantillas: compactas, sin parpadeo y acciones pequeñas */
 .template-tools-v28901{
   display:grid !important;
   grid-template-columns:1fr !important;
@@ -2427,7 +2427,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.89.05 categorías visuales */
+/* v2.89.08.10 categorías visuales */
 .template-card-compact-v28901{
  position:relative!important;
 }
@@ -2446,7 +2446,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.89.05 - Plantillas: fondo suave y badge editable */
+/* v2.89.08.10 - Plantillas: fondo suave y badge editable */
 .template-card-compact-v28901,
 #sheetContent .template-card.template-card-compact-v28901,
 #sheetContent .saved-item.template-card-compact-v28901{
@@ -2511,7 +2511,7 @@ body.editing-field .brand-idb-pill{
 
 
 <style>
-/* v2.89.05 - Plantillas: fondo más definido y orden real por categoría */
+/* v2.89.08.10 - Plantillas: fondo más definido y orden real por categoría */
 .template-card-compact-v28901,
 #sheetContent .template-card.template-card-compact-v28901,
 #sheetContent .saved-item.template-card-compact-v28901{
@@ -2558,6 +2558,755 @@ body.editing-field .brand-idb-pill{
 }
 </style>
 
+<style>
+/* v2.89.08.10 - Papelera de plantillas por ID */
+#sheetContent .template-delete-by-id,#sheetContent .template-trash-v28901{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+  position:relative!important;
+  z-index:50!important;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Confirmación propia de plantillas */
+#templateDeleteOverlayV289061{
+  position:fixed;
+  inset:0;
+  z-index:60000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.58);
+}
+#templateDeleteOverlayV289061.show{display:flex!important;}
+.template-delete-card-v289061{
+  width:min(390px,100%);
+  background:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);
+}
+.template-delete-title-v289061{
+  color:#991b1b;
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.template-delete-text-v289061{
+  white-space:pre-line;
+  color:#334155;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+  margin-bottom:16px;
+}
+.template-delete-actions-v289061{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.template-delete-actions-v289061 button{
+  min-height:50px;
+  border-radius:15px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+#templateDeleteCancelV289061{
+  background:#f8fafc;
+  color:#0f172a;
+}
+#templateDeleteOkV289061{
+  background:#dc2626;
+  border-color:#dc2626;
+  color:#fff;
+}
+#sheetContent .template-delete-by-id,#sheetContent .template-trash-v28901{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  z-index:80!important;
+}
+</style>
+
+<style>
+/* v2.89.08.10 - Tarjetas de plantilla tocables */
+#sheetContent .template-card-compact-v28901,
+#sheetContent .template-card[data-template-edit-index]{
+  cursor:pointer!important;
+}
+#sheetContent .template-card-compact-v28901:active,
+#sheetContent .template-card[data-template-edit-index]:active{
+  transform:translateY(1px) scale(.992);
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - quitar saltos visuales en Plantillas */
+.no-sheet-animation-v289077{
+  transition:none !important;
+}
+#sheetContent .template-card-compact-v28901,
+#sheetContent .template-card{
+  -webkit-tap-highlight-color:transparent !important;
+}
+#sheetContent .template-card-compact-v28901:active,
+#sheetContent .template-card:active{
+  transform:none !important;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Plantillas sin botón Editar */
+#sheetContent .template-edit-v28902,
+#sheetContent [data-template-edit]{
+  display:none !important;
+}
+#sheetContent .template-head-v28902{
+  grid-template-columns:1fr 58px !important;
+}
+#sheetContent .template-card-compact-v28901{
+  cursor:pointer !important;
+}
+#sheetContent .template-title-v28901{
+  padding-right:6px !important;
+}
+@media(max-width:520px){
+  #sheetContent .template-head-v28902{
+    grid-template-columns:1fr 54px !important;
+  }
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - + Nueva categoría seguro */
+.template-cat-custom-btn-v289083{
+  position:relative!important;
+  padding-right:34px!important;
+  background:linear-gradient(180deg,#ede9fe 0%,#ddd6fe 100%)!important;
+  color:#4c1d95!important;
+  border-color:#c4b5fd!important;
+}
+.template-cat-del-v289083{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#dc2626;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+  line-height:1;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Ventana propia para + Nueva categoría */
+#newCategoryOverlayV289084{
+  position:fixed;
+  inset:0;
+  z-index:61000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.58);
+}
+#newCategoryOverlayV289084.show{display:flex!important;}
+.new-category-card-v289084{
+  width:min(390px,100%);
+  background:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);
+}
+.new-category-card-v289084 h3{
+  margin:0 0 12px;
+  color:#0f172a;
+  font-size:22px;
+  font-weight:900;
+}
+#newCategoryInputV289084{
+  width:100%;
+  min-height:52px;
+  border:1px solid #d4dde9;
+  border-radius:15px;
+  padding:12px 14px;
+  font-size:16px;
+  font-weight:800;
+}
+.new-category-actions-v289084{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+.new-category-actions-v289084 button{
+  min-height:50px;
+  border-radius:15px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+#newCategoryCancelV289084{
+  background:#f8fafc;
+  color:#0f172a;
+}
+#newCategorySaveV289084{
+  background:#16a34a;
+  border-color:#16a34a;
+  color:#fff;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Categorías creadas visibles y con color */
+.template-meta-v28901.cat-custom-v289085,
+.template-card-compact-v28901.cat-custom-v289085 .template-meta-v28901{
+  background:#ede9fe!important;
+  color:#5b21b6!important;
+  border-color:#c4b5fd!important;
+}
+.template-card-compact-v28901.cat-custom-v289085{
+  border-color:#c4b5fd!important;
+  background:linear-gradient(180deg,#f5f3ff 0%,#eef2ff 100%)!important;
+}
+.template-cat-custom-btn-v289083{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  background:linear-gradient(180deg,#ede9fe 0%,#ddd6fe 100%)!important;
+  color:#4c1d95!important;
+  border-color:#c4b5fd!important;
+}
+.template-cat-custom-btn-v289083 span:first-child{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.template-cat-del-v289083{
+  flex:0 0 24px!important;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - eliminar y color en categorías personalizadas */
+.template-cat-custom-btn-v289083{
+  grid-template-columns:1fr 30px 30px!important;
+  display:grid!important;
+  align-items:center!important;
+  gap:6px!important;
+  padding:0 8px!important;
+}
+.template-cat-label-v289086{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.template-cat-color-v289086,
+.template-cat-del-v289083{
+  width:26px!important;
+  height:26px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+.template-cat-color-v289086{
+  background:#fff!important;
+  color:#334155!important;
+  border:1px solid rgba(15,23,42,.18)!important;
+}
+.template-cat-del-v289083{
+  position:static!important;
+  transform:none!important;
+  background:#dc2626!important;
+  color:#fff!important;
+}
+#deleteCustomCategoryOverlayV289086,
+#colorCustomCategoryOverlayV289086{
+  position:fixed;
+  inset:0;
+  z-index:62000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.58);
+}
+#deleteCustomCategoryOverlayV289086.show,
+#colorCustomCategoryOverlayV289086.show{display:flex!important;}
+.delete-custom-cat-card-v289086,
+.color-custom-cat-card-v289086{
+  width:min(390px,100%);
+  background:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.32);
+}
+.delete-custom-cat-card-v289086 h3,
+.color-custom-cat-card-v289086 h3{
+  margin:0 0 10px;
+  font-size:22px;
+  font-weight:900;
+  color:#0f172a;
+}
+.delete-custom-cat-text-v289086{
+  white-space:pre-line;
+  color:#334155;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.35;
+  margin-bottom:16px;
+}
+.delete-custom-cat-actions-v289086{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.delete-custom-cat-actions-v289086 button,
+.color-custom-cat-close-v289086{
+  min-height:50px;
+  border-radius:15px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+#deleteCustomCategoryCancelV289086{background:#f8fafc;color:#0f172a;}
+#deleteCustomCategoryOkV289086{background:#dc2626;border-color:#dc2626;color:#fff;}
+.color-custom-cat-title-v289086{
+  font-weight:900;
+  color:#64748b;
+  margin-bottom:12px;
+}
+.color-custom-cat-grid-v289086{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:12px;
+}
+.color-custom-cat-grid-v289086 button{
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+.color-custom-cat-grid-v289086 [data-catcolor="morado"]{background:#ede9fe;color:#4c1d95;border-color:#c4b5fd;}
+.color-custom-cat-grid-v289086 [data-catcolor="azul"]{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.color-custom-cat-grid-v289086 [data-catcolor="verde"]{background:#dcfce7;color:#166534;border-color:#86efac;}
+.color-custom-cat-grid-v289086 [data-catcolor="naranja"]{background:#ffedd5;color:#c2410c;border-color:#fdba74;}
+.color-custom-cat-grid-v289086 [data-catcolor="rosa"]{background:#fce7f3;color:#be185d;border-color:#f9a8d4;}
+.color-custom-cat-grid-v289086 [data-catcolor="gris"]{background:#f1f5f9;color:#334155;border-color:#cbd5e1;}
+.color-custom-cat-close-v289086{
+  width:100%;
+  background:#f8fafc;
+  color:#0f172a;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Buscador de plantillas en concepto */
+.template-quick-search-v289087{
+  margin:10px 0 12px;
+  padding:10px;
+  border:1px solid #d6e0ec;
+  border-radius:16px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+}
+.template-quick-label-v289087{
+  margin-top:0!important;
+}
+.template-quick-input-wrap-v289087{
+  position:relative;
+}
+#templateQuickSearchV289087{
+  width:100%;
+  min-height:48px;
+  padding:12px 48px 12px 14px!important;
+  border-radius:14px;
+  border:1px solid #d4dde9;
+  font-size:16px;
+  font-weight:800;
+}
+#templateQuickClearV289087{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  min-width:34px;
+  min-height:34px;
+  border:0;
+  border-radius:999px;
+  background:#e5e7eb;
+  color:#374151;
+  font-size:24px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.template-quick-results-v289087{
+  display:grid;
+  gap:8px;
+  margin-top:9px;
+  max-height:260px;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.template-quick-result-v289087{
+  width:100%;
+  min-height:46px;
+  border:1px solid #d4dde9;
+  border-radius:14px;
+  background:#fff;
+  text-align:left;
+  padding:9px 12px;
+  color:#0f172a;
+  font-weight:900;
+  display:block;
+}
+.template-quick-result-v289087 small{
+  display:block;
+  margin-top:2px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+}
+.template-quick-help-v289087{
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+  padding:4px 2px;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Papelera bajo cabecera y buscador compacto */
+#editSheet .sheet-head{
+  z-index:120!important;
+}
+#sheetContent .template-delete-by-id,
+#sheetContent .template-trash-v28901,
+#sheetContent .btn-danger[aria-label="Eliminar plantilla"]{
+  z-index:1!important;
+}
+.template-quick-search-v289087{
+  margin:8px 0 10px!important;
+  padding:8px!important;
+  border-radius:14px!important;
+  background:#f8fbff!important;
+  box-shadow:none!important;
+}
+.template-quick-search-v289087 .template-quick-label-v289087{
+  font-size:12px!important;
+  margin:0 0 6px!important;
+}
+#templateQuickSearchV289087{
+  min-height:42px!important;
+  padding:9px 42px 9px 12px!important;
+  border-radius:13px!important;
+  font-size:15px!important;
+}
+#templateQuickClearV289087{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+  font-size:22px!important;
+}
+.template-quick-results-v289087{
+  margin-top:8px!important;
+  gap:0!important;
+  max-height:300px!important;
+  border:1px solid #dbe5f0!important;
+  border-radius:14px!important;
+  overflow:auto!important;
+  background:#fff!important;
+}
+.template-quick-result-v289087{
+  min-height:42px!important;
+  border:0!important;
+  border-bottom:1px solid #edf2f7!important;
+  border-radius:0!important;
+  background:#fff!important;
+  padding:8px 12px!important;
+  font-size:14px!important;
+  box-shadow:none!important;
+}
+.template-quick-result-v289087:last-child{
+  border-bottom:0!important;
+}
+.template-quick-result-v289087 span{
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.template-quick-result-v289087 small{
+  font-size:11px!important;
+}
+.template-quick-help-v289087{
+  padding:8px 12px!important;
+  background:#f8fafc!important;
+  border-bottom:1px solid #edf2f7!important;
+  font-size:11px!important;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10 - Desconectar Restaurar base/vista antigua sin tocar tarjetas */
+#btnTemplateRestore{
+  display:none!important;
+}
+#sheetContent [data-template-edit]{
+  display:none!important;
+}
+</style>
+
+
+<style>
+/* v2.89.08.10.1 - prueba salto Plantillas sin tocar cajas */
+body.templates-rendering-v28908101 #editSheet #sheetContent{
+  opacity:0!important;
+}
+body.templates-rendering-v28908101 #editSheet{
+  transition:none!important;
+}
+</style>
+
+
+<!-- v2.89.08.10.2: limpieza conservadora de duplicados; cajas de Plantillas intactas -->
+
+<!-- v2.89.08.10.2.1: eliminado duplicado antiguo de ocultación; cajas intactas -->
+
+<!-- v2.89.08.10.2.4: Plantillas nacen con herramientas, contador, tarjetas y categorías desde el primer render -->
+
+<!-- v2.89.09 estable: base validada desde v2.89.08.10.2.4; Plantillas conservadas -->
+
+<style>
+/* v2.89.09.1 - Categorías: colores ampliados y personalizados */
+.template-cat-standard-btn-v289091{
+  display:grid!important;
+  grid-template-columns:1fr 30px!important;
+  align-items:center!important;
+  gap:6px!important;
+  padding:0 8px!important;
+}
+.color-custom-cat-grid-v289086 [data-catcolor="rojo"]{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.color-custom-cat-grid-v289086 [data-catcolor="amarillo"]{background:#fef9c3;color:#92400e;border-color:#facc15;}
+.color-custom-cat-grid-v289086 [data-catcolor="turquesa"]{background:#ccfbf1;color:#0f766e;border-color:#5eead4;}
+.color-custom-cat-grid-v289086 [data-catcolor="marron"]{background:#f5e6d3;color:#7c2d12;border-color:#c08457;}
+.color-custom-picker-v289091,
+.new-category-custom-color-v289091{
+  display:grid;
+  grid-template-columns:1fr 54px auto;
+  gap:8px;
+  align-items:center;
+  margin:10px 0 12px;
+  padding:10px;
+  border:1px solid #d4dde9;
+  border-radius:15px;
+  background:#f8fafc;
+}
+.color-custom-picker-v289091 label,
+.new-category-custom-color-v289091 label,
+.new-category-color-title-v289091{
+  font-size:12px;
+  font-weight:900;
+  color:#64748b;
+}
+.color-custom-picker-v289091 input,
+.new-category-custom-color-v289091 input{
+  width:54px!important;
+  height:38px!important;
+  min-height:38px!important;
+  padding:3px!important;
+  border-radius:10px!important;
+}
+.color-custom-picker-v289091 button,
+.new-category-custom-color-v289091 button{
+  min-height:38px!important;
+  border-radius:12px!important;
+  border:1px solid #d4dde9!important;
+  background:#fff!important;
+  color:#0f172a!important;
+  font-weight:900!important;
+  padding:0 10px!important;
+}
+.new-category-color-title-v289091{
+  margin:12px 0 8px;
+}
+.new-category-color-grid-v289091{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.new-category-color-grid-v289091 button{
+  min-height:42px;
+  border-radius:13px;
+  border:1px solid #d4dde9;
+  font-weight:900;
+}
+.new-category-color-grid-v289091 [data-newcatcolor="morado"]{background:#ede9fe;color:#4c1d95;border-color:#c4b5fd;}
+.new-category-color-grid-v289091 [data-newcatcolor="azul"]{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;}
+.new-category-color-grid-v289091 [data-newcatcolor="verde"]{background:#dcfce7;color:#166534;border-color:#86efac;}
+.new-category-color-grid-v289091 [data-newcatcolor="naranja"]{background:#ffedd5;color:#c2410c;border-color:#fdba74;}
+.new-category-color-grid-v289091 [data-newcatcolor="rosa"]{background:#fce7f3;color:#be185d;border-color:#f9a8d4;}
+.new-category-color-grid-v289091 [data-newcatcolor="gris"]{background:#f1f5f9;color:#334155;border-color:#cbd5e1;}
+.new-category-color-grid-v289091 [data-newcatcolor="rojo"]{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+.new-category-color-grid-v289091 [data-newcatcolor="turquesa"]{background:#ccfbf1;color:#0f766e;border-color:#5eead4;}
+.new-category-preview-v289091{
+  margin-top:10px;
+  min-height:44px;
+  border:1px solid #c4b5fd;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:15px;
+}
+@media(max-width:420px){
+  .color-custom-picker-v289091,
+  .new-category-custom-color-v289091{
+    grid-template-columns:1fr 54px;
+  }
+  .color-custom-picker-v289091 button,
+  .new-category-custom-color-v289091 button{
+    grid-column:1/-1;
+  }
+}
+</style>
+
+<!-- v2.89.09.1: colores de categorías ampliados, personalizados y color al crear categoría -->
+
+<style>
+/* v2.89.09.2 - El color de categoría solo pinta la etiqueta, no la caja */
+#sheetContent .template-card-compact-v28901,
+#sheetContent .template-card.template-card-compact-v28901,
+#sheetContent .saved-item.template-card-compact-v28901{
+  background:linear-gradient(180deg,#edf5ff 0%,#dcecff 100%) !important;
+  border:1px solid #a9c5e8 !important;
+  box-shadow:0 10px 24px rgba(30,64,175,.12) !important;
+}
+
+#sheetContent .template-card-compact-v28901.cat-pvc,
+#sheetContent .template-card-compact-v28901.cat-aluminio,
+#sheetContent .template-card-compact-v28901.cat-persiana,
+#sheetContent .template-card-compact-v28901.cat-cristal,
+#sheetContent .template-card-compact-v28901.cat-otros,
+#sheetContent .template-card-compact-v28901.cat-custom-v289085{
+  background:linear-gradient(180deg,#edf5ff 0%,#dcecff 100%) !important;
+  border-color:#a9c5e8 !important;
+  border-left:1px solid #a9c5e8 !important;
+}
+
+#sheetContent .template-card-compact-v28901[style]{
+  background:linear-gradient(180deg,#edf5ff 0%,#dcecff 100%) !important;
+  border-color:#a9c5e8 !important;
+}
+</style>
+
+<!-- v2.89.09.2: color personalizado solo en etiqueta de categoría -->
+
+<!-- v2.90: facturas nuevas sin F y contador compatible con facturas antiguas F-AAAA-NNNN -->
+
+<style>
+/* v2.90.1 - Ajuste formato número factura */
+#facturaFormatOverlayV2901{
+  position:fixed;
+  inset:0;
+  z-index:33000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(15,23,42,.58);
+}
+#facturaFormatOverlayV2901.show{display:flex!important;}
+.factura-format-card-v2901{
+  width:min(420px,100%);
+  background:#fff;
+  border-radius:24px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.30);
+}
+.factura-format-card-v2901 h3{
+  margin:0 0 8px;
+  font-size:20px;
+  font-weight:900;
+  color:#0f172a;
+}
+.factura-format-card-v2901 p{
+  margin:0 0 14px;
+  color:#64748b;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
+}
+.factura-format-options-v2901{
+  display:grid;
+  gap:10px;
+}
+.factura-format-options-v2901 button{
+  min-height:54px;
+  border-radius:16px;
+  border:1px solid #d4dde9;
+  background:#fff;
+  color:#0f172a;
+  font-weight:900;
+  text-align:left;
+  padding:0 14px;
+}
+.factura-format-options-v2901 button.active{
+  background:linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%);
+  border-color:#60a5fa;
+  color:#1d4ed8;
+}
+.factura-format-actions-v2901{
+  display:grid;
+  grid-template-columns:1fr;
+  margin-top:12px;
+}
+#btnFacturaFormatCloseV2901{
+  min-height:48px;
+  border-radius:14px;
+  border:1px solid #d4dde9;
+  background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
+  color:#fff;
+  font-weight:900;
+}
+.settings-item.menu-factura-format-v2901{
+  background:linear-gradient(135deg,#0ea5e9,#7dd3fc);
+  border-color:#0ea5e9;
+  color:#fff;
+}
+</style>
+
+<!-- v2.90.1: ajuste para elegir formato de número de factura -->
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -2568,7 +3317,7 @@ body.editing-field .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.87.75</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.90</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3298,9 +4047,52 @@ body.editing-field .brand-idb-pill{
     return String(new Date().getFullYear());
   }
 
+  function parseDocumentSequenceForTypeV289093(num, type){
+    const raw = String(num || '').trim().toUpperCase();
+    const safeType = String(type || 'presupuesto').toLowerCase();
+
+    // Facturas: aceptar formato nuevo 2026-0022 y antiguo F-2026-0022.
+    // También acepta FACTURA 2026-0022 por si el nombre guardado vino mezclado.
+    if(safeType === 'factura'){
+      const mf = raw.match(/(?:^|[^0-9])(?:F[-\/ ]*)?([0-9]{4})[-\/ ]+([0-9]+)(?:$|[^0-9])/i)
+              || raw.match(/^([0-9]{4})[-\/ ]+([0-9]+)$/i);
+      if(mf) return { year:Number(mf[1] || 0), seq:Number(mf[2] || 0) };
+      return { year:0, seq:0 };
+    }
+
+    const prefix = documentTypePrefix(safeType);
+    const re = new RegExp('^' + prefix + '[-\\/ ]*([0-9]{4})[-\\/ ]+([0-9]+)$', 'i');
+    const m = raw.match(re);
+    if(m) return { year:Number(m[1] || 0), seq:Number(m[2] || 0) };
+    return { year:0, seq:0 };
+  }
+
+  function formatDocumentNumberForTypeV289093(type, year, seq){
+    const safeType = String(type || 'presupuesto').toLowerCase();
+    const safeYear = String(Number(year) || Number(docNumberYear()) || currentBudgetYear()).padStart(4,'0').slice(-4);
+    const safeSeq = String(Math.max(1, Number(seq) || 1)).padStart(4,'0');
+
+    // v2.90.1: formato configurable de facturas.
+    if(safeType === 'factura'){
+      let facturaFmt = 'sin_f';
+      try{ facturaFmt = localStorage.getItem('documentos_rey_factura_numero_formato_v2901') || 'sin_f'; }catch(_){}
+      return facturaFmt === 'con_f' ? ('F-' + safeYear + '-' + safeSeq) : (safeYear + '-' + safeSeq);
+    }
+
+    const prefix = documentTypePrefix(safeType);
+    return prefix + '-' + safeYear + '-' + safeSeq;
+  }
+
+  function normalizeFacturaNumberV289093(num){
+    const p = parseDocumentSequenceForTypeV289093(num, 'factura');
+    if(p && p.year && p.seq){
+      return formatDocumentNumberForTypeV289093('factura', p.year, p.seq);
+    }
+    return String(num || '').trim();
+  }
+
   async function nextDocumentNumberForType(type){
     type = type || 'presupuesto';
-    const prefix = documentTypePrefix(type);
     const year = docNumberYear();
     let list = [];
     try {
@@ -3314,11 +4106,11 @@ body.editing-field .brand-idb-pill{
       const n = String(d && d.numero || '');
       const t = d && d.documentoTipo ? d.documentoTipo : 'presupuesto';
       if(t !== type) return;
-      const re = new RegExp('^' + prefix + '-' + year + '-(\\d+)$');
-      const m = n.match(re);
-      if(m) max = Math.max(max, Number(m[1] || 0));
+      const parsed = parseDocumentSequenceForTypeV289093(n, type);
+      if(parsed && parsed.year === Number(year) && parsed.seq > max) max = parsed.seq;
     });
-    return prefix + '-' + year + '-' + String(max + 1).padStart(4, '0');
+
+    return formatDocumentNumberForTypeV289093(type, year, max + 1);
   }
 
   function isPlaceholderDocumentNumber(num){
@@ -3348,7 +4140,13 @@ body.editing-field .brand-idb-pill{
     const exists = (list || []).some(function(x){
       if(!x) return false;
       const sameType = String(x.documentoTipo || 'presupuesto') === tipo;
-      const sameNum = String(x.numero || '') === currentNum;
+      let sameNum = String(x.numero || '') === currentNum;
+
+      // v2.90: en facturas se compara también normalizado, con o sin F-.
+      if(tipo === 'factura' && !sameNum){
+        sameNum = normalizeFacturaNumberV289093(x.numero) === normalizeFacturaNumberV289093(currentNum);
+      }
+
       const sameId = currentId && String(x.documentId || '') === currentId;
       return sameType && sameNum && !sameId;
     });
@@ -4609,26 +5407,122 @@ COLOCACIÓN INCLUIDA` }
   ];
   let conceptTemplates = [];
 
+  function makeTemplateId(){
+    return 'tpl_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function normalizeConceptTemplate(t){
+    return {
+      id: String((t && t.id) || makeTemplateId()),
+      category: String((t && t.category) || 'General'),
+      name: String((t && t.name) || 'Sin título'),
+      text: String((t && t.text) || '')
+    };
+  }
+
+  function ensureTemplateIds(){
+    let changed = false;
+    conceptTemplates = (Array.isArray(conceptTemplates) ? conceptTemplates : []).map(t => {
+      const n = normalizeConceptTemplate(t);
+      if(!t || !t.id) changed = true;
+      return n;
+    });
+    return changed;
+  }
+
   async function loadConceptTemplates(){
     const raw = await storageGetJSON(TEMPLATE_STORAGE_KEY, null);
     if(Array.isArray(raw) && raw.length){
-      conceptTemplates = raw.map(t => ({
-        category: String(t.category || 'General'),
-        name: String(t.name || 'Sin título'),
-        text: String(t.text || '')
-      }));
+      conceptTemplates = raw.map(normalizeConceptTemplate);
+      if(ensureTemplateIds()) await saveConceptTemplates();
     }else{
-      conceptTemplates = DEFAULT_CONCEPT_TEMPLATES.slice();
+      conceptTemplates = DEFAULT_CONCEPT_TEMPLATES.map(normalizeConceptTemplate);
       await saveConceptTemplates();
     }
   }
 
   async function saveConceptTemplates(){
+    ensureTemplateIds();
     await storageSetJSON(TEMPLATE_STORAGE_KEY, conceptTemplates);
   }
 
+  async function deleteConceptTemplateById(templateId){
+    ensureTemplateIds();
+    const id = String(templateId || '');
+    const idx = conceptTemplates.findIndex(t => String(t.id || '') === id);
+    if(idx < 0){
+      toast('No encuentro esa plantilla');
+      return false;
+    }
+
+    const tpl = conceptTemplates[idx] || {};
+    const ok = await confirmDeleteTemplateByIdV289061(tpl.name || 'Sin título');
+    if(!ok) return false;
+
+    conceptTemplates.splice(idx, 1);
+    await saveConceptTemplates();
+    instantOpenTemplates();
+    toast('Plantilla eliminada');
+    return true;
+  }
+
+  function confirmDeleteTemplateByIdV289061(templateName){
+    return new Promise(function(resolve){
+      let overlay = document.getElementById('templateDeleteOverlayV289061');
+      if(!overlay){
+        overlay = document.createElement('div');
+        overlay.id = 'templateDeleteOverlayV289061';
+        overlay.innerHTML = `
+          <div class="template-delete-card-v289061">
+            <div class="template-delete-title-v289061">Eliminar plantilla</div>
+            <div class="template-delete-text-v289061" id="templateDeleteTextV289061"></div>
+            <div class="template-delete-actions-v289061">
+              <button type="button" id="templateDeleteCancelV289061">Cancelar</button>
+              <button type="button" id="templateDeleteOkV289061">Eliminar</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+      }
+
+      const text = document.getElementById('templateDeleteTextV289061');
+      const cancel = document.getElementById('templateDeleteCancelV289061');
+      const ok = document.getElementById('templateDeleteOkV289061');
+
+      if(text) text.textContent = '¿Eliminar esta plantilla?\n\n' + templateName;
+
+      function close(value){
+        overlay.classList.remove('show');
+        cancel.onclick = null;
+        ok.onclick = null;
+        resolve(value);
+      }
+
+      cancel.onclick = function(e){
+        if(e){ e.preventDefault(); e.stopPropagation(); }
+        close(false);
+      };
+      ok.onclick = function(e){
+        if(e){ e.preventDefault(); e.stopPropagation(); }
+        close(true);
+      };
+
+      overlay.onclick = function(e){
+        if(e.target === overlay) close(false);
+      };
+
+      overlay.classList.add('show');
+    });
+  }
+
+  window.deleteConceptTemplateById = deleteConceptTemplateById;
+  window.confirmDeleteTemplateByIdV289061 = confirmDeleteTemplateByIdV289061;
+
   function getConceptTemplates(){
-    return Array.isArray(conceptTemplates) && conceptTemplates.length ? conceptTemplates.slice() : DEFAULT_CONCEPT_TEMPLATES.slice();
+    if(Array.isArray(conceptTemplates) && conceptTemplates.length){
+      ensureTemplateIds();
+      return conceptTemplates.slice();
+    }
+    return DEFAULT_CONCEPT_TEMPLATES.map(normalizeConceptTemplate);
   }
 
   function applyConceptTemplate(mode){
@@ -6088,6 +6982,46 @@ COLOCACIÓN INCLUIDA` }
     if(!$('editSheet').classList.contains('show')){
       $('sheetBackdrop').classList.remove('show');
     }
+  }
+
+
+  // v2.89.08.10 - Cambios internos sin animación para evitar saltos.
+  function withoutSheetAnimation(fn){
+    const edit = $('editSheet');
+    const settings = $('settingsSheet');
+    edit.classList.add('no-sheet-animation-v289077');
+    settings.classList.add('no-sheet-animation-v289077');
+    try{ fn(); }
+    finally{
+      requestAnimationFrame(function(){
+        setTimeout(function(){
+          edit.classList.remove('no-sheet-animation-v289077');
+          settings.classList.remove('no-sheet-animation-v289077');
+        }, 80);
+      });
+    }
+  }
+
+  function instantOpenTemplates(){
+    withoutSheetAnimation(function(){
+      openEdit('templates', 'Editar plantillas');
+      $('editSheet').classList.add('show');
+      $('editSheet').setAttribute('aria-hidden','false');
+      $('sheetBackdrop').classList.add('show');
+      document.body.classList.add('sheet-open');
+    });
+  }
+
+  function instantCloseTemplatesToSettings(){
+    withoutSheetAnimation(function(){
+      $('editSheet').classList.remove('show');
+      $('editSheet').setAttribute('aria-hidden','true');
+      $('settingsSheet').classList.add('show');
+      $('settingsSheet').setAttribute('aria-hidden','false');
+      $('sheetBackdrop').classList.add('show');
+      document.body.classList.add('sheet-open');
+      document.body.classList.remove('editing-field');
+    });
   }
 
   function hit(parent, x, y, w, h, onTap, title){
@@ -7773,51 +8707,131 @@ COLOCACIÓN INCLUIDA` }
           openEdit('conceptImage', 'Gráfico ' + state.items[idx].code, idx);
           toast('Imagen eliminada');
         }
-      };
-    } else if(type === 'templates'){
+      };    } else if(type === 'templates'){
+      // v2.89.08.10.2.4 - Plantillas nacen completas: herramientas + tarjetas compactas + categorías.
       const templates = getConceptTemplates();
+
+      function normTplV2891024(v){
+        return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      }
+
+      function catMapV2891024(){
+        try{return JSON.parse(localStorage.getItem('templateCategoryMapV28904') || '{}') || {};}catch(_){return {};}
+      }
+
+      function catInfoV2891024(tpl){
+        const name = String(tpl.name || 'Sin título').trim();
+        const map = catMapV2891024();
+        let id = map[normTplV2891024(name)] || '';
+        if(!id){
+          const txt = normTplV2891024((tpl.category || '') + ' ' + name);
+          if(txt.includes('pvc')) id = 'pvc';
+          else if(txt.includes('pers') || txt.includes('velux')) id = 'persiana';
+          else if(txt.includes('aluminio') || txt.includes('alum') || txt.includes('cor-')) id = 'aluminio';
+          else if(txt.includes('cristal') || txt.includes('vidrio')) id = 'cristal';
+          else id = 'pvc';
+        }
+        if(String(id).indexOf('custom:') === 0){
+          return {id:id,label:String(id).slice(7).toUpperCase(),cls:'cat-custom-v289085'};
+        }
+        const cats = {
+          pvc:{id:'pvc',label:'PVC',cls:'cat-pvc'},
+          aluminio:{id:'aluminio',label:'ALUMINIO',cls:'cat-aluminio'},
+          persiana:{id:'persiana',label:'PERSIANA',cls:'cat-persiana'},
+          cristal:{id:'cristal',label:'CRISTAL',cls:'cat-cristal'},
+          otros:{id:'otros',label:'OTROS',cls:'cat-otros'}
+        };
+        return cats[id] || cats.pvc;
+      }
+
+      function sortTemplatesInitialV2891024(arr){
+        let sort = 'name_asc';
+        try{ sort = localStorage.getItem('templateSortV28901') || 'name_asc'; }catch(_){}
+        const decorated = arr.map((tpl,idx)=>({tpl,idx,cat:catInfoV2891024(tpl)}));
+        decorated.sort((a,b)=>{
+          const an = String(a.tpl.name || '').localeCompare(String(b.tpl.name || ''),'es');
+          if(sort === 'name_desc') return -an;
+          if(sort === 'cat_asc'){
+            const ac = String(a.cat.label || '').localeCompare(String(b.cat.label || ''),'es');
+            return ac || an;
+          }
+          if(sort === 'recent') return b.idx - a.idx;
+          if(sort === 'oldest') return a.idx - b.idx;
+          return an;
+        });
+        return decorated;
+      }
+
+      const decoratedTemplates = sortTemplatesInitialV2891024(templates);
       let listHtml = '';
-      templates.forEach((tpl, idx) => {
+
+      decoratedTemplates.forEach(({tpl, idx, cat}) => {
+        const tid = esc(tpl.id || '');
         listHtml += `
-          <div class="saved-item template-card" style="margin-top:8px;padding:12px 14px">
-            <div style="font-weight:700">${esc(tpl.name || 'Sin título')}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(tpl.category || 'General')}</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-              <button type="button" class="btn btn-success" data-template-edit="${idx}">Editar</button>
-              <button type="button" class="btn btn-danger" data-template-delete="${idx}">🗑</button>
+          <div class="saved-item template-card template-card-compact-v28901 ${cat.cls}" data-template-id="${tid}" data-template-edit-index="${idx}" style="margin-top:8px;padding:12px 14px">
+            <div class="template-head-v28902">
+              <div class="template-info-v28902">
+                <div class="template-title-v28901">${esc(tpl.name || 'Sin título')}</div>
+                <div class="template-meta-v28901 ${cat.cls}" title="Cambiar categoría">${esc(cat.label || 'PVC')}</div>
+              </div>
+              <button type="button" class="btn btn-success template-edit-v28902" data-template-edit="${idx}">Editar</button>
+              <button type="button" class="btn btn-danger template-delete-by-id template-trash-v28901" data-template-id="${tid}" aria-label="Eliminar plantilla" title="Eliminar plantilla">🗑</button>
             </div>
           </div>`;
       });
+
       body.innerHTML = `
         <label>Plantillas de conceptos</label>
+        <div class="template-tools-v28901">
+          <input id="templateSearchV28901" type="search" placeholder="Buscar plantilla..." autocomplete="off">
+          <div class="template-tools-grid-v28901">
+            <select id="templateCategoryV28901">
+              <option value="">Todas las categorías</option>
+            </select>
+            <select id="templateSortV28901">
+              <option value="name_asc">Nombre A-Z</option>
+              <option value="name_desc">Nombre Z-A</option>
+              <option value="cat_asc">Categoría</option>
+              <option value="recent">Más reciente</option>
+              <option value="oldest">Más antigua</option>
+            </select>
+          </div>
+          <div id="templateCountV28901" class="template-count-v28901">${templates.length} de ${templates.length} plantillas</div>
+        </div>
         <div class="sheet-actions" style="margin-bottom:12px">
           <button type="button" class="btn btn-primary" id="btnTemplateAdd">Añadir plantilla</button>
           <button type="button" class="btn btn-neutral" id="btnTemplateRestore">Restaurar base</button>
         </div>
         ${listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay plantillas</div>'}`;
+
+      try{
+        const search = $('templateSearchV28901');
+        const sort = $('templateSortV28901');
+        if(search) search.value = localStorage.getItem('templateSearchV28901') || '';
+        if(sort) sort.value = localStorage.getItem('templateSortV28901') || 'name_asc';
+      }catch(_){}
+
       $('btnTemplateAdd').onclick = function(){ openEdit('templateForm', 'Nueva plantilla'); };
-      $('btnTemplateRestore').onclick = async function(){
-        conceptTemplates = DEFAULT_CONCEPT_TEMPLATES.slice();
-        await saveConceptTemplates();
-        openEdit('templates', 'Editar plantillas');
-        toast('Plantillas restauradas');
-      };
+      // v2.89.08.10: Restaurar base desactivado para evitar que vuelva la vista antigua.
+
       Array.from(body.querySelectorAll('[data-template-edit]')).forEach(btn => {
         btn.onclick = function(){
           openEdit('templateForm', 'Editar plantilla', Number(btn.getAttribute('data-template-edit')));
         };
       });
-      Array.from(body.querySelectorAll('[data-template-delete]')).forEach(btn => {
-        btn.onclick = async function(){
-          const idx = Number(btn.getAttribute('data-template-delete'));
-          const tpl = conceptTemplates[idx] || {};
-          if(!confirm('¿Eliminar esta plantilla?\n\n' + (tpl.name || 'Sin título'))) return;
-          conceptTemplates.splice(idx, 1);
-          await saveConceptTemplates();
-          openEdit('templates', 'Editar plantillas');
-          toast('Plantilla eliminada');
+      Array.from(body.querySelectorAll('.template-delete-by-id')).forEach(btn => {
+        const fn = async function(e){
+          if(e){
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          await window.deleteConceptTemplateById(btn.getAttribute('data-template-id'));
         };
+        btn.onclick = fn;
+        btn.ontouchend = fn;
+        btn.onpointerup = fn;
       });
+
     } else if(type === 'templateForm'){
       const idx = index == null ? -1 : Number(index);
       const tpl = idx >= 0 ? (getConceptTemplates()[idx] || {category:'General',name:'',text:''}) : {category:'General',name:'',text:''};
@@ -8065,7 +9079,13 @@ COLOCACIÓN INCLUIDA` }
     const saveBtn = $('sheetSave');
     if(saveBtn) saveBtn.onclick = applyEdit;
     const cancelBtn = $('sheetCancel');
-    if(cancelBtn) cancelBtn.onclick = closeSheet;
+    if(cancelBtn) cancelBtn.onclick = function(){
+      if(currentEdit && currentEdit.type === 'templateForm'){
+        instantOpenTemplates();
+        return;
+      }
+      closeSheet();
+    };
 
     $('sheetBackdrop').classList.add('show');
     $('editSheet').classList.add('show');
@@ -8117,7 +9137,11 @@ COLOCACIÓN INCLUIDA` }
       syncFacturaVencimientoDefault();
     } else if(currentEdit.type === 'numero') {
       const tipoNumeroDoc = getDocumentType();
-      state.numero = String(($('editNumero').value || '').trim() || await nextDocumentNumberForType(tipoNumeroDoc)).toUpperCase();
+      let nextNumeroValue = String(($('editNumero').value || '').trim() || await nextDocumentNumberForType(tipoNumeroDoc)).toUpperCase();
+      if(tipoNumeroDoc === 'factura'){
+        nextNumeroValue = normalizeFacturaNumberV289093(nextNumeroValue);
+      }
+      state.numero = nextNumeroValue;
     } else if(currentEdit.type === 'validez') {
       if(isFacturaDocument()){
         state.validez = $('editValidez').value || (state.fecha || today());
@@ -8258,7 +9282,10 @@ COLOCACIÓN INCLUIDA` }
       return;
     } else if(currentEdit.type === 'templateForm') {
       const idx = currentEdit.index == null ? -1 : Number(currentEdit.index);
+      ensureTemplateIds();
+      const previousTpl = idx >= 0 && idx < conceptTemplates.length ? conceptTemplates[idx] : null;
       const tpl = {
+        id: previousTpl && previousTpl.id ? previousTpl.id : makeTemplateId(),
         name: String(($('editTemplateName').value || '').trim() || 'Sin título'),
         category: String(($('editTemplateCategory').value || '').trim() || 'General'),
         text: String($('editTemplateText').value || '')
@@ -8269,7 +9296,7 @@ COLOCACIÓN INCLUIDA` }
         conceptTemplates.push(tpl);
       }
       await saveConceptTemplates();
-      openEdit('templates', 'Editar plantillas');
+      instantOpenTemplates();
       toast('Plantilla guardada');
       return;
     } else if(currentEdit.type === 'style') {
@@ -8316,7 +9343,19 @@ COLOCACIÓN INCLUIDA` }
     if(currentEdit.type === 'style') toast('Estilo guardado');
     closeSheet();
   }
-$('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); closeSheet(); }, false);
+$('btnCloseSheet').addEventListener('click', function(){
+    hideReturnAppButton();
+    if(currentEdit && currentEdit.type === 'templateForm'){
+      instantOpenTemplates();
+      return;
+    }
+    if(currentEdit && currentEdit.type === 'templates' && returnToSettingsAfterSheet){
+      returnToSettingsAfterSheet = false;
+      instantCloseTemplatesToSettings();
+      return;
+    }
+    closeSheet();
+  }, false);
   $('btnCloseSettings').addEventListener('click', function(){ hideReturnAppButton(); closeSettings(); }, false);
   $('btnSettings').addEventListener('click', openSettings, false);
   const btnPostalCodes = $('btnPostalCodes');
@@ -8404,8 +9443,11 @@ $('btnCloseSheet').addEventListener('click', function(){ hideReturnAppButton(); 
   }, false);
   $('btnTemplates').addEventListener('click', function(){
     hideReturnAppButton();
-    closeSettings();
-    openEdit('templates', 'Editar plantillas');
+    returnToSettingsAfterSheet = true;
+    withoutSheetAnimation(function(){
+      closeSettings();
+      openEdit('templates', 'Editar plantillas');
+    });
   }, false);
   $('btnClients').addEventListener('click', async function(){
     hideReturnAppButton();
@@ -10417,7 +11459,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 <script>
-/* v2.89.05 - Plantillas sin parpadeo: solo se aplica al abrir, buscar o cambiar orden */
+/* v2.89.08.10 - Plantillas sin parpadeo: solo se aplica al abrir, buscar o cambiar orden */
 (function(){
   const STORE_KEY_SEARCH = 'documentos_rey_template_search_v28902';
   const STORE_KEY_SORT = 'documentos_rey_template_sort_v28902';
@@ -10530,7 +11572,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const data = getCardData(card, idx);
     const buttons = [...card.querySelectorAll('button')];
     const editBtn = buttons.find(b=>/editar/i.test(getText(b)));
-    const trashBtn = buttons.find(b=>/🗑|eliminar|borrar/i.test(getText(b)));
+    const trashBtn = buttons.find(b=>b.matches && b.matches('.template-delete-by-id')) || buttons.find(b=>/🗑|eliminar|borrar/i.test(getText(b)));
 
     if(!editBtn || !trashBtn) return;
 
@@ -10553,6 +11595,19 @@ document.addEventListener('DOMContentLoaded', function(){
     head.appendChild(trashBtn);
     card.appendChild(head);
     card.classList.add('template-card-compact-v28901');
+
+    if(trashBtn.classList.contains('template-delete-by-id')){
+      const fn = async function(e){
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        await window.deleteConceptTemplateById(trashBtn.getAttribute('data-template-id'));
+      };
+      trashBtn.onclick = fn;
+      trashBtn.ontouchend = fn;
+      trashBtn.onpointerup = fn;
+    }
   }
 
   function apply(force){
@@ -10668,7 +11723,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 <script>
-/* v2.89.05 - Categoría editable en plantillas y cerrar hacia menú */
+/* v2.89.08.10 - Categoría editable en plantillas y cerrar hacia menú */
 (function(){
   const CAT_KEY = 'documentos_rey_template_categories_v28904';
   const cats = [
@@ -10676,9 +11731,358 @@ document.addEventListener('DOMContentLoaded', function(){
     {id:'aluminio', label:'ALUMINIO', cls:'cat-aluminio'},
     {id:'persiana', label:'PERSIANA', cls:'cat-persiana'},
     {id:'cristal', label:'CRISTAL', cls:'cat-cristal'},
-    {id:'otros', label:'OTROS', cls:'cat-otros'}
+    {id:'mosquitera', label:'MOSQUITERA', cls:'cat-otros'}
   ];
   let currentCard = null;
+  const CUSTOM_CAT_KEY = 'documentos_rey_custom_template_categories_v289083';
+
+  function readCustomCatsV289083(){
+    try{
+      const arr = JSON.parse(localStorage.getItem(CUSTOM_CAT_KEY) || '[]');
+      return Array.isArray(arr) ? arr.filter(Boolean).map(String) : [];
+    }catch(_){
+      return [];
+    }
+  }
+
+  function writeCustomCatsV289083(arr){
+    try{ localStorage.setItem(CUSTOM_CAT_KEY, JSON.stringify((arr || []).filter(Boolean).map(String))); }catch(_){}
+  }
+
+  function addCustomCatV289083(label){
+    label = String(label || '').trim();
+    if(!label) return '';
+    const upper = label.toUpperCase();
+    const arr = readCustomCatsV289083();
+    if(!arr.some(x => x.toUpperCase() === upper)){
+      arr.push(upper);
+      writeCustomCatsV289083(arr);
+      setColorForCustomCatV289086(upper, 'morado');
+    }
+    return 'custom:' + upper;
+  }
+
+  function removeCustomCatV289083(label){
+    label = String(label || '').trim().toUpperCase();
+    if(!label) return;
+    const arr = readCustomCatsV289083().filter(x => x.toUpperCase() !== label);
+    writeCustomCatsV289083(arr);
+    const map = readMap();
+    Object.keys(map).forEach(k=>{
+      if(String(map[k] || '').toUpperCase() === 'CUSTOM:' + label) map[k] = 'pvc';
+    });
+    writeMap(map);
+  }
+
+
+  const CUSTOM_CAT_COLOR_KEY_V289086 = 'documentos_rey_custom_template_category_colors_v289086';
+
+  function readCustomCatColorsV289086(){
+    try{return JSON.parse(localStorage.getItem(CUSTOM_CAT_COLOR_KEY_V289086) || '{}') || {};}catch(_){return {};}
+  }
+
+  function writeCustomCatColorsV289086(map){
+    try{localStorage.setItem(CUSTOM_CAT_COLOR_KEY_V289086, JSON.stringify(map || {}));}catch(_){}
+  }
+
+  function colorForCustomCatV289086(label){
+    const map = readCustomCatColorsV289086();
+    return map[String(label || '').toUpperCase()] || 'morado';
+  }
+
+  function setColorForCustomCatV289086(label, color){
+    const map = readCustomCatColorsV289086();
+    map[String(label || '').toUpperCase()] = color || 'morado';
+    writeCustomCatColorsV289086(map);
+  }
+
+  function customColorStyleV289086(label){
+    const c = colorForCustomCatV289086(label);
+
+    function hexToRgbV289091(hex){
+      hex = String(hex || '').trim();
+      if(!/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+      return {
+        r:parseInt(hex.slice(1,3),16),
+        g:parseInt(hex.slice(3,5),16),
+        b:parseInt(hex.slice(5,7),16)
+      };
+    }
+
+    function rgbV289091(o){
+      return 'rgb(' + Math.round(o.r) + ',' + Math.round(o.g) + ',' + Math.round(o.b) + ')';
+    }
+
+    function mixV289091(a,b,t){
+      return {
+        r:a.r + (b.r-a.r)*t,
+        g:a.g + (b.g-a.g)*t,
+        b:a.b + (b.b-a.b)*t
+      };
+    }
+
+    const customRgb = hexToRgbV289091(c);
+    if(customRgb){
+      const white = {r:255,g:255,b:255};
+      const soft1 = rgbV289091(mixV289091(customRgb, white, .82));
+      const soft2 = rgbV289091(mixV289091(customRgb, white, .70));
+      const border = rgbV289091(mixV289091(customRgb, white, .38));
+      const dark = rgbV289091(mixV289091(customRgb, {r:0,g:0,b:0}, .36));
+      return 'background:linear-gradient(180deg,' + soft1 + ' 0%,' + soft2 + ' 100%)!important;color:' + dark + '!important;border-color:' + border + '!important;';
+    }
+
+    const styles = {
+      morado:'background:linear-gradient(180deg,#ede9fe 0%,#ddd6fe 100%)!important;color:#4c1d95!important;border-color:#c4b5fd!important;',
+      azul:'background:linear-gradient(180deg,#dbeafe 0%,#bfdbfe 100%)!important;color:#1d4ed8!important;border-color:#93c5fd!important;',
+      verde:'background:linear-gradient(180deg,#dcfce7 0%,#bbf7d0 100%)!important;color:#166534!important;border-color:#86efac!important;',
+      naranja:'background:linear-gradient(180deg,#ffedd5 0%,#fed7aa 100%)!important;color:#c2410c!important;border-color:#fdba74!important;',
+      rosa:'background:linear-gradient(180deg,#fce7f3 0%,#fbcfe8 100%)!important;color:#be185d!important;border-color:#f9a8d4!important;',
+      gris:'background:linear-gradient(180deg,#f1f5f9 0%,#e2e8f0 100%)!important;color:#334155!important;border-color:#cbd5e1!important;',
+      rojo:'background:linear-gradient(180deg,#fee2e2 0%,#fecaca 100%)!important;color:#991b1b!important;border-color:#fca5a5!important;',
+      amarillo:'background:linear-gradient(180deg,#fef9c3 0%,#fde68a 100%)!important;color:#92400e!important;border-color:#facc15!important;',
+      turquesa:'background:linear-gradient(180deg,#ccfbf1 0%,#99f6e4 100%)!important;color:#0f766e!important;border-color:#5eead4!important;',
+      marron:'background:linear-gradient(180deg,#f5e6d3 0%,#e8c8a5 100%)!important;color:#7c2d12!important;border-color:#c08457!important;'
+    };
+    return styles[c] || styles.morado;
+  }
+
+  function hasCustomCatColorV289091(label){
+    const map = readCustomCatColorsV289086();
+    return Object.prototype.hasOwnProperty.call(map, String(label || '').toUpperCase());
+  }
+
+  function baseStyleWithoutCategoryColorV289091(el){
+    return String(el.getAttribute('style') || '')
+      .split(';')
+      .filter(function(part){
+        return !/background|color|border-color/i.test(part);
+      })
+      .join(';');
+  }
+
+  function askDeleteCustomCategoryV289086(label, callback){
+    let ov = document.getElementById('deleteCustomCategoryOverlayV289086');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.id = 'deleteCustomCategoryOverlayV289086';
+      ov.innerHTML = `
+        <div class="delete-custom-cat-card-v289086">
+          <h3>Eliminar categoría</h3>
+          <div class="delete-custom-cat-text-v289086" id="deleteCustomCategoryTextV289086"></div>
+          <div class="delete-custom-cat-actions-v289086">
+            <button type="button" id="deleteCustomCategoryCancelV289086">Cancelar</button>
+            <button type="button" id="deleteCustomCategoryOkV289086">Eliminar</button>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+    }
+
+    const text = document.getElementById('deleteCustomCategoryTextV289086');
+    const cancel = document.getElementById('deleteCustomCategoryCancelV289086');
+    const ok = document.getElementById('deleteCustomCategoryOkV289086');
+
+    if(text) text.textContent = '¿Eliminar esta categoría?\n\n' + label;
+
+    function close(value){
+      ov.classList.remove('show');
+      cancel.onclick = null;
+      ok.onclick = null;
+      ov.onclick = null;
+      if(value) callback();
+    }
+
+    cancel.onclick = function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      close(false);
+    };
+    ok.onclick = function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      close(true);
+    };
+    ov.onclick = function(e){
+      if(e.target === ov) close(false);
+    };
+
+    ov.classList.add('show');
+  }
+
+  function askColorCustomCategoryV289086(label, callback){
+    let ov = document.getElementById('colorCustomCategoryOverlayV289086');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.id = 'colorCustomCategoryOverlayV289086';
+      ov.innerHTML = `
+        <div class="color-custom-cat-card-v289086">
+          <h3>Color categoría</h3>
+          <div class="color-custom-cat-title-v289086" id="colorCustomCategoryTitleV289086"></div>
+          <div class="color-custom-cat-grid-v289086">
+            <button type="button" data-catcolor="morado">Morado</button>
+            <button type="button" data-catcolor="azul">Azul</button>
+            <button type="button" data-catcolor="verde">Verde</button>
+            <button type="button" data-catcolor="naranja">Naranja</button>
+            <button type="button" data-catcolor="rosa">Rosa</button>
+            <button type="button" data-catcolor="gris">Gris</button>
+            <button type="button" data-catcolor="rojo">Rojo</button>
+            <button type="button" data-catcolor="amarillo">Amarillo</button>
+            <button type="button" data-catcolor="turquesa">Turquesa</button>
+            <button type="button" data-catcolor="marron">Marrón</button>
+          </div>
+          <div class="color-custom-picker-v289091">
+            <label for="colorCustomCategoryHexV289091">Personalizado</label>
+            <input id="colorCustomCategoryHexV289091" type="color" value="#7c3aed">
+            <button type="button" id="colorCustomCategoryApplyHexV289091">Usar personalizado</button>
+          </div>
+          <button type="button" class="color-custom-cat-close-v289086" id="colorCustomCategoryCancelV289086">Cancelar</button>
+        </div>`;
+      document.body.appendChild(ov);
+    }
+
+    const title = document.getElementById('colorCustomCategoryTitleV289086');
+    const input = document.getElementById('colorCustomCategoryHexV289091');
+    if(title) title.textContent = String(label || '').toUpperCase();
+
+    try{
+      const current = colorForCustomCatV289086(label);
+      if(input && /^#[0-9a-fA-F]{6}$/.test(String(current || ''))) input.value = current;
+    }catch(_){}
+
+    function close(){
+      ov.classList.remove('show');
+      ov.onclick = null;
+    }
+
+    ov.onclick = function(e){
+      const btn = e.target.closest && e.target.closest('[data-catcolor]');
+      if(btn){
+        e.preventDefault();
+        e.stopPropagation();
+        callback(btn.getAttribute('data-catcolor'));
+        close();
+        return;
+      }
+      if(e.target && e.target.id === 'colorCustomCategoryApplyHexV289091'){
+        e.preventDefault();
+        e.stopPropagation();
+        const val = document.getElementById('colorCustomCategoryHexV289091')?.value || '#7c3aed';
+        callback(val);
+        close();
+        return;
+      }
+      if(e.target === ov || e.target.id === 'colorCustomCategoryCancelV289086'){
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+      }
+    };
+
+    ov.classList.add('show');
+  }
+
+
+    function askNewCategoryV289084(callback){
+    let ov = document.getElementById('newCategoryOverlayV289084');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.id = 'newCategoryOverlayV289084';
+      ov.innerHTML = `
+        <div class="new-category-card-v289084">
+          <h3>Nueva categoría</h3>
+          <input id="newCategoryInputV289084" type="text" placeholder="Nombre de categoría">
+          <div class="new-category-color-title-v289091">Color inicial</div>
+          <div class="new-category-color-grid-v289091">
+            <button type="button" data-newcatcolor="morado">Morado</button>
+            <button type="button" data-newcatcolor="azul">Azul</button>
+            <button type="button" data-newcatcolor="verde">Verde</button>
+            <button type="button" data-newcatcolor="naranja">Naranja</button>
+            <button type="button" data-newcatcolor="rosa">Rosa</button>
+            <button type="button" data-newcatcolor="gris">Gris</button>
+            <button type="button" data-newcatcolor="rojo">Rojo</button>
+            <button type="button" data-newcatcolor="turquesa">Turquesa</button>
+          </div>
+          <div class="new-category-custom-color-v289091">
+            <label for="newCategoryHexV289091">Personalizado</label>
+            <input id="newCategoryHexV289091" type="color" value="#7c3aed">
+            <button type="button" id="newCategoryUseHexV289091">Usar</button>
+          </div>
+          <div class="new-category-preview-v289091" id="newCategoryPreviewV289091">VISTA PREVIA</div>
+          <div class="new-category-actions-v289084">
+            <button type="button" id="newCategoryCancelV289084">Cancelar</button>
+            <button type="button" id="newCategorySaveV289084">Guardar</button>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+    }
+
+    const input = document.getElementById('newCategoryInputV289084');
+    const cancel = document.getElementById('newCategoryCancelV289084');
+    const save = document.getElementById('newCategorySaveV289084');
+    const preview = document.getElementById('newCategoryPreviewV289091');
+    const hex = document.getElementById('newCategoryHexV289091');
+    let selectedColor = 'morado';
+
+    function refreshPreview(){
+      const label = ((input.value || '').trim() || 'VISTA PREVIA').toUpperCase();
+      if(preview){
+        preview.textContent = label;
+        const oldMap = readCustomCatColorsV289086();
+        oldMap['__PREVIEW__'] = selectedColor;
+        try{ localStorage.setItem(CUSTOM_CAT_COLOR_KEY_V289086, JSON.stringify(oldMap)); }catch(_){}
+        preview.setAttribute('style', customColorStyleV289086('__PREVIEW__'));
+        delete oldMap['__PREVIEW__'];
+        try{ localStorage.setItem(CUSTOM_CAT_COLOR_KEY_V289086, JSON.stringify(oldMap)); }catch(_){}
+      }
+    }
+
+    function close(value){
+      ov.classList.remove('show');
+      cancel.onclick = null;
+      save.onclick = null;
+      ov.onclick = null;
+      input.oninput = null;
+      if(value) callback(value);
+    }
+
+    input.value = '';
+    selectedColor = 'morado';
+    if(hex) hex.value = '#7c3aed';
+    refreshPreview();
+
+    input.oninput = refreshPreview;
+
+    cancel.onclick = function(e){
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      close('');
+    };
+    save.onclick = function(e){
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      const label = (input.value || '').trim();
+      if(label) close({label:label, color:selectedColor});
+    };
+    ov.onclick = function(e){
+      const colorBtn = e.target.closest && e.target.closest('[data-newcatcolor]');
+      if(colorBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        selectedColor = colorBtn.getAttribute('data-newcatcolor') || 'morado';
+        refreshPreview();
+        return;
+      }
+      if(e.target && e.target.id === 'newCategoryUseHexV289091'){
+        e.preventDefault();
+        e.stopPropagation();
+        selectedColor = (hex && hex.value) || '#7c3aed';
+        refreshPreview();
+        return;
+      }
+      if(e.target === ov) close('');
+    };
+
+    ov.classList.add('show');
+    setTimeout(function(){
+      try{ input.focus(); }catch(_){}
+    }, 80);
+  }
+
 
   function readMap(){
     try{return JSON.parse(localStorage.getItem(CAT_KEY) || '{}') || {};}catch(_){return {};}
@@ -10707,14 +12111,21 @@ document.addEventListener('DOMContentLoaded', function(){
     if(txt.includes('pers') || txt.includes('velux')) return 'persiana';
     if(txt.includes('aluminio') || txt.includes('alum') || txt.includes('cor-')) return 'aluminio';
     if(txt.includes('cristal') || txt.includes('vidrio')) return 'cristal';
-    return 'otros';
+    return 'pvc';
   }
 
   function setVisual(card, id, persist){
-    const cat = cats.find(c=>c.id===id) || cats.find(c=>c.id==='otros');
+    let cat = cats.find(c=>c.id===id) || cats.find(c=>c.id==='pvc') || cats[0];
+    if(String(id || '').indexOf('custom:') === 0){
+      cat = { id:id, label:String(id).slice(7).toUpperCase(), cls:'cat-custom-v289085' };
+    }
     const badge = card.querySelector('.template-meta-v28901');
     if(!badge) return;
 
+    ['cat-pvc','cat-aluminio','cat-persiana','cat-cristal','cat-otros','cat-custom-v289085'].forEach(cls=>{
+      card.classList.remove(cls);
+      badge.classList.remove(cls);
+    });
     cats.forEach(c=>{
       card.classList.remove(c.cls);
       badge.classList.remove(c.cls);
@@ -10723,6 +12134,16 @@ document.addEventListener('DOMContentLoaded', function(){
     badge.classList.add(cat.cls);
     badge.textContent = cat.label;
     badge.title = 'Cambiar categoría';
+    const shouldUseCustomColor = String(id || '').indexOf('custom:') === 0 || hasCustomCatColorV289091(cat.label);
+    if(shouldUseCustomColor){
+      const styleCat = customColorStyleV289086(cat.label);
+      badge.setAttribute('style', styleCat);
+      /* v2.89.09.2: el color de categoría solo afecta a la etiqueta, nunca a la caja */
+      card.setAttribute('style', baseStyleWithoutCategoryColorV289091(card));
+    }else{
+      badge.removeAttribute('style');
+      card.setAttribute('style', baseStyleWithoutCategoryColorV289091(card));
+    }
 
     if(persist){
       const map = readMap();
@@ -10739,7 +12160,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function ensurePopup(){
     let pop = document.getElementById('templateCategoryPopupV28904');
-    if(pop) return pop;
+    if(pop) pop.remove();
     pop = document.createElement('div');
     pop.id = 'templateCategoryPopupV28904';
     pop.className = 'template-category-popup-v28904';
@@ -10747,22 +12168,89 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="template-category-card-v28904">
         <h3>Cambiar categoría</h3>
         <div class="template-category-grid-v28904">
-          <button class="template-cat-pvc-btn" data-cat="pvc">PVC</button>
-          <button class="template-cat-aluminio-btn" data-cat="aluminio">Aluminio</button>
-          <button class="template-cat-persiana-btn" data-cat="persiana">Persiana</button>
-          <button class="template-cat-cristal-btn" data-cat="cristal">Cristal</button>
-          <button class="template-cat-otros-btn" data-cat="otros">Otros</button>
+          <button class="template-cat-pvc-btn template-cat-standard-btn-v289091" data-cat="pvc"><span>PVC</span><span class="template-cat-color-v289086" data-colorcat="PVC">🎨</span></button>
+          <button class="template-cat-aluminio-btn template-cat-standard-btn-v289091" data-cat="aluminio"><span>Aluminio</span><span class="template-cat-color-v289086" data-colorcat="ALUMINIO">🎨</span></button>
+          <button class="template-cat-persiana-btn template-cat-standard-btn-v289091" data-cat="persiana"><span>Persiana</span><span class="template-cat-color-v289086" data-colorcat="PERSIANA">🎨</span></button>
+          <button class="template-cat-cristal-btn template-cat-standard-btn-v289091" data-cat="cristal"><span>Cristal</span><span class="template-cat-color-v289086" data-colorcat="CRISTAL">🎨</span></button>
+          <button class="template-cat-otros-btn" data-newcat="1">+ Nueva</button>
           <button class="template-cat-cancel-btn" data-cancel="1">Cancelar</button>
         </div>
       </div>`;
+    const grid = pop.querySelector('.template-category-grid-v28904');
+    if(grid){
+      readCustomCatsV289083().forEach(function(label){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'template-cat-custom-btn-v289083';
+        btn.setAttribute('data-cat', 'custom:' + label);
+        btn.setAttribute('style', customColorStyleV289086(label));
+        const safeLabel = label.replace(/"/g,'&quot;');
+        btn.innerHTML = '<span class="template-cat-label-v289086">' + label + '</span><span class="template-cat-color-v289086" data-colorcat="' + safeLabel + '">🎨</span><span class="template-cat-del-v289083" data-delcat="' + safeLabel + '">×</span>';
+        grid.insertBefore(btn, grid.querySelector('[data-newcat]'));
+      });
+    }
+    ['PVC','ALUMINIO','PERSIANA','CRISTAL'].forEach(function(label){
+      const colorBtn = grid && grid.querySelector('[data-colorcat="' + label + '"]');
+      if(colorBtn && hasCustomCatColorV289091(label)){
+        const btn = colorBtn.closest('button');
+        if(btn) btn.setAttribute('style', customColorStyleV289086(label));
+      }
+    });
     document.body.appendChild(pop);
     pop.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+
+      const colorBtn = e.target.closest && e.target.closest('[data-colorcat]');
+      if(colorBtn){
+        const label = colorBtn.getAttribute('data-colorcat') || '';
+        askColorCustomCategoryV289086(label, function(color){
+          setColorForCustomCatV289086(label, color);
+          applyCats();
+          ensurePopup().classList.add('show');
+          try{ if(typeof toast === 'function') toast('Color actualizado'); }catch(_){}
+        });
+        return;
+      }
+
+      const del = e.target.closest && e.target.closest('[data-delcat]');
+      if(del){
+        const label = del.getAttribute('data-delcat') || '';
+        askDeleteCustomCategoryV289086(label, function(){
+          removeCustomCatV289083(label);
+          applyCats();
+          ensurePopup().classList.add('show');
+          try{ if(typeof toast === 'function') toast('Categoría eliminada'); }catch(_){}
+        });
+        return;
+      }
+
       if(e.target === pop || e.target.dataset.cancel){
         pop.classList.remove('show');
         currentCard = null;
         return;
       }
-      const id = e.target.dataset.cat;
+
+      const newBtn = e.target.closest && e.target.closest('[data-newcat]');
+      if(newBtn){
+        askNewCategoryV289084(function(result){
+          const label = (result && typeof result === 'object') ? result.label : result;
+          const color = (result && typeof result === 'object') ? result.color : 'morado';
+          const id = addCustomCatV289083(label);
+          if(label && color) setColorForCustomCatV289086(String(label).toUpperCase(), color);
+          if(id && currentCard){
+            setVisual(currentCard, id, true);
+            applyCats();
+            const nextPop = ensurePopup();
+            nextPop.classList.add('show');
+            try{ if(typeof toast === 'function') toast('Categoría creada'); }catch(_){}
+          }
+        });
+        return;
+      }
+
+      const btn = e.target.closest && e.target.closest('[data-cat]');
+      const id = btn && btn.dataset.cat;
       if(id && currentCard){
         setVisual(currentCard, id, true);
         pop.classList.remove('show');
@@ -10780,31 +12268,11 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!card) return;
     e.preventDefault();
     e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     currentCard = card;
     ensurePopup().classList.add('show');
   }, true);
-
-  // Cerrar desde la pantalla de plantillas: intentar volver al menú/listado principal, no al último documento.
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest && e.target.closest('button');
-    if(!btn) return;
-    const sheet = document.querySelector('#editSheet.show,#settingsSheet.show,.sheet.show');
-    const title = document.querySelector('#sheetTitle,.sheet-title');
-    if(!sheet || !title || !/editar plantillas/i.test(title.textContent||'')) return;
-    if(!/cerrar|cancelar/i.test(btn.textContent||'')) return;
-
-    setTimeout(function(){
-      try{
-        if(typeof closeSheet === 'function') closeSheet();
-        if(typeof closeSettings === 'function') closeSettings();
-        document.body.classList.remove('sheet-open','editing-field');
-        const menuBtn = document.querySelector('.btn-menu-index');
-        if(menuBtn) menuBtn.click();
-      }catch(_){}
-    },80);
-  }, true);
-
-  const mo = new MutationObserver(function(){
+const mo = new MutationObserver(function(){
     clearTimeout(applyCats._t);
     applyCats._t = setTimeout(applyCats, 120);
   });
@@ -10817,7 +12285,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 <script>
-/* v2.89.05 - Orden por categoría usando el badge real */
+/* v2.89.08.10 - Orden por categoría usando el badge real */
 (function(){
   const catOrder = { 'PVC':1, 'ALUMINIO':2, 'PERSIANA':3, 'CRISTAL':4, 'OTROS':5, 'SIN CATEGORÍA':6 };
 
@@ -10895,6 +12363,419 @@ document.addEventListener('DOMContentLoaded', function(){
   mo.observe(document.body,{childList:true,subtree:true});
 
   setTimeout(applyCategorySort,1200);
+})();
+</script>
+
+
+<script>
+/* v2.89.08.10 - Listener final de papelera por ID, después de todos los scripts visuales */
+(function(){
+  let lastTap = 0;
+
+  function templatesOpen(){
+    const title = document.querySelector('#sheetTitle,.sheet-title');
+    return !!(title && /editar plantillas/i.test(title.textContent || ''));
+  }
+
+  async function handleDeleteButton(e){
+    if(!templatesOpen()) return;
+
+    const btn = e.target && e.target.closest ? e.target.closest('.template-delete-by-id') : null;
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    const now = Date.now();
+    if(now - lastTap < 350) return;
+    lastTap = now;
+
+    const id = btn.getAttribute('data-template-id');
+    if(typeof window.deleteConceptTemplateById === 'function'){
+      await window.deleteConceptTemplateById(id);
+    }else{
+      if(typeof toast === 'function') toast('Función borrar no disponible');
+      console.error('deleteConceptTemplateById no disponible');
+    }
+  }
+
+  document.addEventListener('click', handleDeleteButton, true);
+  document.addEventListener('touchend', handleDeleteButton, true);
+  document.addEventListener('pointerup', handleDeleteButton, true);
+})();
+</script>
+
+
+<script>
+/* v2.89.08.10 - Tarjeta completa edita plantilla; Editar queda oculto */
+(function(){
+  function isTemplatesOpen(){
+    const title = document.querySelector('#sheetTitle,.sheet-title');
+    return !!(title && /editar plantillas/i.test(title.textContent || ''));
+  }
+
+  document.addEventListener('click', function(e){
+    if(!isTemplatesOpen()) return;
+
+    const card = e.target && e.target.closest ? e.target.closest('.template-card-compact-v28901,.template-card') : null;
+    if(!card) return;
+
+    // No interceptar papelera, categoría, controles ni botones.
+    if(e.target.closest && e.target.closest('.template-delete-by-id,.template-trash-v28901,.template-meta-v28901,button:not([data-template-edit]),select,input,textarea')){
+      return;
+    }
+
+    const editBtn = card.querySelector('[data-template-edit]');
+    if(!editBtn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+    if(typeof editBtn.onclick === 'function'){
+      editBtn.onclick.call(editBtn, e);
+    }else{
+      editBtn.click();
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* v2.89.08.10 - Buscador de plantillas dentro del documento */
+(function(){
+  function norm(v){
+    return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  }
+
+  function getTemplateSelect(){
+    return document.querySelector('#templateSelect,#conceptTemplateSelect,#editTemplateSelect,select[id*="Template"],select[id*="Plantilla"],select');
+  }
+
+  function isTextEditSheet(){
+    const title = document.querySelector('#sheetTitle,.sheet-title');
+    const body = document.querySelector('#sheetContent');
+    if(!title || !body) return false;
+    const t = norm(title.textContent);
+    return /texto|concepto|grafico|gráfico/.test(t) && body.querySelector('textarea');
+  }
+
+  function templateOptions(select){
+    if(!select) return [];
+    return Array.from(select.options || [])
+      .map((opt, idx)=>({
+        idx,
+        value: opt.value,
+        text: opt.textContent || '',
+        disabled: opt.disabled,
+        selected: opt.selected
+      }))
+      .filter(o => !o.disabled && o.value !== '' && !/^selecciona/i.test(o.text.trim()));
+  }
+
+  function categoryOfText(text){
+    const s = String(text || '');
+    const parts = s.split('·');
+    return parts.length > 1 ? parts[0].trim() : '';
+  }
+
+  function nameOfText(text){
+    const s = String(text || '');
+    const parts = s.split('·');
+    return (parts.length > 1 ? parts.slice(1).join('·') : s).trim();
+  }
+
+  function sortTemplates(list){
+    return list.slice().sort((a,b)=>{
+      const ca = categoryOfText(a.text).localeCompare(categoryOfText(b.text),'es');
+      if(ca !== 0) return ca;
+      return nameOfText(a.text).localeCompare(nameOfText(b.text),'es');
+    });
+  }
+
+  function applyTemplateSelection(select, value){
+    if(!select) return;
+    select.value = value;
+    select.dispatchEvent(new Event('change', {bubbles:true}));
+    select.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  function installSearch(){
+    if(!isTextEditSheet()) return;
+
+    const body = document.querySelector('#sheetContent');
+    if(!body || body.querySelector('#templateQuickSearchV289087')) return;
+
+    const select = Array.from(body.querySelectorAll('select')).find(sel=>{
+      const opts = templateOptions(sel);
+      return opts.length >= 3 && opts.some(o => /·/.test(o.text));
+    });
+    if(!select) return;
+
+    const box = document.createElement('div');
+    box.className = 'template-quick-search-v289087';
+    box.innerHTML = `
+      <label class="template-quick-label-v289087">Buscar plantilla</label>
+      <div class="template-quick-input-wrap-v289087">
+        <input id="templateQuickSearchV289087" type="search" placeholder="Buscar por nombre o categoría">
+        <button type="button" id="templateQuickClearV289087">×</button>
+      </div>
+      <div id="templateQuickResultsV289087" class="template-quick-results-v289087"></div>
+    `;
+
+    select.parentNode.insertBefore(box, select.nextSibling);
+
+    const input = box.querySelector('#templateQuickSearchV289087');
+    const clear = box.querySelector('#templateQuickClearV289087');
+    const results = box.querySelector('#templateQuickResultsV289087');
+
+    function render(){
+      const q = norm(input.value);
+      let list = sortTemplates(templateOptions(select));
+      if(q){
+        list = list.filter(o => norm(o.text).includes(q));
+      }
+      list = list.slice(0, 120);
+
+      if(!q){
+        results.innerHTML = '<div class="template-quick-help-v289087">Todas las plantillas ordenadas por categoría y nombre.</div>' +
+          list.map(renderButton).join('');
+      }else if(!list.length){
+        results.innerHTML = '<div class="template-quick-help-v289087">No hay resultados.</div>';
+      }else{
+        results.innerHTML = list.map(renderButton).join('');
+      }
+    }
+
+    function renderButton(o){
+      const cat = categoryOfText(o.text);
+      const name = nameOfText(o.text);
+      return `
+        <button type="button" class="template-quick-result-v289087" data-value="${String(o.value).replace(/"/g,'&quot;')}">
+          <span>${escapeHtml(name)}</span>
+          ${cat ? '<small>'+escapeHtml(cat)+'</small>' : ''}
+        </button>`;
+    }
+
+    function escapeHtml(s){
+      return String(s || '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[ch]));
+    }
+
+    input.addEventListener('input', render, false);
+    clear.addEventListener('click', function(){
+      input.value = '';
+      render();
+      input.focus();
+    }, false);
+
+    results.addEventListener('click', function(e){
+      const btn = e.target.closest && e.target.closest('[data-value]');
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      applyTemplateSelection(select, btn.getAttribute('data-value'));
+      input.value = '';
+      results.innerHTML = '';
+      try{ if(typeof toast === 'function') toast('Plantilla seleccionada'); }catch(_){}
+    }, false);
+
+    render();
+  }
+
+  document.addEventListener('click', function(){
+    setTimeout(installSearch, 120);
+  }, true);
+
+  const mo = new MutationObserver(function(){
+    clearTimeout(installSearch._t);
+    installSearch._t = setTimeout(installSearch, 140);
+  });
+  mo.observe(document.body, {childList:true, subtree:true});
+
+  setTimeout(installSearch, 800);
+})();
+</script>
+
+
+<script>
+/* v2.89.08.10.1 - prueba salto Plantillas sin tocar cajas */
+(function(){
+  function isTemplatesOpen(){
+    const title = document.querySelector('#sheetTitle,.sheet-title');
+    return !!(title && /editar plantillas/i.test(title.textContent || ''));
+  }
+
+  function hasFinalTemplateView(){
+    const body = document.getElementById('sheetContent');
+    if(!body) return false;
+    return !!body.querySelector('.template-card-compact-v28901,.template-head-v28902,.template-tools-v28901,#templateSearchV28901');
+  }
+
+  function beginIfTemplates(){
+    setTimeout(function(){
+      if(isTemplatesOpen()){
+        document.body.classList.add('templates-rendering-v28908101');
+        finishWhenReady();
+      }
+    }, 0);
+  }
+
+  function finishWhenReady(){
+    let tries = 0;
+    function check(){
+      tries++;
+      if(!isTemplatesOpen()){
+        document.body.classList.remove('templates-rendering-v28908101');
+        return;
+      }
+      if(hasFinalTemplateView() || tries > 12){
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            document.body.classList.remove('templates-rendering-v28908101');
+          });
+        });
+      }else{
+        setTimeout(check, 25);
+      }
+    }
+    check();
+  }
+
+  document.addEventListener('click', function(e){
+    const txt = (e.target && e.target.textContent || '').toLowerCase();
+    const maybeTemplates = /plantillas|plantilla/.test(txt);
+    if(maybeTemplates) beginIfTemplates();
+  }, true);
+
+  const mo = new MutationObserver(function(){
+    if(isTemplatesOpen() && !hasFinalTemplateView()){
+      document.body.classList.add('templates-rendering-v28908101');
+      finishWhenReady();
+    }else if(isTemplatesOpen() && hasFinalTemplateView()){
+      setTimeout(function(){ document.body.classList.remove('templates-rendering-v28908101'); }, 30);
+    }else{
+      document.body.classList.remove('templates-rendering-v28908101');
+    }
+  });
+  mo.observe(document.body,{childList:true,subtree:true,characterData:false});
+
+  window.addEventListener('pageshow', function(){
+    document.body.classList.remove('templates-rendering-v28908101');
+  });
+})();
+</script>
+
+
+<script>
+/* v2.90.1 - Ajuste formato número factura */
+(function(){
+  const KEY = 'documentos_rey_factura_numero_formato_v2901';
+
+  function getFmt(){
+    try{return localStorage.getItem(KEY) || 'sin_f';}catch(_){return 'sin_f';}
+  }
+
+  function setFmt(v){
+    try{localStorage.setItem(KEY, v === 'con_f' ? 'con_f' : 'sin_f');}catch(_){}
+  }
+
+  function ensureOverlay(){
+    let ov = document.getElementById('facturaFormatOverlayV2901');
+    if(ov) return ov;
+
+    ov = document.createElement('div');
+    ov.id = 'facturaFormatOverlayV2901';
+    ov.innerHTML = `
+      <div class="factura-format-card-v2901">
+        <h3>Formato número factura</h3>
+        <p>El correlativo cuenta facturas antiguas con F y nuevas sin F. Este ajuste solo cambia cómo se generan las próximas facturas.</p>
+        <div class="factura-format-options-v2901">
+          <button type="button" data-factura-format-v2901="sin_f">
+            Sin letra inicial<br><small>Ejemplo: 2026-0022</small>
+          </button>
+          <button type="button" data-factura-format-v2901="con_f">
+            Con letra inicial<br><small>Ejemplo: F-2026-0022</small>
+          </button>
+        </div>
+        <div class="factura-format-actions-v2901">
+          <button type="button" id="btnFacturaFormatCloseV2901">Cerrar</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(ov);
+    return ov;
+  }
+
+  function refreshButtons(){
+    const fmt = getFmt();
+    document.querySelectorAll('[data-factura-format-v2901]').forEach(function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-factura-format-v2901') === fmt);
+    });
+  }
+
+  function openFacturaFormat(){
+    const ov = ensureOverlay();
+    refreshButtons();
+
+    ov.onclick = function(e){
+      const btn = e.target.closest && e.target.closest('[data-factura-format-v2901]');
+      if(btn){
+        e.preventDefault();
+        e.stopPropagation();
+        setFmt(btn.getAttribute('data-factura-format-v2901'));
+        refreshButtons();
+        try{ if(typeof toast === 'function') toast('Formato de factura guardado'); }catch(_){}
+        return;
+      }
+
+      if(e.target === ov || e.target.id === 'btnFacturaFormatCloseV2901'){
+        e.preventDefault();
+        e.stopPropagation();
+        ov.classList.remove('show');
+      }
+    };
+
+    ov.classList.add('show');
+  }
+
+  function injectSettingsButton(){
+    if(document.getElementById('btnFacturaFormatV2901')) return;
+
+    const list = document.querySelector('#settingsSheet .settings-list') || document.querySelector('.settings-list');
+    if(!list) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'btnFacturaFormatV2901';
+    btn.className = 'settings-item menu-factura-format-v2901';
+    btn.innerHTML = '<span>Formato facturas<small>Elegir 2026-0022 o F-2026-0022</small></span><span>№</span>';
+    btn.onclick = function(e){
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      openFacturaFormat();
+    };
+
+    // Lo colocamos cerca de Facturas si existe, si no al final.
+    const facturasBtn = Array.from(list.children).find(function(el){
+      return /factura/i.test(el.textContent || '');
+    });
+    if(facturasBtn && facturasBtn.nextSibling){
+      list.insertBefore(btn, facturasBtn.nextSibling);
+    }else{
+      list.appendChild(btn);
+    }
+  }
+
+  document.addEventListener('click', function(){
+    setTimeout(injectSettingsButton, 60);
+    setTimeout(injectSettingsButton, 180);
+  }, true);
+
+  setTimeout(injectSettingsButton, 500);
+  window.openFacturaFormatV2901 = openFacturaFormat;
 })();
 </script>
 
