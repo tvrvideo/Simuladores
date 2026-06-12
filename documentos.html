@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.90</title>
+  <title>Documentos Rey v2.90.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3307,6 +3307,14 @@ body.templates-rendering-v28908101 #editSheet{
 </style>
 
 <!-- v2.90.1: ajuste para elegir formato de número de factura -->
+
+<!--
+v2.90.1
+Pendiente de integración completa:
+- Duración de validez editable por presupuesto.
+- Valor por defecto configurable en Ajustes.
+-->
+
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -3317,7 +3325,7 @@ body.templates-rendering-v28908101 #editSheet{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.90</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.90.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3434,6 +3442,10 @@ body.templates-rendering-v28908101 #editSheet{
     </button>
     <button type="button" class="settings-item menu-bank" id="btnAccountInfo">
       <span>Cuenta bancaria<small>Activa, desactiva y edita el bloque de cuenta.</small></span>
+      <span>›</span>
+    </button>
+    <button type="button" class="settings-item menu-data" id="btnBudgetValidityConfig">
+      <span>Validez presupuestos<small>Días por defecto para los presupuestos nuevos.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-data" id="btnImportCompanyFromFacturacion">
@@ -3811,6 +3823,33 @@ body.templates-rendering-v28908101 #editSheet{
     const d = new Date((dateStr || today()) + 'T12:00:00');
     d.setDate(d.getDate() + Number(days || 0));
     return d.toISOString().slice(0,10);
+  }
+  const BUDGET_VALIDITY_DAYS_KEY = 'documentos_rey_budget_validity_days_v1';
+  function clampBudgetValidityDays(value){
+    const n = Math.round(Number(value));
+    if(!Number.isFinite(n)) return 7;
+    return Math.max(1, Math.min(365, n));
+  }
+  function getBudgetValidityDays(){
+    try{
+      const raw = localStorage.getItem(BUDGET_VALIDITY_DAYS_KEY);
+      if(raw == null || raw === '') return 7;
+      return clampBudgetValidityDays(raw);
+    }catch(e){ return 7; }
+  }
+  function setBudgetValidityDays(days){
+    const safeDays = clampBudgetValidityDays(days);
+    try{ localStorage.setItem(BUDGET_VALIDITY_DAYS_KEY, String(safeDays)); }catch(e){}
+    return safeDays;
+  }
+  function daysBetweenDates(fromDate, toDate){
+    const a = new Date((fromDate || today()) + 'T12:00:00');
+    const b = new Date((toDate || fromDate || today()) + 'T12:00:00');
+    const diff = Math.round((b.getTime() - a.getTime()) / 86400000);
+    return Number.isFinite(diff) ? diff : 0;
+  }
+  function budgetValidityDateFromDays(days){
+    return addDays(state && state.fecha ? state.fecha : today(), clampBudgetValidityDays(days));
   }
   function fmtDate(dateStr){
     if(!dateStr) return '';
@@ -4319,7 +4358,7 @@ body.templates-rendering-v28908101 #editSheet{
     converted.numero = await nextDocumentNumberForType(targetType);
     converted.fecha = today();
     converted.facturaVencimientoManual = false;
-    converted.validez = (targetType === 'factura') ? converted.fecha : addDays(converted.fecha, 15);
+    converted.validez = (targetType === 'factura') ? converted.fecha : addDays(converted.fecha, getBudgetValidityDays());
     converted.convertidoDesde = {
       tipo: source.documentoTipo || 'presupuesto',
       numero: source.numero || '',
@@ -5307,7 +5346,7 @@ async function updateIndexedDBStatus(){
       tipoPresupuesto:'visual',
       simpleExtraPages: 1,
       fecha: today(),
-      validez: addDays(today(), 15),
+      validez: addDays(today(), getBudgetValidityDays()),
       empresaNombre:'',
       empresaLine1:'',
       empresaLine2:'',
@@ -5904,7 +5943,7 @@ COLOCACIÓN INCLUIDA` }
       tipoPresupuesto:'visual',
       simpleExtraPages: 1,
       fecha: today(),
-      validez: addDays(today(), 15),
+      validez: addDays(today(), getBudgetValidityDays()),
       empresaNombre:'',
       empresaLine1:'',
       empresaLine2:'',
@@ -8345,7 +8384,51 @@ COLOCACIÓN INCLUIDA` }
         };
       }
     } else if(type === 'validez'){
-      body.innerHTML = `<label>Válido hasta</label><input id="editValidez" type="date" value="${esc(state.validez)}"><div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+      const fechaBaseValidez = state.fecha || today();
+      const diasActuales = isFacturaDocument() ? Math.max(0, daysBetweenDates(fechaBaseValidez, state.validez || fechaBaseValidez)) : clampBudgetValidityDays(Math.max(1, daysBetweenDates(fechaBaseValidez, state.validez || addDays(fechaBaseValidez, getBudgetValidityDays()))));
+      body.innerHTML = `
+        <label>${isFacturaDocument() ? 'Fecha de vencimiento' : 'Válido hasta'}</label>
+        <input id="editValidez" type="date" value="${esc(state.validez || addDays(fechaBaseValidez, diasActuales))}">
+        ${!isFacturaDocument() ? `
+          <label>Días de duración del presupuesto</label>
+          <input id="editValidezDays" type="number" inputmode="numeric" min="1" max="365" step="1" value="${esc(diasActuales)}">
+          <div style="margin-top:8px;padding:10px 12px;border:1px solid #dbe7fb;border-radius:14px;background:#f8fbff;color:#475569;font-size:12px;font-weight:800;line-height:1.3">
+            Se suma a la fecha del presupuesto (${fmtDate(fechaBaseValidez)}). Al guardar, solo cambia este presupuesto. Para cambiar los próximos, usa Ajustes.
+          </div>` : ''}
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
+          <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
+        </div>`;
+      setTimeout(function(){
+        const daysEl = $('editValidezDays');
+        const dateEl = $('editValidez');
+        if(daysEl && dateEl){
+          const updateDateFromDays = function(){
+            const safeDays = clampBudgetValidityDays(daysEl.value);
+            daysEl.value = String(safeDays);
+            dateEl.value = addDays(fechaBaseValidez, safeDays);
+          };
+          const updateDaysFromDate = function(){
+            const d = daysBetweenDates(fechaBaseValidez, dateEl.value || fechaBaseValidez);
+            daysEl.value = String(clampBudgetValidityDays(Math.max(1, d)));
+          };
+          daysEl.addEventListener('input', updateDateFromDays, false);
+          daysEl.addEventListener('change', updateDateFromDays, false);
+          dateEl.addEventListener('change', updateDaysFromDate, false);
+        }
+      }, 30);
+    } else if(type === 'budgetValidityConfig'){
+      const dias = getBudgetValidityDays();
+      body.innerHTML = `
+        <label>Días por defecto para presupuestos nuevos</label>
+        <input id="editBudgetValidityDaysConfig" type="number" inputmode="numeric" min="1" max="365" step="1" value="${esc(dias)}">
+        <div style="margin-top:8px;padding:10px 12px;border:1px solid #dbe7fb;border-radius:14px;background:#f8fbff;color:#475569;font-size:12px;font-weight:800;line-height:1.3">
+          Este valor solo se aplicará a los presupuestos nuevos. Los presupuestos ya creados conservan su propia fecha de validez.
+        </div>
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
+          <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
+        </div>`;
     } else if(type === 'facturaLogo'){
       const facturaLogoPreview = resolveFacturaLogoSrc();
       const hasLogo = !!facturaLogoPreview;
@@ -9147,7 +9230,12 @@ COLOCACIÓN INCLUIDA` }
         state.validez = $('editValidez').value || (state.fecha || today());
         state.facturaVencimientoManual = true;
       }else{
-        state.validez = $('editValidez').value || addDays(state.fecha,15);
+        state.validez = $('editValidez').value || addDays(state.fecha, getBudgetValidityDays());
+        const validityDaysInput = $('editValidezDays');
+        if(validityDaysInput){
+          const safeDays = clampBudgetValidityDays(validityDaysInput.value);
+          state.validez = addDays(state.fecha || today(), safeDays);
+        }
       }
     } else if(currentEdit.type === 'facturaLogo') {
       state.facturaLogoEnabled = !!$('editFacturaLogoEnabled').checked;
@@ -9299,6 +9387,9 @@ COLOCACIÓN INCLUIDA` }
       instantOpenTemplates();
       toast('Plantilla guardada');
       return;
+    } else if(currentEdit.type === 'budgetValidityConfig') {
+      setBudgetValidityDays($('editBudgetValidityDaysConfig').value);
+      toast('Validez por defecto guardada');
     } else if(currentEdit.type === 'style') {
       state.style = Object.assign(defaultStyle(), state.style || {}, {
         conceptHeaderFill: $('styleConceptHeaderFill').value || defaultStyle().conceptHeaderFill,
@@ -9440,6 +9531,11 @@ $('btnCloseSheet').addEventListener('click', function(){
     hideReturnAppButton();
     closeSettings();
     openEdit('accountInfo', 'Cuenta bancaria');
+  }, false);
+  $('btnBudgetValidityConfig').addEventListener('click', function(){
+    hideReturnAppButton();
+    closeSettings();
+    openEdit('budgetValidityConfig', 'Validez presupuestos');
   }, false);
   $('btnTemplates').addEventListener('click', function(){
     hideReturnAppButton();
