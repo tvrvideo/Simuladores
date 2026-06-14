@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.91</title>
+  <title>Documentos Rey v2.92.2</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1934,6 +1934,146 @@ body.editing-field .brand-idb-pill{
   .validity-preset-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 
+
+/* v2.91.1 - iPhone: recuperar pulsación larga sobre PNG */
+body.png-open{
+  overflow:hidden !important;
+}
+body.png-open .floating-actions,
+body.png-open .page-floating-actions,
+body.png-open .btn-menu-index,
+body.png-open .topbar{
+  display:none !important;
+}
+#pngScreen,
+#pngScreen .png-card,
+#pngScreen .png-preview-wrap{
+  touch-action:auto !important;
+  -webkit-user-select:auto !important;
+  user-select:auto !important;
+}
+#pngScreen .png-preview-wrap{
+  position:relative !important;
+  z-index:10001 !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#pngPreviewImage{
+  position:relative !important;
+  z-index:10002 !important;
+  pointer-events:auto !important;
+  touch-action:auto !important;
+  -webkit-touch-callout:default !important;
+  -webkit-user-select:auto !important;
+  user-select:auto !important;
+  -webkit-user-drag:auto !important;
+}
+
+
+/* v2.92 - Exportación PNG avanzada */
+.png-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+#btnPngOptions{
+  background:linear-gradient(180deg,#8b5cf6 0%,#7c3aed 100%) !important;
+  color:#fff !important;
+  border-color:#7c3aed !important;
+}
+.png-options-overlay{
+  position:fixed;
+  inset:0;
+  z-index:32000;
+  background:rgba(15,23,42,.58);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:16px;
+  box-sizing:border-box;
+}
+.png-options-overlay.show{display:flex!important;}
+.png-options-panel{
+  width:min(620px,100%);
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+  border:1px solid #d5dfeb;
+  border-radius:24px 24px 18px 18px;
+  box-shadow:0 -18px 48px rgba(15,23,42,.24);
+  padding:16px;
+  box-sizing:border-box;
+}
+.png-options-title{
+  margin:0 0 12px;
+  font-size:20px;
+  font-weight:900;
+  color:#0f172a;
+}
+.png-options-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.png-option-card{
+  border:1px solid #bfdbfe;
+  background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);
+  color:#0f172a;
+  border-radius:18px;
+  padding:14px 12px;
+  text-align:left;
+  min-height:86px;
+  cursor:pointer;
+  touch-action:manipulation;
+  box-shadow:0 8px 18px rgba(37,99,235,.09);
+}
+.png-option-card strong{
+  display:block;
+  font-size:16px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+.png-option-card span{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#475569;
+  line-height:1.25;
+}
+.png-option-card.recommended{
+  border-color:#2563eb;
+  background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);
+  color:#fff;
+}
+.png-option-card.recommended span{color:rgba(255,255,255,.92);}
+.png-option-card:active{transform:translateY(1px) scale(.985)}
+.png-options-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:12px;
+}
+@media (max-width:420px){
+  .png-options-grid{grid-template-columns:1fr;}
+}
+
+
+/* v2.92.2 - PNG: botones en una sola fila */
+.png-actions{
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:5px !important;
+}
+.png-actions .btn{
+  min-height:44px !important;
+  height:44px !important;
+  padding:0 3px !important;
+  font-size:10.5px !important;
+  line-height:1.05 !important;
+  border-radius:12px !important;
+  white-space:normal !important;
+}
+.png-preview-wrap{
+  padding:8px !important;
+}
+@media (max-width:380px){
+  .png-actions .btn{font-size:9.5px !important;}
+}
+
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -3371,7 +3511,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.91</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.92.2</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3607,11 +3747,40 @@ Pendiente de integración completa:
     </div>
     <div class="png-actions">
       <button type="button" class="btn btn-primary" id="btnSavePngPreview">Guardar imagen</button>
+      <button type="button" class="btn" id="btnPngOptions">Exportar</button>
       <button type="button" class="btn btn-danger" id="btnClosePngBottom">Cerrar</button>
       <button type="button" class="btn btn-success" id="btnBackFromPng">← Facturación</button>
     </div>
   </div>
 </div>
+
+<div class="png-options-overlay" id="pngOptionsOverlay" aria-hidden="true">
+  <div class="png-options-panel">
+    <h2 class="png-options-title">Exportar PNG</h2>
+    <div class="png-options-grid">
+      <button type="button" class="png-option-card" data-png-scale="1" data-png-crop="0">
+        <strong>Normal</strong>
+        <span>Hoja completa · 1x</span>
+      </button>
+      <button type="button" class="png-option-card" data-png-scale="2" data-png-crop="0">
+        <strong>Alta calidad</strong>
+        <span>Hoja completa · 2x</span>
+      </button>
+      <button type="button" class="png-option-card" data-png-scale="1" data-png-crop="1">
+        <strong>Recortado</strong>
+        <span>Solo contenido · 1x</span>
+      </button>
+      <button type="button" class="png-option-card recommended" data-png-scale="2" data-png-crop="1">
+        <strong>Recortado HD</strong>
+        <span>Solo contenido · 2x</span>
+      </button>
+    </div>
+    <div class="png-options-actions">
+      <button type="button" class="btn btn-danger" id="btnClosePngOptions">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
@@ -4578,7 +4747,15 @@ Pendiente de integración completa:
     const screen = $('pngScreen');
     const img = $('pngPreviewImage');
     pngDataUrl = dataUrl || '';
-    if(img) img.src = pngDataUrl || '';
+    if(img){
+      img.src = pngDataUrl || '';
+      img.removeAttribute('draggable');
+      img.style.webkitTouchCallout = 'default';
+      img.style.webkitUserSelect = 'auto';
+      img.style.userSelect = 'auto';
+      img.style.pointerEvents = 'auto';
+      img.style.touchAction = 'auto';
+    }
     if(screen){
       screen.classList.add('show');
       screen.setAttribute('aria-hidden','false');
@@ -4586,6 +4763,7 @@ Pendiente de integración completa:
     document.body.classList.add('png-open');
   }
   function closePngScreen(){
+    try{ closePngOptions(); }catch(_){}
     const screen = $('pngScreen');
     if(screen){
       screen.classList.remove('show');
@@ -7014,7 +7192,53 @@ COLOCACIÓN INCLUIDA` }
       return {blob: pdfBlob, filename: filename};
     }
 
-  async function exportPNG(){
+  function cropCanvasToContent(sourceCanvas, padding){
+    const w = sourceCanvas.width, h = sourceCanvas.height;
+    const ctx = sourceCanvas.getContext('2d', { willReadFrequently:true });
+    const step = Math.max(1, Math.floor(Math.min(w, h) / 900));
+    let minX = w, minY = h, maxX = -1, maxY = -1;
+    let data;
+    try{
+      data = ctx.getImageData(0, 0, w, h).data;
+    }catch(_){
+      return sourceCanvas;
+    }
+
+    for(let y=0; y<h; y+=step){
+      for(let x=0; x<w; x+=step){
+        const i = (y*w + x) * 4;
+        const a = data[i+3];
+        if(a > 8 && (data[i] < 248 || data[i+1] < 248 || data[i+2] < 248)){
+          if(x < minX) minX = x;
+          if(y < minY) minY = y;
+          if(x > maxX) maxX = x;
+          if(y > maxY) maxY = y;
+        }
+      }
+    }
+
+    if(maxX < 0 || maxY < 0) return sourceCanvas;
+
+    const pad = Math.max(0, Number(padding || 0));
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(w - 1, maxX + pad);
+    maxY = Math.min(h - 1, maxY + pad);
+
+    const cw = Math.max(1, maxX - minX + 1);
+    const ch = Math.max(1, maxY - minY + 1);
+    const out = document.createElement('canvas');
+    out.width = cw;
+    out.height = ch;
+    const octx = out.getContext('2d');
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, 0, cw, ch);
+    octx.drawImage(sourceCanvas, minX, minY, cw, ch, 0, 0, cw, ch);
+    return out;
+  }
+
+  async function exportPNG(options){
+    options = options || {};
     try{
       const exportSvg = svg.cloneNode(false);
       await renderDocument(exportSvg, true);
@@ -7030,19 +7254,36 @@ COLOCACIÓN INCLUIDA` }
       const viewBox = String(exportSvg.getAttribute('viewBox') || ('0 0 ' + PAGE_W + ' ' + PAGE_H)).trim().split(/\s+/).map(Number);
       const svgWidth = viewBox[2] || PAGE_W;
       const svgHeight = viewBox[3] || PAGE_H;
+      const scale = Math.max(1, Math.min(2, Number(options.scale || 1)));
       const canvas = document.createElement('canvas');
-      canvas.width = 1600;
+      canvas.width = Math.round(1600 * scale);
       canvas.height = Math.max(1, Math.round(canvas.width * (svgHeight / svgWidth)));
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/png');
+
+      const outputCanvas = options.crop ? cropCanvasToContent(canvas, Math.round(40 * scale)) : canvas;
+      const dataUrl = outputCanvas.toDataURL('image/png');
       openPngScreen(dataUrl);
+      if(options.label) toast('PNG generado: ' + options.label);
     }catch(err){
       console.error(err);
       toast('Error al exportar PNG');
     }
+  }
+
+  function openPngOptions(){
+    const overlay = $('pngOptionsOverlay');
+    if(!overlay) return;
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+  }
+  function closePngOptions(){
+    const overlay = $('pngOptionsOverlay');
+    if(!overlay) return;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden','true');
   }
     async function exportPDF(){
     try{
@@ -9787,6 +10028,18 @@ $('btnCloseSheet').addEventListener('click', function(){
   $('btnReturnApp').addEventListener('click', returnToAppView, false);
   $('btnClosePngBottom').addEventListener('click', closePngScreen, false);
   $('btnSavePngPreview').addEventListener('click', savePngPreview, false);
+  $('btnPngOptions').addEventListener('click', openPngOptions, false);
+  $('btnClosePngOptions').addEventListener('click', closePngOptions, false);
+  Array.from(document.querySelectorAll('.png-option-card[data-png-scale]')).forEach(function(btn){
+    btn.addEventListener('click', async function(){
+      const scale = Number(btn.getAttribute('data-png-scale') || 1);
+      const crop = btn.getAttribute('data-png-crop') === '1';
+      const title = (btn.querySelector('strong') && btn.querySelector('strong').textContent) || 'PNG';
+      closePngOptions();
+      toast('Generando ' + title + '...');
+      await exportPNG({ scale:scale, crop:crop, label:title });
+    }, false);
+  });
   $('btnBackFromPng').addEventListener('click', returnToAppView, false);
   $('btnClosePngScreen').addEventListener('click', returnToAppView, false);
   $('btnExportPdf').addEventListener('click', function(){ hideReturnAppButton(); exportPDF(); }, false);
