@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras v2.2</title>
+  <title>Calculadoras v2.4</title>
 
   <style>
     :root{
@@ -844,7 +844,422 @@
       border-color: rgba(255,255,255,.14) !important;
     }
 
+
+
+    /* ===== DIMENSIONES PERSIANA (scoped) ===== */
+    #viewPersiana .persianaSvgWrap{
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+    #viewPersiana .persianaSvg{ width:100%; height:320px; display:block; }
+    #viewPersiana .persianaStats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    #viewPersiana .persianaStat{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:10px 12px;
+      min-height:62px;
+    }
+    #viewPersiana .persianaStat span{
+      display:block;
+      color: var(--muted);
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:5px;
+    }
+    #viewPersiana .persianaStat strong{
+      color: rgba(164,255,202,1);
+      font-size:20px;
+      font-weight:950;
+      letter-spacing:.2px;
+    }
+    #viewPersiana .perMeasureRow{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    #viewPersiana .perTypeBox{ margin-top:10px; border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:10px; background:rgba(0,0,0,.10); }
+    #viewPersiana .perTypeBtns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    #viewPersiana .perTypeBtn{ border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.08); color:rgba(238,243,255,.92); padding:12px 9px; border-radius:14px; font-weight:950; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    #viewPersiana .perTypeBtn.active{ background:rgba(20,210,140,.78); border-color:rgba(255,235,120,1); box-shadow:0 0 0 4px rgba(255,235,120,.16); color:white; }
+
+    #viewPersiana .perGuideBox{ margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    #viewPersiana .perGuideBtn{ border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.07); color:rgba(238,243,255,.88); padding:10px 8px; border-radius:14px; font-weight:950; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    #viewPersiana .perGuideBtn.active{ background:rgba(47,125,255,.70); border-color:rgba(110,231,255,.65); color:white; box-shadow:0 0 0 3px rgba(110,231,255,.12); }
+    #viewPersiana .perGuideBox.hidden{ display:none; }
+    #viewPersiana .perExactToggle{ margin-top:10px; display:flex; gap:10px; align-items:center; color:var(--commentPastelBlue); font-size:13px; font-weight:900; user-select:none; }
+    #viewPersiana .perExactToggle input{ width:22px; height:22px; accent-color:#34c759; }
+    #viewPersiana #perExactPanel{ display:none; margin-top:10px; }
+    #viewPersiana #perExactPanel.show{ display:grid; }
+    #dockPersiana.persianaDock{ padding:8px 8px; }
+    #dockPersiana .persianaDockLine{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:6px;
+      align-items:stretch;
+    }
+    #dockPersiana .persianaDockLine > div{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(16,26,51,.92);
+      border-radius:12px;
+      padding:7px 5px;
+      text-align:center;
+      min-width:0;
+    }
+    #dockPersiana .persianaDockLine span{
+      display:block;
+      color:rgba(238,243,255,.70);
+      font-size:10px;
+      font-weight:900;
+      line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #dockPersiana .persianaDockLine strong{
+      display:block;
+      margin-top:4px;
+      color:rgba(164,255,202,1);
+      font-size:13px;
+      font-weight:950;
+      line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    /* v2.8: IU compacta para Dimensiones persiana */
+    #viewPersiana .persianaTitleRow{
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    #viewPersiana .persianaTitleRow span{
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #viewPersiana .persianaTitleRow #persianaReset{
+      flex:0 0 auto;
+      padding:8px 14px;
+      border-radius:16px;
+      font-size:13px;
+    }
+    #viewPersiana .inner{ padding:12px; }
+    #viewPersiana .perMeasureRow{ gap:8px; }
+    #viewPersiana .field{ padding:8px 10px; border-radius:14px; }
+    #viewPersiana label{ margin-bottom:5px; font-size:12px; }
+    #viewPersiana input[type="number"]{
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:18px;
+      min-height:40px;
+    }
+    #viewPersiana .perTypeBox{ margin-top:8px; padding:8px; border-radius:15px; }
+    #viewPersiana .perTypeBtns,
+    #viewPersiana .perGuideBox{ gap:7px; }
+    #viewPersiana .perTypeBtn{ padding:9px 8px; border-radius:13px; font-size:14px; }
+    #viewPersiana .perGuideBox{ margin-top:8px; }
+    #viewPersiana .perGuideBtn{ padding:8px 7px; border-radius:13px; font-size:13px; }
+    #viewPersiana .perExactToggle{ margin-top:8px; font-size:12px; gap:8px; }
+    #viewPersiana .perExactToggle input{ width:18px; height:18px; }
+    #viewPersiana .persianaSvgWrap{ margin-top:10px; border-radius:16px; }
+    #viewPersiana .persianaSvg{ height:285px; }
+    #viewPersiana .persianaStats{ gap:8px; margin-top:10px; }
+    #viewPersiana .persianaStat{ padding:8px 10px; min-height:52px; border-radius:14px; }
+    #viewPersiana .persianaStat strong{ font-size:18px; }
+    #dockPersiana.persianaDock{
+      padding:9px 8px;
+      border-radius:18px;
+      background:#071126 !important;
+    }
+    #dockPersiana .persianaDockLine{ gap:5px; }
+    #dockPersiana .persianaDockLine > div{
+      padding:8px 4px 7px;
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(22,36,72,.98), rgba(11,22,48,.98)) !important;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    #dockPersiana .persianaDockLine span{
+      font-size:11px;
+      color:rgba(238,243,255,.78);
+      margin-bottom:3px;
+    }
+    #dockPersiana .persianaDockLine strong{
+      margin-top:2px;
+      font-size:14px;
+      color:rgba(164,255,202,1);
+      letter-spacing:-.2px;
+    }
+    @media (max-width: 420px){
+      #viewPersiana .title{ font-size:18px; }
+      #viewPersiana .persianaStats{ grid-template-columns: 1fr; }
+      #viewPersiana .persianaSvg{ height:260px; }
+      #dockPersiana .persianaDockLine strong{ font-size:12.5px; }
+      #dockPersiana .persianaDockLine span{ font-size:9.5px; }
+    }
+
+
+
+    /* v2.9: Dimensiones persiana más compacta y dibujo más claro */
+    #viewPersiana .persianaTitleRow{
+      margin: 2px 6px 8px;
+    }
+    #viewPersiana .persianaTitleRow #persianaReset{
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      min-height: 34px;
+    }
+    #viewPersiana .inner{ padding: 9px 10px 10px; }
+    #viewPersiana .perMeasureRow{ gap: 7px; }
+    #viewPersiana .field{
+      padding: 6px 8px;
+      border-radius: 12px;
+    }
+    #viewPersiana label{
+      margin-bottom: 3px;
+      font-size: 10.5px;
+      line-height: 1.05;
+      letter-spacing: .1px;
+    }
+    #viewPersiana input[type="number"]{
+      padding: 6px 8px;
+      min-height: 34px;
+      font-size: 16px;
+      border-radius: 9px;
+    }
+    #viewPersiana .perTypeBox{
+      margin-top: 7px;
+      padding: 7px;
+      border-radius: 13px;
+    }
+    #viewPersiana .perTypeBtns,
+    #viewPersiana .perGuideBox{ gap: 6px; }
+    #viewPersiana .perTypeBtn,
+    #viewPersiana .perGuideBtn{
+      padding: 7px 6px;
+      min-height: 35px;
+      border-radius: 11px;
+      font-size: 12.5px;
+      line-height: 1.05;
+    }
+    #viewPersiana .perGuideBox{ margin-top: 6px; }
+    #viewPersiana .perExactToggle{
+      margin-top: 6px;
+      gap: 7px;
+      font-size: 11px;
+      line-height: 1.15;
+    }
+    #viewPersiana .perExactToggle input{ width: 16px; height: 16px; }
+    #viewPersiana #perExactPanel{ margin-top: 6px; }
+    #viewPersiana .persianaSvgWrap{
+      margin-top: 8px;
+      border-radius: 14px;
+      background:
+        radial-gradient(220px 120px at 50% 12%, rgba(110,231,255,.10), transparent 68%),
+        rgba(0,0,0,.10);
+    }
+    #viewPersiana .persianaSvg{ height: 215px; }
+    #viewPersiana .persianaStats{ display:none; }
+    #dockPersiana.persianaDock{
+      padding: 6px 6px;
+      border-radius: 15px;
+    }
+    #dockPersiana .persianaDockLine{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:4px;
+    }
+    #dockPersiana .persianaDockLine > div{
+      padding: 6px 3px 5px;
+      border-radius: 11px;
+    }
+    #dockPersiana .persianaDockLine span{
+      font-size: 9.5px;
+      margin-bottom: 2px;
+    }
+    #dockPersiana .persianaDockLine strong{
+      font-size: 12.2px;
+      line-height: 1;
+    }
+    #viewPersiana .subhead{ font-size: 11.5px; line-height: 1.2; margin-top: 10px !important; }
+    @media (max-width: 420px){
+      #viewPersiana .persianaSvg{ height: 195px; }
+      #viewPersiana .perTypeBtn,
+      #viewPersiana .perGuideBtn{ font-size: 12px; min-height: 33px; }
+      #dockPersiana .persianaDockLine strong{ font-size: 11.5px; }
+      #dockPersiana .persianaDockLine span{ font-size: 9px; }
+    }
+
     /* CP: no tocamos su diseño (no usa dock inferior) */
+
+
+
+    /* ===== v2.10: volver a base v2.9 + recuperar información inferior ===== */
+    #viewPersiana .persianaTitleRow{
+      margin: 44px 6px 8px !important; /* evita que MENÚ/casa pisen el título */
+      align-items:center;
+      gap:8px;
+    }
+    #viewPersiana .persianaTitleRow span{
+      min-width:0;
+      line-height:1.05;
+    }
+    #viewPersiana .persianaTitleRow #persianaReset{
+      flex:0 0 auto;
+    }
+    #viewPersiana .persianaStats{
+      display:grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+    #viewPersiana .persianaStat{
+      min-height:58px;
+      padding:9px 10px;
+      border-radius:14px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.13);
+    }
+    #viewPersiana .persianaStat span{
+      font-size:11px;
+      line-height:1.1;
+      color: rgba(238,243,255,.68);
+    }
+    #viewPersiana .persianaStat strong{
+      font-size:18px;
+      line-height:1.12;
+      word-break:normal;
+    }
+    #viewPersiana .persianaSvgWrap{
+      overflow:hidden;
+    }
+    #viewPersiana .subhead{
+      margin-bottom: 92px !important;
+    }
+    @media (max-width: 380px){
+      #viewPersiana .persianaStats{ gap:7px; }
+      #viewPersiana .persianaStat{ min-height:54px; padding:8px; }
+      #viewPersiana .persianaStat strong{ font-size:16px; }
+      #viewPersiana .persianaStat span{ font-size:10px; }
+    }
+
+
+    /* ===== v2.12: base v2.10 + SOLO barra fija inferior más alta ===== */
+    #dockPersiana.persianaDock{
+      padding: 10px 7px 9px !important;
+      border-radius: 17px !important;
+    }
+    #dockPersiana .persianaDockLine{
+      gap: 4px !important;
+    }
+    #dockPersiana .persianaDockLine > div{
+      padding: 10px 3px 9px !important;
+      min-height: 58px !important;
+      border-radius: 12px !important;
+    }
+    #dockPersiana .persianaDockLine span{
+      font-size: 10px !important;
+      line-height: 1.05 !important;
+      margin-bottom: 5px !important;
+    }
+    #dockPersiana .persianaDockLine strong{
+      font-size: 14px !important;
+      line-height: 1.05 !important;
+    }
+    #viewPersiana .subhead{
+      margin-bottom: 112px !important;
+    }
+    @media (max-width: 420px){
+      #dockPersiana.persianaDock{
+        padding: 9px 6px 8px !important;
+      }
+      #dockPersiana .persianaDockLine > div{
+        min-height: 54px !important;
+        padding: 9px 2px 8px !important;
+      }
+      #dockPersiana .persianaDockLine span{
+        font-size: 9px !important;
+        margin-bottom: 4px !important;
+      }
+      #dockPersiana .persianaDockLine strong{
+        font-size: 12.5px !important;
+      }
+    }
+
+
+
+    /* v2.13: ajustes persiana y barra fija clara */
+    #viewPersiana .persianaTitleBtns{ display:flex; gap:8px; align-items:center; flex-wrap:nowrap; }
+    #viewPersiana .perSettingsPanel{
+      display:none;
+      margin-top:10px;
+      padding:10px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(0,0,0,.12);
+    }
+    #viewPersiana .perSettingsPanel.show{ display:block; }
+    #viewPersiana .perSettingsHead{
+      font-size:13px;
+      font-weight:950;
+      color:var(--commentPastelBlue);
+      margin:0 0 8px;
+      letter-spacing:.2px;
+    }
+    #viewPersiana .perSettingsGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    #viewPersiana .perSettingsGrid .field{ padding:8px; }
+    #viewPersiana .perSettingsGrid label{ font-size:10.5px; margin-bottom:5px; }
+    #viewPersiana .perSettingsGrid input{ font-size:16px; padding:9px 10px; }
+    #viewPersiana .perSettingsActions{ display:flex; justify-content:flex-end; margin-top:8px; }
+    @media (max-width:420px){
+      #viewPersiana .persianaTitleBtns{ gap:6px; }
+      #viewPersiana .persianaTitleBtns .btn-mini{ padding:7px 9px; font-size:11.5px; }
+    }
+
+
+    /* ===== v4.3: Oscilos compacto - medidas en una sola línea ===== */
+    #viewOscilos .osInner{ padding:10px !important; }
+    #viewOscilos .osGrid{
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap:8px !important;
+    }
+    #viewOscilos .osGrid .field{
+      padding:8px 7px !important;
+      border-radius:12px !important;
+      min-width:0;
+    }
+    #viewOscilos .osGrid label{
+      font-size:10.5px !important;
+      line-height:1.05 !important;
+      margin-bottom:4px !important;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #viewOscilos .osGrid input[type="number"]{
+      min-height:36px !important;
+      padding:7px 7px !important;
+      font-size:16px !important;
+      border-radius:10px !important;
+    }
+    #viewOscilos .osBrandWrap{ margin-top:10px !important; }
+    #viewOscilos .osBrandLabel{ font-size:15px !important; margin-bottom:0 !important; }
+    @media (max-width:420px){
+      #viewOscilos .osGrid{ gap:6px !important; }
+      #viewOscilos .osGrid .field{ padding:7px 6px !important; }
+      #viewOscilos .osGrid label{ font-size:9.5px !important; }
+      #viewOscilos .osGrid input[type="number"]{ font-size:15px !important; padding:7px 6px !important; }
+    }
 
 </style>
 </head>
@@ -862,11 +1277,27 @@
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
-      <div class="title">Calculadoras <small>v2.2</small></div>
+      <div class="title">Calculadoras <small>v2.4</small></div>
 
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
           <div class="menuGrid" role="list">
+
+
+            <div class="menuItem" role="listitem" data-route="persiana">
+              <div class="miTop">
+                <div>
+                  <p class="miTitle">Dimensiones persiana</p>
+                  <p class="miDesc">Monoblock u obra, con ancho total, alto total, m², peso y motor recomendado.</p>
+                </div>
+                <span class="badge">Nuevo</span>
+              </div>
+              <div class="miFooter">
+                <span class="miHint">Tocar para abrir</span>
+                <span class="miHint">›</span>
+              </div>
+            </div>
+
 
             <div class="menuItem" role="listitem" data-route="oscilos">
               <div class="miTop">
@@ -1158,14 +1589,109 @@
       </div>
     </section>
 
+
+    <!-- DIMENSIONES PERSIANA -->
+    <section id="viewPersiana" class="view" aria-label="Calculadora Dimensiones persiana">
+      <div class="title persianaTitleRow">
+        <span>Dimensiones persiana <small>v1.0</small></span>
+        <div class="persianaTitleBtns">
+          <button id="persianaSettings" class="btn btn-ghost btn-mini" type="button" aria-label="Ajustes Dimensiones persiana">Ajustes</button>
+        </div>
+      </div>
+
+      <section class="card" aria-label="Calculadora dimensiones persiana">
+        <div class="inner">
+          <div class="perMeasureRow">
+            <div class="field">
+              <label for="perAncho">Ancho luz (mm)</label>
+              <input id="perAncho" type="number" inputmode="decimal" step="1" value="1000" aria-describedby="ayudaPerAncho" />
+              <div id="ayudaPerAncho" class="sr-only">Introduce el ancho de hueco luz en milímetros.</div>
+            </div>
+            <div class="field">
+              <label for="perAlto">Alto total (mm)</label>
+              <input id="perAlto" type="number" inputmode="decimal" step="1" value="1400" aria-describedby="ayudaPerAlto" />
+              <div id="ayudaPerAlto" class="sr-only">Introduce el alto total de la persiana en milímetros.</div>
+            </div>
+          </div>
+
+          <div class="perTypeBox" aria-label="Tipo de persiana">
+            <label>Tipo persiana</label>
+            <div class="perTypeBtns">
+              <button id="perTipoMono" class="perTypeBtn active" type="button" data-type="monoblock" aria-pressed="true">Monoblock</button>
+              <button id="perTipoObra" class="perTypeBtn" type="button" data-type="obra" aria-pressed="false">Obra</button>
+            </div>
+            <div id="perGuideBox" class="perGuideBox" aria-label="Opción guía Monoblock">
+              <button id="perGuiaRed" class="perGuideBtn active" type="button" data-guide="reductora" aria-pressed="true">Con guía reductora</button>
+              <button id="perGuiaSin" class="perGuideBtn" type="button" data-guide="sin" aria-pressed="false">Sin guía</button>
+            </div>
+            <label class="perExactToggle" for="perExactMode">
+              <input id="perExactMode" type="checkbox" />
+              Introducir medidas exactas de fabricación
+            </label>
+            <div id="perExactPanel" class="perMeasureRow" aria-label="Medidas exactas fabricación">
+              <div class="field">
+                <label for="perExactAncho">Ancho total exacto (mm)</label>
+                <input id="perExactAncho" type="number" inputmode="decimal" step="1" placeholder="Ancho" />
+              </div>
+              <div class="field">
+                <label for="perExactAlto">Alto total exacto (mm)</label>
+                <input id="perExactAlto" type="number" inputmode="decimal" step="1" placeholder="Alto" />
+              </div>
+            </div>
+          </div>
+
+          <div id="perSettingsPanel" class="perSettingsPanel" aria-label="Ajustes de cálculo persiana">
+            <div class="perSettingsHead">Ajustes cálculo</div>
+            <div class="perSettingsGrid">
+              <div class="field"><label for="perPesoObra">Peso obra PVC (kg/m²)</label><input id="perPesoObra" type="number" inputmode="decimal" step="0.1" value="7" /></div>
+              <div class="field"><label for="perPesoMono">Peso lama inyectada (kg/m²)</label><input id="perPesoMono" type="number" inputmode="decimal" step="0.1" value="5" /></div>
+              <div class="field"><label for="perFactorNm">Factor Nm</label><input id="perFactorNm" type="number" inputmode="decimal" step="0.01" value="0.7" /></div>
+            </div>
+            <div class="perSettingsActions">
+              <button id="perSettingsDefault" class="btn btn-ghost btn-mini" type="button">Valores por defecto</button>
+            </div>
+          </div>
+
+          <div class="persianaSvgWrap" aria-label="Dibujo de persiana con medidas">
+            <svg id="persianaSvg" class="persianaSvg" viewBox="0 0 420 320" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+
+          <div class="persianaStats" aria-live="polite">
+            <div class="persianaStat"><span>Tipo</span><strong id="perTipoTxt">—</strong></div>
+            <div class="persianaStat"><span>Medida total</span><strong id="perMedidaFab">—</strong></div>
+            <div class="persianaStat"><span>Ancho total</span><strong id="perFabAncho">—</strong></div>
+            <div class="persianaStat"><span>Alto total</span><strong id="perFabAlto">—</strong></div>
+            <div class="persianaStat"><span>Superficie</span><strong id="perArea">—</strong></div>
+            <div class="persianaStat"><span>Peso estimado</span><strong id="perPeso">—</strong></div>
+            <div class="persianaStat"><span>Motor necesario</span><strong id="perMotorNec">—</strong></div>
+            <div class="persianaStat"><span>Motor recomendado</span><strong id="perMotorRec">—</strong></div>
+          </div>
+          <div id="perError" class="error" style="display:none; margin-top:12px; text-align:center;">Introduce valores válidos</div>
+        </div>
+      </section>
+
+      <div id="dockPersiana" class="resultDock persianaDock" role="status" aria-live="polite" aria-label="Resultado fijo Dimensiones persiana">
+        <div class="persianaDockLine">
+          <div><span>Ancho</span><strong id="dockPerAncho">—</strong></div>
+          <div><span>Alto</span><strong id="dockPerAlto">—</strong></div>
+          <div><span>Peso</span><strong id="dockPerPeso">—</strong></div>
+          <div><span>m²</span><strong id="dockPerArea">—</strong></div>
+          <div><span>Motor</span><strong id="dockPerMotor">—</strong></div>
+        </div>
+        <div id="dockErrorPersiana" class="error" style="display:none; margin-top:6px; text-align:center;">Introduce valores válidos</div>
+      </div>
+
+      <div class="subhead" style="margin-top:14px;">
+        Monoblock: guía +23 mm · sin guía +42 mm. Obra: +42 mm. Motor necesario = peso × factor. Recomendación: ≤10→15 Nm · ≤14→20 Nm · ≤22→30 Nm · >22→Superior.
+      </div>
+    </section>
+
   
     <!-- OSCILOS / HERRAJES OB -->
     <section id="viewOscilos" class="view" aria-label="Calculadora Herraje OB">
-      <div class="title">Herraje OB <small>v4.25</small></div>
+      <div class="title">Herraje OB <small>v4.3</small></div>
 
-      <div style="display:flex; justify-content:flex-end; padding: 0 6px 10px;">
-        <button class="btn btn-ghost btn-mini" id="osResetBtn" type="button" aria-label="Reset Herraje OB">Reset</button>
-      </div>
+      
 
       <section class="card osCard" aria-label="Calculadora Herraje OB">
         <div class="inner osInner">
@@ -1203,14 +1729,14 @@
       <div class="osDock" id="dockOscilos" aria-label="Resultados Herraje OB">
         <div class="osDockInner">
           <div class="osDockItem"><span id="dockALabel">A</span> <strong id="dockAVal">-</strong></div>
-          <div class="osDockItem">Sup <strong id="dockSup">-</strong></div>
-          <div class="osDockItem">Inf <strong id="dockInf">-</strong></div>
+          <div class="osDockItem"><span id="dockSupLabel">Sup</span> <strong id="dockSup">-</strong></div>
+          <div class="osDockItem"><span id="dockInfLabel">Inf</span> <strong id="dockInf">-</strong></div>
           <div class="osDockItem">Compas <strong id="dockCompas">-</strong></div>
         </div>
       </div>
 
       <div class="subhead" style="margin-top:14px;">
-        Simulador de oscilobatiente: muestra descuentos y compas segun ancho/alto/manilla y marca seleccionada.
+        Simulador de oscilobatiente: descuentos y compas segun ancho/alto/manilla y marca seleccionada. STAC calcula compás, activa/pasiva, HI máxima H/2 y mínima 267.
       </div>
     </section>
 
@@ -1714,6 +2240,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         tensor: document.getElementById("viewTensor"),
         iva: document.getElementById("viewIVA"),
         cinta: document.getElementById("viewCinta"),
+        persiana: document.getElementById("viewPersiana"),
         oscilos: document.getElementById("viewOscilos"),
         cp: document.getElementById("viewCP"),
       };      const btnHome = document.getElementById("btnHome");
@@ -1733,6 +2260,8 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         if(dockIVA) dockIVA.style.display = (name === "iva") ? "block" : "none";
         const dockCinta = document.getElementById("dockCinta");
         if(dockCinta) dockCinta.style.display = (name === "cinta") ? "block" : "none";
+        const dockPersiana = document.getElementById("dockPersiana");
+        if(dockPersiana) dockPersiana.style.display = (name === "persiana") ? "block" : "none";
         const dockOsc = document.getElementById("dockOscilos");
         if(dockOsc) dockOsc.style.display = (name === "oscilos") ? "block" : "none";
         /* Botón rojo reservado (GitHub): siempre visible */
@@ -1745,6 +2274,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         if (h === "tensor") setView("tensor");
         else if (h === "iva") setView("iva");
         else if (h === "cinta") setView("cinta");
+        else if (h === "persiana") setView("persiana");
         else if (h === "oscilos") setView("oscilos");
         else if (h === "cp") setView("cp");
         else setView("menu");
@@ -1763,6 +2293,9 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
       function goCinta(){
         location.hash = "#cinta";
       }
+      function goPersiana(){
+        location.hash = "#persiana";
+      }
       function goOscilos(){
         location.hash = "#oscilos";
       }
@@ -1778,6 +2311,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         if(route === "tensor") goTensor();
         if(route === "iva") goIVA();
         if(route === "cinta") goCinta();
+        if(route === "persiana") goPersiana();
         if(route === "oscilos") goOscilos();
         if(route === "cp") goCP();
       }
@@ -2123,6 +2657,131 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
       // init Cinta
       cintaReset();
 
+
+      // --- Dimensiones persiana ---
+      (function(){
+        const $pa = document.getElementById("perAncho"), $ph = document.getElementById("perAlto"), $svg = document.getElementById("persianaSvg"), $err = document.getElementById("perError");
+        const $exact = document.getElementById("perExactMode"), $exactPanel = document.getElementById("perExactPanel"), $exactAncho = document.getElementById("perExactAncho"), $exactAlto = document.getElementById("perExactAlto");
+        const $settingsBtn = document.getElementById("persianaSettings"), $settingsPanel = document.getElementById("perSettingsPanel");
+        const $pesoObra = document.getElementById("perPesoObra"), $pesoMono = document.getElementById("perPesoMono"), $factorNm = document.getElementById("perFactorNm"), $motoresLista = document.getElementById("perMotoresLista"), $settingsDefault = document.getElementById("perSettingsDefault");
+        const $tipoBtns = Array.from(document.querySelectorAll("#viewPersiana .perTypeBtn"));
+        const $guideBox = document.getElementById("perGuideBox"), $guideBtns = Array.from(document.querySelectorAll("#viewPersiana .perGuideBtn"));
+        if(!$pa || !$ph || !$svg){ return; }
+        let perTipo = "monoblock";
+        let perGuia = "reductora";
+        const SETTINGS_KEY = "persiana_calc_settings_v213";
+        const DEFAULT_SETTINGS = { pesoObra:7, pesoMono:5, factorNm:0.7, motores:"15,20,30" };
+        const TIPOS = { obra:{nombre:"Obra", pesoKgM2:7, incrementoAncho:42, extraAlto:0}, monoblock:{nombre:"Monoblock", pesoKgM2:5, incrementoAncho:23, extraAlto:0} };
+        function parseMotores(v){
+          const arr = String(v||"").split(/[;, ]+/).map(x=>Number(String(x).replace(",","."))).filter(x=>isFinite(x)&&x>0).sort((a,b)=>a-b);
+          return arr.length ? arr : [15,20,30];
+        }
+        function getSettings(){
+          const pesoObra = toNumber($pesoObra && $pesoObra.value) || DEFAULT_SETTINGS.pesoObra;
+          const pesoMono = toNumber($pesoMono && $pesoMono.value) || DEFAULT_SETTINGS.pesoMono;
+          const factorNm = toNumber($factorNm && $factorNm.value) || DEFAULT_SETTINGS.factorNm;
+          const motoresText = ($motoresLista && $motoresLista.value) || DEFAULT_SETTINGS.motores;
+          return { pesoObra, pesoMono, factorNm, motoresText, motores:parseMotores(motoresText) };
+        }
+        function saveSettings(){
+          try{ const st=getSettings(); localStorage.setItem(SETTINGS_KEY, JSON.stringify({pesoObra:st.pesoObra,pesoMono:st.pesoMono,factorNm:st.factorNm,motores:st.motoresText})); }catch(e){}
+        }
+        function loadSettings(){
+          let st = DEFAULT_SETTINGS;
+          try{ const raw=localStorage.getItem(SETTINGS_KEY); if(raw) st=Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw)); }catch(e){}
+          if($pesoObra) $pesoObra.value = st.pesoObra;
+          if($pesoMono) $pesoMono.value = st.pesoMono;
+          if($factorNm) $factorNm.value = st.factorNm;
+          if($motoresLista) $motoresLista.value = st.motores;
+        }
+        function perSet(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+        function perError(on){ if($err) $err.style.display=on?"block":"none"; const d=document.getElementById("dockErrorPersiana"); if(d) d.style.display=on?"block":"none"; }
+        function svgEl(tag,attrs){ const el=document.createElementNS("http://www.w3.org/2000/svg",tag); Object.keys(attrs||{}).forEach(k=>el.setAttribute(k,String(attrs[k]))); return el; }
+        function txt(x,y,text,size,anchor,fill){ const t=svgEl("text",{x,y,"font-size":size||14,"font-weight":950,fill:fill||"rgba(238,243,255,.95)","text-anchor":anchor||"middle"}); t.textContent=text; return t; }
+        function clearSvg(){ while($svg.firstChild) $svg.removeChild($svg.firstChild); }
+        function motorRecomendado(nm){ if(nm<=10) return "15 Nm"; if(nm<=14) return "20 Nm"; if(nm<=22) return "30 Nm"; return "Superior"; }
+        function setGuia(guia){ perGuia=guia; $guideBtns.forEach(btn=>{ const a=btn.getAttribute("data-guide")===guia; btn.classList.toggle("active",a); btn.setAttribute("aria-pressed",a?"true":"false"); }); calcPersiana(); }
+        function setTipo(tipo){ perTipo=tipo; $tipoBtns.forEach(btn=>{ const a=btn.getAttribute("data-type")===tipo; btn.classList.toggle("active",a); btn.setAttribute("aria-pressed",a?"true":"false"); }); if($guideBox) $guideBox.classList.toggle("hidden", tipo!=="monoblock"); calcPersiana(); }
+        function updateExactPanel(){ const on=!!($exact&&$exact.checked); if($exactPanel) $exactPanel.classList.toggle("show",on); if(on){ if($exactAncho&&!$exactAncho.value) $exactAncho.value=$pa.value||""; if($exactAlto&&!$exactAlto.value) $exactAlto.value=$ph.value||""; } calcPersiana(); }
+        function drawPersiana(anchoHueco, altoHueco, anchoFab, altoPano, tipoNombre, exactMode){
+          clearSvg();
+          $svg.setAttribute("viewBox", "0 0 420 230");
+          $svg.appendChild(svgEl("rect",{x:0,y:0,width:420,height:230,fill:"rgba(5,7,17,.10)"}));
+
+          const maxW = Math.max(anchoHueco, anchoFab, 1);
+          const maxH = Math.max(altoHueco, altoPano, 1);
+          const scale = Math.min(230 / maxW, 145 / maxH);
+          const w = Math.max(92, anchoFab * scale);
+          const h = Math.max(96, altoPano * scale);
+          const x = (420 - w) / 2;
+          const y = 42;
+          const guideW = Math.max(7, Math.min(12, w * .045));
+          const boxH = tipoNombre === "Monoblock" ? 24 : 16;
+
+          // Marco exterior limpio
+          $svg.appendChild(svgEl("rect",{x:x-18,y:y-10,width:w+36,height:h+20,rx:14,fill:"rgba(255,255,255,.035)",stroke:"rgba(255,255,255,.20)","stroke-width":1.5}));
+
+          // Cajón superior / tapa
+          $svg.appendChild(svgEl("rect",{x:x-8,y:y-boxH-6,width:w+16,height:boxH,rx:8,fill:"rgba(255,198,140,.20)",stroke:"rgba(255,198,140,.48)","stroke-width":1.2}));
+          $svg.appendChild(txt(210,y-boxH+9,tipoNombre,10,"middle","rgba(255,231,208,.94)"));
+
+          // Guías laterales
+          $svg.appendChild(svgEl("rect",{x:x-guideW-5,y:y,width:guideW,height:h,rx:4,fill:"rgba(164,255,202,.19)",stroke:"rgba(164,255,202,.45)","stroke-width":1}));
+          $svg.appendChild(svgEl("rect",{x:x+w+5,y:y,width:guideW,height:h,rx:4,fill:"rgba(164,255,202,.19)",stroke:"rgba(164,255,202,.45)","stroke-width":1}));
+
+          // Paño de lamas
+          $svg.appendChild(svgEl("rect",{x:x,y:y,width:w,height:h,rx:7,fill:"rgba(110,231,255,.12)",stroke:"rgba(110,231,255,.52)","stroke-width":2}));
+          const step = Math.max(7, h / 15);
+          for(let yy = y + step; yy < y + h; yy += step){
+            $svg.appendChild(svgEl("line",{x1:x+5,y1:yy,x2:x+w-5,y2:yy,stroke:"rgba(238,243,255,.22)","stroke-width":1}));
+          }
+          // Lama final
+          $svg.appendChild(svgEl("rect",{x:x+7,y:y+h-12,width:w-14,height:8,rx:4,fill:"rgba(238,243,255,.14)"}));
+
+          // Cotas principales: ancho total y alto total
+          const cy = y + h + 18;
+          $svg.appendChild(svgEl("line",{x1:x,y1:cy,x2:x+w,y2:cy,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          $svg.appendChild(svgEl("line",{x1:x,y1:cy-5,x2:x,y2:cy+5,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          $svg.appendChild(svgEl("line",{x1:x+w,y1:cy-5,x2:x+w,y2:cy+5,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          $svg.appendChild(txt(210,cy+16,`${Math.round(anchoFab)} mm`,12,"middle","rgba(164,255,202,.95)"));
+
+          const vx = x - 31;
+          $svg.appendChild(svgEl("line",{x1:vx,y1:y,x2:vx,y2:y+h,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          $svg.appendChild(svgEl("line",{x1:vx-5,y1:y,x2:vx+5,y2:y,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          $svg.appendChild(svgEl("line",{x1:vx-5,y1:y+h,x2:vx+5,y2:y+h,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
+          const vt=txt(vx-10,y+h/2,`${Math.round(altoPano)} mm`,12,"middle","rgba(164,255,202,.95)");
+          vt.setAttribute("transform",`rotate(-90 ${vx-10} ${y+h/2})`);
+          $svg.appendChild(vt);
+
+          // Sin texto superior: evitamos que se monte con el cajón o el nombre.
+        }
+        function calcPersiana(){
+          const ancho=toNumber($pa.value), alto=toNumber($ph.value), cfgBase=TIPOS[perTipo]||TIPOS.monoblock, exactMode=!!($exact&&$exact.checked);
+          const cfg=Object.assign({}, cfgBase);
+          if(perTipo==="monoblock"){ cfg.incrementoAncho = (perGuia==="reductora") ? 23 : 42; }
+          let anchoFab=exactMode?toNumber($exactAncho&&$exactAncho.value):(ancho+(cfg.incrementoAncho||0)), altoPano=exactMode?toNumber($exactAlto&&$exactAlto.value):(alto+(cfg.extraAlto||0));
+          if(!(ancho>0)||!(alto>0)||!(anchoFab>0)||!(altoPano>0)){ perError(true); ["perTipoTxt","perMedidaFab","perFabAncho","perFabAlto","perArea","perPeso","perMotorNec","perMotorRec","dockPerMotor","dockPerPeso","dockPerAncho","dockPerAlto","dockPerArea"].forEach(id=>perSet(id,"—")); clearSvg(); return; }
+          const settings=getSettings();
+          cfg.pesoKgM2 = (perTipo==="obra") ? settings.pesoObra : settings.pesoMono;
+          perError(false); const area=(anchoFab*altoPano)/1000000, peso=area*cfg.pesoKgM2, nm=peso*settings.factorNm, rec=motorRecomendado(nm);
+          perSet("perTipoTxt",cfg.nombre); perSet("perMedidaFab",`${Math.round(anchoFab)} × ${Math.round(altoPano)} mm`); perSet("perFabAncho",`${Math.round(anchoFab)} mm`); perSet("perFabAlto",`${Math.round(altoPano)} mm`); perSet("perArea",`${area.toFixed(2)} m²`); perSet("perPeso",`${peso.toFixed(1)} kg`); perSet("perMotorNec",`${Math.max(1,nm).toFixed(1)} Nm`); perSet("perMotorRec",rec); perSet("dockPerAncho",`${Math.round(anchoFab)}`); perSet("dockPerAlto",`${Math.round(altoPano)}`); perSet("dockPerPeso",`${peso.toFixed(1)} kg`); perSet("dockPerArea",`${area.toFixed(2)}`); perSet("dockPerMotor",rec);
+          drawPersiana(ancho,alto,anchoFab,altoPano,cfg.nombre,exactMode);
+        }
+        [$pa,$ph,$exactAncho,$exactAlto].forEach(el=>{ if(!el) return; ["input","change"].forEach(evt=>el.addEventListener(evt,calcPersiana,{passive:true})); });
+        $tipoBtns.forEach(btn=>btn.addEventListener("click",()=>setTipo(btn.getAttribute("data-type")||"monoblock"),{passive:true}));
+        $guideBtns.forEach(btn=>btn.addEventListener("click",()=>setGuia(btn.getAttribute("data-guide")||"reductora"),{passive:true}));
+        if($exact){ $exact.addEventListener("change",updateExactPanel,{passive:true}); }
+        if($settingsBtn && $settingsPanel){ $settingsBtn.addEventListener("click",()=>{ $settingsPanel.classList.toggle("show"); },{passive:true}); }
+        [$pesoObra,$pesoMono,$factorNm,$motoresLista].forEach(el=>{ if(!el) return; ["input","change"].forEach(evt=>el.addEventListener(evt,()=>{ saveSettings(); calcPersiana(); },{passive:true})); });
+        if($settingsDefault){ $settingsDefault.addEventListener("click",()=>{ if($pesoObra) $pesoObra.value=DEFAULT_SETTINGS.pesoObra; if($pesoMono) $pesoMono.value=DEFAULT_SETTINGS.pesoMono; if($factorNm) $factorNm.value=DEFAULT_SETTINGS.factorNm; if($motoresLista) $motoresLista.value=DEFAULT_SETTINGS.motores; saveSettings(); calcPersiana(); },{passive:true}); }
+        const $reset=document.getElementById("persianaReset");
+        if($reset){ $reset.addEventListener("click",()=>{ $pa.value="1000"; $ph.value="1400"; if($exact) $exact.checked=false; if($exactAncho) $exactAncho.value=""; if($exactAlto) $exactAlto.value=""; setGuia("reductora"); setTipo("monoblock"); updateExactPanel(); },{passive:true}); }
+        loadSettings();
+        setGuia("reductora");
+        setTipo("monoblock");
+        updateExactPanel();
+      })();
+
       // --- Oscilos / Herrajes OB ---
       (function(){
         function $(id){ return document.getElementById(id); }
@@ -2238,6 +2897,43 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         if(bPro0) bPro0.addEventListener("click", function(){ setBrand("BAICHAPRO"); }, false);
         if(bS0) bS0.addEventListener("click", function(){ setBrand("STAC"); }, false);
 
+
+        function stacCompassData(w, h){
+          // Datos STAC sacados de hoja OSCILO-STAC:
+          // Super mini: L 340-600 / H 450-1200 / A=L-358 / B=305 / Ref 110306
+          // Mini:       L 372-700 / H 450-1800 / A=L-386 / B=333 / Ref 110303
+          // Pequeño:    L 442-750 / H 500-2400 / A=L-424 / B=371 / Ref 110302
+          // Grande:     L 570-1200 / H 700-2400 / A=L-546 / B=493 / Ref 110301
+          // Grande+supl:L 890-1500 / H 700-2400; recomendado a partir de L>=1000.
+          var opts = [
+            {name:"Super mini", ref:"110306", minW:340, maxW:600, minH:450, maxH:1200, offA:358, b:305},
+            {name:"Mini",       ref:"110303", minW:372, maxW:700, minH:450, maxH:1800, offA:386, b:333},
+            {name:"Pequeño",    ref:"110302", minW:442, maxW:750, minH:500, maxH:2400, offA:424, b:371},
+            {name:"Grande",     ref:"110301", minW:570, maxW:1200,minH:700, maxH:2400, offA:546, b:493},
+            {name:"Grande + supl.", ref:"110301 + 110302", minW:890, maxW:1500,minH:700, maxH:2400, offA:546, b:493, supl:true}
+          ];
+
+          var fits = opts.filter(function(o){ return w >= o.minW && w <= o.maxW && h >= o.minH && h <= o.maxH; });
+          if(!fits.length){
+            return { ok:false, name:"No realizable", ref:"-", a:NaN, b:NaN, note:"Fuera de tabla STAC" };
+          }
+
+          var pick = null;
+          if(w >= 1000){
+            pick = fits.filter(function(o){ return o.supl; })[0] || fits[fits.length-1];
+          }else{
+            pick = fits[0];
+          }
+          return {
+            ok:true,
+            name:pick.name,
+            ref:pick.ref,
+            a:w - pick.offA,
+            b:pick.b,
+            note: pick.supl ? "Compás suplementario" : "Tabla STAC"
+          };
+        }
+
         function draw(){
           var w = toNumber(inW.value);
           var h = toNumber(inH.value);
@@ -2258,14 +2954,21 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           }
 
           var brand = currentBrand || "GIESSE";
-          var hideRight = (brand === "STAC");
+          var hideRight = false;
           var leftNoMeasures = (brand === "BAICHA95");
 
           var compas = "-";
           var A = NaN;
           var canOB = true;
+          var stacData = null;
+          var hiUsed = (brand === "STAC") ? Math.min(mh, h/2) : mh;
 
-          if(brand === "BAICHA95"){
+          if(brand === "STAC"){
+            stacData = stacCompassData(w, h);
+            canOB = !!stacData.ok;
+            compas = stacData.name;
+            A = stacData.a;
+          } else if(brand === "BAICHA95"){
             if(w < 375){ canOB=false; compas="No OB"; }
             else if(w < 495){ compas="C-300"; A = w - 159; }
             else if(w < 585){ compas="C-400"; A = w - 398; }
@@ -2283,10 +2986,15 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             else { compas="A2"; A = w - 510; }
           }
 
-          var aLabel = ((brand === "BAICHA95") || (brand === "BAICHAPRO")) ? compas : ((compas === "A2") ? "A2" : "A1");
+          var aLabel = (brand === "STAC") ? "A" : (((brand === "BAICHA95") || (brand === "BAICHAPRO")) ? compas : ((compas === "A2") ? "A2" : "A1"));
 
           var pInf = NaN, pSup = NaN;
-          if(brand === "BAICHA95"){
+          if(brand === "STAC"){
+            // STAC hoja activa (derecha): pieza 23 + pletinas superior/inferior
+            // Inferior = HI - 150 / Superior = H - HI - 190
+            pInf = hiUsed - 150;
+            pSup = h - hiUsed - 190;
+          } else if(brand === "BAICHA95"){
             pInf = mh - 153;
             pSup = (h - mh) - 229;
           } else if(brand === "BAICHAPRO"){
@@ -2300,8 +3008,9 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           var pInfL = NaN, pSupL = NaN;
           if(brand === "STAC"){
-            pInfL = (h/2) - 12;
-            pSupL = (h/2) - 12;
+            // STAC hoja pasiva (izquierda): pieza inferior 38, palanca 39 y pieza superior 37
+            pInfL = 151;
+            pSupL = h - 151 - 170;
           } else if(brand === "BAICHAPRO"){
             pInfL = mh - 315;
             pSupL = (h - mh) - 91;
@@ -2312,6 +3021,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           var hasErr = false;
           if(!canOB) hasErr = true;
+          if(brand === "STAC" && hiUsed < 267) hasErr = true;
           if(isFinite(A) && !(A >= 0)) hasErr = true;
           if(!hideRight){
             if(!(pInf >= 0) || !(pSup >= 0)) hasErr = true;
@@ -2319,12 +3029,19 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           setText("dockCompas", compas);
           setText("dockALabel", aLabel);
+          setText("dockSupLabel", brand === "STAC" ? "Act" : "Sup");
+          setText("dockInfLabel", brand === "STAC" ? "Pas" : "Inf");
 
           if(hasErr){
-            setText("dockAVal","-"); setText("dockSup","-"); setText("dockInf","-");
+            setText("dockAVal","-");
+            setText("dockSup", brand === "STAC" ? "-" : "-");
+            setText("dockInf", brand === "STAC" ? "-" : "-");
           } else {
             setText("dockAVal", isFinite(A) ? String(Math.round(A)) : "-");
-            if(hideRight){
+            if(brand === "STAC" && stacData){
+              setText("dockSup", (isFinite(pSup) && isFinite(pInf)) ? (String(Math.round(pSup)) + "/" + String(Math.round(pInf))) : "-");
+              setText("dockInf", (isFinite(pSupL) && isFinite(pInfL)) ? (String(Math.round(pSupL)) + "/" + String(Math.round(pInfL))) : "-");
+            } else if(hideRight){
               setText("dockSup","-"); setText("dockInf","-");
             } else {
               setText("dockSup", String(Math.round(pSup*10)/10));
@@ -2334,7 +3051,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           var vbW = 420, vbH = 360;
           var pad = 18;
-          var topSpace = 70;
+          var topSpace = 96;
           var bottomSpace = 44;
           var gapPx = 68;
 
@@ -2354,6 +3071,18 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           var cDimBg = "rgba(20,60,45,.60)";
 
           svg.appendChild(svgEl("rect",{x:8,y:8,width:vbW-16,height:vbH-16,rx:16,ry:16,fill:"rgba(0,0,0,.08)",stroke:"rgba(255,255,255,.10)"}));
+
+          if(brand === "STAC"){
+            var info = stacData && stacData.ok ? ("STAC · Compás " + stacData.name + " · Ref " + stacData.ref + " · A " + Math.round(stacData.a) + " · B " + stacData.b) : "STAC · Fuera de tabla";
+            var it = svgEl("text", {x:210, y:28, "font-size":12, "font-weight":950, fill:"rgba(170,219,255,.95)", "text-anchor":"middle"});
+            it.textContent = info;
+            svg.appendChild(it);
+            var hiTxt = (hiUsed !== mh) ? ("HI usada " + Math.round(hiUsed) + " mm (máx. H/2)") : ("HI usada " + Math.round(hiUsed) + " mm");
+            var hiColor = (hiUsed < 267) ? "rgba(251,113,133,1)" : "rgba(255,235,120,1)";
+            var ht = svgEl("text", {x:210, y:46, "font-size":11, "font-weight":950, fill:hiColor, "text-anchor":"middle"});
+            ht.textContent = (hiUsed < 267) ? "NO REALIZABLE · HI mínima 267 mm" : hiTxt;
+            svg.appendChild(ht);
+          }
 
           function drawLeaf(x0){
             svg.appendChild(svgEl("rect",{
@@ -2376,7 +3105,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           drawLeaf(xL);
           drawLeaf(xR);
 
-          var cy = y0 + dh - (mh * s);
+          var cy = y0 + dh - (hiUsed * s);
           var plateW = 14, plateH = 26;
           var plateX = xR + 6;
           var plateY = cy - (plateH/2);
@@ -2386,14 +3115,22 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           svg.appendChild(svgEl("circle",{cx:plateX+7,cy:cy,r:3.6,fill:"rgba(0,0,0,.20)"}));
           svg.appendChild(svgEl("circle",{cx:plateX+7,cy:cy,r:2.0,fill:"rgba(238,243,255,.95)"}));
 
+          /* Compás en el gráfico
+             Lo dejamos siempre arriba, separado de las hojas y de las pletinas.
+             Así no tapa el dibujo y STAC también conserva su compás visible. */
           if(!hideRight && canOB && !hasErr){
-            var aText = aLabel + "= " + String(Math.round(A));
+            var aText = (brand === "STAC")
+              ? (compas + " · A " + String(Math.round(A)))
+              : (aLabel + "= " + String(Math.round(A)));
             var aDim = (compas === "A2") ? "rgba(255,235,120,1)" : cDim;
             var aBg  = (compas === "A2") ? "rgba(80,70,15,.60)" : cDimBg;
 
-            var boxW = Math.max(110, aText.length * 10 + 28);
-            var bx = xR + (dw - boxW) / 2;
-            var by = y0 - 34 - 12;
+            var boxW = Math.max(104, aText.length * 9 + 24);
+            if(boxW > 260) boxW = 260;
+            var bx = (brand === "STAC") ? ((vbW - boxW) / 2) : (xR + (dw - boxW) / 2);
+            if(bx < 18) bx = 18;
+            if(bx + boxW > vbW - 18) bx = vbW - 18 - boxW;
+            var by = (brand === "STAC") ? 58 : 42;
             valueBoxH(bx, by, aText, aDim, aBg);
           }
 
@@ -2414,7 +3151,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             if(pInf >= 0) valueBoxVertical(xBoxR, infCY, String(Math.round(pInf*10)/10), cDim, cDimBg);
           }
 
-          if(!hideRight && !hasErr){
+          if(!hideRight && !hasErr && brand !== "STAC"){
             if(h >= 1200 && h <= 2500){
               var rVal = (h/2) - 69;
               var xBoxRR = xR + dw + 14;
@@ -2424,7 +3161,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             }
           }
 
-          if(!hideRight && !hasErr){
+          if(!hideRight && !hasErr && brand !== "STAC"){
             var showBottom = false;
             var bVal = NaN;
 
