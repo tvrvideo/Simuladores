@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.93</title>
+  <title>Documentos Rey v2.93.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3511,7 +3511,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.93</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.93.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -7702,7 +7702,9 @@ COLOCACIÓN INCLUIDA` }
     const conceptX = 26;
     // v2.93.7 - Subimos el cuerpo del documento para dejar aire al bloque final
     // sin reducir el texto de aceptación ni la cuenta bancaria.
-    const conceptY = 238 + facturaHeaderOffset - conceptZoneStretch;
+    // v2.93 factura-fix: el ajuste de subir conceptos solo afecta a presupuestos.
+    // En facturas mantenemos la posición original para no pisar el bloque cliente.
+    const conceptY = (isFacturaDocument() ? 258 : 238) + facturaHeaderOffset - conceptZoneStretch;
     const conceptW = 742;
     const conceptH = isFacturaDocument() ? 140 : (156 + Math.round(conceptZoneStretch / 4));
     const conceptGap = isFacturaDocument() ? 10 : 14;
