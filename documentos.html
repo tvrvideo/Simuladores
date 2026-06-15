@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.93.1</title>
+  <title>Documentos Rey v2.93.3</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3511,7 +3511,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.93.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.93.3</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -7704,7 +7704,7 @@ COLOCACIÓN INCLUIDA` }
     // sin reducir el texto de aceptación ni la cuenta bancaria.
     // v2.93 factura-fix: el ajuste de subir conceptos solo afecta a presupuestos.
     // En facturas mantenemos la posición original para no pisar el bloque cliente.
-    const conceptY = (isFacturaDocument() ? 258 : 238) + facturaHeaderOffset - conceptZoneStretch;
+    const conceptY = (isFacturaDocument() ? 280 : 238) + facturaHeaderOffset - conceptZoneStretch;
     const conceptW = 742;
     const conceptH = isFacturaDocument() ? 140 : (156 + Math.round(conceptZoneStretch / 4));
     const conceptGap = isFacturaDocument() ? 10 : 14;
@@ -7909,14 +7909,37 @@ COLOCACIÓN INCLUIDA` }
     addText(root, 36, 184, 'Fecha: ' + fmtDate(state.fecha), { fs:13.5, fw:'800', fill:s.textColor });
     addText(root, 36, 208, 'Número de factura: ' + safe(state.numero), { fs:14.5, fw:'800', fill:s.titleColor });
 
-    // Caja cliente
-    const boxX = 26, boxY = 226, boxW = 742, boxH = 88;
+    // Caja cliente v2.93.3 - formato postal claro
+    const boxX = 26, boxY = 226, boxW = 742, boxH = 106;
     add(root, 'rect', { x:boxX, y:boxY, width:boxW, height:boxH, fill:'#ffffff', stroke:s.lineColor, 'stroke-width':s.lineWidth });
 
-    addText(root, boxX+12, boxY+20, safe(state.clienteNombre || 'Cliente contado'), { fs:15, fw:'800', fill:s.titleColor });
-    addText(root, boxX+12, boxY+39, safe(state.clienteDireccion), { fs:12.5, fill:s.textColor });
-    addText(root, boxX+12, boxY+57, safe((state.clientePoblacion || '') + (state.clienteProvincia ? ' · ' + state.clienteProvincia : '')), { fs:12.5, fill:s.textColor });
-    addText(root, boxX+12, boxY+75, 'NIF: ' + safe(state.clienteNif), { fs:12.5, fill:s.textColor });
+    function facturaAddrCase(v){
+      const raw = String(v || '').trim();
+      if(!raw) return '';
+      // Si viene todo en mayúsculas desde la base CP, lo pasamos a formato postal.
+      if(raw === raw.toUpperCase()){
+        return raw.toLocaleLowerCase('es-ES').replace(/(^|[\s\-\/])([a-záéíóúüñ])/g, function(_, p1, p2){
+          return p1 + p2.toLocaleUpperCase('es-ES');
+        });
+      }
+      return raw;
+    }
+    function facturaRegionForProvince(prov){
+      const p = String(prov || '').toLocaleLowerCase('es-ES');
+      if(/coruña|lugo|ourense|pontevedra/.test(p)) return 'Galicia';
+      return '';
+    }
+
+    const facturaCpPob = [String(state.clienteCp || '').trim(), facturaAddrCase(state.clientePoblacion)].filter(Boolean).join(' ');
+    const facturaProv = facturaAddrCase(state.clienteProvincia);
+    const facturaRegion = facturaRegionForProvince(state.clienteProvincia);
+    const facturaProvRegion = [facturaProv, facturaRegion].filter(Boolean).join(', ');
+
+    addText(root, boxX+12, boxY+18, safe(state.clienteNombre || 'Cliente contado'), { fs:14.5, fw:'800', fill:s.titleColor });
+    addText(root, boxX+12, boxY+36, safe(state.clienteDireccion), { fs:12.2, fill:s.textColor });
+    addText(root, boxX+12, boxY+53, safe(facturaCpPob), { fs:12.2, fill:s.textColor });
+    addText(root, boxX+12, boxY+70, safe(facturaProvRegion), { fs:12.2, fill:s.textColor });
+    addText(root, boxX+12, boxY+89, 'NIF: ' + safe(state.clienteNif), { fs:12.2, fill:s.textColor });
 
     hit(root, 28, 50, 360, 90, () => openEdit('company', 'Empresa'), 'Editar empresa');
     hit(root, 500, 30, 260, 110, () => openEdit('facturaLogo', 'Logo facturas'), 'Editar logo facturas');
