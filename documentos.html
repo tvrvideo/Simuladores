@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.92.2</title>
+  <title>Documentos Rey v2.93</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3511,7 +3511,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.92.2</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.93</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5559,6 +5559,34 @@ async function updateIndexedDBStatus(){
     }catch(e){}
   }
 
+
+  // v2.93.3 - Texto de aceptación por defecto incluido en el HTML.
+  const DEFAULT_ACCEPTANCE_TEXT_V2933 = 'SE CONSIDERA PRESUPUESTO ACEPTADO EL JUSTIFICANTE DE PAGO UNA VEZ SE INGRESE EL ADELANTO EN LA CUENTA QUE FIGURA ABAJO INDICANDO COMO CONCEPTO EL NÚMERO DE PRESUPUESTO';
+
+  function defaultAcceptanceText(){
+    return 'SE CONSIDERA PRESUPUESTO ACEPTADO EL JUSTIFICANTE DE PAGO UNA VEZ SE INGRESE EL ADELANTO EN LA CUENTA QUE FIGURA ABAJO INDICANDO COMO CONCEPTO EL NÚMERO DE PRESUPUESTO';
+  }
+
+  function ensureAcceptanceText(){
+    try{
+      if(!state) return;
+      if(!String(state.acceptanceText || defaultAcceptanceTextV2934()).trim()){
+        state.acceptanceText = defaultAcceptanceText();
+      }
+      if(typeof state.acceptanceEnabled === 'undefined' || state.acceptanceEnabled === null){
+        state.acceptanceEnabled = false;
+      }
+    }catch(_ ){}
+  }
+
+
+  // v2.93.4 - Texto de aceptación incluido literalmente en el HTML.
+  const DEFAULT_ACCEPTANCE_TEXT_V2934 = 'SE CONSIDERA PRESUPUESTO ACEPTADO EL JUSTIFICANTE DE PAGO UNA VEZ SE INGRESE EL ADELANTO EN LA CUENTA QUE FIGURA ABAJO INDICANDO COMO CONCEPTO EL NÚMERO DE PRESUPUESTO';
+
+  function defaultAcceptanceTextV2934(){
+    return DEFAULT_ACCEPTANCE_TEXT_V2934;
+  }
+
   function defaultState(){
     return {
       version:'v2.87.68',
@@ -5599,6 +5627,8 @@ async function updateIndexedDBStatus(){
       accountLine1:'',
       accountLine2:'',
       accountLine3:'',
+      acceptanceEnabled:false,
+      acceptanceText: defaultAcceptanceTextV2934(),
       style: defaultStyle(),
       items: buildConceptList(CONCEPTS_PER_PAGE)
     };
@@ -6196,6 +6226,8 @@ COLOCACIÓN INCLUIDA` }
       accountLine1:'',
       accountLine2:'',
       accountLine3:'',
+      acceptanceEnabled:false,
+      acceptanceText: defaultAcceptanceTextV2934(),
       style: defaultStyle(),
       items: buildConceptList(CONCEPTS_PER_PAGE)
     };
@@ -6236,6 +6268,8 @@ COLOCACIÓN INCLUIDA` }
       accountLine1:String(s.accountLine1 || ''),
       accountLine2:String(s.accountLine2 || ''),
       accountLine3:String(s.accountLine3 || ''),
+      acceptanceEnabled:!!s.acceptanceEnabled,
+      acceptanceText:String(s.acceptanceText || defaultAcceptanceText()),
       ivaEnabled:s.ivaEnabled !== false,
       tipoPresupuesto:String(s.tipoPresupuesto || 'visual'),
       simpleExtraPages:Number(s.simpleExtraPages || 1),
@@ -6278,6 +6312,8 @@ COLOCACIÓN INCLUIDA` }
       accountLine1:d.accountLine1,
       accountLine2:d.accountLine2,
       accountLine3:d.accountLine3,
+      acceptanceEnabled:d.acceptanceEnabled,
+      acceptanceText:(d.acceptanceText || defaultAcceptanceText()),
       ivaEnabled:d.ivaEnabled,
       tipoPresupuesto:d.tipoPresupuesto,
       simpleExtraPages:d.simpleExtraPages,
@@ -6293,6 +6329,7 @@ COLOCACIÓN INCLUIDA` }
       'empresaNombre','empresaLine1','empresaLine2','empresaLine3','empresaLine4',
       'textoLegal','logo','pago1Label','pago2Label','pago1Percent','pago2Percent',
       'providerLogoEnabled','providerLogoPreset','providerLogo','accountEnabled','accountLine1','accountLine2','accountLine3',
+      'acceptanceEnabled','acceptanceText',
       'ivaEnabled','tipoPresupuesto','simpleExtraPages'
     ];
     fields.forEach(function(k){
@@ -7663,7 +7700,9 @@ COLOCACIÓN INCLUIDA` }
     const conceptZoneStretch = Number(numStyle('conceptZoneStretch')) || 0;
     const facturaHeaderOffset = isFacturaDocument() ? 94 : 0;
     const conceptX = 26;
-    const conceptY = 258 + facturaHeaderOffset - conceptZoneStretch;
+    // v2.93.7 - Subimos el cuerpo del documento para dejar aire al bloque final
+    // sin reducir el texto de aceptación ni la cuenta bancaria.
+    const conceptY = 238 + facturaHeaderOffset - conceptZoneStretch;
     const conceptW = 742;
     const conceptH = isFacturaDocument() ? 140 : (156 + Math.round(conceptZoneStretch / 4));
     const conceptGap = isFacturaDocument() ? 10 : 14;
@@ -7671,7 +7710,7 @@ COLOCACIÓN INCLUIDA` }
     if(isSimpleBudget()){
       const simpleH = calcSimpleTableHeight(pageItems, conceptW, !!forExport);
       renderSimpleConceptTable(root, pageItems, conceptX, conceptY, conceptW, simpleH, pageNumber, totalPages, !!forExport);
-      const footerY = conceptY + simpleH + 30;
+      const footerY = conceptY + simpleH + 24;
       renderFooter(root, footerY, pageNumber, totalPages, !!forExport);
       return;
     }
@@ -7683,7 +7722,7 @@ COLOCACIÓN INCLUIDA` }
       renderConcept(root, pageItems[i] || blankConcept(conceptCodeForIndex(conceptIndex)), conceptX, conceptY + (i * (conceptH + conceptGap)), conceptW, conceptH);
     }
 
-    const footerY = conceptY + (conceptCount * conceptH) + ((conceptCount - 1) * conceptGap) + 30;
+    const footerY = conceptY + (conceptCount * conceptH) + ((conceptCount - 1) * conceptGap) + 24;
     renderFooter(root, footerY, pageNumber, totalPages, !!forExport);
   }
 
@@ -7722,6 +7761,7 @@ COLOCACIÓN INCLUIDA` }
   }
 
   async function render(){
+    ensureAcceptanceText();
     updateDocumentStatusBadge();
     sincronizarEmpresaDesdeFacturacion();
     syncFacturaVencimientoDefault();
@@ -8437,18 +8477,47 @@ COLOCACIÓN INCLUIDA` }
     hit(root, x, y, c1, headH + valuesH, () => openEdit('validez', 'Válido hasta'), 'Editar validez');
     hit(root, x, splitY, v2 - x, h - (headH + valuesH), () => openEdit('legalText', 'Texto legal'), 'Editar texto legal');
 
-    const extraY = y + h + 6;
-    const providerLogoSrc = resolveProviderLogoSrc();
-    if(providerLogoSrc){
-      addImage(root, x, extraY, 165, 28, providerLogoSrc, 'xMinYMid meet');
-      hit(root, x, extraY, 165, 28, () => $('fileProviderLogo').click(), 'Cambiar logo proveedor');
-    }
-    if(state.accountEnabled){
-      const accX = 365;
-      const accountFs = Math.max(8, Number(numStyle('accountTextSize')) || 10.5);
-      addText(root, accX, extraY + 12, safe(state.accountLine2 || ''), { fs:accountFs });
-      addText(root, accX, extraY + 26, safe(state.accountLine3 || ''), { fs:accountFs });
-      hit(root, accX, extraY, 330, 32, () => openEdit('accountInfo', 'Cuenta bancaria'), 'Editar cuenta bancaria');
+    const extraY = y + h + 8;
+    const isLastPage = Number(pageNumber || 1) === Number(pageCount || 1);
+
+    if(isLastPage){
+      const providerLogoSrc = resolveProviderLogoSrc();
+      const accountVisible = !!(state.accountEnabled && (String(state.accountLine2 || '').trim() || String(state.accountLine3 || '').trim()));
+      const acceptanceVisible = !!state.acceptanceEnabled;
+
+      const finalFs = Math.max(7.2, Math.min(9.2, Number(numStyle('accountTextSize')) || 8.4));
+      const titleFs = Math.max(7.8, finalFs + 0.4);
+      const logoX = x;
+      const acceptanceX = x + 178;
+      const accountX = x + 492;
+      const acceptanceW = 298;
+      const lineH = Math.max(9.5, finalFs + 2.4);
+      let maxH = 34;
+
+      if(providerLogoSrc){
+        addImage(root, logoX, extraY + 4, 155, 24, providerLogoSrc, 'xMinYMid meet');
+      }
+
+      if(acceptanceVisible){
+        // v2.93.9 sin encabezado ACEPCIÓN
+        const lines = wrapTextByWidth(String(state.acceptanceText || defaultAcceptanceTextV2934()), acceptanceW, finalFs, '400').slice(0, 4);
+        addMultilineText(root, acceptanceX, extraY + 10, lines, { fs:finalFs, lineHeight:lineH });
+        maxH = Math.max(maxH, 22 + (lines.length * lineH));
+      }
+
+      if(accountVisible){
+        addText(root, accountX, extraY + 9, 'CUENTA BANCARIA', { fs:titleFs, fw:'800', fill:s.titleColor });
+        addText(root, accountX, extraY + 23, safe(state.accountLine2 || ''), { fs:finalFs });
+        addText(root, accountX, extraY + 36, safe(state.accountLine3 || ''), { fs:finalFs });
+        maxH = Math.max(maxH, 44);
+      }
+
+      // v2.93.5 - Zonas táctiles independientes:
+      // izquierda: logo proveedor; centro: aceptación; derecha: cuenta/final.
+      // Se añaden al final para que no queden tapadas por otra zona.
+      hit(root, logoX, extraY - 4, 170, Math.max(44, maxH + 8), () => openEdit('providerLogo', 'Logo proveedor'), 'Mostrar/ocultar logo proveedor');
+      hit(root, acceptanceX - 6, extraY - 4, 306, Math.max(44, maxH + 8), () => openEdit('finalInfo', 'Información final'), 'Mostrar/ocultar aceptación');
+      hit(root, accountX - 8, extraY - 4, x + w - accountX + 8, Math.max(44, maxH + 8), () => openEdit('accountInfo', 'Cuenta bancaria'), 'Editar cuenta bancaria');
     }
   }
 
@@ -8551,6 +8620,8 @@ COLOCACIÓN INCLUIDA` }
   }, false);
 
   async function openEdit(type, title, index){
+    try{ if(state && !String(state.acceptanceText || defaultAcceptanceTextV2934()).trim()) state.acceptanceText = defaultAcceptanceTextV2934(); }catch(_){}
+
     closeSettings();
     currentEdit = { type, index:index == null ? null : index };
     $('sheetTitle').textContent = title;
@@ -8866,10 +8937,25 @@ COLOCACIÓN INCLUIDA` }
         if(cb) cb.checked = !isNone;
       }, false);
     } else if(type === 'accountInfo'){
+      ensureAcceptanceText();
       body.innerHTML = `
         <label><input id="editAccountEnabled" type="checkbox" ${state.accountEnabled ? 'checked' : ''}> Mostrar cuenta bancaria</label>
         <label>Línea 1</label><input id="editAccountLine2" value="${esc(state.accountLine2 || '')}">
         <label>Línea 2</label><input id="editAccountLine3" value="${esc(state.accountLine3 || '')}">
+        <div style="margin-top:12px;padding:10px 12px;border:1px solid #dbe7fb;border-radius:14px;background:#f8fbff;color:#475569;font-size:12px;font-weight:800;line-height:1.3">
+          Estos datos bancarios se guardan solo en local. El texto de aceptación sí viene incluido en el HTML y puedes modificarlo aquí.
+        </div>
+        <label style="margin-top:14px"><input id="editAcceptanceEnabled" type="checkbox" ${state.acceptanceEnabled ? 'checked' : ''}> Mostrar texto de aceptación</label>
+        <label>Texto de aceptación</label>
+        <textarea id="editAcceptanceText" placeholder="Texto de aceptación">${esc(String(state.acceptanceText || "").trim() || defaultAcceptanceTextV2934())}</textarea>
+        <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+    } else if(type === 'finalInfo'){
+      body.innerHTML = `
+        <label><input id="editFinalAcceptanceEnabled" type="checkbox" ${state.acceptanceEnabled ? 'checked' : ''}> Mostrar texto de aceptación en este documento</label>
+        <label><input id="editFinalAccountEnabled" type="checkbox" ${state.accountEnabled ? 'checked' : ''}> Mostrar cuenta bancaria en este documento</label>
+        <div style="margin-top:10px;padding:10px 12px;border:1px solid #dbe7fb;border-radius:14px;background:#f8fbff;color:#475569;font-size:12px;font-weight:800;line-height:1.3">
+          Esta zona se imprime solo en la última página. Para editar el texto o la cuenta entra en Ajustes → Cuenta bancaria.
+        </div>
         <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
     } else if(type === 'legalText'){
       body.innerHTML = `
@@ -9644,7 +9730,21 @@ COLOCACIÓN INCLUIDA` }
       state.accountEnabled = !!$('editAccountEnabled').checked;
       state.accountLine2 = $('editAccountLine2').value || '';
       state.accountLine3 = $('editAccountLine3').value || '';
+      state.acceptanceEnabled = !!($('editAcceptanceEnabled') && $('editAcceptanceEnabled').checked);
+      state.acceptanceText = $('editAcceptanceText') ? (($('editAcceptanceText').value || '').trim() || defaultAcceptanceTextV2934()) : (String(state.acceptanceText || defaultAcceptanceTextV2934()).trim() || defaultAcceptanceTextV2934());
       saveStoredBankInfo();
+      try{
+        const cfg = buildSettingsSnapshot();
+        cfg.accountEnabled = state.accountEnabled;
+        cfg.accountLine2 = state.accountLine2;
+        cfg.accountLine3 = state.accountLine3;
+        cfg.acceptanceEnabled = state.acceptanceEnabled;
+        cfg.acceptanceText = state.acceptanceText;
+        saveSettingsSnapshot(cfg);
+      }catch(_){}
+    } else if(currentEdit.type === 'finalInfo') {
+      state.acceptanceEnabled = !!($('editFinalAcceptanceEnabled') && $('editFinalAcceptanceEnabled').checked);
+      state.accountEnabled = !!($('editFinalAccountEnabled') && $('editFinalAccountEnabled').checked);
     } else if(currentEdit.type === 'legalText') {
       state.textoLegal = $('editLegalText').value || defaultLegalText();
       syncPagosFromLegalText();
