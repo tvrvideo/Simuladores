@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.93.3</title>
+  <title>Documentos Rey v2.94.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3511,7 +3511,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.93.3</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.94.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3651,7 +3651,15 @@ Pendiente de integración completa:
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-data" id="btnPostalCodes">
-      <span>Códigos postales<small>Carga la base para rellenar población y provincia al escribir el CP.</small></span>
+      <span>Importar base CP<small>Carga un CSV con CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD.</small></span>
+      <span>›</span>
+    </button>
+    <button type="button" class="settings-item menu-data" id="btnPostalEditor">
+      <span>Editar códigos postales<small>Busca, corrige y guarda registros de la base CP en IndexedDB.</small></span>
+      <span>›</span>
+    </button>
+    <button type="button" class="settings-item menu-export" id="btnPostalExport">
+      <span>Exportar base CP<small>Descarga la base actualizada para importarla en Facturación u otro dispositivo.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-data" id="btnStorageDiagnostic">
@@ -5338,16 +5346,20 @@ Pendiente de integración completa:
     // Para la base Codigos-postales_v2.0.csv:
     // CP, POBLACION, MUNICIPIO, PROVINCIA, COMUNIDAD
     // Preferimos MUNICIPIO como población principal; si no existe usamos POBLACION.
+    const poblacionOriginal = get(['poblacion','población','localidad','ciudad','city']);
     const municipio = get(['municipio','localidad','ciudad','city']);
-    const poblacion = municipio || get(['poblacion','población','localidad','ciudad','city']);
+    const poblacion = poblacionOriginal || municipio;
     const provincia = get(['provincia','province']);
+    const comunidad = get(['comunidad','comunidad autonoma','comunidad_autonoma','ccaa']);
     const pais = get(['pais','país','country']) || 'España';
 
     if(!cp) return null;
     return {
       cp: String(cp).replace(/\D/g,'').padStart(5,'0').slice(-5),
       poblacion:poblacion,
+      municipio: municipio || poblacion,
       provincia:provincia,
+      comunidad:comunidad,
       pais:pais
     };
   }
@@ -5420,7 +5432,9 @@ Pendiente de integración completa:
         byCp[r.cp] = r;
       }else{
         if(!byCp[r.cp].poblacion && r.poblacion) byCp[r.cp].poblacion = r.poblacion;
+        if(!byCp[r.cp].municipio && r.municipio) byCp[r.cp].municipio = r.municipio;
         if(!byCp[r.cp].provincia && r.provincia) byCp[r.cp].provincia = r.provincia;
+        if(!byCp[r.cp].comunidad && r.comunidad) byCp[r.cp].comunidad = r.comunidad;
         if(!byCp[r.cp].pais && r.pais) byCp[r.cp].pais = r.pais;
       }
     });
@@ -7932,7 +7946,7 @@ COLOCACIÓN INCLUIDA` }
 
     const facturaCpPob = [String(state.clienteCp || '').trim(), facturaAddrCase(state.clientePoblacion)].filter(Boolean).join(' ');
     const facturaProv = facturaAddrCase(state.clienteProvincia);
-    const facturaRegion = facturaRegionForProvince(state.clienteProvincia);
+    const facturaRegion = 'España';
     const facturaProvRegion = [facturaProv, facturaRegion].filter(Boolean).join(', ');
 
     addText(root, boxX+12, boxY+18, safe(state.clienteNombre || 'Cliente contado'), { fs:14.5, fw:'800', fill:s.titleColor });
@@ -13438,6 +13452,511 @@ const mo = new MutationObserver(function(){
   }
   setupValidityPresetDelegation_v2902();
 
+</script>
+
+
+<style>
+/* v2.94 - Editor base CP */
+.postal-editor-overlay{
+  position:fixed;
+  inset:0;
+  z-index:33000;
+  background:rgba(15,23,42,.58);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.postal-editor-overlay.show{display:flex;}
+.postal-editor-panel{
+  width:min(760px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+  border-radius:24px 24px 0 0;
+  padding:16px;
+  box-shadow:0 -18px 48px rgba(15,23,42,.24);
+  border:1px solid #d5dfeb;
+}
+.postal-editor-head{
+  position:sticky;
+  top:-16px;
+  z-index:2;
+  margin:-16px -16px 12px;
+  padding:16px;
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+  border-bottom:1px solid #dbe7fb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.postal-editor-head h2{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+  color:#0f172a;
+}
+.postal-editor-panel label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  margin:10px 0 6px;
+  color:#0f172a;
+}
+.postal-editor-panel input{
+  width:100%;
+  border:1px solid #d4dde9;
+  border-radius:14px;
+  padding:13px 14px;
+  background:#fff;
+  color:#0f172a;
+  font-size:16px;
+}
+.postal-editor-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.postal-editor-actions.three{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.postal-results{
+  margin-top:12px;
+  border:1px solid #dbe7fb;
+  border-radius:16px;
+  background:#fff;
+  overflow:hidden;
+}
+.postal-result-btn{
+  width:100%;
+  border:0;
+  border-bottom:1px solid #eef2f7;
+  background:#fff;
+  padding:12px 14px;
+  text-align:left;
+  color:#0f172a;
+  font-size:14px;
+  font-weight:900;
+}
+.postal-result-btn:last-child{border-bottom:0;}
+.postal-result-btn small{
+  display:block;
+  margin-top:3px;
+  color:#64748b;
+  font-size:12px;
+  font-weight:800;
+}
+.postal-result-btn:active{background:#eff6ff;}
+.postal-editor-note{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  color:#1e3a8a;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.3;
+}
+@media(max-width:560px){
+  .postal-editor-actions,
+  .postal-editor-actions.three{grid-template-columns:1fr;}
+}
+</style>
+
+<div id="postalEditorOverlay" class="postal-editor-overlay" aria-hidden="true">
+  <div class="postal-editor-panel">
+    <div class="postal-editor-head">
+      <h2>Editar códigos postales</h2>
+      <button type="button" class="btn" id="btnPostalEditorClose">Cerrar</button>
+    </div>
+
+    <label>Buscar CP o población</label>
+    <input id="postalEditorSearch" type="text" inputmode="search" placeholder="Ej: 15960 o Ribeira">
+    <div class="postal-editor-actions three">
+      <button type="button" class="btn btn-primary" id="btnPostalEditorSearch">Buscar</button>
+      <button type="button" class="btn btn-success" id="btnPostalEditorNew">Nuevo CP</button>
+      <button type="button" class="btn" id="btnPostalEditorExport">Exportar CSV</button>
+    </div>
+
+    <div id="postalEditorResults" class="postal-results" style="display:none"></div>
+
+    <div class="postal-editor-note">
+      Edita los mismos campos del CSV: CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD. El país se sigue mostrando aparte como España en Documentos.
+    </div>
+
+    <div id="postalEditorForm" style="display:none;margin-top:12px">
+      <label>CP</label>
+      <input id="postalEditCp" inputmode="numeric" maxlength="5">
+
+      <label>POBLACION</label>
+      <input id="postalEditPoblacion">
+
+      <label>MUNICIPIO</label>
+      <input id="postalEditMunicipio">
+
+      <label>PROVINCIA</label>
+      <input id="postalEditProvincia">
+
+      <label>COMUNIDAD</label>
+      <input id="postalEditComunidad">
+
+      <div class="postal-editor-actions">
+        <button type="button" class="btn btn-primary" id="btnPostalEditorSave">Guardar cambios</button>
+        <button type="button" class="btn btn-danger" id="btnPostalEditorDelete">Eliminar CP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* v2.94 - Editor y exportador de base CP en IndexedDB */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function toastSafe(msg){ try{ if(typeof toast === 'function') toast(msg); else alert(msg); }catch(_){ alert(msg); } }
+  function norm(v){
+    return String(v || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().trim();
+  }
+  function cleanCp(v){
+    return String(v || '').replace(/\D/g,'').padStart(5,'0').slice(-5);
+  }
+  function recordText(r){
+    return [
+      r && r.cp,
+      r && r.poblacion,
+      r && r.municipio,
+      r && r.provincia,
+      r && r.comunidad
+    ].filter(Boolean).join(' · ');
+  }
+  function normalizeForEdit(r){
+    r = r || {};
+    return {
+      cp: cleanCp(r.cp),
+      poblacion: String(r.poblacion || '').trim(),
+      municipio: String(r.municipio || r.poblacion || '').trim(),
+      provincia: String(r.provincia || '').trim(),
+      comunidad: String(r.comunidad || '').trim(),
+      pais: String(r.pais || 'España').trim() || 'España'
+    };
+  }
+  // v2.94.1 - Lectura/escritura directa de la base CP.
+  // El editor se había añadido fuera del bloque donde viven loadPostalCodesDatabase/savePostalCodesDatabase,
+  // por eso no encontraba la base aunque estuviera cargada en IndexedDB.
+  const CP_EDITOR_DB_NAME = 'presupuesto_directo_pdf_db';
+  const CP_EDITOR_STORE = 'kv';
+  const CP_EDITOR_KEY = 'documentos_rey_codigos_postales_v1';
+
+  function openCpEditorDb(){
+    return new Promise(function(resolve,reject){
+      if(!window.indexedDB) return reject(new Error('IndexedDB no disponible'));
+      const req = indexedDB.open(CP_EDITOR_DB_NAME, 1);
+      req.onupgradeneeded = function(){
+        const db = req.result;
+        if(!db.objectStoreNames.contains(CP_EDITOR_STORE)) db.createObjectStore(CP_EDITOR_STORE);
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error('Error IndexedDB')); };
+    });
+  }
+
+  async function readCpEditorRaw(){
+    // 1) Intento con funciones originales si son globales.
+    try{
+      if(typeof window.loadPostalCodesDatabase === 'function'){
+        const data = await window.loadPostalCodesDatabase();
+        if(Array.isArray(data)) return data;
+      }
+    }catch(_){}
+
+    // 2) Lectura directa de IndexedDB kv.
+    try{
+      const db = await openCpEditorDb();
+      return await new Promise(function(resolve){
+        try{
+          const tx = db.transaction(CP_EDITOR_STORE, 'readonly');
+          const req = tx.objectStore(CP_EDITOR_STORE).get(CP_EDITOR_KEY);
+          req.onsuccess = function(){
+            try{
+              const raw = req.result;
+              const arr = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw;
+              resolve(Array.isArray(arr) ? arr : []);
+            }catch(_){ resolve([]); }
+          };
+          req.onerror = function(){ resolve([]); };
+          tx.oncomplete = function(){ try{ db.close(); }catch(_){} };
+          tx.onabort = function(){ try{ db.close(); }catch(_){} };
+        }catch(_){
+          try{ db.close(); }catch(__){}
+          resolve([]);
+        }
+      });
+    }catch(_){}
+
+    // 3) Fallback localStorage por si existe una versión antigua.
+    try{
+      const raw = localStorage.getItem(CP_EDITOR_KEY);
+      const arr = JSON.parse(raw || '[]');
+      return Array.isArray(arr) ? arr : [];
+    }catch(_){ return []; }
+  }
+
+  async function writeCpEditorRaw(list){
+    const clean = (Array.isArray(list) ? list : []).map(normalizeForEdit).filter(r => r.cp);
+    clean.sort((a,b) => String(a.cp).localeCompare(String(b.cp)) || String(a.poblacion).localeCompare(String(b.poblacion)));
+
+    // 1) Intento con función original si es global.
+    try{
+      if(typeof window.savePostalCodesDatabase === 'function'){
+        await window.savePostalCodesDatabase(clean);
+        try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(clean.length)); }catch(_){}
+        return clean;
+      }
+    }catch(_){}
+
+    // 2) Escritura directa IndexedDB kv.
+    const db = await openCpEditorDb();
+    await new Promise(function(resolve,reject){
+      try{
+        const tx = db.transaction(CP_EDITOR_STORE, 'readwrite');
+        tx.objectStore(CP_EDITOR_STORE).put(JSON.stringify(clean), CP_EDITOR_KEY);
+        tx.oncomplete = function(){ try{ db.close(); }catch(_){} resolve(true); };
+        tx.onerror = function(){ try{ db.close(); }catch(_){} reject(tx.error || new Error('Error guardando CP')); };
+        tx.onabort = function(){ try{ db.close(); }catch(_){} reject(tx.error || new Error('Guardado CP abortado')); };
+      }catch(err){
+        try{ db.close(); }catch(_){}
+        reject(err);
+      }
+    });
+    try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(clean.length)); }catch(_){}
+    return clean;
+  }
+
+  async function loadCpList(){
+    const data = await readCpEditorRaw();
+    return Array.isArray(data) ? data.map(normalizeForEdit).filter(r => r.cp) : [];
+  }
+
+  async function saveCpList(list){
+    return await writeCpEditorRaw(list);
+  }
+  function showOverlay(){
+    const ov = $('postalEditorOverlay');
+    if(!ov) return;
+    ov.classList.add('show');
+    ov.setAttribute('aria-hidden','false');
+    try{ document.body.classList.add('sheet-open'); }catch(_){}
+    setTimeout(function(){ const q = $('postalEditorSearch'); if(q) q.focus(); }, 120);
+  }
+  function hideOverlay(){
+    const ov = $('postalEditorOverlay');
+    if(!ov) return;
+    ov.classList.remove('show');
+    ov.setAttribute('aria-hidden','true');
+    try{ document.body.classList.remove('sheet-open'); }catch(_){}
+  }
+  function fillForm(r){
+    r = normalizeForEdit(r);
+    if($('postalEditCp')) $('postalEditCp').value = r.cp || '';
+    if($('postalEditPoblacion')) $('postalEditPoblacion').value = r.poblacion || '';
+    if($('postalEditMunicipio')) $('postalEditMunicipio').value = r.municipio || '';
+    if($('postalEditProvincia')) $('postalEditProvincia').value = r.provincia || '';
+    if($('postalEditComunidad')) $('postalEditComunidad').value = r.comunidad || '';
+    if($('postalEditorForm')) $('postalEditorForm').style.display = 'block';
+  }
+  async function searchCp(){
+    const q = norm($('postalEditorSearch') ? $('postalEditorSearch').value : '');
+    const resultsBox = $('postalEditorResults');
+    if(!resultsBox) return;
+
+    const list = await loadCpList();
+    let results = [];
+    if(q){
+      const qCp = String(q).replace(/\D/g,'');
+      results = list.filter(function(r){
+        return (qCp && String(r.cp || '').indexOf(qCp) === 0) ||
+          norm(r.poblacion).indexOf(q) >= 0 ||
+          norm(r.municipio).indexOf(q) >= 0 ||
+          norm(r.provincia).indexOf(q) >= 0 ||
+          norm(r.comunidad).indexOf(q) >= 0;
+      }).slice(0, 40);
+    }else{
+      results = list.slice(0, 40);
+    }
+
+    if(!results.length){
+      resultsBox.style.display = 'block';
+      resultsBox.innerHTML = '<div style="padding:12px 14px;font-weight:900;color:#64748b">Sin resultados. Puedes crear un CP nuevo.</div>';
+      return;
+    }
+
+    resultsBox.style.display = 'block';
+    resultsBox.innerHTML = results.map(function(r, idx){
+      return '<button type="button" class="postal-result-btn" data-cp="'+String(r.cp).replace(/"/g,'&quot;')+'">' +
+        String(r.cp || '') + ' · ' + String(r.poblacion || r.municipio || '') +
+        '<small>' + String([r.municipio, r.provincia, r.comunidad].filter(Boolean).join(' · ')) + '</small>' +
+      '</button>';
+    }).join('');
+  }
+  async function saveCurrentCp(){
+    const rec = normalizeForEdit({
+      cp: $('postalEditCp') && $('postalEditCp').value,
+      poblacion: $('postalEditPoblacion') && $('postalEditPoblacion').value,
+      municipio: $('postalEditMunicipio') && $('postalEditMunicipio').value,
+      provincia: $('postalEditProvincia') && $('postalEditProvincia').value,
+      comunidad: $('postalEditComunidad') && $('postalEditComunidad').value,
+      pais: 'España'
+    });
+    if(!rec.cp || rec.cp.length !== 5){
+      toastSafe('El CP debe tener 5 números');
+      return;
+    }
+    if(!rec.poblacion && rec.municipio) rec.poblacion = rec.municipio;
+    if(!rec.municipio && rec.poblacion) rec.municipio = rec.poblacion;
+
+    const list = await loadCpList();
+    const idx = list.findIndex(r => String(r.cp) === String(rec.cp));
+    if(idx >= 0) list[idx] = rec;
+    else list.push(rec);
+
+    await saveCpList(list);
+    toastSafe('CP guardado: ' + rec.cp);
+    if($('postalEditorSearch')) $('postalEditorSearch').value = rec.cp;
+    await searchCp();
+  }
+  async function deleteCurrentCp(){
+    const cp = cleanCp($('postalEditCp') && $('postalEditCp').value);
+    if(!cp) return;
+    if(!confirm('¿Eliminar el CP ' + cp + ' de la base?')) return;
+    const list = await loadCpList();
+    const next = list.filter(r => String(r.cp) !== String(cp));
+    await saveCpList(next);
+    if($('postalEditorForm')) $('postalEditorForm').style.display = 'none';
+    toastSafe('CP eliminado: ' + cp);
+    await searchCp();
+  }
+  function csvEscape(v){
+    v = String(v == null ? '' : v);
+    if(/[",;\n\r]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+  async function exportCpCsv(){
+    const list = await loadCpList();
+    if(!list.length){
+      toastSafe('No hay base CP para exportar');
+      return;
+    }
+    const header = ['CP','POBLACION','MUNICIPIO','PROVINCIA','COMUNIDAD'];
+    const lines = [header.join(';')].concat(list.map(function(r){
+      r = normalizeForEdit(r);
+      return [
+        r.cp,
+        r.poblacion,
+        r.municipio || r.poblacion,
+        r.provincia,
+        r.comunidad
+      ].map(csvEscape).join(';');
+    }));
+    const csv = '\ufeff' + lines.join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    const filename = 'Codigos-postales_actualizados_' + new Date().toISOString().slice(0,10) + '.csv';
+    if(typeof downloadBlob === 'function'){
+      downloadBlob(filename, blob);
+    }else{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 800);
+    }
+    toastSafe('Base CP exportada: ' + list.length + ' registros');
+  }
+
+  document.addEventListener('click', async function(ev){
+    const editBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditor') : null;
+    if(editBtn){
+      ev.preventDefault(); ev.stopPropagation();
+      try{ if(typeof closeSettings === 'function') closeSettings(); }catch(_){}
+      showOverlay();
+      searchCp();
+      return;
+    }
+
+    const exportBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalExport,#btnPostalEditorExport') : null;
+    if(exportBtn){
+      ev.preventDefault(); ev.stopPropagation();
+      await exportCpCsv();
+      return;
+    }
+
+    const closeBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditorClose') : null;
+    if(closeBtn){
+      ev.preventDefault();
+      hideOverlay();
+      return;
+    }
+
+    const searchBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditorSearch') : null;
+    if(searchBtn){
+      ev.preventDefault();
+      await searchCp();
+      return;
+    }
+
+    const newBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditorNew') : null;
+    if(newBtn){
+      ev.preventDefault();
+      fillForm({cp:'', poblacion:'', municipio:'', provincia:'', comunidad:'', pais:'España'});
+      return;
+    }
+
+    const saveBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditorSave') : null;
+    if(saveBtn){
+      ev.preventDefault();
+      await saveCurrentCp();
+      return;
+    }
+
+    const delBtn = ev.target && ev.target.closest ? ev.target.closest('#btnPostalEditorDelete') : null;
+    if(delBtn){
+      ev.preventDefault();
+      await deleteCurrentCp();
+      return;
+    }
+
+    const result = ev.target && ev.target.closest ? ev.target.closest('.postal-result-btn') : null;
+    if(result){
+      ev.preventDefault();
+      const cp = result.getAttribute('data-cp');
+      const list = await loadCpList();
+      const rec = list.find(r => String(r.cp) === String(cp));
+      fillForm(rec || {cp:cp});
+      return;
+    }
+
+    const overlay = ev.target && ev.target.id === 'postalEditorOverlay';
+    if(overlay) hideOverlay();
+  }, true);
+
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id === 'postalEditCp'){
+      ev.target.value = String(ev.target.value || '').replace(/\D/g,'').slice(0,5);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.target && ev.target.id === 'postalEditorSearch' && ev.key === 'Enter'){
+      ev.preventDefault();
+      searchCp();
+    }
+  }, true);
+
+  window.openPostalEditor = showOverlay;
+  window.exportPostalCodesCsv = exportCpCsv;
+})();
 </script>
 
 </body>
