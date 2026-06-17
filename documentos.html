@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.94.1</title>
+  <title>Documentos Rey v2.95.2</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -583,6 +583,7 @@ body.editing-field .return-app-btn{
 .doc-status-rechazado{background:#ffe4e6;color:#9f1239}
 .doc-status-facturado{background:#fef3c7;color:#92400e}
 .doc-status-pendiente{background:#fee2e2;color:#991b1b}
+.doc-status-anticipo{background:#f97316;color:#ffffff}
 .doc-status-pagada{background:#dcfce7;color:#166534}
 @media print{.doc-status-badge{display:none!important}}
 
@@ -605,6 +606,7 @@ body.editing-field .return-app-btn{
 .saved-status-rechazado{background:#ffe4e6;color:#9f1239}
 .saved-status-facturado{background:#fef3c7;color:#92400e}
 .saved-status-pendiente{background:#fee2e2;color:#991b1b}
+.saved-status-anticipo{background:#f97316;color:#ffffff}
 .saved-status-pagada{background:#dcfce7;color:#166534}
 
 .btn-menu-index{
@@ -1708,6 +1710,7 @@ body.editing-field .brand-idb-pill{
 .doc-status-aceptado-btn{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%)}
 .doc-status-rechazado-btn{background:linear-gradient(180deg,#be123c 0%,#9f1239 100%)}
 .doc-status-pendiente-btn{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%)}
+.doc-status-anticipo-btn{background:linear-gradient(180deg,#fb923c 0%,#ea580c 100%)}
 .doc-status-pagada-btn{background:linear-gradient(180deg,#22c55e 0%,#15803d 100%)}
 .doc-status-facturado-btn{background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%)}
 .btn-status-mini{
@@ -3511,7 +3514,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.94.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.95.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4145,6 +4148,7 @@ Pendiente de integración completa:
     const s = String(v || 'creado').toLowerCase();
     if(s === 'pagada') return 'PAGADA';
     if(s === 'pendiente') return 'PENDIENTE';
+    if(s === 'anticipo') return 'ANTICIPO';
     if(s === 'enviado') return 'ENVIADO';
     if(s === 'aceptado') return 'ACEPTADO';
     if(s === 'rechazado') return 'RECHAZADO';
@@ -4154,7 +4158,7 @@ Pendiente de integración completa:
 
   function documentStatusClass(v){
     const s = String(v || 'creado').toLowerCase();
-    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','pagada'].includes(s) ? s : 'creado';
+    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','anticipo','pagada'].includes(s) ? s : 'creado';
   }
 
   function updateDocumentStatusBadge(){
@@ -4440,6 +4444,7 @@ Pendiente de integración completa:
     tipo = String(tipo || 'presupuesto').toLowerCase();
     if(tipo === 'factura') return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
+      {value:'anticipo', label:'ANTICIPO', cls:'doc-status-anticipo-btn'},
       {value:'pendiente', label:'PENDIENTE', cls:'doc-status-pendiente-btn'},
       {value:'pagada', label:'PAGADA', cls:'doc-status-pagada-btn'}
     ];
@@ -4450,6 +4455,8 @@ Pendiente de integración completa:
     ];
     return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
+      {value:'pendiente', label:'PENDIENTE', cls:'doc-status-pendiente-btn'},
+      {value:'anticipo', label:'ANTICIPO', cls:'doc-status-anticipo-btn'},
       {value:'enviado', label:'ENVIADO', cls:'doc-status-enviado-btn'},
       {value:'aceptado', label:'ACEPTADO', cls:'doc-status-aceptado-btn'},
       {value:'rechazado', label:'RECHAZADO', cls:'doc-status-rechazado-btn'},
@@ -4526,6 +4533,64 @@ Pendiente de integración completa:
         localStorage.setItem(key, JSON.stringify(arr));
       }
     }catch(_){ }
+  }
+
+  // v2.95 - Presupuestos vencidos: CREADO/PENDIENTE/ENVIADO pasan a RECHAZADO.
+  function parseDocDateV295(value){
+    const s = String(value || '').trim();
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if(m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return null;
+  }
+
+  function isExpiredBudgetV295(doc){
+    if(!doc) return false;
+    if(String(doc.documentoTipo || 'presupuesto') !== 'presupuesto') return false;
+
+    const estado = String(doc.estado || 'creado').toLowerCase();
+    // No tocar presupuestos que ya tienen acción real.
+    if(!['creado','pendiente','enviado'].includes(estado)) return false;
+
+    const limit = parseDocDateV295(doc.validez);
+    if(!limit || isNaN(limit.getTime())) return false;
+
+    const todayDate = new Date();
+    const today0 = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+    const limit0 = new Date(limit.getFullYear(), limit.getMonth(), limit.getDate());
+
+    // Si la validez era ayer o antes, ya está vencido. Si es hoy, sigue válido.
+    return limit0.getTime() < today0.getTime();
+  }
+
+  async function autoRejectExpiredBudgetsV295(list){
+    if(!Array.isArray(list)) return false;
+    let changed = false;
+
+    list.forEach(function(doc){
+      if(isExpiredBudgetV295(doc)){
+        doc.estado = 'rechazado';
+        changed = true;
+        try{ syncStatusToFacturacionLegacy(doc, 'rechazado'); }catch(_){}
+      }
+    });
+
+    if(changed){
+      try{ await storageSetJSON(SAVE_LIST_KEY, list); }catch(_){}
+      try{
+        if(state && state.documentId){
+          const current = list.find(function(d){ return d && String(d.documentId || '') === String(state.documentId || ''); });
+          if(current && String(current.estado || '') !== String(state.estado || '')){
+            state.estado = current.estado;
+            await persistCurrent();
+            try{ render(); }catch(_){}
+          }
+        }
+      }catch(_){}
+    }
+
+    return changed;
   }
 
   async function setSavedDocumentStatus(tipo, originalIndex, nuevoEstado){
@@ -7946,7 +8011,7 @@ COLOCACIÓN INCLUIDA` }
 
     const facturaCpPob = [String(state.clienteCp || '').trim(), facturaAddrCase(state.clientePoblacion)].filter(Boolean).join(' ');
     const facturaProv = facturaAddrCase(state.clienteProvincia);
-    const facturaRegion = 'España';
+    const facturaRegion = facturaRegionForProvince(state.clienteProvincia);
     const facturaProvRegion = [facturaProv, facturaRegion].filter(Boolean).join(', ');
 
     addText(root, boxX+12, boxY+18, safe(state.clienteNombre || 'Cliente contado'), { fs:14.5, fw:'800', fill:s.titleColor });
@@ -10732,6 +10797,7 @@ $('btnExport').addEventListener('click', async function(){
     closeSettings();
 
     const allList = await loadSavedList();
+    try{ await autoRejectExpiredBudgetsV295(allList); }catch(_){}
     const indexedAll = allList
       .map(function(item, originalIndex){ return { item, originalIndex }; })
       .filter(function(x){ return (x.item.documentoTipo || 'presupuesto') === tipo; });
@@ -13455,8 +13521,27 @@ const mo = new MutationObserver(function(){
 </script>
 
 
+<script>
+/* v2.95 - Revisión de validez al abrir la app */
+(function(){
+  async function runAutoRejectV295(){
+    try{
+      if(typeof loadSavedList !== 'function' || typeof autoRejectExpiredBudgetsV295 !== 'function') return;
+      const list = await loadSavedList();
+      await autoRejectExpiredBudgetsV295(list);
+    }catch(_){}
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', runAutoRejectV295, {once:true});
+  }else{
+    setTimeout(runAutoRejectV295, 250);
+  }
+})();
+</script>
+
+
 <style>
-/* v2.94 - Editor base CP */
+/* v2.95.1 - Editor base CP recuperado */
 .postal-editor-overlay{
   position:fixed;
   inset:0;
@@ -13518,9 +13603,7 @@ const mo = new MutationObserver(function(){
   gap:10px;
   margin-top:12px;
 }
-.postal-editor-actions.three{
-  grid-template-columns:repeat(3,minmax(0,1fr));
-}
+.postal-editor-actions.three{grid-template-columns:repeat(3,minmax(0,1fr));}
 .postal-results{
   margin-top:12px;
   border:1px solid #dbe7fb;
@@ -13583,7 +13666,7 @@ const mo = new MutationObserver(function(){
     <div id="postalEditorResults" class="postal-results" style="display:none"></div>
 
     <div class="postal-editor-note">
-      Edita los mismos campos del CSV: CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD. El país se sigue mostrando aparte como España en Documentos.
+      Edita los mismos campos del CSV: CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD.
     </div>
 
     <div id="postalEditorForm" style="display:none;margin-top:12px">
@@ -13611,7 +13694,7 @@ const mo = new MutationObserver(function(){
 </div>
 
 <script>
-/* v2.94 - Editor y exportador de base CP en IndexedDB */
+/* v2.95.1 - Editor y exportador de base CP en IndexedDB */
 (function(){
   function $(id){ return document.getElementById(id); }
   function toastSafe(msg){ try{ if(typeof toast === 'function') toast(msg); else alert(msg); }catch(_){ alert(msg); } }
@@ -13622,15 +13705,6 @@ const mo = new MutationObserver(function(){
   }
   function cleanCp(v){
     return String(v || '').replace(/\D/g,'').padStart(5,'0').slice(-5);
-  }
-  function recordText(r){
-    return [
-      r && r.cp,
-      r && r.poblacion,
-      r && r.municipio,
-      r && r.provincia,
-      r && r.comunidad
-    ].filter(Boolean).join(' · ');
   }
   function normalizeForEdit(r){
     r = r || {};
@@ -13643,9 +13717,7 @@ const mo = new MutationObserver(function(){
       pais: String(r.pais || 'España').trim() || 'España'
     };
   }
-  // v2.94.1 - Lectura/escritura directa de la base CP.
-  // El editor se había añadido fuera del bloque donde viven loadPostalCodesDatabase/savePostalCodesDatabase,
-  // por eso no encontraba la base aunque estuviera cargada en IndexedDB.
+
   const CP_EDITOR_DB_NAME = 'presupuesto_directo_pdf_db';
   const CP_EDITOR_STORE = 'kv';
   const CP_EDITOR_KEY = 'documentos_rey_codigos_postales_v1';
@@ -13664,7 +13736,6 @@ const mo = new MutationObserver(function(){
   }
 
   async function readCpEditorRaw(){
-    // 1) Intento con funciones originales si son globales.
     try{
       if(typeof window.loadPostalCodesDatabase === 'function'){
         const data = await window.loadPostalCodesDatabase();
@@ -13672,7 +13743,6 @@ const mo = new MutationObserver(function(){
       }
     }catch(_){}
 
-    // 2) Lectura directa de IndexedDB kv.
     try{
       const db = await openCpEditorDb();
       return await new Promise(function(resolve){
@@ -13696,7 +13766,6 @@ const mo = new MutationObserver(function(){
       });
     }catch(_){}
 
-    // 3) Fallback localStorage por si existe una versión antigua.
     try{
       const raw = localStorage.getItem(CP_EDITOR_KEY);
       const arr = JSON.parse(raw || '[]');
@@ -13708,7 +13777,6 @@ const mo = new MutationObserver(function(){
     const clean = (Array.isArray(list) ? list : []).map(normalizeForEdit).filter(r => r.cp);
     clean.sort((a,b) => String(a.cp).localeCompare(String(b.cp)) || String(a.poblacion).localeCompare(String(b.poblacion)));
 
-    // 1) Intento con función original si es global.
     try{
       if(typeof window.savePostalCodesDatabase === 'function'){
         await window.savePostalCodesDatabase(clean);
@@ -13717,7 +13785,6 @@ const mo = new MutationObserver(function(){
       }
     }catch(_){}
 
-    // 2) Escritura directa IndexedDB kv.
     const db = await openCpEditorDb();
     await new Promise(function(resolve,reject){
       try{
@@ -13739,10 +13806,10 @@ const mo = new MutationObserver(function(){
     const data = await readCpEditorRaw();
     return Array.isArray(data) ? data.map(normalizeForEdit).filter(r => r.cp) : [];
   }
-
   async function saveCpList(list){
     return await writeCpEditorRaw(list);
   }
+
   function showOverlay(){
     const ov = $('postalEditorOverlay');
     if(!ov) return;
@@ -13794,7 +13861,7 @@ const mo = new MutationObserver(function(){
     }
 
     resultsBox.style.display = 'block';
-    resultsBox.innerHTML = results.map(function(r, idx){
+    resultsBox.innerHTML = results.map(function(r){
       return '<button type="button" class="postal-result-btn" data-cp="'+String(r.cp).replace(/"/g,'&quot;')+'">' +
         String(r.cp || '') + ' · ' + String(r.poblacion || r.municipio || '') +
         '<small>' + String([r.municipio, r.provincia, r.comunidad].filter(Boolean).join(' · ')) + '</small>' +
@@ -13937,8 +14004,7 @@ const mo = new MutationObserver(function(){
       return;
     }
 
-    const overlay = ev.target && ev.target.id === 'postalEditorOverlay';
-    if(overlay) hideOverlay();
+    if(ev.target && ev.target.id === 'postalEditorOverlay') hideOverlay();
   }, true);
 
   document.addEventListener('input', function(ev){
