@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.95.2</title>
+  <title>Documentos Rey v2.97</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2077,6 +2077,79 @@ body.png-open .topbar{
   .png-actions .btn{font-size:9.5px !important;}
 }
 
+
+/* v2.95.4 - Notas internas en fila de botones, sin agrandar tarjetas */
+.saved-doc-actions-compact{
+  grid-template-columns:42px repeat(5,minmax(0,1fr)) !important;
+}
+@media (max-width:420px){
+  .saved-doc-actions-compact{
+    grid-template-columns:40px repeat(5,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+}
+.btn-doc-notes-v296{
+  background:linear-gradient(180deg,#fde047 0%,#facc15 100%) !important;
+  color:#0f172a !important;
+  border-color:#eab308 !important;
+}
+.btn-doc-notes-v296.has-notes{
+  background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%) !important;
+  color:#fff !important;
+  border-color:#d97706 !important;
+}
+@media print{.btn-doc-notes-v296{display:none!important}}
+
+
+/* v2.96 - Notas internas como campo real del documento */
+.btn-doc-notes-v296{
+  background:linear-gradient(180deg,#fde047 0%,#facc15 100%) !important;
+  color:#0f172a !important;
+  border-color:#eab308 !important;
+  touch-action:manipulation !important;
+}
+.btn-doc-notes-v296.has-notes{
+  background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%) !important;
+  color:#fff !important;
+  border-color:#d97706 !important;
+}
+#editDocumentNotes{
+  min-height:220px !important;
+  line-height:1.35 !important;
+  font-size:16px !important;
+}
+.document-notes-info-v296{
+  margin:0 0 12px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  color:#1e3a8a;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.3;
+}
+@media print{.btn-doc-notes-v296{display:none!important}}
+
+
+/* v2.97 - Nota interna por concepto dentro de Importes */
+#editConceptInternalNotes{
+  min-height:150px !important;
+  line-height:1.35 !important;
+  font-size:16px !important;
+}
+.concept-notes-info-v297{
+  margin:12px 0 8px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  color:#1e3a8a;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.3;
+}
+
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -3514,7 +3587,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.95.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.97</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4647,6 +4720,7 @@ Pendiente de integración completa:
     converted.fecha = today();
     converted.facturaVencimientoManual = false;
     converted.validez = (targetType === 'factura') ? converted.fecha : addDays(converted.fecha, getBudgetValidityDays());
+    converted.internalNotes = String(source && source.internalNotes != null ? source.internalNotes : converted.internalNotes || '');
     converted.convertidoDesde = {
       tipo: source.documentoTipo || 'presupuesto',
       numero: source.numero || '',
@@ -5706,6 +5780,7 @@ async function updateIndexedDBStatus(){
       accountLine1:'',
       accountLine2:'',
       accountLine3:'',
+      internalNotes:'',
       acceptanceEnabled:false,
       acceptanceText: defaultAcceptanceTextV2934(),
       style: defaultStyle(),
@@ -6204,6 +6279,7 @@ COLOCACIÓN INCLUIDA` }
     merged.accountLine1 = String(raw && raw.accountLine1 != null ? raw.accountLine1 : base.accountLine1);
     merged.accountLine2 = String(raw && raw.accountLine2 != null ? raw.accountLine2 : base.accountLine2);
     merged.accountLine3 = String(raw && raw.accountLine3 != null ? raw.accountLine3 : base.accountLine3);
+    merged.internalNotes = String(raw && raw.internalNotes != null ? raw.internalNotes : '');
     return merged;
   }
 
@@ -9065,6 +9141,25 @@ COLOCACIÓN INCLUIDA` }
       body.innerHTML = `
         <label>Texto legal</label><textarea id="editLegalText">${esc(state.textoLegal || defaultLegalText())}</textarea>
         <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+    } else if(type === 'documentNotes'){
+      body.innerHTML = `
+        <div class="document-notes-info-v296">Notas privadas del documento. Se guardan con el presupuesto/factura, pero no salen en PDF, PNG ni documento.</div>
+        <label>Notas internas</label>
+        <textarea id="editDocumentNotes" placeholder="Ej: Cliente entregó señal, pendiente llamada, medidas revisadas...">${esc(state.internalNotes || '')}</textarea>
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
+          <button type="button" class="btn btn-danger" id="btnClearDocumentNotesV296">Borrar</button>
+        </div>`;
+      setTimeout(function(){
+        const clearBtn = $('btnClearDocumentNotesV296');
+        if(clearBtn){
+          clearBtn.onclick = function(ev){
+            if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+            const ta = $('editDocumentNotes');
+            if(ta) ta.value = '';
+          };
+        }
+      }, 0);
         } else if(type === 'pagos'){
       body.innerHTML = `
         <label>Texto línea 1</label><input id="editPago1Label" value="${esc(state.pago1Label || 'Entrega')}">
@@ -9172,6 +9267,8 @@ COLOCACIÓN INCLUIDA` }
         </div>
         <div id="gainPreview" class="price-gain-preview"></div>
         <label class="import-field-label">Descuento (%) ${it.code}</label><input id="editDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
+        <div class="concept-notes-info-v297">Nota privada de este concepto. No sale en PDF, PNG ni documento.</div>
+        <label class="import-field-label">Nota interna ${it.code}</label><textarea id="editConceptInternalNotes" placeholder="Ej: confirmar medidas, color especial, precio acordado...">${esc(it.internalNotes || '')}</textarea>
         <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
       bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
     } else if(type === 'catalog'){
@@ -9852,6 +9949,12 @@ COLOCACIÓN INCLUIDA` }
     } else if(currentEdit.type === 'legalText') {
       state.textoLegal = $('editLegalText').value || defaultLegalText();
       syncPagosFromLegalText();
+    } else if(currentEdit.type === 'documentNotes') {
+      state.internalNotes = String(($('editDocumentNotes') && $('editDocumentNotes').value) || '');
+      await persistCurrent();
+      await saveNamed();
+      closeSheet();
+      return;
     } else if(currentEdit.type === 'pagos') {
       const p1 = Math.max(0, Math.min(100, Number($('editPago1Percent').value || 0)));
       const p2 = Math.max(0, 100 - p1);
@@ -9887,6 +9990,7 @@ COLOCACIÓN INCLUIDA` }
       }
       const d = String(($('editSimpleDiscount').value || '').replace(',','.')).trim();
       if(d) it.discount = d; else delete it.discount;
+      it.internalNotes = String(($('editConceptInternalNotes') && $('editConceptInternalNotes').value) || '');
       it.image = '';
       while(state.items.length < currentEdit.index) state.items.push(blankConcept(conceptCodeForIndex(state.items.length)));
       state.items[currentEdit.index] = it;
@@ -9912,6 +10016,7 @@ COLOCACIÓN INCLUIDA` }
       }
       const d = String(($('editDiscount').value || '').replace(',','.')).trim();
       if(d) state.items[currentEdit.index].discount = d; else delete state.items[currentEdit.index].discount;
+      state.items[currentEdit.index].internalNotes = String(($('editConceptInternalNotes') && $('editConceptInternalNotes').value) || '');
     } else if(currentEdit.type === 'catalogForm') {
       await loadProducts();
       const idx = productEditIndex == null ? -1 : Number(productEditIndex);
@@ -10832,6 +10937,7 @@ $('btnExport').addEventListener('click', async function(){
                 <button type="button" class="btn btn-danger saved-trash-btn saved-trash-compact" data-delete-index="${idx}" aria-label="Eliminar">🗑</button>
                 <button type="button" class="btn btn-primary" data-load-index="${idx}">Abrir</button>
                 <button type="button" class="btn btn-success" data-duplicate-index="${idx}">Duplicar</button>
+                <button type="button" class="btn btn-doc-notes-v296 ${String(it.internalNotes || '').trim() ? 'has-notes' : ''}" data-doc-notes-index-v296="${idx}">Notas</button>
                 ${conversionTargetsForType(tipo).map(function(target){
                   const fullLabel = target === 'albaran' ? 'A albarán' : (target === 'factura' ? 'A factura' : conversionButtonLabel(target));
                   const colorClass = target === 'albaran' ? 'btn-convert-albaran' : (target === 'factura' ? 'btn-convert-factura' : 'btn-neutral');
@@ -10878,6 +10984,25 @@ $('btnExport').addEventListener('click', async function(){
           const picked = current[idx];
           if(!picked){ toast('No se encontró el documento'); return; }
           openDocStatusSheet(tipo, idx, picked);
+        }, false);
+      });
+
+      Array.from(document.querySelectorAll('[data-doc-notes-index-v296]')).forEach(function(btn){
+        btn.addEventListener('click', async function(ev){
+          if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+          const current = await loadSavedList();
+          const picked = current[Number(btn.getAttribute('data-doc-notes-index-v296'))];
+          if(!picked){ toast('No se encontró el documento'); return; }
+          state = normalizeLoadedState(picked);
+
+          if(!picked.documentId || String(picked.documentId) !== String(state.documentId)){
+            picked.documentId = state.documentId;
+            current[Number(btn.getAttribute('data-doc-notes-index-v296'))] = picked;
+            try{ await storageSetJSON(SAVE_LIST_KEY, current); }catch(_){}
+          }
+
+          await persistCurrent();
+          openEdit('documentNotes', 'Notas internas');
         }, false);
       });
 
