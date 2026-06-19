@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.97</title>
+  <title>Documentos Rey v2.98.6</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -585,6 +585,7 @@ body.editing-field .return-app-btn{
 .doc-status-pendiente{background:#fee2e2;color:#991b1b}
 .doc-status-anticipo{background:#f97316;color:#ffffff}
 .doc-status-pagada{background:#dcfce7;color:#166534}
+.doc-status-cancelado{background:#374151;color:#ffffff}
 @media print{.doc-status-badge{display:none!important}}
 
 .doc-status-badge{display:none!important}
@@ -608,6 +609,7 @@ body.editing-field .return-app-btn{
 .saved-status-pendiente{background:#fee2e2;color:#991b1b}
 .saved-status-anticipo{background:#f97316;color:#ffffff}
 .saved-status-pagada{background:#dcfce7;color:#166534}
+.saved-status-cancelado{background:#374151;color:#ffffff}
 
 .btn-menu-index{
   position:fixed;
@@ -1713,6 +1715,7 @@ body.editing-field .brand-idb-pill{
 .doc-status-anticipo-btn{background:linear-gradient(180deg,#fb923c 0%,#ea580c 100%)}
 .doc-status-pagada-btn{background:linear-gradient(180deg,#22c55e 0%,#15803d 100%)}
 .doc-status-facturado-btn{background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%)}
+.doc-status-cancelado-btn{background:linear-gradient(180deg,#4b5563 0%,#1f2937 100%)}
 .btn-status-mini{
   background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%) !important;
   color:#0f172a !important;
@@ -2150,6 +2153,8 @@ body.png-open .topbar{
   line-height:1.3;
 }
 
+
+.btn-warning{background:linear-gradient(180deg,#facc15 0%,#eab308 100%) !important;color:#0f172a !important;border-color:#eab308 !important;}
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -3587,7 +3592,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.97</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v2.98.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4226,12 +4231,13 @@ Pendiente de integración completa:
     if(s === 'aceptado') return 'ACEPTADO';
     if(s === 'rechazado') return 'RECHAZADO';
     if(s === 'facturado') return 'FACTURADO';
+    if(s === 'cancelado') return 'CANCELADO';
     return 'CREADO';
   }
 
   function documentStatusClass(v){
     const s = String(v || 'creado').toLowerCase();
-    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','anticipo','pagada'].includes(s) ? s : 'creado';
+    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','anticipo','pagada','cancelado'].includes(s) ? s : 'creado';
   }
 
   function updateDocumentStatusBadge(){
@@ -4355,6 +4361,7 @@ Pendiente de integración completa:
       d.clienteDireccion,
       d.clienteCp,
       d.clientePoblacion,
+      d.clienteMunicipio,
       d.clienteProvincia,
       d.clienteNif
     ].join(' ').toLowerCase();
@@ -4515,17 +4522,25 @@ Pendiente de integración completa:
 
   function statusOptionsForDocumentType(tipo){
     tipo = String(tipo || 'presupuesto').toLowerCase();
+
+    // Facturas: se mantienen los estados que ya funcionaban y se añade CANCELADO.
     if(tipo === 'factura') return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
       {value:'anticipo', label:'ANTICIPO', cls:'doc-status-anticipo-btn'},
       {value:'pendiente', label:'PENDIENTE', cls:'doc-status-pendiente-btn'},
-      {value:'pagada', label:'PAGADA', cls:'doc-status-pagada-btn'}
+      {value:'pagada', label:'PAGADA', cls:'doc-status-pagada-btn'},
+      {value:'cancelado', label:'CANCELADO', cls:'doc-status-cancelado-btn'}
     ];
+
+    // Albaranes: se mantienen los estados que ya funcionaban y se añade CANCELADO.
     if(tipo === 'albaran') return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
       {value:'enviado', label:'ENVIADO', cls:'doc-status-enviado-btn'},
-      {value:'facturado', label:'FACTURADO', cls:'doc-status-facturado-btn'}
+      {value:'facturado', label:'FACTURADO', cls:'doc-status-facturado-btn'},
+      {value:'cancelado', label:'CANCELADO', cls:'doc-status-cancelado-btn'}
     ];
+
+    // Presupuestos: se mantienen TODOS los estados anteriores y se añade CANCELADO.
     return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
       {value:'pendiente', label:'PENDIENTE', cls:'doc-status-pendiente-btn'},
@@ -4533,7 +4548,8 @@ Pendiente de integración completa:
       {value:'enviado', label:'ENVIADO', cls:'doc-status-enviado-btn'},
       {value:'aceptado', label:'ACEPTADO', cls:'doc-status-aceptado-btn'},
       {value:'rechazado', label:'RECHAZADO', cls:'doc-status-rechazado-btn'},
-      {value:'facturado', label:'FACTURADO', cls:'doc-status-facturado-btn'}
+      {value:'facturado', label:'FACTURADO', cls:'doc-status-facturado-btn'},
+      {value:'cancelado', label:'CANCELADO', cls:'doc-status-cancelado-btn'}
     ];
   }
 
@@ -5625,12 +5641,78 @@ Pendiente de integración completa:
     }
 
     if($('editClientePoblacion') && found.poblacion) $('editClientePoblacion').value = found.poblacion;
+    if($('editClienteMunicipio') && found.municipio) $('editClienteMunicipio').value = found.municipio;
     if($('editClienteProvincia') && found.provincia) $('editClienteProvincia').value = found.provincia;
     if($('editClientePais') && found.pais) $('editClientePais').value = found.pais;
 
     if(hint){
-      hint.textContent = 'Encontrado: ' + [found.poblacion, found.provincia, found.pais].filter(Boolean).join(' · ');
+      hint.textContent = 'Encontrado: ' + [found.poblacion, found.municipio, found.provincia, found.pais].filter(Boolean).join(' · ');
       hint.className = 'postal-hint ok';
+    }
+  }
+
+
+  // v2.98.5 - Actualizar base CP desde ficha de cliente
+  async function updatePostalBaseFromClientFormV2985(forceUpdate){
+    try{
+      const cp = String(($('editClienteCp') && $('editClienteCp').value) || '').replace(/\D/g,'').slice(0,5);
+      if(cp.length !== 5) return false;
+
+      const rec = {
+        cp: cp,
+        poblacion: String(($('editClientePoblacion') && $('editClientePoblacion').value) || '').trim(),
+        municipio: String(($('editClienteMunicipio') && $('editClienteMunicipio').value) || '').trim(),
+        provincia: String(($('editClienteProvincia') && $('editClienteProvincia').value) || '').trim(),
+        comunidad: '',
+        pais: String(($('editClientePais') && $('editClientePais').value) || 'España').trim() || 'España'
+      };
+
+      if(!rec.poblacion && !rec.municipio && !rec.provincia) return false;
+      if(!rec.poblacion && rec.municipio) rec.poblacion = rec.municipio;
+      if(!rec.municipio && rec.poblacion) rec.municipio = rec.poblacion;
+
+      const list = await loadPostalCodesDatabase();
+      const arr = Array.isArray(list) ? list.slice() : [];
+      const idx = arr.findIndex(function(r){
+        return String(r && r.cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5) === cp;
+      });
+      const old = idx >= 0 ? normalizePostalRecord(arr[idx]) : null;
+
+      if(old && old.comunidad) rec.comunidad = old.comunidad;
+
+      const same = old &&
+        String(old.poblacion || '').trim().toLowerCase() === rec.poblacion.toLowerCase() &&
+        String(old.municipio || '').trim().toLowerCase() === rec.municipio.toLowerCase() &&
+        String(old.provincia || '').trim().toLowerCase() === rec.provincia.toLowerCase();
+
+      if(same && !forceUpdate) return false;
+
+      const before = old
+        ? [old.cp, old.poblacion, old.municipio, old.provincia].filter(Boolean).join(' · ')
+        : 'No existe en la base';
+      const after = [rec.cp, rec.poblacion, rec.municipio, rec.provincia].filter(Boolean).join(' · ');
+
+      let ok = true;
+      if(!forceUpdate){
+        ok = confirm(
+          '¿Actualizar también la base de códigos postales?\n\n' +
+          'Antes:\n' + before + '\n\n' +
+          'Ahora:\n' + after + '\n\n' +
+          'Si aceptas, luego podrás exportar la base CP actualizada desde Ajustes.'
+        );
+      }
+      if(!ok) return false;
+
+      if(idx >= 0) arr[idx] = Object.assign({}, arr[idx], rec);
+      else arr.push(rec);
+
+      await savePostalCodesDatabase(arr);
+      try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(arr.length)); }catch(_){}
+      toast('Base CP actualizada: ' + cp);
+      return true;
+    }catch(err){
+      try{ toast('No se pudo actualizar la base CP'); }catch(_){}
+      return false;
     }
   }
 
@@ -5762,6 +5844,7 @@ async function updateIndexedDBStatus(){
       clienteDireccion:'',
       clienteCp:'',
       clientePoblacion:'',
+      clienteMunicipio:'',
       clienteProvincia:'',
       clientePais:'España',
       clienteNif:'',
@@ -6226,6 +6309,7 @@ COLOCACIÓN INCLUIDA` }
       telefono: String(state.clienteTelefono || '').trim(),
       direccion: String(state.clienteDireccion || '').trim(),
       poblacion: String(state.clientePoblacion || '').trim(),
+      municipio: String(state.clienteMunicipio || '').trim(),
       provincia: String(state.clienteProvincia || '').trim(),
       nif: String(state.clienteNif || '').trim()
     };
@@ -6233,7 +6317,7 @@ COLOCACIÓN INCLUIDA` }
 
   function clientHasData(c){
     if(!c) return false;
-    return !!(String(c.nombre || '').trim() || String(c.telefono || '').trim() || String(c.direccion || '').trim() || String(c.poblacion || '').trim() || String(c.provincia || '').trim() || String(c.nif || '').trim());
+    return !!(String(c.nombre || '').trim() || String(c.telefono || '').trim() || String(c.direccion || '').trim() || String(c.poblacion || '').trim() || String(c.municipio || '').trim() || String(c.provincia || '').trim() || String(c.nif || '').trim());
   }
 
   function applyClientToState(c){
@@ -6242,6 +6326,7 @@ COLOCACIÓN INCLUIDA` }
     state.clienteTelefono = String(c.telefono || '');
     state.clienteDireccion = String(c.direccion || '');
     state.clientePoblacion = String(c.poblacion || '');
+    state.clienteMunicipio = String(c.municipio || '');
     state.clienteProvincia = String(c.provincia || '');
     state.clienteNif = String(c.nif || '');
   }
@@ -6250,7 +6335,7 @@ COLOCACIÓN INCLUIDA` }
     const parts = [
       String(c.telefono || '').trim(),
       String(c.direccion || '').trim(),
-      String(c.poblacion || '').trim()
+      [String(c.poblacion || '').trim(), String(c.municipio || '').trim()].filter(Boolean).join(', ')
     ].filter(Boolean);
     return parts.join(' · ');
   }
@@ -6280,6 +6365,7 @@ COLOCACIÓN INCLUIDA` }
     merged.accountLine2 = String(raw && raw.accountLine2 != null ? raw.accountLine2 : base.accountLine2);
     merged.accountLine3 = String(raw && raw.accountLine3 != null ? raw.accountLine3 : base.accountLine3);
     merged.internalNotes = String(raw && raw.internalNotes != null ? raw.internalNotes : '');
+    merged.clienteMunicipio = String(raw && raw.clienteMunicipio != null ? raw.clienteMunicipio : '');
     return merged;
   }
 
@@ -8144,6 +8230,7 @@ COLOCACIÓN INCLUIDA` }
     const clienteDireccion = String(state.clienteDireccion || '').trim();
     const clienteCp = String(state.clienteCp || '').trim();
     const clientePoblacion = String(state.clientePoblacion || '').trim();
+    const clienteMunicipio = String(state.clienteMunicipio || '').trim();
     const clienteProvincia = prettyClientText(state.clienteProvincia || '');
     const clientePais = prettyClientText(state.clientePais || 'España') || 'España';
     const clienteNif = String(state.clienteNif || '').trim();
@@ -8174,7 +8261,8 @@ COLOCACIÓN INCLUIDA` }
       clientY += 16;
     }
 
-    const cpPoblacion = [clienteCp, clientePoblacion].filter(Boolean).join(' ');
+    const cpPoblacionBase = [clienteCp, clientePoblacion].filter(Boolean).join(' ');
+    const cpPoblacion = cpPoblacionBase + (clienteMunicipio && clienteMunicipio.toLowerCase() !== clientePoblacion.toLowerCase() ? ', ' + clienteMunicipio : '');
     if(cpPoblacion){
       addText(root, clientX, clientY, safe(cpPoblacion), {
         fs: Math.max(10, Number(numStyle('clientTextSize')) - 1),
@@ -8872,15 +8960,24 @@ COLOCACIÓN INCLUIDA` }
         <div class="postal-db-status" id="postalDbStatus">Base CP: sin comprobar</div>
         <div class="postal-matches" id="postalPopulationMatches"></div>
         <label>Población</label><input id="editClientePoblacion" value="${esc(state.clientePoblacion)}">
+        <label>Municipio</label><input id="editClienteMunicipio" value="${esc(state.clienteMunicipio || '')}">
         <label>Provincia</label><input id="editClienteProvincia" value="${esc(state.clienteProvincia)}">
         <label>País</label><input id="editClientePais" value="${esc(state.clientePais || 'España')}">
         <label>N.I.F.</label><input id="editClienteNif" value="${esc(state.clienteNif)}">
-        <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr 1fr">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
+          <button type="button" class="btn btn-warning" id="sheetUpdateCpBtn">Actualizar CP</button>
           <button type="button" class="btn btn-neutral" id="sheetClientsBtn">Clientes compartidos</button>
           <button type="button" class="btn btn-success" id="sheetSaveClientBtn">Guardar cliente</button>
         </div>`;
       $('sheetClientsBtn').onclick = async () => { await loadClients(); openEdit('clients', 'Lista de clientes'); };
+      const updateCpBtn = $('sheetUpdateCpBtn');
+      if(updateCpBtn){
+        updateCpBtn.onclick = async function(ev){
+          if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+          await updatePostalBaseFromClientFormV2985(true);
+        };
+      }
       setTimeout(function(){
         const cpEl = $('editClienteCp');
         if(cpEl){
@@ -8896,11 +8993,13 @@ COLOCACIÓN INCLUIDA` }
           direccion: String($('editClienteDireccion').value || '').trim(),
           cp: String(($('editClienteCp') && $('editClienteCp').value) || '').trim(),
           poblacion: String($('editClientePoblacion').value || '').trim(),
+          municipio: String(($('editClienteMunicipio') && $('editClienteMunicipio').value) || '').trim(),
           provincia: String($('editClienteProvincia').value || '').trim(),
           pais: String(($('editClientePais') && $('editClientePais').value) || 'España').trim() || 'España',
           nif: String($('editClienteNif').value || '').trim()
         };
         if(!clientHasData(c)){ toast('Rellena algún dato'); return; }
+        await updatePostalBaseFromClientFormV2985(false);
         savedClients.push(c);
         await saveClients();
         toast('Cliente guardado en lista compartida');
@@ -9889,9 +9988,11 @@ COLOCACIÓN INCLUIDA` }
       state.clienteDireccion = $('editClienteDireccion').value;
       state.clienteCp = (($('editClienteCp') && $('editClienteCp').value) || '').trim();
       state.clientePoblacion = $('editClientePoblacion').value;
+      state.clienteMunicipio = (($('editClienteMunicipio') && $('editClienteMunicipio').value) || '').trim();
       state.clienteProvincia = $('editClienteProvincia').value;
       state.clientePais = (($('editClientePais') && $('editClientePais').value) || 'España').trim() || 'España';
       state.clienteNif = $('editClienteNif').value;
+      await updatePostalBaseFromClientFormV2985(false);
     } else if(currentEdit.type === 'fecha') {
       state.fecha = $('editFecha').value || today();
       syncFacturaVencimientoDefault();
