@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v2.98.6</title>
+  <title>Documentos Rey v3.0</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3582,6 +3582,8 @@ Pendiente de integración completa:
 - Valor por defecto configurable en Ajustes.
 -->
 
+
+<!-- Documentos Rey v3.0 CANDIDATA - editor CP estilo Plantillas -->
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -3592,7 +3594,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v2.98.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v3.0</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5578,22 +5580,33 @@ Pendiente de integración completa:
       rows = parsePostalCSV(raw);
     }
 
-    const normalizedRaw = rows.map(normalizePostalRecord).filter(Boolean);
-    const byCp = {};
-    normalizedRaw.forEach(function(r){
+    // v2.98.8: conservar varios registros con el mismo CP.
+    // Antes se agrupaba por CP y se perdían aldeas/parroquias del mismo código postal.
+    const normalized = [];
+    const seenPostalRows = {};
+    rows.map(normalizePostalRecord).filter(Boolean).forEach(function(r){
       if(!r || !r.cp) return;
-      // Si hay varias aldeas para el mismo CP, nos quedamos con el primer municipio/provincia válido.
-      if(!byCp[r.cp]){
-        byCp[r.cp] = r;
-      }else{
-        if(!byCp[r.cp].poblacion && r.poblacion) byCp[r.cp].poblacion = r.poblacion;
-        if(!byCp[r.cp].municipio && r.municipio) byCp[r.cp].municipio = r.municipio;
-        if(!byCp[r.cp].provincia && r.provincia) byCp[r.cp].provincia = r.provincia;
-        if(!byCp[r.cp].comunidad && r.comunidad) byCp[r.cp].comunidad = r.comunidad;
-        if(!byCp[r.cp].pais && r.pais) byCp[r.cp].pais = r.pais;
-      }
+      if(!r.poblacion && r.municipio) r.poblacion = r.municipio;
+      if(!r.municipio && r.poblacion) r.municipio = r.poblacion;
+
+      const key = [
+        String(r.cp || '').trim(),
+        String(r.poblacion || '').trim().toLowerCase(),
+        String(r.municipio || '').trim().toLowerCase(),
+        String(r.provincia || '').trim().toLowerCase()
+      ].join('|');
+
+      // Solo elimina duplicados exactos, no registros distintos con el mismo CP.
+      if(seenPostalRows[key]) return;
+      seenPostalRows[key] = true;
+      normalized.push(r);
     });
-    const normalized = Object.keys(byCp).sort().map(cp => byCp[cp]);
+
+    normalized.sort(function(a,b){
+      return String(a.cp || '').localeCompare(String(b.cp || '')) ||
+             String(a.poblacion || '').localeCompare(String(b.poblacion || '')) ||
+             String(a.municipio || '').localeCompare(String(b.municipio || ''));
+    });
 
     if(!normalized.length){
       toast('No se encontraron códigos postales válidos');
@@ -5602,18 +5615,62 @@ Pendiente de integración completa:
 
     await savePostalCodesDatabase(normalized);
     try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(normalized.length)); }catch(_){}
-    toast('Códigos postales cargados: ' + normalized.length);
+    toast('Códigos postales cargados: ' + normalized.length + ' registros');
     return true;
   }
 
-  async function findPostalCode(cp){
+  window.importPostalCodesFile = importPostalCodesFile;
+
+  async function findPostalCodeMatchesV2987(cp){
     const q = String(cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5);
-    if(!q || q.length < 5) return null;
+    if(!q || q.length < 5) return [];
 
     const data = await loadPostalCodesDatabase();
-    if(!Array.isArray(data) || !data.length) return null;
+    if(!Array.isArray(data) || !data.length) return [];
 
-    return data.find(r => String(r && r.cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5) === q) || null;
+    return data
+      .map(function(r, index){
+        const n = normalizePostalRecord(r);
+        if(n) n.__index = index;
+        return n;
+      })
+      .filter(function(r){
+        return r && String(r.cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5) === q;
+      });
+  }
+
+  async function findPostalCode(cp){
+    const matches = await findPostalCodeMatchesV2987(cp);
+    return matches.length ? matches[0] : null;
+  }
+
+  function applyPostalRecordToClientFormV2987(found){
+    if(!found) return;
+    if($('editClientePoblacion') && found.poblacion) $('editClientePoblacion').value = found.poblacion;
+    if($('editClienteMunicipio') && found.municipio) $('editClienteMunicipio').value = found.municipio;
+    if($('editClienteProvincia') && found.provincia) $('editClienteProvincia').value = found.provincia;
+    if($('editClientePais') && found.pais) $('editClientePais').value = found.pais;
+  }
+
+  function renderPostalClientMatchesV2987(matches){
+    const box = $('postalPopulationMatches');
+    if(!box) return;
+
+    if(!Array.isArray(matches) || matches.length <= 1){
+      box.classList.remove('show');
+      box.innerHTML = '';
+      return;
+    }
+
+    box.classList.add('show');
+    box.innerHTML = matches.map(function(r, i){
+      return '<button type="button" class="postal-match-btn" data-client-postal-choice-v2987="'+i+'">' +
+        String(r.cp || '') + ' ' + String(r.poblacion || r.municipio || '') +
+        (r.municipio && String(r.municipio).toLowerCase() !== String(r.poblacion || '').toLowerCase() ? ', ' + String(r.municipio) : '') +
+        '<small>' + [r.provincia, r.pais || 'España'].filter(Boolean).join(' · ') + '</small>' +
+      '</button>';
+    }).join('');
+    window.__clientPostalMatchesV2987 = matches;
   }
 
   async function applyPostalCodeToClientForm(){
@@ -5631,8 +5688,9 @@ Pendiente de integración completa:
       return;
     }
 
-    const found = await findPostalCode(cp);
-    if(!found){
+    const matches = await findPostalCodeMatchesV2987(cp);
+    if(!matches.length){
+      renderPostalClientMatchesV2987([]);
       if(hint){
         hint.textContent = 'No encontrado en la base cargada.';
         hint.className = 'postal-hint warn';
@@ -5640,17 +5698,36 @@ Pendiente de integración completa:
       return;
     }
 
-    if($('editClientePoblacion') && found.poblacion) $('editClientePoblacion').value = found.poblacion;
-    if($('editClienteMunicipio') && found.municipio) $('editClienteMunicipio').value = found.municipio;
-    if($('editClienteProvincia') && found.provincia) $('editClienteProvincia').value = found.provincia;
-    if($('editClientePais') && found.pais) $('editClientePais').value = found.pais;
+    renderPostalClientMatchesV2987(matches);
+    const found = matches[0];
+    applyPostalRecordToClientFormV2987(found);
 
     if(hint){
-      hint.textContent = 'Encontrado: ' + [found.poblacion, found.municipio, found.provincia, found.pais].filter(Boolean).join(' · ');
+      hint.textContent = matches.length > 1
+        ? ('Hay ' + matches.length + ' coincidencias para este CP. Elige una opción abajo.')
+        : ('Encontrado: ' + [found.poblacion, found.municipio, found.provincia, found.pais].filter(Boolean).join(' · '));
       hint.className = 'postal-hint ok';
     }
   }
 
+
+  document.addEventListener('click', function(ev){
+    const btn = ev.target && ev.target.closest ? ev.target.closest('[data-client-postal-choice-v2987]') : null;
+    if(!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const matches = Array.isArray(window.__clientPostalMatchesV2987) ? window.__clientPostalMatchesV2987 : [];
+    const rec = matches[Number(btn.getAttribute('data-client-postal-choice-v2987'))];
+    if(!rec) return;
+    applyPostalRecordToClientFormV2987(rec);
+    const box = $('postalPopulationMatches');
+    if(box){ box.classList.remove('show'); box.innerHTML = ''; }
+    const hint = $('postalHint');
+    if(hint){
+      hint.textContent = 'Seleccionado: ' + [rec.poblacion, rec.municipio, rec.provincia, rec.pais].filter(Boolean).join(' · ');
+      hint.className = 'postal-hint ok';
+    }
+  }, true);
 
   // v2.98.5 - Actualizar base CP desde ficha de cliente
   async function updatePostalBaseFromClientFormV2985(forceUpdate){
@@ -5673,10 +5750,17 @@ Pendiente de integración completa:
 
       const list = await loadPostalCodesDatabase();
       const arr = Array.isArray(list) ? list.slice() : [];
-      const idx = arr.findIndex(function(r){
-        return String(r && r.cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5) === cp;
+      const cpMatches = arr
+        .map(function(r, index){ const n = normalizePostalRecord(r); if(n) n.__index = index; return n; })
+        .filter(function(r){ return r && String(r.cp || '').replace(/\D/g,'').padStart(5,'0').slice(-5) === cp; });
+
+      let idx = cpMatches.findIndex(function(r){
+        return String(r.poblacion || '').trim().toLowerCase() === rec.poblacion.toLowerCase() &&
+               String(r.municipio || '').trim().toLowerCase() === rec.municipio.toLowerCase();
       });
-      const old = idx >= 0 ? normalizePostalRecord(arr[idx]) : null;
+      idx = idx >= 0 ? cpMatches[idx].__index : -1;
+
+      const old = idx >= 0 ? normalizePostalRecord(arr[idx]) : (cpMatches.length ? cpMatches[0] : null);
 
       if(old && old.comunidad) rec.comunidad = old.comunidad;
 
@@ -11573,7 +11657,10 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-    const byCp = {};
+    // v2.98.9: conservar todos los registros del CSV, aunque compartan CP.
+    const normalized = [];
+    const seen = {};
+
     rows.forEach(function(row){
       const map = {};
       Object.keys(row || {}).forEach(k => map[normalizeKeyFallback(k)] = row[k]);
@@ -11592,17 +11679,40 @@ document.addEventListener('DOMContentLoaded', function(){
       const cleanCp = String(cp).replace(/\D/g,'').padStart(5,'0').slice(-5);
       if(!cleanCp) return;
 
-      if(!byCp[cleanCp]){
-        byCp[cleanCp] = {
-          cp: cleanCp,
-          poblacion: get(['MUNICIPIO','municipio','POBLACION','poblacion','localidad']),
-          provincia: get(['PROVINCIA','provincia']),
-          pais: get(['PAIS','PAÍS','pais','país']) || 'España'
-        };
-      }
+      const poblacion = get(['POBLACION','poblacion','localidad','ciudad']);
+      const municipio = get(['MUNICIPIO','municipio']) || poblacion;
+      const provincia = get(['PROVINCIA','provincia']);
+      const comunidad = get(['COMUNIDAD','comunidad','comunidad autonoma','comunidad_autonoma']);
+      const pais = get(['PAIS','PAÍS','pais','país']) || 'España';
+
+      const rec = {
+        cp: cleanCp,
+        poblacion: poblacion || municipio,
+        municipio: municipio || poblacion,
+        provincia: provincia,
+        comunidad: comunidad,
+        pais: pais
+      };
+
+      const key = [
+        rec.cp,
+        String(rec.poblacion || '').trim().toLowerCase(),
+        String(rec.municipio || '').trim().toLowerCase(),
+        String(rec.provincia || '').trim().toLowerCase()
+      ].join('|');
+
+      if(seen[key]) return;
+      seen[key] = true;
+      normalized.push(rec);
     });
 
-    return Object.keys(byCp).sort().map(cp => byCp[cp]);
+    normalized.sort(function(a,b){
+      return String(a.cp || '').localeCompare(String(b.cp || '')) ||
+             String(a.poblacion || '').localeCompare(String(b.poblacion || '')) ||
+             String(a.municipio || '').localeCompare(String(b.municipio || ''));
+    });
+
+    return normalized;
   }
 
   async function savePostalFallback(data){
@@ -11641,7 +11751,7 @@ document.addEventListener('DOMContentLoaded', function(){
       }
       await savePostalFallback(data);
       try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(data.length)); }catch(_){}
-      if(typeof toast === 'function') toast('Códigos postales cargados: ' + data.length);
+      if(typeof toast === 'function') toast('Códigos postales cargados: ' + data.length + ' registros');
       else alert('Códigos postales cargados: ' + data.length);
     }catch(err){
       console.error(err);
@@ -11668,6 +11778,15 @@ document.addEventListener('DOMContentLoaded', function(){
   document.addEventListener('change', function(ev){
     if(!ev.target || ev.target.id !== 'filePostalCodes') return;
     const file = ev.target.files && ev.target.files[0];
+
+    // v2.98.9: usar el importador moderno si está disponible para no perder duplicados de CP.
+    if(typeof window.importPostalCodesFile === 'function'){
+      ev.preventDefault();
+      ev.stopPropagation();
+      window.importPostalCodesFile(file).finally(function(){ ev.target.value = ''; });
+      return;
+    }
+
     handlePostalFile(file);
     ev.target.value = '';
   }, true);
@@ -13892,10 +14011,11 @@ const mo = new MutationObserver(function(){
     <div id="postalEditorResults" class="postal-results" style="display:none"></div>
 
     <div class="postal-editor-note">
-      Edita los mismos campos del CSV: CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD.
+      Edita los mismos campos del CSV: CP, POBLACION, MUNICIPIO, PROVINCIA y COMUNIDAD. Se permiten varios registros con el mismo CP.
     </div>
 
     <div id="postalEditorForm" style="display:none;margin-top:12px">
+      <input id="postalEditIndexV2987" type="hidden" value="">
       <label>CP</label>
       <input id="postalEditCp" inputmode="numeric" maxlength="5">
 
@@ -14052,7 +14172,9 @@ const mo = new MutationObserver(function(){
     try{ document.body.classList.remove('sheet-open'); }catch(_){}
   }
   function fillForm(r){
+    const rawIndex = r && r.__index != null ? String(r.__index) : '';
     r = normalizeForEdit(r);
+    if($('postalEditIndexV2987')) $('postalEditIndexV2987').value = rawIndex;
     if($('postalEditCp')) $('postalEditCp').value = r.cp || '';
     if($('postalEditPoblacion')) $('postalEditPoblacion').value = r.poblacion || '';
     if($('postalEditMunicipio')) $('postalEditMunicipio').value = r.municipio || '';
@@ -14088,9 +14210,10 @@ const mo = new MutationObserver(function(){
 
     resultsBox.style.display = 'block';
     resultsBox.innerHTML = results.map(function(r){
-      return '<button type="button" class="postal-result-btn" data-cp="'+String(r.cp).replace(/"/g,'&quot;')+'">' +
+      return '<button type="button" class="postal-result-btn" data-cp-index="'+String(r.__index == null ? '' : r.__index).replace(/"/g,'&quot;')+'" data-cp="'+String(r.cp).replace(/"/g,'&quot;')+'">' +
         String(r.cp || '') + ' · ' + String(r.poblacion || r.municipio || '') +
-        '<small>' + String([r.municipio, r.provincia, r.comunidad].filter(Boolean).join(' · ')) + '</small>' +
+        (r.municipio && String(r.municipio).toLowerCase() !== String(r.poblacion || '').toLowerCase() ? ', ' + String(r.municipio) : '') +
+        '<small>' + String([r.provincia, r.comunidad].filter(Boolean).join(' · ')) + '</small>' +
       '</button>';
     }).join('');
   }
@@ -14111,7 +14234,18 @@ const mo = new MutationObserver(function(){
     if(!rec.municipio && rec.poblacion) rec.municipio = rec.poblacion;
 
     const list = await loadCpList();
-    const idx = list.findIndex(r => String(r.cp) === String(rec.cp));
+    const selectedIndexRaw = $('postalEditIndexV2987') ? $('postalEditIndexV2987').value : '';
+    let idx = selectedIndexRaw !== '' ? Number(selectedIndexRaw) : -1;
+
+    if(!(Number.isFinite(idx) && idx >= 0 && idx < list.length)){
+      idx = list.findIndex(function(r){
+        const n = normalizeForEdit(r);
+        return String(n.cp) === String(rec.cp) &&
+          String(n.poblacion || '').trim().toLowerCase() === String(rec.poblacion || '').trim().toLowerCase() &&
+          String(n.municipio || '').trim().toLowerCase() === String(rec.municipio || '').trim().toLowerCase();
+      });
+    }
+
     if(idx >= 0) list[idx] = rec;
     else list.push(rec);
 
@@ -14125,7 +14259,28 @@ const mo = new MutationObserver(function(){
     if(!cp) return;
     if(!confirm('¿Eliminar el CP ' + cp + ' de la base?')) return;
     const list = await loadCpList();
-    const next = list.filter(r => String(r.cp) !== String(cp));
+    const selectedIndexRaw = $('postalEditIndexV2987') ? $('postalEditIndexV2987').value : '';
+    let idx = selectedIndexRaw !== '' ? Number(selectedIndexRaw) : -1;
+
+    if(!(Number.isFinite(idx) && idx >= 0 && idx < list.length)){
+      const rec = normalizeForEdit({
+        cp: $('postalEditCp') && $('postalEditCp').value,
+        poblacion: $('postalEditPoblacion') && $('postalEditPoblacion').value,
+        municipio: $('postalEditMunicipio') && $('postalEditMunicipio').value,
+        provincia: $('postalEditProvincia') && $('postalEditProvincia').value,
+        comunidad: $('postalEditComunidad') && $('postalEditComunidad').value
+      });
+      idx = list.findIndex(function(r){
+        const n = normalizeForEdit(r);
+        return String(n.cp) === String(rec.cp) &&
+          String(n.poblacion || '').trim().toLowerCase() === String(rec.poblacion || '').trim().toLowerCase() &&
+          String(n.municipio || '').trim().toLowerCase() === String(rec.municipio || '').trim().toLowerCase();
+      });
+    }
+
+    const next = idx >= 0 ? list.filter(function(_, i){ return i !== idx; }) : list.filter(function(r){
+      return String(r.cp) !== String(cp);
+    });
     await saveCpList(next);
     if($('postalEditorForm')) $('postalEditorForm').style.display = 'none';
     toastSafe('CP eliminado: ' + cp);
@@ -14224,8 +14379,12 @@ const mo = new MutationObserver(function(){
     if(result){
       ev.preventDefault();
       const cp = result.getAttribute('data-cp');
+      const idxRaw = result.getAttribute('data-cp-index');
       const list = await loadCpList();
-      const rec = list.find(r => String(r.cp) === String(cp));
+      const idx = idxRaw !== '' ? Number(idxRaw) : -1;
+      let rec = Number.isFinite(idx) && idx >= 0 && idx < list.length ? normalizeForEdit(list[idx]) : null;
+      if(rec) rec.__index = idx;
+      if(!rec) rec = list.find(r => String(r.cp) === String(cp));
       fillForm(rec || {cp:cp});
       return;
     }
@@ -14250,6 +14409,908 @@ const mo = new MutationObserver(function(){
   window.exportPostalCodesCsv = exportCpCsv;
 })();
 </script>
+
+
+<style>
+/* v2.99.9 - Editor CP por ID interno */
+.cp-id-overlay{
+  position:fixed;
+  inset:0;
+  z-index:39000;
+  background:rgba(15,23,42,.62);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.cp-id-overlay.show{display:flex;}
+.cp-id-panel{
+  width:min(760px,100%);
+  max-height:92vh;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  background:#f8fafc;
+  border-radius:24px 24px 0 0;
+  padding:16px;
+  box-shadow:0 -18px 48px rgba(15,23,42,.28);
+  border:1px solid #d5dfeb;
+}
+.cp-id-head{
+  position:sticky;
+  top:-16px;
+  z-index:2;
+  margin:-16px -16px 12px;
+  padding:16px;
+  background:#f8fafc;
+  border-bottom:1px solid #dbe7fb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.cp-id-head h2{
+  margin:0;
+  font-size:19px;
+  font-weight:950;
+  color:#0f172a;
+}
+.cp-id-panel label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  margin:10px 0 6px;
+  color:#0f172a;
+}
+.cp-id-panel input{
+  width:100%;
+  min-height:48px;
+  border:1px solid #cfd9e7;
+  border-radius:14px;
+  padding:12px 13px;
+  background:#fff;
+  color:#0f172a;
+  font-size:16px;
+}
+.cp-id-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.cp-id-actions.three{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.cp-id-status{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1e3a8a;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.35;
+  white-space:pre-line;
+}
+.cp-id-status.ok{background:#ecfdf5;border-color:#86efac;color:#166534;}
+.cp-id-status.warn{background:#fff7ed;border-color:#fdba74;color:#9a3412;}
+.cp-id-status.err{background:#fef2f2;border-color:#fecaca;color:#991b1b;}
+.cp-id-results{
+  display:none;
+  margin-top:12px;
+  border:1px solid #dbe7fb;
+  border-radius:16px;
+  background:#fff;
+  overflow:hidden;
+}
+.cp-id-row{
+  display:grid;
+  grid-template-columns:1fr 82px;
+  gap:8px;
+  align-items:stretch;
+  border-bottom:1px solid #eef2f7;
+  padding:8px;
+}
+.cp-id-row:last-child{border-bottom:0;}
+.cp-id-open{
+  min-height:52px;
+  border:0;
+  background:#fff;
+  text-align:left;
+  border-radius:12px;
+  padding:9px 10px;
+  touch-action:manipulation;
+}
+.cp-id-open:active{background:#eff6ff;}
+.cp-id-title{
+  display:block;
+  font-size:14px;
+  font-weight:950;
+  color:#0f172a;
+  line-height:1.25;
+}
+.cp-id-sub{
+  display:block;
+  margin-top:3px;
+  font-size:12px;
+  font-weight:800;
+  color:#64748b;
+}
+.cp-id-tag{
+  display:inline-block;
+  margin-top:4px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#475569;
+  font-size:10px;
+  font-weight:950;
+}
+.cp-id-delete{
+  min-height:52px;
+  border-radius:12px;
+  font-size:12px;
+  border:0;
+  background:linear-gradient(180deg,#ef4444,#dc2626);
+  color:#fff;
+  font-weight:950;
+  touch-action:manipulation;
+}
+.cp-id-delete:active{transform:translateY(1px);background:#991b1b;}
+.cp-id-editor{
+  display:none;
+  margin-top:12px;
+  padding-top:8px;
+  border-top:1px solid #dbe7fb;
+}
+.cp-id-editor.active{display:block;}
+.cp-id-selected{
+  margin:4px 0 8px;
+  padding:9px 11px;
+  border-radius:13px;
+  background:#ecfdf5;
+  border:1px solid #86efac;
+  color:#166534;
+  font-size:12px;
+  font-weight:950;
+  line-height:1.3;
+}
+.cp-id-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(max-width:560px){
+  .cp-id-grid,
+  .cp-id-actions,
+  .cp-id-actions.three{grid-template-columns:1fr;}
+  .cp-id-row{grid-template-columns:1fr 76px;}
+}
+</style>
+
+<div id="cpIdOverlay" class="cp-id-overlay" aria-hidden="true">
+  <div class="cp-id-panel">
+    <div class="cp-id-head">
+      <h2>Editar códigos postales</h2>
+      <button type="button" class="btn" id="cpIdClose">Cerrar</button>
+    </div>
+
+    <label>Buscar CP o población</label>
+    <input id="cpIdSearch" type="text" inputmode="search" placeholder="Ej: 15966 o XARAS">
+
+    <div class="cp-id-actions three">
+      <button type="button" class="btn btn-primary" id="cpIdSearchBtn">Buscar</button>
+      <button type="button" class="btn btn-success" id="cpIdNewBtn">Nuevo CP</button>
+      <button type="button" class="btn" id="cpIdExportBtn">Exportar CSV</button>
+    </div>
+
+    <div id="cpIdStatus" class="cp-id-status">Editor CP por ID interno.</div>
+    <div id="cpIdResults" class="cp-id-results"></div>
+
+    <div id="cpIdEditor" class="cp-id-editor">
+      <div id="cpIdSelected" class="cp-id-selected">Registro seleccionado</div>
+      <input type="hidden" id="cpIdEditId">
+
+      <div class="cp-id-grid">
+        <div>
+          <label>CP</label>
+          <input id="cpIdEditCp" inputmode="numeric" maxlength="5">
+        </div>
+        <div>
+          <label>POBLACIÓN</label>
+          <input id="cpIdEditPoblacion">
+        </div>
+      </div>
+
+      <div class="cp-id-grid">
+        <div>
+          <label>MUNICIPIO</label>
+          <input id="cpIdEditMunicipio">
+        </div>
+        <div>
+          <label>PROVINCIA</label>
+          <input id="cpIdEditProvincia">
+        </div>
+      </div>
+
+      <label>COMUNIDAD</label>
+      <input id="cpIdEditComunidad">
+
+      <div class="cp-id-actions three">
+        <button type="button" class="btn btn-primary" id="cpIdSaveBtn">Guardar cambios</button>
+        <button type="button" class="btn btn-danger" id="cpIdDeleteOpenBtn">Eliminar registro</button>
+        <button type="button" class="btn" id="cpIdCancelBtn">Cerrar edición</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* v2.99.9 - Editor CP integrado por ID interno */
+(function(){
+  'use strict';
+
+  const DB_NAME = 'presupuesto_directo_pdf_db';
+  const STORE = 'kv';
+  const KEY = 'documentos_rey_codigos_postales_v1';
+
+  const $ = id => document.getElementById(id);
+
+  function setStatus(msg, mode){
+    const el = $('cpIdStatus');
+    if(!el) return;
+    el.textContent = msg;
+    el.className = 'cp-id-status' + (mode ? ' ' + mode : '');
+  }
+
+  function toastSafe(msg){
+    try{ if(typeof toast === 'function') toast(msg); }catch(_){}
+    setStatus(msg, msg.toLowerCase().includes('error') ? 'err' : 'ok');
+  }
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  function cleanCp(v){
+    const d = String(v || '').replace(/\D/g,'').slice(0,5);
+    return d.length ? d.padStart(5,'0').slice(-5) : '';
+  }
+
+  function norm(v){
+    return String(v || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/\s+/g,' ');
+  }
+
+  function searchNorm(v){
+    return norm(v).replace(/[^a-z0-9]+/g,' ').trim();
+  }
+
+  function prettyCpTextV30(v){
+    return String(v || '').trim().toLowerCase().replace(/(^|[\s\/\-])([a-záéíóúüñ])/g, function(_, sep, ch){
+      return sep + ch.toUpperCase();
+    });
+  }
+
+  function makeId(){
+    return 'cp_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+
+  function normalizeRecord(r, fallbackIndex){
+    r = r || {};
+    const cp = cleanCp(r.cp || r.CP || r.codigo || r.CODIGO || r.postal || '');
+    const poblacion = String(r.poblacion || r.POBLACION || r.localidad || r.LOCALIDAD || '').trim();
+    const municipio = String(r.municipio || r.MUNICIPIO || '').trim();
+    const provincia = String(r.provincia || r.PROVINCIA || '').trim();
+    const comunidad = String(r.comunidad || r.COMUNIDAD || '').trim();
+    const pais = String(r.pais || r.PAIS || r.país || 'España').trim() || 'España';
+
+    return {
+      _id: String(r._id || (fallbackIndex != null ? 'row_' + fallbackIndex : makeId())),
+      cp: cp,
+      poblacion: poblacion || municipio,
+      municipio: municipio || poblacion,
+      provincia: provincia,
+      comunidad: comunidad,
+      pais: pais
+    };
+  }
+
+  function contentKey(r){
+    r = normalizeRecord(r);
+    return [r.cp, norm(r.poblacion), norm(r.municipio), norm(r.provincia), norm(r.comunidad)].join('|');
+  }
+
+  function labelOf(r){
+    return [r.cp, r.poblacion, r.municipio, r.provincia].filter(Boolean).join(' · ');
+  }
+
+  function openDb(){
+    return new Promise(function(resolve, reject){
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function(){
+        const db = req.result;
+        if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error('No se pudo abrir IndexedDB')); };
+    });
+  }
+
+  async function readRaw(){
+    const db = await openDb();
+    return await new Promise(function(resolve){
+      try{
+        const tx = db.transaction(STORE, 'readonly');
+        const req = tx.objectStore(STORE).get(KEY);
+        req.onsuccess = function(){
+          try{
+            const raw = req.result;
+            const arr = typeof raw === 'string' ? JSON.parse(raw || '[]') : raw;
+            resolve(Array.isArray(arr) ? arr : []);
+          }catch(_){
+            resolve([]);
+          }
+        };
+        req.onerror = function(){ resolve([]); };
+        tx.oncomplete = function(){ try{ db.close(); }catch(_){} };
+        tx.onabort = function(){ try{ db.close(); }catch(_){} };
+      }catch(_){
+        try{ db.close(); }catch(__){}
+        resolve([]);
+      }
+    });
+  }
+
+  async function readList(){
+    const raw = await readRaw();
+    let changed = false;
+    const seenIds = {};
+    const list = (Array.isArray(raw) ? raw : []).map(function(r, i){
+      const n = normalizeRecord(r, i);
+      if(!r || !r._id) changed = true;
+      if(seenIds[n._id]){
+        n._id = 'row_' + i + '_' + Math.random().toString(36).slice(2,6);
+        changed = true;
+      }
+      seenIds[n._id] = true;
+      return n;
+    }).filter(function(r){ return r.cp; });
+
+    if(changed && list.length){
+      try{ await writeList(list, true); }catch(_){}
+    }
+
+    return list;
+  }
+
+  async function writeList(list, silent){
+    const clean = (Array.isArray(list) ? list : [])
+      .map(function(r, i){ return normalizeRecord(r, i); })
+      .filter(function(r){ return r.cp; });
+
+    clean.sort(function(a,b){
+      return String(a.cp).localeCompare(String(b.cp)) ||
+        String(a.poblacion).localeCompare(String(b.poblacion)) ||
+        String(a.municipio).localeCompare(String(b.municipio)) ||
+        String(a._id).localeCompare(String(b._id));
+    });
+
+    const raw = JSON.stringify(clean);
+
+    const db = await openDb();
+    await new Promise(function(resolve, reject){
+      try{
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put(raw, KEY);
+        tx.oncomplete = function(){ try{ db.close(); }catch(_){} resolve(true); };
+        tx.onerror = function(){ try{ db.close(); }catch(_){} reject(tx.error || new Error('Error escritura IndexedDB')); };
+        tx.onabort = function(){ try{ db.close(); }catch(_){} reject(tx.error || new Error('Abortado IndexedDB')); };
+      }catch(err){
+        try{ db.close(); }catch(_){}
+        reject(err);
+      }
+    });
+
+    try{
+      localStorage.setItem(KEY + '_idb_only', JSON.stringify({
+        storedIn:'IndexedDB',
+        key:KEY,
+        bytes:raw.length,
+        updatedAt:new Date().toISOString(),
+        version:'v2.99.10'
+      }));
+    }catch(_){}
+    try{ localStorage.setItem('documentos_rey_codigos_postales_count_v1', String(clean.length)); }catch(_){}
+    try{ localStorage.setItem(KEY, raw); }catch(_){}
+
+    const verifyRaw = await readRaw();
+    const verify = Array.isArray(verifyRaw) ? verifyRaw : [];
+    if(verify.length !== clean.length){
+      throw new Error('Verificación fallida: guardado ' + clean.length + ', leído ' + verify.length);
+    }
+
+    if(!silent && typeof window.refreshCpStatus === 'function'){
+      try{ window.refreshCpStatus(); }catch(_){}
+    }
+
+    return clean;
+  }
+
+  function show(){
+    const ov = $('cpIdOverlay');
+    if(!ov) return;
+
+    try{
+      const old = $('postalEditorOverlay');
+      if(old) old.classList.remove('show');
+    }catch(_){}
+
+    ov.classList.add('show');
+    ov.setAttribute('aria-hidden','false');
+    try{ document.body.classList.add('sheet-open'); }catch(_){}
+
+    setTimeout(function(){
+      const q = $('cpIdSearch');
+      if(q) q.focus();
+    }, 120);
+
+    search();
+  }
+
+  function hide(){
+    const ov = $('cpIdOverlay');
+    if(!ov) return;
+    ov.classList.remove('show');
+    ov.setAttribute('aria-hidden','true');
+    try{ document.body.classList.remove('sheet-open'); }catch(_){}
+  }
+
+  async function search(){
+    const box = $('cpIdResults');
+    if(!box) return;
+
+    const qRaw = String($('cpIdSearch') ? $('cpIdSearch').value : '').trim();
+    const q = searchNorm(qRaw);
+    const qCp = qRaw.replace(/\D/g,'');
+    const list = await readList();
+
+    const results = (q || qCp)
+      ? list.filter(function(r){
+          return (qCp && String(r.cp).startsWith(qCp)) ||
+            searchNorm(r.poblacion).includes(q) ||
+            searchNorm(r.municipio).includes(q) ||
+            searchNorm(r.provincia).includes(q) ||
+            searchNorm(r.comunidad).includes(q);
+        }).slice(0, 120)
+      : list.slice(0, 120);
+
+    setStatus('Base: ' + list.length.toLocaleString('es-ES') + ' registros · Resultados: ' + results.length, list.length ? 'ok' : 'warn');
+
+    box.style.display = 'block';
+
+    if(!results.length){
+      box.innerHTML = '<div style="padding:14px;font-weight:900;color:#64748b">Sin resultados.</div>';
+      return;
+    }
+
+    box.innerHTML = results.map(function(r){
+      const title = String(r.cp) + ' · ' + String(r.poblacion || '') +
+        (r.municipio && norm(r.municipio) !== norm(r.poblacion) ? ', ' + r.municipio : '');
+      const sub = [r.provincia, r.comunidad].filter(Boolean).join(' · ');
+
+      return '<div class="cp-id-row">' +
+        '<button type="button" class="cp-id-open" data-cp-id-open="' + esc(r._id) + '">' +
+          '<span class="cp-id-title">' + esc(prettyCpTextV30(r.poblacion || r.municipio || '')) + '</span>' +
+          '<span class="cp-id-sub">' + esc(String(r.cp || '') + (r.municipio ? ' · ' + prettyCpTextV30(r.municipio) : '')) + '</span>' +
+          (r.provincia ? '<span class="cp-id-province">' + esc(prettyCpTextV30(r.provincia)) + '</span>' : '') +
+          '<span class="cp-id-tag">ID ' + esc(r._id) + '</span>' +
+        '</button>' +
+        '<button type="button" class="cp-id-delete" data-cp-id-delete="' + esc(r._id) + '" title="Eliminar">Eliminar</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openEditor(record){
+    record = normalizeRecord(record);
+    $('cpIdEditId').value = record._id;
+    $('cpIdEditCp').value = record.cp;
+    $('cpIdEditPoblacion').value = record.poblacion;
+    $('cpIdEditMunicipio').value = record.municipio;
+    $('cpIdEditProvincia').value = record.provincia;
+    $('cpIdEditComunidad').value = record.comunidad;
+    $('cpIdSelected').textContent = 'Seleccionado: ' + labelOf(record) + ' · ID ' + record._id;
+    $('cpIdEditor').classList.add('active');
+    try{ $('cpIdEditor').scrollIntoView({behavior:'smooth', block:'nearest'}); }catch(_){}
+  }
+
+  function currentEditorRecord(){
+    return normalizeRecord({
+      _id: $('cpIdEditId').value || makeId(),
+      cp: $('cpIdEditCp').value,
+      poblacion: $('cpIdEditPoblacion').value,
+      municipio: $('cpIdEditMunicipio').value,
+      provincia: $('cpIdEditProvincia').value,
+      comunidad: $('cpIdEditComunidad').value,
+      pais:'España'
+    });
+  }
+
+  async function saveEditor(){
+    const rec = currentEditorRecord();
+    if(!rec.cp || rec.cp.length !== 5){
+      toastSafe('El CP debe tener 5 números.');
+      return;
+    }
+
+    const list = await readList();
+    const id = rec._id;
+    let replaced = false;
+
+    const next = list.map(function(item){
+      if(String(item._id) === String(id)){
+        replaced = true;
+        return rec;
+      }
+      return item;
+    });
+
+    if(!replaced) next.push(rec);
+
+    const saved = await writeList(next);
+    $('cpIdEditId').value = rec._id;
+    toastSafe('Guardado. Verificado en IndexedDB. Base actual: ' + saved.length.toLocaleString('es-ES') + ' registros.');
+
+    // v3.0: al guardar un CP, cerrar el editor y volver a la lista.
+    const editor = $('cpIdEditor');
+    if(editor) editor.classList.remove('active');
+    $('cpIdEditId').value = '';
+
+    await search();
+  }
+
+  async function deleteById(id){
+    id = String(id || '');
+    const list = await readList();
+    const rec = list.find(function(item){ return String(item._id) === id; });
+
+    if(!rec){
+      toastSafe('No se encontró ID para eliminar: ' + id);
+      return;
+    }
+
+    const before = list.length;
+    const next = list.filter(function(item){ return String(item._id) !== id; });
+    const saved = await writeList(next);
+    const after = saved.length;
+
+    toastSafe('Eliminado ID ' + id + ': ' + labelOf(rec) + '\\nVerificado en IndexedDB. Antes: ' + before.toLocaleString('es-ES') + ' · Ahora: ' + after.toLocaleString('es-ES'));
+
+    if(String($('cpIdEditId').value) === id){
+      $('cpIdEditor').classList.remove('active');
+      $('cpIdEditId').value = '';
+    }
+
+    await search();
+  }
+
+  async function deleteOpen(){
+    const id = $('cpIdEditId').value;
+    if(!id){
+      toastSafe('No hay registro abierto.');
+      return;
+    }
+    await deleteById(id);
+  }
+
+  function csvEscape(v){
+    v = String(v == null ? '' : v);
+    if(/[",;\n\r]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+
+  async function exportCsv(){
+    const list = await readList();
+    if(!list.length){
+      toastSafe('No hay registros para exportar.');
+      return;
+    }
+
+    function csvEscape(v){
+      v = String(v == null ? '' : v);
+      if(/[\";\n\r,]/.test(v)) return '\"' + v.replace(/\"/g,'\"\"') + '\"';
+      return v;
+    }
+
+    const lines = ['CP;POBLACION;MUNICIPIO;PROVINCIA;COMUNIDAD'].concat(
+      list.map(function(r){
+        return [
+          r.cp,
+          r.poblacion,
+          r.municipio,
+          r.provincia,
+          r.comunidad
+        ].map(csvEscape).join(';');
+      })
+    );
+
+    const csv = '\ufeff' + lines.join('\n');
+    const filename = 'Codigos-postales_actualizados_' + new Date().toISOString().slice(0,10) + '.csv';
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+
+    // v2.99.12: en iPhone/iPad, primero intentamos Compartir/Guardar en Archivos.
+    try{
+      if(typeof File !== 'undefined' && navigator.share){
+        const file = new File([blob], filename, {type:'text/csv'});
+        const payload = {
+          title: filename,
+          text: 'Base de códigos postales actualizada',
+          files: [file]
+        };
+
+        if(!navigator.canShare || navigator.canShare({files:[file]})){
+          await navigator.share(payload);
+          toastSafe('CSV compartido: ' + list.length.toLocaleString('es-ES') + ' registros.');
+          return;
+        }
+      }
+    }catch(err){
+      // Si el usuario cancela compartir, no lo tratamos como error grave.
+      if(err && (err.name === 'AbortError' || err.name === 'NotAllowedError')){
+        toastSafe('Exportación cancelada.');
+        return;
+      }
+      // Si share falla por WebView, seguimos con descarga normal.
+    }
+
+    try{
+      if(typeof downloadBlob === 'function'){
+        downloadBlob(filename, blob);
+        toastSafe('CSV preparado: ' + list.length.toLocaleString('es-ES') + ' registros.');
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1200);
+
+      toastSafe('CSV exportado: ' + list.length.toLocaleString('es-ES') + ' registros.');
+    }catch(err){
+      toastSafe('No se pudo descargar el CSV. Prueba desde Safari o exporta usando Compartir.');
+    }
+  }
+
+  document.addEventListener('click', async function(ev){
+    const t = ev.target;
+
+    const settingsBtn = t && t.closest ? t.closest('#btnPostalEditor') : null;
+    if(settingsBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      try{ if(typeof closeSettings === 'function') closeSettings(); }catch(_){}
+      show();
+      return;
+    }
+
+    const closeBtn = t && t.closest ? t.closest('#cpIdClose') : null;
+    if(closeBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      hide();
+      return;
+    }
+
+    const searchBtn = t && t.closest ? t.closest('#cpIdSearchBtn') : null;
+    if(searchBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      await search();
+      return;
+    }
+
+    const newBtn = t && t.closest ? t.closest('#cpIdNewBtn') : null;
+    if(newBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      openEditor({_id:makeId(), cp:'', poblacion:'', municipio:'', provincia:'', comunidad:'', pais:'España'});
+      return;
+    }
+
+    const exportBtn = t && t.closest ? t.closest('#cpIdExportBtn,#btnPostalExport') : null;
+    if(exportBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      await exportCsv();
+      return;
+    }
+
+    const openBtn = t && t.closest ? t.closest('[data-cp-id-open]') : null;
+    if(openBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      const id = openBtn.getAttribute('data-cp-id-open');
+      const list = await readList();
+      const rec = list.find(function(item){ return String(item._id) === String(id); });
+      if(rec) openEditor(rec);
+      else toastSafe('No se encontró ID: ' + id);
+      return;
+    }
+
+    const delBtn = t && t.closest ? t.closest('[data-cp-id-delete]') : null;
+    if(delBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      await deleteById(delBtn.getAttribute('data-cp-id-delete'));
+      return;
+    }
+
+    const saveBtn = t && t.closest ? t.closest('#cpIdSaveBtn') : null;
+    if(saveBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      await saveEditor();
+      return;
+    }
+
+    const delOpenBtn = t && t.closest ? t.closest('#cpIdDeleteOpenBtn') : null;
+    if(delOpenBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      await deleteOpen();
+      return;
+    }
+
+    const cancelBtn = t && t.closest ? t.closest('#cpIdCancelBtn') : null;
+    if(cancelBtn){
+      ev.preventDefault();
+      ev.stopPropagation();
+      $('cpIdEditor').classList.remove('active');
+      $('cpIdEditId').value = '';
+      return;
+    }
+
+    if(t && t.id === 'cpIdOverlay') hide();
+  }, true);
+
+  document.addEventListener('keydown', function(ev){
+    if(ev.target && ev.target.id === 'cpIdSearch' && ev.key === 'Enter'){
+      ev.preventDefault();
+      search();
+    }
+  }, true);
+
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id === 'cpIdEditCp'){
+      ev.target.value = String(ev.target.value || '').replace(/\\D/g,'').slice(0,5);
+    }
+  }, true);
+
+  window.openCpIdEditorV2999 = show;
+})();
+</script>
+
+
+<style>
+/* v3.0 - CP estilo Plantillas, solo visual */
+.cp-id-results{
+  display:none;
+  margin-top:14px !important;
+  border:0 !important;
+  background:transparent !important;
+  overflow:visible !important;
+}
+.cp-id-row{
+  display:grid !important;
+  grid-template-columns:1fr 58px !important;
+  align-items:center !important;
+  gap:12px !important;
+  margin:10px 0 !important;
+  padding:13px 14px !important;
+  border:2px solid #b8d4f2 !important;
+  border-radius:19px !important;
+  background:linear-gradient(180deg,#edf7ff 0%,#e9f4ff 100%) !important;
+  box-shadow:0 3px 8px rgba(15,23,42,.045) !important;
+}
+.cp-id-open{
+  min-height:auto !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  text-align:left !important;
+}
+.cp-id-title{
+  display:block !important;
+  font-size:18px !important;
+  font-weight:950 !important;
+  line-height:1.12 !important;
+  letter-spacing:-.025em !important;
+  color:#0f172a !important;
+}
+.cp-id-sub{
+  display:block !important;
+  margin-top:5px !important;
+  color:#475569 !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  line-height:1.25 !important;
+}
+.cp-id-province{
+  display:inline-flex !important;
+  align-items:center !important;
+  margin-top:8px !important;
+  padding:4px 10px !important;
+  border-radius:999px !important;
+  background:#eef2ff !important;
+  border:1px solid #c7d2fe !important;
+  color:#475569 !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  line-height:1 !important;
+  letter-spacing:.02em !important;
+  text-transform:uppercase !important;
+}
+.cp-id-tag{
+  display:none !important;
+}
+.cp-id-delete{
+  width:54px !important;
+  height:54px !important;
+  min-height:54px !important;
+  border:0 !important;
+  border-radius:16px !important;
+  padding:0 !important;
+  margin:0 !important;
+  font-size:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:linear-gradient(180deg,#ff4545 0%,#dc2626 100%) !important;
+  color:#fff !important;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.13), 0 4px 9px rgba(220,38,38,.18) !important;
+}
+.cp-id-delete::before{
+  content:'🗑️';
+  font-size:25px;
+  line-height:1;
+}
+.cp-id-delete:active{
+  transform:translateY(1px) !important;
+}
+.cp-id-panel{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+}
+.cp-id-head{
+  background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+}
+@media(max-width:560px){
+  .cp-id-row{
+    grid-template-columns:1fr 54px !important;
+    gap:10px !important;
+    padding:12px !important;
+    border-radius:18px !important;
+  }
+  .cp-id-delete{
+    width:50px !important;
+    height:50px !important;
+    min-height:50px !important;
+    border-radius:15px !important;
+  }
+  .cp-id-title{
+    font-size:17px !important;
+  }
+}
+</style>
 
 </body>
 </html>
