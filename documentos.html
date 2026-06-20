@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v3.0</title>
+  <title>Documentos Rey v3.0.5</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3583,7 +3583,56 @@ Pendiente de integración completa:
 -->
 
 
-<!-- Documentos Rey v3.0 CANDIDATA - editor CP estilo Plantillas -->
+<!-- Documentos Rey v3.0.5 CANDIDATA - editor CP estilo Plantillas -->
+
+<style>
+/* v3.0.4 - Selector numeración al crear presupuesto */
+.number-mode-grid-v304{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:8px;
+}
+.number-mode-card-v304{
+  border:1px solid #d6e0ec;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+  border-radius:18px;
+  padding:16px 14px;
+  text-align:left;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+  min-height:112px;
+  touch-action:manipulation;
+}
+.number-mode-card-v304 strong{
+  display:block;
+  font-size:17px;
+  margin-bottom:6px;
+  color:#0f172a;
+  font-weight:950;
+}
+.number-mode-card-v304 span{
+  display:block;
+  font-size:13px;
+  line-height:1.25;
+  color:#64748b;
+  font-weight:800;
+}
+.number-mode-card-v304.provisional{
+  border-color:#fed7aa;
+  background:linear-gradient(180deg,#fff7ed 0%,#ffedd5 100%);
+}
+.number-mode-card-v304.definitivo{
+  border-color:#bfdbfe;
+  background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);
+}
+.number-mode-card-v304:active{
+  transform:translateY(1px) scale(.985);
+}
+@media (max-width:640px){
+  .number-mode-grid-v304{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -3594,7 +3643,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v3.0</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v3.0.5</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4754,7 +4803,7 @@ Pendiente de integración completa:
     return converted;
   }
 
-  async function createNewDocument(documentoTipo, tipoPresupuesto){
+  async function createNewDocument(documentoTipo, tipoPresupuesto, numberMode){
     hideReturnAppButton();
     closeSettings();
     closeSheet();
@@ -4771,7 +4820,11 @@ Pendiente de integración completa:
     state.documentoTipo = documentoTipo || 'presupuesto';
     state.tipoPresupuesto = (tipoPresupuesto === 'sencillo') ? 'sencillo' : 'visual';
     state.simpleExtraPages = 1;
-    state.numero = await nextDocumentNumberForType(state.documentoTipo);
+    if(state.documentoTipo === 'presupuesto' && numberMode === 'provisional'){
+      state.numero = '0000';
+    }else{
+      state.numero = await nextDocumentNumberForType(state.documentoTipo);
+    }
     state.facturaVencimientoManual = false;
     syncFacturaVencimientoDefault();
     if(state.tipoPresupuesto === 'sencillo'){
@@ -4782,7 +4835,42 @@ Pendiente de integración completa:
     }
     applyZoom();
     render();
-    toast('Nuevo ' + documentTypeLabel(state.documentoTipo).toLowerCase());
+    toast('Nuevo ' + documentTypeLabel(state.documentoTipo).toLowerCase() + (state.numero === '0000' ? ' provisional' : ''));
+  }
+
+  async function openNumberModeChooserV304(documentoTipo, tipoPresupuesto){
+    documentoTipo = documentoTipo || 'presupuesto';
+
+    if(documentoTipo !== 'presupuesto'){
+      await createNewDocument(documentoTipo, tipoPresupuesto, 'definitivo');
+      return;
+    }
+
+    const nextNum = await nextDocumentNumberForType('presupuesto');
+    $('sheetTitle').textContent = 'Numeración presupuesto';
+    const body = $('sheetContent');
+    body.innerHTML = `
+      <div class="number-mode-grid-v304">
+        <button type="button" class="number-mode-card-v304 provisional" id="btnNewProvisionalV304">
+          <strong>Provisional 0000</strong>
+          <span>Para preparar el presupuesto sin usar todavía numeración definitiva.</span>
+        </button>
+        <button type="button" class="number-mode-card-v304 definitivo" id="btnNewDefinitivoV304">
+          <strong>Siguiente ${esc(nextNum)}</strong>
+          <span>Para crear ya el presupuesto con el siguiente número correlativo.</span>
+        </button>
+      </div>
+      <div class="sheet-actions" style="grid-template-columns:1fr; margin-top:14px;">
+        <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
+      </div>`;
+
+    $('btnNewProvisionalV304').onclick = function(){
+      createNewDocument('presupuesto', tipoPresupuesto, 'provisional');
+    };
+    $('btnNewDefinitivoV304').onclick = function(){
+      createNewDocument('presupuesto', tipoPresupuesto, 'definitivo');
+    };
+    $('sheetCancel').onclick = closeSheet;
   }
 
   function openDocumentTypeChooser(tipoPresupuesto){
@@ -4807,7 +4895,14 @@ Pendiente de integración completa:
         <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
       </div>`;
     Array.from(body.querySelectorAll('[data-doc-type]')).forEach(function(btn){
-      btn.onclick = function(){ createNewDocument(btn.getAttribute('data-doc-type'), tipoPresupuesto); };
+      btn.onclick = function(){
+        const docType = btn.getAttribute('data-doc-type');
+        if(docType === 'presupuesto'){
+          openNumberModeChooserV304(docType, tipoPresupuesto);
+        }else{
+          createNewDocument(docType, tipoPresupuesto, 'definitivo');
+        }
+      };
     });
     $('sheetCancel').onclick = closeSheet;
     $('sheetBackdrop').classList.add('show');
@@ -4883,11 +4978,11 @@ Pendiente de integración completa:
         <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
       </div>`;
     $('btnStartSimpleDoc').onclick = async function(){
-      await createNewDocument(documentoTipo, 'sencillo');
+      if(documentoTipo === 'presupuesto') await openNumberModeChooserV304(documentoTipo, 'sencillo'); else await createNewDocument(documentoTipo, 'sencillo', 'definitivo');
       setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
     };
     $('btnStartImageDoc').onclick = async function(){
-      await createNewDocument(documentoTipo, 'visual');
+      if(documentoTipo === 'presupuesto') await openNumberModeChooserV304(documentoTipo, 'visual'); else await createNewDocument(documentoTipo, 'visual', 'definitivo');
       setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
     };
     $('sheetCancel').onclick = closeSheet;
@@ -5644,12 +5739,30 @@ Pendiente de integración completa:
     return matches.length ? matches[0] : null;
   }
 
+  function prettyPostalTextV305(value){
+    value = String(value || '').trim();
+    if(!value) return '';
+
+    const lowerWords = ['de','del','la','las','los','el','y','a','o','en','da','do','das','dos'];
+    return value
+      .toLowerCase()
+      .split(/(\s+|\/|-)/)
+      .map(function(part, idx, arr){
+        if(!part || /^\s+$/.test(part) || part === '/' || part === '-') return part;
+        if(idx > 0 && lowerWords.includes(part)) return part;
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      })
+      .join('')
+      .replace(/\bA Coruña\b/gi, 'A Coruña')
+      .replace(/\bPaís Vasco\b/gi, 'País Vasco');
+  }
+
   function applyPostalRecordToClientFormV2987(found){
     if(!found) return;
-    if($('editClientePoblacion') && found.poblacion) $('editClientePoblacion').value = found.poblacion;
-    if($('editClienteMunicipio') && found.municipio) $('editClienteMunicipio').value = found.municipio;
-    if($('editClienteProvincia') && found.provincia) $('editClienteProvincia').value = found.provincia;
-    if($('editClientePais') && found.pais) $('editClientePais').value = found.pais;
+    if($('editClientePoblacion') && found.poblacion) $('editClientePoblacion').value = prettyPostalTextV305(found.poblacion);
+    if($('editClienteMunicipio') && found.municipio) $('editClienteMunicipio').value = prettyPostalTextV305(found.municipio);
+    if($('editClienteProvincia') && found.provincia) $('editClienteProvincia').value = prettyPostalTextV305(found.provincia);
+    if($('editClientePais') && found.pais) $('editClientePais').value = prettyPostalTextV305(found.pais);
   }
 
   function renderPostalClientMatchesV2987(matches){
@@ -5664,10 +5777,14 @@ Pendiente de integración completa:
 
     box.classList.add('show');
     box.innerHTML = matches.map(function(r, i){
+      const pob = prettyPostalTextV305(r.poblacion || r.municipio || '');
+      const mun = prettyPostalTextV305(r.municipio || '');
+      const prov = prettyPostalTextV305(r.provincia || '');
+      const pais = prettyPostalTextV305(r.pais || 'España');
       return '<button type="button" class="postal-match-btn" data-client-postal-choice-v2987="'+i+'">' +
-        String(r.cp || '') + ' ' + String(r.poblacion || r.municipio || '') +
-        (r.municipio && String(r.municipio).toLowerCase() !== String(r.poblacion || '').toLowerCase() ? ', ' + String(r.municipio) : '') +
-        '<small>' + [r.provincia, r.pais || 'España'].filter(Boolean).join(' · ') + '</small>' +
+        String(r.cp || '') + ' ' + pob +
+        (mun && mun.toLowerCase() !== pob.toLowerCase() ? ', ' + mun : '') +
+        '<small>' + [prov, pais].filter(Boolean).join(' · ') + '</small>' +
       '</button>';
     }).join('');
     window.__clientPostalMatchesV2987 = matches;
@@ -5705,7 +5822,7 @@ Pendiente de integración completa:
     if(hint){
       hint.textContent = matches.length > 1
         ? ('Hay ' + matches.length + ' coincidencias para este CP. Elige una opción abajo.')
-        : ('Encontrado: ' + [found.poblacion, found.municipio, found.provincia, found.pais].filter(Boolean).join(' · '));
+        : ('Encontrado: ' + [found.poblacion, found.municipio, found.provincia, found.pais].filter(Boolean).map(prettyPostalTextV305).join(' · '));
       hint.className = 'postal-hint ok';
     }
   }
@@ -5724,7 +5841,7 @@ Pendiente de integración completa:
     if(box){ box.classList.remove('show'); box.innerHTML = ''; }
     const hint = $('postalHint');
     if(hint){
-      hint.textContent = 'Seleccionado: ' + [rec.poblacion, rec.municipio, rec.provincia, rec.pais].filter(Boolean).join(' · ');
+      hint.textContent = 'Seleccionado: ' + [rec.poblacion, rec.municipio, rec.provincia, rec.pais].filter(Boolean).map(prettyPostalTextV305).join(' · ');
       hint.className = 'postal-hint ok';
     }
   }, true);
@@ -8273,6 +8390,19 @@ COLOCACIÓN INCLUIDA` }
     hit(root, 30, 200, 260, 45, () => openEdit('numero', 'Número'), 'Editar número');
   }
 
+  function approxSvgTextWidthV304(txt, fs, weight){
+    txt = String(txt == null ? '' : txt);
+    fs = Number(fs || 14);
+    let factor = 0.54;
+    if(String(weight || '').includes('700') || String(weight || '').includes('800') || String(weight || '').includes('900')) factor = 0.58;
+    return Math.max(0, txt.length * fs * factor);
+  }
+
+  function addSvgTapHaloV304(parent, x, y, w, h, onTap, title){
+    // Zona táctil invisible, cómoda en iPhone, sin cambiar el diseño visual.
+    return hit(parent, x, y, w, h, onTap, title);
+  }
+
   function renderHeader(root){
     if(isFacturaDocument()){
       renderFacturaHeader(root);
@@ -8377,14 +8507,28 @@ COLOCACIÓN INCLUIDA` }
     }
 
     const dateY = 195 + (Number(numStyle('dateYOffset')) || 0);
-    addText(root, 26, dateY, fmtDate(state.fecha), { fs:numStyle('dateSize'), fw:'400' });
+    const dateText = fmtDate(state.fecha);
+    const dateFs = Number(numStyle('dateSize')) || 14;
+    addText(root, 26, dateY, dateText, { fs:dateFs, fw:'400' });
+
     const numberY = 225 + (Number(numStyle('numberYOffset')) || 0);
-    addText(root, 26, numberY, (getDocumentType()==='factura' ? 'Número de factura: ' : (getDocumentType()==='albaran' ? 'Número de albarán: ' : 'Número de presupuesto: ')) + safe(state.numero), { fs:numStyle('budgetNumberSize'), fw:'700', fill:s.titleColor });
+    const numberFs = Number(numStyle('budgetNumberSize')) || 16;
+    const numberLabel = getDocumentType()==='factura'
+      ? 'Número de factura: '
+      : (getDocumentType()==='albaran' ? 'Número de albarán: ' : 'Número de presupuesto: ');
+    addText(root, 26, numberY, numberLabel + safe(state.numero), { fs:numberFs, fw:'700', fill:s.titleColor });
 
     hit(root, 28, 50, 340, 105, () => openEdit('company', 'Empresa'), 'Editar empresa o logo');
     hit(root, 410, 76, 350, 150, () => openEdit('client', 'Cliente'), 'Editar cliente');
-    hit(root, 24, 163, 210, 34, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
-    hit(root, 24, 199, 400, 34, () => openEdit('numero', 'Número presupuesto'), 'Editar número');
+
+    // v3.0.4: zonas táctiles separadas y más amplias para iPhone.
+    const dateTapW = Math.max(112, approxSvgTextWidthV304(dateText, dateFs, '400') + 32);
+    addSvgTapHaloV304(root, 18, dateY - 32, dateTapW, 48, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
+
+    const labelW = approxSvgTextWidthV304(numberLabel, numberFs, '700');
+    const numberTapX = 26 + labelW - 8;
+    const numberTapW = Math.max(128, approxSvgTextWidthV304(state.numero, numberFs, '700') + 34);
+    addSvgTapHaloV304(root, numberTapX, numberY - 34, numberTapW, 52, () => openEdit('numero', 'Número presupuesto'), 'Editar número');
   }
 
   function drawPlaceholder(parent, x, y, w, h, kind){
