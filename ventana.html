@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v93.5</title>
+    <title>Ventana Pro v93.6</title>
     <!-- v93.4.6: Solo barrotillos no duplica, actualiza y borra correctamente. -->
     <!-- v93.4.5: restaura barrotillos y usa capa segura por polígonos guardados. -->
     <!-- v93.4.3: Solo barrotillos por encima del cristal degradado y antes de aperturas. -->
@@ -1063,7 +1063,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v93.5"><span class="title-main">Ventana Pro</span><span class="title-version">v93.5</span></div>
+<div class="top-title" aria-label="Ventana Pro v93.6"><span class="title-main">Ventana Pro</span><span class="title-version">v93.6</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -9370,10 +9370,53 @@ if (mostrarAltoTotalDer) {
           try{ localStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
 
           try{
+            var _pvcPersiana = false;
+            try{
+              var _bp = document.getElementById('btnPersianaRapida');
+              _pvcPersiana = !!(_bp && _bp.classList && _bp.classList.contains('active'));
+            }catch(_){}
+            try{
+              if(typeof window.mostrarPersiana !== 'undefined') _pvcPersiana = !!window.mostrarPersiana || _pvcPersiana;
+              if(typeof mostrarPersiana !== 'undefined') _pvcPersiana = !!mostrarPersiana || _pvcPersiana;
+            }catch(_){}
+
+            var _pvcColorTipo = 'b';
+            try{
+              var _mt = String(window.marcoTextura || '').toLowerCase();
+              var _cm = String(window.colorMarco || '').toLowerCase();
+              if(_mt || _cm.indexOf('654321') >= 0 || _cm.indexOf('8a6a44') >= 0 || _cm.indexOf('2f6b57') >= 0 || _cm.indexOf('madera') >= 0 || _cm.indexOf('nogal') >= 0 || _cm.indexOf('roble') >= 0 || _cm.indexOf('pino') >= 0){
+                _pvcColorTipo = 'm';
+              }else if(_cm.indexOf('404040') >= 0 || _cm.indexOf('373737') >= 0 || _cm.indexOf('7016') >= 0 || _cm.indexOf('antr') >= 0 || _cm.indexOf('gris') >= 0){
+                _pvcColorTipo = 'a';
+              }
+            }catch(_){}
+
+            var _pvcIndex = null;
+            try{ _pvcIndex = sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
+            try{ if(_pvcIndex == null) _pvcIndex = localStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
+
+            var _pvcData = {
+              index: _pvcIndex,
+              ancho: Number((document.getElementById('ancho')||{}).value||0),
+              alto: Number((document.getElementById('alto')||{}).value||0),
+              hojas: Number((document.getElementById('hojas')||{}).value||0),
+              persiana: _pvcPersiana,
+              colorTipo: _pvcColorTipo,
+              colorKey: _pvcColorTipo + (_pvcPersiana ? '_cp' : '_sp'),
+              origen: 'ventana.html',
+              fecha: Date.now()
+            };
+            sessionStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(_pvcData));
+            localStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(_pvcData));
+          }catch(_){}
+
+
+          try{
             if(window.parent && window.parent !== window){
               window.parent.postMessage({
                 type:'presupuestoVisualDesignImage',
-                image:dataUrl
+                image:dataUrl,
+                pvcData:(function(){try{return JSON.parse(localStorage.getItem('PVC_AUTODATA_V1')||'{}');}catch(_){return {};}})()
               }, '*');
 
               if(typeof window.parent.abrir === 'function'){

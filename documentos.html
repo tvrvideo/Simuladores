@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v3.0.5</title>
+  <title>Documentos Rey v3.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -392,14 +392,14 @@ left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom) + var(--vv-bott
     background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%) !important;
     border:1px solid #d6e0ec !important;
     box-shadow:0 10px 24px rgba(15,23,42,.05);
-    border-radius:18px !important;
+    border-radius:12px !important;
   }
 
   .saved-budget-card{
     background:linear-gradient(180deg,#d7b28c 0%, #c89a72 100%) !important;
     border:1px solid #9c6d46 !important;
     box-shadow:0 10px 24px rgba(108,72,44,.16) !important;
-    border-radius:18px !important;
+    border-radius:12px !important;
   }
 
   .btn-icon, #btnCloseSheet, #btnCloseSettings{
@@ -939,7 +939,7 @@ body.editing-field .page-floating-actions{display:none!important;}
   min-height:42px !important;
   padding:0 !important;
   margin-left:12px !important;
-  font-size:18px !important;
+  font-size:16px !important;
   line-height:1 !important;
   border-radius:14px !important;
   flex:0 0 46px !important;
@@ -2573,7 +2573,7 @@ body.png-open .topbar{
   margin:10px 0 12px !important;
   padding:10px !important;
   border:1px solid #dbe7fb !important;
-  border-radius:18px !important;
+  border-radius:12px !important;
   background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%) !important;
   box-shadow:0 8px 18px rgba(15,23,42,.06) !important;
 }
@@ -3583,7 +3583,7 @@ Pendiente de integración completa:
 -->
 
 
-<!-- Documentos Rey v3.0.5 CANDIDATA - editor CP estilo Plantillas -->
+<!-- Documentos Rey v3.1 PVC13 PVC13 PVC6 CANDIDATA - editor CP estilo Plantillas -->
 
 <style>
 /* v3.0.4 - Selector numeración al crear presupuesto */
@@ -3633,6 +3633,65 @@ Pendiente de integración completa:
 }
 </style>
 
+
+<style>
+/* PVC v4 - botón dentro de Importes */
+.btn-pvc-importes-v4{
+  width:100%;
+  min-height:58px;
+  margin:14px 0 0;
+  border:0;
+  border-radius:20px;
+  background:linear-gradient(180deg,#22c55e,#16a34a);
+  color:#fff;
+  font-size:20px;
+  font-weight:950;
+  box-shadow:0 12px 26px rgba(21,128,61,.25);
+  touch-action:manipulation;
+}
+.btn-pvc-importes-v4:active{transform:translateY(1px) scale(.985)}
+</style>
+
+
+<style>
+#btnPVCBridgeV1{display:none!important}
+</style>
+
+
+<style>
+/* PVC v13 - botón inyectado en barra inferior visible */
+#sheetPVCBtnV13{
+  min-height:46px !important;
+  border:0 !important;
+  border-radius:12px !important;
+  padding:6px 10px !important;
+  background:linear-gradient(180deg,#22c55e,#16a34a) !important;
+  color:#fff !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  box-shadow:none !important;
+}
+.sheet-actions.pvc-v13-three{
+  grid-template-columns:1fr 1fr 1fr !important;
+  gap:10px !important;
+}
+.sheet-actions.pvc-v13-three .btn{
+  min-height:46px !important;
+  border-radius:12px !important;
+  font-size:16px !important;
+  padding-left:8px !important;
+  padding-right:8px !important;
+}
+@media(max-width:420px){
+  #sheetPVCBtnV13,
+  .sheet-actions.pvc-v13-three .btn{
+    min-height:54px !important;
+    font-size:16px !important;
+  }
+  .sheet-actions.pvc-v13-three{gap:8px !important;}
+}
+</style>
+
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -3643,7 +3702,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v3.0.5</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v3.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5114,7 +5173,7 @@ Pendiente de integración completa:
       const diff = Math.max(0, parseDecimalInputValue(item.price) - base);
       if(diff) return String(diff.toFixed(2));
     }
-    return '';
+    return '200.00';
   }
   function bindGainPreview(priceId, gainPctId, gainAmountId, previewId){
     const priceEl = $(priceId);
@@ -9056,6 +9115,18 @@ COLOCACIÓN INCLUIDA` }
     try{
       if(Number.isFinite(idx) && state.items[idx]){
         state.items[idx].image = String(img);
+        try{
+          let _pvcRaw = '';
+          try{ _pvcRaw = sessionStorage.getItem('PVC_AUTODATA_V1') || ''; }catch(_){}
+          try{ if(!_pvcRaw) _pvcRaw = localStorage.getItem('PVC_AUTODATA_V1') || ''; }catch(_){}
+          if(_pvcRaw){
+            const _pvc = JSON.parse(_pvcRaw);
+            _pvc.index = idx;
+            state.items[idx].pvcData = _pvc;
+            sessionStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(_pvc));
+            localStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(_pvc));
+          }
+        }catch(_){}
         await persistCurrent();
         render();
         toast('Gráfico insertado desde Diseño');
@@ -9104,6 +9175,13 @@ COLOCACIÓN INCLUIDA` }
         try{ idx = sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
         try{ if(idx == null) idx = localStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
       }
+      try{
+        if(msg.pvcData){
+          msg.pvcData.index = idx;
+          sessionStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(msg.pvcData));
+          localStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(msg.pvcData));
+        }
+      }catch(_){}
       applyDesignImageToConcept(img, idx).then(function(ok){
         if(ok){
           try{ sessionStorage.removeItem(DESIGN_RETURN_IMG_KEY); }catch(_){}
@@ -9114,6 +9192,135 @@ COLOCACIÓN INCLUIDA` }
       });
     }
   }, false);
+
+
+  function openPVCForConceptV1(index){
+    index = Number(index);
+    if(!Number.isFinite(index) || !state.items[index]){
+      toast('No se encontró el concepto');
+      return;
+    }
+    const it = state.items[index];
+    let d = it.pvcData || null;
+
+    if(!d){
+      try{
+        const raw = sessionStorage.getItem('PVC_AUTODATA_V1') || localStorage.getItem('PVC_AUTODATA_V1') || '';
+        if(raw) d = JSON.parse(raw);
+      }catch(_){}
+    }
+
+    if(!d || !Number(d.ancho) || !Number(d.alto)){
+      toast('Primero diseña la ventana de este concepto');
+      return;
+    }
+
+    d.index = index;
+    d.codigo = it.code || ('V' + (index + 1));
+    it.pvcData = d;
+
+    try{ sessionStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(d)); }catch(_){}
+    try{ localStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(d)); }catch(_){}
+
+    try{ closeSheet(); }catch(_){}
+
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir('precio_pvc.html?from_docs=1');
+        return;
+      }
+    }catch(_){}
+    window.location.href = 'precio_pvc.html?from_docs=1';
+  }
+
+  async function applyPVCPriceReturnV1(){
+    let payload = null;
+    try{
+      const raw = sessionStorage.getItem('PVC_PRICE_RETURN_V1') || localStorage.getItem('PVC_PRICE_RETURN_V1') || '';
+      if(raw) payload = JSON.parse(raw);
+    }catch(_){}
+    if(!payload) return false;
+
+    const idx = Number(payload.index);
+    const price = Number(payload.precio || payload.price || 0);
+
+    if(!Number.isFinite(idx) || !state.items[idx]){
+      toast('No se encontró el concepto para el precio PVC');
+      return false;
+    }
+    if(!(price > 0)){
+      toast('Precio PVC no válido');
+      return false;
+    }
+
+    const it = state.items[idx];
+
+    // PVC automático:
+    // - price/base recibido de PVC = precio base de coste
+    // - ganancia por defecto = 200,00 €
+    // - precio guardado en presupuesto = base + ganancia
+    const basePVC = Number(price.toFixed(2));
+    let gainAmount = 200;
+    try{
+      if(it.gainAmount != null && String(it.gainAmount).trim() !== ''){
+        const parsedGain = parseDecimalInputValue(it.gainAmount);
+        if(Number.isFinite(parsedGain) && parsedGain >= 0) gainAmount = parsedGain;
+      }
+    }catch(_){}
+
+    const finalPrice = Number((basePVC + gainAmount).toFixed(2));
+    const gainPct = basePVC ? Number((gainAmount * 100 / basePVC).toFixed(2)) : 0;
+
+    it.costPrice = basePVC;
+    it.basePrice = basePVC;
+    it.gainAmount = Number(gainAmount.toFixed(2));
+    it.gain = '';
+    it.margin = '';
+    it.price = finalPrice;
+    if(!it.units) it.units = 1;
+    it.pvcPriceData = Object.assign({}, payload, {
+      precioBase: basePVC,
+      ganancia: Number(gainAmount.toFixed(2)),
+      precioFinal: finalPrice,
+      gananciaPct: gainPct
+    });
+
+    try{
+      const priceInput = $('editPrice');
+      if(priceInput){
+        priceInput.value = String(basePVC.toFixed(2)).replace('.', ',');
+        priceInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const gainInput = $('editGainAmount');
+      if(gainInput){
+        gainInput.value = String(Number(gainAmount.toFixed(2))).replace('.', ',');
+        gainInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const gainPctInput = $('editGain');
+      if(gainPctInput){
+        gainPctInput.value = String(gainPct.toFixed(2)).replace('.', ',');
+        gainPctInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const unitsInput = $('editUnits');
+      if(unitsInput && !String(unitsInput.value || '').trim()){
+        unitsInput.value = '1';
+        unitsInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    }catch(_){}
+
+    try{ sessionStorage.removeItem('PVC_PRICE_RETURN_V1'); }catch(_){}
+    try{ localStorage.removeItem('PVC_PRICE_RETURN_V1'); }catch(_){}
+    try{ sessionStorage.removeItem('PVC_AUTODATA_V1'); }catch(_){}
+    try{ localStorage.removeItem('PVC_AUTODATA_V1'); }catch(_){}
+
+    await persistCurrent();
+    render();
+    toast('Precio PVC insertado en ' + (it.code || ('V' + (idx + 1))));
+    return true;
+  }
 
   async function openEdit(type, title, index){
     try{ if(state && !String(state.acceptanceText || defaultAcceptanceTextV2934()).trim()) state.acceptanceText = defaultAcceptanceTextV2934(); }catch(_){}
@@ -9233,7 +9440,11 @@ COLOCACIÓN INCLUIDA` }
         toast('Cliente guardado en lista compartida');
       };
     } else if(type === 'fecha'){
-      body.innerHTML = `<label>Fecha</label><input id="editFecha" type="date" value="${esc(state.fecha)}"><div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
+      body.innerHTML = `<label>Fecha</label><input id="editFecha" type="date" value="${esc(state.fecha)}"><div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
+          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
+          <button type="button" class="btn btn-success" id="sheetPVCBtn">💰 PVC</button>
+          <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
+        </div>`;
     } else if(type === 'numero'){
       const tipoNumeroDoc = getDocumentType();
       const numeroActualEdit = String(state.numero || '').trim();
@@ -9598,6 +9809,7 @@ COLOCACIÓN INCLUIDA` }
         <label class="import-field-label">Nota interna ${it.code}</label><textarea id="editConceptInternalNotes" placeholder="Ej: confirmar medidas, color especial, precio acordado...">${esc(it.internalNotes || '')}</textarea>
         <div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
       bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
+      try{ $('sheetPVCBtn').onclick = function(){ openPVCForConceptV1(index); }; }catch(_){}
     } else if(type === 'catalog'){
       const products = getProducts();
       let listHtml = '';
@@ -11563,6 +11775,7 @@ $('btnExport').addEventListener('click', async function(){
     await applyFacturacionBridge();
     await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.04 tras bridge
     await applyReturnedDesignImage();
+    try{ await applyPVCPriceReturnV1(); }catch(_){ }
     await tryLoadDefaultLogo();
     await loadConceptTemplates();
     await loadClients();
@@ -11577,6 +11790,7 @@ $('btnExport').addEventListener('click', async function(){
       window.visualViewport.addEventListener('scroll', setViewportVars, { passive:true });
     }
     render();
+    setTimeout(function(){ try{ applyPVCPriceReturnV1(); }catch(_){ } }, 350);
     updateDocumentStatusBadge();
     handleStartFromFacturacion();
 
@@ -13360,7 +13574,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="template-category-card-v28904">
         <h3>Cambiar categoría</h3>
         <div class="template-category-grid-v28904">
-          <button class="template-cat-pvc-btn template-cat-standard-btn-v289091" data-cat="pvc"><span>PVC</span><span class="template-cat-color-v289086" data-colorcat="PVC">🎨</span></button>
+          <button class="template-cat-pvc-btn template-cat-standard-btn-v289091" data-cat="pvc"><span>Precio</span><span class="template-cat-color-v289086" data-colorcat="PVC">🎨</span></button>
           <button class="template-cat-aluminio-btn template-cat-standard-btn-v289091" data-cat="aluminio"><span>Aluminio</span><span class="template-cat-color-v289086" data-colorcat="ALUMINIO">🎨</span></button>
           <button class="template-cat-persiana-btn template-cat-standard-btn-v289091" data-cat="persiana"><span>Persiana</span><span class="template-cat-color-v289086" data-colorcat="PERSIANA">🎨</span></button>
           <button class="template-cat-cristal-btn template-cat-standard-btn-v289091" data-cat="cristal"><span>Cristal</span><span class="template-cat-color-v289086" data-colorcat="CRISTAL">🎨</span></button>
@@ -15375,7 +15589,7 @@ const mo = new MutationObserver(function(){
 }
 .cp-id-title{
   display:block !important;
-  font-size:18px !important;
+  font-size:16px !important;
   font-weight:950 !important;
   line-height:1.12 !important;
   letter-spacing:-.025em !important;
@@ -15442,7 +15656,7 @@ const mo = new MutationObserver(function(){
     grid-template-columns:1fr 54px !important;
     gap:10px !important;
     padding:12px !important;
-    border-radius:18px !important;
+    border-radius:12px !important;
   }
   .cp-id-delete{
     width:50px !important;
@@ -15455,6 +15669,219 @@ const mo = new MutationObserver(function(){
   }
 }
 </style>
+
+
+<script>
+/* Integración PVC v2: aplicar retorno al abrir Documentos */
+(function(){
+  function run(){
+    try{
+      if(typeof applyPVCPriceReturnV1 === 'function') applyPVCPriceReturnV1();
+    }catch(e){}
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 300); }, {once:true});
+  }else{
+    setTimeout(run, 300);
+  }
+})();
+</script>
+
+
+<script>
+/* PVC v4 retorno documentos */
+(function(){
+  function run(){ try{ if(typeof applyPVCPriceReturnV1 === 'function') applyPVCPriceReturnV1(); }catch(e){} }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){setTimeout(run,300)}, {once:true});
+  else setTimeout(run,300);
+})();
+</script>
+
+<script>
+/* PVC v5 - refuerzo táctil botón Importes */
+(function(){
+  function findOpenIndex(){
+    try{
+      const title = document.querySelector('#editSheet .sheet-title, #sheetTitle');
+      const txt = title ? String(title.textContent || '') : '';
+      const m = txt.match(/V(\d+)/i);
+      if(m) return Math.max(0, Number(m[1]) - 1);
+    }catch(e){}
+    try{
+      const btn = document.getElementById('sheetPVCBtnV4');
+      const txt = btn ? String(btn.textContent || '') : '';
+      const m = txt.match(/V(\d+)/i);
+      if(m) return Math.max(0, Number(m[1]) - 1);
+    }catch(e){}
+    return null;
+  }
+
+  function handler(ev){
+    const btn = ev.target && ev.target.closest ? ev.target.closest('#sheetPVCBtnV4') : null;
+    if(!btn) return;
+    try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+    const idx = findOpenIndex();
+    if(idx == null){
+      try{ toast('No se pudo detectar V para PVC'); }catch(e){ alert('No se pudo detectar V para PVC'); }
+      return false;
+    }
+    try{
+      if(typeof openPVCForConceptV1 === 'function'){
+        openPVCForConceptV1(idx);
+      }else{
+        alert('No está cargada la conexión PVC');
+      }
+    }catch(e){
+      alert('No se pudo abrir Precio PVC');
+    }
+    return false;
+  }
+
+  document.addEventListener('click', handler, true);
+  document.addEventListener('touchend', handler, {capture:true, passive:false});
+})();
+</script>
+
+
+<script>
+/* PVC v5 - puente directo por si la función interna no queda accesible */
+(function(){
+  window.openPVCForConceptV1 = window.openPVCForConceptV1 || function(index){
+    index = Number(index);
+    let d = null;
+    try{
+      const raw = sessionStorage.getItem('PVC_AUTODATA_V1') || localStorage.getItem('PVC_AUTODATA_V1') || '';
+      if(raw) d = JSON.parse(raw);
+    }catch(e){}
+    if(!d || !Number(d.ancho) || !Number(d.alto)){
+      try{ toast('Primero diseña la ventana de este concepto'); }catch(e){ alert('Primero diseña la ventana de este concepto'); }
+      return;
+    }
+    d.index = index;
+    d.codigo = 'V' + (index + 1);
+    try{ sessionStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(d)); }catch(e){}
+    try{ localStorage.setItem('PVC_AUTODATA_V1', JSON.stringify(d)); }catch(e){}
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir('precio_pvc.html?from_docs=1');
+        return;
+      }
+    }catch(e){}
+    window.location.href = 'precio_pvc.html?from_docs=1';
+  };
+})();
+</script>
+
+
+<script>
+/* PVC v5 - aplicar precio recibido con respaldo */
+(function(){
+  function parseReturn(){
+    try{
+      const raw = sessionStorage.getItem('PVC_PRICE_RETURN_V1') || localStorage.getItem('PVC_PRICE_RETURN_V1') || '';
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function run(){
+    const p = parseReturn();
+    if(!p || !(Number(p.precio) > 0)) return;
+    try{
+      if(typeof applyPVCPriceReturnV1 === 'function'){
+        applyPVCPriceReturnV1();
+        return;
+      }
+    }catch(e){}
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(run,300); }, {once:true});
+  }else{
+    setTimeout(run,300);
+  }
+})();
+</script>
+
+
+<script>
+/* PVC v13 - insertar PVC en la barra inferior real de Importes V */
+(function(){
+  function getImportesIndex(){
+    try{
+      var title = document.getElementById('sheetTitle');
+      var txt = title ? String(title.textContent || '') : '';
+      var m = txt.match(/Importes\s+V(\d+)/i);
+      if(m) return Math.max(0, Number(m[1]) - 1);
+    }catch(e){}
+    return null;
+  }
+
+  function ensurePVCButton(){
+    var idx = getImportesIndex();
+    var isImportes = idx !== null;
+
+    var existing = document.getElementById('sheetPVCBtnV13');
+    if(!isImportes){
+      if(existing) existing.remove();
+      document.querySelectorAll('.sheet-actions.pvc-v13-three').forEach(function(a){
+        a.classList.remove('pvc-v13-three');
+      });
+      return;
+    }
+
+    var saveBtn = document.getElementById('sheetSave');
+    var cancelBtn = document.getElementById('sheetCancel');
+    if(!saveBtn || !cancelBtn) return;
+
+    var actions = saveBtn.closest('.sheet-actions') || cancelBtn.closest('.sheet-actions');
+    if(!actions) return;
+
+    actions.classList.add('pvc-v13-three');
+
+    if(!existing){
+      existing = document.createElement('button');
+      existing.type = 'button';
+      existing.id = 'sheetPVCBtnV13';
+      existing.textContent = 'Precio';
+      existing.className = 'btn btn-success';
+      actions.insertBefore(existing, cancelBtn);
+    }
+
+    existing.onclick = function(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+      var realIdx = getImportesIndex();
+      if(realIdx === null){
+        try{ toast('No se detectó V para PVC'); }catch(e){ alert('No se detectó V para PVC'); }
+        return false;
+      }
+      try{
+        if(typeof openPVCForConceptV1 === 'function'){
+          openPVCForConceptV1(realIdx);
+        }else{
+          alert('No está cargada la conexión PVC');
+        }
+      }catch(e){
+        alert('No se pudo abrir Precio PVC');
+      }
+      return false;
+    };
+  }
+
+  var obs = null;
+  function boot(){
+    ensurePVCButton();
+    setInterval(ensurePVCButton, 500);
+    try{
+      obs = new MutationObserver(function(){ ensurePVCButton(); });
+      obs.observe(document.body, {childList:true, subtree:true, characterData:true});
+    }catch(e){}
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot, {once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
 
 </body>
 </html>

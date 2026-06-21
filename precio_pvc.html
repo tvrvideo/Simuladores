@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1223">
-<title>PVC Precio v1,5</title>
+<title>PVC Precio v1.6</title>
 
 <style>
   :root{
@@ -399,6 +399,32 @@
 }
 
 </style>
+
+<style>
+/* Integración PVC v2 */
+#btnReturnPVCToDocsV2{
+  position:fixed;
+  left:10px;
+  right:10px;
+  bottom:calc(100px + env(safe-area-inset-bottom));
+  z-index:9999;
+  display:none;
+  max-width:560px;
+  margin:0 auto;
+  min-height:50px;
+  border:0;
+  border-radius:16px;
+  background:linear-gradient(180deg,#22c55e,#16a34a);
+  color:#fff;
+  font-size:16px;
+  font-weight:980;
+  box-shadow:0 14px 30px rgba(21,128,61,.32);
+  touch-action:manipulation;
+}
+body.from-docs-pvc #btnReturnPVCToDocsV2{display:block}
+body.from-docs-pvc .wrap{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+</style>
+
 </head>
 
 <body>
@@ -407,7 +433,7 @@
       <div class="head">
         <button class="btnBackTop" onclick="volverIndex()">← MENÚ</button>
         <div>
-          <b>PVC Precio <small>v1,5</small></b>
+          <b>PVC Precio <small>v1.6</small></b>
         </div>
         <button class="iconBtn" type="button" onclick="openConfig()">⚙️</button>
       </div>
@@ -1108,6 +1134,97 @@ function volverIndex(){
   }catch(e){}
   window.location.href='index.html';
 }
+</script>
+
+
+<button id="btnReturnPVCToDocsV2" type="button">✓ Enviar precio a Documentos</button>
+<script>
+/* Integración PVC v2: Precio PVC ⇄ Importes V */
+(function(){
+  const PVC_PENDING = 'PVC_AUTODATA_V1';
+  const PVC_RETURN = 'PVC_PRICE_RETURN_V1';
+
+  function parseEuro(txt){
+    txt = String(txt || '').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',', '.');
+    const n = parseFloat(txt);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function getPending(){
+    try{
+      const raw = sessionStorage.getItem(PVC_PENDING) || localStorage.getItem(PVC_PENDING) || '';
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function selectKey(key){
+    key = String(key || 'b_cp');
+    const btn = document.querySelector('[data-k="'+key+'"]');
+    if(btn){
+      document.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      try{ current = key; }catch(e){}
+    }
+  }
+  function prefill(){
+    const params = new URLSearchParams(location.search || '');
+    const fromDocs = params.get('from_docs') === '1';
+    if(fromDocs) document.body.classList.add('from-docs-pvc');
+    const d = getPending();
+    if(!d) return;
+
+    const w = Number(d.ancho || 0);
+    const h = Number(d.alto || 0);
+    const hojas = Number(d.hojas || 2);
+    const key = String(d.colorKey || (d.persiana ? 'b_cp' : 'b_sp'));
+
+    if(w && document.getElementById('w')) document.getElementById('w').value = String(Math.round(w));
+    if(h && document.getElementById('h')) document.getElementById('h').value = String(Math.round(h));
+    try{ setHojas(hojas === 1 ? 1 : 2); }catch(e){}
+    selectKey(key);
+    try{ calc(); }catch(e){}
+  }
+  function sendBack(){
+    try{ calc(); }catch(e){}
+    const d = getPending() || {};
+    const price = parseEuro((document.getElementById('precio')||{}).innerText || '');
+    const payload = {
+      index: Number(d.index),
+      codigo: d.codigo,
+      precio: price,
+      ancho: d.ancho,
+      alto: d.alto,
+      hojas: d.hojas,
+      colorKey: d.colorKey,
+      persiana: d.persiana,
+      fecha: Date.now()
+    };
+    try{ sessionStorage.setItem(PVC_RETURN, JSON.stringify(payload)); }catch(e){}
+    try{ localStorage.setItem(PVC_RETURN, JSON.stringify(payload)); }catch(e){}
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir('documentos.html?pvc_return=1&t=' + Date.now());
+        return;
+      }
+    }catch(e){}
+    window.location.href = 'documentos.html?pvc_return=1&t=' + Date.now();
+  }
+  function bind(){
+    prefill();
+    const btn = document.getElementById('btnReturnPVCToDocsV2');
+    if(btn && btn.dataset.bound !== '1'){
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function(ev){
+        try{ ev.preventDefault(); }catch(e){}
+        sendBack();
+      }, false);
+    }
+    setTimeout(prefill, 250);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bind, {once:true});
+  }else{
+    bind();
+  }
+})();
 </script>
 
 </body>
