@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Módulos v1.0</title>
+<title>Módulos v1.2</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--txt:#111827;--muted:#6b7280;--bd:#d1d5db;--blue:#003b86;--line:#111}
 *{box-sizing:border-box}
@@ -763,20 +763,103 @@ body.fijar-on #dockArea svg{
   }
 }
 
+
+/* v1.1 - Conexión con Documentos */
+.btn-enviar-documentos{
+  position:fixed;
+  top:58px;
+  right:10px;
+  z-index:10000;
+  width:auto !important;
+  min-width:0 !important;
+  min-height:38px !important;
+  padding:9px 13px !important;
+  border-radius:20px !important;
+  border:none !important;
+  background:#16a34a !important;
+  color:#fff !important;
+  font-weight:900 !important;
+  box-shadow:0 2px 6px rgba(0,0,0,.25) !important;
+  cursor:pointer;
+  font-size:.9rem !important;
+  display:none !important;
+  align-items:center;
+  justify-content:center;
+  margin:0 !important;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+body.from-documentos .btn-enviar-documentos{
+  display:inline-flex !important;
+}
+.btn-enviar-documentos:active{
+  transform:translateY(1px) scale(.98);
+}
+@media(max-width:520px){
+  body.from-documentos .btn-fijar{
+    top:56px !important;
+  }
+  body.from-documentos .btn-enviar-documentos{
+    top:10px !important;
+    right:112px !important;
+    font-size:.78rem !important;
+    padding:8px 10px !important;
+  }
+}
+
+
+/* v1.2.1 - Botones superiores alineados al volver desde Documentos */
+body.from-documentos .btn-menu{
+  top:10px !important;
+  left:10px !important;
+}
+body.from-documentos .btn-enviar-documentos{
+  top:10px !important;
+  left:50% !important;
+  right:auto !important;
+  transform:translateX(-50%) !important;
+  font-size:.9rem !important;
+  padding:10px 15px !important;
+  min-height:40px !important;
+  border-radius:20px !important;
+}
+body.from-documentos .btn-fijar{
+  top:10px !important;
+  right:10px !important;
+}
+body.from-documentos{
+  padding-top:62px !important;
+}
+@media(max-width:520px){
+  body.from-documentos .btn-menu,
+  body.from-documentos .btn-fijar,
+  body.from-documentos .btn-enviar-documentos{
+    top:10px !important;
+  }
+  body.from-documentos .btn-enviar-documentos{
+    left:50% !important;
+    right:auto !important;
+    transform:translateX(-50%) !important;
+    font-size:.78rem !important;
+    padding:8px 10px !important;
+  }
+}
+
 </style>
 </head>
 <body>
 <button id="btnVolverIndex" class="btn-menu" type="button">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
+<button id="btnEnviarDocumentos" class="btn-enviar-documentos" type="button">✓ Documentos</button>
 <main class="app">
 <div id="scrollArea">
 <section class="card">
-  <h1>Módulos v1.0</h1>
+  <h1>Módulos v1.2</h1>
   <h2>Módulos</h2>
   <div id="modulesBox"></div>
   <button id="addModuleBtn">Crear otro módulo</button>
 
-  <p class="small">v1.0 final: app cerrada.</p>
+  <p class="small">v1.2: por defecto fijado, sin cotas totales y volver al index reforzado.</p>
 </section>
 </div>
 <div id="dockArea">
@@ -1259,7 +1342,7 @@ function draw(){
 
 
 let mostrarCotas = true;
-let mostrarTotales = true;
+let mostrarTotales = false;
 let currentExportUrl = null;
 let currentExportBlob = null;
 let currentExportFilename = null;
@@ -1490,28 +1573,112 @@ $("downloadSvgBtn").addEventListener("click",downloadSvg,{passive:true});
 $("downloadPngBtn").addEventListener("click",downloadPng,{passive:true});
 
 if(document.getElementById("btnCotas")) document.getElementById("btnCotas").classList.toggle("off", !mostrarCotas);
-if(document.getElementById("btnTotales")) document.getElementById("btnTotales").classList.toggle("off", !mostrarTotales);
+if(document.getElementById("btnTotales")) { document.getElementById("btnTotales").textContent = "Totales " + (mostrarTotales ? "ON" : "OFF"); document.getElementById("btnTotales").classList.toggle("off", !mostrarTotales); }
+
+// ====== CONEXIÓN DOCUMENTOS ======
+const DESIGN_RETURN_IMG_KEY = "presupuesto_visual_design_return_img_v1";
+const DESIGN_RETURN_INDEX_KEY = "presupuesto_visual_design_target_index_v1";
+const DOCUMENTOS_URL = "documentos.html";
+
+function isFromDocumentos(){
+  try{
+    const qs = new URLSearchParams(window.location.search);
+    return qs.get("from_budget") === "1" ||
+      sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY) !== null ||
+      localStorage.getItem(DESIGN_RETURN_INDEX_KEY) !== null;
+  }catch(e){
+    return false;
+  }
+}
+
+function blobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(String(r.result || ""));
+    r.onerror = ()=>reject(new Error("No se pudo leer PNG"));
+    r.readAsDataURL(blob);
+  });
+}
+
+async function enviarModulosADocumentos(){
+  try{
+    draw();
+    const png = await svgToPngBlob();
+    if(!png){
+      alert("No se pudo generar la imagen de módulos.");
+      return;
+    }
+    const dataUrl = await blobToDataUrl(png);
+
+    try{ sessionStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
+    try{ localStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
+
+    let idx = null;
+    try{ idx = sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
+    try{ if(idx == null) idx = localStorage.getItem(DESIGN_RETURN_INDEX_KEY); }catch(_){}
+
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({
+          type:"presupuestoVisualDesignImage",
+          image:dataUrl,
+          index:idx,
+          origen:"modulos.html"
+        }, "*");
+
+        if(typeof window.parent.abrir === "function"){
+          window.parent.abrir(DOCUMENTOS_URL);
+          return;
+        }
+      }
+    }catch(_){}
+
+    window.location.href = DOCUMENTOS_URL;
+  }catch(err){
+    alert("No se pudo enviar el diseño de módulos a Documentos.");
+  }
+}
+
+function initConexionDocumentosModulos(){
+  if(isFromDocumentos()){
+    document.body.classList.add("from-documentos");
+  }
+  const btnDoc = document.getElementById("btnEnviarDocumentos");
+  if(btnDoc){
+    btnDoc.addEventListener("click", (ev)=>{
+      ev.preventDefault();
+      enviarModulosADocumentos();
+    }, {passive:false});
+  }
+}
+initConexionDocumentosModulos();
+
+
 renderModules(); draw();
 
 
-// ====== VOLVER AL INDEX / MENÚ ======
+// ====== VOLVER AL INDEX / MENÚ ROBUSTO ======
 (function(){
   const btn = document.getElementById("btnVolverIndex");
+
   function volverIndex(ev){
     if(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
+      try{ ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation(); }catch(e){}
     }
 
-    // Caso normal: módulos está dentro del iframe del index.
+    // Caso principal: Módulos abierto dentro del iframe del index.
     try{
       if(window.parent && window.parent !== window){
         if(typeof window.parent.volverMenu === "function"){
           window.parent.volverMenu();
           return false;
         }
-        window.parent.postMessage({type:"volverMenu"},"*");
-        window.parent.postMessage("volverMenu","*");
+        if(typeof window.parent.cerrarVisor === "function"){
+          window.parent.cerrarVisor();
+          return false;
+        }
+        window.parent.postMessage({type:"volverMenu", action:"volverMenu", target:"index"}, "*");
+        window.parent.postMessage("volverMenu", "*");
         return false;
       }
     }catch(e){}
@@ -1529,10 +1696,12 @@ renderModules(); draw();
   }
 
   window.volverIndex = volverIndex;
+  window.volverIndexSeguro = volverIndex;
 
-  if(btn){
-    btn.addEventListener("click", volverIndex, {passive:false});
-    btn.addEventListener("touchend", volverIndex, {passive:false});
+  if(btn && btn.dataset.volverOk !== "1"){
+    btn.dataset.volverOk = "1";
+    btn.addEventListener("click", volverIndex, {capture:true, passive:false});
+    btn.addEventListener("touchend", volverIndex, {capture:true, passive:false});
   }
 })();
 
@@ -1560,7 +1729,7 @@ renderModules(); draw();
     setTimeout(forceRedrawSvg, 80);
   }
 
-  setFijar(false);
+  setFijar(true);
 
   btnFijar.addEventListener("click",(ev)=>{
     ev.preventDefault();
