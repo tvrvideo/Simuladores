@@ -2,7 +2,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v94.3</title>
+    <title>Ventana Pro v94.7</title>
+    <!-- v94.7: Alto Total se auto-desmarca con lados desiguales, pero queda visible y reactivable manualmente. -->
+    <!-- v94.5: Añade interruptor global para mostrar/ocultar barrotillos sin borrarlos. -->
+    <!-- v94.4: Corrige pintar cristal y Solo barrotillos en marco fijo 0 hojas. -->
     <!-- v94.3: Marco fijo 0 hojas con color y travesaños H/V funcionales. -->
     <!-- v93.4.6: Solo barrotillos no duplica, actualiza y borra correctamente. -->
     <!-- v93.4.5: restaura barrotillos y usa capa segura por polígonos guardados. -->
@@ -1089,7 +1092,7 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v94.3"><span class="title-main">Ventana Pro</span><span class="title-version">v94.3</span></div>
+<div class="top-title" aria-label="Ventana Pro v94.7"><span class="title-main">Ventana Pro</span><span class="title-version">v94.7</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1121,11 +1124,11 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
         </div>
         <div>
             <label for="altoIzq">L Izq:</label>
-            <input type="number" id="altoIzq" value="1400" onchange="actualizarVista()">
+            <input type="number" id="altoIzq" value="1400" onchange="sincronizarAltoTotalPorLados(false); actualizarVista()">
         </div>
         <div>
             <label for="altoDer">L Dcho:</label>
-            <input type="number" id="altoDer" value="1400" onchange="actualizarVista()">
+            <input type="number" id="altoDer" value="1400" onchange="sincronizarAltoTotalPorLados(false); actualizarVista()">
         </div>
         <div>
             <label for="marcoThickness">Marco:</label>
@@ -1401,6 +1404,10 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
       <option value="barrotillos">Solo barrotillos</option>
     </select>
 
+    <label style="margin:0; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:8px 10px; font-weight:800;">
+      <input type="checkbox" id="mostrarBarrotillosToggle" checked onchange="toggleMostrarBarrotillos(this.checked)"> Mostrar barrotillos
+    </label>
+
     <label style="margin:0;">Apertura hoja interior:</label>
     <select id="subHojaApertura" onchange="actualizarControlLadoCorrederaSubHoja()">
       <option value="izquierda">Izquierda</option>
@@ -1481,7 +1488,10 @@ body.from-documentos .btn-enviar-documentos{ top: 194px; }
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <button id="btnTogglePersiana" onclick="togglePersiana()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Cajón persiana</button>
             <button onclick="toggleMedidas()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Medidas</button>
-            <button onclick="toggleAltoTotalDer()" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 0;">Alto Total</button>
+            <label style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; font-size:16px; margin-top:0; background:#ffffff; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-weight:bold;">
+                <input type="checkbox" id="chkAltoTotalDer" checked onchange="cambiarAltoTotalManual(this.checked)" style="width:22px; height:22px; margin:0;">
+                Mostrar altura total
+            </label>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                 <button onclick="exportarPNG(1)" style="width:100%; padding:14px 8px; font-size:15px; margin-top:0; background-color:#28a745; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
@@ -1987,6 +1997,7 @@ function aplicarRellenoMarco(ctx){
     let subHojas = {};
     let barrotillosHuecos = {};
     let barrotillosHuecosPolys = {};
+    let mostrarBarrotillosActivos = true;
 
     function zonaKey(data) {
         if(!data || !data.type) return '';
@@ -2069,6 +2080,15 @@ function aplicarRellenoMarco(ctx){
         return { h, v, grosor, colorMode, color };
     }
 
+
+
+
+    function toggleMostrarBarrotillos(checked) {
+        mostrarBarrotillosActivos = !!checked;
+        actualizarVista();
+        return false;
+    }
+    window.toggleMostrarBarrotillos = toggleMostrarBarrotillos;
 
     function keyHuecoBarrotillos(data) {
         if (!data) return '';
@@ -2736,9 +2756,55 @@ function cambiarColorMarco(c) {
         actualizarVista();
     }
     function toggleMedidas() { mostrarMedidas = !mostrarMedidas; actualizarVista(); }
+
+    // v94.7 - Alto Total: auto-desmarcar con lados desiguales, sin ocultar ni bloquear la casilla.
+    let altoTotalManualOverride = false;
+    let altoTotalEstadoLadosDesiguales = null;
+
+    function ladosPrincipalesDesiguales() {
+        const altoIzqEl = document.getElementById('altoIzq');
+        const altoDerEl = document.getElementById('altoDer');
+        const altoIzq = altoIzqEl ? (+altoIzqEl.value || 0) : 0;
+        const altoDer = altoDerEl ? (+altoDerEl.value || 0) : 0;
+        return altoIzq !== altoDer;
+    }
+
+    function actualizarCheckboxAltoTotal() {
+        const chk = document.getElementById('chkAltoTotalDer');
+        if (chk) chk.checked = !!mostrarAltoTotalDer;
+    }
+
+    function sincronizarAltoTotalPorLados(desdeUsuario) {
+        const ladosDesiguales = ladosPrincipalesDesiguales();
+
+        if (desdeUsuario) {
+            altoTotalManualOverride = true;
+            actualizarCheckboxAltoTotal();
+            return;
+        }
+
+        if (!ladosDesiguales) {
+            // Con lados iguales vuelve al comportamiento normal: se muestra por defecto.
+            altoTotalManualOverride = false;
+            mostrarAltoTotalDer = true;
+        } else if (!altoTotalManualOverride && altoTotalEstadoLadosDesiguales !== true) {
+            // Al pasar de lados iguales a lados desiguales se desmarca automáticamente una vez.
+            mostrarAltoTotalDer = false;
+        }
+
+        altoTotalEstadoLadosDesiguales = ladosDesiguales;
+        actualizarCheckboxAltoTotal();
+    }
+
+    function cambiarAltoTotalManual(checked) {
+        mostrarAltoTotalDer = !!checked;
+        sincronizarAltoTotalPorLados(true);
+        actualizarVista();
+    }
+
     function toggleAltoTotalDer() {
-        mostrarAltoTotalDer = !mostrarAltoTotalDer;
-        actualizarVista(); }
+        cambiarAltoTotalManual(!mostrarAltoTotalDer);
+    }
 
     function getAnchoFijoIzqMM() {
         return fijoIzquierdo ? Math.max(0, +anchoFijoIzquierdoMM || 0) : 0;
@@ -3101,6 +3167,7 @@ function cambiarColorMarco(c) {
 
 
     function dibujarBarrotesVidrioHoja(ctx, hojaGlassPoints, cfgBarrotes, esc) {
+        if (typeof mostrarBarrotillosActivos !== 'undefined' && !mostrarBarrotillosActivos) return;
         if (!ctx || !hojaGlassPoints || !cfgBarrotes) return;
 
         const h = Math.max(0, parseInt(cfgBarrotes.h || 0, 10) || 0);
@@ -4308,8 +4375,9 @@ function cambiarColorMarco(c) {
     }
 
     function dibujarCristalTrapecio(ctx, p1, p2, p3, p4, baseColor, idData) {
+        const polyTrapecio = [p1, p2, p3, p4];
         if(idData) {
-            registrarZonaInteractiva([p1, p2, p3, p4], idData);
+            registrarZonaInteractiva(polyTrapecio, idData);
         }
     
         if (esColorCristalMismoMarco(baseColor) || baseColor === "#FFFFFF" || baseColor === colorMarco) {
@@ -4322,6 +4390,7 @@ function cambiarColorMarco(c) {
             ctx.lineTo(p4.x, p4.y);
             ctx.closePath();
             ctx.fill();
+            dibujarBarrotillosSoloConKey(ctx, polyTrapecio, idData);
 
             ctx.strokeStyle = getTecnicoColor();
             ctx.lineWidth = getTecnicoGrosor();
@@ -4339,6 +4408,7 @@ function cambiarColorMarco(c) {
             ctx.lineTo(p4.x, p4.y);
             ctx.closePath();
             ctx.fill();
+            dibujarBarrotillosSoloConKey(ctx, polyTrapecio, idData);
             ctx.strokeStyle = getTecnicoColor();
             ctx.lineWidth = getTecnicoGrosor();
             ctx.stroke();
@@ -4371,6 +4441,7 @@ function cambiarColorMarco(c) {
         ctx.lineTo(p4.x, p4.y);
         ctx.closePath();
         ctx.fill();
+        dibujarBarrotillosSoloConKey(ctx, polyTrapecio, idData);
 
         aplicarEstiloApertura(ctx, false);
         ctx.stroke();
@@ -4613,6 +4684,7 @@ function cambiarColorMarco(c) {
     }
 
     function dibujarBarrotillosEnPoligono(ctx, poly, cfgBarrotes, esc) {
+        if (typeof mostrarBarrotillosActivos !== 'undefined' && !mostrarBarrotillosActivos) return;
         if (!ctx || !Array.isArray(poly) || poly.length < 4 || !cfgBarrotes) return;
 
         const h = Math.max(0, parseInt(cfgBarrotes.h || 0, 10) || 0);
@@ -6605,6 +6677,10 @@ if (mostrarAltoTotalDer) {
         } else if (data.type === 'fijoDer') {
             if(!matrixColoresFijoDer[data.row]) matrixColoresFijoDer[data.row] = [];
             matrixColoresFijoDer[data.row][data.col] = color;
+        } else if (data.type === 'marcoFijo') {
+            // v94.4: con 0 hojas el cristal principal usa su propio color.
+            marcoFijoColorCristal = color;
+            colorCristalGlobal = color;
         } else if (data.type === 'hoja') {
             hojasData[data.index].colorCristal = color;
         } else if (data.type === 'hojaTrav') {
@@ -6663,6 +6739,7 @@ if (mostrarAltoTotalDer) {
 
     function dibujarBarrotillosHuecosGuardados(ctx) {
         try {
+            if (typeof mostrarBarrotillosActivos !== 'undefined' && !mostrarBarrotillosActivos) return;
             if (typeof barrotillosHuecos === 'undefined' || typeof barrotillosHuecosPolys === 'undefined') return;
             const dibujados = new Set();
             Object.keys(barrotillosHuecos).forEach(key => {
