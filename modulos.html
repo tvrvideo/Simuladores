@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Módulos v1.0</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--txt:#111827;--muted:#6b7280;--bd:#d1d5db;--blue:#003b86;--line:#111}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;touch-action:manipulation}
+body{padding:calc(14px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left))}
+.app{max-width:1180px;margin:auto;display:grid;grid-template-columns:400px 1fr;gap:12px;align-items:start}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+h1{font-size:20px;margin:0 0 8px} h2{font-size:16px;margin:14px 0 8px}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
+input,select,button{width:100%;min-height:44px;border:1px solid var(--bd);border-radius:10px;padding:9px 10px;font-size:16px;background:#fff;color:var(--txt)}
+button{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700;cursor:pointer;margin-top:10px}
+button.secondary{background:#fff;color:var(--blue)} button.danger{background:#fff;color:#991b1b;border-color:#fecaca}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.module{border:1px solid var(--bd);border-radius:12px;padding:10px;margin:10px 0;background:#fafafa}
+.module-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;color:var(--blue)}
+.small{font-size:12px;color:var(--muted);line-height:1.35;margin-top:10px}
+.stage{display:flex;justify-content:center;align-items:center}.svg-box{width:min(100%,760px);aspect-ratio:1/1;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eef0f3}
+svg{width:100%;height:100%;display:block;background:#fff}
+@media(max-width:880px){.app{grid-template-columns:1fr}.svg-box{width:100%}}
+
+/* ===== IU v1.2 ===== */
+h1{
+  font-size:22px !important;
+  margin:0 0 12px !important;
+  letter-spacing:.2px;
+}
+.module{
+  border-width:2px !important;
+  border-radius:16px !important;
+  padding:14px !important;
+  margin:14px 0 !important;
+  box-shadow:0 3px 14px rgba(0,0,0,.06) !important;
+}
+.module:nth-child(4n+1){
+  background:linear-gradient(135deg,#edf5ff 0%,#ffffff 100%) !important;
+  border-color:#6aa4ff !important;
+}
+.module:nth-child(4n+2){
+  background:linear-gradient(135deg,#fff3df 0%,#ffffff 100%) !important;
+  border-color:#f0a24a !important;
+}
+.module:nth-child(4n+3){
+  background:linear-gradient(135deg,#ebfaef 0%,#ffffff 100%) !important;
+  border-color:#65bb7a !important;
+}
+.module:nth-child(4n+4){
+  background:linear-gradient(135deg,#f6ecff 0%,#ffffff 100%) !important;
+  border-color:#ad8cff !important;
+}
+.module-title{
+  padding-bottom:8px !important;
+  margin-bottom:10px !important;
+  border-bottom:1px solid rgba(0,0,0,.08) !important;
+  font-weight:800 !important;
+}
+input,
+select{
+  background:#fff6b8 !important;
+  border:2px solid #e0c33b !important;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.05) !important;
+}
+input:focus,
+select:focus{
+  outline:3px solid rgba(224,195,59,.30) !important;
+  border-color:#b99b00 !important;
+}
+label{
+  color:#101827 !important;
+}
+.small{
+  display:none !important;
+}
+
+
+/* ===== IU v1.3 tubos compactos ===== */
+.tube-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.tube-box{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  align-items:end;
+}
+.tube-custom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.tube-custom.hidden{display:none;}
+@media(max-width:520px){
+  .tube-row{grid-template-columns:1fr;}
+}
+
+
+/* ===== IU v1.4 tubos en una sola línea ===== */
+.tube-row{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:12px !important;
+}
+.tube-line{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-items:center;
+}
+.tube-toggle{
+  width:44px;
+  height:44px;
+  min-height:44px;
+  appearance:none;
+  -webkit-appearance:none;
+  border:2px solid #d6bf38;
+  border-radius:12px;
+  background:#fff8c9;
+  margin:0;
+  display:grid;
+  place-items:center;
+}
+.tube-toggle:checked{
+  background:#ffe56a;
+  border-color:#b99b00;
+}
+.tube-toggle:checked::after{
+  content:"✓";
+  font-size:26px;
+  font-weight:900;
+  color:#003b86;
+  line-height:1;
+}
+.tube-line select{
+  min-width:0;
+}
+.tube-custom{
+  grid-column:1 / -1;
+}
+
+
+/* ===== IU v1.5 toggle compacto y personalizado funcional ===== */
+.tube-line{
+  grid-template-columns:auto 1fr !important;
+  gap:8px !important;
+}
+.tube-toggle{
+  width:32px !important;
+  height:32px !important;
+  min-height:32px !important;
+  border-radius:999px !important;
+  border:2px solid #b8c0cc !important;
+  background:#f4f6f8 !important;
+  box-shadow:none !important;
+}
+.tube-toggle:checked{
+  background:#0b4a92 !important;
+  border-color:#0b4a92 !important;
+}
+.tube-toggle:checked::after{
+  content:"✓";
+  font-size:20px !important;
+  color:#fff !important;
+  font-weight:900;
+  line-height:1;
+}
+.tube-line select{
+  min-height:38px !important;
+  border-radius:12px !important;
+}
+.tube-custom input{
+  min-height:38px !important;
+}
+
+
+/* ===== IU v1.6 unión compacta ===== */
+.join-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+.join-row label{
+  margin-top:0 !important;
+}
+@media(max-width:520px){
+  .join-row{
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+  .join-row select{
+    font-size:15px;
+    padding-left:8px;
+    padding-right:8px;
+  }
+}
+
+
+/* ===== IU v1.7 botones ON/OFF + unión realmente compacta ===== */
+.tube-toggle{
+  width:72px !important;
+  height:38px !important;
+  min-height:38px !important;
+  border-radius:999px !important;
+  border:2px solid #bfc7d1 !important;
+  background:#e9edf2 !important;
+  color:#4b5563 !important;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.10) !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+.tube-toggle::after{
+  content:"OFF" !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#4b5563 !important;
+}
+.tube-toggle:checked{
+  background:#0b4a92 !important;
+  border-color:#0b4a92 !important;
+  box-shadow:0 2px 7px rgba(11,74,146,.25) !important;
+}
+.tube-toggle:checked::after{
+  content:"ON" !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#fff !important;
+}
+.tube-line{
+  grid-template-columns:72px minmax(0,1fr) !important;
+  gap:8px !important;
+}
+.tube-line select{
+  min-height:38px !important;
+  font-size:15px !important;
+}
+.join-row{
+  display:grid !important;
+  grid-template-columns:1fr 1fr 1fr !important;
+  gap:8px !important;
+  margin-top:12px !important;
+  padding-top:10px !important;
+  border-top:1px solid rgba(0,0,0,.08) !important;
+}
+.join-row label{
+  font-size:12px !important;
+  margin:0 0 4px !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+}
+.join-row select{
+  min-height:38px !important;
+  font-size:15px !important;
+  padding:6px 8px !important;
+  border-radius:12px !important;
+}
+@media(max-width:520px){
+  .module{
+    padding:10px !important;
+  }
+  .row3{
+    gap:8px !important;
+  }
+  .row3 input{
+    font-size:15px !important;
+    min-height:40px !important;
+  }
+  .tube-row{
+    gap:8px !important;
+  }
+  .join-row{
+    grid-template-columns:1fr 1fr 1fr !important;
+  }
+}
+
+
+/* ===== Exportación v1.9 sin ventana externa ===== */
+#exportPanel{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:#f4f6f8;
+  padding:18px;
+  box-sizing:border-box;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#exportPanel.hidden{
+  display:none;
+}
+.export-card{
+  width:min(100%,760px);
+  margin:0 auto;
+  background:#fff;
+  border:1px solid #d1d5db;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+.export-card h2{
+  margin:0 0 12px;
+  color:#003b86;
+  text-align:center;
+}
+#exportPreview{
+  width:100%;
+  background:#fff;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:260px;
+}
+#exportPreview img,
+#exportPreview svg{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+.export-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.export-actions a,
+.export-actions button{
+  min-height:48px;
+  border-radius:12px;
+  text-decoration:none;
+  font-size:16px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.export-actions a{
+  background:#003b86;
+  color:#fff;
+}
+.export-note{
+  text-align:center;
+  color:#6b7280;
+  font-size:13px;
+  margin:10px 0 0;
+}
+
+
+/* ===== Exportación PNG v2.1 estilo móvil antiguo ===== */
+#exportPanel.png-mode{
+  background:#f4f6f8;
+}
+#exportPanel.png-mode .export-card{
+  background:#e9e0d2;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 12px 26px rgba(0,0,0,.22);
+}
+#exportPanel.png-mode #exportTitle{
+  text-transform:uppercase;
+  font-size:28px;
+  letter-spacing:.5px;
+  margin-bottom:16px;
+}
+#exportPanel.png-mode #exportPreview{
+  background:#fff;
+  border-radius:14px;
+  padding:12px;
+  min-height:auto;
+  box-shadow:0 8px 20px rgba(0,0,0,.20);
+}
+#exportPanel.png-mode .export-actions{
+  display:block;
+}
+#exportPanel.png-mode #exportDownload{
+  display:none !important;
+}
+#exportPanel.png-mode #exportBack{
+  width:100%;
+  min-height:62px;
+  margin-top:14px;
+  background:#1e3a8a;
+  color:white;
+  border-color:#1e3a8a;
+  box-shadow:0 8px 14px rgba(0,0,0,.25);
+}
+#exportPanel.png-mode #exportNote{
+  font-size:18px;
+  margin:16px 0 8px;
+  color:#555;
+}
+
+
+/* ===== PNG v2.2: botón guardar archivo + volver ===== */
+#exportPanel.png-mode .export-actions{
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+#exportPanel.png-mode #exportDownload{
+  display:flex !important;
+  min-height:62px;
+  background:#1e3a8a;
+  color:#fff;
+  border-radius:12px;
+  box-shadow:0 8px 14px rgba(0,0,0,.25);
+}
+#exportPanel.png-mode #exportBack{
+  width:100%;
+  min-height:62px;
+  margin-top:0;
+}
+@media(max-width:520px){
+  #exportPanel.png-mode .export-actions{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== PNG v2.3: Guardar y Volver siempre en la misma línea ===== */
+#exportPanel.png-mode .export-actions{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:10px !important;
+}
+#exportPanel.png-mode #exportDownload,
+#exportPanel.png-mode #exportBack{
+  min-height:58px !important;
+  margin-top:0 !important;
+  font-size:16px !important;
+}
+@media(max-width:520px){
+  #exportPanel.png-mode .export-actions{
+    grid-template-columns:1fr 1fr !important;
+  }
+}
+
+
+/* ===== v2.8: vista limpia + cotas interiores ===== */
+.card.stage{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+.stage{
+  padding:0 !important;
+}
+.svg-box{
+  width:min(100%,840px) !important;
+  border:none !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+.export-row{
+  grid-template-columns:1fr 1fr 1fr !important;
+  gap:8px !important;
+}
+.export-row button{
+  min-height:46px !important;
+}
+@media(max-width:520px){
+  .export-row{
+    grid-template-columns:1fr 1fr 1fr !important;
+  }
+  .export-row button{
+    font-size:15px !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+  }
+}
+
+
+/* ===== v1.0 final: botón totales ===== */
+.export-row{
+  grid-template-columns:1fr 1fr 1fr 1fr !important;
+}
+@media(max-width:520px){
+  .export-row{
+    grid-template-columns:1fr 1fr !important;
+  }
+}
+
+
+/* ===== v1.3 GitHub: botón menú + fijar diseño ===== */
+body{
+  padding-top:62px !important;
+}
+.btn-menu{
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:9999;
+  padding:10px 15px;
+  border-radius:20px;
+  border:none;
+  background:#e74c3c;
+  color:white;
+  font-weight:bold;
+  box-shadow:0 2px 5px rgba(0,0,0,.2);
+  cursor:pointer;
+  font-size:.9rem;
+  width:auto !important;
+  min-height:40px !important;
+  margin:0 !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-fijar{
+  position:fixed;
+  top:10px;
+  right:10px;
+  z-index:9999;
+  padding:10px 15px;
+  border-radius:20px;
+  border:none;
+  color:white;
+  font-weight:bold;
+  box-shadow:0 2px 5px rgba(0,0,0,.2);
+  cursor:pointer;
+  font-size:.9rem;
+  width:auto !important;
+  min-height:40px !important;
+  margin:0 !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  white-space:nowrap;
+}
+.btn-fijar.off{background:#6f7682;}
+.btn-fijar.on{background:#c0392b;}
+
+#scrollArea,
+#dockArea{
+  width:100%;
+  box-sizing:border-box;
+}
+
+body.fijar-on{
+  padding:0 !important;
+  overflow:hidden;
+}
+body.fijar-on #scrollArea{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:52vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:64px 14px 12px;
+  box-sizing:border-box;
+  background:#f4f6f8;
+  z-index:100;
+}
+body.fijar-on #dockArea{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:52vh;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:10px 14px calc(14px + env(safe-area-inset-bottom));
+  box-sizing:border-box;
+  background:#f4f6f8;
+  border-top:1px solid rgba(0,0,0,.12);
+  box-shadow:0 -8px 18px rgba(0,0,0,.12);
+  z-index:90;
+}
+body.fijar-on .app{
+  display:block !important;
+  max-width:none !important;
+  margin:0 !important;
+}
+body.fijar-on #scrollArea .card{
+  max-width:1180px;
+  margin:0 auto;
+}
+body.fijar-on #dockArea .card.stage{
+  max-width:980px;
+  margin:0 auto;
+}
+body.fijar-on #dockArea .svg-box{
+  width:min(100%,720px) !important;
+  margin:0 auto;
+}
+body:not(.fijar-on) #scrollArea,
+body:not(.fijar-on) #dockArea{
+  position:static;
+  overflow:visible;
+  padding:0;
+}
+
+
+/* ===== v1.2: barra inferior tipo Documentos + fijar sin recorte ===== */
+:root{--actions-h:62px;}
+
+body{
+  padding-bottom:calc(var(--actions-h) + env(safe-area-inset-bottom) + 12px) !important;
+}
+
+.modulos-actions{
+  position:fixed;
+  left:6px;
+  right:6px;
+  bottom:calc(6px + env(safe-area-inset-bottom));
+  z-index:10000;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;
+  width:min(860px, calc(100vw - 12px));
+  margin:0 auto;
+  padding:4px;
+  background:rgba(255,255,255,.96);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  border:1px solid #cfd8e3;
+  border-radius:16px;
+  box-shadow:0 14px 26px rgba(15,23,42,.14);
+}
+
+.mod-fab{
+  margin:0 !important;
+  min-height:42px !important;
+  border-radius:12px !important;
+  border:1px solid transparent !important;
+  padding:7px 4px !important;
+  color:#fff !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  text-align:center !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 16px rgba(15,23,42,.08) !important;
+}
+.mod-fab:active{transform:translateY(1px) scale(.985);}
+.mod-cotas{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%) !important;}
+.mod-totales{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%) !important;}
+.mod-svg{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%) !important;}
+.mod-png{background:linear-gradient(180deg,#fb923c 0%,#ea580c 100%) !important;}
+.mod-fab.off{background:linear-gradient(180deg,#94a3b8 0%,#64748b 100%) !important;}
+
+.export-row{display:none !important;}
+
+/* FIJAR: dos zonas, dibujo completo abajo sin aire grande */
+body.fijar-on{
+  padding:0 !important;
+  overflow:hidden !important;
+}
+
+body.fijar-on #scrollArea{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:42vh !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:64px 14px 8px !important;
+  background:#f4f6f8 !important;
+  z-index:100 !important;
+}
+
+body.fijar-on #dockArea{
+  position:fixed !important;
+  left:0 !important;
+  right:0 !important;
+  top:58vh !important;
+  bottom:calc(var(--actions-h) + env(safe-area-inset-bottom) + 4px) !important;
+  height:auto !important;
+  overflow:hidden !important;
+  padding:4px 6px 2px !important;
+  background:#e9eef7 !important;
+  border-top:1px solid rgba(15,23,42,.10) !important;
+  box-shadow:0 -8px 18px rgba(15,23,42,.10) !important;
+  z-index:90 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+body.fijar-on .app{
+  display:block !important;
+  max-width:none !important;
+  margin:0 !important;
+}
+
+body.fijar-on #scrollArea .card{
+  max-width:1180px !important;
+  margin:0 auto !important;
+}
+
+body.fijar-on #dockArea .card.stage{
+  width:100% !important;
+  height:100% !important;
+  max-width:1180px !important;
+  margin:0 auto !important;
+  padding:3px !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#f8fafc !important;
+  border:1px solid #cfd8e3 !important;
+  border-radius:14px !important;
+  box-shadow:0 8px 20px rgba(15,23,42,.10) !important;
+}
+
+/* clave: tamaño por el menor entre ancho disponible y alto disponible */
+body.fijar-on #dockArea .svg-box{
+  width:min(calc(100vw - 24px), calc(42vh - var(--actions-h) - env(safe-area-inset-bottom) - 18px)) !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  margin:0 auto !important;
+  background:#fff !important;
+  border:1px solid #d8e1ee !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 14px rgba(15,23,42,.08) !important;
+  overflow:hidden !important;
+  flex:0 0 auto !important;
+}
+
+body.fijar-on #dockArea svg{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+}
+
+@media(max-width:880px){
+  body.fijar-on #scrollArea{bottom:46vh !important;}
+  body.fijar-on #dockArea{top:54vh !important;}
+  body.fijar-on #dockArea .svg-box{
+    width:min(calc(100vw - 20px), calc(46vh - var(--actions-h) - env(safe-area-inset-bottom) - 16px)) !important;
+  }
+}
+@media(max-width:520px){
+  :root{--actions-h:56px;}
+  .modulos-actions{bottom:calc(4px + env(safe-area-inset-bottom)); padding:3px; border-radius:15px;}
+  .mod-fab{min-height:38px !important;font-size:11px !important;padding:6px 2px !important;}
+  body.fijar-on #scrollArea{bottom:50vh !important;}
+  body.fijar-on #dockArea{top:50vh !important;padding:3px 4px 1px !important;}
+  body.fijar-on #dockArea .svg-box{
+    width:min(calc(100vw - 16px), calc(50vh - var(--actions-h) - env(safe-area-inset-bottom) - 12px)) !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<button class="btn-menu" type="button" onclick="if(window.parent && window.parent!==window && typeof window.parent.volverMenu==='function'){window.parent.volverMenu()}else{window.location.href='index.html'}">← MENÚ</button>
+<button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
+<main class="app">
+<div id="scrollArea">
+<section class="card">
+  <h1>Módulos v1.0</h1>
+  <h2>Módulos</h2>
+  <div id="modulesBox"></div>
+  <button id="addModuleBtn">Crear otro módulo</button>
+
+  <p class="small">v1.0 final: app cerrada.</p>
+</section>
+</div>
+<div id="dockArea">
+<section class="card stage">
+  <div class="svg-box">
+    <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+</section>
+</div>
+</main>
+
+<div class="modulos-actions">
+  <button id="btnCotas" class="mod-fab mod-cotas" type="button">Cotas ON</button>
+  <button id="btnTotales" class="mod-fab mod-totales" type="button">Totales ON</button>
+  <button id="downloadSvgBtn" class="mod-fab mod-svg" type="button">SVG</button>
+  <button id="downloadPngBtn" class="mod-fab mod-png" type="button">PNG</button>
+</div>
+
+<div id="exportPanel" class="hidden">
+  <div class="export-card">
+    <h2 id="exportTitle">Archivo generado</h2>
+    <div id="exportPreview"></div>
+    <div class="export-actions">
+      <a id="exportDownload" href="#" download>Guardar archivo</a>
+      <button type="button" id="exportBack" class="secondary">Volver</button>
+    </div>
+    <p class="export-note" id="exportNote">En iPhone también puedes mantener pulsada la imagen para guardarla.</p>
+  </div>
+</div>
+
+
+<script>
+(() => {
+"use strict";
+
+const NS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+const svg=$("svg");
+const CANVAS=1000, blue="#003b86", black="#111";
+
+let modules=[
+  {id:1,name:"V1",size:1000,frame:60,tubeLeft:"no",tubeLeftW:70,tubeLeftD:70,tubeLeftType:"70x70",tubeRight:"yes",tubeRightW:70,tubeRightD:70,tubeRightType:"70x70",joinTo:null,joinSide:"right",dir:"right"},
+  {id:2,name:"V2",size:900,frame:60,tubeLeft:"yes",tubeLeftW:70,tubeLeftD:70,tubeLeftType:"70x70",tubeRight:"yes",tubeRightW:70,tubeRightD:70,tubeRightType:"70x70",joinTo:1,joinSide:"right",dir:"up"}
+];
+
+function n(v,fb){const x=Number(v);return Number.isFinite(x)&&x>0?x:fb}
+function node(name,attrs={}){const e=document.createElementNS(NS,name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));svg.appendChild(e);return e}
+function clearSvg(){svg.innerHTML="";node("rect",{x:0,y:0,width:CANVAS,height:CANVAS,fill:"#fff"})}
+function line(x1,y1,x2,y2,color=black,w=3){node("line",{x1,y1,x2,y2,stroke:color,"stroke-width":w,"stroke-linecap":"square"})}
+function rect(x,y,w,h,fill="none",stroke=black,sw=3){node("rect",{x,y,width:w,height:h,fill,stroke,"stroke-width":sw})}
+function text(x,y,t,size=24,rot=0){const a={x,y,fill:blue,"font-family":"Arial, Helvetica, sans-serif","font-size":size,"text-anchor":"middle","dominant-baseline":"middle"};if(rot)a.transform=`rotate(${rot} ${x} ${y})`;const e=node("text",a);e.textContent=t;return e}
+function arrow(x,y,d){
+  const s=16,h=8;
+  let p="";
+  if(d==="left")p=`${x},${y} ${x+s},${y-h} ${x+s},${y+h}`;
+  if(d==="right")p=`${x},${y} ${x-s},${y-h} ${x-s},${y+h}`;
+  if(d==="up")p=`${x},${y} ${x-h},${y+s} ${x+h},${y+s}`;
+  if(d==="down")p=`${x},${y} ${x-h},${y-s} ${x+h},${y-s}`;
+  node("polygon",{points:p,fill:blue});
+}
+function dimText(x,y,label,size=46,rot=0){
+  const t=text(x,y,label,size,rot);
+  t.setAttribute("font-weight","900");
+  t.setAttribute("paint-order","stroke");
+  t.setAttribute("stroke","#ffffff");
+  t.setAttribute("stroke-width","8");
+  t.setAttribute("stroke-linejoin","round");
+  return t;
+}
+function dimH(x1,x2,y,label){
+  line(x1,y,x2,y,blue,3.4);
+  arrow(x1,y,"left");
+  arrow(x2,y,"right");
+  dimText((x1+x2)/2,y-32,label,44);
+}
+function dimV(x,y1,y2,label){
+  line(x,y1,x,y2,blue,3.4);
+  arrow(x,y1,"up");
+  arrow(x,y2,"down");
+  dimText(x+38,(y1+y2)/2,label,44,-90);
+}
+function profileH(x,y,len,th){rect(x,y,len,th);if(len>30){line(x+5,y+6,x+len-5,y+6,black,2);line(x+5,y+th-6,x+len-5,y+th-6,black,2)}}
+function profileV(x,y,len,th){rect(x,y,th,len);if(len>30){line(x+6,y+5,x+6,y+len-5,black,2);line(x+th-6,y+5,x+th-6,y+len-5,black,2)}}
+
+
+function tubeTypeFromValues(w,d){
+  const ww=Number(w)||70, dd=Number(d)||70;
+  const val=`${ww}x${dd}`;
+  return ["40x40","60x60","70x70","80x80","100x100"].includes(val) ? val : "custom";
+}
+function getTubeType(m, side){
+  const key = side === "left" ? "tubeLeftType" : "tubeRightType";
+  const wKey = side === "left" ? "tubeLeftW" : "tubeRightW";
+  const dKey = side === "left" ? "tubeLeftD" : "tubeRightD";
+  return m[key] || tubeTypeFromValues(m[wKey],m[dKey]);
+}
+function setTubeByType(m, side, value){
+  const isLeft = side === "left";
+  const typeKey = isLeft ? "tubeLeftType" : "tubeRightType";
+  const wKey = isLeft ? "tubeLeftW" : "tubeRightW";
+  const dKey = isLeft ? "tubeLeftD" : "tubeRightD";
+  m[typeKey] = value;
+  if(value !== "custom"){
+    const [w,d] = value.split("x").map(Number);
+    m[wKey] = w;
+    m[dKey] = d;
+  }
+}
+function tubeTypeOptions(current){
+  const opts = ["40x40","60x60","70x70","80x80","100x100","custom"];
+  return opts.map(v => {
+    const label = v === "custom" ? "Personalizado" : v;
+    return `<option value="${v}" ${current===v?"selected":""}>${label}</option>`;
+  }).join("");
+}
+
+
+function renumberModulesAfterDelete(deletedId){
+  const oldModules = modules.map(m => ({...m}));
+  const remaining = oldModules.filter(m => m.id !== deletedId);
+  const idMap = new Map();
+
+  remaining.forEach((m, index) => {
+    idMap.set(m.id, index + 1);
+  });
+
+  modules = remaining.map((m, index) => {
+    const newId = index + 1;
+    const oldJoin = m.joinTo;
+    let newJoin = null;
+
+    if(index > 0){
+      if(idMap.has(oldJoin)){
+        newJoin = idMap.get(oldJoin);
+      }else{
+        // Si el módulo dependía del eliminado, lo conectamos al módulo anterior disponible.
+        newJoin = index;
+      }
+    }
+
+    return {
+      ...m,
+      id: newId,
+      name: `V${newId}`,
+      joinTo: newJoin
+    };
+  });
+}
+
+function renderModules(){
+  const box=$("modulesBox");
+  const active=document.activeElement;
+  const activeId=active?.dataset?.id, activeField=active?.dataset?.field;
+  const cursor=active&&typeof active.selectionStart==="number"?active.selectionStart:null;
+  box.innerHTML="";
+  modules.forEach((m,index)=>{
+    const isFirst=index===0;
+    const joinOptions=modules.slice(0,index).map(prev=>`<option value="${prev.id}" ${m.joinTo===prev.id?"selected":""}>${prev.name}</option>`).join("");
+    const div=document.createElement("div");
+    div.className="module";
+    div.innerHTML=`
+      <div class="module-title">
+        <span>Módulo ${index+1}</span>
+        ${!isFirst?`<button class="danger" data-remove="${m.id}" style="width:auto;min-height:34px;margin:0;padding:5px 9px">Borrar</button>`:""}
+      </div>
+      <div class="row3">
+        <div><label>Nombre</label><input data-field="name" data-id="${m.id}" value="${m.name}"></div>
+        <div><label>Medida</label><input data-field="size" data-id="${m.id}" type="number" inputmode="numeric" value="${m.size}"></div>
+        <div><label>Marco</label><input data-field="frame" data-id="${m.id}" type="number" inputmode="numeric" value="${m.frame}"></div>
+      </div>
+      <div class="tube-row">
+        <div>
+          <label>Tubo izquierda</label>
+          <div class="tube-line">
+            <input class="tube-toggle" data-field="tubeLeftCheck" data-id="${m.id}" type="checkbox" ${m.tubeLeft==="yes"?"checked":""} aria-label="Activar tubo izquierda">
+            <select data-field="tubeLeftType" data-id="${m.id}">
+              ${tubeTypeOptions(getTubeType(m,"left"))}
+            </select>
+          </div>
+          <div class="tube-custom ${getTubeType(m,"left")==="custom"?"":"hidden"}">
+            <input data-field="tubeLeftW" data-id="${m.id}" type="number" inputmode="numeric" value="${m.tubeLeftW}" placeholder="Ancho">
+            <input data-field="tubeLeftD" data-id="${m.id}" type="number" inputmode="numeric" value="${m.tubeLeftD}" placeholder="Fondo">
+          </div>
+        </div>
+
+        <div>
+          <label>Tubo derecha</label>
+          <div class="tube-line">
+            <input class="tube-toggle" data-field="tubeRightCheck" data-id="${m.id}" type="checkbox" ${m.tubeRight==="yes"?"checked":""} aria-label="Activar tubo derecha">
+            <select data-field="tubeRightType" data-id="${m.id}">
+              ${tubeTypeOptions(getTubeType(m,"right"))}
+            </select>
+          </div>
+          <div class="tube-custom ${getTubeType(m,"right")==="custom"?"":"hidden"}">
+            <input data-field="tubeRightW" data-id="${m.id}" type="number" inputmode="numeric" value="${m.tubeRightW}" placeholder="Ancho">
+            <input data-field="tubeRightD" data-id="${m.id}" type="number" inputmode="numeric" value="${m.tubeRightD}" placeholder="Fondo">
+          </div>
+        </div>
+      </div>
+      ${isFirst?"":`
+        <div class="join-row">
+          <div>
+            <label>Unir con</label>
+            <select data-field="joinTo" data-id="${m.id}">${joinOptions}</select>
+          </div>
+          <div>
+            <label>Desde</label>
+            <select data-field="joinSide" data-id="${m.id}">
+              <option value="left" ${m.joinSide==="left"?"selected":""}>Izq.</option>
+              <option value="right" ${m.joinSide==="right"?"selected":""}>Der.</option>
+            </select>
+          </div>
+          <div>
+            <label>Hacia</label>
+            <select data-field="dir" data-id="${m.id}">
+              <option value="up" ${m.dir==="up"?"selected":""}>Arriba</option>
+              <option value="down" ${m.dir==="down"?"selected":""}>Abajo</option>
+              <option value="left" ${m.dir==="left"?"selected":""}>Izq.</option>
+              <option value="right" ${m.dir==="right"?"selected":""}>Der.</option>
+            </select>
+          </div>
+        </div>
+      `}
+    `;
+    box.appendChild(div);
+  });
+  box.querySelectorAll("[data-field]").forEach(el=>{el.addEventListener("input",handleField,{passive:true});el.addEventListener("change",handleField,{passive:true})});
+  box.querySelectorAll("[data-remove]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const id=Number(btn.dataset.remove);
+      renumberModulesAfterDelete(id);
+      renderModules();
+      draw();
+    });
+  });
+  if(activeId&&activeField){
+    const restored=box.querySelector(`[data-id="${activeId}"][data-field="${activeField}"]`);
+    if(restored){restored.focus();if(cursor!==null&&restored.setSelectionRange){try{const pos=Math.min(cursor,restored.value.length);restored.setSelectionRange(pos,pos)}catch(e){}}}
+  }
+}
+
+function handleField(e){
+  const id=Number(e.target.dataset.id), field=e.target.dataset.field;
+  const m=modules.find(x=>x.id===id); if(!m)return;
+  const numeric=["size","frame","tubeLeftW","tubeLeftD","tubeRightW","tubeRightD"];
+  if(numeric.includes(field)) {
+    m[field]=e.target.value===""?"":Math.max(1,Number(e.target.value)||1);
+    if(field==="tubeLeftW" || field==="tubeLeftD") m.tubeLeftType="custom";
+    if(field==="tubeRightW" || field==="tubeRightD") m.tubeRightType="custom";
+  } else if(field==="tubeLeftCheck") {
+    m.tubeLeft = e.target.checked ? "yes" : "no";
+  } else if(field==="tubeRightCheck") {
+    m.tubeRight = e.target.checked ? "yes" : "no";
+  } else if(field==="tubeLeftType") {
+    setTubeByType(m,"left",e.target.value);
+  } else if(field==="tubeRightType") {
+    setTubeByType(m,"right",e.target.value);
+  } else if(field==="joinTo") {
+    m[field]=Number(e.target.value);
+  } else {
+    m[field]=e.target.value;
+  }
+  if(e.type==="change"||!numeric.includes(field))renderModules();
+  draw();
+}
+
+function addModule(){
+  const newId=modules.length?Math.max(...modules.map(m=>m.id))+1:1;
+  const lastModule = modules.length ? modules[modules.length-1] : null;
+  modules.push({
+    id:newId,
+    name:`V${newId}`,
+    size:900,
+    frame:60,
+    tubeLeft:"no",
+    tubeLeftW:70,
+    tubeLeftD:70,
+    tubeLeftType:"70x70",
+    tubeRight:"no",
+    tubeRightW:70,
+    tubeRightD:70,
+    tubeRightType:"70x70",
+    joinTo:lastModule ? lastModule.id : null,
+    joinSide:"right",
+    dir:"right"
+  });
+  renderModules();
+  draw();
+}
+
+function dirVector(dir){if(dir==="right")return{x:1,y:0};if(dir==="left")return{x:-1,y:0};if(dir==="up")return{x:0,y:-1};return{x:0,y:1}}
+function perp(d){return{x:-d.y,y:d.x}}
+function isOpposite(a,b){return a.x===-b.x&&a.y===-b.y}
+function endpointFor(pos,side){return side==="left"?pos.start:pos.end}
+function sideVec(pos,side){return side==="left"?{x:-pos.d.x,y:-pos.d.y}:{x:pos.d.x,y:pos.d.y}}
+function tubeData(m,side){return side==="left"?{has:m.tubeLeft==="yes",w:n(m.tubeLeftW,70),d:n(m.tubeLeftD,70)}:{has:m.tubeRight==="yes",w:n(m.tubeRightW,70),d:n(m.tubeRightD,70)}}
+
+function connectionInfo(){
+  const used=new Set();
+  const byChild=new Map();
+  modules.forEach((m,i)=>{
+    if(i===0||!m.joinTo)return;
+    const target=modules.find(x=>x.id===m.joinTo);
+    if(!target)return;
+    // The connection can use the tube from target side OR the child's start/left side.
+    const a=tubeData(target,m.joinSide);
+    const b=tubeData(m,"left");
+    const hasTube=a.has||b.has;
+    const td=a.has?a:b;
+    byChild.set(m.id,{hasTube,td});
+    used.add(`${m.joinTo}:${m.joinSide}`);
+    used.add(`${m.id}:left`);
+  });
+  return{used,byChild};
+}
+
+function computeLayout(){
+  const placed=new Map(), tubes=[];
+  const {byChild}=connectionInfo();
+  if(!modules.length)return{placed,tubes};
+  placed.set(modules[0].id,{start:{x:0,y:0},end:{x:n(modules[0].size,1),y:0},d:{x:1,y:0}});
+
+  for(let i=1;i<modules.length;i++){
+    const m=modules[i], size=n(m.size,1);
+    const targetModule=modules.find(x=>x.id===m.joinTo)||modules[0];
+    const target=placed.get(targetModule.id); if(!target)continue;
+    const attach=endpointFor(target,m.joinSide);
+    const out=sideVec(target,m.joinSide);
+    const nd=dirVector(m.dir);
+    const info=byChild.get(m.id)||{hasTube:false,td:{w:0,d:0}};
+    const targetHalf=n(targetModule.frame,60)/2;
+    const newHalf=n(m.frame,60)/2;
+    let start;
+
+    if(info.hasTube){
+      const tw=info.td.w, tf=info.td.d;
+      if(isOpposite(out,nd)){
+        const center={x:attach.x+nd.x*tw/2,y:attach.y+nd.y*tw/2};
+        tubes.push({center,along:nd,w:tw,d:tf});
+        start={x:attach.x+nd.x*tw,y:attach.y+nd.y*tw};
+      }else{
+        // Unión en L con tubo:
+        // El tubo queda al final del módulo anterior.
+        // El nuevo módulo sale desde la CARA del tubo en la dirección elegida.
+        // Ejemplo: V1 con tubo a la derecha + V2 hacia arriba => V2 arranca desde arriba del tubo.
+        const center={x:attach.x+out.x*tw/2,y:attach.y+out.y*tw/2};
+        tubes.push({center,along:out,w:tw,d:tf});
+        start={
+          x:center.x + nd.x*(tf/2),
+          y:center.y + nd.y*(tf/2)
+        };
+      }
+    }else{
+      if(isOpposite(out,nd)){
+        start={x:attach.x,y:attach.y};
+      }else{
+        start={
+          x:attach.x + out.x*newHalf - nd.x*targetHalf,
+          y:attach.y + out.y*newHalf - nd.y*targetHalf
+        };
+      }
+    }
+
+    const end={x:start.x+nd.x*size,y:start.y+nd.y*size};
+    placed.set(m.id,{start,end,d:nd});
+  }
+  return{placed,tubes};
+}
+
+function moduleOwnTubes(m,pos,used){
+  const arr=[];
+  ["left","right"].forEach(side=>{
+    if(used.has(`${m.id}:${side}`)) return;
+    const td=tubeData(m,side); if(!td.has)return;
+    const p=endpointFor(pos,side), out=sideVec(pos,side);
+    arr.push({center:{x:p.x+out.x*td.w/2,y:p.y+out.y*td.w/2},along:out,w:td.w,d:td.d});
+  });
+  return arr;
+}
+
+function profileCorners(pos,frame){
+  const p=perp(pos.d), half=frame/2;
+  return[
+    {x:pos.start.x+p.x*half,y:pos.start.y+p.y*half},
+    {x:pos.end.x+p.x*half,y:pos.end.y+p.y*half},
+    {x:pos.end.x-p.x*half,y:pos.end.y-p.y*half},
+    {x:pos.start.x-p.x*half,y:pos.start.y-p.y*half}
+  ];
+}
+function tubeCorners(t){
+  const p=perp(t.along);
+  return[
+    {x:t.center.x+t.along.x*t.w/2+p.x*t.d/2,y:t.center.y+t.along.y*t.w/2+p.y*t.d/2},
+    {x:t.center.x+t.along.x*t.w/2-p.x*t.d/2,y:t.center.y+t.along.y*t.w/2-p.y*t.d/2},
+    {x:t.center.x-t.along.x*t.w/2-p.x*t.d/2,y:t.center.y-t.along.y*t.w/2-p.y*t.d/2},
+    {x:t.center.x-t.along.x*t.w/2+p.x*t.d/2,y:t.center.y-t.along.y*t.w/2+p.y*t.d/2}
+  ];
+}
+function getBounds(placed,tubes,used){
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  const add=(x,y)=>{minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)};
+  modules.forEach(m=>{const pos=placed.get(m.id);if(!pos)return;profileCorners(pos,n(m.frame,60)).forEach(p=>add(p.x,p.y));moduleOwnTubes(m,pos,used).forEach(t=>tubeCorners(t).forEach(p=>add(p.x,p.y)))});
+  tubes.forEach(t=>tubeCorners(t).forEach(p=>add(p.x,p.y)));
+  if(!isFinite(minX))return{minX:0,minY:0,maxX:1000,maxY:1000};
+  return{minX,minY,maxX,maxY};
+}
+function drawTube(t,X,Y){node("polygon",{points:tubeCorners(t).map(q=>`${X(q.x)},${Y(q.y)}`).join(" "),fill:"none",stroke:black,"stroke-width":3})}
+
+
+function totalBounds(placed,tubes,used){
+  return getBounds(placed,tubes,used);
+}
+
+function dimTotalH(x1,x2,y,label){
+  line(x1,y,x2,y,"#ef4444",4.2);
+  arrow(x1,y,"left");
+  arrow(x2,y,"right");
+  const t=dimText((x1+x2)/2,y-48,label,46);
+  t.setAttribute("fill","#ef4444");
+}
+
+function dimTotalV(x,y1,y2,label){
+  line(x,y1,x,y2,"#ef4444",4.2);
+  arrow(x,y1,"up");
+  arrow(x,y2,"down");
+  const t=dimText(x+62,(y1+y2)/2,label,46,-90);
+  t.setAttribute("fill","#ef4444");
+}
+
+function draw(){
+  clearSvg();
+  const {used}=connectionInfo();
+  const {placed,tubes}=computeLayout();
+  const b=getBounds(placed,tubes,used);
+  const modelW=Math.max(1,b.maxX-b.minX), modelH=Math.max(1,b.maxY-b.minY);
+  const reserve = mostrarTotales
+    ? {left:120,right:300,top:240,bottom:130}
+    : (mostrarCotas
+      ? {left:90,right:150,top:130,bottom:90}
+      : {left:70,right:70,top:70,bottom:70});
+  const usableW = CANVAS - reserve.left - reserve.right;
+  const usableH = CANVAS - reserve.top - reserve.bottom;
+  const s=Math.min(usableW/modelW,usableH/modelH);
+  const offsetX=reserve.left+(usableW-modelW*s)/2;
+  const offsetY=reserve.top+(usableH-modelH*s)/2;
+  const X=mm=>offsetX+(mm-b.minX)*s, Y=mm=>offsetY+(mm-b.minY)*s;
+
+  const tubeMap=new Map();
+  function addTube(t){const key=[Math.round(t.center.x*100)/100,Math.round(t.center.y*100)/100,Math.round(t.along.x),Math.round(t.along.y),t.w,t.d].join("|");tubeMap.set(key,t)}
+  modules.forEach(m=>{const pos=placed.get(m.id);if(pos)moduleOwnTubes(m,pos,used).forEach(addTube)});
+  tubes.forEach(addTube);
+  tubeMap.forEach(t=>drawTube(t,X,Y));
+
+  modules.forEach(m=>{
+    const pos=placed.get(m.id); if(!pos)return;
+    const frame=n(m.frame,60), th=Math.max(12,frame*s);
+    const x1=X(pos.start.x), y1=Y(pos.start.y), x2=X(pos.end.x), y2=Y(pos.end.y), size=n(m.size,1);
+    if(Math.abs(pos.d.x)===1){
+      const x=Math.min(x1,x2), y=y1-th/2, len=Math.abs(x2-x1);
+      profileH(x,y,len,th); if(mostrarCotas) dimH(x,x+len,y-36,`${m.name} · ${size}`); else text(x+len/2,y+th/2,m.name,30);
+    }else{
+      const x=x1-th/2, y=Math.min(y1,y2), len=Math.abs(y2-y1);
+      profileV(x,y,len,th); if(mostrarCotas) dimV(x+th+42,y,y+len,`${m.name} · ${size}`); else text(x+th/2,y+len/2,m.name,30,-90);
+    }
+  });
+
+  if(mostrarTotales){
+    const tb=totalBounds(placed,tubes,used);
+    const totalW=Math.round(tb.maxX-tb.minX);
+    const totalH=Math.round(tb.maxY-tb.minY);
+
+    const xA=X(tb.minX), xB=X(tb.maxX);
+    const yA=Y(tb.minY), yB=Y(tb.maxY);
+
+    dimTotalH(xA,xB,yA-120,`TOTAL ${totalW}`);
+    dimTotalV(xB+118,yA,yB,`TOTAL ${totalH}`);
+  }
+}
+
+
+
+let mostrarCotas = true;
+let mostrarTotales = true;
+let currentExportUrl = null;
+let currentExportBlob = null;
+let currentExportFilename = null;
+let currentExportMime = null;
+
+function showExportPanel({title, blob, filename, previewType}){
+  const panel = document.getElementById("exportPanel");
+  const titleEl = document.getElementById("exportTitle");
+  const preview = document.getElementById("exportPreview");
+  const link = document.getElementById("exportDownload");
+  const note = document.getElementById("exportNote");
+
+  if(currentExportUrl) URL.revokeObjectURL(currentExportUrl);
+  currentExportBlob = blob;
+  currentExportFilename = filename;
+  currentExportMime = blob.type || (previewType === "png" ? "image/png" : "image/svg+xml");
+  currentExportUrl = URL.createObjectURL(blob);
+
+  titleEl.textContent = title;
+  link.href = currentExportUrl;
+  link.download = filename;
+  link.textContent = "Guardar " + filename.split(".").pop().toUpperCase();
+
+  preview.innerHTML = "";
+
+  panel.classList.toggle("png-mode", previewType === "png");
+
+  if(previewType === "png"){
+    const img = document.createElement("img");
+    img.src = currentExportUrl;
+    img.alt = filename;
+    img.style.touchAction = "auto";
+    img.style.webkitUserSelect = "auto";
+    preview.appendChild(img);
+    note.textContent = "Mantén pulsada la imagen o usa Guardar PNG como archivo.";
+  }else{
+    const wrap = document.createElement("div");
+    wrap.style.width = "100%";
+    wrap.innerHTML = svgData();
+    preview.appendChild(wrap);
+    note.textContent = "Pulsa Guardar SVG para descargar el archivo.";
+  }
+
+  panel.classList.remove("hidden");
+}
+
+function hideExportPanel(){
+  const panel = document.getElementById("exportPanel");
+  panel.classList.add("hidden");
+  panel.classList.remove("png-mode");
+  if(currentExportUrl){
+    URL.revokeObjectURL(currentExportUrl);
+    currentExportUrl = null;
+    currentExportBlob = null;
+    currentExportFilename = null;
+    currentExportMime = null;
+  }
+}
+
+function svgData(){
+  return new XMLSerializer().serializeToString(svg);
+}
+
+
+async function saveBlobAsFileLikeSvg(blob, filename, mime){
+  const file = new File([blob], filename, { type:mime });
+
+  if(navigator.canShare && navigator.canShare({ files:[file] }) && navigator.share){
+    try{
+      await navigator.share({
+        files:[file],
+        title:filename,
+        text:"Plano de montaje"
+      });
+      return;
+    }catch(err){
+      if(err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
+    }
+  }
+
+  if(window.showSaveFilePicker){
+    try{
+      const ext = filename.split(".").pop();
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types:[{
+          description: ext.toUpperCase(),
+          accept:{ [mime]:["." + ext] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }catch(err){
+      if(err && err.name === "AbortError") return;
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 300);
+}
+
+async function exportFile(blob, filename, mime, previewType){
+  const file = new File([blob], filename, { type:mime });
+
+  // iPhone/Safari: esto abre la hoja nativa donde aparece “Guardar en Archivos”.
+  if(navigator.canShare && navigator.canShare({ files:[file] }) && navigator.share){
+    try{
+      await navigator.share({
+        files:[file],
+        title:filename,
+        text:"Plano de montaje"
+      });
+      return;
+    }catch(err){
+      // Si cancela, no dejamos la app bloqueada.
+      if(err && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
+    }
+  }
+
+  // Chrome/Edge escritorio: selector de ubicación si está disponible.
+  if(window.showSaveFilePicker){
+    try{
+      const ext = filename.split(".").pop();
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types:[{
+          description: ext.toUpperCase(),
+          accept:{ [mime]:["." + ext] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }catch(err){
+      if(err && err.name === "AbortError") return;
+    }
+  }
+
+  // Fallback: panel interno, siempre con botón Volver.
+  showExportPanel({
+    title: filename.toUpperCase() + " generado",
+    blob,
+    filename,
+    previewType
+  });
+}
+
+async function downloadSvg(){
+  const blob = new Blob([svgData()], {type:"image/svg+xml;charset=utf-8"});
+  await exportFile(blob, "plano_montaje.svg", "image/svg+xml", "svg");
+}
+
+function svgToPngBlob(){
+  return new Promise((resolve) => {
+    const img = new Image();
+    const blob = new Blob([svgData()], {type:"image/svg+xml;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = 2000;
+      c.height = 2000;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0,0,c.width,c.height);
+      ctx.drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(png => resolve(png), "image/png");
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(null);
+    };
+    img.src = url;
+  });
+}
+
+async function downloadPng(){
+  const png = await svgToPngBlob();
+  if(!png) return;
+  // PNG: mostrar primero imagen generada para poder guardarla manteniendo pulsado en iPhone antiguo.
+  showExportPanel({
+    title:"IMAGEN GENERADA",
+    blob:png,
+    filename:"plano_montaje.png",
+    previewType:"png"
+  });
+}
+
+document.getElementById("exportDownload").addEventListener("click", async (ev) => {
+  const panel = document.getElementById("exportPanel");
+  if(panel && panel.classList.contains("png-mode") && currentExportBlob){
+    ev.preventDefault();
+    await saveBlobAsFileLikeSvg(currentExportBlob, currentExportFilename || "plano_montaje.png", currentExportMime || "image/png");
+  }
+});
+document.getElementById("exportBack").addEventListener("click", hideExportPanel, {passive:true});
+
+
+
+const btnTotales=document.getElementById("btnTotales");
+if(btnTotales){
+  btnTotales.addEventListener("click",()=>{
+    mostrarTotales=!mostrarTotales;
+    btnTotales.textContent="Totales " + (mostrarTotales ? "ON" : "OFF"); btnTotales.classList.toggle("off", !mostrarTotales);
+    draw();
+  },{passive:true});
+}
+
+const btnCotas=document.getElementById("btnCotas");
+if(btnCotas){
+  btnCotas.addEventListener("click",()=>{
+    mostrarCotas=!mostrarCotas;
+    btnCotas.textContent="Cotas " + (mostrarCotas ? "ON" : "OFF"); btnCotas.classList.toggle("off", !mostrarCotas);
+    draw();
+  },{passive:true});
+}
+
+$("addModuleBtn").addEventListener("click",addModule,{passive:true});
+$("downloadSvgBtn").addEventListener("click",downloadSvg,{passive:true});
+$("downloadPngBtn").addEventListener("click",downloadPng,{passive:true});
+
+if(document.getElementById("btnCotas")) document.getElementById("btnCotas").classList.toggle("off", !mostrarCotas);
+if(document.getElementById("btnTotales")) document.getElementById("btnTotales").classList.toggle("off", !mostrarTotales);
+renderModules(); draw();
+
+// ====== FIJAR DISEÑO ======
+(function(){
+  const btnFijar = document.getElementById("btnFijar");
+  if(!btnFijar) return;
+
+  function forceRedrawSvg(){
+    try{
+      const el = document.getElementById("svg");
+      if(!el) return;
+      el.style.display = "none";
+      el.getBoundingClientRect();
+      el.style.display = "";
+      draw();
+    }catch(e){}
+  }
+
+  function setFijar(on){
+    document.body.classList.toggle("fijar-on", on);
+    btnFijar.classList.toggle("on", on);
+    btnFijar.classList.toggle("off", !on);
+    btnFijar.textContent = on ? "FIJADO" : "FIJAR";
+    setTimeout(forceRedrawSvg, 80);
+  }
+
+  setFijar(false);
+
+  btnFijar.addEventListener("click",(ev)=>{
+    ev.preventDefault();
+    setFijar(!document.body.classList.contains("fijar-on"));
+  },{passive:false});
+
+  let t;
+  window.addEventListener("resize",()=>{
+    clearTimeout(t);
+    t=setTimeout(forceRedrawSvg,120);
+  },{passive:true});
+  window.addEventListener("orientationchange",()=>{
+    clearTimeout(t);
+    t=setTimeout(forceRedrawSvg,180);
+  },{passive:true});
+})();
+
+})();
+</script>
+</body>
+</html>
