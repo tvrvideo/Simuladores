@@ -766,7 +766,7 @@ body.fijar-on #dockArea svg{
 </style>
 </head>
 <body>
-<button class="btn-menu" type="button" onclick="if(window.parent && window.parent!==window && typeof window.parent.volverMenu==='function'){window.parent.volverMenu()}else{window.location.href='index.html'}">← MENÚ</button>
+<button id="btnVolverIndex" class="btn-menu" type="button">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 <main class="app">
 <div id="scrollArea">
@@ -1492,6 +1492,49 @@ $("downloadPngBtn").addEventListener("click",downloadPng,{passive:true});
 if(document.getElementById("btnCotas")) document.getElementById("btnCotas").classList.toggle("off", !mostrarCotas);
 if(document.getElementById("btnTotales")) document.getElementById("btnTotales").classList.toggle("off", !mostrarTotales);
 renderModules(); draw();
+
+
+// ====== VOLVER AL INDEX / MENÚ ======
+(function(){
+  const btn = document.getElementById("btnVolverIndex");
+  function volverIndex(ev){
+    if(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+
+    // Caso normal: módulos está dentro del iframe del index.
+    try{
+      if(window.parent && window.parent !== window){
+        if(typeof window.parent.volverMenu === "function"){
+          window.parent.volverMenu();
+          return false;
+        }
+        window.parent.postMessage({type:"volverMenu"},"*");
+        window.parent.postMessage("volverMenu","*");
+        return false;
+      }
+    }catch(e){}
+
+    // Caso abierto directo.
+    try{
+      if(document.referrer && /index\.html/i.test(document.referrer)){
+        history.back();
+        return false;
+      }
+    }catch(e){}
+
+    window.location.href = "index.html";
+    return false;
+  }
+
+  window.volverIndex = volverIndex;
+
+  if(btn){
+    btn.addEventListener("click", volverIndex, {passive:false});
+    btn.addEventListener("touchend", volverIndex, {passive:false});
+  }
+})();
 
 // ====== FIJAR DISEÑO ======
 (function(){

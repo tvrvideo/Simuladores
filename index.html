@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- v3.3 - Accesorios Baicha -->
+    <!-- v3.5 - Módulos integrado -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.3</title>
-    <!-- index v3.3 -->
+    <title>Ventanas Rey v3.5</title>
+    <!-- index v3.5 -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -273,7 +273,7 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.4</div>
+    <div class="subtitulo">Ventanas Rey v3.5</div>
 </header>
 
 <div id="menu">
@@ -289,6 +289,7 @@
 <button class="menu-btn" onclick="abrir('paleta.html')"><div class="icon">🎨</div><div class="texto"><div>Paleta de color</div><div class="subtitulo-btn">Acabados y referencias</div></div></button>
 <button class="menu-btn" onclick="abrir('presupuestos.html')"><div class="icon">💶</div><div class="texto"><div>Presupuestos</div><div class="subtitulo-btn">Cálculo guardable</div></div></button>
 <button class="menu-btn" onclick="abrir('cierre.html')"><div class="icon">🔒</div><div class="texto"><div>Cierre</div><div class="subtitulo-btn">Selección y cálculo</div></div></button>
+<button class="menu-btn" onclick="abrir('modulos.html')"><div class="icon">🧩</div><div class="texto"><div>Módulos</div><div class="subtitulo-btn">Diseño modular y cotas</div></div></button>
 <button class="menu-btn" onclick="abrir('poligono.html')"><div class="icon">📐</div><div class="texto"><div>Polígono / Modulación</div><div class="subtitulo-btn">Geometría y medidas</div></div></button>
 <button class="menu-btn" onclick="abrir('grados.html')"><div class="icon">📏</div><div class="texto"><div>Grados de corte</div><div class="subtitulo-btn">Ángulos y precisión</div></div></button>
 <button class="menu-btn" onclick="abrir('rejilla.html')"><div class="icon">🪟</div><div class="texto"><div>Rejilla de ventilación</div><div class="subtitulo-btn">Cálculo y simulación</div></div></button>
@@ -572,6 +573,34 @@ function unlock() {
     aplicarSesionDesbloqueada();
   }
   window.addEventListener('pageshow', aplicarSesionDesbloqueada);
+})();
+</script>
+
+
+<script>
+/* v3.4 - Puente robusto para volver desde apps cargadas en iframe */
+(function(){
+  function cerrarVisorModulos(){
+    var visor = document.getElementById('visor');
+    if(visor){
+      try{ visor.src = 'about:blank'; }catch(e){}
+      visor.style.display = 'none';
+    }
+    document.body.classList.remove('app-abierta','visor-abierto','iframe-abierto');
+    document.documentElement.classList.remove('app-abierta','visor-abierto','iframe-abierto');
+    try{ window.scrollTo(0,0); }catch(e){}
+  }
+
+  window.volverMenu = cerrarVisorModulos;
+  window.cerrarVisor = cerrarVisorModulos;
+
+  window.addEventListener('message', function(ev){
+    var d = ev && ev.data;
+    if(d === 'volverMenu' || d === 'volverIndex' || d === 'cerrarVisor' ||
+       (d && typeof d === 'object' && (d.type === 'volverMenu' || d.type === 'volverIndex' || d.action === 'volverMenu'))){
+      cerrarVisorModulos();
+    }
+  }, false);
 })();
 </script>
 
