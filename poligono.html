@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Sistema de Modulación v4.1.1</title>
+  <title>Sistema de Modulación v4.1.2</title>
   <style>
     :root {
       --primary: #e74c3c;
@@ -209,13 +209,13 @@ body:not(.fijar-on) #dockArea{
 </style>
 </head>
 <body>
-<button class="btn-menu" type="button" onclick="if (window.parent && window.parent !== window && typeof window.parent.volverMenu==='function') { window.parent.volverMenu(); } else { history.back(); }">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 <div class="container">
   <div id="vista-diseno">
 <div id="scrollArea">
     <div class="title-wrap">
-      <h1>SISTEMA DE MODULACIÓN <span class="ver">v4.1.1</span></h1>
+      <h1>SISTEMA DE MODULACIÓN <span class="ver">v4.1.2</span></h1>
     </div>
 
     <div class="panel-controles">
@@ -1158,6 +1158,33 @@ update(true);
         }, {passive:true});
     }
 })();
+</script>
+
+
+<script>
+/* v4.1.2 - Volver seguro al index desde iframe/GitHub/iPhone */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+
+  return false;
+}
 </script>
 
 </body>

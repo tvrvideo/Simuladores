@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rejilla Ventilación V5</title>
+    <title>Rejilla Ventilación V5.1</title>
     <style>
         :root { 
             --primary: #e74c3c; 
@@ -141,11 +141,11 @@
 </head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
 
 <div class="container">
-    <h1>Rejilla Ventilación <span style="font-size:0.9rem; font-weight:900;">V5</span></h1>
+    <h1>Rejilla Ventilación <span style="font-size:0.9rem; font-weight:900;">V5.1</span></h1>
     <div class="controls">
         <div class="input-group"><label>ANCHO</label><input type="number" id="anchoTotal" value="480" oninput="calcular()"></div>
         <div class="input-group"><label>ALTO</label><input type="number" id="altoTotal" value="820" oninput="calcular()"></div>
@@ -733,6 +733,26 @@ function _pdfTextString(txt){
   <div style="font-size:30px;">⚙️</div>
   <div id="pdfBusyText">Generando PDF...</div>
 </div>
+
+
+<script>
+function volverIndexSeguro(){
+ try{
+   if(window.parent&&window.parent!==window&&typeof window.parent.volverMenu==='function'){
+     window.parent.volverMenu();return false;
+   }
+ }catch(e){}
+ try{
+   if(window.parent&&window.parent!==window){
+     window.parent.postMessage({type:'volverMenu',action:'volverMenu',target:'index'},'*');
+     window.parent.postMessage('volverMenu','*');
+     return false;
+   }
+ }catch(e){}
+ location.href='index.html';
+ return false;
+}
+</script>
 
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- v3.5 - Módulos integrado -->
+    <!-- v3.5.2 - Módulos integrado, retorno corregido -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.5</title>
-    <!-- index v3.5 -->
+    <title>Ventanas Rey v3.5.2</title>
+    <!-- index v3.5.2 -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -273,7 +273,7 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.5</div>
+    <div class="subtitulo">Ventanas Rey v3.5.2</div>
 </header>
 
 <div id="menu">
@@ -577,28 +577,30 @@ function unlock() {
 </script>
 
 
+
 <script>
-/* v3.4 - Puente robusto para volver desde apps cargadas en iframe */
+/* v3.5.2 - Escucha retorno sin sobrescribir volverMenu */
 (function(){
-  function cerrarVisorModulos(){
-    var visor = document.getElementById('visor');
-    if(visor){
-      try{ visor.src = 'about:blank'; }catch(e){}
-      visor.style.display = 'none';
-    }
-    document.body.classList.remove('app-abierta','visor-abierto','iframe-abierto');
-    document.documentElement.classList.remove('app-abierta','visor-abierto','iframe-abierto');
-    try{ window.scrollTo(0,0); }catch(e){}
-  }
-
-  window.volverMenu = cerrarVisorModulos;
-  window.cerrarVisor = cerrarVisorModulos;
-
   window.addEventListener('message', function(ev){
     var d = ev && ev.data;
-    if(d === 'volverMenu' || d === 'volverIndex' || d === 'cerrarVisor' ||
-       (d && typeof d === 'object' && (d.type === 'volverMenu' || d.type === 'volverIndex' || d.action === 'volverMenu'))){
-      cerrarVisorModulos();
+    var volver =
+      d === 'volver' ||
+      d === 'volverMenu' ||
+      d === 'volverIndex' ||
+      d === 'cerrarVisor' ||
+      (d && typeof d === 'object' && (
+        d.type === 'volver' ||
+        d.type === 'volverMenu' ||
+        d.type === 'volverIndex' ||
+        d.type === 'cerrarVisor' ||
+        d.action === 'volver' ||
+        d.action === 'volverMenu' ||
+        d.action === 'volverIndex' ||
+        d.target === 'index'
+      ));
+
+    if(volver && typeof window.volverMenu === 'function'){
+      window.volverMenu();
     }
   }, false);
 })();

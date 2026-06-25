@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Corte de Chapa - SVG</title>
+    <title>Corte de Chapa - SVG v1.1</title>
     <style>
       :root {
           /* Variable CSS para controlar el zoom visual de los contenedores de gráficos */
@@ -435,10 +435,10 @@
 <link rel="manifest" href="manifest.json"></head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 
 
-    <h1>Corte de Chapa</h1>
+    <h1>Corte de Chapa <span style="font-size:.55em;opacity:.75;">v1.1</span></h1>
 
     <div class="container">
         <div class="section">
@@ -1535,6 +1535,33 @@
       });
     </script>
 
+
+
+<script>
+/* v1.1 - Volver seguro al index desde iframe/GitHub/iPhone */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+
+  return false;
+}
+</script>
 
 </body>
 </html>

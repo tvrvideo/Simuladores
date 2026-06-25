@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora de Cortes para Marco Inclinado</title>
+    <title>Calculadora de Cortes para Marco Inclinado V10.1</title>
     <style>
         /* Variables CSS para colores */
         :root {
@@ -561,7 +561,7 @@ body.dock-on #dockArea{
 <body>
 
 <div id="scrollArea">
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 <div id="vista-diseno">
@@ -569,7 +569,7 @@ body.dock-on #dockArea{
 
 
     
-<h1>GRADOS DE CORTE <span class="ver">V10</span></h1>
+<h1>GRADOS DE CORTE <span class="ver">V10.1</span></h1>
 
     <div class="controls">
         
@@ -1505,6 +1505,33 @@ if (dockArea) dockArea.style.display = '';
         // Inicialización
         updateHeightsFromSides(); 
     </script>
+
+
+<script>
+/* V10.1 - Volver seguro al index desde iframe/GitHub/iPhone */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+
+  return false;
+}
+</script>
 
 </body>
 </html>

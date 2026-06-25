@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre con lamas</title>
+  <title>Cierre con lamas v2.4</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -406,12 +406,12 @@ body.dock-on #controls{
 <div id="scrollArea"><div id="vista-diseno">
 
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 
 <div class="header">
-  <div class="verline">v2.3</div>
+  <div class="verline">v2.4</div>
   <h1>Cierre con lamas</h1>
 </div>
 
@@ -1154,5 +1154,32 @@ if(__btnFijar){
 }
 
 </script>
+
+<script>
+/* v2.4 - Volver seguro al index desde iframe/GitHub/iPhone */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+
+  return false;
+}
+</script>
+
 </body>
 </html>

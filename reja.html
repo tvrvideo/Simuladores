@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title id="mainTitle">Diseño Reja</title>
+<title id="mainTitle">Diseño Reja V4.1</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -273,7 +273,7 @@ h1{
   word-break: break-word;
 }
 #mainHeading::after{
-  content: " V4";
+  content: " V4.1";
   font-size: 0.55em;
   font-weight: 800;
   opacity: 0.75;
@@ -375,7 +375,7 @@ body.dock-on #dockArea{
 <link rel="manifest" href="manifest.json"></head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href='index.html'; }">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <button id="btnFijar" class="btn-fijar" type="button">FIJAR</button>
 
 <div id="vista-diseno">
@@ -1000,6 +1000,33 @@ const srcCanvas = document.getElementById('rejaCanvas');
   draw();
 
 })();
+</script>
+
+
+<script>
+/* V4.1 - Volver seguro al index desde iframe/GitHub/iPhone */
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+
+  try{
+    window.location.href = 'index.html';
+  }catch(e){}
+
+  return false;
+}
 </script>
 
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Recortes Chapa</title>
+    <title>Recortes Chapa v1.1</title>
     <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -222,14 +222,14 @@
 <link rel="manifest" href="manifest.json"></head>
 <body>
 
-<button class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()} else { window.location.href = 'index.html'; }">← MENÚ</button>
+<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 
 
 
 
 
 <div class="container">
-    <h1>Recortes de Chapa</h1>
+    <h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v1.1</span></h1>
     
     <div class="section">
         <h2>Buscador</h2>
@@ -1268,5 +1268,10 @@
     });
 </script>
 
-</body>
+<script>
+function volverIndexSeguro(){
+try{if(window.parent&&window.parent!==window&&typeof window.parent.volverMenu==='function'){window.parent.volverMenu();return false;}}catch(e){}
+try{if(window.parent&&window.parent!==window){window.parent.postMessage({type:'volverMenu',action:'volverMenu'},'*');window.parent.postMessage('volverMenu','*');return false;}}catch(e){}
+window.location.href='index.html';return false;}
+</script></body>
 </html>
