@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v3.2</title>
+  <title>Documentos Rey v3.4</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3600,7 +3600,7 @@ Pendiente de integración completa:
 -->
 
 
-<!-- Documentos Rey v3.2 PVC13 PVC13 PVC6 CANDIDATA - editor CP estilo Plantillas -->
+<!-- Documentos Rey v3.4 PVC13 PVC13 PVC6 CANDIDATA - editor CP estilo Plantillas -->
 
 <style>
 /* v3.0.4 - Selector numeración al crear presupuesto */
@@ -3709,6 +3709,55 @@ Pendiente de integración completa:
 }
 </style>
 
+
+<style>
+/* v3.4 - Buscador de plantillas plegado para dejar visible la zona de conceptos */
+.template-quick-search-v289087.template-quick-collapsed-v34{
+  padding:6px 8px!important;
+  margin:6px 0 8px!important;
+}
+.template-quick-toggle-v34{
+  width:100%;
+  min-height:42px;
+  border:1px solid #d4dde9;
+  border-radius:14px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  color:#0f172a;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 12px;
+  font-weight:900;
+  font-size:15px;
+  box-shadow:0 6px 14px rgba(15,23,42,.05);
+}
+.template-quick-toggle-v34 small{
+  font-size:12px;
+  color:#64748b;
+  font-weight:900;
+}
+.template-quick-toggle-v34::after{
+  content:'⌄';
+  font-size:22px;
+  line-height:1;
+  color:#64748b;
+}
+.template-quick-search-v289087:not(.template-quick-collapsed-v34) .template-quick-toggle-v34::after{
+  content:'⌃';
+}
+.template-quick-collapsed-v34 .template-quick-body-v34{
+  display:none!important;
+}
+.template-quick-search-v289087:not(.template-quick-collapsed-v34) .template-quick-body-v34{
+  display:block!important;
+  margin-top:8px;
+}
+/* Al abrir, lista más baja para no tapar tanto el textarea */
+.template-quick-results-v289087{
+  max-height:180px!important;
+}
+</style>
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -3719,7 +3768,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v3.2</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v3.4</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -6523,7 +6572,12 @@ COLOCACIÓN INCLUIDA` }
       nombre: String(p && (p.nombre != null ? p.nombre : (p.name != null ? p.name : ''))),
       descripcion: String(p && (p.descripcion != null ? p.descripcion : (p.description != null ? p.description : ''))),
       ref: String(p && (p.ref != null ? p.ref : (p.referencia != null ? p.referencia : (p.codigo != null ? p.codigo : '')))),
+      referencia: String(p && (p.referencia != null ? p.referencia : (p.ref != null ? p.ref : (p.codigo != null ? p.codigo : '')))),
+      proveedor: String(p && p.proveedor != null ? p.proveedor : ''),
+      fecha: String(p && p.fecha != null ? p.fecha : ''),
       categoria: String(p && (p.categoria != null ? p.categoria : (p.category != null ? p.category : ''))),
+      precioCompra: Math.max(0, Number(p && p.precioCompra != null ? p.precioCompra : 0) || 0),
+      gananciaPct: (p && p.gananciaPct !== undefined && p.gananciaPct !== null && p.gananciaPct !== '') ? Number(p.gananciaPct) : 100,
       precio: Math.max(0, Number(p && (p.precio != null ? p.precio : (p.price != null ? p.price : 0))) || 0),
       stock: Math.max(0, Number(p && p.stock != null ? p.stock : 0) || 0),
       imgThumb: img,
@@ -6547,8 +6601,13 @@ COLOCACIÓN INCLUIDA` }
       id: String(p && p.id != null ? p.id : ('pro_' + Date.now() + '_' + Math.random().toString(36).slice(2,7))),
       nombre: String(p && p.nombre != null ? p.nombre : ''),
       descripcion: String(p && p.descripcion != null ? p.descripcion : ''),
-      ref: String(p && p.ref != null ? p.ref : ''),
+      ref: String(p && (p.ref != null ? p.ref : (p.referencia != null ? p.referencia : ''))),
+      referencia: String(p && (p.referencia != null ? p.referencia : (p.ref != null ? p.ref : ''))),
+      proveedor: String(p && p.proveedor != null ? p.proveedor : ''),
+      fecha: String(p && p.fecha != null ? p.fecha : ''),
       categoria: String(p && p.categoria != null ? p.categoria : ''),
+      precioCompra: Math.max(0, Number(p && p.precioCompra != null ? p.precioCompra : 0) || 0),
+      gananciaPct: (p && p.gananciaPct !== undefined && p.gananciaPct !== null && p.gananciaPct !== '') ? Number(p.gananciaPct) : 100,
       precio: Math.max(0, Number(p && p.precio != null ? p.precio : 0) || 0),
       stock: Math.max(0, Number(p && p.stock != null ? p.stock : 0) || 0),
       imgThumb: String(p && p.imgThumb != null ? p.imgThumb : ''),
@@ -9852,35 +9911,112 @@ COLOCACIÓN INCLUIDA` }
       bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
       try{ $('sheetPVCBtn').onclick = function(){ openPVCForConceptV1(index); }; }catch(_){}
     } else if(type === 'catalog'){
+      await loadProducts();
       const products = getProducts();
-      let listHtml = '';
-      products.forEach((p, idx) => {
-        const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
-        listHtml += `
-          <div class="saved-item template-card catalog-card-compact catalog-fact-card" data-catalog-action="${idx}" role="button" tabindex="0">
-            <div class="catalog-card-media">
-              ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
-              <div style="min-width:0;flex:1">
-                <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
-                <div class="catalog-meta">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
+      const catalogSortKey = 'rey_docs_catalog_sort_v33';
+      function catalogMoneyV33(v){ return formatMoneyValue(Number(v || 0)); }
+      function catalogDateV33(v){
+        const t = String(v || '').trim();
+        if(!t) return '';
+        const m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return m ? (m[3] + '/' + m[2] + '/' + m[1]) : t;
+      }
+      function catalogRefV33(p){ return String((p && (p.referencia || p.ref || p.codigo)) || '').trim(); }
+      function catalogProveedorV33(p){ return String((p && p.proveedor) || '').trim(); }
+      function catalogGananciaV33(p){
+        if(p && p.gananciaPct !== undefined && p.gananciaPct !== null && p.gananciaPct !== '') return Number(p.gananciaPct) || 0;
+        const compra = Number(p && p.precioCompra || 0);
+        const venta = Number(p && p.precio || 0);
+        if(compra > 0) return ((venta / compra) - 1) * 100;
+        return 100;
+      }
+      function catalogHayV33(p){
+        return [p && p.nombre, p && p.descripcion, catalogRefV33(p), catalogProveedorV33(p), p && p.fecha, p && p.precio, p && p.precioCompra, p && p.stock, catalogGananciaV33(p)].join(' ').toLowerCase();
+      }
+      function catalogSortedFilteredV33(){
+        const q = String(($('catalogSearchV33') && $('catalogSearchV33').value) || '').trim().toLowerCase();
+        const sort = String(($('catalogSortV33') && $('catalogSortV33').value) || localStorage.getItem(catalogSortKey) || 'name_asc');
+        try{ localStorage.setItem(catalogSortKey, sort); }catch(_){ }
+        let arr = products.map((p,idx)=>({p,idx})).filter(o => !q || catalogHayV33(o.p).includes(q));
+        arr.sort((a,b)=>{
+          const an = String(a.p.nombre || '').localeCompare(String(b.p.nombre || ''),'es');
+          if(sort === 'name_desc') return -an;
+          if(sort === 'price_asc') return (Number(a.p.precio||0)-Number(b.p.precio||0)) || an;
+          if(sort === 'price_desc') return (Number(b.p.precio||0)-Number(a.p.precio||0)) || an;
+          if(sort === 'stock_asc') return (Number(a.p.stock||0)-Number(b.p.stock||0)) || an;
+          if(sort === 'stock_desc') return (Number(b.p.stock||0)-Number(a.p.stock||0)) || an;
+          if(sort === 'provider_asc') return catalogProveedorV33(a.p).localeCompare(catalogProveedorV33(b.p),'es') || an;
+          if(sort === 'recent') return b.idx - a.idx;
+          return an;
+        });
+        return arr;
+      }
+      function renderCatalogListV33(){
+        const rows = catalogSortedFilteredV33();
+        let listHtml = '';
+        rows.forEach(({p, idx}) => {
+          const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
+          const sub = [];
+          const ref = catalogRefV33(p);
+          const prov = catalogProveedorV33(p);
+          const fecha = catalogDateV33(p.fecha);
+          if(ref) sub.push('Ref: ' + ref);
+          if(prov) sub.push('Prov: ' + prov);
+          if(fecha) sub.push('Fecha: ' + fecha);
+          sub.push('Venta: ' + catalogMoneyV33(p.precio || 0));
+          if(Number(p.precioCompra || 0)) sub.push('Compra: ' + catalogMoneyV33(p.precioCompra || 0));
+          sub.push('Ganancia: ' + (Math.round(catalogGananciaV33(p)*100)/100).toString().replace('.',',') + '%');
+          sub.push('Stock: ' + String(p.stock || 0));
+          listHtml += `
+            <div class="saved-item template-card catalog-card-compact catalog-fact-card" data-catalog-action="${idx}" role="button" tabindex="0">
+              <div class="catalog-card-media">
+                ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
+                <div style="min-width:0;flex:1">
+                  <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
+                  <div class="catalog-meta">${esc(sub.join(' · '))}</div>
+                </div>
               </div>
-            </div>
-          </div>`;
-      });
+            </div>`;
+        });
+        $('catalogListV33').innerHTML = listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay productos encontrados</div>';
+        const badge = $('catalogCountV33');
+        if(badge) badge.textContent = String(rows.length) + ' / ' + String(products.length);
+        Array.from($('catalogListV33').querySelectorAll('[data-catalog-action]')).forEach(card => {
+          card.onclick = async function(){
+            await loadProducts();
+            const idx = Number(card.getAttribute('data-catalog-action'));
+            openEdit('catalogProductActions', 'Producto', idx);
+          };
+        });
+      }
       body.innerHTML = `
         <label>Catálogo compartido con facturación</label>
+        <div class="catalog-search-box">
+          <input id="catalogSearchV33" type="search" placeholder="Buscar por producto, referencia, proveedor, fecha, precio o stock...">
+          <div class="template-tools-grid-v28901" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <select id="catalogSortV33" style="min-height:44px;border:1px solid var(--line);border-radius:14px;padding:0 10px;font-weight:900;background:#fff;">
+              <option value="name_asc">Nombre A-Z</option>
+              <option value="name_desc">Nombre Z-A</option>
+              <option value="price_asc">Precio menor</option>
+              <option value="price_desc">Precio mayor</option>
+              <option value="stock_asc">Stock menor</option>
+              <option value="stock_desc">Stock mayor</option>
+              <option value="provider_asc">Proveedor</option>
+              <option value="recent">Más reciente</option>
+            </select>
+            <div id="catalogCountV33" class="saved-status-badge saved-status-enviado" style="align-self:center;justify-self:end;">0</div>
+          </div>
+        </div>
         <div class="sheet-actions" style="margin-bottom:12px">
           <button type="button" class="btn btn-primary" id="btnCatalogAdd">Añadir producto</button>
         </div>
-        ${listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay productos</div>'}`;
+        <div id="catalogListV33"></div>`;
+      const sel = $('catalogSortV33');
+      if(sel) sel.value = localStorage.getItem(catalogSortKey) || 'name_asc';
       $('btnCatalogAdd').onclick = async function(){ productEditIndex = null; productImageDraft=''; await loadProducts(); openEdit('catalogForm', 'Nuevo producto'); };
-      Array.from(body.querySelectorAll('[data-catalog-action]')).forEach(card => {
-        card.onclick = async function(){
-          await loadProducts();
-          const idx = Number(card.getAttribute('data-catalog-action'));
-          openEdit('catalogProductActions', 'Producto', idx);
-        };
-      });
+      $('catalogSearchV33').addEventListener('input', renderCatalogListV33, false);
+      $('catalogSortV33').addEventListener('change', renderCatalogListV33, false);
+      renderCatalogListV33();
     } else if(type === 'catalogProductActions'){
       await loadProducts();
       const idx = index == null ? productEditIndex : Number(index);
@@ -9893,7 +10029,7 @@ COLOCACIÓN INCLUIDA` }
           ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
           <div style="min-width:0;flex:1">
             <div class="catalog-product-action-title">${esc(p.nombre || 'Sin nombre')}</div>
-            <div class="catalog-product-action-sub">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
+            <div class="catalog-product-action-sub">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}${p.proveedor ? ' · Prov: ' + esc(String(p.proveedor)) : ''}${(p.referencia || p.ref) ? ' · Ref: ' + esc(String(p.referencia || p.ref)) : ''}</div>
           </div>
         </div>
         <div class="catalog-product-action-grid">
@@ -10002,9 +10138,20 @@ COLOCACIÓN INCLUIDA` }
       productImageDraft = String(p.imgFull || p.imgThumb || '');
       body.innerHTML = `
         <label>Nombre</label><input id="editProductName" value="${esc(p.nombre || '')}">
-        <label>Precio (€)</label><input id="editProductPrice" inputmode="decimal" value="${esc(String(p.precio || 0))}">
-        <label>Stock</label><input id="editProductStock" inputmode="numeric" value="${esc(String(p.stock || 0))}">
-        <label>Imagen (opcional)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label>Referencia</label><input id="editProductRef" value="${esc(p.referencia || p.ref || '')}" placeholder="Ref. proveedor"></div>
+          <div><label>Proveedor</label><input id="editProductProveedor" value="${esc(p.proveedor || '')}" placeholder="Proveedor"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label>Fecha</label><input id="editProductFecha" type="date" value="${esc(p.fecha || '')}"></div>
+          <div><label>Stock</label><input id="editProductStock" inputmode="numeric" value="${esc(String(p.stock || 0))}"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div><label>Precio venta (€)</label><input id="editProductPrice" inputmode="decimal" value="${esc(String(p.precio || 0))}"></div>
+          <div><label>Ganancia (%)</label><input id="editProductGanancia" inputmode="decimal" value="${esc(String(p.gananciaPct != null ? p.gananciaPct : 100))}"></div>
+          <div><label>Precio compra (€)</label><input id="editProductCompra" inputmode="decimal" value="${esc(String(p.precioCompra || 0))}"></div>
+        </div>
+        <label>Imagen (archivo en la misma carpeta)</label>
         <div class="template-actions">
           <button type="button" class="btn btn-neutral" id="btnProductImagePick">Seleccionar</button>
           <button type="button" class="btn btn-light" id="btnProductImageRemove">Quitar</button>
@@ -10608,10 +10755,17 @@ COLOCACIÓN INCLUIDA` }
       const p = {
         id: String(prev && prev.id ? prev.id : ('pro_' + Date.now() + '_' + Math.random().toString(36).slice(2,7))),
         nombre: String($('editProductName').value || '').trim(),
+        referencia: String(($('editProductRef') && $('editProductRef').value) || '').trim(),
+        ref: String(($('editProductRef') && $('editProductRef').value) || '').trim(),
+        proveedor: String(($('editProductProveedor') && $('editProductProveedor').value) || '').trim(),
+        fecha: String(($('editProductFecha') && $('editProductFecha').value) || '').trim(),
         precio: Math.max(0, Number(String($('editProductPrice').value || '0').replace(',','.')) || 0),
+        precioCompra: Math.max(0, Number(String(($('editProductCompra') && $('editProductCompra').value) || '0').replace(',','.')) || 0),
+        gananciaPct: Number(String(($('editProductGanancia') && $('editProductGanancia').value) || '100').replace(',','.')) || 0,
         stock: Math.max(0, Number($('editProductStock').value || '0') || 0),
         imgThumb: String(productImageDraft || ''),
-        imgFull: String(productImageDraft || '')
+        imgFull: String(productImageDraft || ''),
+        img: String(productImageDraft || '')
       };
       if(!p.nombre){
         toast('Pon un nombre de producto');
@@ -13964,21 +14118,46 @@ const mo = new MutationObserver(function(){
     if(!select) return;
 
     const box = document.createElement('div');
-    box.className = 'template-quick-search-v289087';
+    box.className = 'template-quick-search-v289087 template-quick-collapsed-v34';
     box.innerHTML = `
-      <label class="template-quick-label-v289087">Buscar plantilla</label>
-      <div class="template-quick-input-wrap-v289087">
-        <input id="templateQuickSearchV289087" type="search" placeholder="Buscar por nombre o categoría">
-        <button type="button" id="templateQuickClearV289087">×</button>
+      <button type="button" id="templateQuickToggleV34" class="template-quick-toggle-v34" aria-expanded="false">
+        <span>Buscar plantilla</span><small>Mostrar</small>
+      </button>
+      <div class="template-quick-body-v34">
+        <div class="template-quick-input-wrap-v289087">
+          <input id="templateQuickSearchV289087" type="search" placeholder="Buscar por nombre o categoría">
+          <button type="button" id="templateQuickClearV289087">×</button>
+        </div>
+        <div id="templateQuickResultsV289087" class="template-quick-results-v289087"></div>
       </div>
-      <div id="templateQuickResultsV289087" class="template-quick-results-v289087"></div>
     `;
 
     select.parentNode.insertBefore(box, select.nextSibling);
 
+    const toggle = box.querySelector('#templateQuickToggleV34');
     const input = box.querySelector('#templateQuickSearchV289087');
     const clear = box.querySelector('#templateQuickClearV289087');
     const results = box.querySelector('#templateQuickResultsV289087');
+
+    function setCollapsed(collapsed){
+      box.classList.toggle('template-quick-collapsed-v34', !!collapsed);
+      if(toggle){
+        toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        const small = toggle.querySelector('small');
+        if(small) small.textContent = collapsed ? 'Mostrar' : 'Ocultar';
+      }
+    }
+
+    if(toggle){
+      toggle.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const collapsed = box.classList.contains('template-quick-collapsed-v34');
+        setCollapsed(!collapsed);
+        if(collapsed){ setTimeout(function(){ try{ input.focus(); }catch(_){} }, 60); }
+      }, false);
+    }
+    input.addEventListener('focus', function(){ setCollapsed(false); }, false);
 
     function render(){
       const q = norm(input.value);
@@ -14016,6 +14195,7 @@ const mo = new MutationObserver(function(){
 
     input.addEventListener('input', render, false);
     clear.addEventListener('click', function(){
+      setCollapsed(false);
       input.value = '';
       render();
       input.focus();
@@ -14029,6 +14209,7 @@ const mo = new MutationObserver(function(){
       applyTemplateSelection(select, btn.getAttribute('data-value'));
       input.value = '';
       results.innerHTML = '';
+      setCollapsed(true);
       try{ if(typeof toast === 'function') toast('Plantilla seleccionada'); }catch(_){}
     }, false);
 
