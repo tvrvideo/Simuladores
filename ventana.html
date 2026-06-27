@@ -2,13 +2,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v94.9.1</title>
+    <title>Ventana Pro v95.0</title>
+    <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
+    <!-- v95.0: Ajuste fino al enviar a Documentos y defaults automáticos por número de hojas. -->
     <!-- v94.9: Botón inferior PERSIANA con texto completo. -->
     <!-- v94.9: Corrige marco fijo inclinado con travesaños; el cristal llega hasta la pendiente sin dejar triángulo del marco. -->
     <!-- v94.9.5: Dibuja barrotillos guardados en huecos de marco fijo 0 hojas con travesaños. -->
     <!-- v94.9.4: Solo barrotillos funciona directamente en huecos de marco fijo 0 hojas con travesaños. -->
     <!-- v94.9.3: Acción al tocar funciona en cada hueco de marco fijo 0 hojas con travesaños. -->
     <!-- v94.9.2: Corrige reparto de huecos iguales en travesaños verticales/horizontales de marco fijo 0 hojas. -->
+    <!-- v94.9.2: Corrige botón FIJAR: fija/libera el diseño en pantalla y sincroniza estado. -->
     <!-- v94.9.1: Añade cotas inferiores entre travesaños verticales en marco fijo 0 hojas. -->
     <!-- v94.9: Versión consolidada con FIJAR/AJUSTES recuperados, botonera inferior, marco fijo 0 hojas, alto total automático y mostrar/ocultar barrotillos. -->
     <!-- v94.3.1: Corrige error JS que rompía FIJAR y ajustes visuales. -->
@@ -1187,7 +1190,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v94.9.1"><span class="title-main">Ventana Pro</span><span class="title-version">v94.9.1</span></div>
+<div class="top-title" aria-label="Ventana Pro v95.0"><span class="title-main">Ventana Pro</span><span class="title-version">v95.0</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -3902,6 +3905,58 @@ function cambiarColorMarco(c) {
         return html;
     }
 
+    function sincronizarBotonPersianaRapida_v950(){
+        const btn = document.getElementById('btnPersianaRapida');
+        if(btn) btn.classList.toggle('active', !!mostrarPersiana);
+        const btnPanel = document.getElementById('btnTogglePersiana');
+        if(btnPanel) btnPanel.classList.toggle('active', !!mostrarPersiana);
+    }
+
+    function aplicarDefaultsPorNumeroHojas_v950(n){
+        if (esSerieSinPersiana()) return;
+
+        // Defaults de trabajo: blanco. 0 hojas sin persiana; 1-4 hojas con persiana.
+        colorMarco = '#FFFFFF';
+        marcoTextura = null;
+        mostrarPersiana = n > 0;
+        sincronizarBotonPersianaRapida_v950();
+
+        const configs = {
+            1: [
+                { apertura:'der-ob', manilla:true,  manillaSide:'derecha', bisagras:true }
+            ],
+            2: [
+                { apertura:'izquierda', manilla:false, manillaSide:'izquierda', bisagras:true },
+                { apertura:'der-ob',    manilla:true,  manillaSide:'derecha',   bisagras:true }
+            ],
+            3: [
+                { apertura:'izq-ob',    manilla:true,  manillaSide:'izquierda', bisagras:true },
+                { apertura:'izquierda', manilla:false, manillaSide:'izquierda', bisagras:true },
+                { apertura:'der-ob',    manilla:true,  manillaSide:'derecha',   bisagras:true }
+            ],
+            4: [
+                { apertura:'izquierda', manilla:false, manillaSide:'izquierda', bisagras:true },
+                { apertura:'der-ob',    manilla:true,  manillaSide:'derecha',   bisagras:true },
+                { apertura:'izquierda', manilla:false, manillaSide:'izquierda', bisagras:true },
+                { apertura:'der-ob',    manilla:true,  manillaSide:'derecha',   bisagras:true }
+            ]
+        };
+
+        const cfg = configs[n] || [];
+        for(let i=0; i<hojasData.length; i++){
+            const c = cfg[i] || { apertura:'fija', manilla:false, manillaSide:'derecha', bisagras:true };
+            hojasData[i].savedApertura = c.apertura;
+            hojasData[i].manilla = hojasData[i].manilla || { enabled:false, color:'black', side:'derecha' };
+            hojasData[i].manilla.enabled = !!c.manilla;
+            hojasData[i].manilla.side = c.manillaSide || 'derecha';
+            hojasData[i].manilla.color = hojasData[i].manilla.color || 'black';
+            hojasData[i].bisagras = hojasData[i].bisagras || { visible:true, color:'black' };
+            hojasData[i].bisagras.visible = c.bisagras !== false;
+            hojasData[i].bisagras.color = hojasData[i].bisagras.color || 'black';
+            hojasData[i].colorCristal = colorCristalGlobal;
+        }
+    }
+
     function actualizarHojas() {
         let n = +document.getElementById('hojas').value;
         const countChanged = (hojasData.length !== n);
@@ -3936,6 +3991,10 @@ function cambiarColorMarco(c) {
         }
         travesanosHojas.splice(n);
 
+        if (countChanged) {
+            aplicarDefaultsPorNumeroHojas_v950(n);
+        }
+
         if (n > 0) {
             const anchoVentanaPrincipal = getAnchoZonaCentralMM() - (2 * marcoThickness);
             let anchoDisponible = anchoVentanaPrincipal;
@@ -3948,19 +4007,14 @@ function cambiarColorMarco(c) {
                 
                 if (hojasData[i].savedApertura) {
                     aperturaSeleccionada = hojasData[i].savedApertura;
-                } else if (i === 0 && n === 2) {
-                    aperturaSeleccionada = "izquierda";
-                } else if (i === 1 && n === 2) {
-                    aperturaSeleccionada = "der-ob";
                 } else if (n === 1) {
-                    aperturaSeleccionada = "izquierda"; 
+                    aperturaSeleccionada = "der-ob";
+                } else if (n === 2) {
+                    aperturaSeleccionada = (i === 0) ? "izquierda" : "der-ob";
                 } else if (n === 3) {
-                    if (i === 0) aperturaSeleccionada = "izquierda";
-                    else if (i === 1) aperturaSeleccionada = "derecha";
-                    else if (i === 2) aperturaSeleccionada = "fija";
+                    aperturaSeleccionada = (i === 0) ? "izq-ob" : (i === 1 ? "izquierda" : "der-ob");
                 } else if (n === 4) {
-                    if (i === 0 || i === 3) aperturaSeleccionada = "fija";
-                    else if (i === 1 || i === 2) aperturaSeleccionada = "corredera";
+                    aperturaSeleccionada = (i === 0) ? "izq-ob" : (i === 1 ? "der-ob" : (i === 2 ? "izquierda" : "der-ob"));
                 }
 
                 let travesanosHtml = ``;
@@ -9853,10 +9907,13 @@ function volverIndexSeguro(){
     var cropW = Math.max(1, right - left + 1);
     var cropH = Math.max(1, bottom - top + 1);
 
-    // Igual que antes: salida optimizada para Documentos, pero ya recortada.
+    // Salida optimizada para Documentos: recortada, proporcional y con un margen fino.
     var targetW = 1200;
-    var scale = targetW / cropW;
-    var targetH = Math.max(1, Math.round(cropH * scale));
+    var docMargin = Math.round(targetW * 0.04); // 4% por lado para que no quede pegada al borde.
+    var innerW = Math.max(1, targetW - (docMargin * 2));
+    var scale = innerW / cropW;
+    var innerH = Math.max(1, Math.round(cropH * scale));
+    var targetH = innerH + (docMargin * 2);
 
     var out = document.createElement('canvas');
     out.width = targetW;
@@ -9865,7 +9922,7 @@ function volverIndexSeguro(){
     var ctx = out.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, out.width, out.height);
-    ctx.drawImage(canvas, left, top, cropW, cropH, 0, 0, targetW, targetH);
+    ctx.drawImage(canvas, left, top, cropW, cropH, docMargin, docMargin, innerW, innerH);
 
     return out.toDataURL('image/jpeg', 0.9);
   }
@@ -10111,6 +10168,102 @@ function volverIndexSeguro(){
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
   window.addEventListener('load', init, {once:true});
+})();
+</script>
+
+
+<script>
+/* v94.9.2 - FIJAR robusto
+   Corrige el botón inferior FIJAR para que siempre alterne entre:
+   - dock-off: dibujo normal en el flujo de la página
+   - fijado: controles con scroll arriba + diseño fijo abajo
+*/
+(function(){
+  'use strict';
+
+  function getBtn(){
+    return document.getElementById('btnFijar');
+  }
+
+  function redrawVentana(){
+    try{
+      if(typeof actualizarVista === 'function') actualizarVista();
+    }catch(e){}
+    try{
+      var c = document.getElementById('canvas');
+      if(c){
+        c.style.display = 'none';
+        c.offsetHeight;
+        c.style.display = '';
+      }
+    }catch(e){}
+  }
+
+  function setDockFixed(enabled, persist){
+    var btn = getBtn();
+    var body = document.body;
+    if(!body || !btn) return;
+
+    body.classList.toggle('dock-off', !enabled);
+    btn.classList.toggle('active', !!enabled);
+    btn.textContent = enabled ? 'FIJADO' : 'FIJAR';
+
+    var dock = document.getElementById('canvasDock');
+    if(dock && enabled){
+      try{ dock.scrollTop = 0; dock.scrollLeft = 0; }catch(e){}
+    }
+
+    if(persist !== false){
+      try{
+        var raw = localStorage.getItem('VENTANA_APP_STATE_V85_9');
+        var data = raw ? JSON.parse(raw) : {inputs:{}, globals:{}};
+        if(!data || typeof data !== 'object') data = {inputs:{}, globals:{}};
+        if(!data.globals || typeof data.globals !== 'object') data.globals = {};
+        data.globals.__dockEnabled = !!enabled;
+        localStorage.setItem('VENTANA_APP_STATE_V85_9', JSON.stringify(data));
+      }catch(e){}
+    }
+
+    setTimeout(redrawVentana, 40);
+    setTimeout(redrawVentana, 160);
+  }
+
+  function toggleDock(ev){
+    if(ev){
+      try{ ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); }catch(e){}
+    }
+    var btn = getBtn();
+    var enabled = !(btn && btn.classList.contains('active'));
+    setDockFixed(enabled, true);
+    return false;
+  }
+
+  function bindFijar(){
+    var btn = getBtn();
+    if(!btn || btn.dataset.fijarRobusto === '1') return;
+    btn.dataset.fijarRobusto = '1';
+
+    btn.addEventListener('click', toggleDock, {capture:true, passive:false});
+    btn.addEventListener('touchend', toggleDock, {capture:true, passive:false});
+
+    // Sincroniza texto/estado actual al cargar, sin cambiar la elección guardada.
+    var isFixed = !document.body.classList.contains('dock-off') || btn.classList.contains('active');
+    setDockFixed(isFixed, false);
+  }
+
+  window.setVentanaDockFixed = setDockFixed;
+  window.toggleVentanaDockFixed = toggleDock;
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindFijar, {once:true});
+  }else{
+    bindFijar();
+  }
+
+  window.addEventListener('resize', function(){
+    var btn = getBtn();
+    if(btn && btn.classList.contains('active')) setTimeout(redrawVentana, 120);
+  }, {passive:true});
 })();
 </script>
 

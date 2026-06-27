@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Módulos v1.2</title>
+<title>Módulos v1.3</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--txt:#111827;--muted:#6b7280;--bd:#d1d5db;--blue:#003b86;--line:#111}
 *{box-sizing:border-box}
@@ -854,12 +854,12 @@ body.from-documentos{
 <main class="app">
 <div id="scrollArea">
 <section class="card">
-  <h1>Módulos v1.2</h1>
+  <h1>Módulos v1.3</h1>
   <h2>Módulos</h2>
   <div id="modulesBox"></div>
   <button id="addModuleBtn">Crear otro módulo</button>
 
-  <p class="small">v1.2: por defecto fijado, sin cotas totales y volver al index reforzado.</p>
+  <p class="small">v1.3: exportación recortada para Documentos, con menos aire lateral.</p>
 </section>
 </div>
 <div id="dockArea">
@@ -1503,19 +1503,70 @@ async function downloadSvg(){
   await exportFile(blob, "plano_montaje.svg", "image/svg+xml", "svg");
 }
 
-function svgToPngBlob(){
+function getExportCropBox(){
+  try{
+    const children = Array.from(svg.children).filter((el, idx) => {
+      // Ignora el rectángulo blanco de fondo, para que no fuerce el PNG a 1000x1000.
+      if(idx === 0 && el.tagName && el.tagName.toLowerCase() === "rect") return false;
+      return true;
+    });
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    children.forEach(el => {
+      if(!el.getBBox) return;
+      const b = el.getBBox();
+      if(!b || !Number.isFinite(b.x) || !Number.isFinite(b.y) || b.width <= 0 || b.height <= 0) return;
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    });
+
+    if(!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)){
+      return null;
+    }
+
+    // Margen pequeño para que no corte cotas, flechas ni textos.
+    const pad = 28;
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(CANVAS, maxX + pad);
+    maxY = Math.min(CANVAS, maxY + pad);
+
+    const w = Math.max(1, maxX - minX);
+    const h = Math.max(1, maxY - minY);
+    return {x:minX, y:minY, w, h};
+  }catch(e){
+    return null;
+  }
+}
+
+function svgToPngBlob(cropToDrawing=false){
   return new Promise((resolve) => {
     const img = new Image();
     const blob = new Blob([svgData()], {type:"image/svg+xml;charset=utf-8"});
     const url = URL.createObjectURL(blob);
     img.onload = () => {
+      const scale = 2;
+      let crop = cropToDrawing ? getExportCropBox() : null;
+      if(!crop) crop = {x:0, y:0, w:CANVAS, h:CANVAS};
+
       const c = document.createElement("canvas");
-      c.width = 2000;
-      c.height = 2000;
+      c.width = Math.max(1, Math.round(crop.w * scale));
+      c.height = Math.max(1, Math.round(crop.h * scale));
       const ctx = c.getContext("2d");
       ctx.fillStyle = "#fff";
       ctx.fillRect(0,0,c.width,c.height);
-      ctx.drawImage(img,0,0,c.width,c.height);
+
+      // Dibuja el SVG completo desplazado para quedarse solo con el área útil.
+      ctx.drawImage(
+        img,
+        -crop.x * scale,
+        -crop.y * scale,
+        CANVAS * scale,
+        CANVAS * scale
+      );
+
       URL.revokeObjectURL(url);
       c.toBlob(png => resolve(png), "image/png");
     };
@@ -1528,7 +1579,7 @@ function svgToPngBlob(){
 }
 
 async function downloadPng(){
-  const png = await svgToPngBlob();
+  const png = await svgToPngBlob(true);
   if(!png) return;
   // PNG: mostrar primero imagen generada para poder guardarla manteniendo pulsado en iPhone antiguo.
   showExportPanel({
@@ -1603,7 +1654,7 @@ function blobToDataUrl(blob){
 async function enviarModulosADocumentos(){
   try{
     draw();
-    const png = await svgToPngBlob();
+    const png = await svgToPngBlob(true);
     if(!png){
       alert("No se pudo generar la imagen de módulos.");
       return;
