@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
-  <title>Ventanas Rey - Factura Pro v25.9.7</title>
+  <title>Ventanas Rey - Factura Pro v25.9.8</title>
   <style>
     :root {
       --catalogo-bg:#eaf2ff;
@@ -1299,7 +1299,7 @@
 }
 
 
-/* v25.9.7 - Resumen de búsqueda en Gastos */
+/* v25.9.8 - Resumen de búsqueda en Gastos */
 .gastos-search-summary{
   display:none;
   margin:8px 0 10px;
@@ -1328,7 +1328,7 @@
 }
 
 
-/* v25.9.7 - Corrección mínima iPhone: evitar zoom al tocar buscadores */
+/* v25.9.8 - Corrección mínima iPhone: evitar zoom al tocar buscadores */
 .search-input,
 input[type="search"],
 input[inputmode="search"]{
@@ -1340,7 +1340,7 @@ input[inputmode="search"]{
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.9.7">
+  <meta name="apple-mobile-web-app-title" content="Ventanas Rey v25.9.8">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="manifest" href="manifest.json">
@@ -1365,7 +1365,7 @@ input[inputmode="search"]{
   <div class="drawer-content">
     <div class="drawer-fixed">
       <div class="drawer-item active" onclick="irInicio(); cerrarDrawerSeguro()">
-        <span class="drawer-text">Inicio (Facturación v25.9.7)</span>
+        <span class="drawer-text">Inicio (Facturación v25.9.8)</span>
       </div>
     </div>
     <div class="drawer-scroll">
@@ -1437,7 +1437,7 @@ input[inputmode="search"]{
   
   <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
 <div class="menu-icon" onclick="toggleDrawer()">⋮</div>
-  <div id="headerTitle">Resumen <span class="header-version-badge">v25.9.7</span></div>
+  <div id="headerTitle">Resumen <span class="header-version-badge">v25.9.8</span></div>
   <div class="right-actions">
     <button id="headerActionBtn" class="header-action" type="button" style="display:none">+ Nuevo</button>
     <div class="home-icon" onclick="irInicio(); cerrarDrawerSeguro()" title="Inicio">🏠</div>
@@ -3512,7 +3512,7 @@ function setDocType(type){
 
     var headerTitleEl = document.getElementById('headerTitle');
     if(titulo === 'Resumen'){
-      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.9.7</span>';
+      headerTitleEl.innerHTML = 'Resumen <span class="header-version-badge">v25.9.8</span>';
     }else{
       headerTitleEl.textContent = titulo;
     }
@@ -13486,6 +13486,11 @@ function volverIndexSeguro(){
       base = total || 0;
     }
 
+    // v25.9.8: Documentos Rey puede guardar la factura solo con líneas (sin ivaStr/totalStr).
+    // En ese caso el IVA de ventas debe calcularse igualmente al 21%.
+    if(!iva && base > 0){
+      iva = Math.round(base * 21) / 100;
+    }
     if(!total && (base || iva)) total = base + iva;
     if(iva < 0) iva = 0;
     if(base < 0) base = 0;
@@ -13980,22 +13985,52 @@ function volverIndexSeguro(){
   }
 
   async function readMainDocList(){
-    var arr = [];
+    // v25.9.8: no usar solo la primera fuente que tenga datos.
+    // En iPhone puede quedar IndexedDB con una lista y localStorage/legacy con otra;
+    // se fusionan todas y se deduplican para no perder facturas recientes.
+    var sources = [];
+
     try{
       var rawIdb = await idbGetDocKey(DOC_KEY);
-      arr = safeParse(rawIdb, []);
-      if(Array.isArray(arr) && arr.length) return arr;
+      var arrIdb = safeParse(rawIdb, []);
+      if(Array.isArray(arrIdb) && arrIdb.length) sources.push(arrIdb);
     }catch(e){}
 
-    arr = readLsArray(DOC_KEY);
-    if(Array.isArray(arr) && arr.length) return arr;
+    var arrLs = readLsArray(DOC_KEY);
+    if(Array.isArray(arrLs) && arrLs.length) sources.push(arrLs);
 
-    // Compatibilidad con copias antiguas o versiones donde las facturas estaban en claves propias.
     var legacy = [];
     readLsArray('rey_presu_history').forEach(function(x){ if(x){ x.documentoTipo = x.documentoTipo || 'presupuesto'; legacy.push(x); } });
     readLsArray('rey_history').forEach(function(x){ if(x){ x.documentoTipo = x.documentoTipo || 'factura'; legacy.push(x); } });
     readLsArray('rey_alb_history').forEach(function(x){ if(x){ x.documentoTipo = x.documentoTipo || 'albaran'; legacy.push(x); } });
-    return legacy;
+    if(legacy.length) sources.push(legacy);
+
+    var merged = [];
+    var seen = {};
+    function keyFor(x){
+      var tipo = inferType(x);
+      var id = String((x && (x.documentId || x.facturacionId || x.id || x.bridgeId)) || '').trim();
+      var num = String((x && (x.numero || x.num || x.number || x.documentNumber)) || '').trim();
+      return tipo + '|' + (id || num || ('idx_' + merged.length));
+    }
+    sources.forEach(function(arr){
+      (arr || []).forEach(function(x){
+        if(!x) return;
+        var k = keyFor(x);
+        // Mantener la versión más nueva si hay duplicado.
+        if(seen[k] == null){
+          seen[k] = merged.length;
+          merged.push(x);
+        }else{
+          var i = seen[k];
+          var old = merged[i] || {};
+          var a = Number(old.updatedAt || old.savedAt || old.createdAt || 0) || 0;
+          var b = Number(x.updatedAt || x.savedAt || x.createdAt || 0) || 0;
+          if(b >= a) merged[i] = x;
+        }
+      });
+    });
+    return merged;
   }
 
   function inferType(item){
@@ -14316,7 +14351,7 @@ function volverIndexSeguro(){
 
 
 <script>
-/* v25.9.7 - Filtro global de periodo aplicado también a Gastos y su búsqueda
+/* v25.9.8 - Filtro global de periodo aplicado también a Gastos y su búsqueda
    Base: v25.9.6. Cambio mínimo: no toca guardado ni cálculos existentes. */
 (function(){
   'use strict';
