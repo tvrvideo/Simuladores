@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v3.4.1</title>
+  <title>Documentos Rey v3.6</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -780,7 +780,7 @@ body.editing-field .return-app-btn{
   bottom:calc(62px + env(safe-area-inset-bottom) + var(--vv-bottom));
   z-index:45;
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(5,minmax(0,1fr));
   gap:4px;
   width:min(860px, calc(100vw - 12px));
   margin:0 auto;
@@ -818,6 +818,7 @@ body.editing-field .return-app-btn{
 #btnPageAdd{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%) !important;}
 #btnPageRemove{background:linear-gradient(180deg,#fb923c 0%,#f59e0b 100%) !important;}
 #btnPageIva{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%) !important;}
+#btnFabricarPdf{background:linear-gradient(180deg,#8b5cf6 0%,#7c3aed 100%) !important;}
 #btnPageIva.iva-off{background:linear-gradient(180deg,#64748b 0%,#475569 100%) !important;}
 .sheet.show ~ .page-floating-actions,
 body.png-open .page-floating-actions,
@@ -3768,7 +3769,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v3.4</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v3.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -3988,6 +3989,7 @@ Pendiente de integración completa:
   <button type="button" id="btnPageAdd" onclick="document.getElementById('btnAddPage').click(); return false;">+ Página</button>
   <button type="button" id="btnPageRemove" onclick="document.getElementById('btnRemovePage').click(); return false;">− Página</button>
   <button type="button" id="btnPageIva" onclick="return window.__docToggleIva && window.__docToggleIva();">IVA ON</button>
+  <button type="button" id="btnFabricarPdf" onclick="this.style.setProperty('background','linear-gradient(180deg,#22c55e 0%,#16a34a 100%)','important'); this.style.setProperty('border-color','#16a34a','important'); this.textContent='Fabricar ✓'; return false;">Fabricar</button>
 </div>
 
 <div id="clientDeleteConfirmOverlay" aria-hidden="true">
@@ -7803,6 +7805,9 @@ COLOCACIÓN INCLUIDA` }
       var pdfBytes = _pdf_concat(parts);
       var pdfBlob = new Blob([pdfBytes], {type:'application/pdf'});
       var filename = safeFileName(options.filename || safeFilename() || 'presupuesto', '.pdf');
+      if(options.returnBlob){
+        return {blob: pdfBlob, filename: filename};
+      }
       await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Documento PDF');
       return {blob: pdfBlob, filename: filename};
     }
@@ -7900,6 +7905,198 @@ COLOCACIÓN INCLUIDA` }
     overlay.classList.remove('show');
     overlay.setAttribute('aria-hidden','true');
   }
+
+  /* v3.5.1 - PDF Fabricación integrado: usa el mismo exportador PDF de Documentos */
+  function fabNormTxt(v){ return String(v == null ? '' : v).replace(/\s+/g,' ').trim(); }
+  function fabImgSrc(it){
+    var src = fabNormTxt(it && (it.image || it.img || it.imagen || it.foto || it.photo || it.src) || '');
+    if(src.indexOf('||') >= 0){
+      var parts = src.split('||').map(function(x){ return fabNormTxt(x); }).filter(Boolean);
+      return parts.find(function(x){ return /^data:image\//i.test(x); }) || parts[0] || '';
+    }
+    return src;
+  }
+  function fabCodeForItem(it, idx){
+    var c = fabNormTxt(it && (it.code || it.codigo || it.ref));
+    return c || ('V' + (idx + 1));
+  }
+  function fabLoadImgSize(src){
+    return new Promise(function(resolve){
+      if(!src){ resolve(null); return; }
+      var img = new Image();
+      img.onload = function(){ resolve({w: img.naturalWidth || img.width || 1, h: img.naturalHeight || img.height || 1}); };
+      img.onerror = function(){ resolve(null); };
+      img.src = src;
+    });
+  }
+  function fabTextLines(text, maxLines){
+    return String(text || '').split(/\n+/).map(function(x){ return fabNormTxt(x); }).filter(Boolean).slice(0, maxLines || 4);
+  }
+  function fabSlots(per){
+    var W=794,H=1123, m=30, header=106, gap=16, top=header+18, usable=H-top-m;
+    if(per === 1) return [{x:m,y:top,w:W-m*2,h:usable}];
+    if(per === 2){ var h2=(usable-gap)/2; return [{x:m,y:top,w:W-m*2,h:h2},{x:m,y:top+h2+gap,w:W-m*2,h:h2}]; }
+    if(per === 3){ var h3=(usable-gap*2)/3; return [0,1,2].map(function(i){ return {x:m,y:top+i*(h3+gap),w:W-m*2,h:h3}; }); }
+    if(per === 4){ var w4=(W-m*2-gap)/2,h4=(usable-gap)/2; return [{x:m,y:top,w:w4,h:h4},{x:m+w4+gap,y:top,w:w4,h:h4},{x:m,y:top+h4+gap,w:w4,h:h4},{x:m+w4+gap,y:top+h4+gap,w:w4,h:h4}]; }
+    if(per === 5){ var h5=(usable-gap*4)/5; return [0,1,2,3,4].map(function(i){ return {x:m,y:top+i*(h5+gap),w:W-m*2,h:h5}; }); }
+    var w6=(W-m*2-gap)/2,h6=(usable-gap*2)/3, a=[];
+    for(var r=0;r<3;r++) for(var c=0;c<2;c++) a.push({x:m+c*(w6+gap),y:top+r*(h6+gap),w:w6,h:h6});
+    return a;
+  }
+  function fabSlotsNotas(count, itemCount){
+    var W=794,H=1123, m=30, header=106, gap=10, top=header+18, usable=H-top-m;
+    count = Math.max(1, Math.min(6, parseInt(count || 1, 10)));
+    itemCount = Math.max(0, parseInt(itemCount || 0, 10));
+
+    // Modo notas avanzado:
+    // - Hasta 6 diseños: una sola columna. La opción 1-6 fija la altura de fila.
+    // - Más de 6 diseños: dos columnas equilibradas en la misma hoja, hasta 12 diseños.
+    //   Ej.: 7 => 4+3, 8 => 4+4, 10 => 5+5, 12 => 6+6.
+    if(itemCount > 6){
+      var gapX = 14;
+      var rows = Math.min(6, Math.ceil(itemCount / 2));
+      var colW = (W - m*2 - gapX) / 2;
+      var h2 = (usable - gap*(rows-1)) / rows;
+      var leftCount = Math.ceil(itemCount / 2);
+      var slots = [];
+      for(var i=0;i<itemCount;i++){
+        var left = i < leftCount;
+        var row = left ? i : (i - leftCount);
+        slots.push({x:m + (left ? 0 : colW + gapX), y:top + row*(h2+gap), w:colW, h:h2, twoCols:true});
+      }
+      return slots;
+    }
+
+    var h=(usable - gap*(count-1))/count;
+    var out=[];
+    for(var j=0;j<count;j++) out.push({x:m,y:top+j*(h+gap),w:W-m*2,h:h});
+    return out;
+  }
+  function fabSvgEl(name, attrs, text){
+    var el = document.createElementNS('http://www.w3.org/2000/svg', name);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){ el.setAttribute(k, attrs[k]); });
+    if(text != null) el.textContent = text;
+    return el;
+  }
+  function fabAddText(svg, x, y, text, size, weight, color, anchor){
+    var t = fabSvgEl('text', {x:x, y:y, fill:color || '#111827', 'font-size':size || 12, 'font-family':'Arial, sans-serif', 'font-weight':weight || 700});
+    if(anchor) t.setAttribute('text-anchor', anchor);
+    t.textContent = text;
+    svg.appendChild(t);
+    return t;
+  }
+  function fabBuildPageSvg(items, per, pageNo, totalPages, opts){
+    opts = opts || {};
+    var modoNotas = !!opts.notas;
+    var svg = fabSvgEl('svg', {xmlns:'http://www.w3.org/2000/svg', viewBox:'0 0 794 1123', width:'794', height:'1123'});
+    svg.appendChild(fabSvgEl('rect',{x:0,y:0,width:794,height:1123,fill:'#ffffff'}));
+    svg.appendChild(fabSvgEl('rect',{x:28,y:24,width:738,height:82,fill:'#ffffff',stroke:'#111827','stroke-width':'1.2'}));
+    fabAddText(svg,397,52,'HOJA DE FABRICACIÓN',22,900,'#111827','middle');
+    var fabCliente = fabNormTxt(state && state.clienteNombre || 'Cliente contado');
+    var fabObra = fabNormTxt((state && (state.obra || state.nombreObra || state.proyecto || state.referenciaObra)) || '');
+    var fabNumero = fabNormTxt(state && state.numero || '0000');
+    var fabFecha = fabNormTxt(state && state.fecha || '');
+    var fabLinea = 'Cliente: ' + fabCliente;
+    if(fabObra) fabLinea += '   ·   Obra: ' + fabObra;
+    fabLinea += '   ·   Nº: ' + fabNumero;
+    if(fabFecha) fabLinea += '   ·   Fecha: ' + fabFecha;
+    fabLinea += '   ·   Hoja ' + pageNo + '/' + totalPages;
+    if(fabLinea.length > 112) fabLinea = fabLinea.slice(0,109) + '…';
+    fabAddText(svg,397,80,fabLinea,13,800,'#111827','middle');
+    var slots = modoNotas ? fabSlotsNotas(per, items.length) : fabSlots(per);
+    items.forEach(function(it, i){
+      var r = slots[i]; if(!r) return;
+      svg.appendChild(fabSvgEl('rect',{x:r.x,y:r.y,width:r.w,height:r.h,fill:'#ffffff',stroke:'#111827','stroke-width':'1.2'}));
+      var bandH = modoNotas ? 25 : 34;
+      svg.appendChild(fabSvgEl('rect',{x:r.x,y:r.y,width:r.w,height:bandH,fill:'#dbeafe',stroke:'#111827','stroke-width':'0.8'}));
+      var small = per >= 4;
+      var codeSize = modoNotas ? (r.twoCols ? 11 : (per >= 6 ? 13 : 16)) : (small ? 13 : 16);
+      var udsSize = modoNotas ? (r.twoCols ? 11 : (per >= 6 ? 13 : 16)) : (small ? 12 : 14);
+      var labelY = r.y + (modoNotas ? 18 : 23);
+      fabAddText(svg,r.x+8,labelY,it._fabCode, codeSize,900,'#111827');
+      fabAddText(svg,r.x+r.w-8,labelY,'Uds '+fabNormTxt(it.units || it.uds || '1'), udsSize,900,'#111827','end');
+      var infoH = modoNotas ? 0 : (small ? 60 : 78);
+      var imgX = r.x+12, imgY = r.y+(modoNotas ? 34 : 44), imgW = r.w-24, imgH = Math.max(45, r.h-infoH-(modoNotas ? 42 : 54));
+      var src = fabImgSrc(it);
+      if(modoNotas){
+        // Modo notas: la opción 1/2/3/4/6 reparte la altura de la hoja.
+        // Cada diseño ocupa una fila. El gráfico se ajusta por alto/ancho en la zona izquierda
+        // y el recuadro se dibuja exactamente alrededor de la imagen resultante.
+        var areaX = r.x + 10;
+        var areaY = r.y + 34;
+        var areaW = r.twoCols ? Math.max(88, Math.floor((r.w - 18) * 0.48)) : Math.max(170, Math.floor((r.w - 24) * 0.42));
+        var areaH = Math.max(32, r.h - 42);
+        var natW = it._fabImgW || 1;
+        var natH = it._fabImgH || 1;
+        var sc = Math.min(areaW / natW, areaH / natH);
+        imgW = Math.max(1, natW * sc);
+        imgH = Math.max(1, natH * sc);
+        imgX = areaX;
+        imgY = areaY + (areaH - imgH) / 2;
+      }
+      var graphStroke = modoNotas ? '#111827' : '#e2e8f0';
+      var graphStrokeW = modoNotas ? '0.8' : '0.8';
+      if(src){
+        svg.appendChild(fabSvgEl('rect',{x:imgX,y:imgY,width:imgW,height:imgH,fill:'#ffffff',stroke:graphStroke,'stroke-width':graphStrokeW}));
+        var pad = modoNotas ? 0 : 4;
+        var im = fabSvgEl('image',{x:imgX+pad,y:imgY+pad,width:imgW-pad*2,height:imgH-pad*2,preserveAspectRatio:'xMidYMid meet'});
+        im.setAttribute('href', src);
+        im.setAttributeNS('http://www.w3.org/1999/xlink','href', src);
+        svg.appendChild(im);
+      }else{
+        svg.appendChild(fabSvgEl('rect',{x:imgX,y:imgY,width:imgW,height:imgH,fill:'#ffffff',stroke:graphStroke,'stroke-width':graphStrokeW}));
+        svg.appendChild(fabSvgEl('rect',{x:imgX+8,y:imgY+8,width:imgW-16,height:imgH-16,fill:'none',stroke:'#cbd5e1','stroke-width':'0.8'}));
+        fabAddText(svg,imgX+imgW/2,imgY+imgH/2,'Sin gráfico',small?12:16,800,'#64748b','middle');
+      }
+      var lines = modoNotas ? [] : fabTextLines(it.text || it.concepto || it.descripcion || '', small?3:4);
+      if(!modoNotas){
+        var y = r.y + r.h - infoH + (small?16:20);
+        if(!lines.length) lines = [''];
+        lines.forEach(function(line,k){
+          var maxChars = small ? 34 : 72;
+          if(line.length > maxChars) line = line.slice(0,maxChars-1) + '…';
+          fabAddText(svg,r.x+10,y+k*(small?13:16),line,small?9:11,700,'#111827');
+        });
+      }
+    });
+    return svg;
+  }
+  async function exportFabricacionPDF(selectedCodes, perPage, opts){
+    opts = opts || {};
+    selectedCodes = (selectedCodes || []).map(function(x){ return fabNormTxt(x).toUpperCase(); }).filter(Boolean);
+    perPage = parseInt(perPage || 3, 10);
+    if([1,2,3,4,5,6].indexOf(perPage) < 0) perPage = 3;
+    var srcItems = ensureConceptList(state && state.items || []).map(function(it, idx){
+      var copy = Object.assign({}, it || {});
+      copy._fabCode = fabCodeForItem(copy, idx);
+      return copy;
+    }).filter(function(it){ return fabNormTxt(it.text || it.concepto || it.descripcion || '') || fabImgSrc(it); });
+    if(selectedCodes.length){
+      srcItems = srcItems.filter(function(it){ return selectedCodes.indexOf(fabNormTxt(it._fabCode).toUpperCase()) >= 0; });
+    }
+    if(!srcItems.length){ throw new Error('No hay diseños seleccionados para fabricar'); }
+    if(opts.notas){
+      await Promise.all(srcItems.map(async function(it){
+        var dim = await fabLoadImgSize(fabImgSrc(it));
+        if(dim){ it._fabImgW = dim.w; it._fabImgH = dim.h; }
+      }));
+    }
+    var chunks = [];
+    var chunkSize = opts.notas && srcItems.length > 6 ? 12 : perPage;
+    for(var i=0;i<srcItems.length;i+=chunkSize) chunks.push(srcItems.slice(i,i+chunkSize));
+    var svgs = chunks.map(function(chunk, idx){ return fabBuildPageSvg(chunk, perPage, idx+1, chunks.length, opts); });
+    var name = safeFileName('Fabricacion' + (opts.notas ? '_Notas_' : '_') + fabNormTxt(state && state.numero || 'documento'), '.pdf');
+    var result = await exportSvgToEditablePdf(svgs, { filename:name, title:'PDF fabricación', returnBlob: !!opts.preview });
+    if(opts.preview){
+      try{ result.previewSvgs = svgs.map(function(svg){ return new XMLSerializer().serializeToString(svg); }); }catch(_){ result.previewSvgs = null; }
+      return result;
+    }
+    toast('PDF fabricación generado');
+    return result;
+  }
+  window.exportFabricacionPDF = exportFabricacionPDF;
+
     async function exportPDF(){
     try{
       const exportPages = buildExportPageSvgs();
@@ -16104,6 +16301,515 @@ const mo = new MutationObserver(function(){
   }else{
     boot();
   }
+})();
+</script>
+
+
+<script>
+/* v3.5.1 - Fabricación independiente y operativa: no depende del bloque interno de la app */
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'presupuesto_directo_pdf_v2_05_current';
+  var DB_NAME = 'presupuesto_directo_pdf_db';
+  var DB_STORE = 'kv';
+
+  function fabToast(msg){
+    try{
+      var old=document.getElementById('fabToastStandalone');
+      if(!old){
+        old=document.createElement('div');
+        old.id='fabToastStandalone';
+        old.style.cssText='position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 14px;border-radius:999px;z-index:99999;font-weight:800;font-size:14px;max-width:calc(100vw - 40px);text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.25)';
+        document.body.appendChild(old);
+      }
+      old.textContent=msg;
+      old.style.display='block';
+      clearTimeout(old._t);
+      old._t=setTimeout(function(){ old.style.display='none'; },2400);
+    }catch(_){ alert(msg); }
+  }
+  function clean(s){ return String(s == null ? '' : s).replace(/\s+/g,' ').trim(); }
+  function safeFileName(name, ext){
+    var base=String(name||'Fabricacion').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').replace(/^_+|_+$/g,'') || 'Fabricacion';
+    if(ext && base.toLowerCase().slice(-ext.length)!==ext.toLowerCase()) base += ext;
+    return base;
+  }
+  function idbGet(key){
+    return new Promise(function(resolve){
+      if(!window.indexedDB){ resolve(null); return; }
+      var req=indexedDB.open(DB_NAME,1);
+      req.onerror=function(){ resolve(null); };
+      req.onupgradeneeded=function(){ try{ req.result.createObjectStore(DB_STORE); }catch(_){} };
+      req.onsuccess=function(){
+        var db=req.result;
+        try{
+          var tx=db.transaction(DB_STORE,'readonly');
+          var st=tx.objectStore(DB_STORE).get(key);
+          st.onsuccess=function(){ try{ db.close(); }catch(_){} resolve(st.result == null ? null : st.result); };
+          st.onerror=function(){ try{ db.close(); }catch(_){} resolve(null); };
+        }catch(e){ try{ db.close(); }catch(_){} resolve(null); }
+      };
+    });
+  }
+  async function loadCurrentState(){
+    var raw=null;
+    try{ raw=localStorage.getItem(STORAGE_KEY); }catch(_){ raw=null; }
+    if(!raw){ raw=await idbGet(STORAGE_KEY); }
+    if(!raw){
+      try{ raw=localStorage.getItem(STORAGE_KEY + '_idb_only') ? await idbGet(STORAGE_KEY) : null; }catch(_){}
+    }
+    if(!raw) return null;
+    if(typeof raw !== 'string') return raw;
+    try{ return JSON.parse(raw); }catch(_){ return null; }
+  }
+  function getItems(state){
+    var arr = state && Array.isArray(state.items) ? state.items : [];
+    return arr.filter(function(it){
+      return it && (clean(it.text) || clean(it.image || it.img || it.imagen));
+    }).map(function(it,idx){
+      return {
+        code: clean(it.code || ('V'+(idx+1))),
+        text: String(it.text || '').trim(),
+        image: clean(it.image || it.img || it.imagen || ''),
+        units: clean(it.units == null ? '1' : it.units) || '1'
+      };
+    });
+  }
+  function extractImage(src){
+    src=clean(src);
+    if(!src) return '';
+    if(src.indexOf('||')>=0){
+      var parts=src.split('||').map(function(x){return x.trim();}).filter(Boolean);
+      return parts.find(function(x){return /^data:image\//i.test(x);}) || parts[0] || '';
+    }
+    return src;
+  }
+  function loadImage(src){
+    return new Promise(function(resolve){
+      src=extractImage(src);
+      if(!src){ resolve(null); return; }
+      var img=new Image();
+      img.onload=function(){ resolve(img); };
+      img.onerror=function(){ resolve(null); };
+      if(!/^data:image\//i.test(src)) img.crossOrigin='anonymous';
+      img.src=src;
+    });
+  }
+  function drawContained(ctx,img,x,y,w,h){
+    ctx.save();
+    if(!img){
+      ctx.strokeStyle='#cbd5e1'; ctx.setLineDash([10,8]); ctx.strokeRect(x,y,w,h);
+      ctx.fillStyle='#64748b'; ctx.font='700 26px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('Sin gráfico',x+w/2,y+h/2);
+      ctx.restore(); return;
+    }
+    var iw=img.naturalWidth||img.width||1, ih=img.naturalHeight||img.height||1;
+    var sc=Math.min(w/iw,h/ih);
+    var dw=iw*sc, dh=ih*sc;
+    ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+    ctx.restore();
+  }
+  function wrapLines(ctx,text,maxW,maxLines){
+    var words=clean(text).split(/\s+/).filter(Boolean), lines=[], line='';
+    for(var i=0;i<words.length;i++){
+      var test=line ? line+' '+words[i] : words[i];
+      if(ctx.measureText(test).width>maxW && line){ lines.push(line); line=words[i]; if(maxLines && lines.length>=maxLines) break; }
+      else line=test;
+    }
+    if(line && (!maxLines || lines.length<maxLines)) lines.push(line);
+    return lines;
+  }
+  function firstTextLines(text,maxLines){ return String(text||'').split(/\n+/).map(function(x){return x.trim();}).filter(Boolean).slice(0,maxLines||4); }
+  function slotRects(per,pageW,pageH){
+    var margin=44, headerH=90, gap=18, top=headerH+18, usableH=pageH-top-margin;
+    if(per===1) return [{x:margin,y:top,w:pageW-margin*2,h:usableH}];
+    if(per===2){ var h2=(usableH-gap)/2; return [{x:margin,y:top,w:pageW-margin*2,h:h2},{x:margin,y:top+h2+gap,w:pageW-margin*2,h:h2}]; }
+    if(per===3){ var h3=(usableH-gap*2)/3; return [0,1,2].map(function(i){return {x:margin,y:top+i*(h3+gap),w:pageW-margin*2,h:h3};}); }
+    if(per===4){ var w4=(pageW-margin*2-gap)/2,h4=(usableH-gap)/2; return [{x:margin,y:top,w:w4,h:h4},{x:margin+w4+gap,y:top,w:w4,h:h4},{x:margin,y:top+h4+gap,w:w4,h:h4},{x:margin+w4+gap,y:top+h4+gap,w:w4,h:h4}]; }
+    var w6=(pageW-margin*2-gap)/2,h6=(usableH-gap*2)/3,arr=[];
+    for(var r=0;r<3;r++) for(var c=0;c<2;c++) arr.push({x:margin+c*(w6+gap),y:top+r*(h6+gap),w:w6,h:h6});
+    return arr;
+  }
+  async function renderFabPage(state,items,per,pageIndex,totalPages){
+    var pageW=1240,pageH=1754,cv=document.createElement('canvas'); cv.width=pageW; cv.height=pageH;
+    var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,pageW,pageH);
+    ctx.strokeStyle='#111827'; ctx.lineWidth=2; ctx.strokeRect(34,34,pageW-68,70);
+    ctx.fillStyle='#111827'; ctx.font='700 26px Arial'; ctx.textAlign='left'; ctx.fillText(clean(state.numero||'P-2026-0000'),52,78);
+    ctx.font='800 30px Arial'; ctx.textAlign='center'; ctx.fillText('HOJA DE FABRICACIÓN',pageW/2,77);
+    ctx.font='700 20px Arial'; ctx.textAlign='right'; ctx.fillText('Hoja '+pageIndex+'/'+totalPages,pageW-52,78);
+    ctx.font='700 18px Arial'; ctx.textAlign='left'; ctx.fillText('Cliente: '+clean(state.clienteNombre||'Cliente contado'),52,132);
+    ctx.textAlign='right'; ctx.fillText('Fecha: '+clean(state.fecha||''),pageW-52,132);
+    var rects=slotRects(per,pageW,pageH);
+    for(var i=0;i<rects.length && i<items.length;i++){
+      var it=items[i], r=rects[i];
+      ctx.strokeStyle='#111827'; ctx.lineWidth=2; ctx.strokeRect(r.x,r.y,r.w,r.h);
+      ctx.fillStyle='#dbeafe'; ctx.fillRect(r.x,r.y,r.w,42); ctx.strokeRect(r.x,r.y,r.w,42);
+      ctx.fillStyle='#111827'; ctx.font='800 '+(per>=4?20:24)+'px Arial'; ctx.textAlign='left'; ctx.fillText(it.code,r.x+14,r.y+29);
+      ctx.textAlign='right'; ctx.font='700 '+(per>=4?15:18)+'px Arial'; ctx.fillText('Uds '+it.units,r.x+r.w-14,r.y+29);
+      var infoH=per>=4?74:96, imgX=r.x+16, imgY=r.y+54, imgW=r.w-32, imgH=r.h-infoH-70;
+      ctx.fillStyle='#fff'; ctx.fillRect(imgX,imgY,imgW,imgH);
+      var img=await loadImage(it.image);
+      drawContained(ctx,img,imgX+8,imgY+8,imgW-16,imgH-16);
+      ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.strokeRect(imgX,imgY,imgW,imgH);
+      var yInfo=r.y+r.h-infoH+18;
+      ctx.fillStyle='#111827'; ctx.textAlign='left'; ctx.font=(per>=4?'700 14px Arial':'700 17px Arial');
+      var rawLines=firstTextLines(it.text, per>=4?3:4);
+      for(var k=0;k<rawLines.length;k++){
+        var lines=wrapLines(ctx,rawLines[k],r.w-28,1);
+        if(lines[0]) ctx.fillText(lines[0],r.x+14,yInfo+k*(per>=4?17:20));
+      }
+    }
+    return cv;
+  }
+  function b64ToBytes(b64){ var bin=atob(b64), len=bin.length, out=new Uint8Array(len); for(var i=0;i<len;i++) out[i]=bin.charCodeAt(i); return out; }
+  function bytesAscii(str){ var out=new Uint8Array(str.length); for(var i=0;i<str.length;i++) out[i]=str.charCodeAt(i)&255; return out; }
+  function concat(parts){ var len=parts.reduce(function(a,b){return a+b.length;},0), out=new Uint8Array(len), off=0; parts.forEach(function(p){out.set(p,off);off+=p.length;}); return out; }
+  function pdfFromJpegs(jpegs,imgW,imgH){
+    var pageW=595.28,pageH=841.89,parts=[],offsets=[0],cursor=0;
+    function addBytes(u8){parts.push(u8);cursor+=u8.length;} function addStr(s){addBytes(bytesAscii(s));} function mark(n){offsets[n]=cursor;}
+    var pagesN=jpegs.length;
+    addStr('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    var objCatalog=1,objPages=2,objFirstPage=3,objFirstImg=objFirstPage+pagesN,objFirstContent=objFirstImg+pagesN,objMax=objFirstContent+pagesN-1,size=objMax+1;
+    mark(objCatalog); addStr(objCatalog+' 0 obj\n<< /Type /Catalog /Pages '+objPages+' 0 R >>\nendobj\n');
+    var kids=''; for(var i=0;i<pagesN;i++) kids+=(objFirstPage+i)+' 0 R ';
+    mark(objPages); addStr(objPages+' 0 obj\n<< /Type /Pages /Kids ['+kids.trim()+'] /Count '+pagesN+' >>\nendobj\n');
+    for(var p=0;p<pagesN;p++){ mark(objFirstPage+p); addStr((objFirstPage+p)+' 0 obj\n<< /Type /Page /Parent '+objPages+' 0 R /MediaBox [0 0 '+pageW+' '+pageH+'] /Resources << /XObject << /Im0 '+(objFirstImg+p)+' 0 R >> >> /Contents '+(objFirstContent+p)+' 0 R >>\nendobj\n'); }
+    for(var im=0;im<pagesN;im++){ var b=jpegs[im]; mark(objFirstImg+im); addStr((objFirstImg+im)+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+imgW+' /Height '+imgH+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+b.length+' >>\nstream\n'); addBytes(b); addStr('\nendstream\nendobj\n'); }
+    for(var c=0;c<pagesN;c++){ var stream='q\n'+pageW+' 0 0 '+pageH+' 0 0 cm\n/Im0 Do\nQ\n'; var sb=bytesAscii(stream); mark(objFirstContent+c); addStr((objFirstContent+c)+' 0 obj\n<< /Length '+sb.length+' >>\nstream\n'); addBytes(sb); addStr('\nendstream\nendobj\n'); }
+    var xref=cursor; addStr('xref\n0 '+size+'\n0000000000 65535 f \n');
+    for(var n=1;n<size;n++){ var off=String(offsets[n]||0); while(off.length<10) off='0'+off; addStr(off+' 00000 n \n'); }
+    addStr('trailer\n<< /Size '+size+' /Root '+objCatalog+' 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+    return concat(parts);
+  }
+  function saveBlob(blob, filename){
+    if(navigator.share && navigator.canShare){
+      try{
+        var file = new File([blob], filename, {type:'application/pdf'});
+        if(navigator.canShare({files:[file]})) return navigator.share({files:[file], title:filename}).catch(function(){ downloadBlob(blob,filename); });
+      }catch(_){ }
+    }
+    downloadBlob(blob,filename);
+  }
+  function downloadBlob(blob,filename){
+    var a=document.createElement('a'), url=URL.createObjectURL(blob);
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); try{a.remove();}catch(_){} },1500);
+  }
+  window.__docExportFabricacion = async function(){
+    try{
+      var st=await loadCurrentState();
+      if(!st){ alert('No se pudo leer el documento actual. Guarda el documento y vuelve a probar.'); return false; }
+      var items=getItems(st);
+      if(!items.length){ alert('No hay conceptos con gráfico o texto para fabricar.'); return false; }
+      var codes=items.map(function(it){return it.code;});
+      var sel=prompt('Selecciona diseños para fabricar (ej.: V1,V3,V4)\nDisponibles: '+codes.join(', '), codes.join(','));
+      if(sel===null) return false;
+      var wanted=sel.split(/[ ,;]+/).map(function(x){return x.trim().toUpperCase();}).filter(Boolean);
+      var selected=items.filter(function(it){return wanted.indexOf(clean(it.code).toUpperCase())>=0;});
+      if(!selected.length){ alert('No has seleccionado ningún diseño válido.'); return false; }
+      var per=parseInt(prompt('Diseños por hoja: 1, 2, 3, 4 o 6', localStorage.getItem('doc_fabricacion_por_hoja') || '3') || '0',10);
+      if([1,2,3,4,6].indexOf(per)<0) per=3;
+      try{ localStorage.setItem('doc_fabricacion_por_hoja', String(per)); }catch(_){ }
+      fabToast('Generando PDF fabricación...');
+      var pages=[]; for(var i=0;i<selected.length;i+=per) pages.push(selected.slice(i,i+per));
+      var jpegs=[];
+      for(var p=0;p<pages.length;p++){
+        var cv=await renderFabPage(st,pages[p],per,p+1,pages.length);
+        jpegs.push(b64ToBytes(cv.toDataURL('image/jpeg',0.88).split(',')[1]||''));
+      }
+      var pdf=pdfFromJpegs(jpegs,1240,1754);
+      saveBlob(new Blob([pdf],{type:'application/pdf'}), safeFileName('Fabricacion_'+(st.numero||'documento'),'.pdf'));
+      fabToast('PDF fabricación generado');
+    }catch(e){
+      console.error(e);
+      alert('No se pudo generar el PDF de fabricación: '+(e && e.message ? e.message : e));
+    }
+    return false;
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    var b=document.getElementById('btnFabricarPdf');
+    if(b){ b.onclick=function(ev){ if(ev){ev.preventDefault(); ev.stopPropagation();} this.style.setProperty('background','linear-gradient(180deg,#22c55e 0%,#16a34a 100%)','important'); this.style.setProperty('border-color','#16a34a','important'); this.textContent='Fabricar ✓'; return false; }; }
+  });
+})();
+</script>
+
+
+
+<!-- FABRICAR PASO 3: Panel con selección de diseños V y formato por hoja -->
+<style>
+#fabricarTestOverlay{position:fixed;inset:0;z-index:30000;background:rgba(15,23,42,.55);display:none;align-items:flex-end;justify-content:center;padding:0 10px 10px;box-sizing:border-box;}
+#fabricarTestOverlay.show{display:flex!important;}
+.fabricar-test-panel{width:min(560px,100%);max-height:min(76vh,700px);overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:22px;box-shadow:0 -18px 50px rgba(15,23,42,.28);padding:14px;box-sizing:border-box;}
+.fabricar-test-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.fabricar-test-head h2{margin:0;font-size:18px;font-weight:900;color:#0f172a;}
+.fabricar-test-close{width:auto!important;min-height:38px!important;border:0;border-radius:14px;background:#dc2626;color:#fff;font-weight:900;padding:0 14px;}
+.fabricar-test-text{font-size:12px;font-weight:800;color:#475569;margin:0 0 8px;line-height:1.25;}
+.fabricar-test-section-title{font-size:13px;font-weight:900;color:#0f172a;margin:10px 0 6px;}
+.fabricar-test-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}
+.fabricar-test-grid button{min-height:38px;border-radius:13px;border:1px solid #d4dde9;background:linear-gradient(180deg,#f8fafc 0%,#e2e8f0 100%);font-weight:900;color:#0f172a;}
+.fabricar-test-grid button.active{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);border-color:#16a34a;color:#fff;}
+.fabricar-v-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;}
+.fabricar-v-list button{min-height:38px;border-radius:13px;border:1px solid #d4dde9;background:#f8fafc;color:#0f172a;font-weight:900;font-size:16px;}
+.fabricar-v-list button.active{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);border-color:#16a34a;color:#fff;}
+.fabricar-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.fabricar-test-actions button{min-height:46px;border-radius:15px;border:0;color:#fff;font-weight:900;}
+.fabricar-test-actions .ok{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);}
+.fabricar-test-actions .all{background:linear-gradient(180deg,#64748b 0%,#475569 100%);}
+.fabricar-test-result{margin-top:10px;padding:10px 12px;border-radius:14px;background:#ecfdf5;border:1px solid #86efac;color:#166534;font-size:13px;font-weight:900;display:none;}
+.fabricar-test-result.show{display:block;}
+.fabricar-test-panel{max-height:min(66vh,620px);padding:12px!important;}
+.fabricar-test-text{display:none;}
+.fabricar-test-section-title{font-size:12px;margin:8px 0 5px;}
+.fabricar-v-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
+.fabricar-v-list button{min-height:34px;border-radius:11px;font-size:14px;}
+.fabricar-test-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;}
+.fabricar-test-grid button{min-height:34px;border-radius:11px;}
+#fabricarPdfPreviewOverlay{position:fixed;inset:0;z-index:31000;background:#eef2f7;display:none;flex-direction:column;padding:calc(8px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom));box-sizing:border-box;}
+#fabricarPdfPreviewOverlay.show{display:flex!important;}
+.fabricar-pdf-preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px 8px;}
+.fabricar-pdf-preview-title{margin:0;font-size:17px;font-weight:900;color:#0f172a;}
+.fabricar-pdf-preview-frame{flex:1 1 auto;min-height:0;background:#fff;border:1px solid #cbd5e1;border-radius:16px;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:0 10px 30px rgba(15,23,42,.12);padding:8px;box-sizing:border-box;}
+.fabricar-pdf-preview-frame iframe{width:100%;height:100%;border:0;background:#fff;}
+.fabricar-pdf-preview-pages{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.fabricar-pdf-preview-page{display:block;width:100%;max-width:720px;height:auto;background:#fff;border:1px solid #d8e1ee;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,.10);}
+.fabricar-pdf-preview-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:10px;}
+.fabricar-pdf-preview-actions button{min-height:48px;border-radius:15px;border:0;color:#fff;font-weight:900;font-size:15px;}
+#btnExportarFabricacionPreview{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);}
+#btnCancelarFabricacionPreview{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);}
+</style>
+<div id="fabricarTestOverlay" onclick="if(event.target===this) cerrarFabricacionTest()">
+  <div class="fabricar-test-panel">
+    <div class="fabricar-test-head">
+      <h2>Fabricar</h2>
+      <button type="button" class="fabricar-test-close" onclick="cerrarFabricacionTest()">Cerrar</button>
+    </div>
+    <p class="fabricar-test-text">Selecciona los diseños a fabricar</p>
+
+    <div class="fabricar-test-section-title">Diseños del documento</div>
+    <div class="fabricar-v-list" id="fabricarVLista"></div>
+
+    <div class="fabricar-test-section-title">Diseños por hoja</div>
+    <div class="fabricar-test-grid" id="fabricarTestOpciones">
+      <button type="button" data-fab-hojas="1">1</button>
+      <button type="button" data-fab-hojas="2">2</button>
+      <button type="button" data-fab-hojas="3">3</button>
+      <button type="button" data-fab-hojas="4">4</button>
+      <button type="button" data-fab-hojas="5">5</button>
+      <button type="button" data-fab-hojas="6">6</button>
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 12px;border:1px solid #d4dde9;border-radius:14px;background:#f8fafc;font-size:13px;font-weight:900;color:#0f172a;">
+      <input id="fabricarModoNotas" type="checkbox" checked style="width:22px;height:22px;flex:0 0 auto;">
+      Modo notas: gráfico izquierda · zona derecha libre
+    </label>
+    <div id="fabricarTestResultado" class="fabricar-test-result"></div>
+    <div class="fabricar-test-actions">
+      <button type="button" class="all" onclick="seleccionarTodosFabricacionTest()">Todos</button>
+      <button type="button" class="ok" onclick="confirmarFabricacionTest()">Aceptar</button>
+    </div>
+  </div>
+</div>
+<div id="fabricarPdfPreviewOverlay" aria-hidden="true">
+  <div class="fabricar-pdf-preview-head">
+    <h2 class="fabricar-pdf-preview-title">Vista previa fabricación</h2>
+  </div>
+  <div class="fabricar-pdf-preview-frame"><div id="fabricarPdfPreviewPages" class="fabricar-pdf-preview-pages"></div></div>
+  <div class="fabricar-pdf-preview-actions">
+    <button type="button" id="btnCancelarFabricacionPreview" onclick="cerrarFabricacionPreviewPdf()">Cancelar</button>
+    <button type="button" id="btnExportarFabricacionPreview" onclick="exportarFabricacionPreviewPdf()">Exportar</button>
+  </div>
+</div>
+<script>
+(function(){
+  var fabricarPorHojaTest = 3;
+  var fabricarSeleccionados = [];
+  var fabricarCodigos = [];
+  var fabricarPreviewBlob = null;
+  var fabricarPreviewFilename = 'Fabricacion.pdf';
+  var fabricarPreviewUrl = '';
+
+  window.abrirFabricacionPreviewPdf = function(blob, filename, previewSvgs){
+    if(!blob) return;
+    fabricarPreviewBlob = blob;
+    fabricarPreviewFilename = filename || 'Fabricacion.pdf';
+    if(fabricarPreviewUrl){ try{ URL.revokeObjectURL(fabricarPreviewUrl); }catch(_){} }
+    fabricarPreviewUrl = URL.createObjectURL(blob);
+    var pages=document.getElementById('fabricarPdfPreviewPages');
+    if(pages){
+      pages.innerHTML='';
+      if(previewSvgs && previewSvgs.length){
+        previewSvgs.forEach(function(svgText, idx){
+          var img=document.createElement('img');
+          img.className='fabricar-pdf-preview-page';
+          img.alt='Página fabricación ' + (idx+1);
+          img.src='data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+          pages.appendChild(img);
+        });
+      }else{
+        var msg=document.createElement('div');
+        msg.style.cssText='padding:18px;font-weight:900;color:#475569;text-align:center';
+        msg.textContent='Vista previa generada. Pulsa Exportar para guardar el PDF.';
+        pages.appendChild(msg);
+      }
+    }
+    var ov=document.getElementById('fabricarPdfPreviewOverlay');
+    if(ov){ ov.classList.add('show'); ov.setAttribute('aria-hidden','false'); }
+  };
+  window.cerrarFabricacionPreviewPdf = function(){
+    var ov=document.getElementById('fabricarPdfPreviewOverlay');
+    if(ov){ ov.classList.remove('show'); ov.setAttribute('aria-hidden','true'); }
+    var pages=document.getElementById('fabricarPdfPreviewPages');
+    if(pages) pages.innerHTML='';
+    if(fabricarPreviewUrl){ try{ URL.revokeObjectURL(fabricarPreviewUrl); }catch(_){} }
+    fabricarPreviewUrl=''; fabricarPreviewBlob=null;
+  };
+  window.exportarFabricacionPreviewPdf = function(){
+    if(!fabricarPreviewBlob) return false;
+    var blob=fabricarPreviewBlob, filename=fabricarPreviewFilename || 'Fabricacion.pdf';
+    function volverAlDocumento(){
+      setTimeout(function(){
+        try{ cerrarFabricacionPreviewPdf(); }catch(_){ }
+      }, 350);
+    }
+    if(navigator.share && navigator.canShare){
+      try{
+        var file = new File([blob], filename, {type:'application/pdf'});
+        if(navigator.canShare({files:[file]})){
+          navigator.share({files:[file], title:filename})
+            .then(volverAlDocumento)
+            .catch(function(){ descargarFabricacionPreviewBlob(blob, filename); volverAlDocumento(); });
+          return false;
+        }
+      }catch(_){ }
+    }
+    descargarFabricacionPreviewBlob(blob, filename);
+    volverAlDocumento();
+    return false;
+  };
+  function descargarFabricacionPreviewBlob(blob, filename){
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{ URL.revokeObjectURL(url); a.remove(); }catch(_){} }, 1500);
+  }
+
+  function pintarBotonFabricarActivo(btn){
+    if(!btn) return;
+    btn.style.setProperty('background','linear-gradient(180deg,#22c55e 0%,#16a34a 100%)','important');
+    btn.style.setProperty('border-color','#16a34a','important');
+    btn.textContent='Fabricar ✓';
+  }
+  function detectarCodigosV(){
+    var found = [];
+    try{
+      document.querySelectorAll('svg text, svg tspan').forEach(function(n){
+        var t=(n.textContent||'').trim().toUpperCase();
+        var m=t.match(/^V\s*0*(\d{1,3})$/);
+        if(m){
+          var code='V'+String(parseInt(m[1],10));
+          if(found.indexOf(code)<0) found.push(code);
+        }
+      });
+    }catch(e){}
+    found.sort(function(a,b){return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);});
+    if(!found.length){ found=['V1','V2','V3','V4']; }
+    return found;
+  }
+  function renderCodigos(){
+    var root=document.getElementById('fabricarVLista');
+    if(!root) return;
+    root.innerHTML='';
+    fabricarCodigos.forEach(function(code){
+      var b=document.createElement('button');
+      b.type='button';
+      b.setAttribute('data-fab-v', code);
+      b.textContent=code;
+      b.className = fabricarSeleccionados.indexOf(code)>=0 ? 'active' : '';
+      root.appendChild(b);
+    });
+  }
+  window.actualizarFabricacionTestOpciones = function(){
+    var root=document.getElementById('fabricarTestOpciones');
+    if(root){
+      root.querySelectorAll('button[data-fab-hojas]').forEach(function(b){
+        b.classList.toggle('active', String(fabricarPorHojaTest)===String(b.getAttribute('data-fab-hojas')));
+      });
+    }
+    renderCodigos();
+  };
+  window.abrirFabricacionTest = function(ev){
+    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+    pintarBotonFabricarActivo(document.getElementById('btnFabricarPdf'));
+    fabricarCodigos = detectarCodigosV();
+    fabricarSeleccionados = fabricarCodigos.slice();
+    var modoNotasChk=document.getElementById('fabricarModoNotas');
+    if(modoNotasChk) modoNotasChk.checked = true;
+    var res=document.getElementById('fabricarTestResultado');
+    if(res){ res.classList.remove('show'); res.textContent=''; }
+    var ov=document.getElementById('fabricarTestOverlay');
+    if(ov) ov.classList.add('show');
+    window.actualizarFabricacionTestOpciones();
+    return false;
+  };
+  window.cerrarFabricacionTest = function(){
+    var ov=document.getElementById('fabricarTestOverlay');
+    if(ov) ov.classList.remove('show');
+  };
+  window.seleccionarTodosFabricacionTest = function(){
+    fabricarSeleccionados = fabricarCodigos.slice();
+    window.actualizarFabricacionTestOpciones();
+    return false;
+  };
+  window.confirmarFabricacionTest = async function(){
+    var res=document.getElementById('fabricarTestResultado');
+    if(!fabricarSeleccionados.length){
+      if(res){ res.textContent='Selecciona al menos un diseño.'; res.classList.add('show'); }
+      return false;
+    }
+    var modoNotas = !!(document.getElementById('fabricarModoNotas') && document.getElementById('fabricarModoNotas').checked);
+    var msg = 'Generando PDF: ' + fabricarSeleccionados.join(', ') + (modoNotas ? ' · modo notas en columna' : (' · ' + fabricarPorHojaTest + ' por hoja'));
+    if(res){ res.textContent=msg; res.classList.add('show'); }
+    var btn=document.getElementById('btnFabricarPdf');
+    if(btn) btn.textContent='Generando…';
+    try{
+      if(typeof window.exportFabricacionPDF !== 'function') throw new Error('Exportador de fabricación no disponible');
+      var result = await window.exportFabricacionPDF(fabricarSeleccionados.slice(), fabricarPorHojaTest, { notas: modoNotas, preview: true });
+      if(btn) btn.textContent='Fabricar ✓';
+      if(res){ res.textContent='Vista previa generada'; res.classList.add('show'); }
+      cerrarFabricacionTest();
+      abrirFabricacionPreviewPdf(result && result.blob, result && result.filename, result && result.previewSvgs);
+    }catch(e){
+      console.error(e);
+      if(btn) btn.textContent='Fabricar';
+      alert('No se pudo generar el PDF de fabricación: ' + (e && e.message ? e.message : e));
+    }
+    return false;
+  };
+  function engancharFabricar(){
+    var b=document.getElementById('btnFabricarPdf');
+    if(!b) return;
+    b.onclick=window.abrirFabricacionTest;
+    b.addEventListener('click', window.abrirFabricacionTest, {capture:true});
+  }
+  document.addEventListener('click', function(ev){
+    var opt=ev.target && ev.target.closest ? ev.target.closest('[data-fab-hojas]') : null;
+    if(opt){
+      ev.preventDefault(); ev.stopPropagation();
+      fabricarPorHojaTest = opt.getAttribute('data-fab-hojas');
+      window.actualizarFabricacionTestOpciones();
+      return;
+    }
+    var v=ev.target && ev.target.closest ? ev.target.closest('[data-fab-v]') : null;
+    if(v){
+      ev.preventDefault(); ev.stopPropagation();
+      var code=v.getAttribute('data-fab-v');
+      var i=fabricarSeleccionados.indexOf(code);
+      if(i>=0) fabricarSeleccionados.splice(i,1); else fabricarSeleccionados.push(code);
+      fabricarSeleccionados.sort(function(a,b){return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);});
+      window.actualizarFabricacionTestOpciones();
+    }
+  }, true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', engancharFabricar); else engancharFabricar();
+  setTimeout(engancharFabricar,300);
+  setTimeout(engancharFabricar,1200);
 })();
 </script>
 
