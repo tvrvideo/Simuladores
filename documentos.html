@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.0</title>
+  <title>Documentos Rey v4.0.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3769,7 +3769,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.0</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.0.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -8066,9 +8066,9 @@ COLOCACIÓN INCLUIDA` }
     if(fabFecha) fabLinea += ' · Fecha: ' + fabFecha;
     if(fabRef) fabLinea += ' · Ref: ' + fabRef;
     if(fabObra) fabLinea += ' · Obra: ' + fabObra;
-    var lineaSize = fabLinea.length > 96 ? 10.2 : (fabLinea.length > 84 ? 10.8 : 11.4);
+    var lineaSize = fabLinea.length > 96 ? 12.4 : (fabLinea.length > 84 ? 13.0 : 13.6);
     fabAddText(svg,372,79,fabLinea,lineaSize,850,'#111827','middle');
-    fabAddText(svg,754,79,'Hoja ' + pageNo + '/' + totalPages,11.8,900,'#111827','end');
+    fabAddText(svg,754,79,'Hoja ' + pageNo + '/' + totalPages,13.6,900,'#111827','end');
     var slots = modoNotas ? fabSlotsNotas(per, items.length) : fabSlots(per);
     items.forEach(function(it, i){
       var r = slots[i]; if(!r) return;
@@ -8076,9 +8076,9 @@ COLOCACIÓN INCLUIDA` }
       var bandH = modoNotas ? 30 : 38;
       svg.appendChild(fabSvgEl('rect',{x:r.x,y:r.y,width:r.w,height:bandH,fill:'#dbeafe',stroke:'#111827','stroke-width':'0.8'}));
       var small = per >= 4;
-      var codeSize = modoNotas ? (r.twoCols ? 16 : (per >= 6 ? 16.5 : 18)) : (small ? 17 : 20);
-      var udsSize = modoNotas ? (r.twoCols ? 15.5 : (per >= 6 ? 16 : 17.5)) : (small ? 16 : 18);
-      var labelY = r.y + (modoNotas ? 22 : 27);
+      var codeSize = modoNotas ? (r.twoCols ? 18.5 : (per >= 6 ? 19 : 20.5)) : (small ? 19.5 : 22.5);
+      var udsSize = modoNotas ? (r.twoCols ? 18 : (per >= 6 ? 18.5 : 20)) : (small ? 18.5 : 20.5);
+      var labelY = r.y + (modoNotas ? 23 : 28);
       fabAddText(svg,r.x+8,labelY,it._fabCode, codeSize,900,'#111827');
       fabAddText(svg,r.x+r.w-8,labelY,'Uds '+fabNormTxt(it.units || it.uds || '1'), udsSize,900,'#111827','end');
       var infoH = modoNotas ? 0 : (small ? 60 : 78);
@@ -8123,8 +8123,8 @@ COLOCACIÓN INCLUIDA` }
         var noteW = r.x + r.w - noteX - 10;
         var noteMaxY = r.y + r.h - 8;
         if(noteW > 45){
-          var noteSize = r.twoCols ? 7.5 : (per >= 6 ? 8 : 9);
-          var lineH = r.twoCols ? 9 : (per >= 6 ? 10 : 12);
+          var noteSize = r.twoCols ? 9.0 : (per >= 6 ? 9.6 : 10.8);
+          var lineH = r.twoCols ? 11 : (per >= 6 ? 12 : 14);
           var noteTop = r.y + 34;
           var noteBottom = r.y + r.h - 8;
           var noteAreaH = Math.max(1, noteBottom - noteTop);
@@ -8152,7 +8152,7 @@ COLOCACIÓN INCLUIDA` }
         lines.forEach(function(line,k){
           var maxChars = small ? 34 : 72;
           if(line.length > maxChars) line = line.slice(0,maxChars-1) + '…';
-          fabAddText(svg,r.x+10,y+k*(small?13:16),line,small?9:11,700,'#111827');
+          fabAddText(svg,r.x+10,y+k*(small?15:18),line,small?11:13,700,'#111827');
         });
       }
     });
