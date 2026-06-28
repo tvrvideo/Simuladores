@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v3.6</title>
+  <title>Documentos Rey v4.0</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3769,7 +3769,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v3.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.0</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -7986,34 +7986,99 @@ COLOCACIÓN INCLUIDA` }
     svg.appendChild(t);
     return t;
   }
+  function fabWrappedLineCount(text, maxW, size){
+    text = String(text || '').replace(/\r/g,'').trim();
+    if(!text) return 0;
+    size = size || 10;
+    var avgChar = size * 0.62;
+    var approx = Math.max(6, Math.floor((maxW - 3) / avgChar));
+    var count = 0;
+    text.split(/\n+/).forEach(function(par){
+      par = String(par || '').replace(/\s+/g,' ').trim();
+      if(!par){ count++; return; }
+      var words = par.split(/\s+/), line = '';
+      words.forEach(function(w){
+        while(w.length > approx){
+          if(line){ count++; line=''; }
+          count++;
+          w = w.slice(approx);
+        }
+        var test = line ? (line + ' ' + w) : w;
+        if(test.length > approx && line){ count++; line = w; }
+        else line = test;
+      });
+      if(line) count++;
+    });
+    return count;
+  }
+  function fabAddWrappedText(svg, x, y, text, maxW, lineH, size, weight, color, maxY){
+    text = String(text || '').replace(/\r/g,'').trim();
+    if(!text) return 0;
+    size = size || 10;
+    lineH = lineH || Math.ceil(size * 1.25);
+    // v4.0 FIX: ajuste conservador para que el texto no invada la siguiente celda
+    // ni salga por el lateral en iPhone/PDF. Respeta saltos de línea manuales.
+    var avgChar = size * 0.62;
+    var approx = Math.max(6, Math.floor((maxW - 3) / avgChar));
+    var lines = [];
+    text.split(/\n+/).forEach(function(par){
+      par = String(par || '').replace(/\s+/g,' ').trim();
+      if(!par) { lines.push(''); return; }
+      var words = par.split(/\s+/), line = '';
+      words.forEach(function(w){
+        // trocea palabras largas para evitar que se salgan del recuadro
+        while(w.length > approx){
+          var piece = w.slice(0, approx);
+          if(line){ lines.push(line); line=''; }
+          lines.push(piece);
+          w = w.slice(approx);
+        }
+        var test = line ? (line + ' ' + w) : w;
+        if(test.length > approx && line){ lines.push(line); line = w; }
+        else line = test;
+      });
+      if(line) lines.push(line);
+    });
+    var drawn = 0;
+    for(var i=0;i<lines.length;i++){
+      if(maxY && y + drawn*lineH > maxY) break;
+      if(lines[i]) fabAddText(svg, x, y + drawn*lineH, lines[i], size, weight || 700, color || '#111827');
+      drawn++;
+    }
+    return drawn;
+  }
   function fabBuildPageSvg(items, per, pageNo, totalPages, opts){
     opts = opts || {};
     var modoNotas = !!opts.notas;
     var svg = fabSvgEl('svg', {xmlns:'http://www.w3.org/2000/svg', viewBox:'0 0 794 1123', width:'794', height:'1123'});
     svg.appendChild(fabSvgEl('rect',{x:0,y:0,width:794,height:1123,fill:'#ffffff'}));
     svg.appendChild(fabSvgEl('rect',{x:28,y:24,width:738,height:82,fill:'#ffffff',stroke:'#111827','stroke-width':'1.2'}));
-    fabAddText(svg,397,52,'HOJA DE FABRICACIÓN',22,900,'#111827','middle');
+    var fabRef = fabNormTxt((opts && opts.referencia) || (state && (state.referenciaFabricacion || state.refFabricacion || state.referencia || state.ref || '')) || '');
     var fabCliente = fabNormTxt(state && state.clienteNombre || 'Cliente contado');
     var fabObra = fabNormTxt((state && (state.obra || state.nombreObra || state.proyecto || state.referenciaObra)) || '');
     var fabNumero = fabNormTxt(state && state.numero || '0000');
     var fabFecha = fabNormTxt(state && state.fecha || '');
-    var fabLinea = 'Cliente: ' + fabCliente;
-    if(fabObra) fabLinea += '   ·   Obra: ' + fabObra;
-    fabLinea += '   ·   Nº: ' + fabNumero;
-    if(fabFecha) fabLinea += '   ·   Fecha: ' + fabFecha;
-    fabLinea += '   ·   Hoja ' + pageNo + '/' + totalPages;
-    if(fabLinea.length > 112) fabLinea = fabLinea.slice(0,109) + '…';
-    fabAddText(svg,397,80,fabLinea,13,800,'#111827','middle');
+
+    // v4.0 cabecera final: título arriba, datos centrados abajo y página sola a la derecha.
+    // La referencia se muestra completa tal como se escribe, sin recortarla ni ponerla en el título.
+    fabAddText(svg,397,48,'HOJA DE FABRICACIÓN',23,900,'#111827','middle');
+    var fabLinea = 'Cliente: ' + fabCliente + ' · Presupuesto: ' + fabNumero;
+    if(fabFecha) fabLinea += ' · Fecha: ' + fabFecha;
+    if(fabRef) fabLinea += ' · Ref: ' + fabRef;
+    if(fabObra) fabLinea += ' · Obra: ' + fabObra;
+    var lineaSize = fabLinea.length > 96 ? 10.2 : (fabLinea.length > 84 ? 10.8 : 11.4);
+    fabAddText(svg,372,79,fabLinea,lineaSize,850,'#111827','middle');
+    fabAddText(svg,754,79,'Hoja ' + pageNo + '/' + totalPages,11.8,900,'#111827','end');
     var slots = modoNotas ? fabSlotsNotas(per, items.length) : fabSlots(per);
     items.forEach(function(it, i){
       var r = slots[i]; if(!r) return;
       svg.appendChild(fabSvgEl('rect',{x:r.x,y:r.y,width:r.w,height:r.h,fill:'#ffffff',stroke:'#111827','stroke-width':'1.2'}));
-      var bandH = modoNotas ? 25 : 34;
+      var bandH = modoNotas ? 30 : 38;
       svg.appendChild(fabSvgEl('rect',{x:r.x,y:r.y,width:r.w,height:bandH,fill:'#dbeafe',stroke:'#111827','stroke-width':'0.8'}));
       var small = per >= 4;
-      var codeSize = modoNotas ? (r.twoCols ? 11 : (per >= 6 ? 13 : 16)) : (small ? 13 : 16);
-      var udsSize = modoNotas ? (r.twoCols ? 11 : (per >= 6 ? 13 : 16)) : (small ? 12 : 14);
-      var labelY = r.y + (modoNotas ? 18 : 23);
+      var codeSize = modoNotas ? (r.twoCols ? 16 : (per >= 6 ? 16.5 : 18)) : (small ? 17 : 20);
+      var udsSize = modoNotas ? (r.twoCols ? 15.5 : (per >= 6 ? 16 : 17.5)) : (small ? 16 : 18);
+      var labelY = r.y + (modoNotas ? 22 : 27);
       fabAddText(svg,r.x+8,labelY,it._fabCode, codeSize,900,'#111827');
       fabAddText(svg,r.x+r.w-8,labelY,'Uds '+fabNormTxt(it.units || it.uds || '1'), udsSize,900,'#111827','end');
       var infoH = modoNotas ? 0 : (small ? 60 : 78);
@@ -8024,9 +8089,9 @@ COLOCACIÓN INCLUIDA` }
         // Cada diseño ocupa una fila. El gráfico se ajusta por alto/ancho en la zona izquierda
         // y el recuadro se dibuja exactamente alrededor de la imagen resultante.
         var areaX = r.x + 10;
-        var areaY = r.y + 34;
+        var areaY = r.y + 37;
         var areaW = r.twoCols ? Math.max(88, Math.floor((r.w - 18) * 0.48)) : Math.max(170, Math.floor((r.w - 24) * 0.42));
-        var areaH = Math.max(32, r.h - 42);
+        var areaH = Math.max(32, r.h - 45);
         var natW = it._fabImgW || 1;
         var natH = it._fabImgH || 1;
         var sc = Math.min(areaW / natW, areaH / natH);
@@ -8048,6 +8113,37 @@ COLOCACIÓN INCLUIDA` }
         svg.appendChild(fabSvgEl('rect',{x:imgX,y:imgY,width:imgW,height:imgH,fill:'#ffffff',stroke:graphStroke,'stroke-width':graphStrokeW}));
         svg.appendChild(fabSvgEl('rect',{x:imgX+8,y:imgY+8,width:imgW-16,height:imgH-16,fill:'none',stroke:'#cbd5e1','stroke-width':'0.8'}));
         fabAddText(svg,imgX+imgW/2,imgY+imgH/2,'Sin gráfico',small?12:16,800,'#64748b','middle');
+      }
+      if(modoNotas && opts.notasTexto){
+        var notaObj = opts.notasTexto[fabNormTxt(it._fabCode).toUpperCase()] || {};
+        var notaTxt = String(notaObj.texto || notaObj.text || '').replace(/\r/g,'').trim();
+        var obsTxt = String(notaObj.obs || notaObj.observaciones || '').replace(/\r/g,'').trim();
+        var noteX = imgX + imgW + (r.twoCols ? 8 : 14);
+        var noteY = r.y + 38;
+        var noteW = r.x + r.w - noteX - 10;
+        var noteMaxY = r.y + r.h - 8;
+        if(noteW > 45){
+          var noteSize = r.twoCols ? 7.5 : (per >= 6 ? 8 : 9);
+          var lineH = r.twoCols ? 9 : (per >= 6 ? 10 : 12);
+          var noteTop = r.y + 34;
+          var noteBottom = r.y + r.h - 8;
+          var noteAreaH = Math.max(1, noteBottom - noteTop);
+          var notaLines = notaTxt ? fabWrappedLineCount(notaTxt, noteW, noteSize) : 0;
+          var obsLines = obsTxt ? fabWrappedLineCount(obsTxt, noteW, noteSize) : 0;
+          var gapLines = (notaLines && obsTxt) ? 1 : 0;
+          var totalLines = notaLines + (obsTxt ? (gapLines + 1 + obsLines) : 0);
+          var totalH = totalLines * lineH;
+          noteY = Math.max(noteTop + noteSize, noteTop + Math.max(0, (noteAreaH - totalH) / 2) + noteSize);
+          var drawn = 0;
+          if(notaTxt){
+            drawn += fabAddWrappedText(svg, noteX, noteY, notaTxt, noteW, lineH, noteSize, 700, '#111827', noteMaxY);
+          }
+          if(obsTxt && noteY + (drawn+1)*lineH <= noteMaxY){
+            var obsY = noteY + (drawn ? (drawn + 1)*lineH : 0);
+            fabAddText(svg, noteX, obsY, 'OBSERVACIONES:', noteSize, 900, '#dc2626');
+            fabAddWrappedText(svg, noteX, obsY + lineH, obsTxt, noteW, lineH, noteSize, 900, '#dc2626', noteMaxY);
+          }
+        }
       }
       var lines = modoNotas ? [] : fabTextLines(it.text || it.concepto || it.descripcion || '', small?3:4);
       if(!modoNotas){
@@ -8083,7 +8179,13 @@ COLOCACIÓN INCLUIDA` }
       }));
     }
     var chunks = [];
-    var chunkSize = opts.notas && srcItems.length > 6 ? 12 : perPage;
+    // v4.0 FIX: el modo notas SIEMPRE respeta el mismo reparto visual,
+    // lleve texto editable o no.
+    // 1-6 diseños: una columna con la altura elegida.
+    // 7-12 diseños: dos columnas equilibradas en la misma hoja.
+    // El texto se recorta dentro de cada celda, pero NO cambia el orden ni crea
+    // páginas extra distintas al modo sin texto.
+    var chunkSize = (opts.notas && srcItems.length > 6) ? 12 : perPage;
     for(var i=0;i<srcItems.length;i+=chunkSize) chunks.push(srcItems.slice(i,i+chunkSize));
     var svgs = chunks.map(function(chunk, idx){ return fabBuildPageSvg(chunk, perPage, idx+1, chunks.length, opts); });
     var name = safeFileName('Fabricacion' + (opts.notas ? '_Notas_' : '_') + fabNormTxt(state && state.numero || 'documento'), '.pdf');
@@ -8096,6 +8198,25 @@ COLOCACIÓN INCLUIDA` }
     return result;
   }
   window.exportFabricacionPDF = exportFabricacionPDF;
+  window.getFabricacionBaseNotas = function(selectedCodes){
+    selectedCodes = (selectedCodes || []).map(function(x){ return fabNormTxt(x).toUpperCase(); }).filter(Boolean);
+    var srcItems = ensureConceptList(state && state.items || []).map(function(it, idx){
+      var copy = Object.assign({}, it || {});
+      copy._fabCode = fabCodeForItem(copy, idx);
+      return copy;
+    });
+    var out = {};
+    srcItems.forEach(function(it){
+      var code = fabNormTxt(it._fabCode).toUpperCase();
+      if(selectedCodes.length && selectedCodes.indexOf(code) < 0) return;
+      out[code] = {
+        code: fabNormTxt(it._fabCode),
+        texto: String(it.text || it.concepto || it.descripcion || '').trim(),
+        obs: String((it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')).trim()
+      };
+    });
+    return out;
+  };
 
     async function exportPDF(){
     try{
@@ -16538,10 +16659,10 @@ const mo = new MutationObserver(function(){
 <style>
 #fabricarTestOverlay{position:fixed;inset:0;z-index:30000;background:rgba(15,23,42,.55);display:none;align-items:flex-end;justify-content:center;padding:0 10px 10px;box-sizing:border-box;}
 #fabricarTestOverlay.show{display:flex!important;}
-.fabricar-test-panel{width:min(560px,100%);max-height:min(76vh,700px);overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:22px;box-shadow:0 -18px 50px rgba(15,23,42,.28);padding:14px;box-sizing:border-box;}
-.fabricar-test-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.fabricar-test-panel{width:min(560px,100%);max-height:min(92vh,820px);overflow:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:22px;box-shadow:0 -18px 50px rgba(15,23,42,.28);padding:12px;box-sizing:border-box;}
+.fabricar-test-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .fabricar-test-head h2{margin:0;font-size:18px;font-weight:900;color:#0f172a;}
-.fabricar-test-close{width:auto!important;min-height:38px!important;border:0;border-radius:14px;background:#dc2626;color:#fff;font-weight:900;padding:0 14px;}
+.fabricar-test-close{width:auto!important;min-height:36px!important;border:0;border-radius:14px;background:#dc2626;color:#fff;font-weight:900;padding:0 14px;}
 .fabricar-test-text{font-size:12px;font-weight:800;color:#475569;margin:0 0 8px;line-height:1.25;}
 .fabricar-test-section-title{font-size:13px;font-weight:900;color:#0f172a;margin:10px 0 6px;}
 .fabricar-test-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}
@@ -16556,13 +16677,16 @@ const mo = new MutationObserver(function(){
 .fabricar-test-actions .all{background:linear-gradient(180deg,#64748b 0%,#475569 100%);}
 .fabricar-test-result{margin-top:10px;padding:10px 12px;border-radius:14px;background:#ecfdf5;border:1px solid #86efac;color:#166534;font-size:13px;font-weight:900;display:none;}
 .fabricar-test-result.show{display:block;}
-.fabricar-test-panel{max-height:min(66vh,620px);padding:12px!important;}
+.fabricar-test-panel{max-height:min(92vh,820px);padding:10px!important;}
 .fabricar-test-text{display:none;}
-.fabricar-test-section-title{font-size:12px;margin:8px 0 5px;}
+.fabricar-test-section-title{font-size:12px;margin:6px 0 4px;}
 .fabricar-v-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
-.fabricar-v-list button{min-height:34px;border-radius:11px;font-size:14px;}
+.fabricar-v-list button{min-height:32px;border-radius:11px;font-size:14px;}
 .fabricar-test-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;}
-.fabricar-test-grid button{min-height:34px;border-radius:11px;}
+.fabricar-test-grid button{min-height:32px;border-radius:11px;}
+.fabricar-ref-row{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin:6px 0 2px;font-size:12px;font-weight:900;color:#0f172a;}
+.fabricar-ref-row input{min-height:34px;border:1px solid #facc15;border-radius:12px;padding:7px 10px;font-size:14px;font-weight:900;background:#fff3a6;color:#111827;box-shadow:inset 0 1px 2px rgba(120,53,15,.08);}
+.fabricar-ref-row input::placeholder{color:transparent;}
 #fabricarPdfPreviewOverlay{position:fixed;inset:0;z-index:31000;background:#eef2f7;display:none;flex-direction:column;padding:calc(8px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom));box-sizing:border-box;}
 #fabricarPdfPreviewOverlay.show{display:flex!important;}
 .fabricar-pdf-preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px 8px;}
@@ -16575,6 +16699,23 @@ const mo = new MutationObserver(function(){
 .fabricar-pdf-preview-actions button{min-height:48px;border-radius:15px;border:0;color:#fff;font-weight:900;font-size:15px;}
 #btnExportarFabricacionPreview{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);}
 #btnCancelarFabricacionPreview{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);}
+#fabricarNotasEditorOverlay{position:fixed;inset:0;z-index:30500;background:rgba(15,23,42,.55);display:none;align-items:flex-end;justify-content:center;padding:0 10px 10px;box-sizing:border-box;}
+#fabricarNotasEditorOverlay.show{display:flex!important;}
+.fabricar-notas-panel{width:min(680px,100%);height:min(92vh,850px);max-height:min(92vh,850px);overflow:hidden;-webkit-overflow-scrolling:touch;background:#fff;border-radius:22px;box-shadow:0 -18px 50px rgba(15,23,42,.28);padding:0;box-sizing:border-box;display:flex;flex-direction:column;}
+.fabricar-notas-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;padding:13px 13px 9px;background:#fff;border-bottom:1px solid #eef2f7;flex:0 0 auto;}
+.fabricar-notas-head h2{margin:0;font-size:18px;font-weight:900;color:#0f172a;}
+.fabricar-notas-list{display:grid;gap:10px;overflow:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;padding:13px 13px 96px;background:#fffaf0;}
+.fabricar-nota-card{border:1px solid #f1c98c;border-radius:16px;background:#fff7ed;padding:10px;box-shadow:0 4px 12px rgba(120,53,15,.08);}
+.fabricar-nota-title{font-weight:900;font-size:15px;margin-bottom:7px;color:#0f172a;}
+.fabricar-nota-card textarea{width:100%;border:1px solid #e8c18b;border-radius:12px;padding:10px 11px;font-size:15px;line-height:1.25;background:#fffdf7;resize:vertical;}
+.fabricar-nota-card textarea.fabricar-nota-main{min-height:132px;}
+.fabricar-nota-card textarea.fabricar-nota-obs{min-height:72px;color:#dc2626;font-weight:800;background:#fff8f6;}
+.fabricar-nota-label{display:block;font-size:12px;font-weight:900;margin:7px 0 4px;color:#334155;}
+.fabricar-nota-label.red{color:#dc2626;}
+.fabricar-notas-actions{position:sticky;bottom:0;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:12px 13px calc(12px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid #e5e7eb;flex:0 0 auto;}
+.fabricar-notas-actions button{min-height:46px;border-radius:15px;border:0;color:#fff;font-weight:900;}
+#btnCancelarNotasFabricacion{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);}
+#btnAceptarNotasFabricacion{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);}
 </style>
 <div id="fabricarTestOverlay" onclick="if(event.target===this) cerrarFabricacionTest()">
   <div class="fabricar-test-panel">
@@ -16587,6 +16728,8 @@ const mo = new MutationObserver(function(){
     <div class="fabricar-test-section-title">Diseños del documento</div>
     <div class="fabricar-v-list" id="fabricarVLista"></div>
 
+    <div class="fabricar-ref-row"><span>Referencia</span><input id="fabricarReferencia" type="text" placeholder=""></div>
+
     <div class="fabricar-test-section-title">Diseños por hoja</div>
     <div class="fabricar-test-grid" id="fabricarTestOpciones">
       <button type="button" data-fab-hojas="1">1</button>
@@ -16596,14 +16739,31 @@ const mo = new MutationObserver(function(){
       <button type="button" data-fab-hojas="5">5</button>
       <button type="button" data-fab-hojas="6">6</button>
     </div>
-    <label style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 12px;border:1px solid #d4dde9;border-radius:14px;background:#f8fafc;font-size:13px;font-weight:900;color:#0f172a;">
-      <input id="fabricarModoNotas" type="checkbox" checked style="width:22px;height:22px;flex:0 0 auto;">
+    <label style="display:flex;align-items:center;gap:10px;margin-top:9px;padding:8px 10px;border:1px solid #d4dde9;border-radius:13px;background:#f8fafc;font-size:12px;font-weight:900;color:#0f172a;">
+      <input id="fabricarModoNotas" type="checkbox" checked style="width:20px;height:20px;flex:0 0 auto;">
       Modo notas: gráfico izquierda · zona derecha libre
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;margin-top:6px;padding:8px 10px;border:1px solid #d4dde9;border-radius:13px;background:#f8fafc;font-size:12px;font-weight:900;color:#0f172a;">
+      <input id="fabricarIncluirTexto" type="checkbox" style="width:20px;height:20px;flex:0 0 auto;">
+      Texto editable en notas
     </label>
     <div id="fabricarTestResultado" class="fabricar-test-result"></div>
     <div class="fabricar-test-actions">
       <button type="button" class="all" onclick="seleccionarTodosFabricacionTest()">Todos</button>
       <button type="button" class="ok" onclick="confirmarFabricacionTest()">Aceptar</button>
+    </div>
+  </div>
+</div>
+<div id="fabricarNotasEditorOverlay" onclick="if(event.target===this) cerrarNotasFabricacionEditor()">
+  <div class="fabricar-notas-panel">
+    <div class="fabricar-notas-head">
+      <h2>Notas de fabricación</h2>
+      <button type="button" class="fabricar-test-close" onclick="cerrarNotasFabricacionEditor()">Cerrar</button>
+    </div>
+    <div id="fabricarNotasLista" class="fabricar-notas-list"></div>
+    <div class="fabricar-notas-actions">
+      <button type="button" id="btnCancelarNotasFabricacion" onclick="cerrarNotasFabricacionEditor()">Cancelar</button>
+      <button type="button" id="btnAceptarNotasFabricacion" onclick="aceptarNotasFabricacionEditor()">Vista previa</button>
     </div>
   </div>
 </div>
@@ -16625,6 +16785,8 @@ const mo = new MutationObserver(function(){
   var fabricarPreviewBlob = null;
   var fabricarPreviewFilename = 'Fabricacion.pdf';
   var fabricarPreviewUrl = '';
+  var fabricarPendienteNotas = null;
+  var fabricarNotasEditadas = {};
 
   window.abrirFabricacionPreviewPdf = function(blob, filename, previewSvgs){
     if(!blob) return;
@@ -16758,20 +16920,118 @@ const mo = new MutationObserver(function(){
     window.actualizarFabricacionTestOpciones();
     return false;
   };
+
   window.confirmarFabricacionTest = async function(){
+    return generarFabricacionDesdeSeleccion(null);
+  };
+  function baseNotasFabricacion(){
+    var base = {};
+    try{ if(typeof window.getFabricacionBaseNotas === 'function') base = window.getFabricacionBaseNotas(fabricarSeleccionados.slice()) || {}; }catch(_){ base = {}; }
+    var numero = '0000';
+    try{ numero = (document.querySelector('svg text') && document.querySelector('svg text').textContent) || '0000'; }catch(_){}
+    var out = {};
+    fabricarSeleccionados.forEach(function(code){
+      var key = String(code).toUpperCase();
+      var data = base[key] || {texto:'', obs:''};
+      var lsKey = 'doc_fab_notas_' + key;
+      try{
+        var saved = localStorage.getItem(lsKey);
+        if(saved){ data = Object.assign({}, data, JSON.parse(saved)); }
+      }catch(_){}
+      out[key] = {texto: data.texto || '', obs: data.obs || ''};
+    });
+    return out;
+  }
+  function ajustarTextareaFabricacion(ta, minH, maxH){
+    if(!ta) return;
+    minH = minH || 90;
+    maxH = maxH || 240;
+    try{
+      ta.style.height = 'auto';
+      var h = Math.max(minH, Math.min(maxH, ta.scrollHeight + 4));
+      ta.style.height = h + 'px';
+    }catch(_){ }
+  }
+  window.abrirNotasFabricacionEditor = function(){
+    fabricarNotasEditadas = baseNotasFabricacion();
+    var list = document.getElementById('fabricarNotasLista');
+    if(list){
+      list.innerHTML = '';
+      fabricarSeleccionados.forEach(function(code){
+        var key = String(code).toUpperCase();
+        var data = fabricarNotasEditadas[key] || {texto:'', obs:''};
+        var card = document.createElement('div');
+        card.className = 'fabricar-nota-card';
+        card.innerHTML = '<div class="fabricar-nota-title">'+key+'</div>' +
+          '<label class="fabricar-nota-label">Texto</label>' +
+          '<textarea class="fabricar-nota-main" data-fab-nota="'+key+'"></textarea>' +
+          '<label class="fabricar-nota-label red">Observaciones</label>' +
+          '<textarea class="fabricar-nota-obs" data-fab-obs="'+key+'"></textarea>';
+        list.appendChild(card);
+        var notaArea = card.querySelector('[data-fab-nota]');
+        var obsArea = card.querySelector('[data-fab-obs]');
+        notaArea.value = data.texto || '';
+        obsArea.value = data.obs || '';
+        ajustarTextareaFabricacion(notaArea, 132, 240);
+        ajustarTextareaFabricacion(obsArea, 72, 160);
+        [notaArea, obsArea].forEach(function(ta){ ta.addEventListener('input', function(){ ajustarTextareaFabricacion(ta, ta.classList.contains('fabricar-nota-obs') ? 72 : 132, ta.classList.contains('fabricar-nota-obs') ? 160 : 240); }); });
+      });
+    }
+    var ov=document.getElementById('fabricarNotasEditorOverlay');
+    if(ov) ov.classList.add('show');
+  };
+  window.cerrarNotasFabricacionEditor = function(){
+    var ov=document.getElementById('fabricarNotasEditorOverlay');
+    if(ov) ov.classList.remove('show');
+  };
+  window.aceptarNotasFabricacionEditor = function(){
+    var notas = {};
+    document.querySelectorAll('[data-fab-nota]').forEach(function(t){
+      var key = t.getAttribute('data-fab-nota');
+      notas[key] = notas[key] || {};
+      notas[key].texto = t.value || '';
+    });
+    document.querySelectorAll('[data-fab-obs]').forEach(function(t){
+      var key = t.getAttribute('data-fab-obs');
+      notas[key] = notas[key] || {};
+      notas[key].obs = t.value || '';
+    });
+    Object.keys(notas).forEach(function(key){
+      try{ localStorage.setItem('doc_fab_notas_' + key, JSON.stringify(notas[key])); }catch(_){}
+    });
+    cerrarNotasFabricacionEditor();
+    return generarFabricacionDesdeSeleccion(notas);
+  };
+  async function generarFabricacionDesdeSeleccion(notasTexto){
     var res=document.getElementById('fabricarTestResultado');
     if(!fabricarSeleccionados.length){
       if(res){ res.textContent='Selecciona al menos un diseño.'; res.classList.add('show'); }
       return false;
     }
     var modoNotas = !!(document.getElementById('fabricarModoNotas') && document.getElementById('fabricarModoNotas').checked);
-    var msg = 'Generando PDF: ' + fabricarSeleccionados.join(', ') + (modoNotas ? ' · modo notas en columna' : (' · ' + fabricarPorHojaTest + ' por hoja'));
+    var incluirTexto = !!(document.getElementById('fabricarIncluirTexto') && document.getElementById('fabricarIncluirTexto').checked);
+
+    // Si el usuario activó texto editable y todavía no venimos del editor,
+    // abrimos el editor. Al aceptar el editor vuelve a llamar a esta función
+    // pasando notasTexto, y entonces sí se genera el PDF.
+    if(incluirTexto && !notasTexto){
+      abrirNotasFabricacionEditor();
+      return false;
+    }
+
+    try{ if(document.getElementById('fabricarReferencia')) localStorage.setItem('doc_fabricacion_referencia', document.getElementById('fabricarReferencia').value.trim()); }catch(_){}
+    var msg = 'Generando vista previa: ' + fabricarSeleccionados.join(', ') + (modoNotas ? ' · modo notas' : (' · ' + fabricarPorHojaTest + ' por hoja'));
     if(res){ res.textContent=msg; res.classList.add('show'); }
     var btn=document.getElementById('btnFabricarPdf');
     if(btn) btn.textContent='Generando…';
     try{
       if(typeof window.exportFabricacionPDF !== 'function') throw new Error('Exportador de fabricación no disponible');
-      var result = await window.exportFabricacionPDF(fabricarSeleccionados.slice(), fabricarPorHojaTest, { notas: modoNotas, preview: true });
+      var result = await window.exportFabricacionPDF(fabricarSeleccionados.slice(), fabricarPorHojaTest, {
+        notas: modoNotas,
+        notasTexto: notasTexto || null,
+        referencia: (document.getElementById('fabricarReferencia') ? document.getElementById('fabricarReferencia').value.trim() : ''),
+        preview: true
+      });
       if(btn) btn.textContent='Fabricar ✓';
       if(res){ res.textContent='Vista previa generada'; res.classList.add('show'); }
       cerrarFabricacionTest();
