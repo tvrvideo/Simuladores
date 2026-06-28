@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.0.1</title>
+  <title>Documentos Rey v4.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3769,7 +3769,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.0.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -8218,6 +8218,60 @@ COLOCACIÓN INCLUIDA` }
     return out;
   };
 
+
+  // v4.1 - Puente real para guardar notas de fabricación en el mismo state de Conceptos.
+  // El editor independiente de Fabricación está en otro <script>; no puede tocar directamente
+  // el `let state` de esta app. Por eso antes parecía guardar, pero al volver a Conceptos
+  // se cargaba el texto antiguo. Esta función vive en el script principal y sí modifica
+  // los conceptos reales antes de persistir.
+  window.fabGuardarNotasEnDocumento = async function(notas){
+    notas = notas || {};
+    if(!state || typeof state !== 'object') return false;
+    if(!Array.isArray(state.items)) state.items = [];
+    if(!state.fabricacion || typeof state.fabricacion !== 'object') state.fabricacion = {};
+    if(!state.fabricacion.notas || typeof state.fabricacion.notas !== 'object') state.fabricacion.notas = {};
+
+    function codeForIndex(idx){ return 'V' + (idx + 1); }
+    function normCode(v){ return fabNormTxt(v || '').toUpperCase(); }
+    function findRealItemByCode(code){
+      code = normCode(code);
+      for(var i=0;i<state.items.length;i++){
+        var it = state.items[i] || {};
+        var c = normCode(it.code || it.codigo || it.ref || codeForIndex(i));
+        if(c === code) return { item: it, index: i };
+      }
+      var n = parseInt(String(code).replace(/[^0-9]/g,''), 10);
+      if(n > 0){
+        while(state.items.length < n) state.items.push(blankConcept(codeForIndex(state.items.length)));
+        return { item: state.items[n-1], index: n-1 };
+      }
+      return null;
+    }
+
+    Object.keys(notas).forEach(function(k){
+      var key = normCode(k);
+      if(!key) return;
+      var data = notas[k] || {};
+      var found = findRealItemByCode(key);
+      if(!found || !found.item) return;
+      var it = found.item;
+      if(!it.code) it.code = codeForIndex(found.index);
+      if(Object.prototype.hasOwnProperty.call(data, 'texto')){
+        it.text = String(data.texto || '');
+        try{ delete it.concepto; delete it.descripcion; }catch(_){ }
+      }
+      it.fabricacionObs = String(data.obs || '');
+      try{ delete it.obsFabricacion; delete it.observacionesFabricacion; }catch(_){ }
+      state.items[found.index] = it;
+      state.fabricacion.notas[key] = { texto: String(it.text || ''), obs: String(it.fabricacionObs || '') };
+    });
+
+    await persistCurrent();
+    await saveNamed();
+    try{ await render(); }catch(_){ }
+    return true;
+  };
+
     async function exportPDF(){
     try{
       const exportPages = buildExportPageSvgs();
@@ -10160,6 +10214,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
         </div>
         <label>Texto ${it.code}</label><textarea id="editConceptText" class="concept-editor-field">${esc(it.text)}</textarea>
+        <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
@@ -10187,6 +10242,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
         </div>
         <label>Concepto</label><textarea id="editSimpleText" class="concept-editor-field">${esc(it.text || '')}</textarea>
+        <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
         <label class="import-field-label">Precio base</label><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
         <div class="import-gain-grid">
@@ -11014,10 +11070,16 @@ COLOCACIÓN INCLUIDA` }
       syncLegalTextFromPago1Percent(p1);
     } else if(currentEdit.type === 'conceptText') {
       state.items[currentEdit.index].text = $('editConceptText').value;
+      state.items[currentEdit.index].fabricacionObs = String(($('editConceptFabricacionObs') && $('editConceptFabricacionObs').value) || '');
+      delete state.items[currentEdit.index].obsFabricacion;
+      delete state.items[currentEdit.index].observacionesFabricacion;
     } else if(currentEdit.type === 'simpleLine') {
       const it = state.items[currentEdit.index] || blankConcept(conceptCodeForIndex(currentEdit.index));
       it.code = it.code || conceptCodeForIndex(currentEdit.index);
       it.text = $('editSimpleText').value || '';
+      it.fabricacionObs = String(($('editSimpleFabricacionObs') && $('editSimpleFabricacionObs').value) || '');
+      delete it.obsFabricacion;
+      delete it.observacionesFabricacion;
       it.units = String(($('editSimpleUnits').value || '1').replace(',','.'));
       const simpleBasePrice = String(($('editSimplePrice').value || '0').replace(',','.')).trim() || '0';
       const simpleGain = String(($('editSimpleGain') ? $('editSimpleGain').value : '') || '').replace(',','.').trim();
@@ -16710,6 +16772,8 @@ const mo = new MutationObserver(function(){
 .fabricar-nota-card textarea{width:100%;border:1px solid #e8c18b;border-radius:12px;padding:10px 11px;font-size:15px;line-height:1.25;background:#fffdf7;resize:vertical;}
 .fabricar-nota-card textarea.fabricar-nota-main{min-height:132px;}
 .fabricar-nota-card textarea.fabricar-nota-obs{min-height:72px;color:#dc2626;font-weight:800;background:#fff8f6;}
+.fabricar-nota-save{width:100%;min-height:46px;margin-top:10px;border:0;border-radius:15px;background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);color:#fff;font-weight:900;box-shadow:0 8px 18px rgba(37,99,235,.18);}
+.fabricar-nota-save.saved{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);}
 .fabricar-nota-label{display:block;font-size:12px;font-weight:900;margin:7px 0 4px;color:#334155;}
 .fabricar-nota-label.red{color:#dc2626;}
 .fabricar-notas-actions{position:sticky;bottom:0;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:12px 13px calc(12px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid #e5e7eb;flex:0 0 auto;}
@@ -16787,6 +16851,126 @@ const mo = new MutationObserver(function(){
   var fabricarPreviewUrl = '';
   var fabricarPendienteNotas = null;
   var fabricarNotasEditadas = {};
+
+  // v4.0.2 - Datos de fabricación aislados por documento.
+  // Antes se guardaban por V1/V2... en claves globales y podían aparecer
+  // textos de otro presupuesto al cambiar de documento.
+  function fabDocKey(){
+    try{
+      if(typeof state !== 'undefined' && state){
+        if(state.documentId) return 'id_' + String(state.documentId);
+        if(state.numero) return 'num_' + String(state.documentoTipo || 'doc') + '_' + String(state.numero);
+      }
+    }catch(_){ }
+    try{
+      var txt = Array.from(document.querySelectorAll('svg text, svg tspan')).map(function(n){return n.textContent || '';}).join(' | ');
+      var m = txt.match(/Número de (?:presupuesto|factura|albar[aá]n):\s*([^|]+)/i);
+      if(m && m[1]) return 'dom_' + m[1].trim().replace(/\s+/g,'_');
+    }catch(_){ }
+    return 'actual';
+  }
+  function fabStorageKey(suffix){
+    return 'doc_fabricacion_' + fabDocKey() + '_' + suffix;
+  }
+  function fabGetDocFabricacion(){
+    try{
+      if(typeof state !== 'undefined' && state){
+        if(!state.fabricacion || typeof state.fabricacion !== 'object') state.fabricacion = {};
+        if(!state.fabricacion.notas || typeof state.fabricacion.notas !== 'object') state.fabricacion.notas = {};
+        return state.fabricacion;
+      }
+    }catch(_){ }
+    return null;
+  }
+  function fabLoadReferencia(){
+    var f = fabGetDocFabricacion();
+    if(f && typeof f.referencia !== 'undefined') return String(f.referencia || '');
+    try{ return localStorage.getItem(fabStorageKey('referencia')) || ''; }catch(_){ return ''; }
+  }
+  function fabSaveReferencia(value){
+    value = String(value || '').trim();
+    var f = fabGetDocFabricacion();
+    if(f) f.referencia = value;
+    try{ localStorage.setItem(fabStorageKey('referencia'), value); }catch(_){ }
+  }
+  function fabLoadNota(key, baseData){
+    key = String(key || '').toUpperCase();
+    var data = Object.assign({texto:'', obs:''}, baseData || {});
+    // v4.0.14: primero se lee del concepto real; si falta, se recupera también
+    // del bloque propio de fabricación y del espejo local del documento.
+    try{
+      var f = fabGetDocFabricacion();
+      if(f && f.notas && f.notas[key]){
+        if(!data.texto && f.notas[key].texto) data.texto = f.notas[key].texto;
+        if(!data.obs && f.notas[key].obs) data.obs = f.notas[key].obs;
+      }
+    }catch(_){ }
+    try{
+      var raw = localStorage.getItem(fabStorageKey('notas'));
+      var mirror = raw ? JSON.parse(raw) : null;
+      if(mirror && mirror[key]){
+        if(!data.texto && mirror[key].texto) data.texto = mirror[key].texto;
+        if(!data.obs && mirror[key].obs) data.obs = mirror[key].obs;
+      }
+    }catch(_){ }
+    return { texto: String(data.texto || ''), obs: String(data.obs || '') };
+  }
+  function fabSaveNotas(notas){
+    // Guardar directamente en cada concepto: texto negro = concepto, observación roja = fabricacionObs.
+    notas = notas || {};
+    fabApplyNotasToConceptos(notas);
+    var f = fabGetDocFabricacion();
+    if(f){
+      if(!f.notas || typeof f.notas !== 'object') f.notas = {};
+      Object.keys(notas).forEach(function(key){
+        key = String(key || '').toUpperCase();
+        f.notas[key] = {
+          texto: String((notas[key] && notas[key].texto) || ''),
+          obs: String((notas[key] && notas[key].obs) || '')
+        };
+      });
+      try{ localStorage.setItem(fabStorageKey('notas'), JSON.stringify(f.notas || {})); }catch(_){ }
+    }else{
+      try{ localStorage.setItem(fabStorageKey('notas'), JSON.stringify(notas)); }catch(_){ }
+    }
+  }
+  async function fabGuardarNotasAntesPreview(notas){
+    // v4.1: el guardado real se hace desde el script principal mediante
+    // window.fabGuardarNotasEnDocumento(), porque allí está el `state` de Conceptos.
+    // Este bloque independiente solo mantiene el espejo local para la ventana abierta.
+    notas = notas || {};
+    var ok = true;
+    try{
+      if(typeof window.fabGuardarNotasEnDocumento === 'function'){
+        ok = await window.fabGuardarNotasEnDocumento(notas);
+      }else{
+        ok = false;
+      }
+    }catch(e){ ok = false; console.error(e); }
+    try{ fabSaveNotas(notas); }catch(e){ console.error(e); }
+    return !!ok;
+  }
+  async function fabGuardarNotaDesdeEditor(key, btn){
+    key = String(key || '').toUpperCase();
+    var notaArea = document.querySelector('[data-fab-nota="'+key+'"]');
+    var obsArea = document.querySelector('[data-fab-obs="'+key+'"]');
+    var notas = {};
+    notas[key] = {
+      texto: notaArea ? String(notaArea.value || '') : '',
+      obs: obsArea ? String(obsArea.value || '') : ''
+    };
+    var oldText = btn ? btn.textContent : '';
+    if(btn){ btn.disabled = true; btn.textContent = 'Guardando…'; btn.classList.remove('saved'); }
+    var ok = await fabGuardarNotasAntesPreview(notas);
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = ok ? (key + ' guardado ✓') : (key + ' guardado en pantalla ✓');
+      btn.classList.add('saved');
+      setTimeout(function(){ try{ btn.textContent = oldText || ('Guardar ' + key); btn.classList.remove('saved'); }catch(_){ } }, 1400);
+    }
+    try{ if(typeof toast === 'function') toast(key + ' guardado'); }catch(_){ }
+    return ok;
+  }
 
   window.abrirFabricacionPreviewPdf = function(blob, filename, previewSvgs){
     if(!blob) return;
@@ -16904,6 +17088,8 @@ const mo = new MutationObserver(function(){
     fabricarSeleccionados = fabricarCodigos.slice();
     var modoNotasChk=document.getElementById('fabricarModoNotas');
     if(modoNotasChk) modoNotasChk.checked = true;
+    var refInput=document.getElementById('fabricarReferencia');
+    if(refInput) refInput.value = fabLoadReferencia();
     var res=document.getElementById('fabricarTestResultado');
     if(res){ res.classList.remove('show'); res.textContent=''; }
     var ov=document.getElementById('fabricarTestOverlay');
@@ -16924,21 +17110,43 @@ const mo = new MutationObserver(function(){
   window.confirmarFabricacionTest = async function(){
     return generarFabricacionDesdeSeleccion(null);
   };
+  function fabFindItemByCode(code){
+    code = String(code || '').toUpperCase();
+    try{
+      // IMPORTANTE v4.0.14:
+      // No usar ensureConceptList aquí, porque crea copias de los conceptos.
+      // Para que Vista previa guarde de verdad, hay que devolver el objeto real
+      // dentro de state.items y modificarlo directamente.
+      var arr = (state && Array.isArray(state.items)) ? state.items : [];
+      for(var i=0;i<arr.length;i++){
+        var it = arr[i] || {};
+        var c = '';
+        try{ c = fabNormTxt(it.code || it.codigo || it.ref || ('V'+(i+1))).toUpperCase(); }catch(_){ c = 'V'+(i+1); }
+        if(c === code) return it;
+      }
+      var n = parseInt(String(code).replace(/[^0-9]/g,''),10);
+      if(n > 0 && arr[n-1]) return arr[n-1];
+    }catch(_){ }
+    return null;
+  }
+  function fabApplyNotasToConceptos(notas){
+    try{
+      Object.keys(notas || {}).forEach(function(key){
+        var it = fabFindItemByCode(key);
+        if(!it) return;
+        if(notas[key] && typeof notas[key].texto !== 'undefined') it.text = String(notas[key].texto || '');
+        it.fabricacionObs = String((notas[key] && notas[key].obs) || '');
+        try{ delete it.obsFabricacion; delete it.observacionesFabricacion; }catch(_){ }
+      });
+    }catch(_){ }
+  }
   function baseNotasFabricacion(){
     var base = {};
     try{ if(typeof window.getFabricacionBaseNotas === 'function') base = window.getFabricacionBaseNotas(fabricarSeleccionados.slice()) || {}; }catch(_){ base = {}; }
-    var numero = '0000';
-    try{ numero = (document.querySelector('svg text') && document.querySelector('svg text').textContent) || '0000'; }catch(_){}
     var out = {};
     fabricarSeleccionados.forEach(function(code){
       var key = String(code).toUpperCase();
-      var data = base[key] || {texto:'', obs:''};
-      var lsKey = 'doc_fab_notas_' + key;
-      try{
-        var saved = localStorage.getItem(lsKey);
-        if(saved){ data = Object.assign({}, data, JSON.parse(saved)); }
-      }catch(_){}
-      out[key] = {texto: data.texto || '', obs: data.obs || ''};
+      out[key] = fabLoadNota(key, base[key] || {texto:'', obs:''});
     });
     return out;
   }
@@ -16966,7 +17174,8 @@ const mo = new MutationObserver(function(){
           '<label class="fabricar-nota-label">Texto</label>' +
           '<textarea class="fabricar-nota-main" data-fab-nota="'+key+'"></textarea>' +
           '<label class="fabricar-nota-label red">Observaciones</label>' +
-          '<textarea class="fabricar-nota-obs" data-fab-obs="'+key+'"></textarea>';
+          '<textarea class="fabricar-nota-obs" data-fab-obs="'+key+'"></textarea>' +
+          '<button type="button" class="fabricar-nota-save" data-fab-save="'+key+'">Guardar '+key+'</button>';
         list.appendChild(card);
         var notaArea = card.querySelector('[data-fab-nota]');
         var obsArea = card.querySelector('[data-fab-obs]');
@@ -16975,6 +17184,13 @@ const mo = new MutationObserver(function(){
         ajustarTextareaFabricacion(notaArea, 132, 240);
         ajustarTextareaFabricacion(obsArea, 72, 160);
         [notaArea, obsArea].forEach(function(ta){ ta.addEventListener('input', function(){ ajustarTextareaFabricacion(ta, ta.classList.contains('fabricar-nota-obs') ? 72 : 132, ta.classList.contains('fabricar-nota-obs') ? 160 : 240); }); });
+        var saveBtn = card.querySelector('[data-fab-save]');
+        if(saveBtn){
+          saveBtn.addEventListener('click', function(ev){
+            try{ ev.preventDefault(); ev.stopPropagation(); }catch(_){ }
+            fabGuardarNotaDesdeEditor(key, saveBtn);
+          }, false);
+        }
       });
     }
     var ov=document.getElementById('fabricarNotasEditorOverlay');
@@ -16984,7 +17200,7 @@ const mo = new MutationObserver(function(){
     var ov=document.getElementById('fabricarNotasEditorOverlay');
     if(ov) ov.classList.remove('show');
   };
-  window.aceptarNotasFabricacionEditor = function(){
+  window.aceptarNotasFabricacionEditor = async function(){
     var notas = {};
     document.querySelectorAll('[data-fab-nota]').forEach(function(t){
       var key = t.getAttribute('data-fab-nota');
@@ -16996,9 +17212,7 @@ const mo = new MutationObserver(function(){
       notas[key] = notas[key] || {};
       notas[key].obs = t.value || '';
     });
-    Object.keys(notas).forEach(function(key){
-      try{ localStorage.setItem('doc_fab_notas_' + key, JSON.stringify(notas[key])); }catch(_){}
-    });
+    await fabGuardarNotasAntesPreview(notas);
     cerrarNotasFabricacionEditor();
     return generarFabricacionDesdeSeleccion(notas);
   };
@@ -17019,7 +17233,7 @@ const mo = new MutationObserver(function(){
       return false;
     }
 
-    try{ if(document.getElementById('fabricarReferencia')) localStorage.setItem('doc_fabricacion_referencia', document.getElementById('fabricarReferencia').value.trim()); }catch(_){}
+    try{ if(document.getElementById('fabricarReferencia')) fabSaveReferencia(document.getElementById('fabricarReferencia').value.trim()); }catch(_){}
     var msg = 'Generando vista previa: ' + fabricarSeleccionados.join(', ') + (modoNotas ? ' · modo notas' : (' · ' + fabricarPorHojaTest + ' por hoja'));
     if(res){ res.textContent=msg; res.classList.add('show'); }
     var btn=document.getElementById('btnFabricarPdf');
