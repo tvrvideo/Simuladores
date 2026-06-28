@@ -2,7 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v95.1</title>
+    <title>Ventana Pro v95.4</title>
+    <!-- v95.4: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
     <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
     <!-- v95.0: Ajuste fino al enviar a Documentos y defaults automáticos por número de hojas. -->
@@ -633,6 +634,7 @@ body.dock-off #canvasDock{
   font-weight:700;
 }
 .visual-row input[type="range"]{width:150px}
+.visual-row input[type="number"].visual-number-value{width:58px;text-align:center;border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:7px 4px;font-weight:900;color:#0f172a;font-size:14px;}
 .visual-row input[type="color"]{width:52px;height:36px;padding:2px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
 .visual-row input[type="checkbox"]{width:22px;height:22px}
 .visual-actions{
@@ -647,6 +649,7 @@ body.dock-off #canvasDock{
 @media(max-width:640px){
   .visual-grid{grid-template-columns:1fr}
   .visual-row input[type="range"]{width:132px}
+  .visual-row input[type="number"].visual-number-value{width:54px;}
 }
 
 
@@ -1121,61 +1124,64 @@ body.dock-off #canvasDock{
         <div class="visual-card">
           <h4>Sombra exterior</h4>
           <label class="visual-row">Activar <input id="visShadowEnabled" type="checkbox"></label>
-          <label class="visual-row value-row">Intensidad <input id="visShadowAlpha" type="range" min="0" max="60" step="1"><output id="visShadowAlphaOut"></output></label>
-          <label class="visual-row value-row">Difuminado <input id="visShadowBlur" type="range" min="0" max="30" step="1"><output id="visShadowBlurOut"></output></label>
-          <label class="visual-row value-row">Bajada <input id="visShadowY" type="range" min="-8" max="16" step="1"><output id="visShadowYOut"></output></label>
+          <label class="visual-row value-row">Intensidad <input id="visShadowAlpha" type="range" min="0" max="60" step="1"><input id="visShadowAlphaVal" class="visual-number-value" type="number" min="0" max="60" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Difuminado <input id="visShadowBlur" type="range" min="0" max="30" step="1"><input id="visShadowBlurVal" class="visual-number-value" type="number" min="0" max="30" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Bajada <input id="visShadowY" type="range" min="-8" max="16" step="1"><input id="visShadowYVal" class="visual-number-value" type="number" min="-8" max="16" step="1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Bordes hoja / marco</h4>
           <label class="visual-row">Color hojas claro <input id="visLightStrokeColor" type="color"></label>
-          <label class="visual-row value-row">Grosor hojas claro <input id="visLightStrokeWidth" type="range" min="1" max="5" step="0.1"><output id="visLightStrokeWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor hojas claro <input id="visLightStrokeWidth" type="range" min="1" max="5" step="0.1"><input id="visLightStrokeWidthVal" class="visual-number-value" type="number" min="1" max="5" step="0.1" inputmode="decimal"></label>
           <label class="visual-row">Color hojas oscuro <input id="visDarkStrokeColor" type="color"></label>
-          <label class="visual-row value-row">Grosor hojas oscuro <input id="visDarkStrokeWidth" type="range" min="1" max="5" step="0.1"><output id="visDarkStrokeWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor hojas oscuro <input id="visDarkStrokeWidth" type="range" min="1" max="5" step="0.1"><input id="visDarkStrokeWidthVal" class="visual-number-value" type="number" min="1" max="5" step="0.1" inputmode="decimal"></label>
+          <hr style="border:0;border-top:1px solid #d8dee8;margin:10px 0;">
+          <label class="visual-row">Color línea interior hoja <input id="visInnerLeafStrokeColor" type="color"></label>
+          <label class="visual-row value-row">Grosor línea interior <input id="visInnerLeafStrokeWidth" type="range" min="0.5" max="6" step="0.1"><input id="visInnerLeafStrokeWidthVal" class="visual-number-value" type="number" min="0.5" max="6" step="0.1" inputmode="decimal"></label>
           <hr style="border:0;border-top:1px solid #d8dee8;margin:10px 0;">
           <label class="visual-row">Color marco exterior <input id="visOuterFrameColor" type="color"></label>
-          <label class="visual-row value-row">Grosor marco exterior <input id="visOuterFrameWidth" type="range" min="1" max="8" step="0.1"><output id="visOuterFrameWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor marco exterior <input id="visOuterFrameWidth" type="range" min="1" max="8" step="0.1"><input id="visOuterFrameWidthVal" class="visual-number-value" type="number" min="1" max="8" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Aperturas</h4>
           <label class="visual-row">Color líneas <input id="visApertureColor" type="color"></label>
-          <label class="visual-row value-row">Grosor líneas <input id="visApertureWidth" type="range" min="1" max="7" step="0.1"><output id="visApertureWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor líneas <input id="visApertureWidth" type="range" min="1" max="7" step="0.1"><input id="visApertureWidthVal" class="visual-number-value" type="number" min="1" max="7" step="0.1" inputmode="decimal"></label>
           <label class="visual-row">Color OB/abatibles <input id="visApertureExtraColor" type="color"></label>
-          <label class="visual-row value-row">Grosor OB/abatibles <input id="visApertureExtraWidth" type="range" min="1" max="7" step="0.1"><output id="visApertureExtraWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor OB/abatibles <input id="visApertureExtraWidth" type="range" min="1" max="7" step="0.1"><input id="visApertureExtraWidthVal" class="visual-number-value" type="number" min="1" max="7" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Bordes técnicos</h4>
           <label class="visual-row">Color selección <input id="visTechnicalColor" type="color"></label>
-          <label class="visual-row value-row">Grosor selección <input id="visTechnicalWidth" type="range" min="1" max="5" step="0.1"><output id="visTechnicalWidthOut"></output></label>
+          <label class="visual-row value-row">Grosor selección <input id="visTechnicalWidth" type="range" min="1" max="5" step="0.1"><input id="visTechnicalWidthVal" class="visual-number-value" type="number" min="1" max="5" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Medidas horizontales</h4>
           <label class="visual-row">Color texto <input id="visMeasureTextColor" type="color"></label>
           <label class="visual-row">Color líneas <input id="visMeasureLineColor" type="color"></label>
-          <label class="visual-row value-row">Tamaño máximo <input id="visMeasureFontMax" type="range" min="30" max="90" step="1"><output id="visMeasureFontMaxOut"></output></label>
-          <label class="visual-row value-row">Tamaño mínimo <input id="visMeasureFontMin" type="range" min="14" max="40" step="1"><output id="visMeasureFontMinOut"></output></label>
-          <label class="visual-row value-row">Grosor línea <input id="visMeasureLineWidth" type="range" min="1" max="5" step="0.1"><output id="visMeasureLineWidthOut"></output></label>
+          <label class="visual-row value-row">Tamaño máximo <input id="visMeasureFontMax" type="range" min="30" max="90" step="1"><input id="visMeasureFontMaxVal" class="visual-number-value" type="number" min="30" max="90" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Tamaño mínimo <input id="visMeasureFontMin" type="range" min="14" max="40" step="1"><input id="visMeasureFontMinVal" class="visual-number-value" type="number" min="14" max="40" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Grosor línea <input id="visMeasureLineWidth" type="range" min="1" max="5" step="0.1"><input id="visMeasureLineWidthVal" class="visual-number-value" type="number" min="1" max="5" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Medidas verticales</h4>
           <label class="visual-row">Color texto <input id="visMeasureVerticalTextColor" type="color"></label>
           <label class="visual-row">Color líneas <input id="visMeasureVerticalLineColor" type="color"></label>
-          <label class="visual-row value-row">Tamaño texto <input id="visMeasureVerticalFontSize" type="range" min="18" max="90" step="1"><output id="visMeasureVerticalFontSizeOut"></output></label>
-          <label class="visual-row value-row">Grosor línea <input id="visMeasureVerticalLineWidth" type="range" min="1" max="5" step="0.1"><output id="visMeasureVerticalLineWidthOut"></output></label>
+          <label class="visual-row value-row">Tamaño texto <input id="visMeasureVerticalFontSize" type="range" min="18" max="90" step="1"><input id="visMeasureVerticalFontSizeVal" class="visual-number-value" type="number" min="18" max="90" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Grosor línea <input id="visMeasureVerticalLineWidth" type="range" min="1" max="5" step="0.1"><input id="visMeasureVerticalLineWidthVal" class="visual-number-value" type="number" min="1" max="5" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Medidas totales</h4>
           <label class="visual-row">Color texto <input id="visMeasureTotalTextColor" type="color"></label>
           <label class="visual-row">Color líneas <input id="visMeasureTotalLineColor" type="color"></label>
-          <label class="visual-row value-row">Tamaño texto <input id="visMeasureTotalFontSize" type="range" min="22" max="110" step="1"><output id="visMeasureTotalFontSizeOut"></output></label>
-          <label class="visual-row value-row">Grosor línea <input id="visMeasureTotalLineWidth" type="range" min="1" max="6" step="0.1"><output id="visMeasureTotalLineWidthOut"></output></label>
+          <label class="visual-row value-row">Tamaño texto <input id="visMeasureTotalFontSize" type="range" min="22" max="110" step="1"><input id="visMeasureTotalFontSizeVal" class="visual-number-value" type="number" min="22" max="110" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Grosor línea <input id="visMeasureTotalLineWidth" type="range" min="1" max="6" step="0.1"><input id="visMeasureTotalLineWidthVal" class="visual-number-value" type="number" min="1" max="6" step="0.1" inputmode="decimal"></label>
         </div>
         <div class="visual-card">
           <h4>Medidas diagonales</h4>
           <label class="visual-row">Color texto <input id="visMeasureDiagonalTextColor" type="color"></label>
           <label class="visual-row">Color líneas <input id="visMeasureDiagonalLineColor" type="color"></label>
-          <label class="visual-row value-row">Tamaño texto <input id="visMeasureDiagonalFontSize" type="range" min="22" max="110" step="1"><output id="visMeasureDiagonalFontSizeOut"></output></label>
-          <label class="visual-row value-row">Grosor línea <input id="visMeasureDiagonalLineWidth" type="range" min="1" max="6" step="0.1"><output id="visMeasureDiagonalLineWidthOut"></output></label>
-          <label class="visual-row value-row">Subir/bajar cota <input id="visMeasureDiagonalTextOffset" type="range" min="-80" max="80" step="1"><output id="visMeasureDiagonalTextOffsetOut"></output></label>
+          <label class="visual-row value-row">Tamaño texto <input id="visMeasureDiagonalFontSize" type="range" min="22" max="110" step="1"><input id="visMeasureDiagonalFontSizeVal" class="visual-number-value" type="number" min="22" max="110" step="1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Grosor línea <input id="visMeasureDiagonalLineWidth" type="range" min="1" max="6" step="0.1"><input id="visMeasureDiagonalLineWidthVal" class="visual-number-value" type="number" min="1" max="6" step="0.1" inputmode="decimal"></label>
+          <label class="visual-row value-row">Subir/bajar cota <input id="visMeasureDiagonalTextOffset" type="range" min="-80" max="80" step="1"><input id="visMeasureDiagonalTextOffsetVal" class="visual-number-value" type="number" min="-80" max="80" step="1" inputmode="decimal"></label>
         </div>
       </div>
       <div class="visual-actions">
@@ -1191,7 +1197,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v95.1"><span class="title-main">Ventana Pro</span><span class="title-version">v95.1</span></div>
+<div class="top-title" aria-label="Ventana Pro v95.4"><span class="title-main">Ventana Pro</span><span class="title-version">v95.4</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1834,6 +1840,8 @@ function aplicarRellenoMarco(ctx){
         lightStrokeWidth: 1.6,
         darkStrokeColor: '#ADADAD',
         darkStrokeWidth: 2,
+        innerLeafStrokeColor: '#0074D9',
+        innerLeafStrokeWidth: 2,
         outerFrameColor: '#333333',
         outerFrameWidth: 1.4,
         apertureColor: '#0074D9',
@@ -1890,9 +1898,11 @@ function aplicarRellenoMarco(ctx){
 
     function updateVisualOutput(id){
         const el = document.getElementById(id);
+        if(!el) return;
         const out = document.getElementById(id + 'Out');
-        if(!el || !out) return;
-        out.textContent = String(el.value);
+        if(out) out.textContent = String(el.value);
+        const valBox = document.getElementById(id + 'Val');
+        if(valBox && document.activeElement !== valBox) valBox.value = String(el.value);
     }
 
     function setVisualInputValue(id, value){
@@ -1912,6 +1922,8 @@ function aplicarRellenoMarco(ctx){
         setVisualInputValue('visLightStrokeWidth', visualSettings.lightStrokeWidth);
         setVisualInputValue('visDarkStrokeColor', visualSettings.darkStrokeColor);
         setVisualInputValue('visDarkStrokeWidth', visualSettings.darkStrokeWidth);
+        setVisualInputValue('visInnerLeafStrokeColor', visualSettings.innerLeafStrokeColor);
+        setVisualInputValue('visInnerLeafStrokeWidth', visualSettings.innerLeafStrokeWidth);
         setVisualInputValue('visOuterFrameColor', visualSettings.outerFrameColor);
         setVisualInputValue('visOuterFrameWidth', visualSettings.outerFrameWidth);
         setVisualInputValue('visApertureColor', visualSettings.apertureColor);
@@ -1960,6 +1972,8 @@ function aplicarRellenoMarco(ctx){
         visualSettings.lightStrokeWidth = valNum('visLightStrokeWidth', DEFAULT_VISUAL_SETTINGS.lightStrokeWidth);
         visualSettings.darkStrokeColor = valColor('visDarkStrokeColor', DEFAULT_VISUAL_SETTINGS.darkStrokeColor);
         visualSettings.darkStrokeWidth = valNum('visDarkStrokeWidth', DEFAULT_VISUAL_SETTINGS.darkStrokeWidth);
+        visualSettings.innerLeafStrokeColor = valColor('visInnerLeafStrokeColor', DEFAULT_VISUAL_SETTINGS.innerLeafStrokeColor);
+        visualSettings.innerLeafStrokeWidth = valNum('visInnerLeafStrokeWidth', DEFAULT_VISUAL_SETTINGS.innerLeafStrokeWidth);
         visualSettings.outerFrameColor = valColor('visOuterFrameColor', DEFAULT_VISUAL_SETTINGS.outerFrameColor);
         visualSettings.outerFrameWidth = valNum('visOuterFrameWidth', DEFAULT_VISUAL_SETTINGS.outerFrameWidth);
         visualSettings.apertureColor = valColor('visApertureColor', DEFAULT_VISUAL_SETTINGS.apertureColor);
@@ -2012,6 +2026,22 @@ function aplicarRellenoMarco(ctx){
     function aplicarEstiloMarcoExterior(ctx){
         ctx.strokeStyle = getMarcoExteriorColor();
         ctx.lineWidth = getMarcoExteriorGrosor();
+    }
+
+    function getLineaInteriorHojaColor(){ return visualSettings.innerLeafStrokeColor || DEFAULT_VISUAL_SETTINGS.innerLeafStrokeColor; }
+    function getLineaInteriorHojaGrosor(){ return Math.max(0.3, Number(visualSettings.innerLeafStrokeWidth) || DEFAULT_VISUAL_SETTINGS.innerLeafStrokeWidth); }
+    function esZonaHojaInterior(idData){
+        const t = idData && idData.type ? String(idData.type).toLowerCase() : '';
+        return t.indexOf('hoja') !== -1;
+    }
+    function aplicarEstiloContornoInteriorHoja(ctx, idData){
+        if(!idData || esZonaHojaInterior(idData)){
+            ctx.strokeStyle = getLineaInteriorHojaColor();
+            ctx.lineWidth = getLineaInteriorHojaGrosor();
+        }else{
+            ctx.strokeStyle = getTecnicoColor();
+            ctx.lineWidth = getTecnicoGrosor();
+        }
     }
 
     function dibujarContornoExteriorReal(ctx, puntos){
@@ -4520,7 +4550,7 @@ function cambiarColorMarco(c) {
             ], idData);
         }
 
-        dibujarRectanguloBase(ctx, x, y, w, h, baseColor);
+        dibujarRectanguloBase(ctx, x, y, w, h, baseColor, idData);
         dibujarBarrotillosSoloConKey(ctx, [
             {x:x, y:y},
             {x:x+w, y:y},
@@ -4530,12 +4560,12 @@ function cambiarColorMarco(c) {
 
     }
 
-    function dibujarRectanguloBase(ctx, x, y, w, h, baseColor) {
+    function dibujarRectanguloBase(ctx, x, y, w, h, baseColor, idData) {
         if (esColorCristalMismoMarco(baseColor) || baseColor === "#FFFFFF" || baseColor === colorMarco) {
             if(esColorCristalMismoMarco(baseColor) || baseColor === colorMarco) aplicarRellenoMarco(ctx);
             else ctx.fillStyle = baseColor;
             ctx.fillRect(x, y, w, h);
-            ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
+            aplicarEstiloContornoInteriorHoja(ctx, idData); ctx.strokeRect(x, y, w, h);
             return;
         }
 
@@ -4544,7 +4574,7 @@ function cambiarColorMarco(c) {
             if (!rgbaMatch) {
                 ctx.fillStyle = baseColor;
                 ctx.fillRect(x, y, w, h);
-                ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
+                aplicarEstiloContornoInteriorHoja(ctx, idData); ctx.strokeRect(x, y, w, h);
                 return;
             }
 
@@ -4562,13 +4592,13 @@ function cambiarColorMarco(c) {
             
             ctx.fillStyle = gradient;
             ctx.fillRect(x, y, w, h);
-            ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
+            aplicarEstiloContornoInteriorHoja(ctx, idData); ctx.strokeRect(x, y, w, h);
             return;
         }
         
         ctx.fillStyle = baseColor;
         ctx.fillRect(x, y, w, h);
-        ctx.strokeStyle = getTecnicoColor(); ctx.lineWidth = getTecnicoGrosor(); ctx.strokeRect(x, y, w, h);
+        aplicarEstiloContornoInteriorHoja(ctx, idData); ctx.strokeRect(x, y, w, h);
     }
 
     function dibujarCristalTrapecio(ctx, p1, p2, p3, p4, baseColor, idData) {
@@ -4589,8 +4619,7 @@ function cambiarColorMarco(c) {
             ctx.fill();
 
             dibujarBarrotillosDeHuecoSiExisten(ctx, poly, idData);
-            ctx.strokeStyle = getTecnicoColor();
-            ctx.lineWidth = getTecnicoGrosor();
+            aplicarEstiloContornoInteriorHoja(ctx, idData);
             ctx.stroke();
             return;
         }
@@ -4606,8 +4635,7 @@ function cambiarColorMarco(c) {
             ctx.closePath();
             ctx.fill();
             dibujarBarrotillosDeHuecoSiExisten(ctx, poly, idData);
-            ctx.strokeStyle = getTecnicoColor();
-            ctx.lineWidth = getTecnicoGrosor();
+            aplicarEstiloContornoInteriorHoja(ctx, idData);
             ctx.stroke();
             return;
         }
@@ -4640,7 +4668,7 @@ function cambiarColorMarco(c) {
         ctx.fill();
 
         dibujarBarrotillosDeHuecoSiExisten(ctx, poly, idData);
-        aplicarEstiloApertura(ctx, false);
+        aplicarEstiloContornoInteriorHoja(ctx, idData);
         ctx.stroke();
     }
     
@@ -4830,7 +4858,8 @@ function cambiarColorMarco(c) {
         ctx.closePath();
         ctx.fillStyle = fillStyle;
         ctx.fill();
-        aplicarEstiloApertura(ctx, false);
+        ctx.strokeStyle = getLineaInteriorHojaColor();
+        ctx.lineWidth = getLineaInteriorHojaGrosor();
         ctx.stroke();
     }
 
@@ -8854,13 +8883,37 @@ if (mostrarAltoTotalDer) {
     }, {passive:true});
 
     // v88.7: cambios visuales en directo desde el panel ⚙️ VISUAL
-    ['visShadowEnabled','visShadowAlpha','visShadowBlur','visShadowY','visLightStrokeColor','visLightStrokeWidth','visDarkStrokeColor','visDarkStrokeWidth','visOuterFrameColor','visOuterFrameWidth','visApertureColor','visApertureWidth','visApertureExtraColor','visApertureExtraWidth','visTechnicalColor','visTechnicalWidth','visMeasureTextColor','visMeasureLineColor','visMeasureFontMax','visMeasureFontMin','visMeasureLineWidth','visMeasureVerticalTextColor','visMeasureVerticalLineColor','visMeasureVerticalFontSize','visMeasureVerticalLineWidth','visMeasureTotalTextColor','visMeasureTotalLineColor','visMeasureTotalFontSize','visMeasureTotalLineWidth','visMeasureDiagonalTextColor','visMeasureDiagonalLineColor','visMeasureDiagonalFontSize','visMeasureDiagonalLineWidth','visMeasureDiagonalTextOffset'].forEach(function(id){
+    ['visShadowEnabled','visShadowAlpha','visShadowBlur','visShadowY','visLightStrokeColor','visLightStrokeWidth','visDarkStrokeColor','visDarkStrokeWidth','visInnerLeafStrokeColor','visInnerLeafStrokeWidth','visOuterFrameColor','visOuterFrameWidth','visApertureColor','visApertureWidth','visApertureExtraColor','visApertureExtraWidth','visTechnicalColor','visTechnicalWidth','visMeasureTextColor','visMeasureLineColor','visMeasureFontMax','visMeasureFontMin','visMeasureLineWidth','visMeasureVerticalTextColor','visMeasureVerticalLineColor','visMeasureVerticalFontSize','visMeasureVerticalLineWidth','visMeasureTotalTextColor','visMeasureTotalLineColor','visMeasureTotalFontSize','visMeasureTotalLineWidth','visMeasureDiagonalTextColor','visMeasureDiagonalLineColor','visMeasureDiagonalFontSize','visMeasureDiagonalLineWidth','visMeasureDiagonalTextOffset'].forEach(function(id){
       const el = document.getElementById(id);
       if(el && typeof guardarAjustesVisualesDesdePanel === 'function'){
         el.addEventListener('input', function(){ updateVisualOutput(id); guardarAjustesVisualesDesdePanel(); }, false);
         el.addEventListener('change', function(){ updateVisualOutput(id); guardarAjustesVisualesDesdePanel(); }, false);
       }
     });
+
+    // v95.4: casillas numéricas directas junto a los deslizadores.
+    if(typeof guardarAjustesVisualesDesdePanel === 'function'){
+      document.querySelectorAll('.visual-number-value[id$="Val"]').forEach(function(box){
+        const baseId = box.id.replace(/Val$/, '');
+        const range = document.getElementById(baseId);
+        if(!range) return;
+        const aplicarCaja = function(){
+          let n = Number(String(box.value).replace(',', '.'));
+          if(!Number.isFinite(n)) n = Number(range.value) || 0;
+          const min = Number(range.min); if(Number.isFinite(min)) n = Math.max(min, n);
+          const max = Number(range.max); if(Number.isFinite(max)) n = Math.min(max, n);
+          const step = range.step && range.step !== 'any' ? Number(range.step) : 0;
+          if(Number.isFinite(step) && step > 0){ n = Math.round(n / step) * step; }
+          n = Math.round(n * 100) / 100;
+          range.value = String(n);
+          box.value = String(n);
+          updateVisualOutput(baseId);
+          guardarAjustesVisualesDesdePanel();
+        };
+        box.addEventListener('input', aplicarCaja, false);
+        box.addEventListener('change', aplicarCaja, false);
+      });
+    }
     if(typeof sincronizarAltoTotalPorLados === 'function') sincronizarAltoTotalPorLados();
     if(typeof actualizarBotonesVisualizacionInferior === 'function') actualizarBotonesVisualizacionInferior();
   })();
