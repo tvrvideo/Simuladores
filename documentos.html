@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.1</title>
+  <title>Documentos Rey v4.4.7</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -1392,8 +1392,9 @@ body.editing-field #editSheet #sheetContent{
 #editConceptText,
 #editSimpleText{
   min-height:170px !important;
-  max-height:42vh !important;
-  overflow:auto !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
   -webkit-overflow-scrolling:touch !important;
   line-height:1.3 !important;
 }
@@ -2203,6 +2204,187 @@ body.png-open .topbar{
   color:#64748b;
 }
 @media(max-width:560px){.external-catalog-grid-v42{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.external-catalog-grid-v42{clear:both!important;}
+#sheetContent .external-catalog-grid-v42 button.external-catalog-btn-v42{
+  float:none!important;
+  margin:0!important;
+  width:100%!important;
+  height:42px!important;
+  min-height:42px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:13px!important;
+  padding:7px 6px!important;
+}
+.external-catalog-btn-v42.nicho{background:linear-gradient(180deg,#22c55e,#15803d) !important;color:#fff!important;}
+.template-actions{
+  clear:both!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin:8px 0 14px!important;
+}
+#sheetContent .template-actions button{
+  float:none!important;
+  margin:0!important;
+  width:100%!important;
+  min-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+
+/* v4.4.7 - Editor enriquecido: modo escritura color/negrita compatible iPhone */
+.rich-format-toolbar{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:flex-start;
+  margin:8px 0 8px;
+  padding:6px;
+  border:1px solid #d4dde9;
+  border-radius:13px;
+  background:linear-gradient(180deg,#ffffff 0%,#f3f7fd 100%);
+  user-select:none;
+  -webkit-user-select:none;
+}
+.rich-format-toolbar button{
+  width:42px;
+  min-width:42px;
+  height:38px;
+  min-height:38px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  background:linear-gradient(180deg,#ffffff 0%,#eef4fb 100%);
+  font-size:13px;
+  font-weight:950;
+  color:#0f172a;
+  box-shadow:0 5px 10px rgba(15,23,42,.07);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  touch-action:manipulation;
+  -webkit-touch-callout:none;
+}
+.rich-format-toolbar button:active{transform:scale(.96)}
+.rich-format-toolbar .rich-red{background:linear-gradient(180deg,#fff1f2,#fee2e2)!important;border-color:#fecaca!important;color:#dc2626!important}
+.rich-format-toolbar .rich-blue{background:linear-gradient(180deg,#eff6ff,#dbeafe)!important;border-color:#bfdbfe!important;color:#2563eb!important}
+.rich-format-toolbar .rich-black{background:linear-gradient(180deg,#f8fafc,#e5e7eb)!important;border-color:#cbd5e1!important;color:#0f172a!important}
+.rich-format-toolbar button.rich-active{
+  outline:3px solid rgba(37,99,235,.28);
+  box-shadow:0 0 0 2px rgba(255,255,255,.95) inset,0 8px 16px rgba(15,23,42,.14)!important;
+  transform:translateY(-1px);
+}
+.rich-format-help{
+  font-size:11px;
+  font-weight:800;
+  color:#64748b;
+  margin:-2px 0 8px;
+}
+
+.rich-editor{
+  width:100%;
+  min-height:170px;
+  height:auto;
+  max-height:none;
+  overflow:visible;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px 14px;
+  background:#fff;
+  color:var(--text);
+  font-size:16px;
+  line-height:1.3;
+  white-space:pre-wrap;
+  outline:none;
+}
+.rich-editor:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,.14);
+}
+.rich-editor b,.rich-editor strong{font-weight:900}
+
+
+
+/* v4.4.9 - Línea roja dinámica y catálogos 4 por línea */
+.rich-format-toolbar,.rich-format-help{display:none!important;}
+.optional-red-line-v447{
+  margin:10px 0 10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#fff7f7;
+  border:1px solid #fecaca;
+}
+.optional-red-line-v447 label{
+  margin:0 0 6px!important;
+  color:#991b1b!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+.optional-red-line-v447 input{
+  width:100%!important;
+  min-height:42px!important;
+  border:1px solid #fca5a5!important;
+  border-radius:12px!important;
+  padding:10px 12px!important;
+  color:#dc2626!important;
+  font-weight:900!important;
+  background:#fff!important;
+}
+.external-catalog-grid-v42{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#sheetContent .external-catalog-grid-v42 button.external-catalog-btn-v42{
+  min-height:38px!important;
+  height:38px!important;
+  font-size:11px!important;
+  border-radius:12px!important;
+  padding:5px 4px!important;
+}
+@media(max-width:560px){
+  .external-catalog-grid-v42{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+}
+@media(max-width:390px){
+  .external-catalog-grid-v42{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+
+
+
+/* v4.4.9 - Catálogos en una línea y campos dinámicos */
+.external-catalog-grid-v42{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+#sheetContent .external-catalog-grid-v42 button.external-catalog-btn-v42{
+  min-height:36px!important;
+  height:36px!important;
+  font-size:10px!important;
+  border-radius:11px!important;
+  padding:4px 2px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:420px){
+  #sheetContent .external-catalog-grid-v42 button.external-catalog-btn-v42{font-size:9px!important;}
+  .external-catalog-grid-v42{gap:5px!important;}
+}
+.optional-red-line-v447 textarea{
+  width:100%!important;
+  min-height:42px!important;
+  resize:none!important;
+  overflow:hidden!important;
+  border:1px solid #fca5a5!important;
+  border-radius:12px!important;
+  padding:10px 12px!important;
+  color:#dc2626!important;
+  font-weight:900!important;
+  line-height:1.25!important;
+  background:#fff!important;
+}
 
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
@@ -3800,7 +3982,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.3</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.7</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5354,6 +5536,274 @@ Pendiente de integración completa:
   }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
   function lines(text){ return String(text || '').replace(/\r/g,'').split('\n'); }
+
+  function richPlainText(html){
+    const s = String(html == null ? '' : html);
+    if(!/[<>&]/.test(s)) return s;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = s
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<\/p>/gi, '\n');
+    return (tmp.textContent || '').replace(/\u00a0/g,' ').replace(/\n{3,}/g,'\n\n').trimEnd();
+  }
+  function richNormalizeHtml(html){
+    const box = document.createElement('div');
+    box.innerHTML = String(html || '');
+    box.querySelectorAll('*').forEach(function(el){
+      const tag = el.tagName.toLowerCase();
+      const color = (el.style && el.style.color) ? el.style.color : '';
+      if(tag !== 'b' && tag !== 'strong' && tag !== 'span' && tag !== 'br' && tag !== 'div' && tag !== 'p'){
+        const span = document.createElement('span');
+        span.innerHTML = el.innerHTML;
+        el.replaceWith(span);
+        return;
+      }
+      if(tag === 'span'){
+        const c = String(color || '').toLowerCase();
+        el.removeAttribute('style');
+        if(c.includes('220') || c.includes('38') || c.includes('red') || c.includes('#dc2626')) el.style.color = '#dc2626';
+        else if(c.includes('37') || c.includes('99') || c.includes('235') || c.includes('blue') || c.includes('#2563eb')) el.style.color = '#2563eb';
+      }
+      Array.from(el.attributes || []).forEach(function(a){
+        if(a.name !== 'style') el.removeAttribute(a.name);
+      });
+    });
+    return box.innerHTML
+      .replace(/<div><br><\/div>/gi,'<br>')
+      .replace(/<div>/gi,'')
+      .replace(/<\/div>/gi,'<br>')
+      .replace(/<p>/gi,'')
+      .replace(/<\/p>/gi,'<br>')
+      .replace(/(<br>\s*)+$/i,'');
+  }
+  function getRichEditorValue(id){
+    const el = $(id);
+    if(!el) return '';
+    if(el.isContentEditable) return richNormalizeHtml(el.innerHTML || '');
+    return el.value || '';
+  }
+  function appendRedLineV447(html, inputId){
+    const inp = $(inputId);
+    const txt = inp ? String(inp.value || '').trim() : '';
+    let out = String(html || '');
+    if(!txt) return out;
+    const safe = esc(txt).replace(/\n/g,'<br>');
+    const sep = out ? '<br>' : '';
+    return richNormalizeHtml(out + sep + '<span style="color:#dc2626"><b>' + safe + '</b></span>');
+  }
+  function setRichEditorContent(id, html){
+    const el = $(id);
+    if(!el) return;
+    if(el.isContentEditable) el.innerHTML = richNormalizeHtml(html || '');
+    else el.value = richPlainText(html || '');
+  }
+  // v4.4.7 - Formato compatible con iPhone: se elige color/negrita y se escribe con ese estilo.
+  let richLastEditorId = '';
+  const richSavedRanges = {};
+  const richTypingState = {};
+  function richClosestEditor(node){
+    while(node){
+      if(node.classList && node.classList.contains('rich-editor')) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  function richEnsureState(id){
+    if(!richTypingState[id]) richTypingState[id] = {color:'#0f172a', bold:false};
+    return richTypingState[id];
+  }
+  function saveRichSelection(){
+    try{
+      const sel = window.getSelection && window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const ed = richClosestEditor(sel.anchorNode) || richClosestEditor(sel.focusNode);
+      if(!ed || !ed.id || !ed.isContentEditable) return;
+      richLastEditorId = ed.id;
+      richSavedRanges[ed.id] = sel.getRangeAt(0).cloneRange();
+    }catch(e){}
+  }
+  function restoreRichSelection(ed){
+    try{
+      const r = ed && ed.id ? richSavedRanges[ed.id] : null;
+      if(!r) return false;
+      const sel = window.getSelection && window.getSelection();
+      if(!sel) return false;
+      sel.removeAllRanges();
+      sel.addRange(r);
+      return true;
+    }catch(e){return false;}
+  }
+  function richFocusEditor(targetId){
+    const id = targetId || richLastEditorId || (($('editConceptText') && 'editConceptText') || ($('editSimpleText') && 'editSimpleText') || '');
+    const ed = id ? $(id) : null;
+    if(!ed || !ed.isContentEditable) return null;
+    try{ ed.focus({preventScroll:true}); }catch(e){ try{ ed.focus(); }catch(_){} }
+    restoreRichSelection(ed);
+    richLastEditorId = ed.id;
+    return ed;
+  }
+  function richUpdateToolbar(targetId){
+    try{
+      const id = targetId || richLastEditorId;
+      if(!id) return;
+      const st = richEnsureState(id);
+      document.querySelectorAll('.rich-format-toolbar[data-rich-target="'+id+'"] button').forEach(function(btn){
+        const cmd = btn.getAttribute('data-rich-cmd');
+        const val = btn.getAttribute('data-rich-value') || '';
+        let active = false;
+        if(cmd === 'bold') active = !!st.bold;
+        if(cmd === 'color') active = (String(st.color||'').toLowerCase() === String(val||'').toLowerCase());
+        btn.classList.toggle('rich-active', active);
+      });
+    }catch(e){}
+  }
+  function applyRichTypingState(ed){
+    if(!ed || !ed.id) return;
+    const st = richEnsureState(ed.id);
+    try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
+    try{ document.execCommand('foreColor', false, st.color || '#0f172a'); }catch(e){}
+    try{
+      const isBold = document.queryCommandState && document.queryCommandState('bold');
+      if(!!isBold !== !!st.bold) document.execCommand('bold', false, null);
+    }catch(e){}
+  }
+  function execRichFormat(cmd, value, targetId){
+    const ed = richFocusEditor(targetId);
+    if(!ed) return false;
+    const st = richEnsureState(ed.id);
+    if(cmd === 'bold') st.bold = !st.bold;
+    if(cmd === 'color') st.color = value || '#0f172a';
+    applyRichTypingState(ed);
+    richUpdateToolbar(ed.id);
+    saveRichSelection();
+    try{ toast(cmd === 'bold' ? (st.bold ? 'Negrita activada' : 'Negrita desactivada') : 'Color activado'); }catch(e){}
+    return false;
+  }
+  document.addEventListener('selectionchange', function(){ saveRichSelection(); }, false);
+  document.addEventListener('keyup', function(ev){ if(richClosestEditor(ev.target)){ saveRichSelection(); richUpdateToolbar(ev.target.id); } }, false);
+  document.addEventListener('mouseup', function(ev){ if(richClosestEditor(ev.target)){ saveRichSelection(); richUpdateToolbar(ev.target.id); } }, false);
+  document.addEventListener('touchend', function(ev){ if(richClosestEditor(ev.target)) setTimeout(function(){ saveRichSelection(); richUpdateToolbar(ev.target.id); }, 60); }, {passive:true});
+  document.addEventListener('focusin', function(ev){
+    const ed = richClosestEditor(ev.target);
+    if(ed){ richLastEditorId = ed.id; richEnsureState(ed.id); setTimeout(function(){ applyRichTypingState(ed); richUpdateToolbar(ed.id); }, 0); }
+  }, false);
+  document.addEventListener('beforeinput', function(ev){
+    const ed = richClosestEditor(ev.target);
+    if(ed) applyRichTypingState(ed);
+  }, false);
+  function richToolbarHtml(targetId){
+    function attrs(cmd, val){
+      const arg = val ? `,'${val}'` : ',null';
+      return `data-rich-cmd="${cmd}" data-rich-value="${val||''}" onpointerdown="event.preventDefault();return execRichFormat('${cmd}'${arg},'${targetId}')" onmousedown="event.preventDefault();return false" ontouchstart="event.preventDefault();return execRichFormat('${cmd}'${arg},'${targetId}')" onclick="event.preventDefault();return false"`;
+    }
+    return `<div class="rich-format-toolbar" data-rich-target="${targetId}">
+      <button type="button" ${attrs('bold','')} title="Negrita"><b>B</b></button>
+      <button type="button" ${attrs('color','#dc2626')} class="rich-red" title="Rojo">R</button>
+      <button type="button" ${attrs('color','#2563eb')} class="rich-blue" title="Azul">A</button>
+      <button type="button" ${attrs('color','#0f172a')} class="rich-black" title="Negro">N</button>
+    </div><div class="rich-format-help">Pulsa un color y escribe. Usa N para volver a negro.</div>`;
+  }
+  function richSegmentsFromHtml(html){
+    const raw = String(html == null ? '' : html);
+    if(!/[<>&]/.test(raw)){
+      return raw.replace(/\r/g,'').split('\n').map(line => [{text:line, color:null, bold:false}]);
+    }
+    const box = document.createElement('div');
+    box.innerHTML = raw.replace(/<br\s*\/?>/gi,'\n').replace(/<\/div>/gi,'\n').replace(/<\/p>/gi,'\n');
+    const lines = [[]];
+    function pushText(text, st){
+      String(text || '').replace(/\r/g,'').split('\n').forEach(function(part, i){
+        if(i) lines.push([]);
+        if(part) lines[lines.length-1].push({text:part.replace(/\u00a0/g,' '), color:st.color||null, bold:!!st.bold});
+      });
+    }
+    function walk(node, st){
+      if(node.nodeType === 3){ pushText(node.nodeValue, st); return; }
+      if(node.nodeType !== 1) return;
+      const tag = node.tagName.toLowerCase();
+      const ns = {color:st.color||null, bold:!!st.bold};
+      if(tag === 'b' || tag === 'strong') ns.bold = true;
+      const c = (node.style && node.style.color) ? String(node.style.color).toLowerCase() : '';
+      if(c){
+        if(c.includes('220') || c.includes('red') || c.includes('#dc2626')) ns.color = '#dc2626';
+        else if(c.includes('37') || c.includes('99') || c.includes('235') || c.includes('blue') || c.includes('#2563eb')) ns.color = '#2563eb';
+        else ns.color = '#0f172a';
+      }
+      if(tag === 'br'){ lines.push([]); return; }
+      Array.from(node.childNodes).forEach(ch => walk(ch, ns));
+    }
+    Array.from(box.childNodes).forEach(ch => walk(ch, {color:null, bold:false}));
+    return lines.length ? lines : [[{text:'', color:null, bold:false}]];
+  }
+  function richWrapLines(html, maxWidth, fontSize, baseWeight){
+    const srcLines = richSegmentsFromHtml(html);
+    const out = [];
+    function segWidth(text, seg){ return measureSvgTextWidth(text, fontSize, seg && seg.bold ? '900' : (baseWeight || '400')); }
+    srcLines.forEach(function(lineSegs){
+      if(!lineSegs.length){ out.push([]); return; }
+      let cur = [], curText = '';
+      function pushSegText(text, seg){
+        if(!text) return;
+        const last = cur[cur.length-1];
+        if(last && last.color === (seg.color||null) && !!last.bold === !!seg.bold) last.text += text;
+        else cur.push({text:text, color:seg.color||null, bold:!!seg.bold});
+        curText += text;
+      }
+      lineSegs.forEach(function(seg){
+        const tokens = String(seg.text || '').split(/(\s+)/);
+        tokens.forEach(function(tok){
+          if(tok === '') return;
+          const probe = curText + tok;
+          if(curText.trim() && segWidth(probe, seg) > maxWidth && !/^\s+$/.test(tok)){
+            out.push(cur);
+            cur = [];
+            curText = '';
+            pushSegText(tok.replace(/^\s+/,''), seg);
+          }else{
+            pushSegText(tok, seg);
+          }
+        });
+      });
+      out.push(cur);
+    });
+    return out.length ? out : [[]];
+  }
+  function addRichMultilineText(parent, x, y, html, opts){
+    opts = opts || {};
+    const fs = opts.fs || 14;
+    const lh = Number(opts.lineHeight || (Number(fs) + 3));
+    const maxWidth = opts.maxWidth || 9999;
+    const maxLines = opts.maxLines || 9999;
+    const baseFill = opts.fill || sty().textColor || '#111827';
+    const baseWeight = opts.fw || '400';
+    const lineData = richWrapLines(html, maxWidth, fs, baseWeight).slice(0, maxLines);
+    const textEl = add(parent, 'text', {
+      x, y,
+      'font-family':'Arial',
+      'font-size': fs,
+      'font-weight': baseWeight,
+      fill: baseFill,
+      'text-anchor': opts.anchor || 'start'
+    });
+    lineData.forEach(function(segments, idx){
+      const lineStart = svgEl('tspan', { x, dy: idx === 0 ? 0 : lh });
+      if(!segments.length) lineStart.textContent = '';
+      textEl.appendChild(lineStart);
+      segments.forEach(function(seg, si){
+        const t = svgEl('tspan', {
+          fill: seg.color || baseFill,
+          'font-weight': seg.bold ? '900' : baseWeight
+        });
+        t.textContent = String(seg.text || '');
+        if(si === 0 && !lineStart.textContent) lineStart.appendChild(t);
+        else textEl.appendChild(t);
+      });
+    });
+    parent.appendChild(textEl);
+    return textEl;
+  }
+
   function measureSvgTextWidth(text, fontSize, fontWeight){
     if(!measureSvgTextWidth.canvas){
       measureSvgTextWidth.canvas = document.createElement('canvas');
@@ -6424,11 +6874,10 @@ COLOCACIÓN INCLUIDA` }
     if(!Number.isFinite(idx) || idx < 0) return;
     const tpl = getConceptTemplates()[idx];
     if(!tpl) return;
-    if(mode === 'append' && textarea.value.trim()){
-      textarea.value = textarea.value.replace(/\s+$/,'') + '\n' + tpl.text;
-    }else{
-      textarea.value = tpl.text;
-    }
+    const curVal = textarea.isContentEditable ? richPlainText(textarea.innerHTML || '') : (textarea.value || '');
+    const nextText = (mode === 'append' && curVal.trim()) ? (curVal.replace(/\s+$/,'') + '\n' + tpl.text) : tpl.text;
+    if(textarea.isContentEditable) textarea.innerHTML = esc(nextText).replace(/\n/g,'<br>');
+    else textarea.value = nextText;
     textarea.dispatchEvent(new Event('input', { bubbles:true }));
   }
   let savedClients = [];
@@ -8671,7 +9120,7 @@ COLOCACIÓN INCLUIDA` }
     // Altura exacta: cabecera + filas reales/editables.
     let exactH = headerH;
     const rowHeights = renderItems.map(function(it){
-      const desc = String(it && it.text || '').trim();
+      const desc = richPlainText(it && it.text || '').trim();
       const conceptMaxW = colUds - x - 16;
       const lines = wrapTextByWidth(desc, conceptMaxW, 10.8, '400');
       const rh = simpleRowHeight(it);
@@ -8722,11 +9171,13 @@ COLOCACIÓN INCLUIDA` }
         const units = Number(it.units || 0);
         const price = Number(it.price || 0);
 
-        addMultilineText(root, x+8, cy+14, row.lines.length ? row.lines : [''], {
+        addRichMultilineText(root, x+8, cy+14, it.text || '', {
           fs:isFacturaDocument() ? 12 : 10.8,
           fw:'400',
           fill:s.textColor || '#111827',
-          lineHeight:lineHeight
+          lineHeight:lineHeight,
+          maxWidth: colUds - x - 16,
+          maxLines: Math.max(1, Math.floor((rowH - 8) / lineHeight))
         });
 
         addText(root, colUds + ((colBaseUds-colUds)/2), cy+14, units ? String(it.units) : '', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
@@ -9218,8 +9669,8 @@ COLOCACIÓN INCLUIDA` }
     const conceptCodeX = isSimpleBudget() ? x + 12 : x + 174;
     addText(root, conceptCodeX, conceptCodeY, item.code, { fs:isFacturaDocument() ? Math.max(21, numStyle('conceptCodeSize')) : numStyle('conceptCodeSize'), fw:'400', fill:s.titleColor });
 
-    const conceptFontSize = isFacturaDocument() ? Math.max(12, Number(numStyle('conceptTextSize')) || 0) : Math.max(8, Number(numStyle('conceptTextSize')) || 0);
-    const conceptLineHeight = isFacturaDocument() ? Math.max(14, Number(numStyle('conceptLineSpacing')) || Math.max(Math.round(conceptFontSize * 1.22), conceptFontSize + 2, 15)) : Math.max(10, Number(numStyle('conceptLineSpacing')) || Math.max(Math.round(conceptFontSize * 1.25), conceptFontSize + 2.5, 16));
+    let conceptFontSize = isFacturaDocument() ? Math.max(12, Number(numStyle('conceptTextSize')) || 0) : Math.max(8, Number(numStyle('conceptTextSize')) || 0);
+    let conceptLineHeight = isFacturaDocument() ? Math.max(14, Number(numStyle('conceptLineSpacing')) || Math.max(Math.round(conceptFontSize * 1.22), conceptFontSize + 2, 15)) : Math.max(10, Number(numStyle('conceptLineSpacing')) || Math.max(Math.round(conceptFontSize * 1.25), conceptFontSize + 2.5, 16));
     const conceptTextY = y + 58 + conceptYOffset;
     const subY = y + h - 38;
     const conceptLeftX = isSimpleBudget() ? x + 12 : x + 174;
@@ -9227,15 +9678,25 @@ COLOCACIÓN INCLUIDA` }
 
     const conceptMaxWidth = (x + w) - conceptLeftX - conceptRightPadding;
     const availableHeight = Math.max(0, (y + h - 8) - conceptTextY);
-    const availableLines = Math.max(1, Math.floor(availableHeight / conceptLineHeight) + 1);
-    const wrapped = wrapTextByWidth(item.text || '', conceptMaxWidth, conceptFontSize, '400');
-    const txt = wrapped.slice(0, availableLines);
 
-    addMultilineText(root, conceptLeftX, conceptTextY, txt, {
+    // v4.4.9: intentar mostrar todas las líneas del concepto reduciendo tamaño/interlineado si hace falta.
+    let richLinesCount = 1;
+    try{ richLinesCount = Math.max(1, richWrapLines(item.text || '', conceptMaxWidth, conceptFontSize, '400').length); }catch(_){ richLinesCount = 1; }
+    if(richLinesCount * conceptLineHeight > availableHeight && richLinesCount > 1){
+      const minFs = isFacturaDocument() ? 9 : 8;
+      const targetLh = Math.max(9, Math.floor(availableHeight / richLinesCount));
+      conceptLineHeight = Math.max(9, Math.min(conceptLineHeight, targetLh));
+      conceptFontSize = Math.max(minFs, Math.min(conceptFontSize, conceptLineHeight - 1));
+      try{ richLinesCount = Math.max(1, richWrapLines(item.text || '', conceptMaxWidth, conceptFontSize, '400').length); }catch(_){}
+    }
+    const availableLines = Math.max(1, richLinesCount, Math.floor(availableHeight / conceptLineHeight));
+    addRichMultilineText(root, conceptLeftX, conceptTextY, item.text || '', {
       fs: conceptFontSize,
       fw: '400',
       fill: s.textColor || '#111827',
-      lineHeight: conceptLineHeight
+      lineHeight: conceptLineHeight,
+      maxWidth: conceptMaxWidth,
+      maxLines: availableLines
     });
 
     const itemCalc = calcItem(item);
@@ -10344,9 +10805,9 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 baicha" data-ext-catalog="baicha">Baicha</button>
           <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
-          <button type="button" class="external-catalog-btn-v42" data-ext-catalog="telefonillo">Telefonillo</button>
+          <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
         </div>
-        <label>Texto ${it.code}</label><textarea id="editConceptText" class="concept-editor-field">${esc(it.text)}</textarea>
+        <label>Texto ${it.code}</label><div id="editConceptText" class="rich-editor concept-editor-field" contenteditable="true">${richNormalizeHtml(it.text || '')}</div><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
@@ -10381,9 +10842,9 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 baicha" data-ext-catalog="baicha">Baicha</button>
           <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
-          <button type="button" class="external-catalog-btn-v42" data-ext-catalog="telefonillo">Telefonillo</button>
+          <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
         </div>
-        <label>Concepto</label><textarea id="editSimpleText" class="concept-editor-field">${esc(it.text || '')}</textarea>
+        <label>Concepto</label><div id="editSimpleText" class="rich-editor concept-editor-field" contenteditable="true">${richNormalizeHtml(it.text || '')}</div><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
         <label class="import-field-label">Precio base</label><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
@@ -11212,14 +11673,14 @@ COLOCACIÓN INCLUIDA` }
       state.pago2Percent = String(p2);
       syncLegalTextFromPago1Percent(p1);
     } else if(currentEdit.type === 'conceptText') {
-      state.items[currentEdit.index].text = $('editConceptText').value;
+      state.items[currentEdit.index].text = appendRedLineV447(getRichEditorValue('editConceptText'), 'editConceptRedLine');
       state.items[currentEdit.index].fabricacionObs = String(($('editConceptFabricacionObs') && $('editConceptFabricacionObs').value) || '');
       delete state.items[currentEdit.index].obsFabricacion;
       delete state.items[currentEdit.index].observacionesFabricacion;
     } else if(currentEdit.type === 'simpleLine') {
       const it = state.items[currentEdit.index] || blankConcept(conceptCodeForIndex(currentEdit.index));
       it.code = it.code || conceptCodeForIndex(currentEdit.index);
-      it.text = $('editSimpleText').value || '';
+      it.text = appendRedLineV447(getRichEditorValue('editSimpleText') || '', 'editSimpleRedLine');
       it.fabricacionObs = String(($('editSimpleFabricacionObs') && $('editSimpleFabricacionObs').value) || '');
       delete it.obsFabricacion;
       delete it.observacionesFabricacion;
@@ -17431,5 +17892,63 @@ const mo = new MutationObserver(function(){
 })();
 </script>
 
+
+<script>
+/* v4.4.9 - editor concepto crece según líneas y mantiene 4 catálogos por fila */
+(function(){
+  function autoGrowRichEditor(el){
+    if(!el) return;
+    try{
+      el.style.height = 'auto';
+      el.style.maxHeight = 'none';
+      el.style.overflow = 'visible';
+      var h = Math.max(170, el.scrollHeight + 4);
+      el.style.height = h + 'px';
+    }catch(e){}
+  }
+  function bind(){
+    ['editConceptText','editSimpleText'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el || el.__autoGrowBoundV448) return;
+      el.__autoGrowBoundV448 = true;
+      autoGrowRichEditor(el);
+      el.addEventListener('input', function(){ autoGrowRichEditor(el); }, {passive:true});
+      el.addEventListener('focus', function(){ setTimeout(function(){ autoGrowRichEditor(el); }, 60); }, {passive:true});
+    });
+  }
+  document.addEventListener('input', function(ev){
+    var t = ev && ev.target;
+    if(t && (t.id === 'editConceptText' || t.id === 'editSimpleText')) autoGrowRichEditor(t);
+  }, true);
+  document.addEventListener('DOMContentLoaded', bind);
+  setInterval(bind, 500);
+})();
+</script>
+
+<script>
+/* v4.4.9 - textarea línea roja crece con varias líneas */
+(function(){
+  function grow(el){
+    if(!el) return;
+    try{ el.style.height='auto'; el.style.height=Math.max(42, el.scrollHeight+2)+'px'; }catch(e){}
+  }
+  function bind(){
+    ['editConceptRedLine','editSimpleRedLine'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el || el.__redGrowV449) return;
+      el.__redGrowV449=true;
+      grow(el);
+      el.addEventListener('input', function(){ grow(el); }, {passive:true});
+      el.addEventListener('focus', function(){ setTimeout(function(){ grow(el); },60); }, {passive:true});
+    });
+  }
+  document.addEventListener('DOMContentLoaded', bind);
+  document.addEventListener('input', function(ev){
+    var t=ev && ev.target;
+    if(t && (t.id==='editConceptRedLine' || t.id==='editSimpleRedLine')) grow(t);
+  }, true);
+  setInterval(bind,500);
+})();
+</script>
 </body>
 </html>
