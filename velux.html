@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Velux Tarifario v1.59</title>
+<style>
+:root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#e30613,#9f0010);color:white;padding:12px 12px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.head{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px} header h1{font-size:20px;margin:0;font-weight:900;letter-spacing:.2px} header .ver{font-size:12px;opacity:.9;margin-top:3px}.titleVer{font-size:15px;opacity:.95;margin-left:4px} .grow{flex:1} .gear{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);font-size:22px;padding:0}.backIndexBtn{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);font-size:20px;padding:0;color:white;display:inline-flex;align-items:center;justify-content:center}.backIndexBtn:active{transform:scale(.96)}
+main{max-width:780px;margin:0 auto;padding:14px 12px 112px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+label{display:block;font-size:12px;text-transform:uppercase;font-weight:900;color:var(--muted);margin:10px 0 6px;letter-spacing:.4px}
+select,input{width:100%;font-size:17px;border:1px solid var(--line);border-radius:12px;padding:11px;background:var(--inputBg);color:var(--txt);outline:none}select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.result{border-radius:16px;background:var(--blue2);border:1px solid #b8dbf5;padding:14px}.price{font-size:38px;line-height:1;font-weight:950;color:var(--blue);margin:8px 0}.small{font-size:13px;color:var(--muted);line-height:1.35}
+.ref{font-size:20px;font-weight:950}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;margin:4px 4px 0 0;background:white;border:1px solid var(--line)}.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}
+button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;background:var(--blue);color:white}button.secondary{background:#334e68}button.light{background:#e9eef4;color:#1f2933;border:1px solid var(--line)}.hidden{display:none}
+.list{margin-top:10px;display:grid;gap:8px}.row{padding:10px;border:1px solid var(--line);border-radius:12px;background:white}.row b{font-size:16px}.row span{float:right;font-weight:950;color:var(--blue)}
+.product{border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:white}.product.ventana{background:#fff0f1}.product.cerco{background:var(--cerco)}.product.persiana{background:var(--persiana)}.product.cortina{background:var(--cortina)}
+.prodHead{display:flex;gap:10px;align-items:flex-start}.prodIcon{font-size:24px}.prodTitle{font-size:12px;font-weight:950;color:var(--muted);text-transform:uppercase}.prodRef{font-size:19px;font-weight:950}.prodPrice{margin-left:auto;text-align:right;font-size:26px;font-weight:950;color:var(--blue)}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.mini{background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:12px;padding:8px}.mini b{display:block;font-size:12px;color:var(--muted);text-transform:uppercase}.mini span{font-weight:950}
+.selectorLine{margin-top:9px}.selectorLine select{font-size:15px;padding:9px;border-radius:10px}
+.quickBlock{margin-bottom:9px}.quickGroup{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.quickGroup.two{grid-template-columns:repeat(2,1fr)}.quickGroup.glass{grid-template-columns:repeat(3,1fr)}.quickBtn{background:#f2f4f7;color:#1f2933;border:1px solid var(--line);padding:8px 6px;border-radius:11px;font-size:13px;font-weight:950;min-height:40px}.quickBtn.active{background:#243b53;color:white;border-color:#243b53;box-shadow:0 2px 8px rgba(36,59,83,.18)}.generatedBox{background:#fff0f1;border:1px solid #ffd0d4;border-radius:12px;padding:9px;margin:8px 0 2px}.generatedBox b{font-size:19px;color:var(--blue)}.hiddenControl{display:none}
+.accSummary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 12px}.accBox{background:white;border:1px solid var(--line);border-radius:12px;padding:9px}.accBox b{display:block;font-size:18px;color:var(--blue)}.accBox span{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase}
+.tabs{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);transform:translateX(-50%);z-index:25;width:calc(100% - 24px);max-width:756px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0;padding:8px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 28px rgba(15,23,42,.22)}.tabs button{background:#e9eef4;color:#1f2933;border:1px solid var(--line);padding:11px 6px;font-size:14px}.tabs button.active{background:#18a058;color:white;border-color:#18a058;box-shadow:0 4px 12px rgba(24,160,88,.20)}
+.catalogAccDock{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);transform:translateX(-50%);z-index:24;width:calc(100% - 24px);max-width:756px;background:linear-gradient(135deg,#fff4b8,#ffd35a);border:1px solid #e0ad18;border-radius:16px;padding:8px;box-shadow:0 8px 24px rgba(120,80,0,.22)}.catalogAccDock input{background:white!important;border:2px solid #e0ad18!important;border-radius:12px!important;font-size:17px!important;font-weight:850!important;padding:10px 12px!important}.catalogAccDock .dockLabel{font-size:10px;text-transform:uppercase;font-weight:950;color:#6b4a00;letter-spacing:.5px;margin:0 0 4px 4px}.catalogAccPad{padding-bottom:84px}.catalogIntro{padding:12px!important}.catalogIntro b{font-size:20px}.catalogAccInfo{font-size:12px;color:var(--muted);font-weight:850;margin-top:2px}.catalogAccCard{padding:10px 12px!important}.catalogAccTop{display:flex;align-items:flex-start;gap:8px}.catalogAccRef{font-size:20px;font-weight:950;color:#1f2933}.catalogAccPrice{margin-left:auto;font-size:22px;font-weight:950;color:#e30613;white-space:nowrap}.catalogAccDesc{font-size:13px;color:#5f6b7a;font-weight:800;line-height:1.25;margin-top:3px}.catalogAccMeta{font-size:11px;color:#8a94a6;font-weight:900;text-transform:uppercase;letter-spacing:.2px;margin-top:4px}.catalogAccActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.catalogAccActions button{font-size:13px;padding:8px;border-radius:10px}.catalogAccSelectedTag{font-size:11px;color:#0f8f5f;font-weight:950;margin-left:6px}
+/* v1.54: tono suave para accesorios */
+#oldModule .catalogIntro{background:linear-gradient(135deg,#fff8ea,#fff2d6)!important;border-color:#ead7aa!important;box-shadow:0 2px 8px rgba(120,80,0,.08)!important}
+#oldModule .catalogAccCard{background:linear-gradient(135deg,#fffaf0,#fff4df)!important;border-color:#ead7aa!important;box-shadow:0 2px 8px rgba(120,80,0,.07)!important}
+#oldModule .catalogAccCard:nth-child(even){background:linear-gradient(135deg,#fff6e7,#ffefd4)!important}
+#oldModule .catalogAccCard.glassGood{background:linear-gradient(135deg,#ecfff3,#ddf8e8)!important;border-color:#aee2c1!important}
+#oldModule .catalogAccActions button.light{background:#fff8ec;color:#1f2933;border-color:#ead7aa}
+#oldModule .catalogAccActions button.secondary{background:#18a058;color:white;border-color:#18a058}
+#oldModule .accTotalBox{background:linear-gradient(135deg,#fff8ea,#fff1d0)!important;border-color:#e7c878!important}
+#oldModule .list .small{background:#fff8ea;border:1px solid #ead7aa;border-radius:12px;padding:10px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:30;display:none;align-items:flex-end}.modal.show{display:flex}.panel{background:linear-gradient(180deg,#ffffff,#f7f9fd);width:100%;max-width:780px;margin:0 auto;border-radius:20px 20px 0 0;padding:16px;max-height:88vh;overflow:auto}.panel h2{margin:0 0 8px}.checkrow{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:10px 0}.settingsHero{background:linear-gradient(135deg,#fff3f3,#f6fbff);border:1px solid #f1d5d5;border-radius:16px;padding:12px;margin:8px 0 14px}.settingsHero .small{color:#5f6b7a}.marginBlock{position:relative;overflow:hidden;border:1px solid rgba(15,23,42,.08);border-radius:18px;padding:0;margin:12px 0;background:white;box-shadow:0 5px 14px rgba(15,23,42,.07)}.marginBlock h3{margin:0;padding:12px 14px;font-size:17px;color:white;display:flex;align-items:center;gap:8px}.marginBlock h3:after{content:'margen';margin-left:auto;font-size:11px;text-transform:uppercase;letter-spacing:.5px;opacity:.85}.marginBlock.ventana h3{background:linear-gradient(135deg,#1e88e5,#0d47a1)}.marginBlock.cerco h3{background:linear-gradient(135deg,#f59e0b,#b45309)}.marginBlock.persiana h3{background:linear-gradient(135deg,#facc15,#eab308);color:#1f2933}.marginBlock.cortina h3{background:linear-gradient(135deg,#8b5cf6,#5b21b6)}.marginGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}.marginGrid label{margin-top:0;color:#5f6b7a}.marginGrid input{font-size:18px;padding:11px;border-radius:12px;background:#fffef7}.marginBlock.ventana .marginGrid{background:#eef6ff}.marginBlock.cerco .marginGrid{background:#fff6e8}.marginBlock.persiana .marginGrid{background:#fffbe6}.marginBlock.cortina .marginGrid{background:#f5f0ff}.checkrow input[type=checkbox]{width:24px;height:24px}.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.oldBox{background:#fffdf4;border:1px solid #f2d27a}.accTitleBlock{background:#fffdf4;border:1px solid #f2d27a;border-radius:14px;padding:12px;margin-bottom:10px}.accTitleBlock b{font-size:18px}.accTotalBox{background:linear-gradient(135deg,#f0fff7,#e7f8ef);border:1px solid #b9e4c8;border-radius:16px;padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-weight:950}.accTotalBox span{font-size:28px;color:#e30613}.colorDot{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.18);vertical-align:-4px;margin-right:6px}.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.tools textarea{width:100%;height:110px;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px}
+.glassGood{background:#f0fff8;border:1px solid #b7ead4}.glassWarn{background:#fffdf4;border:1px solid #f2d27a}.glassMeasure{font-size:30px;font-weight:950;color:var(--blue);margin:6px 0}.noteArea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:15px;background:var(--inputBg);}
+.plateCard{background:linear-gradient(180deg,#f4f1e8,#e8dcc2);border:1px solid #d7c49c;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(80,60,20,.12)}
+.plateTop{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin-bottom:8px}.veluxLogo{background:#e30613;color:white;font-weight:950;letter-spacing:1px;font-size:22px;padding:10px 13px;border-radius:5px;font-family:Georgia,serif;box-shadow:0 2px 6px rgba(0,0,0,.12)}.plateHint{display:none}.plateInput{font-family:Menlo,Consolas,monospace!important;background:#fff2a8!important;border:2px solid #4b4b4b!important;border-radius:5px!important;font-size:26px!important;font-weight:950!important;letter-spacing:1px;text-transform:uppercase;padding:10px 12px!important;min-height:58px}.plateInfo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.plateBox{background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:8px}.plateBox b{display:block;color:#e30613;font-size:17px;line-height:1.14}.plateBox.recClick{cursor:pointer;position:relative}.plateBox.recClick:after{content:"Personalizar ›";position:absolute;right:10px;top:8px;font-size:10px;font-weight:950;color:#8b5cf6;text-transform:uppercase;letter-spacing:.2px}.plateBox .metaLine{font-size:11px;color:#6b5b36;font-weight:850;margin-top:3px;line-height:1.2}.configDetails{border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:10px;overflow:hidden}.configDetails summary{list-style:none;padding:11px 12px;font-weight:950;color:#1f2933}.configDetails summary::-webkit-details-marker{display:none}.configInner{padding:0 12px 12px}.compactModel{background:#fff0f1;border:1px solid #ffd0d4;border-radius:12px;padding:9px;margin:8px 0 10px}.compactModel b{font-size:22px;color:var(--blue)}
+.supplyGrid{display:grid;gap:10px;margin-top:10px}.supplyCard{background:white;border:1px solid var(--line);border-radius:15px;padding:12px;box-shadow:0 1px 4px rgba(15,23,42,.04)}.supplyCard.recommended{background:#fff7f7;border-color:#ffd0d4}.supplyCard.cercoMain{background:#fff4f4}.supplyTop{display:flex;gap:8px;align-items:flex-start}.supplyTitle{font-size:12px;color:var(--muted);font-weight:950;text-transform:uppercase}.supplyRef{font-size:20px;font-weight:950}.supplyDesc{font-size:13px;color:var(--muted);font-weight:750;margin-top:2px}.supplyPrice{margin-left:auto;text-align:right;font-size:24px;font-weight:950;color:var(--blue)}.totalBox{background:#1f2933;color:white;border-radius:15px;padding:13px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}.totalBox b{font-size:13px;text-transform:uppercase;opacity:.85}.totalBox span{font-size:26px;font-weight:950}
+.plateMeta{font-size:13px;color:#5f5135;font-weight:800;margin:6px 2px 0;letter-spacing:.1px}.plateRoof{margin-top:10px;background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:8px}.roofLine{display:flex;align-items:center;justify-content:space-between;gap:10px}.roofLabel{font-size:10px;text-transform:uppercase;font-weight:950;color:#6b5b36;margin-bottom:2px}.cercoRef{font-size:18px;font-weight:950;color:#1f2933;line-height:1.12}.cercoPrice{font-size:26px;font-weight:950;color:#e30613;white-space:nowrap}.roofBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.roofBtns.compact{margin-top:8px}.roofBtn{background:#fff;color:#1f2933;border:1px solid rgba(0,0,0,.14);border-radius:10px;padding:8px 6px;font-size:13px;font-weight:950}.roofBtn.active{background:#18a058;color:white;border-color:#18a058;box-shadow:0 2px 8px rgba(24,160,88,.22)}.platePrice{font-size:22px;color:#e30613;font-weight:950;margin-top:6px}.supplyPrice{font-size:30px!important}.price,.prodPrice{font-size:32px}
+
+
+.toolsPanel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin-top:6px}.toolsTitle{font-size:12px;text-transform:uppercase;font-weight:950;color:#697386;letter-spacing:.6px;margin:0 0 7px 4px}.toolsGridCompact{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolDetails{border:0;border-radius:14px;margin:0;overflow:hidden;box-shadow:0 2px 7px rgba(15,23,42,.08)}.toolDetails[open]{grid-column:1/-1}.toolDetails summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;font-size:14px;font-weight:950;color:white;cursor:pointer;min-height:42px}.toolDetails summary::-webkit-details-marker{display:none}.toolDetails summary::after{content:'›';margin-left:auto;font-size:18px;line-height:1;opacity:.9}.toolDetails[open] summary::after{transform:rotate(90deg)}.toolBody{background:white;border:1px solid var(--line);border-top:0;padding:12px;border-radius:0 0 14px 14px}.toolMeasure summary{background:linear-gradient(135deg,#2784ff,#1260c4)}.toolTable summary{background:linear-gradient(135deg,#ff9f1c,#e67e00)}.toolConfig summary{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}.toolIcon{font-size:17px}.sizeTable{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;max-height:280px;overflow:auto}.sizeItem{background:#fffaf0;border:1px solid #f2d27a;border-radius:12px;padding:9px;font-weight:900}.sizeItem span{display:block;color:#697386;font-size:12px;font-weight:850;margin-top:2px}.nearestBox{background:#eef6ff;border:1px solid #b8dbf5;border-radius:14px;padding:10px;margin-top:8px}.nearestBox b{font-size:22px;color:#1260c4}.inlineSelect{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+
+
+.plateExtras{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.extraCard{border-radius:14px;padding:10px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.68);box-shadow:0 2px 7px rgba(80,60,20,.08)}
+.extraCard.persianaMini{background:linear-gradient(135deg,#fffbe7,#fff0b8)}
+.extraCard.kitMini{grid-column:1/-1;background:linear-gradient(135deg,#eefbf5,#dff7eb);border-color:#19a66a}
+.extraCard.cortinaMini{background:linear-gradient(135deg,#f7f0ff,#ede0ff)}
+.extraCard.cortinaMini.existing{background:linear-gradient(135deg,#fff7cc,#ffe39c);border-color:#f0c14b}
+.extraCard.cortinaMini.new{background:linear-gradient(135deg,#e8fff2,#c8f7dc);border-color:#34c759;cursor:pointer}
+.extraCard.cortinaMini.existing{cursor:pointer}
+.extraHint{font-size:10px;font-weight:900;opacity:.72;margin-top:4px;text-transform:uppercase;letter-spacing:.3px}
+.extraTitle{font-size:10px;text-transform:uppercase;font-weight:950;color:#6b5b36;letter-spacing:.4px;margin-bottom:2px}
+.extraRef{font-size:16px;font-weight:950;color:#1f2933;line-height:1.12}
+.extraDesc{font-size:11px;color:#6b5b36;font-weight:800;margin-top:3px;line-height:1.18}
+.extraPrice{font-size:25px;font-weight:950;color:#e30613;margin-top:6px;line-height:1}
+.plateDocBtn{margin-top:7px}.plateDocBtn button{width:100%;min-height:34px;padding:7px 8px;border-radius:10px;font-size:12px;font-weight:950;background:#334e68;color:#fff}.plateBox .plateDocBtn button{min-height:30px;font-size:11px}.plateRoof .plateDocBtn button{margin-top:7px}.plateDocBtn:empty{display:none}
+.totalBlock{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.72)}
+.totalRow{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(0,0,0,.08);font-weight:950}
+.totalRow:last-child{border-bottom:0}.totalRow span{font-size:24px;color:#e30613;font-weight:950}.totalRow.complete{background:linear-gradient(135deg,#fff3f3,#fffdfd)}
+
+@media(max-width:560px){.grid,.breakdown,.three{grid-template-columns:1fr}.quickGroup{grid-template-columns:1fr 1fr 1fr}.quickGroup.two{grid-template-columns:1fr 1fr}.price{font-size:34px}.prodPrice{font-size:22px}}
+
+/* v1.56: más contraste real en accesorios */
+#oldModule .catalogIntro{
+  background:linear-gradient(180deg,#fff3d8 0%,#ffe7b4 100%)!important;
+  border:1px solid #d7a83e!important;
+  box-shadow:0 8px 22px rgba(96,60,0,.16)!important;
+}
+#oldModule .catalogIntro>b{color:#142033!important}
+#oldModule .catalogAccInfo{color:#5d4a25!important;font-weight:950!important}
+#oldModule .catalogAccCard{
+  background:linear-gradient(135deg,#fffdf8 0%,#fff0cf 100%)!important;
+  border:1px solid #d9b56b!important;
+  box-shadow:0 6px 16px rgba(91,59,7,.14)!important;
+}
+#oldModule .catalogAccCard:nth-child(even){
+  background:linear-gradient(135deg,#fff7e8 0%,#ffe3b4 100%)!important;
+}
+#oldModule .catalogAccCard.glassGood{
+  background:linear-gradient(135deg,#e8fff1 0%,#c7f2d7 100%)!important;
+  border-color:#57b878!important;
+  box-shadow:0 6px 16px rgba(20,120,62,.16)!important;
+}
+#oldModule .catalogAccDesc{color:#344054!important}
+#oldModule .catalogAccMeta{color:#7b6a4c!important}
+#oldModule .catalogAccActions button.light{
+  background:linear-gradient(180deg,#fffaf0,#f4e2bd)!important;
+  border:1px solid #caa861!important;
+  color:#142033!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important;
+}
+#oldModule .catalogAccActions button.secondary{
+  background:linear-gradient(180deg,#20b264,#118a4b)!important;
+  border:1px solid #0d783f!important;
+  color:white!important;
+}
+.catalogAccDock{
+  background:linear-gradient(135deg,#c48800 0%,#f4b000 100%)!important;
+  border:1px solid #9b6900!important;
+  box-shadow:0 10px 26px rgba(101,64,0,.30)!important;
+}
+.catalogAccDock .dockLabel{color:#fff5d6!important;text-shadow:0 1px 1px rgba(0,0,0,.25)!important}
+.catalogAccDock input{
+  background:linear-gradient(180deg,#fff09a,#ffd84d)!important;
+  border:2px solid #fff6c7!important;
+  color:#1f2933!important;
+  box-shadow:inset 0 2px 4px rgba(120,80,0,.16),0 2px 0 rgba(120,80,0,.18)!important;
+}
+.catalogAccDock input::placeholder{color:#806000!important;opacity:.68!important}
+#oldModule .accTotalBox{
+  background:linear-gradient(135deg,#fff0c4,#ffd989)!important;
+  border-color:#c99426!important;
+  box-shadow:0 5px 14px rgba(96,60,0,.14)!important;
+}
+
+</style>
+</head>
+<body>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.59</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<main>
+ <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
+ <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
+ <section class="plateCard">
+  <div class="plateTop"><input id="q" class="plateInput" placeholder="GHL 306"><div class="veluxLogo">VELUX</div></div>
+  <div id="plateMeta" class="plateMeta">Proyectante · Poliuretano blanco</div>
+  <div class="plateInfo">
+   <div class="plateBox"><div class="small">Actual</div><b id="plateOriginal">—</b><div id="plateActualMeta" class="metaLine">—</div><div id="plateActualPrice" class="platePrice">—</div><div id="plateActualDoc" class="plateDocBtn"></div></div>
+   <div class="plateBox recClick" onclick="openRecommendModal()"><div class="small">Recomendada</div><b id="plateCurrent">GPU 0070</b><div id="plateRecMeta" class="metaLine">Proyectante · Poliuretano blanco</div><div id="plateRecPrice" class="platePrice">—</div><div id="plateRecDoc" class="plateDocBtn"></div></div>
+  </div>
+  <div class="plateRoof cercoInline">
+   <div class="roofLine"><div><div class="roofLabel">Cerco de estanqueidad</div><div id="plateCercoRef" class="cercoRef">EDW 2000</div></div><div id="plateCercoPrice" class="cercoPrice">—</div></div><div id="plateCercoDoc" class="plateDocBtn"></div>
+   <div id="plateRoofButtons" class="roofBtns compact"></div>
+  </div>
+  <div class="plateExtras">
+   <div class="extraCard persianaMini" id="platePersianaCard">
+    <div class="extraTitle">☀️ Persiana</div>
+    <div id="platePersianaRef" class="extraRef">SSL —</div>
+    <div id="platePersianaDesc" class="extraDesc">Solar</div>
+    <div id="platePersianaPrice" class="extraPrice">—</div><div id="platePersianaDoc" class="plateDocBtn"></div>
+   </div>
+   <div class="extraCard cortinaMini new" id="plateCortinaCard" onclick="openPlateCurtainModal()">
+    <div class="extraTitle">🌙 Cortina</div>
+    <div id="plateCortinaRef" class="extraRef">DKL —</div>
+    <div id="plateCortinaDesc" class="extraDesc">Oscurecimiento · Beige</div>
+    <div id="plateCortinaPrice" class="extraPrice">—</div><div id="plateCortinaDoc" class="plateDocBtn"></div><div class="extraHint">Toca para cambiar</div>
+   </div>
+  </div>
+  <div class="extraCard kitMini hidden" id="plateKitCard">
+   <div class="extraTitle">🧩 Kit instalación persiana/toldo solar</div>
+   <div id="plateKitRef" class="extraRef">ZOZ 213</div>
+   <div id="plateKitDesc" class="extraDesc">Placa de montaje para GGL/GGU</div>
+   <div id="plateKitPrice" class="extraPrice">—</div><div id="plateKitDoc" class="plateDocBtn"></div>
+  </div>
+  <div class="totalBlock">
+   <div class="totalRow"><b>Total ventana + cerco</b><span id="plateSupplyTotal">—</span></div>
+   <div class="totalRow complete"><b>Total completo</b><span id="plateCompleteTotal">—</span></div>
+  </div>
+ </section>
+ <section id="ventModule">
+  <section class="card toolsPanel">
+   <div class="toolsTitle">Herramientas</div>
+   <div class="toolsGridCompact">
+    <details class="toolDetails toolMeasure">
+     <summary><span class="toolIcon">📏</span><span>Medida</span></summary>
+     <div class="toolBody">
+      <div class="small">Introduce una medida y muestra el tamaño VELUX más aproximado.</div>
+      <input id="measureQ" placeholder="78x118, 780x1180, 118x78">
+      <div id="measureRes" class="list hidden"></div>
+     </div>
+    </details>
+    <details class="toolDetails toolTable">
+     <summary><span class="toolIcon">📋</span><span>Tamaños</span></summary>
+     <div class="toolBody">
+      <div class="small">Selecciona un tamaño o consulta la tabla de medidas.</div>
+      <div class="inlineSelect"><select id="size"></select><input id="modelGenerated" readonly></div>
+      <div id="sizeTable" class="sizeTable"></div>
+     </div>
+    </details>
+   </div>
+   <div class="hiddenControl">
+    <select id="finishSel"><option value="poly">Poliuretano blanco</option><option value="painted">Pintada en blanco</option><option value="varnish">Barniz transparente</option></select>
+    <select id="openingSel"><option value="proyectante">Proyectante</option><option value="giratoria">Giratoria</option></select>
+    <select id="glassSel"><option value="70">70</option><option value="68">68</option><option value="67">67</option></select>
+    <select id="model"></select>
+   </div>
+  </section>
+  <section class="card result hidden" id="res"></section>
+  <section class="card hidden" id="productsCard"><b>Productos por separado</b><div class="small" id="prodTitle"></div><div id="products"></div></section>
+  <section class="card hidden"><b>Coincidencias</b><div class="small">Busca por modelo, vidrio o tamaño. Al tocar un resultado se abren ventana, cerco, persiana y cortina por separado.</div><div id="matches" class="list"></div></section>
+ </section>
+ <section id="oldModule" class="hidden">
+  <section class="card catalogIntro">
+   <b>Accesorios</b>
+   <div class="catalogAccInfo">35 referencias · precios sin IVA</div>
+   <div id="catalogAccList" class="list catalogAccPad"></div>
+   <div id="catalogAccTotal" class="accTotalBox"><b>Total seleccionados</b><span>0 €</span></div>
+  </section>
+  <input id="oldQ" class="hidden" placeholder="Referencia antigua para compatibles">
+  <section class="card hidden" id="oldRes"></section>
+ </section>
+ <section id="glassModule" class="hidden">
+  <section class="card glassGood">
+   <b>Medidas de cristales</b>
+   <div class="small">Base propia para medidas exactas de vidrios. Los datos verificados sirven para pedir directamente a fábrica.</div>
+   <div class="small">Usa la placa superior para buscar cristales.</div><input id="glassQ" class="hidden" placeholder="Ejemplo: GGL 5, GHL 306, 5">
+   <div id="glassRes" class="list"></div>
+  </section>
+  <section class="card">
+   <b>Añadir / actualizar cristal</b>
+   <div class="grid">
+    <div><label>Referencia ventana</label><input id="glassRef" placeholder="GGL 5"></div>
+    <div><label>Composición</label><input id="glassComp" placeholder="4/6/4"></div>
+    <div><label>Ancho vidrio mm</label><input id="glassW" type="number" inputmode="numeric" placeholder="788"></div>
+    <div><label>Alto vidrio mm</label><input id="glassH" type="number" inputmode="numeric" placeholder="1414"></div>
+   </div>
+   <label>Notas</label><textarea id="glassNotes" class="noteArea" placeholder="Ejemplo: Medida exacta verificada por sustitución real."></textarea>
+   <div class="grid" style="margin-top:10px"><button onclick="saveGlassRecord()">Guardar cristal</button><button class="light" onclick="clearGlassForm()">Limpiar</button></div>
+   <div class="grid" style="margin-top:8px"><button class="secondary" onclick="exportGlassJson()">Exportar cristales</button><button class="secondary" onclick="document.getElementById('glassFile').click()">Importar cristales</button></div>
+   <input id="glassFile" type="file" accept="application/json,.json" style="display:none" onchange="importGlassJson(event)">
+  </section>
+  <section class="card"><b>Base de cristales</b><div class="small">Empieza con los datos verificados y se va completando poco a poco.</div><div id="glassList" class="list"></div></section>
+ </section>
+
+</main>
+
+<div class="modal" id="recommendModal"><div class="panel">
+ <h2>⭐ Personalizar recomendada</h2>
+ <div class="small">Cambia la ventana recomendada. La placa original no cambia.</div>
+ <div class="settingsHero"><b id="recommendPreview">GPU 0070</b><div class="small">La referencia y el precio se actualizan al guardar.</div></div>
+ <div class="quickBlock">
+  <label>Acabado</label>
+  <div id="finishButtons" class="quickGroup"></div>
+ </div>
+ <div class="quickBlock">
+  <label>Apertura</label>
+  <div id="openingButtons" class="quickGroup two"></div>
+ </div>
+ <div class="quickBlock">
+  <label>Vidrio</label>
+  <div id="glassButtons" class="quickGroup glass"></div>
+ </div>
+ <div class="grid" style="margin-top:14px"><button onclick="closeRecommendModal()">Aplicar</button><button class="secondary" onclick="closeRecommendModal()">Cerrar</button></div>
+</div></div>
+
+
+<div class="modal" id="plateCurtainModal"><div class="panel">
+ <h2>🌙 Cortina</h2>
+ <div class="small">Cambia tipo, color y marco de la cortina que aparece en la ficha.</div>
+ <div id="plateCurtainPreview" class="settingsHero"><b>DKL</b></div>
+ <label>Tipo de cortina</label>
+ <select id="plateCurtainTypeSel" onchange="updatePlateCurtainModalPreview()"></select>
+ <div id="plateCurtainModeBox" class="quickGroup two" style="margin-top:10px">
+  <button class="quickBtn" data-mode="new" onclick="setPlateCurtainMode('new')">Ventana nueva</button>
+  <button class="quickBtn" data-mode="existing" onclick="setPlateCurtainMode('existing')">Ventana existente</button>
+ </div>
+ <div class="grid">
+  <div><label>Color DKL</label><select id="plateCurtainColorSel" onchange="updatePlateCurtainModalPreview()"></select></div>
+  <div><label>Marco DKL</label><select id="plateCurtainFrameSel" onchange="updatePlateCurtainModalPreview()"><option value="S">Aluminio S</option><option value="SWL">Blanco SWL</option></select></div>
+ </div>
+ <div class="small" style="margin-top:8px">El color y el marco se aplican a DKL estándar / premium. Dúo y pack usan su referencia propia de tarifa.</div>
+ <div class="grid" style="margin-top:14px"><button onclick="closePlateCurtainModal()">Aplicar</button><button class="secondary" onclick="closePlateCurtainModal()">Cerrar</button></div>
+</div></div>
+
+<div class="modal" id="exportModal"><div class="panel">
+ <h2>📤 Exportar precios JSON</h2>
+ <div class="small">Esta pantalla solo aparece si el navegador bloquea la exportación directa. Usa Compartir / Guardar o copia el JSON.</div>
+ <textarea id="exportText" style="width:100%;height:260px;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;margin-top:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace" readonly></textarea>
+ <div class="grid" style="margin-top:12px">
+  <button onclick="shareExportJson()">Compartir / Guardar</button>
+  <button class="light" onclick="copyExportJson()">Copiar JSON</button>
+ </div>
+ <div class="grid" style="margin-top:8px">
+  <button class="secondary" onclick="downloadExportJson()">Descarga clásica</button>
+  <button class="secondary" onclick="closeExportModal()">Cerrar</button>
+ </div>
+</div></div>
+<div class="modal" id="settings"><div class="panel">
+ <h2>⚙️ Ajustes</h2>
+ <div class="settingsHero"><b>Tarifa y márgenes</b><div class="small">Se guardan en este navegador. Cada producto puede tener su propia ganancia.</div></div>
+ <div class="grid">
+  <div><label>IVA %</label><input id="setIva" type="number" step="1" placeholder="21"></div>
+  <div><label>Descuento % general</label><input id="setDisc" type="number" step="1" placeholder="0"></div>
+ </div>
+ <label>Márgenes por producto</label>
+ <div class="marginBlock ventana"><h3>🪟 Ventanas</h3><div class="marginGrid"><div><label>%</label><input id="setGainVentana" type="number" step="1" placeholder="0"></div><div><label>€</label><input id="setGainVentanaEur" type="number" step="0.01" placeholder="0"></div></div></div>
+ <div class="marginBlock cerco"><h3>🏠 Cercos</h3><div class="marginGrid"><div><label>%</label><input id="setGainCerco" type="number" step="1" placeholder="0"></div><div><label>€</label><input id="setGainCercoEur" type="number" step="0.01" placeholder="0"></div></div></div>
+ <div class="marginBlock persiana"><h3>☀️ Persianas</h3><div class="marginGrid"><div><label>%</label><input id="setGainPersiana" type="number" step="1" placeholder="0"></div><div><label>€</label><input id="setGainPersianaEur" type="number" step="0.01" placeholder="0"></div></div></div>
+ <div class="marginBlock cortina"><h3>🌙 Cortinas</h3><div class="marginGrid"><div><label>%</label><input id="setGainCortina" type="number" step="1" placeholder="0"></div><div><label>€</label><input id="setGainCortinaEur" type="number" step="0.01" placeholder="0"></div></div></div>
+ <div class="checkrow"><div><b>Mostrar precio catálogo</b><div class="small">PVP sin IVA del catálogo</div></div><input id="setShowCat" type="checkbox"></div>
+ <div class="checkrow"><div><b>Mostrar precio con ganancia</b><div class="small">Catálogo - descuento + ganancia</div></div><input id="setShowGain" type="checkbox"></div>
+ <div class="checkrow"><div><b>Mostrar precio con IVA</b><div class="small">Precio final calculado con IVA</div></div><input id="setShowIva" type="checkbox"></div>
+ <div class="grid">
+  <div><label>Modelo recomendado</label><select id="setPref"><option value="GPU">GPU poliuretano blanco</option><option value="GGU">GGU poliuretano blanco</option><option value="GGL">GGL madera</option><option value="GPL">GPL madera</option></select></div>
+  <div><label>Vidrio por defecto</label><select id="setGlass"><option value="70">70</option><option value="68">68</option><option value="67">67</option></select></div>
+ </div>
+ <div class="grid">
+  <div><label>Marco cortina DKL</label><select id="setCurtainFrame"><option value="S">Aluminio S</option><option value="SWL">Blanco SWL</option></select></div>
+  <div><label>Color cortina DKL</label><select id="setCurtainColor"></select></div>
+ </div>
+ <div class="tools">
+  <button class="light" onclick="exportPricesJson()">Exportar precios JSON</button>
+  <button class="light" onclick="document.getElementById('priceFile').click()">Importar precios JSON</button>
+  <input id="priceFile" type="file" accept="application/json,.json" style="display:none" onchange="importPricesJson(event)">
+ </div>
+ <div class="small" style="margin-top:8px">La lógica queda fija en la app. El JSON será solo para actualizar precios de tarifa.</div>
+ <div class="grid" style="margin-top:12px"><button onclick="saveSettings()">Guardar ajustes</button><button class="secondary" onclick="closeSettings()">Cerrar</button></div>
+</div></div>
+<script>
+const sizesAll={BK04:'47×98',CK01:'55×70',CK02:'55×78',CK04:'55×98',CK06:'55×118',FK06:'66×118',FK08:'66×140',MK04:'78×98',MK06:'78×118',MK08:'78×140',PK04:'94×98',PK06:'94×118',PK08:'94×140',PK10:'94×160',PK25:'94×55',SK01:'114×70',SK06:'114×118',SK08:'114×140',SK10:'114×160',UK04:'134×98',UK08:'134×140'};
+const sizeAliases={BK04:['B04'],CK01:['C01','101'],CK02:['C02','102'],CK04:['C04','104'],CK06:['C06','106'],FK04:['F04','204'],FK06:['F06','206'],FK08:['F08','208'],MK04:['M04','304'],MK06:['M06','306'],MK08:['M08','308'],MK10:['M10','310'],PK04:['P04','404'],PK06:['P06','406'],PK08:['P08','408'],PK10:['P10','410'],PK25:['P25','425'],SK01:['S01','601'],SK06:['S06','606'],SK08:['S08','608'],SK10:['S10','610'],UK04:['U04','804'],UK06:['U06','806'],UK08:['U08','808'],UK10:['U10','810']};
+
+
+// Equivalencias GHL validadas por Tino / configurador VELUX.
+// Se usan antes que cualquier deducción genérica del buscador.
+const OLD_MODEL_EQUIV={
+ GGL:{
+  // Números antiguos sueltos: ventana giratoria de madera barnizada.
+  '1':'MK04','2':'MK08','3':'PK06','4':'SK06','5':'UK04','6':'CK04','7':'UK08','8':'UK08','9':'PK08','10':'SK08',
+  '104':'CK04','206':'FK06','304':'MK04','306':'MK06','308':'MK08',
+  '406':'PK06','408':'PK08','606':'SK06','608':'SK08','804':'UK04','808':'UK08',
+  'C04':'CK04','F06':'FK06','M04':'MK04','M06':'MK06','M08':'MK08',
+  'P04':'PK04','P06':'PK06','P08':'PK08','S06':'SK06','S08':'SK08','U04':'UK04','U08':'UK08'
+ },
+ GHL:{
+  // GHL explícito: proyectante antigua de madera barnizada.
+  '1':'MK04','2':'MK08','3':'PK06','4':'SK06','5':'UK04','6':'CK04','7':'UK08','8':'UK08','9':'PK08','10':'SK08',
+  '104':'CK04','206':'FK06','304':'MK04','306':'MK06','308':'MK08',
+  '406':'PK06','408':'PK08','606':'SK06','608':'SK08','804':'UK04','808':'UK08',
+  'C04':'CK04','F06':'FK06','M04':'MK04','M06':'MK06','M08':'MK08',
+  'P04':'PK04','P06':'PK06','P08':'PK08','S06':'SK06','S08':'SK08','U04':'UK04','U08':'UK08'
+ }
+};
+function intermediateSizeFromCurrent(cur){
+ const a=sizeAliases[cur]||[];
+ return a.find(x=>/^[A-Z]\d\d$/.test(x))||cur;
+}
+function detectOldModelEquiv(term){
+ term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+ for(const [model,map] of Object.entries(OLD_MODEL_EQUIV)){
+  const re=new RegExp('(?:^|\\s)'+model+'\\s*([A-Z]?\\d{1,3})(?:\\s|$)');
+  const m=term.match(re);
+  if(m){
+   const token=m[1];
+   const size=map[token];
+   if(size) return {model,token,size,oldVisible:intermediateSizeFromCurrent(size),source:'modelo'};
+  }
+ }
+ // Si el usuario escribe solo el tamaño antiguo (1, 2, 3, 5, 9, 306, M06...),
+ // se interpreta como GGL antiguo de madera barnizada.
+ const parts=term.split(/\s+/).filter(Boolean);
+ if(parts.length===1){
+  const token=parts[0];
+  const map=OLD_MODEL_EQUIV.GGL||{};
+  const size=map[token];
+  if(size) return {model:'GGL',token,size,oldVisible:intermediateSizeFromCurrent(size),source:'tamaño'};
+ }
+ return null;
+}
+
+// Equivalencias específicas para cortinas antiguas DKL.
+// Estas referencias NO se convierten siempre a tamaño actual visible.
+// Se muestran tal como las devuelve VELUX para cortinas antiguas.
+const OLD_CURTAIN_EQUIV={
+ GGL:{
+  'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
+  'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
+  '1':'DKL M04','2':'DKL M08','3':'DKL P06','4':'DKL S06','5':'DKL U04','6':'DKL C04','7':'DKL U08','8':'DKL U08','9':'DKL P08','10':'DKL S08',
+  '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
+  '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
+ },
+ GHL:{
+  'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
+  'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
+  '1':'DKL M04','2':'DKL M08','3':'DKL P06','4':'DKL S06','5':'DKL U04','6':'DKL C04','7':'DKL U08','8':'DKL U08','9':'DKL P08','10':'DKL S08',
+  '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
+  '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
+ }
+};
+function detectOldCurtainEquiv(term){
+ term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+ for(const [model,map] of Object.entries(OLD_CURTAIN_EQUIV)){
+  const re=new RegExp('(?:^|\\s)'+model+'\\s*([A-Z]?\\d{1,3})(?:\\s|$)');
+  const m=term.match(re);
+  if(m){
+   const token=m[1];
+   const ref=map[token];
+   if(ref) return {model,token,ref,source:'modelo'};
+  }
+ }
+ // Si se escribe solo el tamaño antiguo, se interpreta como GGL antiguo.
+ const parts=term.split(/\s+/).filter(Boolean);
+ if(parts.length===1){
+  const token=parts[0];
+  const map=OLD_CURTAIN_EQUIV.GGL||{};
+  const ref=map[token];
+  if(ref) return {model:'GGL',token,ref,source:'tamaño'};
+ }
+ return null;
+}
+
+const CURTAIN_COLORS=[
+ {code:'1085',name:'Beige',hex:'#c8b08b',fav:true},{code:'1025',name:'Blanco',hex:'#f4f1e8',fav:true},{code:'1100',name:'Azul',hex:'#1d3d63',fav:true},
+ {code:'4564',name:'Naranja',hex:'#bf6a2a'},{code:'0705',name:'Gris',hex:'#9a9a94'},{code:'4574',name:'Gris cálido',hex:'#92877d'},{code:'4902',name:'Marsh',hex:'#7f8a69'},
+ {code:'4578',name:'Rosa pálido',hex:'#d6b1ad'},{code:'4580',name:'Marrón claro',hex:'#9b7a5d'},{code:'4903',name:'Lake',hex:'#3d6f78'},{code:'4559',name:'Marrón oscuro',hex:'#4a3027'},
+ {code:'4575',name:'Verde claro',hex:'#93a974'},{code:'4577',name:'Gris topo',hex:'#7a7168'},{code:'4581',name:'Petróleo oscuro',hex:'#244b55'},{code:'4501',name:'Forest',hex:'#2f4d3a'},
+ {code:'4904',name:'Cave',hex:'#57534f'},{code:'3009',name:'Negro',hex:'#1e1e1c'},{code:'4576',name:'Azul claro',hex:'#8da8bd'},{code:'4579',name:'Natural',hex:'#d2c7b1'},{code:'4556',name:'Beige oscuro',hex:'#9f8566'}
+];
+
+// Tabla oficial de conversión de tamaños antiguos/intermedios para persianas exteriores.
+// Se usa SOLO en persianas antiguas. Las cortinas antiguas mantienen el tamaño antiguo visible.
+const SHUTTER_SIZE_ALIASES={
+ CK01:['C01','101'],CK02:['C02','102'],CK04:['C04','104'],CK06:['C06','106'],
+ FK04:['F04','204'],FK06:['F06','206'],FK08:['F08','208'],
+ MK04:['M04','304'],MK06:['M06','306'],MK08:['M08','308'],MK10:['M10','310'],
+ PK04:['P04','404'],PK06:['P06','406'],PK08:['P08','408'],PK10:['P10','410'],PK25:['P25','425'],
+ SK01:['S01','601'],SK06:['S06','606'],SK08:['S08','608','10'],SK10:['S10','610'],
+ UK04:['U04','804'],UK06:['U06','806'],UK08:['U08','808'],UK10:['U10','810']
+};
+function shutterSizeFromOldToken(token){
+ token=(token||'').toUpperCase();
+ for(const [cur,als] of Object.entries(SHUTTER_SIZE_ALIASES)){
+  if(cur===token||als.includes(token)) return cur;
+ }
+ return null;
+}
+function oldVisibleSizeFromToken(token){
+ token=(token||'').toUpperCase();
+ for(const [cur,als] of Object.entries(sizeAliases)){
+  if(cur===token||als.includes(token)) return /^[A-Z]\d\d$/.test(token) ? token : (als.find(a=>/^[A-Z]\d\d$/.test(a))||cur);
+ }
+ return token;
+}
+
+function curtainColor(code){return CURTAIN_COLORS.find(c=>c.code===code)||CURTAIN_COLORS[0]}
+function curtainRef(size){return `DKL ${size} ${settings.curtainColor}${settings.curtainFrame}`}
+function curtainDesc(){const c=curtainColor(settings.curtainColor);return `<span class="colorDot" style="background:${c.hex}"></span>${c.name} ${c.code} · marco ${settings.curtainFrame}`}
+function sizeSearchText(s){return [s,(sizesAll[s]||''),...(sizeAliases[s]||[])].join(' ')}
+function aliasLabel(s){return ''}
+
+const ACC_SIZE_ORDER=['CK01','CK02','CK04','CK06','FK06','FK08','MK04','MK06','MK08','PK04','PK06','PK08','PK10','PK25','SK01','SK06','SK08','SK10','UK04','UK08'];
+function obj(vals){let o={};ACC_SIZE_ORDER.forEach((k,i)=>{if(vals[i]!=null&&vals[i]!=='-')o[k]=vals[i]});return o}
+const ACC=[
+ {cat:'Cerco estándar', ref:'EDW 1000', desc:'Teja / cubierta ondulada · PRO con BFX', plazo:'En stock', p:obj([107,107,110,114,123,129,123,129,137,139,146,154,159,144,151,153,162,168,162,175])},
+ {cat:'Cerco estándar', ref:'EDL 1000', desc:'Pizarra / cubierta plana · PRO con BFX', plazo:'En stock', p:obj([107,107,110,114,123,129,123,129,137,139,146,154,159,144,151,153,162,168,162,175])},
+ {cat:'Cerco estándar', ref:'EDT 1000', desc:'Teja plana cerámica/hormigón · PRO con BFX', plazo:'9 días', p:obj([107,107,110,114,123,129,123,129,137,139,146,154,159,'-','-',153,162,168,162,175])},
+ {cat:'Cerco estándar PRO+', ref:'EDW 2000', desc:'Teja / cubierta ondulada · BDX + BFX', plazo:'9 días', p:obj([129,129,133,137,148,156,148,156,165,167,176,186,192,173,183,184,195,203,195,211])},
+ {cat:'Cerco estándar PRO+', ref:'EDL 2000', desc:'Pizarra / cubierta plana · BDX + BFX', plazo:'9 días', p:obj([129,129,133,137,148,156,148,156,165,167,176,186,192,173,183,184,195,203,195,211])},
+ {cat:'Cerco sustitución', ref:'EW 1000', desc:'Sustitución en teja, ventana anterior a abril 2001 · incluye BFX', plazo:'En stock', p:obj([111,111,114,null,127,null,127,134,142,144,152,160,165,null,null,158,168,174,168,181])},
+ {cat:'Cerco sustitución', ref:'EL 1000', desc:'Sustitución en pizarra, ventana anterior a abril 2001 · incluye BFX', plazo:'9 días', p:obj([111,111,114,null,127,null,127,134,142,144,152,160,165,null,null,158,168,174,168,181])},
+ {cat:'Persiana', ref:'SSL 0000', desc:'Persiana solar exterior', plazo:'En stock', p:obj([546,546,578,624,598,624,650,617,650,682,669,702,741,780,682,702,754,null,747,870])},
+ {cat:'Persiana', ref:'SML 0000', desc:'Persiana eléctrica exterior', plazo:'En stock', p:obj([390,390,413,445,427,445,464,441,464,487,478,501,529,557,487,501,538,null,534,622])},
+ {cat:'Persiana', ref:'SMG 0000', desc:'Persiana eléctrica para GIL/GIU inclinadas', plazo:'9 días', p:obj(['-','-','-','-','-',980,1021,970,1021,1072,1051,1102,1164,1225,'-','-',1184,null,1174,1368])},
+ {cat:'Persiana', ref:'SMH 0000', desc:'Persiana eléctrica para GPU motorizada', plazo:'9 días', p:obj(['-','-','-','-','-',624,650,'-',650,682,'-',702,741,'-','-','-',754,null,'-','-'])},
+ {cat:'Cortina', ref:'DKL estándar', desc:'Cortina de oscurecimiento manual', plazo:'En stock', p:obj([71,71,77,76,90,94,87,94,101,100,103,113,119,97,108,118,122,null,120,138])},
+ {cat:'Cortina', ref:'DKL premium', desc:'Cortina de oscurecimiento manual colores premium', plazo:'11 días', p:obj([86,86,92,91,108,113,105,113,121,120,124,135,143,116,130,141,147,null,144,166])},
+ {cat:'Cortina', ref:'DFD estándar', desc:'Cortina de oscurecimiento dúo manual', plazo:'En stock', p:obj([93,93,100,110,117,122,114,122,131,130,134,147,155,126,141,153,159,null,156,180])},
+ {cat:'Cortina', ref:'DOP manual', desc:'Pack toldo + cortina oscurecimiento', plazo:'En stock', p:obj([117,117,122,129,143,146,145,151,157,167,170,178,183,164,184,192,196,null,201,216])}
+];
+
+const DATA=[
+{modelo:'GGL 2070',familia:'Giratoria manual madera pintada blanco',uw:'1,3',plazo:'En stock',p:{BK04:393,CK01:355,CK02:359,CK04:383,CK06:426,FK06:445,FK08:487,MK04:435,MK06:473,MK08:506,PK04:497,PK06:553,PK08:591,PK10:639,PK25:544,SK01:553,SK06:582,SK08:648,SK10:719,UK04:596,UK08:724}},
+{modelo:'GGL 2068',familia:'Giratoria manual madera pintada blanco',uw:'1,1',plazo:'9 días',p:{BK04:491,CK01:443,CK02:449,CK04:479,CK06:532,FK06:556,FK08:609,MK04:544,MK06:591,MK08:633,PK04:621,PK06:692,PK08:739,PK10:798,PK25:680,SK01:692,SK06:727,SK08:810,SK10:899,UK04:745,UK08:905}},
+{modelo:'GGL 2067',familia:'Giratoria manual madera pintada blanco',uw:'0,83',plazo:'14 días',p:{CK02:625,CK04:667,CK06:741,FK06:774,MK04:757,MK06:823,MK08:881,PK04:864,PK06:963,PK08:1029,PK10:1111,SK06:1012,SK08:1128,SK10:1251,UK04:1037,UK08:1259}},
+{modelo:'GGU 0070',familia:'Giratoria manual poliuretano blanco',uw:'1,3',plazo:'En stock',p:{CK02:467,CK04:498,CK06:553,FK06:578,FK08:633,MK04:566,MK06:615,MK08:658,PK06:719,PK08:769,PK10:830,SK06:756,SK08:842,SK10:935,UK04:775,UK08:941}},
+{modelo:'GGU 0068',familia:'Giratoria manual poliuretano blanco',uw:'1,1',plazo:'9 días',p:{CK02:584,CK04:623,CK06:692,FK06:723,FK08:792,MK04:707,MK06:769,MK08:822,PK06:899,PK08:961,PK10:1038,SK06:945,SK08:1053,SK10:1168,UK04:968,UK08:1176}},
+{modelo:'GGU 0067',familia:'Giratoria manual poliuretano blanco',uw:'0,83',plazo:'14 días',p:{CK02:813,CK04:867,CK06:963,FK06:1006,FK08:1102,MK04:984,MK06:1070,MK08:1145,PK06:1252,PK08:1337,PK10:1444,SK06:1316,SK08:1466,SK10:1626,UK04:1348,UK08:1637}},
+{modelo:'GPL 2070',aliases:['GHL'],familia:'Proyectante manual madera pintada blanco',uw:'1,3',plazo:'En stock',p:{CK04:618,CK06:661,FK06:680,FK08:722,MK04:670,MK06:708,MK08:741,PK04:732,PK06:788,PK08:826,PK10:874,SK06:817,SK08:883,SK10:954,UK04:831,UK08:959}},
+{modelo:'GPL 2068',aliases:['GHL'],familia:'Proyectante manual madera pintada blanco',uw:'1,1',plazo:'9 días',p:{CK04:714,CK06:767,FK06:791,FK08:844,MK04:779,MK06:826,MK08:868,PK04:856,PK06:927,PK08:974,PK10:1033,SK06:962,SK08:1045,SK10:1134,UK04:980,UK08:1140}},
+{modelo:'GPL 2067',aliases:['GHL'],familia:'Proyectante manual madera pintada blanco',uw:'0,83',plazo:'14 días',p:{CK04:902,CK06:976,FK06:1009,MK04:992,MK06:1058,MK08:1116,PK04:1099,PK06:1198,PK08:1264,PK10:1346,SK06:1247,SK08:1363,SK10:1486,UK04:1272,UK08:1494}},
+{modelo:'GPU 0070',familia:'Proyectante manual poliuretano blanco',uw:'1,3',plazo:'En stock',p:{CK04:733,CK06:788,FK06:813,FK08:868,MK04:801,MK06:850,MK08:893,PK06:954,PK08:1004,PK10:1065,SK06:991,SK08:1077,SK10:1170,UK08:1176}},
+{modelo:'GPU 0068',familia:'Proyectante manual poliuretano blanco',uw:'1,1',plazo:'9 días',p:{CK04:858,CK06:927,FK06:958,FK08:1027,MK04:942,MK06:1004,MK08:1057,PK06:1134,PK08:1196,PK10:1273,SK06:1180,SK08:1288,SK10:1403,UK08:1411}},
+{modelo:'GPU 0067',familia:'Proyectante manual poliuretano blanco',uw:'0,83',plazo:'14 días',p:{CK04:1102,CK06:1198,FK06:1241,FK08:1337,MK04:1219,MK06:1305,MK08:1380,PK06:1487,PK08:1572,PK10:1679,SK06:1551,SK08:1701,SK10:1861,UK08:1872}}
+];
+
+const DEFAULTS={gain:0, gainEur:0, margins:{ventana:{pct:0,eur:0},cerco:{pct:0,eur:0},persiana:{pct:0,eur:0},cortina:{pct:0,eur:0},kit:{pct:0,eur:0}}, iva:21, disc:0, showCat:true, showGain:false, showIva:false, pref:'GPU', glass:'70', finish:'poly', opening:'proyectante', cercoType:'ondulado', curtainFrame:'S', curtainColor:'1085', curtainType:0};
+let settings=loadSettings();
+let currentTab='vent'; let state={d:null,s:null,cerco:null,persiana:null,cortina:null}; let oldAccState={persiana:0,cortina:0}; let plateCurtainMode='new';
+const modelSel=document.getElementById('model'), sizeSel=document.getElementById('size'), finishSel=document.getElementById('finishSel'), openingSel=document.getElementById('openingSel'), glassSel=document.getElementById('glassSel'), modelGenerated=document.getElementById('modelGenerated'), res=document.getElementById('res'), q=document.getElementById('q'), measureQ=document.getElementById('measureQ'), matches=document.getElementById('matches');
+const QUICK_FINISH=[['poly','00 Poliuretano'],['painted','20 Pintada'],['varnish','30 Barniz']];
+const QUICK_OPENING=[['proyectante','Proyectante'],['giratoria','Giratoria']];
+const QUICK_GLASS=[['70','70'],['68','68'],['67','67']];
+const QUICK_CERCO=[['ondulado','Ondulado'],['plano','Plano']];
+function renderQuickButtons(){
+ const fill=(id,items,current,fn,cls='quickBtn')=>{const el=document.getElementById(id); if(!el)return; el.innerHTML=items.map(([v,t])=>`<button type="button" class="${cls} ${v===current?'active':''}" onclick="${fn}('${v}')">${t}</button>`).join('');};
+ fill('finishButtons',QUICK_FINISH,finishSel.value,'chooseFinish');
+ fill('openingButtons',QUICK_OPENING,openingSel.value,'chooseOpening');
+ fill('glassButtons',QUICK_GLASS,glassSel.value,'chooseGlass');
+ fill('plateRoofButtons',QUICK_CERCO,settings.cercoType||'ondulado','chooseCerco','roofBtn');
+ const txt=document.getElementById('modelGeneratedText'); if(txt) txt.textContent=targetBase()+' '+targetCode();
+}
+function chooseFinish(v){finishSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
+function chooseOpening(v){openingSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
+function chooseGlass(v){glassSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
+function chooseCerco(v){settings.cercoType=v; saveQuickPrefs(); renderQuickButtons(); state.cerco=0; if(state.d&&state.s){render(); if(!document.getElementById('productsCard').classList.contains('hidden')) drawProducts();} else {updatePlate();}}
+function loadSettings(){
+ try{
+  const saved=JSON.parse(localStorage.getItem('veluxSettingsV134')||localStorage.getItem('veluxSettingsV110')||'{}');
+  const st={...DEFAULTS,...saved};
+  st.margins={...DEFAULTS.margins,...(saved.margins||{})};
+  for(const k of ['ventana','cerco','persiana','cortina','kit']){st.margins[k]={...DEFAULTS.margins[k],...(st.margins[k]||{})};}
+  // compatibilidad con versiones anteriores de ganancia general
+  if(saved.gain!==undefined && !saved.margins){for(const k of ['ventana','cerco','persiana','cortina','kit']) st.margins[k].pct=Number(saved.gain)||0;}
+  if(saved.gainEur!==undefined && !saved.margins){for(const k of ['ventana','cerco','persiana','cortina','kit']) st.margins[k].eur=Number(saved.gainEur)||0;}
+  return st;
+ }catch(e){return {...DEFAULTS}}
+}
+function money(n){return (n!==undefined&&n!==null&&n!==''&&n!=='-')? Number(n).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:2})+' €':'—'}
+function marginFor(cat){if(cat==='kit')return {pct:0,eur:0}; return (settings.margins&&settings.margins[cat])||{pct:Number(settings.gain)||0,eur:Number(settings.gainEur)||0}}
+function calc(n,cat='ventana'){n=Number(n)||0; const desc=n*(1-(Number(settings.disc)||0)/100); const m=marginFor(cat); const gain=desc*(1+(Number(m.pct)||0)/100)+(Number(m.eur)||0); const iva=gain*(1+(Number(settings.iva)||0)/100); return {cat:n, gain, iva}}
+function priceBox(n,cat='ventana'){const c=calc(n,cat); let html='<div class="breakdown">'; if(settings.showCat)html+=`<div class="mini"><b>Catálogo sin IVA</b><span>${money(c.cat)}</span></div>`; if(settings.showGain)html+=`<div class="mini"><b>Venta sin IVA</b><span>${money(c.gain)}</span></div>`; if(settings.showIva)html+=`<div class="mini"><b>Venta con IVA</b><span>${money(c.iva)}</span></div>`; if(!settings.showCat&&!settings.showGain&&!settings.showIva)html+=`<div class="mini"><b>Catálogo sin IVA</b><span>${money(c.cat)}</span></div>`; html+='</div>'; return html;}
+function mainPrice(n,cat='ventana'){const c=calc(n,cat); if(settings.showIva)return {label:'Venta con IVA',value:c.iva}; if(settings.showGain)return {label:'Venta sin IVA',value:c.gain}; return {label:'Catálogo sin IVA',value:c.cat};}
+function categoryFromRef(ref,title=''){const t=(ref+' '+title).toUpperCase(); if(/\b(KUX|KSX|KMG|KLI|KLF|ZOZ|ZCT|ZCZ|ZZZ|P\/S22)\b/.test(t)||t.includes('KIT INSTAL')||t.includes('ACCESORIO'))return 'kit'; if(t.includes('EDW')||t.includes('EDL')||t.includes('CERCO'))return 'cerco'; if(t.includes('SSL')||t.includes('SML')||t.includes('PERSIANA'))return 'persiana'; if(t.includes('DKL')||t.includes('DFD')||t.includes('DOP')||t.includes('CORTINA'))return 'cortina'; return 'ventana';}
+function parseProductRef(ref){
+ const m=(ref||'').toUpperCase().match(/\b([A-Z]{3})\s*(\d{4})?\s*([A-Z]{2}\d{2})\b/);
+ if(!m)return null;
+ return {base:m[1], code:m[2]||'', size:m[3], model:(m[1]+' '+(m[2]||'')).trim()};
+}
+function dataModelForDisplayed(base,code){
+ base=(base||'').toUpperCase(); code=(code||'').toString();
+ // Barniz 30 usa tarifa de pintada 20.
+ if(code.startsWith('30')) code='20'+code.slice(2);
+ return (base+' '+code).trim();
+}
+function priceForWindowRef(ref){
+ const p=parseProductRef(ref); if(!p)return null;
+ const model=dataModelForDisplayed(p.base,p.code);
+ const d=DATA.find(x=>x.modelo===model);
+ if(!d||!d.p[p.size])return null;
+ return {price:d.p[p.size], data:d, size:p.size, model};
+}
+function selectedCercoForSize(size){
+ const preferred=(settings.cercoType||'ondulado')==='plano'?'EDL 2000':'EDW 2000';
+ let a=ACC.find(x=>x.ref===preferred && x.p[size]);
+ if(!a) a=accOptions(size,'Cerco')[0];
+ if(!a)return null;
+ return {ref:`${a.ref} ${size}`, desc:`${(settings.cercoType||'ondulado')==='plano'?'Cubierta plana':'Cubierta ondulada'} · imprescindible para montaje`, price:a.p[size], raw:a};
+}
+function selectedPersianaForSize(size){
+ const opts=accOptions(size,'Persiana');
+ const a=opts.find(x=>x.ref.includes('SSL')) || opts[0];
+ if(!a)return null;
+ return {ref:`${a.ref.replace(' 0000','')} ${size}`, desc:a.desc||'Persiana solar exterior', price:a.p[size], raw:a};
+}
+function curtainBaseForMode(size,mode){
+ const raw=(q.value||'').trim().toUpperCase();
+ const old=detectOldCurtainEquiv(raw);
+ if(mode==='existing' && old) return {base:old.ref, label:'Ventana existente'};
+ return {base:`DKL ${size}`, label:'Ventana nueva'};
+}
+function curtainRefForOption(size,opt,mode){
+ const cb=curtainBaseForMode(size,mode||plateCurtainMode);
+ if(!opt || opt.ref.includes('DKL')) return `${cb.base} ${settings.curtainColor}${settings.curtainFrame}`;
+ const prefix=(opt.ref||'DKL').split(' ')[0];
+ return `${prefix} ${size}`;
+}
+function curtainRefForCurrentPlate(size,mode){
+ const opts=accOptions(size,'Cortina');
+ const idx=Math.min(Number(settings.curtainType||0), Math.max(opts.length-1,0));
+ return curtainRefForOption(size,opts[idx],mode);
+}
+function curtainLabelForOption(opt){
+ if(!opt) return 'Oscurecimiento';
+ if(opt.ref.includes('DFD')) return 'Oscurecimiento dúo';
+ if(opt.ref.includes('DOP')) return 'Pack toldo + cortina';
+ if(opt.ref.includes('DKL premium')) return 'Oscurecimiento premium';
+ return 'Oscurecimiento';
+}
+function selectedCortinaForSize(size,mode){
+ const opts=accOptions(size,'Cortina');
+ if(!opts.length)return null;
+ let idx=Math.min(Number(settings.curtainType||0), opts.length-1);
+ const a=opts[idx];
+ const cb=curtainBaseForMode(size,mode||plateCurtainMode);
+ const ref=curtainRefForOption(size,a,mode||plateCurtainMode);
+ const colorTxt=a.ref.includes('DKL') ? ` · ${curtainColor(settings.curtainColor).name} · marco ${settings.curtainFrame}` : '';
+ return {ref, desc:`${cb.label} · ${curtainLabelForOption(a)}${colorTxt}`, price:a.p[size], raw:a, mode:(mode||plateCurtainMode), modeLabel:cb.label};
+}
+function togglePlateCurtainMode(){
+ const raw=(q.value||'').trim().toUpperCase();
+ if(!detectOldCurtainEquiv(raw)) return;
+ plateCurtainMode = plateCurtainMode==='existing' ? 'new' : 'existing';
+ updatePlate();
+}
+function openPlateCurtainModal(){
+ const pd=plateDataFromInput();
+ const size=(parseProductRef(pd.recRef)||parseProductRef(pd.actualRef)||{}).size || state.s;
+ const opts=accOptions(size,'Cortina');
+ const typeSel=document.getElementById('plateCurtainTypeSel');
+ if(typeSel) typeSel.innerHTML=opts.map((o,i)=>`<option value="${i}" ${Number(settings.curtainType||0)===i?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[size])}</option>`).join('') || '<option>Sin cortinas cargadas</option>';
+ const modeBox=document.getElementById('plateCurtainModeBox');
+ const old=detectOldCurtainEquiv((q.value||'').trim().toUpperCase());
+ if(modeBox){
+  modeBox.style.display=old?'grid':'none';
+  [...modeBox.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b.dataset.mode===plateCurtainMode));
+ }
+ const colorSel=document.getElementById('plateCurtainColorSel'); if(colorSel) colorSel.value=settings.curtainColor;
+ const frameSel=document.getElementById('plateCurtainFrameSel'); if(frameSel) frameSel.value=settings.curtainFrame;
+ updatePlateCurtainModalPreview(size);
+ const modal=document.getElementById('plateCurtainModal'); if(modal) modal.classList.add('show');
+}
+function updatePlateCurtainModalPreview(size){
+ const typeSel=document.getElementById('plateCurtainTypeSel');
+ const colorSel=document.getElementById('plateCurtainColorSel');
+ const frameSel=document.getElementById('plateCurtainFrameSel');
+ if(typeSel) settings.curtainType=Number(typeSel.value||0);
+ if(colorSel) settings.curtainColor=colorSel.value;
+ if(frameSel) settings.curtainFrame=frameSel.value;
+ const cor=selectedCortinaForSize(size || ((parseProductRef(plateDataFromInput().recRef)||{}).size));
+ const prev=document.getElementById('plateCurtainPreview');
+ if(prev) prev.innerHTML=cor?`<b>${cor.ref}</b><div class="small">${cor.desc} · ${money(mainPrice(cor.price,'cortina').value)}</div>`:'—';
+}
+function setPlateCurtainMode(v){plateCurtainMode=v; openPlateCurtainModal();}
+function closePlateCurtainModal(){
+ saveQuickPrefs();
+ const modal=document.getElementById('plateCurtainModal'); if(modal) modal.classList.remove('show');
+ updatePlate();
+}
+function selectedInstallKitForPlate(pd){
+ const refs=[pd&&pd.plateRef,pd&&pd.actualRef,pd&&pd.recRef].filter(Boolean).join(' ').toUpperCase();
+ // ZOZ 213: kit de montaje para instalar persiana/toldo solar en ventanas GGL/GGU.
+ // Precio base sin IVA: 65,34 € IVA incluido / 1,21 = 54,00 €.
+ if(/\b(GGL|GGU)\b/.test(refs)){
+  return {ref:'ZOZ 213', desc:'Placa de montaje para persiana/toldo solar en GGL/GGU', price:54};
+ }
+ return null;
+}
+function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
+function sizeCmLabel(size){
+ const v=sizesAll && sizesAll[size];
+ return v ? String(v).replace(/x/g,'×')+' cm' : '';
+}
+function setHtml(id,v){const e=document.getElementById(id); if(e)e.innerHTML=v||'';}
+function refWithMeasure(ref,size){
+ const cm=sizeCmLabel(size);
+ return cm ? `${ref} · ${cm}` : ref;
+}
+
+function supplyCard(cls,title,ref,desc,price,cat){
+ cat=cat||categoryFromRef(ref,title);
+ const mp=price!=null?mainPrice(price,cat):null;
+ return `<div class="supplyCard ${cls||''}"><div class="supplyTop"><div><div class="supplyTitle">${title}</div><div class="supplyRef">${ref||'—'}</div><div class="supplyDesc">${desc||''}</div></div><div class="supplyPrice">${mp?money(mp.value):'—'}</div></div>${price!=null?priceBox(price,cat):''}</div>`;
+}
+function renderVentanaSuministro(){
+ const pd=plateDataFromInput();
+ const actual=priceForWindowRef(pd.actualRef);
+ const rec=priceForWindowRef(pd.recRef);
+ const size=(parseProductRef(pd.recRef)||parseProductRef(pd.actualRef)||{}).size || state.s;
+ const cer=selectedCercoForSize(size);
+ const totalValue=(mainPrice(rec?.price||0,'ventana').value)+(mainPrice(cer?.price||0,'cerco').value);
+ const total={label:settings.showIva?'Venta con IVA':(settings.showGain?'Venta sin IVA':'Catálogo sin IVA'), value:totalValue};
+ return `<div class="small">Ventana nueva y cerco de estanqueidad</div><div class="supplyGrid">`+
+  supplyCard('', 'Ventana actual equivalente', pd.actualRef, pd.actualMeta, actual?.price, 'ventana')+
+  supplyCard('recommended', 'Ventana recomendada ⭐', pd.recRef, pd.recMeta, rec?.price, 'ventana')+
+  supplyCard('cercoMain', 'Cerco de estanqueidad', cer?.ref, cer?.desc, cer?.price, 'cerco')+
+  `</div><div class="totalBox"><b>Total suministro recomendado</b><span>${money(total.value)}</span></div><div class="small" style="margin-top:8px">Total calculado con la ventana recomendada y el cerco seleccionado. Cristales queda solo como información técnica.</div>`;
+}
+
+function setTab(t){currentTab=t;document.getElementById('tabVent').classList.toggle('active',t==='vent');document.getElementById('tabOld').classList.toggle('active',t==='old');document.getElementById('tabGlass').classList.toggle('active',t==='glass');document.getElementById('ventModule').classList.toggle('hidden',t!=='vent');document.getElementById('oldModule').classList.toggle('hidden',t!=='old');document.getElementById('glassModule').classList.toggle('hidden',t!=='glass');const accDock=document.getElementById('catalogAccDock');if(accDock)accDock.classList.toggle('hidden',t!=='old'); syncPlateToActiveModule(); if(t==='glass') renderGlassModule(); if(t==='old'){renderOld(); setTimeout(()=>{const i=document.getElementById('catalogAccQ'); if(i)i.focus();},80);}}
+function syncPlateToActiveModule(){
+ const val=(q&&q.value)||'';
+ const old=document.getElementById('oldQ'); if(old) old.value=val;
+ const glass=document.getElementById('glassQ'); if(glass) glass.value=val;
+}
+function handlePlateInput(){
+ plateCurtainMode='new';
+ syncPlateToActiveModule();
+ if(currentTab==='old'){ renderOld(); return; }
+ if(currentTab==='glass'){ renderGlassModule(); return; }
+ pickRecommended();
+}
+
+function glassOf(model){return (model.match(/(70|68|67|76)/)||['',''])[1]}
+function baseOf(model){return model.split(' ')[0]}
+function targetBase(){
+ const f=finishSel?.value||settings.finish||'poly', o=openingSel?.value||settings.opening||'proyectante';
+ if(f==='poly') return o==='proyectante'?'GPU':'GGU';
+ return o==='proyectante'?'GPL':'GGL';
+}
+function targetCode(){
+ const f=finishSel?.value||settings.finish||'poly';
+ const g=glassSel?.value||settings.glass||'70';
+ const finishCode=f==='poly'?'00':(f==='varnish'?'30':'20');
+ return finishCode+g;
+}
+function dataCodeForControls(){
+ // El barniz transparente (30) usa el mismo precio que pintada en blanco (20), según catálogo.
+ const f=finishSel?.value||settings.finish||'poly';
+ const g=glassSel?.value||settings.glass||'70';
+ const finishCode=f==='poly'?'00':'20';
+ return finishCode+g;
+}
+function displayRefForData(d){
+ if(!d) return '';
+ const b=baseOf(d.modelo);
+ return `${b} ${targetCode()}`;
+}
+function displayFamilyForData(d){
+ const f=finishSel?.value||settings.finish||'poly';
+ if(f==='varnish') return d.familia.replace('madera pintada blanco','madera barniz transparente');
+ return d.familia;
+}
+function dataIndexForControls(){
+ const target=targetBase()+' '+dataCodeForControls();
+ return DATA.findIndex(d=>d.modelo===target);
+}
+function syncControlsFromData(d){
+ const b=baseOf(d.modelo), g=glassOf(d.modelo);
+ if(b==='GPU'||b==='GPL') openingSel.value='proyectante'; else openingSel.value='giratoria';
+ if(b==='GPU'||b==='GGU') finishSel.value='poly'; else if(finishSel.value!=='varnish') finishSel.value='painted';
+ glassSel.value=g||'70';
+}
+function saveQuickPrefs(){
+ settings.finish=finishSel.value; settings.opening=openingSel.value; settings.glass=glassSel.value; settings.cercoType=settings.cercoType||'ondulado'; settings.pref=targetBase();
+ localStorage.setItem('veluxSettingsV110',JSON.stringify(settings));
+}
+function pickByControls(keepSize=true){
+ const oldSize=sizeSel.value; const idx=dataIndexForControls();
+ if(idx>=0){ modelSel.value=idx; refreshSizes(); if(keepSize && oldSize && DATA[idx].p[oldSize]) sizeSel.value=oldSize; render(); }
+}
+function scoreData(d){let sc=0; if(baseOf(d.modelo)===settings.pref)sc+=100; if(glassOf(d.modelo)===settings.glass)sc+=50; if(d.familia.toLowerCase().includes('poliuretano'))sc+=20; if(d.plazo==='En stock')sc+=5; return -sc;}
+
+function renderSizeTable(){
+ const el=document.getElementById('sizeTable'); if(!el)return;
+ const order=Object.keys(sizesAll);
+ el.innerHTML=order.map(s=>`<div class="sizeItem" onclick="selectSizeFromTable('${s}')">${s}<span>${sizesAll[s]} cm</span></div>`).join('');
+}
+function selectSizeFromTable(s){
+ if(!document.getElementById('size'))return;
+ const opts=[...sizeSel.options].map(o=>o.value);
+ if(opts.includes(s)){sizeSel.value=s;render();showProducts(state.d,state.s,false);return;}
+ q.value=s;pickRecommended();
+}
+function init(){if(document.getElementById('setCurtainColor'))document.getElementById('setCurtainColor').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');if(document.getElementById('plateCurtainColorSel'))document.getElementById('plateCurtainColorSel').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');DATA.sort((a,b)=>scoreData(a)-scoreData(b));modelSel.innerHTML=DATA.map((d,i)=>`<option value="${i}">${d.aliases?d.aliases.join('/')+' antiguo → ':''}${d.modelo} · ${d.familia}</option>`).join('');finishSel.value=settings.finish||'poly';openingSel.value=settings.opening||'proyectante';glassSel.value=settings.glass||'70';renderQuickButtons();refreshSizes();renderSizeTable(); if(q.value.trim()) pickRecommended(); else pickByControls(false); bindOld();renderGlassModule();}
+function isBareNumericUnknown(term){
+ term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+ if(!/^\d{1,3}$/.test(term)) return false;
+ return !detectOldModelEquiv(term) && !Object.values(sizeAliases).some(a=>a.includes(term));
+}
+function renderUnknownPlate(term){
+ state.d=null; state.s=null;
+ const set=(id,txt)=>{const el=document.getElementById(id); if(el)el.textContent=txt;};
+ set('plateOriginal',term||'—'); set('plateCurrent','—'); set('plateMeta','Referencia sin equivalencia guardada');
+ set('plateActualMeta','No se usa una coincidencia aproximada'); set('plateRecMeta','Añadir tabla antes de recomendar');
+ set('plateActualPrice','—'); set('plateRecPrice','—'); set('plateCercoRef','—'); set('plateCercoPrice','—');
+ set('platePersianaRef','SSL —'); set('platePersianaDesc','—'); set('platePersianaPrice','—');
+ set('plateCortinaRef','DKL —'); set('plateCortinaDesc','—'); set('plateCortinaPrice','—');
+ set('plateKitRef','ZOZ 213'); set('plateKitDesc','—'); set('plateKitPrice','—'); ['plateActualDoc','plateRecDoc','plateCercoDoc','platePersianaDoc','plateCortinaDoc','plateKitDoc'].forEach(id=>set(id,''));
+ set('plateSupplyTotal','—'); set('plateCompleteTotal','—');
+ const kit=document.getElementById('plateKitCard'); if(kit)kit.classList.add('hidden');
+ if(res){res.classList.remove('hidden');res.innerHTML='<b>Referencia no reconocida</b><div class="small">No hago una búsqueda aproximada si la referencia no está en la tabla de equivalencias. Escribe el modelo completo o añade esta equivalencia.</div>';}
+ if(matches) matches.innerHTML='';
+ const pc=document.getElementById('productsCard'); if(pc)pc.classList.add('hidden');
+}
+function pickRecommended(){
+ let term=q.value.trim().toUpperCase();
+ if(!term){pickByControls(true);return;}
+ const oldEq=detectOldModelEquiv(term);
+ if(isBareNumericUnknown(term)) return renderUnknownPlate(term);
+ if(oldEq){
+  const idx=dataIndexForControls();
+  if(idx>=0 && DATA[idx].p[oldEq.size]) return pick(idx,oldEq.size,false);
+  const rec=recommendedIndexForSize(oldEq.size);
+  if(rec!==null) return pick(rec,oldEq.size,false);
+ }
+ let found=null;
+ DATA.forEach((d,i)=>Object.keys(d.p).forEach(s=>{
+  const txt=(d.modelo+' '+(d.aliases||[]).join(' ')+' '+d.familia+' '+sizeSearchText(s)).toUpperCase();
+  if(!found && term.split(/\s+/).every(t=>txt.includes(t)))found={i,s};
+ }));
+ if(found){
+  if(/\b(GHL|GHU|GFL)\b/.test(term)){
+   const idx=dataIndexForControls();
+   if(idx>=0 && DATA[idx].p[found.s]) return pick(idx,found.s,false);
+  }
+  pick(found.i,found.s,false);
+ } else renderUnknownPlate(term);
+}
+function refreshSizes(){const d=DATA[+modelSel.value];sizeSel.innerHTML=Object.keys(d.p).map(s=>`<option value="${s}">${s} · ${sizesAll[s]||''} cm</option>`).join('');}
+
+
+function modelInfoFromBase(base, code){
+ base=(base||'').toUpperCase(); code=(code||'').toString();
+ if(base==='GHL') return {opening:'Proyectante', finish:'Madera barnizada', currentBase:'GPL', recBase:'GPU'};
+ if(base==='GGL') return {opening:'Giratoria', finish:(code.startsWith('30')||/^([1-9]|10|[A-Z]?\d{2,3})$/.test(code))?'Madera barnizada':'Madera pintada', currentBase:'GGL', recBase:'GGU'};
+ if(base==='GPL') return {opening:'Proyectante', finish:(code.startsWith('30')||/^([1-9]|10|[A-Z]?\d{2,3})$/.test(code))?'Madera barnizada':'Madera pintada', currentBase:'GPL', recBase:'GPU'};
+ if(base==='GGU') return {opening:'Giratoria', finish:'Poliuretano blanco', currentBase:'GGU', recBase:'GGU'};
+ if(base==='GPU') return {opening:'Proyectante', finish:'Poliuretano blanco', currentBase:'GPU', recBase:'GPU'};
+ return {opening:{proyectante:'Proyectante',giratoria:'Giratoria'}[openingSel.value]||'Proyectante', finish:{poly:'Poliuretano blanco',painted:'Madera pintada',varnish:'Madera barnizada'}[finishSel.value]||'Poliuretano blanco', currentBase:base||targetBase(), recBase:targetBase()};
+}
+function codeForBaseAndGlass(base, glass, finish){
+ base=(base||'').toUpperCase(); glass=glass||'70'; finish=finish||'';
+ if(base==='GGU'||base==='GPU') return '00'+glass;
+ if(finish.includes('barnizada')) return '30'+glass;
+ return '20'+glass;
+}
+function plateDataFromInput(){
+ const raw=(q.value||'').trim().toUpperCase();
+ const d=DATA[+modelSel.value], s=sizeSel.value;
+ const oldEq=detectOldModelEquiv(raw);
+ if(oldEq){
+  const info=modelInfoFromBase(oldEq.model, oldEq.token);
+  const actualCode=codeForBaseAndGlass(info.currentBase,'70',info.finish);
+  const recCode=codeForBaseAndGlass(info.recBase,'70','Poliuretano blanco');
+  const actualInfo=modelInfoFromBase(info.currentBase,actualCode);
+  const recInfo=modelInfoFromBase(info.recBase,recCode);
+  return {
+   plateRef:`${oldEq.model} ${oldEq.token}`,
+   plateMeta:`${info.opening} · ${info.finish}`,
+   actualRef:`${info.currentBase} ${actualCode} ${oldEq.size}`,
+   actualMeta:`${actualInfo.opening} · ${actualInfo.finish}`,
+   recRef:`${info.recBase} ${recCode} ${oldEq.size}`,
+   recMeta:`${recInfo.opening} · ${recInfo.finish}`
+  };
+ }
+ const base=d?baseOf(d.modelo):targetBase();
+ const glass=d?glassOf(d.modelo):(glassSel.value||'70');
+ const info=modelInfoFromBase(base, d?d.modelo.split(' ')[1]:'');
+ const actualRef=d&&s ? `${displayRefForData(d)} ${s}` : `${base} ${codeForBaseAndGlass(base,glass,info.finish)}`;
+ const recBase=info.recBase || (info.opening==='Giratoria'?'GGU':'GPU');
+ const recRef=s ? `${recBase} ${codeForBaseAndGlass(recBase,'70','Poliuretano blanco')} ${s}` : `${recBase} ${codeForBaseAndGlass(recBase,'70','Poliuretano blanco')}`;
+ return {
+  plateRef:raw || actualRef,
+  plateMeta:`${info.opening} · ${info.finish}`,
+  actualRef,
+  actualMeta:`${info.opening} · ${info.finish}`,
+  recRef,
+  recMeta:`${info.opening} · Poliuretano blanco`
+ };
+}
+function updatePlate(){
+ const orig=document.getElementById('plateOriginal');
+ const cur=document.getElementById('plateCurrent');
+ const meta=document.getElementById('plateMeta');
+ const actualMeta=document.getElementById('plateActualMeta');
+ const recMeta=document.getElementById('plateRecMeta');
+ const actualPrice=document.getElementById('plateActualPrice');
+ const recPrice=document.getElementById('plateRecPrice');
+ if(!orig||!cur)return;
+ const pd=plateDataFromInput();
+ const parsedActual=parseProductRef(pd.actualRef)||{};
+ const parsedRec=parseProductRef(pd.recRef)||{};
+ const displaySize=parsedRec.size || parsedActual.size || state.s;
+ orig.textContent=pd.actualRef ? refWithMeasure(pd.actualRef, displaySize) : '—';
+ cur.textContent=pd.recRef ? refWithMeasure(pd.recRef, displaySize) : '—';
+ if(meta) meta.textContent=pd.plateMeta || '—';
+ if(actualMeta) actualMeta.textContent=pd.actualMeta || '—';
+ if(recMeta) recMeta.textContent=pd.recMeta || '—';
+ const ap=priceForWindowRef(pd.actualRef);
+ const rp=priceForWindowRef(pd.recRef);
+ if(actualPrice) actualPrice.textContent=ap&&ap.price!=null ? money(mainPrice(ap.price,'ventana').value) : '—';
+ if(recPrice) recPrice.textContent=rp&&rp.price!=null ? money(mainPrice(rp.price,'ventana').value) : '—';
+ setHtml('plateActualDoc', ap&&ap.price!=null ? docsMiniBtnV157(pd.actualRef,pd.actualMeta,mainPrice(ap.price,'ventana').value,'ventana') : '');
+ setHtml('plateRecDoc', rp&&rp.price!=null ? docsMiniBtnV157(pd.recRef,pd.recMeta,mainPrice(rp.price,'ventana').value,'ventana') : '');
+ const cercoRefEl=document.getElementById('plateCercoRef');
+ const cercoPriceEl=document.getElementById('plateCercoPrice');
+ const cerSize=displaySize;
+ const cer=selectedCercoForSize(cerSize);
+ if(cercoRefEl) cercoRefEl.textContent=cer ? refWithMeasure(cer.ref, cerSize) : '—';
+ if(cercoPriceEl) cercoPriceEl.textContent=cer&&cer.price!=null ? money(mainPrice(cer.price,'cerco').value) : '—';
+ setHtml('plateCercoDoc', cer&&cer.price!=null ? docsMiniBtnV157(refWithMeasure(cer.ref, cerSize), cer.desc, mainPrice(cer.price,'cerco').value, 'cerco') : '');
+ const per=selectedPersianaForSize(cerSize);
+ setText('platePersianaRef', per ? refWithMeasure(per.ref, cerSize) : 'SSL —');
+ setText('platePersianaDesc', per ? per.desc : 'Solar');
+ setText('platePersianaPrice', per&&per.price!=null ? money(mainPrice(per.price,'persiana').value) : '—');
+ setHtml('platePersianaDoc', per&&per.price!=null ? docsMiniBtnV157(refWithMeasure(per.ref, cerSize), per.desc, mainPrice(per.price,'persiana').value, 'persiana') : '');
+ const kit=selectedInstallKitForPlate(pd);
+ const kitCard=document.getElementById('plateKitCard');
+ if(kitCard) kitCard.classList.toggle('hidden', !kit);
+ setText('plateKitRef', kit ? kit.ref : 'ZOZ 213');
+ setText('plateKitDesc', kit ? kit.desc : 'Placa de montaje para GGL/GGU');
+ setText('plateKitPrice', kit&&kit.price!=null ? money(mainPrice(kit.price,'kit').value) : '—');
+ setHtml('plateKitDoc', kit&&kit.price!=null ? docsMiniBtnV157(kit.ref, kit.desc, mainPrice(kit.price,'kit').value, 'kit') : '');
+ const hasOldCurtain=!!detectOldCurtainEquiv((q.value||'').trim().toUpperCase());
+ if(!hasOldCurtain) plateCurtainMode='new';
+ const cor=selectedCortinaForSize(cerSize, hasOldCurtain ? plateCurtainMode : 'new');
+ setText('plateCortinaRef', cor ? refWithMeasure(cor.ref, cerSize) : 'DKL —');
+ setText('plateCortinaDesc', cor ? cor.desc : 'Oscurecimiento · Beige');
+ setText('plateCortinaPrice', cor&&cor.price!=null ? money(mainPrice(cor.price,'cortina').value) : '—');
+ setHtml('plateCortinaDoc', cor&&cor.price!=null ? docsMiniBtnV157(refWithMeasure(cor.ref, cerSize), cor.desc, mainPrice(cor.price,'cortina').value, 'cortina') : '');
+ const cortCard=document.getElementById('plateCortinaCard');
+ if(cortCard){
+  cortCard.classList.toggle('existing', !!cor && cor.mode==='existing');
+  cortCard.classList.toggle('new', !cor || cor.mode!=='existing');
+  cortCard.title=hasOldCurtain?'Toca para alternar cortina existente/nueva':'';
+ }
+ const recVal=(rp&&rp.price!=null)?mainPrice(rp.price,'ventana').value:0;
+ const cerVal=(cer&&cer.price!=null)?mainPrice(cer.price,'cerco').value:0;
+ const perVal=(per&&per.price!=null)?mainPrice(per.price,'persiana').value:0;
+ const kitVal=(kit&&kit.price!=null)?mainPrice(kit.price,'kit').value:0;
+ const corVal=(cor&&cor.price!=null)?mainPrice(cor.price,'cortina').value:0;
+ setText('plateSupplyTotal', (recVal||cerVal)?money(recVal+cerVal):'—');
+ setText('plateCompleteTotal', (recVal||cerVal||perVal||kitVal||corVal)?money(recVal+cerVal+perVal+kitVal+corVal):'—');
+ const sum=document.querySelector('.toolConfig summary span:last-child');
+ if(sum){
+  const finish={poly:'00 Poliuretano',painted:'20 Pintada',varnish:'30 Barniz'}[finishSel.value]||finishSel.value;
+  const open={proyectante:'Proyectante',giratoria:'Giratoria'}[openingSel.value]||openingSel.value;
+  sum.textContent=`Configurar recomendación · ${finish} · ${open} · ${glassSel.value}`;
+ }
+}
+function render(){const d=DATA[+modelSel.value], s=sizeSel.value, price=d.p[s]; const mp=mainPrice(price); state.d=d;state.s=s;res.onclick=null;modelGenerated.value=displayRefForData(d)+' '+s; renderQuickButtons();updatePlate();res.innerHTML=renderVentanaSuministro();renderMatches();}
+function renderMatches(){const term=q.value.trim().toUpperCase();const oldEq=detectOldModelEquiv(term);let arr=[];DATA.forEach((d,i)=>Object.entries(d.p).forEach(([s,p])=>{const txt=(d.modelo+' '+(d.aliases||[]).join(' ')+' '+d.familia+' '+sizeSearchText(s)).toUpperCase();if(oldEq ? s===oldEq.size : (!term||term.split(/\s+/).every(t=>txt.includes(t))))arr.push({i,d,s,p});}));arr.sort((a,b)=>scoreData(a.d)-scoreData(b.d));matches.innerHTML=arr.slice(0,40).map(x=>`<div class="row" onclick="pick(${x.i},'${x.s}',true)"><b>${x.d.modelo} ${x.s}</b><span>${money(x.p)}</span><div class="small">${x.d.familia} · ${sizesAll[x.s]||''} cm · ${x.d.plazo}${oldEq?' · equivalencia '+oldEq.model+' '+oldEq.token+' → '+oldEq.size:''}</div></div>`).join('')||'<div class="small">Sin resultados</div>';}
+
+function parseMeasureInput(v){
+ v=(v||'').toLowerCase().replace(/,/g,'.').replace(/[×x*]/g,' ');
+ const nums=(v.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+ if(nums.length<2)return null;
+ let a=nums[0], b=nums[1];
+ if(a>300)a=a/10; if(b>300)b=b/10;
+ return {w:a,h:b};
+}
+function sizeDims(s){
+ const txt=sizesAll[s]||''; const m=txt.match(/(\d+)×(\d+)/); if(!m)return null;
+ return {w:Number(m[1]),h:Number(m[2])};
+}
+function measureDiff(input,dim){
+ const normal=Math.abs(input.w-dim.w)+Math.abs(input.h-dim.h);
+ const reverse=Math.abs(input.w-dim.h)+Math.abs(input.h-dim.w);
+ return Math.min(normal,reverse);
+}
+function recommendedIndexForSize(s){
+ let candidates=[]; DATA.forEach((d,i)=>{if(d.p[s])candidates.push({d,i})});
+ candidates.sort((a,b)=>scoreData(a.d)-scoreData(b.d));
+ return candidates.length?candidates[0].i:null;
+}
+function pickSizeRecommended(s,open){
+ const i=recommendedIndexForSize(s);
+ if(i===null){alert('No hay precio cargado para '+s);return;}
+ pick(i,s,open);
+}
+function renderMeasureSearch(){
+ const box=document.getElementById('measureRes');
+ const input=parseMeasureInput(document.getElementById('measureQ').value);
+ if(!input){box.classList.add('hidden');box.innerHTML='';return;}
+ let arr=Object.keys(sizesAll).map(s=>({s,dim:sizeDims(s)})).filter(x=>x.dim).map(x=>({...x,diff:measureDiff(input,x.dim)}));
+ arr.sort((a,b)=>a.diff-b.diff);
+ box.classList.remove('hidden');
+ box.innerHTML=arr.slice(0,5).map((x,i)=>{
+  const exact=x.diff===0;
+  const label=i===0?(exact?'Coincidencia exacta':'Más aproximada'):'Otra cercana';
+  const priceIdx=recommendedIndexForSize(x.s);
+  const price=priceIdx!==null?DATA[priceIdx].p[x.s]:null;
+  return `<div class="row" onclick="pickSizeRecommended('${x.s}',true)"><b>${label}: ${x.s}</b><span>${money(price)}</span><div class="small">${sizesAll[x.s]} cm · diferencia ${x.diff.toFixed(1).replace('.0','')} cm · modelo recomendado ${priceIdx!==null?DATA[priceIdx].modelo:'sin precio'}</div></div>`;
+ }).join('');
+}
+
+function pick(i,s,open){modelSel.value=i;syncControlsFromData(DATA[i]);refreshSizes();sizeSel.value=s;render(); if(open)showProducts(DATA[i],s,true);}
+function accTipo(cat){ if(cat.includes('Cerco'))return 'Cerco'; if(cat.includes('Persiana'))return 'Persiana'; if(cat.includes('Cortina'))return 'Cortina'; return 'Otros'; }
+function accClass(t){return t==='Cerco'?'cerco':t==='Persiana'?'persiana':t==='Cortina'?'cortina':''}
+function accOptions(s,tipo){return ACC.filter(a=>accTipo(a.cat)===tipo && a.p[s]).sort((a,b)=>{
+ const ar=a.ref, br=b.ref; const cercoPref=(settings.cercoType||'ondulado')==='plano'?'EDL 2000':'EDW 2000'; const fav=(r)=> tipo==='Persiana'?(r.includes('SSL')?0:1): tipo==='Cortina'?(r.includes('DKL estándar')?0:1): tipo==='Cerco'?(r.includes(cercoPref)?0:(r.includes('EDW 2000')||r.includes('EDL 2000')?1:2)):1; return fav(ar)-fav(br)||ar.localeCompare(br);
+})}
+function showProducts(d,s,scroll=false){state.d=d;state.s=s;state.cerco=state.cerco||0;state.persiana=state.persiana||0;state.cortina=state.cortina||0;drawProducts();document.getElementById('productsCard').classList.remove('hidden');if(scroll)document.getElementById('productsCard').scrollIntoView({behavior:'smooth',block:'start'});}
+function accessorySummary(s){
+ const cercos=accOptions(s,'Cerco').length;
+ const persianas=accOptions(s,'Persiana').length;
+ const cortinas=accOptions(s,'Cortina').length;
+ const colorCount=CURTAIN_COLORS.length;
+ return `<div class="accSummary"><div class="accBox"><span>Cercos</span><b>${cercos}</b></div><div class="accBox"><span>Persianas</span><b>${persianas}</b></div><div class="accBox"><span>Cortinas</span><b>${cortinas}</b></div><div class="accBox"><span>Colores DKL</span><b>${colorCount}</b></div></div>`;
+}
+function drawProducts(){const d=state.d,s=state.s; if(!d||!s)return; document.getElementById('prodTitle').innerHTML=`Para <b>${displayRefForData(d)} ${s}</b> · cada producto queda independiente para exportar a Documentos de uno en uno.`; let html=accessorySummary(s); html+=productCard('ventana','🪟','Ventana',`${displayRefForData(d)} ${s}`,`${displayFamilyForData(d)} · ${sizesAll[s]||''} cm · Vidrio ${glassOf(displayRefForData(d))||glassOf(d.modelo)}`,d.p[s],null,null,'ventana');
+ html+=accProduct('Cerco','cerco','🧩',s,state.cerco,'cerco'); html+=accProduct('Persiana','persiana','☀️',s,state.persiana,'persiana'); html+=accProduct('Cortina','cortina','🌙',s,state.cortina,'cortina'); document.getElementById('products').innerHTML=html;}
+function accProduct(tipo,cls,icon,s,idx,key){const opts=accOptions(s,tipo); if(!opts.length)return productCard(cls,icon,tipo,'Sin tarifa cargada',`No hay precio cargado para ${s}`,null,null,null); idx=Math.min(idx||0,opts.length-1); const a=opts[idx]; const selector=`<div class="selectorLine"><select onchange="state.${key}=this.selectedIndex;drawProducts()">${opts.map((o,i)=>`<option ${i===idx?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[s])}</option>`).join('')}</select></div>`; if(tipo==='Cortina'){return productCard(cls,icon,tipo,curtainRef(s),`${curtainDesc()} · oscurecimiento · ${a.plazo}`,a.p[s],selector,null,'cortina');} return productCard(cls,icon,tipo,`${a.ref} ${s}`,`${a.desc} · ${a.plazo}`,a.p[s],selector,`copyText('${(a.ref+' '+s).replace(/'/g,'')}')`,tipo==='Cerco'?'cerco':(tipo==='Persiana'?'persiana':'ventana'));}
+function productCard(cls,icon,title,ref,desc,price,selector,copy,cat){cat=cat||categoryFromRef(ref,title); const mp=price!=null?mainPrice(price,cat):null; const shownPrice=mp?mp.value:price; const docBtn=price?docsBtnV156(ref,desc,shownPrice,cat):''; return `<div class="product ${cls}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${desc||''}</div></div><div class="prodPrice">${mp?money(mp.value):money(price)}</div></div>${price?priceBox(price,cat):''}${selector||''}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${String(ref).replace(/'/g,'')}',${Number(price)||0})">Copiar línea</button>${docBtn}</div></div>`}
+
+function veluxParamV158(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return '';}}
+
+// v1.59 - Retorno copiado del sistema de Documentos: botón + touchend.
+function solicitarVolverIndex(){
+ try{
+  if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+   window.parent.volverMenu();
+   return false;
+  }
+ }catch(e){}
+ try{
+  if(window.parent && window.parent !== window){
+   window.parent.postMessage('volverMenu','*');
+   window.parent.postMessage('volverIndex','*');
+   window.parent.postMessage({type:'volverIndex',target:'index'},'*');
+   return false;
+  }
+ }catch(e){}
+ try{
+  window.location.href = 'index.html';
+ }catch(e){}
+ return false;
+}
+window.solicitarVolverIndex = solicitarVolverIndex;
+
+function veluxBackV158(){ return solicitarVolverIndex(); }
+
+(function(){
+ var btn = document.getElementById('btnVolverIndex');
+ if(btn){
+  btn.onclick = function(ev){
+   try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+   return solicitarVolverIndex();
+  };
+  btn.addEventListener('touchend', function(ev){
+   try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+   solicitarVolverIndex();
+  }, {passive:false});
+ }
+})();
+
+const DOCS_PRODUCT_KEY_V156='rey_docs_external_product_v1';
+const DOCS_TARGET_KEY_V156='rey_docs_external_target_index_v1';
+function docsParamV156(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return ''}}
+function docsTargetV156(){let v=docsParamV156('target');try{if(!v)v=sessionStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}try{if(!v)v=localStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}return v;}
+function docsPayloadV156(ref,desc,price,cat){return {proveedor:'VELUX',referencia:String(ref||'').trim(),descripcion:String(desc||'').trim(),cantidad:1,unidad:'ud',precio:Number(price||0),categoria:String(cat||''),targetIndex:docsTargetV156(),origen:'velux.html'};}
+function docsBtnV156(ref,desc,price,cat){const payload=encodeURIComponent(JSON.stringify(docsPayloadV156(ref,desc,price,cat)));return `<button class="secondary" onclick="sendProductToDocsV156('${payload}')">Añadir Doc.</button>`;}
+function docsMiniBtnV157(ref,desc,price,cat){const payload=encodeURIComponent(JSON.stringify(docsPayloadV156(ref,desc,price,cat)));return `<button onclick="event.stopPropagation();sendProductToDocsV156('${payload}')">Añadir a Documentos</button>`;}
+function sendProductToDocsV156(encoded){let payload=null;try{payload=JSON.parse(decodeURIComponent(encoded));}catch(_){payload=null;}if(!payload)return alert('No se pudo preparar el producto para Documentos');try{sessionStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));}catch(_){}try{localStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));}catch(_){}const url='documentos.html?externalProduct=1';try{if(window.parent&&window.parent!==window&&typeof window.parent.abrir==='function'){window.parent.abrir(url);return;}}catch(_){}location.href=url;}
+
+function copyText(t){navigator.clipboard?.writeText(t)}
+function copyLineProduct(ref,price){navigator.clipboard?.writeText(`${ref} · ${money(price)} catálogo sin IVA`)}
+function openRecommendModal(){
+ const modal=document.getElementById('recommendModal');
+ if(modal){ renderQuickButtons(); updateRecommendPreview(); modal.classList.add('show'); }
+}
+function closeRecommendModal(){
+ const modal=document.getElementById('recommendModal');
+ if(modal) modal.classList.remove('show');
+ render();
+}
+function updateRecommendPreview(){
+ const el=document.getElementById('recommendPreview');
+ if(!el) return;
+ const base=targetBase();
+ const code=codeForBaseAndGlass(base,glassSel.value);
+ const s=state.s||sizeSel.value||'';
+ el.textContent=(base+' '+code+(s?' '+s:'')).trim();
+}
+function openSettings(){
+ const m=settings.margins||DEFAULTS.margins;
+ document.getElementById('setGainVentana').value=(m.ventana?.pct ?? 0);document.getElementById('setGainVentanaEur').value=(m.ventana?.eur ?? 0);
+ document.getElementById('setGainCerco').value=(m.cerco?.pct ?? 0);document.getElementById('setGainCercoEur').value=(m.cerco?.eur ?? 0);
+ document.getElementById('setGainPersiana').value=(m.persiana?.pct ?? 0);document.getElementById('setGainPersianaEur').value=(m.persiana?.eur ?? 0);
+ document.getElementById('setGainCortina').value=(m.cortina?.pct ?? 0);document.getElementById('setGainCortinaEur').value=(m.cortina?.eur ?? 0);
+ document.getElementById('setIva').value=settings.iva;document.getElementById('setDisc').value=settings.disc;document.getElementById('setShowCat').checked=settings.showCat;document.getElementById('setShowGain').checked=settings.showGain;document.getElementById('setShowIva').checked=settings.showIva;document.getElementById('setPref').value=settings.pref;document.getElementById('setGlass').value=settings.glass;document.getElementById('setCurtainFrame').value=settings.curtainFrame;document.getElementById('setCurtainColor').value=settings.curtainColor;document.getElementById('settings').classList.add('show');}
+function closeSettings(){document.getElementById('settings').classList.remove('show')}
+function saveSettings(){settings={
+ gain:0,gainEur:0,
+ margins:{
+  ventana:{pct:setGainVentana.value===''?0:Number(setGainVentana.value),eur:setGainVentanaEur.value===''?0:Number(setGainVentanaEur.value)},
+  cerco:{pct:setGainCerco.value===''?0:Number(setGainCerco.value),eur:setGainCercoEur.value===''?0:Number(setGainCercoEur.value)},
+  persiana:{pct:setGainPersiana.value===''?0:Number(setGainPersiana.value),eur:setGainPersianaEur.value===''?0:Number(setGainPersianaEur.value)},
+  cortina:{pct:setGainCortina.value===''?0:Number(setGainCortina.value),eur:setGainCortinaEur.value===''?0:Number(setGainCortinaEur.value)}
+ },
+ iva:setIva.value===''?21:Number(setIva.value),disc:setDisc.value===''?0:Number(setDisc.value),showCat:setShowCat.checked,showGain:setShowGain.checked,showIva:setShowIva.checked,pref:setPref.value,glass:setGlass.value,finish:finishSel.value,opening:openingSel.value,cercoType:settings.cercoType||'ondulado',curtainFrame:setCurtainFrame.value,curtainColor:setCurtainColor.value,curtainType:settings.curtainType||0};
+ localStorage.setItem('veluxSettingsV134',JSON.stringify(settings));closeSettings();init();showProducts(state.d,state.s,false);}
+function normalizeOldSize(token){token=(token||'').toUpperCase(); for(const [cur,als] of Object.entries(sizeAliases)){if(cur===token||als.includes(token)){let old=(als.find(a=>/^[A-Z]\d\d$/.test(a))||token); return {current:cur,old};}} return null;}
+function bindOld(){const input=document.getElementById('oldQ');input.oninput=renderOld;}
+function renderOld(){
+ const oldInput=document.getElementById('oldQ');
+ const val=((oldInput&&oldInput.value) || (q&&q.value) || '').trim().toUpperCase();
+ const card=document.getElementById('oldRes');
+ if(!val){card.classList.remove('hidden');card.innerHTML='<div class="accTitleBlock"><b>Accesorios</b><div class="small">Escribe una referencia en la placa superior para ver persiana y cortina compatibles.</div></div>';return}
+ const oldEq=detectOldModelEquiv(val);
+ const oldCurtainEq=detectOldCurtainEquiv(val);
+ const parts=val.split(/\s+/);
+ let size=null,model='',rawSizeToken='';
+ if(oldEq){ size={current:oldEq.size,old:oldEq.oldVisible}; model=oldEq.model; rawSizeToken=oldEq.token; }
+ parts.forEach(p=>{if(size)return; let r=normalizeOldSize(p); if(r){size=r; rawSizeToken=p;} else if(/^[A-Z]{3}$/.test(p))model=p;});
+ if(!size){card.classList.remove('hidden');card.innerHTML='<b>Sin tamaño detectado</b><div class="small">Prueba con P08, S08, M06, 306, 608, GHL 2, GHL 8, etc.</div>';return}
+ const display=oldEq ? oldEq.oldVisible : oldVisibleSizeFromToken(rawSizeToken||size.old);
+ const curtainCurrent=size.current;
+ const shutterCurrent=oldEq ? size.current : (shutterSizeFromOldToken(rawSizeToken||display)||size.current);
+ const curtainBaseRef=oldCurtainEq ? oldCurtainEq.ref : `DKL ${display}`;
+ const persianaOpts=accOptions(shutterCurrent,'Persiana');
+ const cortinaOpts=accOptions(curtainCurrent,'Cortina');
+ oldAccState.persiana=Math.min(oldAccState.persiana||0, Math.max(persianaOpts.length-1,0));
+ oldAccState.cortina=Math.min(oldAccState.cortina||0, Math.max(cortinaOpts.length-1,0));
+ const pSel=persianaOpts[oldAccState.persiana]||null;
+ const cSel=cortinaOpts[oldAccState.cortina]||null;
+ const persianaRef=pSel ? `${pSel.ref.replace(' 0000','')} ${shutterCurrent}` : `SSL ${shutterCurrent}`;
+ const cortinaRef=buildOldCurtainRef(cSel,curtainBaseRef,display);
+ const persianaSelector=persianaOpts.length?`<div class="selectorLine"><select onchange="oldAccState.persiana=this.selectedIndex;renderOld()">${persianaOpts.map((o,i)=>`<option ${i===oldAccState.persiana?'selected':''}>${o.ref.replace(' 0000','')} · ${o.desc} · ${money(o.p[shutterCurrent])}</option>`).join('')}</select></div>`:'';
+ const cortinaSelector=cortinaOpts.length?`<div class="selectorLine"><select onchange="oldAccState.cortina=this.selectedIndex;renderOld()">${cortinaOpts.map((o,i)=>`<option ${i===oldAccState.cortina?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[curtainCurrent])}</option>`).join('')}</select></div>`:'';
+ card.classList.remove('hidden');
+ const pPrice=pSel?pSel.p[shutterCurrent]:null;
+ const cPrice=cSel?cSel.p[curtainCurrent]:null;
+ const totalAcc=(mainPrice(pPrice||0,'persiana').value)+(mainPrice(cPrice||0,'cortina').value);
+ card.innerHTML=`<div class="accTitleBlock"><b>Accesorios para ${val}</b><div class="small">Cada producto va por separado para presupuesto: persiana y cortina.</div></div>${oldAccessoryCard('☀️','Persiana',persianaRef,pPrice,pSel?`${pSel.desc} · ${pSel.plazo}`:'Persiana solar recomendada',persianaSelector)}${oldAccessoryCard('🌙','Cortina',cortinaRef,cPrice,oldCurtainDesc(cSel),cortinaSelector)}<div class="accTotalBox"><b>Total accesorios</b><span>${money(totalAcc)}</span></div>`;
+}
+function buildOldCurtainRef(opt,baseRef,display){
+ if(!opt || opt.ref.includes('DKL')) return `${baseRef} ${settings.curtainColor}${settings.curtainFrame}`;
+ const prefix=opt.ref.split(' ')[0];
+ return `${prefix} ${display}`;
+}
+function oldCurtainDesc(opt){
+ if(!opt) return curtainDesc();
+ if(opt.ref.includes('DKL')) return `${curtainDesc()} · ${opt.desc} · ${opt.plazo}`;
+ return `${opt.desc} · ${opt.plazo}`;
+}
+function oldAccessoryCard(icon,title,ref,price,extra='Accesorio para ventana antigua',selector=''){
+ const cat=categoryFromRef(ref,title); const mp=price!=null?mainPrice(price,cat):null;
+ return `<div class="product ${cat}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${extra}</div></div><div class="prodPrice">${mp?money(mp.value):money(price)}</div></div>${price?priceBox(price,cat):''}${selector}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${ref}',${Number(price)||0})">Copiar línea</button>${docsBtnV156(ref,extra,mp?mp.value:price,cat)}</div></div>`
+}
+
+const CATALOG_ACCESSORIES=[
+ {grupo:'Validado propio',ref:'P/S22',desc:'Kit motor + placa solar',price:156,plazo:'—',source:'Dato propio'},
+ {grupo:'Validado propio',ref:'KLI-310-WW',desc:'Pulsador inalámbrico blanco',price:27,plazo:'—',source:'Dato propio'},
+ {grupo:'Accesorios eléctricos',ref:'KUX 110',desc:'Unidad de control para motor KMG, cortina, persiana o toldo eléctrico',price:121,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KSX 100',desc:'Kit de conversión solar para ventanas anteriores a 2014',price:470,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KSX 100K',desc:'Kit de conversión solar para ventana giratoria manual con K en el código',price:470,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KMG 100K',desc:'Motor eléctrico / kit conversión eléctrica para ventana giratoria manual',price:352,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLI 310',desc:'Pulsador de pared válido para productos motorizados',price:28,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLI 311',desc:'Pulsador de pared para ventanas de tejado',price:28,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLI 312 A',desc:'Pulsador de pared para cortinas interiores',price:28,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLI 313',desc:'Pulsador de pared para persianas y toldos',price:28,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLF 150',desc:'Interface para sistemas domóticos externos io-homecontrol',price:166,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Accesorios eléctricos',ref:'KLF 050',desc:'Interface para conectar a cualquier pulsador de pared',price:50,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 157',desc:'Perfil para combinar dos mosquiteras ZIL',price:21,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 213',desc:'Placa de montaje para persiana/toldo solar en GGL/GGU',price:54,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 229S',desc:'Kit para instalar persiana flexible o toldo en ventanas eléctricas GPU',price:69,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 230X25',desc:'Pack 25 kits para instalar cortina en ventana anterior a 1992',price:19,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 230',desc:'Kit individual para instalar cortina en ventana anterior a 1992',price:7,plazo:'—',source:'Catálogo p.87'},
+ {grupo:'Kits de instalación',ref:'ZOZ 240',desc:'Placa para persiana flexible/toldo en ventana acabado cobre · desde 94 hasta 204 €',price:94,range:'desde 94 €',plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 241',desc:'Kit para añadir cortina eléctrica a ventana manual',price:14,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 242',desc:'Kit para añadir cortina eléctrica a ventana manual',price:16,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 243',desc:'Kit para añadir cortina eléctrica a ventana manual',price:16,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 244',desc:'Kit para añadir cortina eléctrica a ventana manual',price:17,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 245',desc:'Kit para añadir persiana solar a ventana GBL · desde 54 hasta 63 €',price:54,range:'desde 54 €',plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 246',desc:'Kit de instalación para combinaciones 3en1 solares',price:66,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 253',desc:'Kit para instalar SSL/SML en ventana anterior a 2001',price:16,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 254',desc:'Kit para instalar SSL/SML en ventana anterior a 2001',price:16,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Varillas de apertura',ref:'ZCT 100',desc:'Prolongador 100 cm para varilla extensible ZCT 200K',price:21,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Varillas de apertura',ref:'ZCT 200K',desc:'Varilla extensible de 108 a 188 cm para ventanas y cortinas',price:35,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Varillas de apertura',ref:'ZOZ 085',desc:'Adaptador para cortinas DKL, FHL y RFL con varillas',price:10,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Varillas de apertura',ref:'ZCZ 080K',desc:'Varilla 80 cm para GGL/GGU, cortinas y mosquiteras',price:21,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Varillas de apertura',ref:'ZCZ 112',desc:'Varilla 120 cm para apertura de GPL/GPU en lugares de difícil acceso',price:60,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Seguridad',ref:'ZOZ 012K1',desc:'Cerradura de seguridad con llave para GGL/GGU',price:46,plazo:'21 días',source:'Catálogo p.86'},
+ {grupo:'Kits mantenimiento',ref:'ZZZ 176KM',desc:'Kit de mantenimiento para ventanas de madera barnizada',price:25,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Kits mantenimiento',ref:'ZZZ 220',desc:'Kit mantenimiento para ventanas anteriores a 2014',price:40,plazo:'En stock',source:'Catálogo p.86'},
+ {grupo:'Kits mantenimiento',ref:'ZZZ 220K',desc:'Kit mantenimiento para ventanas actuales con K en el código',price:40,plazo:'En stock',source:'Catálogo p.86'}
+];
+let catalogAccSelected={};
+function normCatalogAcc(s){return (s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9/ ]+/g,' ').replace(/\s+/g,' ').trim();}
+function catalogAccMatches(a,q){
+ if(!q)return true;
+ const hay=normCatalogAcc([a.ref,a.desc,a.grupo,a.plazo,a.source].join(' '));
+ return q.split(' ').filter(Boolean).every(p=>hay.includes(p));
+}
+function bindCatalogAcc(){
+ const input=document.getElementById('catalogAccQ');
+ if(input) input.oninput=renderCatalogAcc;
+}
+function toggleCatalogAcc(ref){catalogAccSelected[ref]=!catalogAccSelected[ref];renderCatalogAcc();}
+function catalogAccCard(a){
+ const checked=!!catalogAccSelected[a.ref];
+ const shown=a.range||money(mainPrice(a.price,'kit').value);
+ const plazo=a.plazo&&a.plazo!=='—'?` · ${a.plazo}`:'';
+ const source=a.source?` · ${a.source.replace('Catálogo ','')}`:'';
+ return `<div class="row catalogAccCard ${checked?'glassGood':''}"><div class="catalogAccTop"><div><div class="catalogAccRef">${a.ref}${checked?'<span class="catalogAccSelectedTag">Añadido</span>':''}</div><div class="catalogAccDesc">${a.desc}</div><div class="catalogAccMeta">${a.grupo}${plazo}${source}</div></div><div class="catalogAccPrice">${shown}</div></div><div class="catalogAccActions"><button class="${checked?'secondary':'light'}" onclick="toggleCatalogAcc('${a.ref.replace(/'/g,'')}')">${checked?'Quitar':'Añadir'}</button><button class="light" onclick="copyLineProduct('${a.ref.replace(/'/g,'')}',${Number(a.price)||0})">Copiar</button>${docsBtnV156(a.ref,a.desc,a.price,'accesorio')}</div></div>`;
+}
+function renderCatalogAcc(){
+ const input=document.getElementById('catalogAccQ');
+ const list=document.getElementById('catalogAccList');
+ const total=document.getElementById('catalogAccTotal');
+ if(!list)return;
+ const q=normCatalogAcc(input&&input.value);
+ const arr=CATALOG_ACCESSORIES.filter(a=>catalogAccMatches(a,q));
+ list.innerHTML=arr.length?arr.map(catalogAccCard).join(''):'<div class="small">Sin coincidencias en accesorios.</div>';
+ const selected=CATALOG_ACCESSORIES.filter(a=>catalogAccSelected[a.ref]);
+ const sum=selected.reduce((t,a)=>t+mainPrice(a.price,'kit').value,0);
+ if(total) total.innerHTML=`<b>Total seleccionados</b><span>${money(sum)}</span>`;
+}
+function renderOld(){
+ bindCatalogAcc();
+ renderCatalogAcc();
+ const oldCard=document.getElementById('oldRes');
+ if(oldCard) oldCard.classList.add('hidden');
+}
+
+const GLASS_DEFAULTS=[
+ {ref:'GGL 5', width:788, height:1414, composition:'4/6/4', verified:true, source:'Verificado por Tino', notes:'Medida exacta del vidrio desmontado, ya sustituido una vez.'}
+];
+let glassDB=loadGlassDB();
+function normalizeGlassRef(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
+function loadGlassDB(){
+ try{const saved=JSON.parse(localStorage.getItem('veluxGlassDB')||'null'); if(Array.isArray(saved)) return saved;}catch(e){}
+ return GLASS_DEFAULTS.map(x=>({...x}));
+}
+function saveGlassDB(){localStorage.setItem('veluxGlassDB',JSON.stringify(glassDB));}
+function glassSearchText(r){return normalizeGlassRef([r.ref,r.composition,r.width,r.height,r.notes,r.source].join(' '));}
+function findGlassMatches(q){
+ q=normalizeGlassRef(q);
+ if(!q) return glassDB;
+ const parts=q.split(' ').filter(Boolean);
+ return glassDB.filter(r=>parts.every(p=>glassSearchText(r).includes(p)));
+}
+function renderGlassModule(){
+ const qEl=document.getElementById('glassQ'); if(!qEl)return;
+ qEl.oninput=renderGlassSearch;
+ renderGlassSearch(); renderGlassList();
+}
+function glassCard(r,idx,compact=false){
+ const measure=`${r.width} × ${r.height} mm`;
+ return `<div class="row ${r.verified?'glassGood':'glassWarn'}"><b>${r.ref}</b><span>${measure}</span><div class="glassMeasure">${measure}</div><div class="small">Composición: <b>${r.composition||'—'}</b> · Estado: <b>${r.verified?'verificado':'pendiente'}</b>${r.source?' · '+r.source:''}</div>${r.notes?`<div class="small">${r.notes}</div>`:''}<div class="grid" style="margin-top:8px"><button class="light" onclick="copyGlassLine(${idx})">Copiar medida</button><button class="secondary" onclick="editGlassRecord(${idx})">Editar</button></div></div>`;
+}
+function renderGlassSearch(){
+ const q=document.getElementById('glassQ').value; const box=document.getElementById('glassRes');
+ const arr=findGlassMatches(q);
+ box.innerHTML=arr.length?arr.map(r=>glassCard(r,glassDB.indexOf(r),true)).join(''):'<div class="small">Sin datos todavía. Añade la medida cuando la tengas verificada.</div>';
+}
+function renderGlassList(){
+ const box=document.getElementById('glassList'); if(!box)return;
+ box.innerHTML=glassDB.map((r,i)=>glassCard(r,i,true)).join('')||'<div class="small">Base vacía.</div>';
+}
+function saveGlassRecord(){
+ const ref=normalizeGlassRef(document.getElementById('glassRef').value);
+ const width=Number(document.getElementById('glassW').value);
+ const height=Number(document.getElementById('glassH').value);
+ const composition=document.getElementById('glassComp').value.trim();
+ const notes=document.getElementById('glassNotes').value.trim();
+ if(!ref||!width||!height){alert('Falta referencia, ancho o alto.');return;}
+ const rec={ref,width,height,composition,verified:true,source:'Verificado propio',notes};
+ const i=glassDB.findIndex(x=>normalizeGlassRef(x.ref)===ref);
+ if(i>=0) glassDB[i]=rec; else glassDB.push(rec);
+ glassDB.sort((a,b)=>a.ref.localeCompare(b.ref)); saveGlassDB(); clearGlassForm(); renderGlassModule();
+}
+function clearGlassForm(){['glassRef','glassW','glassH','glassComp','glassNotes'].forEach(id=>{const el=document.getElementById(id); if(el)el.value='';});}
+function editGlassRecord(i){const r=glassDB[i]; if(!r)return; document.getElementById('glassRef').value=r.ref; document.getElementById('glassW').value=r.width; document.getElementById('glassH').value=r.height; document.getElementById('glassComp').value=r.composition||''; document.getElementById('glassNotes').value=r.notes||''; document.getElementById('glassRef').scrollIntoView({behavior:'smooth',block:'center'});}
+function copyGlassLine(i){const r=glassDB[i]; if(!r)return; navigator.clipboard?.writeText(`${r.ref} · vidrio ${r.width} x ${r.height} mm · ${r.composition||''}`);}
+async function exportGlassJson(){
+ const txt=JSON.stringify({version:'VELUX cristales v1.52',fecha:new Date().toISOString(),cristales:glassDB},null,2);
+ const blob=new Blob([txt],{type:'application/json'}); const file=new File([blob],'velux_cristales.json',{type:'application/json'});
+ try{if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Cristales VELUX'});return;}}catch(e){}
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='velux_cristales.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importGlassJson(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const arr=j.cristales||j; if(!Array.isArray(arr))throw new Error('Formato'); arr.forEach(x=>{if(!x.ref||!x.width||!x.height)return; const ref=normalizeGlassRef(x.ref); const rec={...x,ref,width:Number(x.width),height:Number(x.height),verified:x.verified!==false}; const i=glassDB.findIndex(g=>normalizeGlassRef(g.ref)===ref); if(i>=0)glassDB[i]=rec; else glassDB.push(rec);}); glassDB.sort((a,b)=>a.ref.localeCompare(b.ref)); saveGlassDB(); renderGlassModule(); alert('Cristales importados correctamente.');}catch(e){alert('No se pudo importar el JSON de cristales.')}};r.readAsText(f);ev.target.value='';}
+
+function collectPricesJson(){return {version:'VELUX precios v1.56',fecha:new Date().toISOString(),ventanas:DATA.map(d=>({modelo:d.modelo,precios:d.p})),accesorios:ACC.map(a=>({ref:a.ref,precios:a.p}))};}
+const EXPORT_FILENAME='velux_precios_tarifa.json';
+function exportJsonText(){return JSON.stringify(collectPricesJson(),null,2)}
+async function exportPricesJson(){
+ // Exportación directa, como el resto de apps: primero intenta abrir el menú nativo
+ // de iPhone para guardar/compartir el archivo; si no está disponible, descarga clásica.
+ const txt=exportJsonText();
+ const blob=new Blob([txt],{type:'application/json'});
+ const file=new File([blob],EXPORT_FILENAME,{type:'application/json'});
+ try{
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+   await navigator.share({files:[file],title:'Precios VELUX',text:'Precios VELUX JSON'});
+   return;
+  }
+ }catch(e){
+  if(e && e.name==='AbortError') return;
+ }
+ try{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=EXPORT_FILENAME;
+  a.rel='noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  return;
+ }catch(e){}
+ // Último recurso para HTML Viewer/Safari si bloquean la descarga.
+ const box=document.getElementById('exportText');
+ if(box) box.value=txt;
+ document.getElementById('exportModal').classList.add('show');
+}
+function closeExportModal(){document.getElementById('exportModal').classList.remove('show')}
+async function shareExportJson(){
+ const txt=exportJsonText();
+ const blob=new Blob([txt],{type:'application/json'});
+ const file=new File([blob],EXPORT_FILENAME,{type:'application/json'});
+ try{
+  if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+   await navigator.share({files:[file],title:'Precios VELUX',text:'Precios VELUX JSON'});
+   return;
+  }
+  if(navigator.share){
+   await navigator.share({title:'Precios VELUX JSON',text:txt});
+   return;
+  }
+  alert('Este navegador no permite compartir archivos. Usa Copiar JSON o Descarga clásica.');
+ }catch(e){
+  if(e && e.name==='AbortError') return;
+  alert('No se pudo abrir compartir. Usa Copiar JSON o Descarga clásica.');
+ }
+}
+async function copyExportJson(){
+ const txt=exportJsonText();
+ try{await navigator.clipboard.writeText(txt);alert('JSON copiado.')}
+ catch(e){const box=document.getElementById('exportText');box.focus();box.select();document.execCommand('copy');alert('JSON copiado.')}
+}
+function downloadExportJson(){
+ const blob=new Blob([exportJsonText()],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=EXPORT_FILENAME;
+ document.body.appendChild(a);
+ a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function importPricesJson(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);(j.ventanas||[]).forEach(x=>{const d=DATA.find(d=>d.modelo===x.modelo); if(d&&x.precios)d.p=x.precios;});(j.accesorios||[]).forEach(x=>{const a=ACC.find(a=>a.ref===x.ref); if(a&&x.precios)a.p=x.precios;});alert('Precios importados correctamente.');render();if(state.d&&state.s)drawProducts();}catch(e){alert('No se pudo importar el JSON de precios.')}};r.readAsText(f);ev.target.value='';}
+
+modelSel.onchange=()=>{syncControlsFromData(DATA[+modelSel.value]);refreshSizes();render();document.getElementById('productsCard').classList.add('hidden')};sizeSel.onchange=()=>{render();document.getElementById('productsCard').classList.add('hidden')};finishSel.onchange=()=>{saveQuickPrefs();renderQuickButtons();pickByControls(true);document.getElementById('productsCard').classList.add('hidden')};openingSel.onchange=()=>{saveQuickPrefs();renderQuickButtons();pickByControls(true);document.getElementById('productsCard').classList.add('hidden')};glassSel.onchange=()=>{saveQuickPrefs();renderQuickButtons();pickByControls(true);document.getElementById('productsCard').classList.add('hidden')};q.oninput=handlePlateInput;measureQ.oninput=()=>{renderMeasureSearch();};init();
+</script>
+</body>
+</html>

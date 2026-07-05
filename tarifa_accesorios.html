@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Tarifa Cortizo v1.3</title>
+<title>Tarifa Cortizo v1.5</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -104,7 +104,7 @@ button,input{font:inherit}
   position:fixed;inset:auto 0 0 0;z-index:60;transform:translateY(100%);transition:transform .28s ease;
   background:linear-gradient(180deg,#11192a,#0a1020);border-top-left-radius:28px;border-top-right-radius:28px;
   border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -20px 50px rgba(0,0,0,.45);
-  max-height:min(82vh,820px);padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 20px)
+  max-height:min(82vh,820px);overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 20px)
 }
 .sheet.open{transform:translateY(0)}
 .sheetHandle{width:52px;height:5px;border-radius:999px;background:rgba(255,255,255,.18);margin:2px auto 16px}
@@ -112,7 +112,7 @@ button,input{font:inherit}
 .sheetTitle{font-size:22px;font-weight:900;line-height:1.15;margin:6px 0 8px}
 .sheetRef{font-size:13px;color:#9fb4ff;font-weight:800}
 .closeBtn{width:40px;height:40px;border-radius:14px;border:0;background:rgba(255,255,255,.07);color:white;font-size:20px;font-weight:900}
-.detailGrid{display:grid;gap:10px;margin-top:14px}
+.detailGrid{display:grid;gap:10px;margin-top:14px}.docsAddBtn{width:100%;margin-top:14px;border:0;border-radius:18px;padding:14px 10px;background:linear-gradient(135deg,#16a34a,#2ed39a);color:#fff;font-weight:950;box-shadow:0 12px 28px rgba(0,0,0,.28);touch-action:manipulation}
 .detailItem{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:14px}
 .detailLabel{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .detailValue{font-size:17px;font-weight:800;word-break:break-word}
@@ -155,6 +155,31 @@ button,input{font:inherit}
 .btnBackIndex:active{
   transform:translateY(1px);
 }
+
+
+/* v1.6 - Ajustes de ganancia y precio de venta */
+.btnSettingsCortizo{
+  appearance:none;-webkit-appearance:none;border:none;
+  background:linear-gradient(135deg,#f6c86a,#ffde94);
+  color:#1f2933;font-weight:950;padding:10px 13px;border-radius:18px;
+  box-shadow:0 8px 18px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
+  cursor:pointer;font-size:.9rem;line-height:1;white-space:nowrap;touch-action:manipulation;
+}
+.btnSettingsCortizo:active{transform:translateY(1px) scale(.98)}
+.settingsOverlay{position:fixed;inset:0;background:rgba(0,0,0,.48);backdrop-filter:blur(3px);z-index:75;display:none;align-items:flex-end;justify-content:center}
+.settingsOverlay.show{display:flex}
+.settingsBox{width:min(720px,100%);background:linear-gradient(180deg,#121b2d,#0a1020);border:1px solid rgba(255,255,255,.10);border-radius:28px 28px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px);box-shadow:0 -24px 60px rgba(0,0,0,.55)}
+.settingsBox h2{margin:0 0 6px;font-size:22px;font-weight:950;color:#fff}
+.settingsHelp{font-size:12px;color:var(--muted);font-weight:800;line-height:1.3;margin-bottom:12px}
+.settingCard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:13px;margin-top:10px}
+.settingCard label{display:block;font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.settingCard input{width:100%;background:#fff3c9;color:#111827;border:1px solid rgba(0,0,0,.22);border-radius:14px;padding:12px;font-size:18px;font-weight:950;text-align:center}
+.switchRow{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:13px;margin-top:10px}
+.switchText b{font-size:15px}.switchText small{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.switch{position:relative;width:56px;height:32px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.16);border-radius:999px;transition:.2s}.slider:before{content:"";position:absolute;width:24px;height:24px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.2s}input:checked+.slider{background:#16a34a}input:checked+.slider:before{transform:translateX(24px)}
+.quickGainGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.quickGainGrid button{border:0;border-radius:14px;background:rgba(255,255,255,.08);color:#fff;padding:12px 6px;font-weight:950}.quickGainGrid button.active{background:linear-gradient(135deg,#16a34a,#2ed39a);color:#fff}
+.settingsActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.settingsActions button{border:0;border-radius:16px;padding:14px 10px;font-weight:950;color:#fff}.settingsSave{background:linear-gradient(135deg,#16a34a,#2ed39a)}.settingsClose{background:linear-gradient(135deg,#303a50,#1b2331)}
+.priceSub{display:block;margin-top:4px;color:#ffe8a3;font-size:11px;font-weight:850}
+
 </style>
 </head>
 <body>
@@ -165,13 +190,14 @@ button,input{font:inherit}
         <div class="logo-mark" aria-label="Logo Cortizo"><img src="data:image/png;base64,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" alt="CORTIZO"></div>
         <div class="logo-text">
           <div class="title">Tarifa accesorios</div>
-          <div class="subtitle">v1.3</div>
+          <div class="subtitle">v1.5</div>
         </div>
       </div>
       <div class="count" id="countBox">0</div>
     </div>
     <div class="searchWrap">
       <button class="btnBackIndex" type="button" onclick="return volverIndex()">← MENÚ</button>
+      <button class="btnSettingsCortizo" id="btnSettingsCortizo" type="button">⚙ Ajustes</button>
       <div class="searchIcon">⌕</div>
       <input id="search" type="search" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Referencia o producto">
     </div>
@@ -205,6 +231,32 @@ button,input{font:inherit}
     <div class="detailItem"><div class="detailLabel">Peso</div><div class="detailValue" id="dPeso"></div></div>
     <div class="detailItem"><div class="detailLabel">Acabado</div><div class="detailValue" id="dAcab"></div></div>
   </div>
+  <button class="docsAddBtn" id="btnAddDocs" type="button">➕ Añadir a Documentos</button>
+</div>
+
+<div class="settingsOverlay" id="settingsOverlay">
+  <div class="settingsBox">
+    <h2>⚙ Ajustes Cortizo</h2>
+    <div class="settingsHelp">Configura si quieres ver la tarifa original o el precio de venta con ganancia. El precio que se envía a Documentos será el que esté activo.</div>
+    <div class="switchRow">
+      <div class="switchText"><b>Mostrar precio con ganancia</b><small>Si está apagado, se muestra tarifa sin IVA.</small></div>
+      <label class="switch"><input id="setShowSale" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="settingCard">
+      <label>Ganancia %</label>
+      <input id="setGainPct" type="number" inputmode="decimal" step="1" min="0" value="100">
+      <div class="quickGainGrid" id="quickGainGrid">
+        <button type="button" data-gain="30">30%</button>
+        <button type="button" data-gain="50">50%</button>
+        <button type="button" data-gain="75">75%</button>
+        <button type="button" data-gain="100">100%</button>
+      </div>
+    </div>
+    <div class="settingsActions">
+      <button class="settingsSave" id="btnSaveCortizoSettings" type="button">Guardar</button>
+      <button class="settingsClose" id="btnCloseCortizoSettings" type="button">Cerrar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -223,6 +275,54 @@ const main=document.getElementById('main');
 const fileInput=document.getElementById('fileInput');
 const overlay=document.getElementById('overlay');
 const sheet=document.getElementById('sheet');
+
+const CORTIZO_SETTINGS_KEY='cortizo_tarifa_settings_v1';
+let cortizoSettings=loadCortizoSettings();
+function loadCortizoSettings(){
+  try{const v=JSON.parse(localStorage.getItem(CORTIZO_SETTINGS_KEY)||'null'); if(v&&typeof v==='object') return {showSale:!!v.showSale,gainPct:Number(v.gainPct||100)};}catch(e){}
+  return {showSale:false,gainPct:100};
+}
+function saveCortizoSettings(){
+  try{localStorage.setItem(CORTIZO_SETTINGS_KEY,JSON.stringify(cortizoSettings));}catch(e){}
+}
+function salePrice(base){
+  const n=Number(base)||0;
+  return +(n*(1+(Number(cortizoSettings.gainPct)||0)/100)).toFixed(2);
+}
+function activePrice(item){return cortizoSettings.showSale ? salePrice(item&&item.pvp) : Number((item&&item.pvp)||0);}
+function priceHtml(item){
+  const base=Number((item&&item.pvp)||0);
+  if(!cortizoSettings.showSale) return escapeHtml(fmtPrice(base));
+  return escapeHtml(fmtPrice(salePrice(base)))+'<span class="priceSub">Tarifa '+escapeHtml(fmtPrice(base))+' · +'+escapeHtml(String(Number(cortizoSettings.gainPct)||0))+'%</span>';
+}
+function priceText(item){
+  const base=Number((item&&item.pvp)||0);
+  return cortizoSettings.showSale ? (fmtPrice(salePrice(base))+' · Tarifa '+fmtPrice(base)) : fmtPrice(base);
+}
+function openCortizoSettings(){
+  const o=document.getElementById('settingsOverlay');
+  const cb=document.getElementById('setShowSale');
+  const gp=document.getElementById('setGainPct');
+  if(cb) cb.checked=!!cortizoSettings.showSale;
+  if(gp) gp.value=String(Number(cortizoSettings.gainPct)||0);
+  updateGainButtons();
+  if(o)o.classList.add('show');
+}
+function closeCortizoSettings(){const o=document.getElementById('settingsOverlay'); if(o)o.classList.remove('show');}
+function updateGainButtons(){
+  const current=String(Number((document.getElementById('setGainPct')||{}).value||cortizoSettings.gainPct)||0);
+  document.querySelectorAll('#quickGainGrid button').forEach(b=>b.classList.toggle('active', String(Number(b.dataset.gain))===current));
+}
+function applyCortizoSettings(){
+  const cb=document.getElementById('setShowSale');
+  const gp=document.getElementById('setGainPct');
+  cortizoSettings.showSale=!!(cb&&cb.checked);
+  cortizoSettings.gainPct=Number(gp&&gp.value)||0;
+  saveCortizoSettings();
+  closeCortizoSettings();
+  applyFilter(false);
+  if(currentDetail) openDetail(currentDetail);
+}
 
 const TEXT_REPLACEMENTS = [
   [/(\d)\s*:/g,'$1º'],
@@ -345,7 +445,7 @@ function makeCard(item){
     '<div class="ref">Ref. '+escapeHtml(item.ref||'—')+'</div>'+
     '<div class="name">'+escapeHtml(item.producto||'Sin nombre')+'</div>'+
     '<div class="meta">'+
-      '<div class="pill price">💶 '+escapeHtml(fmtPrice(item.pvp))+'</div>'+
+      '<div class="pill price">💶 '+priceHtml(item)+'</div>'+
       '<div class="pill units">📦 '+escapeHtml(fmtNum(item.uds,2,''))+' uds</div>'+
       (item.peso!==null&&item.peso!==undefined?'<div class="pill weight">⚖️ '+escapeHtml(fmtNum(item.peso,2,' g'))+'</div>':'')+
       (item.acabado?'<div class="pill finish"><span>🎨 '+escapeHtml(item.acabado)+'</span></div>':'')+
@@ -368,12 +468,61 @@ function openDetail(item){
   currentDetail=item;
   document.getElementById('dRef').textContent='Ref. '+(item.ref||'—');
   document.getElementById('dName').textContent=item.producto||'Sin nombre';
-  document.getElementById('dPrice').textContent=fmtPrice(item.pvp);
+  document.getElementById('dPrice').textContent=priceText(item);
   document.getElementById('dUds').textContent=fmtNum(item.uds,2,' uds');
   document.getElementById('dPeso').textContent=fmtNum(item.peso,2,' g');
   document.getElementById('dAcab').textContent=item.acabado||'—';
   overlay.classList.add('show');
   sheet.classList.add('open');
+}
+
+const DOCS_PRODUCT_KEY='rey_docs_external_product_v1';
+function docsTargetIndex(){
+  try{
+    const u=new URL(location.href);
+    const t=u.searchParams.get('target');
+    if(t!==null && t!=='') return t;
+  }catch(e){}
+  try{
+    const t=sessionStorage.getItem('rey_docs_external_target_index_v1');
+    if(t!==null && t!=='') return t;
+  }catch(e){}
+  try{
+    const t=localStorage.getItem('rey_docs_external_target_index_v1');
+    if(t!==null && t!=='') return t;
+  }catch(e){}
+  return '';
+}
+function sendCurrentToDocs(){
+  const item=currentDetail;
+  if(!item){alert('Selecciona un producto primero.');return false;}
+  const targetIndex=docsTargetIndex();
+  const desc=[item.producto||'', item.acabado?('Acabado: '+item.acabado):''].filter(Boolean).join(' · ');
+  const payload={
+    type:'externalProduct',
+    proveedor:'CORTIZO',
+    referencia:String(item.ref||'').trim(),
+    descripcion:String(desc||'').trim(),
+    cantidad:1,
+    unidad:'ud',
+    precio:activePrice(item),
+    categoria:'accesorio',
+    origen:'tarifa_accesorios.html',
+    targetIndex:targetIndex
+  };
+  try{sessionStorage.setItem(DOCS_PRODUCT_KEY,JSON.stringify(payload));}catch(e){}
+  try{localStorage.setItem(DOCS_PRODUCT_KEY,JSON.stringify(payload));}catch(e){}
+  try{
+    if(window.parent && window.parent!==window){
+      window.parent.postMessage({type:'externalProduct',action:'externalProduct',product:payload}, '*');
+      if(typeof window.parent.abrir==='function'){
+        window.parent.abrir('documentos.html?externalProduct=1&target='+encodeURIComponent(String(targetIndex||'')));
+        return false;
+      }
+    }
+  }catch(e){}
+  location.href='documentos.html?externalProduct=1&target='+encodeURIComponent(String(targetIndex||''));
+  return false;
 }
 function closeDetail(){
   overlay.classList.remove('show');
@@ -470,7 +619,14 @@ document.getElementById('clearBtn').addEventListener('click',clearSearch);
 document.getElementById('importBtn').addEventListener('click',()=>fileInput.click());
 document.getElementById('exportBtn').addEventListener('click',exportData);
 fileInput.addEventListener('change',e=>{ const f=e.target.files && e.target.files[0]; if(f) importFile(f); e.target.value=''; });
-document.getElementById('closeSheet').addEventListener('click',closeDetail);
+
+const btnSettingsCortizo=document.getElementById('btnSettingsCortizo'); if(btnSettingsCortizo)btnSettingsCortizo.addEventListener('click',openCortizoSettings);
+const btnCloseCortizoSettings=document.getElementById('btnCloseCortizoSettings'); if(btnCloseCortizoSettings)btnCloseCortizoSettings.addEventListener('click',closeCortizoSettings);
+const btnSaveCortizoSettings=document.getElementById('btnSaveCortizoSettings'); if(btnSaveCortizoSettings)btnSaveCortizoSettings.addEventListener('click',applyCortizoSettings);
+const settingsOverlay=document.getElementById('settingsOverlay'); if(settingsOverlay)settingsOverlay.addEventListener('click',e=>{if(e.target===settingsOverlay)closeCortizoSettings();});
+document.querySelectorAll('#quickGainGrid button').forEach(b=>b.addEventListener('click',()=>{const gp=document.getElementById('setGainPct'); if(gp)gp.value=b.dataset.gain; updateGainButtons();}));
+const setGainPctEl=document.getElementById('setGainPct'); if(setGainPctEl)setGainPctEl.addEventListener('input',updateGainButtons);
+document.getElementById('closeSheet').addEventListener('click',closeDetail); const addDocsBtn=document.getElementById('btnAddDocs'); if(addDocsBtn)addDocsBtn.addEventListener('click',sendCurrentToDocs);
 overlay.addEventListener('click',closeDetail);
 main.addEventListener('scroll',()=>{
   if(main.scrollTop + main.clientHeight > main.scrollHeight - 800) renderMore();

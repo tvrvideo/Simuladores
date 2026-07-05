@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- v3.5.2 - Módulos integrado, retorno corregido -->
+    <!-- v3.5.3 - Velux integrado -->
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,8 +15,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 
-    <title>Ventanas Rey v3.5.2</title>
-    <!-- index v3.5.2 -->
+    <title>Ventanas Rey v3.5.3</title>
+    <!-- index v3.5.3 -->
 
     <!-- ICONOS -->
     <link rel="icon" href="logo.png">
@@ -273,12 +273,13 @@
 
 <header id="cabecera">
     <div class="titulo">Simuladores técnicos</div>
-    <div class="subtitulo">Ventanas Rey v3.5.2</div>
+    <div class="subtitulo">Ventanas Rey v3.5.3</div>
 </header>
 
 <div id="menu">
 <button class="menu-btn" onclick="abrirFacturacion()"><div class="icon">🧾</div><div class="texto"><div>Facturación</div><div class="subtitulo-btn">Clientes, catálogo, albaranes</div></div></button>
 <button class="menu-btn" onclick="abrirDocumentos()"><div class="icon">📄</div><div class="texto"><div>Documentos</div><div class="subtitulo-btn">Presupuestos, facturas y albaranes</div></div></button>
+<button class="menu-btn" onclick="abrir('velux.html')"><div class="icon">🪟</div><div class="texto"><div>VELUX</div><div class="subtitulo-btn">Tarifario y configurador</div></div></button>
 <button class="menu-btn" onclick="abrir('ventana.html')"><div class="icon">🧱</div><div class="texto"><div>Ventana Pro</div><div class="subtitulo-btn">Diseño</div></div></button>
 <button class="menu-btn" onclick="abrir('telefonillo.html')"><div class="icon">📞</div><div class="texto"><div>Telefonillo / Nicho</div><div class="subtitulo-btn">Medidas y diseño</div></div></button>
 <button class="menu-btn" onclick="abrir('climalit.html?v=1.3')"><div class="icon">🪟</div><div class="texto"><div>Climalit</div><div class="subtitulo-btn">Cálculo de vidrios</div></div></button>
@@ -309,7 +310,7 @@
     window.PIN_CORRECTO = PIN_CORRECTO;
 
 
-    const INDEX_VERSION = "3.3";
+    const INDEX_VERSION = "3.5.3";
     function urlConVersion(url){
         url = String(url || '');
         if(!url) return url;
@@ -466,6 +467,7 @@ function unlock() {
                 url === 'factura.html' || url.indexOf('factura.html?') === 0 ||
                 url === 'documentos.html' || url.indexOf('documentos.html?') === 0 ||
                 url === 'ventana.html' || url.indexOf('ventana.html?') === 0 ||
+                url === 'velux.html' || url.indexOf('velux.html?') === 0 ||
                 url === 'climalit.html' || url.indexOf('climalit.html?') === 0
             ){
                 abrir(url);

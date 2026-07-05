@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.1</title>
+  <title>Documentos Rey v4.4.1</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2173,6 +2173,37 @@ body.png-open .topbar{
   }
 }
 
+
+
+/* v4.2 - Catálogos externos desde Concepto */
+.external-catalog-grid-v42{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin:8px 0 12px;
+}
+.external-catalog-btn-v42{
+  min-height:44px !important;
+  border-radius:14px !important;
+  border:1px solid rgba(15,23,42,.10) !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+  padding:8px 6px !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(15,23,42,.08) !important;
+}
+.external-catalog-btn-v42.velux{background:linear-gradient(180deg,#ef4444,#dc2626) !important;}
+.external-catalog-btn-v42.baicha{background:linear-gradient(180deg,#f97316,#ea580c) !important;}
+.external-catalog-btn-v42.climalit{background:linear-gradient(180deg,#38bdf8,#0284c7) !important;}
+.external-catalog-btn-v42.cortizo{background:linear-gradient(180deg,#64748b,#334155) !important;}
+.external-catalog-note-v42{
+  margin:6px 0 4px;
+  font-size:12px;
+  font-weight:850;
+  color:#64748b;
+}
+@media(max-width:560px){.external-catalog-grid-v42{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -3769,7 +3800,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.1</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.3</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -6620,6 +6651,100 @@ COLOCACIÓN INCLUIDA` }
 
   function getProducts(){
     return Array.isArray(savedProducts) ? savedProducts.slice() : [];
+  }
+
+  const EXTERNAL_PRODUCT_KEY_V42 = 'rey_docs_external_product_v1';
+  const EXTERNAL_TARGET_KEY_V42 = 'rey_docs_external_target_index_v1';
+
+  function externalCatalogUrlV42(name, index){
+    const catalog = String(name || '').toLowerCase();
+    const map = {
+      velux: 'velux.html',
+      baicha: 'tarifa_baicha.html',
+      climalit: 'climalit.html',
+      cortizo: 'tarifa_accesorios.html',
+      telefonillo: 'telefonillo.html'
+    };
+    const file = map[catalog] || (catalog + '.html');
+    const sep = file.indexOf('?') >= 0 ? '&' : '?';
+    return file + sep + 'from=documentos&target=' + encodeURIComponent(String(index));
+  }
+
+  async function openExternalCatalogV42(name, index){
+    const idx = Number(index);
+    if(!Number.isFinite(idx) || idx < 0) return;
+    if(!state.items[idx]) state.items[idx] = blankConcept(conceptCodeForIndex(idx));
+    try{ await persistCurrent(); }catch(_){ }
+    try{ sessionStorage.setItem(EXTERNAL_TARGET_KEY_V42, String(idx)); }catch(_){ }
+    try{ localStorage.setItem(EXTERNAL_TARGET_KEY_V42, String(idx)); }catch(_){ }
+    const url = externalCatalogUrlV42(name, idx);
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir(url);
+        return;
+      }
+    }catch(_){ }
+    window.location.href = url;
+  }
+
+  function externalProductTextV42(product){
+    const ref = String(product && (product.referencia || product.ref || product.codigo) || '').trim();
+    const desc = String(product && (product.descripcion || product.nombre || product.texto || product.text) || '').trim();
+    const prov = String(product && (product.proveedor || product.marca) || '').trim();
+    if(desc.indexOf('\n') >= 0){
+      const lines = [];
+      if(ref) lines.push(ref);
+      lines.push(desc);
+      if(prov) lines.push('Proveedor: ' + prov);
+      return lines.join('\n') || 'Producto externo';
+    }
+    const parts = [];
+    if(ref) parts.push(ref);
+    if(desc) parts.push(desc);
+    if(prov) parts.push('Proveedor: ' + prov);
+    return parts.join(' — ') || 'Producto externo';
+  }
+
+  async function applyExternalProductReturnV42(){
+    let raw = '';
+    try{ raw = sessionStorage.getItem(EXTERNAL_PRODUCT_KEY_V42) || ''; }catch(_){ }
+    try{ if(!raw) raw = localStorage.getItem(EXTERNAL_PRODUCT_KEY_V42) || ''; }catch(_){ }
+    if(!raw) return false;
+    let product = null;
+    try{ product = JSON.parse(raw); }catch(_){ product = null; }
+    try{ sessionStorage.removeItem(EXTERNAL_PRODUCT_KEY_V42); }catch(_){ }
+    try{ localStorage.removeItem(EXTERNAL_PRODUCT_KEY_V42); }catch(_){ }
+    if(!product || typeof product !== 'object') return false;
+
+    let idxRaw = product.targetIndex;
+    if(idxRaw == null || idxRaw === ''){
+      try{ idxRaw = sessionStorage.getItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
+      try{ if(idxRaw == null || idxRaw === '') idxRaw = localStorage.getItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
+    }
+    let idx = Number(idxRaw);
+    if(!Number.isFinite(idx) || idx < 0) idx = 0;
+    if(!state.items[idx]) state.items[idx] = blankConcept(conceptCodeForIndex(idx));
+    const item = state.items[idx];
+    const qty = product.cantidad != null ? product.cantidad : (product.units != null ? product.units : '1');
+    const price = product.precio != null ? product.precio : (product.price != null ? product.price : 0);
+    item.text = externalProductTextV42(product);
+    item.units = String(qty || '1');
+    item.price = String(Number(String(price).replace(',','.')) || 0);
+    item.externalProduct = {
+      proveedor: String(product.proveedor || product.marca || '').trim(),
+      referencia: String(product.referencia || product.ref || product.codigo || '').trim(),
+      descripcion: String(product.descripcion || product.nombre || product.texto || product.text || '').trim(),
+      unidad: String(product.unidad || product.unit || 'ud').trim(),
+      origen: String(product.origen || product.source || '').trim()
+    };
+    const img = String(product.imagen || product.image || product.png || '').trim();
+    if(isSimpleBudget()) item.image = '';
+    else if(img) item.image = img;
+    await persistCurrent();
+    try{ sessionStorage.removeItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
+    try{ localStorage.removeItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
+    toast('Producto añadido desde ' + (item.externalProduct.proveedor || 'catálogo'));
+    return true;
   }
 
   function applyCatalogProductToCurrentConcept(index){
@@ -10213,6 +10338,14 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-light" id="btnUseTemplate">Reemplazar</button>
           <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
         </div>
+        <div class="external-catalog-note-v42">Catálogos externos</div>
+        <div class="external-catalog-grid-v42">
+          <button type="button" class="external-catalog-btn-v42 velux" data-ext-catalog="velux">VELUX</button>
+          <button type="button" class="external-catalog-btn-v42 baicha" data-ext-catalog="baicha">Baicha</button>
+          <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
+          <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
+          <button type="button" class="external-catalog-btn-v42" data-ext-catalog="telefonillo">Telefonillo</button>
+        </div>
         <label>Texto ${it.code}</label><textarea id="editConceptText" class="concept-editor-field">${esc(it.text)}</textarea>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
@@ -10222,6 +10355,7 @@ COLOCACIÓN INCLUIDA` }
         </div>`;
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
+      Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
       $('sheetCatalogBtn').onclick = async () => { currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
       $('sheetImageBtn').onclick = () => openConceptImage(it.code);
     } else if(type === 'simpleLine'){
@@ -10240,6 +10374,14 @@ COLOCACIÓN INCLUIDA` }
         <div class="template-actions">
           <button type="button" class="btn btn-light" id="btnUseTemplate">Reemplazar</button>
           <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
+        </div>
+        <div class="external-catalog-note-v42">Catálogos externos</div>
+        <div class="external-catalog-grid-v42">
+          <button type="button" class="external-catalog-btn-v42 velux" data-ext-catalog="velux">VELUX</button>
+          <button type="button" class="external-catalog-btn-v42 baicha" data-ext-catalog="baicha">Baicha</button>
+          <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
+          <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
+          <button type="button" class="external-catalog-btn-v42" data-ext-catalog="telefonillo">Telefonillo</button>
         </div>
         <label>Concepto</label><textarea id="editSimpleText" class="concept-editor-field">${esc(it.text || '')}</textarea>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
@@ -10262,6 +10404,7 @@ COLOCACIÓN INCLUIDA` }
         </div>`;
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
+      Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
       $('sheetCatalogBtn').onclick = async () => { currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
       bindGainPreview('editSimplePrice', 'editSimpleGain', 'editSimpleGainAmount', 'simpleGainPreview');
     } else if(type === 'conceptMeta'){
@@ -12366,6 +12509,7 @@ $('btnExport').addEventListener('click', async function(){
       window.visualViewport.addEventListener('resize', function(){ setViewportVars(); applyZoom(); }, { passive:true });
       window.visualViewport.addEventListener('scroll', setViewportVars, { passive:true });
     }
+    try{ await applyExternalProductReturnV42(); }catch(_){ }
     render();
     setTimeout(function(){ try{ applyPVCPriceReturnV1(); }catch(_){ } }, 350);
     updateDocumentStatusBadge();

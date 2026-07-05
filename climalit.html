@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Unificada v1.6</title>
+  <title>Ramos Unificada v1.9</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -65,6 +65,9 @@
     }
     .hint{font-size:12px; color:var(--muted); font-weight:800; padding:4px 4px 0;}
     .frameWrap{position:relative; flex:1 1 auto; min-height:0; overflow:hidden;}
+.docsOuterBtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-width:0;height:58px;margin:0;border:0;border-radius:999px;padding:0 18px;background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;font-size:18px;font-weight:950;box-shadow:0 9px 18px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.22);touch-action:manipulation;white-space:nowrap}.docsOuterBtn:active{transform:scale(.97)}
+@media (max-width:520px){.docsOuterBtn{height:52px;padding:0 14px;font-size:16px}.docsOuterBtn .docFull{display:none}.docsOuterBtn .docShort{display:inline}}
+@media (min-width:521px){.docsOuterBtn .docShort{display:none}}
     iframe.appFrame{
       width:100%; height:100%; border:none; border-radius:22px; background:transparent;
       display:none; overflow:auto;
@@ -122,8 +125,9 @@
   <main class="wrap">
     <header class="topbar">
       <button class="btnMenuRojo" onclick="volverIndex()" type="button">← MENÚ</button>
+      <button class="docsOuterBtn" id="btnAddDocsOuter" type="button">+ <span class="docFull">Añadir a Documentos</span><span class="docShort">Docs</span></button>
 <div class="brand">
-        <div class="title">Ramos <small>Unificada v1.6</small></div>
+        <div class="title">Ramos <small>Unificada v1.8</small></div>
         <div class="subtitle">Selector rápido entre Climalit RG E56 y Monolítico Corte 210,56 E · tarifas 21/4/26.</div>
       </div>
     </header>
@@ -4603,6 +4607,64 @@ function volverIndex(){
     }, {passive:false});
   }
 })();
+
+
+  const DOCS_PRODUCT_KEY='rey_docs_external_product_v1';
+  function parseMoneyDocs(txt){
+    txt=String(txt||'').replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');
+    return Number(txt)||0;
+  }
+  function activeFrameDoc(){
+    const f=document.querySelector('iframe.appFrame.active');
+    try{return f&&f.contentDocument?f.contentDocument:null;}catch(e){return null;}
+  }
+  function textFromDoc(doc,id){const el=doc&&doc.getElementById(id);return el?String(el.textContent||el.value||'').trim():'';}
+  function cleanGlassNameDocs(v){
+    v=String(v||'').trim();
+    v=v.replace(/\s*mm\b/ig,'');
+    v=v.replace(/\s+/g,' ');
+    return v;
+  }
+  function formatCompositionDocs(comp){
+    comp=String(comp||'').trim();
+    if(!comp || comp==='—') return '';
+    let parts=comp.split(/\s*\/\s*/).map(x=>x.trim()).filter(Boolean);
+    parts=parts.map((p,i)=>{
+      if(/^\d+(?:[.,]\d+)?$/.test(p)) return 'cam '+p;
+      return cleanGlassNameDocs(p);
+    });
+    return parts.join('/');
+  }
+  function getInputValueDoc(doc,id){const el=doc&&doc.getElementById(id);return el?String(el.value||el.textContent||'').trim():'';}
+  function sendClimalitToDocs(){
+    const doc=activeFrameDoc();
+    if(!doc){alert('No se pudo leer el configurador.');return;}
+    const isMono=document.getElementById('btnMono')&&document.getElementById('btnMono').classList.contains('active');
+    const totalTxt=textFromDoc(doc,'totalPrecio');
+    const precio=parseMoneyDocs(totalTxt);
+    const modo=isMono?'MONOLÍTICO':'CLIMALIT';
+    const ancho=getInputValueDoc(doc,'ancho');
+    const alto=getInputValueDoc(doc,'alto');
+    const medidas=(ancho&&alto)?`${ancho} x ${alto} mm`:'';
+    const compRaw=textFromDoc(doc,'compTxt');
+    const comp=formatCompositionDocs(compRaw);
+    let descripcion='';
+    if(isMono){
+      const titulo=(doc.title||modo).replace(/\s+/g,' ').trim();
+      descripcion=[modo,titulo,medidas?('Medidas '+medidas):''].filter(Boolean).join('\n');
+    }else{
+      descripcion=[comp || 'Climalit', medidas?('Medidas '+medidas):''].filter(Boolean).join('\n');
+    }
+    const referencia=[modo,medidas].filter(Boolean).join(' ');
+    const payload={proveedor:'CLIMALIT',referencia:referencia,descripcion:descripcion,cantidad:1,unidad:'ud',precio:precio,categoria:'cristal',origen:'climalit.html'};
+    try{sessionStorage.setItem(DOCS_PRODUCT_KEY,JSON.stringify(payload));}catch(e){}
+    try{localStorage.setItem(DOCS_PRODUCT_KEY,JSON.stringify(payload));}catch(e){}
+    const url='documentos.html?externalProduct=1';
+    try{if(window.parent&&window.parent!==window&&typeof window.parent.abrir==='function'){window.parent.abrir(url);return;}}catch(e){}
+    location.href=url;
+  }
+  const btnAddDocsOuter=document.getElementById('btnAddDocsOuter');
+  if(btnAddDocsOuter) btnAddDocsOuter.addEventListener('click',sendClimalitToDocs,{passive:false});
 </script>
 </body>
 </html>

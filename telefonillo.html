@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V5.1</title>
+  <title>Puerta telefonillo / Nicho V5.2</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -633,18 +633,60 @@
       padding-bottom:10px !important;
     }
 
+
+
+    /* V5.2 Ajustes + Documentos */
+    .btn-ajustes{
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 10px 15px;
+      border-radius: 20px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 900;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+      cursor: pointer;
+      font-size: 0.9rem;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+    .btn-ajustes:active{ transform: translateX(-50%) scale(.98); }
+    .btnDocs{
+      border:1px solid rgba(124,255,196,.38) !important;
+      background: linear-gradient(90deg,#16a34a,#2ed39a) !important;
+      color:#041018 !important;
+      font-weight:950 !important;
+      box-shadow: 0 10px 24px rgba(46,211,154,.30) !important;
+    }
+    .settingsGrid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+    .settingsGroup{border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(255,255,255,.05);padding:12px}
+    .settingsGroup h3{margin:0 0 10px;font-size:16px}
+    .settingsGroup textarea{
+      width:100%;min-height:72px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);color:#fff;padding:12px;font-weight:800;font-family:var(--sans);resize:vertical;
+    }
+    .settingsGroup .priceInput{margin-top:10px;color:#111827!important;-webkit-text-fill-color:#111827!important;background:linear-gradient(180deg,#fff3c9,#ffe7a0)!important}
+    .modalActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .btnSaveSettings{border:0;border-radius:999px;background:linear-gradient(90deg,#16a34a,#2ed39a);color:#041018;font-weight:950;padding:12px 14px}
+
   </style>
 </head>
 
 <body>
   <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
   <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
+  <button id="btnAjustesDocs" class="btn-ajustes" type="button">⚙ Ajustes</button>
 
   <div class="wrap">
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V5.1</div>
+        <div class="ver">V5.2</div>
       </div>
     </header>
 
@@ -653,6 +695,7 @@
         <button id="btnTel" type="button" aria-pressed="true">Telefonillo</button>
         <button id="btnNicho" type="button" aria-pressed="false">Nicho</button>
         <button id="btnExport" type="button" class="segTool">PNG</button>
+        <button id="btnAddDocs" type="button" class="segTool btnDocs">Docs</button>
 
         <button id="btnCristalMed" type="button" class="segTool" aria-pressed="false">Cristal</button>
         </div>
@@ -738,6 +781,39 @@
         </div>
 
 
+
+
+        <div class="modal" id="settingsModal" aria-hidden="true">
+          <div class="modalInner">
+            <div class="modalBar">
+              <div class="small" style="font-weight:900;">⚙ Ajustes Documentos</div>
+              <button id="btnCloseSettings" type="button" class="btnGhost">Cerrar</button>
+            </div>
+            <div class="modalBody" style="text-align:left;">
+              <div class="settingsGrid">
+                <div class="settingsGroup">
+                  <h3>Telefonillo</h3>
+                  <label for="setTelDesc">Descripción</label>
+                  <textarea id="setTelDesc"></textarea>
+                  <label for="setTelPrice" style="margin-top:10px;">Precio interno sin IVA</label>
+                  <input id="setTelPrice" class="priceInput" inputmode="decimal" />
+                </div>
+                <div class="settingsGroup">
+                  <h3>Nicho</h3>
+                  <label for="setNichoDesc">Descripción</label>
+                  <textarea id="setNichoDesc"></textarea>
+                  <label for="setNichoPrice" style="margin-top:10px;">Precio interno sin IVA</label>
+                  <input id="setNichoPrice" class="priceInput" inputmode="decimal" />
+                </div>
+              </div>
+              <div class="modalActions">
+                <button id="btnSaveSettings" type="button" class="btnSaveSettings">Guardar</button>
+                <button id="btnResetSettings" type="button" class="btnGhost">Valores iniciales</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="modal" id="pngModal" aria-hidden="true">
           <div class="modalInner">
             <div class="modalBar">
@@ -760,7 +836,7 @@
       </div>
     </section>
   </div>
-  <footer>App V5.1</footer>
+  <footer>App V5.2</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -1225,10 +1301,127 @@ if(showCristalMed){
     render();
   }
 
+
+  // ===== V5.2 Ajustes y envío a Documentos =====
+  var DOCS_PRODUCT_KEY = "rey_docs_external_product_v1";
+  var TEL_SETTINGS_KEY = "telefonillo_docs_settings_v52";
+  var docsSettings = loadDocsSettings();
+
+  function defaultDocsSettings(){
+    return {
+      telefonilloDesc: "Puerta de aluminio para telefonillo",
+      telefonilloPrice: 120,
+      nichoDesc: "Puerta de aluminio para nicho",
+      nichoPrice: 240
+    };
+  }
+  function loadDocsSettings(){
+    var d = defaultDocsSettings();
+    try{
+      var raw = localStorage.getItem(TEL_SETTINGS_KEY);
+      if(raw){
+        var v = JSON.parse(raw);
+        Object.keys(d).forEach(function(k){ if(v[k] !== undefined && v[k] !== null && v[k] !== '') d[k] = v[k]; });
+      }
+    }catch(e){}
+    d.telefonilloPrice = Number(String(d.telefonilloPrice).replace(',','.')) || 120;
+    d.nichoPrice = Number(String(d.nichoPrice).replace(',','.')) || 240;
+    return d;
+  }
+  function saveDocsSettings(){
+    try{ localStorage.setItem(TEL_SETTINGS_KEY, JSON.stringify(docsSettings)); }catch(e){}
+  }
+  function openSettingsModal(){
+    docsSettings = loadDocsSettings();
+    if($("setTelDesc")) $("setTelDesc").value = docsSettings.telefonilloDesc;
+    if($("setTelPrice")) $("setTelPrice").value = String(docsSettings.telefonilloPrice).replace('.', ',');
+    if($("setNichoDesc")) $("setNichoDesc").value = docsSettings.nichoDesc;
+    if($("setNichoPrice")) $("setNichoPrice").value = String(docsSettings.nichoPrice).replace('.', ',');
+    var m=$("settingsModal"); if(m){m.classList.add("show");m.setAttribute("aria-hidden","false");}
+  }
+  function closeSettingsModal(){ var m=$("settingsModal"); if(m){m.classList.remove("show");m.setAttribute("aria-hidden","true");} }
+  function readSettingsModal(){
+    docsSettings.telefonilloDesc = ($("setTelDesc") && $("setTelDesc").value.trim()) || "Puerta de aluminio para telefonillo";
+    docsSettings.telefonilloPrice = Number(String(($("setTelPrice") && $("setTelPrice").value) || '120').replace(',','.')) || 120;
+    docsSettings.nichoDesc = ($("setNichoDesc") && $("setNichoDesc").value.trim()) || "Puerta de aluminio para nicho";
+    docsSettings.nichoPrice = Number(String(($("setNichoPrice") && $("setNichoPrice").value) || '240').replace(',','.')) || 240;
+    saveDocsSettings();
+    toast("Ajustes guardados");
+    closeSettingsModal();
+  }
+  function resetSettingsModal(){
+    docsSettings = defaultDocsSettings();
+    saveDocsSettings();
+    openSettingsModal();
+    toast("Valores iniciales");
+  }
+  function colorName(){
+    var map={
+      "default":"Default", "#C3C3C3":"Gris", "#D4C49E":"Inox", "#373737":"Negro",
+      "#F0F0F0":"Blanco", "#8A6642":"Bronce", "#CDA434":"Oro"
+    };
+    return map[doorColor] || doorColor || "Default";
+  }
+  function currentDescription(){
+    var Wm = Math.round(lastDraw.Wm || toNum($("w") && $("w").value, 0));
+    var Hm = Math.round(lastDraw.Hm || toNum($("h") && $("h").value, 0));
+    var Wc = Math.round(lastDraw.Wc || 0);
+    var Hc = Math.round(lastDraw.Hc || 0);
+    if(mode === "nicho"){
+      return (docsSettings.nichoDesc || "Puerta de aluminio para nicho") + "\n" +
+        "Color: " + colorName() + "\n" +
+        "Medida: " + Wm + " × " + Hm + " mm\n" +
+        "Vidrio: " + Wc + " × " + Hc + " mm";
+    }
+    return (docsSettings.telefonilloDesc || "Puerta de aluminio para telefonillo") + "\n" +
+      "Color: " + colorName() + "\n" +
+      "Medidas: " + Wm + " × " + Hm + " mm\n" +
+      "Vidrio transparente: " + Wc + " × " + Hc + " mm\n" +
+      "Con cierre magnético";
+  }
+  function currentReference(){ return mode === "nicho" ? "NICHO" : "TELEFONILLO"; }
+  function currentPrice(){ return mode === "nicho" ? docsSettings.nichoPrice : docsSettings.telefonilloPrice; }
+  function currentCanvasImage(){
+    var c=$("schemaCanvas"); if(!c) return "";
+    var old = exportMode;
+    exportMode = true;
+    drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
+    var dataUrl = "";
+    try{ dataUrl = c.toDataURL("image/png"); }catch(e){ dataUrl = ""; }
+    exportMode = old;
+    drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
+    return dataUrl;
+  }
+  function sendToDocumentos(){
+    docsSettings = loadDocsSettings();
+    render("docs");
+    var payload = {
+      proveedor: "TELEFONILLO",
+      referencia: currentReference(),
+      descripcion: currentDescription(),
+      cantidad: 1,
+      unidad: "ud",
+      precio: currentPrice(),
+      categoria: mode,
+      origen: "telefonillo.html",
+      imagen: currentCanvasImage(),
+      image: currentCanvasImage()
+    };
+    try{ sessionStorage.setItem(DOCS_PRODUCT_KEY, JSON.stringify(payload)); }catch(e){}
+    try{ localStorage.setItem(DOCS_PRODUCT_KEY, JSON.stringify(payload)); }catch(e){}
+    var url = "documentos.html?externalProduct=1";
+    try{ if(window.parent && window.parent !== window && typeof window.parent.abrir === "function"){ window.parent.abrir(url); return; } }catch(e){}
+    window.location.href = url;
+  }
+
   function init(){
-    
-    
-    
+    var bSet = $("btnAjustesDocs"); if(bSet) bSet.addEventListener("click", openSettingsModal, {passive:true});
+    var bDoc = $("btnAddDocs"); if(bDoc) bDoc.addEventListener("click", sendToDocumentos, {passive:true});
+    var bCloseSet = $("btnCloseSettings"); if(bCloseSet) bCloseSet.addEventListener("click", closeSettingsModal, {passive:true});
+    var bSaveSet = $("btnSaveSettings"); if(bSaveSet) bSaveSet.addEventListener("click", readSettingsModal, {passive:true});
+    var bResetSet = $("btnResetSettings"); if(bResetSet) bResetSet.addEventListener("click", resetSettingsModal, {passive:true});
+    var mSet = $("settingsModal"); if(mSet){ mSet.addEventListener("click", function(ev){ if(ev.target === mSet) closeSettingsModal(); }, {passive:true}); }
+
     // CLONE_BTNCRISTAL: evitar dobles listeners en iOS
     (function(){
       var b = $("btnCristalMed");
@@ -1443,7 +1636,7 @@ if(showCristalMed){
 </script>
 
 <script>
-/* V5.1 - Volver seguro al index desde iframe/iPhone/GitHub */
+/* V5.2 - Volver seguro al index desde iframe/iPhone/GitHub */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
