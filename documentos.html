@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.7</title>
+  <title>Documentos Rey v4.4.11</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2237,7 +2237,7 @@ body.png-open .topbar{
 }
 
 
-/* v4.4.7 - Editor enriquecido: modo escritura color/negrita compatible iPhone */
+/* v4.4.11 - Editor enriquecido y PDF color rojo corregido */
 .rich-format-toolbar{
   display:flex;
   gap:8px;
@@ -2310,7 +2310,7 @@ body.png-open .topbar{
 
 
 
-/* v4.4.9 - Línea roja dinámica y catálogos 4 por línea */
+/* v4.4.11 - Corrige color de línea roja en PDF */
 .rich-format-toolbar,.rich-format-help{display:none!important;}
 .optional-red-line-v447{
   margin:10px 0 10px;
@@ -3982,7 +3982,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.7</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.11</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -8031,7 +8031,7 @@ COLOCACIÓN INCLUIDA` }
         return one ? [one] : [];
       }
       function _extractTextRuns(textEl, fontSize){
-        var tspans = textEl ? textEl.querySelectorAll('tspan') : null;
+        var tspans = textEl ? Array.prototype.slice.call(textEl.querySelectorAll('tspan')) : null;
         if(!tspans || !tspans.length){
           var fallbackLines = _extractLines(textEl && textEl.textContent ? textEl.textContent : '');
           var fallbackStep = (fontSize * 1.15) || 14;
@@ -8040,17 +8040,48 @@ COLOCACIÓN INCLUIDA` }
           });
         }
         var runs = [];
+        var current = null;
+        var fallbackStep = (fontSize * 1.15) || 14;
+        // v4.4.10: los textos enriquecidos usan tspans anidados. Si se lee el tspan
+        // contenedor y también el hijo, el PDF duplica líneas. Procesamos solo hojas
+        // e interpretamos los tspans sin x/dy como continuación de la misma línea.
         for(var i=0;i<tspans.length;i++){
           var sp = tspans[i];
-          var line = String(sp.textContent || '').replace(/[ \t]+/g,' ').trim();
+          if(sp && sp.querySelector && sp.querySelector('tspan')) continue;
+          var line = String((sp && sp.textContent) || '').replace(/[ 	]+/g,' ');
           if(!line) continue;
-          var dy = parseFloat(sp.getAttribute('dy'));
-          if(!isFinite(dy)) dy = (i === 0 ? 0 : ((fontSize * 1.15) || 14));
-          var x = parseFloat(sp.getAttribute('x'));
-          runs.push({ text: line, x: isFinite(x) ? x : null, dy: dy });
+          var xRaw = sp.getAttribute('x');
+          var dyRaw = sp.getAttribute('dy');
+          var parent = sp.parentElement;
+          if((xRaw == null || xRaw === '') && parent && parent !== textEl && String(parent.tagName || '').toLowerCase() === 'tspan'){
+            xRaw = parent.getAttribute('x');
+          }
+          if((dyRaw == null || dyRaw === '') && parent && parent !== textEl && String(parent.tagName || '').toLowerCase() === 'tspan'){
+            dyRaw = parent.getAttribute('dy');
+          }
+          var x = parseFloat(xRaw);
+          var dy = parseFloat(dyRaw);
+          var spStyle = window.getComputedStyle ? window.getComputedStyle(sp) : null;
+          var spFill = (sp.getAttribute && sp.getAttribute('fill')) || (spStyle && spStyle.fill) || '';
+          var spWeight = (sp.getAttribute && sp.getAttribute('font-weight')) || (spStyle && spStyle.fontWeight) || '';
+          var spBold = String(spWeight || '').toLowerCase().indexOf('bold') >= 0 || (parseInt(spWeight,10) >= 600);
+          var startsNewLine = !current || isFinite(x) || isFinite(dy);
+          if(startsNewLine){
+            if(!isFinite(dy)) dy = runs.length === 0 ? 0 : fallbackStep;
+            current = { text: line, x: isFinite(x) ? x : null, dy: dy, color: spFill || null, bold: !!spBold };
+            runs.push(current);
+          }else{
+            current.text += line;
+            if(!current.color && spFill) current.color = spFill;
+            current.bold = !!current.bold || !!spBold;
+          }
         }
-        return runs;
+        return runs.map(function(r){
+          r.text = String(r.text || '').replace(/[ 	]+/g,' ').trim();
+          return r;
+        }).filter(function(r){ return !!r.text; });
       }
+
       function toRgbArray(color){
         if(!color || color === 'none' || color === 'transparent') return null;
         var c = String(color).trim();
@@ -8278,9 +8309,11 @@ COLOCACIÓN INCLUIDA` }
             if(ta==='middle') xAdj -= wPt/2;
             else if(ta==='end') xAdj -= wPt;
             var yPdf = svgYToPdf(yAbs);
+            var runColor = run.color || fillColor;
+            var runBold = !!bold || !!run.bold;
             contents.push('BT\n');
-            contents.push(colorOps(fillColor, false));
-            contents.push('/' + (bold ? 'F2' : 'F1') + ' ' + pdfNum(fsPtRun) + ' Tf\n');
+            contents.push(colorOps(runColor, false));
+            contents.push('/' + (runBold ? 'F2' : 'F1') + ' ' + pdfNum(fsPtRun) + ' Tf\n');
             contents.push(pdfNum(xAdj) + ' ' + pdfNum(yPdf) + ' Td\n');
             contents.push(_pdfTextShow_cp1252(sline) + '\n');
             contents.push('ET\n');
