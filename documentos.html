@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.11</title>
+  <title>Documentos Rey v4.4.12</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2237,7 +2237,7 @@ body.png-open .topbar{
 }
 
 
-/* v4.4.11 - Editor enriquecido y PDF color rojo corregido */
+/* v4.4.12 - No reactivar ganancia 200 al editar conceptos */
 .rich-format-toolbar{
   display:flex;
   gap:8px;
@@ -3982,7 +3982,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.11</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.12</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5447,15 +5447,14 @@ Pendiente de integración completa:
     return '';
   }
   function gainAmountForEditor(item){
+    // v4.4.12: al editar un concepto existente no se debe reponer la ganancia
+    // por defecto de 200 €. Si el usuario la dejó vacía, debe seguir vacía.
     if(item && item.gainAmount != null && String(item.gainAmount).trim() !== '') return String(item.gainAmount);
     const base = Math.max(0, parseDecimalInputValue(priceForGainEditor(item)));
     const pct = Math.max(0, parseDecimalInputValue(gainForEditor(item)));
     if(base && pct) return String((base * pct / 100).toFixed(2));
-    if(item && item.price != null && base){
-      const diff = Math.max(0, parseDecimalInputValue(item.price) - base);
-      if(diff) return String(diff.toFixed(2));
-    }
-    return '200.00';
+    if(item && item.__newConceptDefaultGain === true) return '200.00';
+    return '';
   }
   function bindGainPreview(priceId, gainPctId, gainAmountId, previewId){
     const priceEl = $(priceId);
