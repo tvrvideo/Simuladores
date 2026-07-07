@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.15</title>
+  <title>Documentos Rey v4.4.16</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2392,6 +2392,21 @@ body.png-open .topbar{
 
 
 <script>
+
+/* v4.4.16 - Búsquedas sin acentos, ñ segura, mayúsculas/minúsculas ignoradas */
+function searchNormV4416(v){
+  return String(v == null ? '' : v)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/ñ/g, 'n').replace(/Ñ/g, 'n')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function searchCompactV4416(v){
+  return searchNormV4416(v).replace(/[^a-z0-9]+/g, '');
+}
+
 /* v2.87.68 - Normalizar imagen catálogo compartido (GitHub/img/base64) */
 (function(){
   if(window.normalizeCatalogImageSrc) return;
@@ -3982,7 +3997,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.15</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.16</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4660,17 +4675,17 @@ Pendiente de integración completa:
 
   function documentNumberSearchTokens(num){
     const raw = String(num == null ? '' : num).trim();
-    const lower = raw.toLowerCase();
+    const lower = searchNormV4416(raw);
     const digits = raw.replace(/\D+/g, '');
     const parts = raw.split(/[^0-9]+/).filter(Boolean);
     const seq = parts.length ? parts[parts.length - 1] : '';
     const year = parts.length > 1 ? parts[parts.length - 2] : '';
     const noPrefix = raw.replace(/^[A-Za-z][-\/ ]*/, '');
-    const compact = raw.replace(/[^a-z0-9]+/gi, '').toLowerCase();
+    const compact = searchCompactV4416(raw);
     const seqNoZeros = seq.replace(/^0+(?=\d)/, '');
     return [
       lower,
-      noPrefix.toLowerCase(),
+      searchNormV4416(noPrefix),
       compact,
       digits,
       year,
@@ -4683,8 +4698,8 @@ Pendiente de integración completa:
   }
 
   function normalizeDocumentSearchQuery(v){
-    const raw = String(v == null ? '' : v).trim().toLowerCase();
-    const compact = raw.replace(/[^a-z0-9]+/gi, '').toLowerCase();
+    const raw = searchNormV4416(v);
+    const compact = searchCompactV4416(v);
     const digits = raw.replace(/\D+/g, '');
     const noZeros = digits.replace(/^0+(?=\d)/, '');
     return { raw: raw, compact: compact, digits: digits, noZeros: noZeros };
@@ -4703,8 +4718,8 @@ Pendiente de integración completa:
     const numero = String(d && d.numero != null ? d.numero : '').trim();
     if(!numero) return false;
     const nq = normalizeDocumentSearchQuery(q);
-    const hay = (numero + ' ' + documentNumberSearchTokens(numero)).toLowerCase();
-    const hayCompact = hay.replace(/[^a-z0-9]+/gi, '').toLowerCase();
+    const hay = searchNormV4416(numero + ' ' + documentNumberSearchTokens(numero));
+    const hayCompact = searchCompactV4416(hay);
     const hayDigits = numero.replace(/\D+/g, '');
     const numberParts = numero.split(/[^0-9]+/).filter(Boolean);
     const seq = numberParts.length ? numberParts[numberParts.length - 1] : '';
@@ -4756,8 +4771,9 @@ Pendiente de integración completa:
       d.clienteMunicipio,
       d.clienteProvincia,
       d.clienteNif
-    ].join(' ').toLowerCase();
-    return base + ' ' + base.replace(/[^a-z0-9]+/gi, ' ');
+    ].join(' ');
+    const normBase = searchNormV4416(base);
+    return normBase + ' ' + searchCompactV4416(base);
   }
 
   function sortDocumentEntries(entries, order){
@@ -5568,7 +5584,7 @@ Pendiente de integración completa:
         if(a.name !== 'style') el.removeAttribute(a.name);
       });
     });
-    // v4.4.15: contenteditable en iPhone genera <div> para los saltos de línea.
+    // v4.4.16: contenteditable en iPhone genera <div> para los saltos de línea.
     // Antes se quitaba el <div> de apertura y se pegaba la línea 1 con la línea 2.
     // Ahora los bloques se convierten en saltos reales antes de guardar.
     return box.innerHTML
@@ -10945,10 +10961,10 @@ COLOCACIÓN INCLUIDA` }
         return 100;
       }
       function catalogHayV33(p){
-        return [p && p.nombre, p && p.descripcion, catalogRefV33(p), catalogProveedorV33(p), p && p.fecha, p && p.precio, p && p.precioCompra, p && p.stock, catalogGananciaV33(p)].join(' ').toLowerCase();
+        return searchNormV4416([p && p.nombre, p && p.descripcion, catalogRefV33(p), catalogProveedorV33(p), p && p.fecha, p && p.precio, p && p.precioCompra, p && p.stock, catalogGananciaV33(p)].join(' '));
       }
       function catalogSortedFilteredV33(){
-        const q = String(($('catalogSearchV33') && $('catalogSearchV33').value) || '').trim().toLowerCase();
+        const q = searchNormV4416(($('catalogSearchV33') && $('catalogSearchV33').value) || '');
         const sort = String(($('catalogSortV33') && $('catalogSortV33').value) || localStorage.getItem(catalogSortKey) || 'name_asc');
         try{ localStorage.setItem(catalogSortKey, sort); }catch(_){ }
         let arr = products.map((p,idx)=>({p,idx})).filter(o => !q || catalogHayV33(o.p).includes(q));
@@ -11083,18 +11099,18 @@ COLOCACIÓN INCLUIDA` }
       const products = getProducts();
 
       function productSearchText(p){
-        return [
+        return searchNormV4416([
           p && p.nombre,
           p && p.descripcion,
           p && p.ref,
           p && p.codigo,
           p && p.categoria,
           p && p.precio
-        ].join(' ').toLowerCase();
+        ].join(' '));
       }
 
       function renderCatalogPickerList(){
-        const q = String(($('catalogSearchInput') && $('catalogSearchInput').value) || '').trim().toLowerCase();
+        const q = searchNormV4416(($('catalogSearchInput') && $('catalogSearchInput').value) || '');
         const filtered = products.filter(function(p){
           if(!q) return true;
           return productSearchText(p).includes(q);
@@ -11350,10 +11366,10 @@ COLOCACIÓN INCLUIDA` }
       const clients = getClients();
       let listHtml = '';
       clients.forEach((c, idx) => {
-        const searchable = [c.nombre, c.telefono, c.direccion, c.poblacion, c.provincia, c.nif, clientSummary(c)].join(' ').toLowerCase();
-        const orderName = String(c.nombre || 'Sin nombre').toLowerCase();
-        const orderTown = String(c.poblacion || c.provincia || '').toLowerCase();
-        const orderAddress = String(c.direccion || '').toLowerCase();
+        const searchable = searchNormV4416([c.nombre, c.telefono, c.direccion, c.poblacion, c.provincia, c.nif, clientSummary(c)].join(' '));
+        const orderName = searchNormV4416(c.nombre || 'Sin nombre');
+        const orderTown = searchNormV4416(c.poblacion || c.provincia || '');
+        const orderAddress = searchNormV4416(c.direccion || '');
         listHtml += `
           <div class="saved-item template-card" data-client-item="1" data-client-filter="${esc(searchable)}" data-client-name="${esc(orderName)}" data-client-town="${esc(orderTown)}" data-client-address="${esc(orderAddress)}" data-client-original="${idx}" style="margin-top:8px;padding:12px 14px">
             <div style="font-weight:800;font-size:15px">${esc(c.nombre || 'Sin nombre')}</div>
@@ -11398,7 +11414,7 @@ COLOCACIÓN INCLUIDA` }
       const clientSearchCount = $('clientSearchCount');
       const clientOrderSelect = $('clientOrderSelect');
       function normalizeClientSearch(value){
-        return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+        return searchNormV4416(value);
       }
       function getClientOrderText(item, attr){
         return normalizeClientSearch(item.getAttribute(attr) || '');
@@ -12227,7 +12243,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     backupList = Array.isArray(backupList) ? backupList : [];
 
     function cleanText(v){
-      return String(v == null ? '' : v).trim().toLowerCase();
+      return searchNormV4416(v);
     }
 
     function keyOf(doc, idx){
@@ -18054,7 +18070,7 @@ const mo = new MutationObserver(function(){
 
 
 <script>
-/* v4.4.15 - Limpieza automática de texto copiado en conceptos: saltos raros, espacios invisibles y HTML pegado */
+/* v4.4.16 - Limpieza automática de texto copiado en conceptos: saltos raros, espacios invisibles y HTML pegado */
 (function(){
   function cleanCopiedConceptTextV4414(v){
     return String(v == null ? '' : v)
