@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.12</title>
+  <title>Documentos Rey v4.4.13</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3982,7 +3982,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.12</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.13</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -10849,8 +10849,8 @@ COLOCACIÓN INCLUIDA` }
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
-      $('sheetCatalogBtn').onclick = async () => { currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
-      $('sheetImageBtn').onclick = () => openConceptImage(it.code);
+      $('sheetCatalogBtn').onclick = async () => { saveConceptTextDraftV4413(); currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
+      $('sheetImageBtn').onclick = () => { saveConceptTextDraftV4413(); openConceptImage(it.code); };
     } else if(type === 'simpleLine'){
       const it = state.items[index] || blankConcept(conceptCodeForIndex(index));
       state.items[index] = it;
@@ -10898,7 +10898,7 @@ COLOCACIÓN INCLUIDA` }
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
-      $('sheetCatalogBtn').onclick = async () => { currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
+      $('sheetCatalogBtn').onclick = async () => { saveConceptTextDraftV4413(); currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
       bindGainPreview('editSimplePrice', 'editSimpleGain', 'editSimpleGainAmount', 'simpleGainPreview');
     } else if(type === 'conceptMeta'){
       const it = state.items[index];
@@ -11612,6 +11612,28 @@ COLOCACIÓN INCLUIDA` }
     if(!$('settingsSheet').classList.contains('show')){
       $('sheetBackdrop').classList.remove('show');
     }
+  }
+
+  // v4.4.13 - Guardar el texto del concepto antes de cambiar a catálogo/gráfico
+  function saveConceptTextDraftV4413(){
+    try{
+      if(!currentEdit || currentEdit.index == null) return;
+      const idx = Number(currentEdit.index);
+      if(!Number.isFinite(idx) || idx < 0) return;
+      const it = state.items[idx] || blankConcept(conceptCodeForIndex(idx));
+      state.items[idx] = it;
+      if(currentEdit.type === 'conceptText'){
+        if($('editConceptText')) it.text = appendRedLineV447(getRichEditorValue('editConceptText'), 'editConceptRedLine');
+        if($('editConceptFabricacionObs')) it.fabricacionObs = String($('editConceptFabricacionObs').value || '');
+        delete it.obsFabricacion;
+        delete it.observacionesFabricacion;
+      }else if(currentEdit.type === 'simpleLine'){
+        if($('editSimpleText')) it.text = appendRedLineV447(getRichEditorValue('editSimpleText') || '', 'editSimpleRedLine');
+        if($('editSimpleFabricacionObs')) it.fabricacionObs = String($('editSimpleFabricacionObs').value || '');
+        delete it.obsFabricacion;
+        delete it.observacionesFabricacion;
+      }
+    }catch(e){ console.warn('saveConceptTextDraftV4413', e); }
   }
 
   async function applyEdit(){
@@ -17980,6 +18002,49 @@ const mo = new MutationObserver(function(){
     if(t && (t.id==='editConceptRedLine' || t.id==='editSimpleRedLine')) grow(t);
   }, true);
   setInterval(bind,500);
+})();
+</script>
+
+<script>
+/* v4.4.13 - Captura robusta de saltos de línea en el editor de conceptos */
+(function(){
+  function htmlFromContentEditableV4413(el){
+    if(!el) return '';
+    function escLocal(s){ return String(s == null ? '' : s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+    function normColor(c){
+      c = String(c || '').toLowerCase();
+      if(c.indexOf('220')>=0 || c.indexOf('38')>=0 || c.indexOf('red')>=0 || c.indexOf('#dc2626')>=0) return '#dc2626';
+      if(c.indexOf('37')>=0 || c.indexOf('99')>=0 || c.indexOf('235')>=0 || c.indexOf('blue')>=0 || c.indexOf('#2563eb')>=0) return '#2563eb';
+      return '';
+    }
+    function walk(node, st){
+      if(node.nodeType === 3){
+        return escLocal(node.nodeValue || '').replace(/\n/g,'<br>');
+      }
+      if(node.nodeType !== 1) return '';
+      var tag = String(node.tagName || '').toLowerCase();
+      if(tag === 'br') return '<br>';
+      var ns = {color:st && st.color || '', bold:st && st.bold || false};
+      if(tag === 'b' || tag === 'strong') ns.bold = true;
+      var c = normColor(node.style && node.style.color);
+      if(c) ns.color = c;
+      var inner = '';
+      Array.prototype.forEach.call(node.childNodes || [], function(ch){ inner += walk(ch, ns); });
+      if(ns.color) inner = '<span style="color:'+ns.color+'">' + inner + '</span>';
+      if(ns.bold) inner = '<b>' + inner + '</b>';
+      if(tag === 'div' || tag === 'p') inner += '<br>';
+      return inner;
+    }
+    var out = '';
+    Array.prototype.forEach.call(el.childNodes || [], function(ch){ out += walk(ch, {color:'', bold:false}); });
+    return (window.richNormalizeHtml ? window.richNormalizeHtml(out) : out).replace(/(<br>\s*)+$/i,'');
+  }
+  var oldGet = window.getRichEditorValue;
+  window.getRichEditorValue = function(id){
+    var el = document.getElementById(id);
+    if(el && el.isContentEditable) return htmlFromContentEditableV4413(el);
+    return oldGet ? oldGet(id) : (el ? (el.value || '') : '');
+  };
 })();
 </script>
 </body>
