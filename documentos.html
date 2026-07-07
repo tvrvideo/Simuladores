@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.13</title>
+  <title>Documentos Rey v4.4.15</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -3982,7 +3982,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.13</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.15</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5568,12 +5568,16 @@ Pendiente de integración completa:
         if(a.name !== 'style') el.removeAttribute(a.name);
       });
     });
+    // v4.4.15: contenteditable en iPhone genera <div> para los saltos de línea.
+    // Antes se quitaba el <div> de apertura y se pegaba la línea 1 con la línea 2.
+    // Ahora los bloques se convierten en saltos reales antes de guardar.
     return box.innerHTML
       .replace(/<div><br><\/div>/gi,'<br>')
-      .replace(/<div>/gi,'')
-      .replace(/<\/div>/gi,'<br>')
-      .replace(/<p>/gi,'')
-      .replace(/<\/p>/gi,'<br>')
+      .replace(/<div>/gi,'<br>')
+      .replace(/<\/div>/gi,'')
+      .replace(/<p>/gi,'<br>')
+      .replace(/<\/p>/gi,'')
+      .replace(/^(<br>\s*)+/i,'')
       .replace(/(<br>\s*)+$/i,'');
   }
   function getRichEditorValue(id){
@@ -18047,5 +18051,93 @@ const mo = new MutationObserver(function(){
   };
 })();
 </script>
+
+
+<script>
+/* v4.4.15 - Limpieza automática de texto copiado en conceptos: saltos raros, espacios invisibles y HTML pegado */
+(function(){
+  function cleanCopiedConceptTextV4414(v){
+    return String(v == null ? '' : v)
+      .replace(/\r\n/g,'\n')
+      .replace(/\r/g,'\n')
+      .replace(/[\u2028\u2029]/g,'\n')
+      .replace(/[\u200B\u200C\u200D\uFEFF]/g,'')
+      .replace(/\u00A0/g,' ')
+      .replace(/\t/g,' ')
+      .replace(/[ \f\v]+\n/g,'\n')
+      .replace(/\n[ \f\v]+/g,'\n')
+      .replace(/\n{4,}/g,'\n\n\n');
+  }
+
+  function cleanCopiedConceptHtmlV4414(html){
+    var out = String(html == null ? '' : html);
+    out = out
+      .replace(/\r\n/g,'\n')
+      .replace(/\r/g,'\n')
+      .replace(/[\u2028\u2029]/g,'\n')
+      .replace(/[\u200B\u200C\u200D\uFEFF]/g,'')
+      .replace(/&nbsp;/gi,' ')
+      .replace(/<span[^>]*class=["'][^"']*Apple-converted-space[^"']*["'][^>]*>\s*<\/span>/gi,' ')
+      .replace(/<o:p>.*?<\/o:p>/gi,'')
+      .replace(/<meta[^>]*>/gi,'')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'');
+    out = out.replace(/([^>])\n([^<])/g, '$1<br>$2');
+    out = out.replace(/[ \f\v]+<br\s*\/?>(?:[ \f\v]*)/gi,'<br>');
+    out = out.replace(/<br\s*\/?>(?:[ \f\v]+)/gi,'<br>');
+    return out;
+  }
+
+  var oldRichNormalize = window.richNormalizeHtml;
+  if(typeof oldRichNormalize === 'function'){
+    window.richNormalizeHtml = function(html){
+      return oldRichNormalize(cleanCopiedConceptHtmlV4414(html));
+    };
+  }
+
+  var oldGet = window.getRichEditorValue;
+  window.getRichEditorValue = function(id){
+    var el = document.getElementById(id);
+    var v = oldGet ? oldGet(id) : (el ? (el.isContentEditable ? el.innerHTML : el.value || '') : '');
+    return cleanCopiedConceptHtmlV4414(v);
+  };
+
+  var oldAppend = window.appendRedLineV447;
+  window.appendRedLineV447 = function(html, inputId){
+    var base = cleanCopiedConceptHtmlV4414(html);
+    if(typeof oldAppend === 'function'){
+      return cleanCopiedConceptHtmlV4414(oldAppend(base, inputId));
+    }
+    var inp = document.getElementById(inputId);
+    var txt = inp ? cleanCopiedConceptTextV4414(inp.value || '').trim() : '';
+    if(!txt) return base;
+    var safe = txt.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }).replace(/\n/g,'<br>');
+    return base + (base ? '<br>' : '') + '<span style="color:#dc2626"><b>' + safe + '</b></span>';
+  };
+
+  document.addEventListener('paste', function(ev){
+    var t = ev && ev.target;
+    if(!t || !(t.id === 'editConceptText' || t.id === 'editSimpleText' || t.id === 'editConceptRedLine' || t.id === 'editSimpleRedLine')) return;
+    try{
+      var cd = ev.clipboardData || window.clipboardData;
+      if(!cd) return;
+      var text = cleanCopiedConceptTextV4414(cd.getData('text/plain') || '');
+      if(!text) return;
+      ev.preventDefault();
+      if(t.isContentEditable){
+        var html = text.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }).replace(/\n/g,'<br>');
+        document.execCommand('insertHTML', false, html);
+      }else{
+        var start = t.selectionStart || 0, end = t.selectionEnd || 0;
+        var val = String(t.value || '');
+        t.value = val.slice(0,start) + text + val.slice(end);
+        t.selectionStart = t.selectionEnd = start + text.length;
+        t.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    }catch(e){}
+  }, true);
+})();
+</script>
+
 </body>
 </html>
