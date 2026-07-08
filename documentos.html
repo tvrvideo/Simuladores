@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.17</title>
+  <title>Documentos Rey v4.4.18</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -544,6 +544,29 @@ body.editing-field .return-app-btn{
 }
 @media (max-width:640px){
   .doc-list-tools{grid-template-columns:1fr}
+}
+
+
+/* v4.4.18 - Filtro rápido de presupuestos provisionales 0000 */
+.btn-provisionales-0000{
+  background:linear-gradient(180deg,#facc15 0%,#eab308 100%) !important;
+  color:#0f172a !important;
+  border-color:#eab308 !important;
+  min-height:44px !important;
+  white-space:nowrap !important;
+  font-weight:900 !important;
+}
+.btn-provisionales-0000.active{
+  background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%) !important;
+  color:#fff !important;
+  border-color:#1d4ed8 !important;
+}
+.doc-list-tools.provisional-tools{
+  grid-template-columns:1fr auto !important;
+}
+@media (max-width:640px){
+  .doc-list-tools.provisional-tools{grid-template-columns:1fr auto !important;}
+  .btn-provisionales-0000{padding:0 10px !important;font-size:14px !important;}
 }
 
 .catalog-search-box{
@@ -3998,7 +4021,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.17</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.18</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -12710,18 +12733,32 @@ $('btnExport').addEventListener('click', async function(){
     // v2.86.04: aunque no existan documentos de este tipo,
     // abrimos igualmente la pantalla para poder crear el primero.
 
+    let showOnlyProvisionales = false;
+
     function renderFilteredList(){
       const q = String(($('docListSearch') && $('docListSearch').value) || '').trim().toLowerCase();
       const order = String(($('docListSort') && $('docListSort').value) || 'num_desc');
 
       let entries = indexedAll.filter(function(entry){
+        if(tipo === 'presupuesto' && showOnlyProvisionales && !isPlaceholderDocumentNumber(entry.item && entry.item.numero)) return false;
         return documentMatchesSearch(entry.item, q);
       });
       entries = sortDocumentEntries(entries, order);
 
+      const provisionalBtn = $('btnProvisionales0000');
+      if(provisionalBtn){
+        provisionalBtn.textContent = showOnlyProvisionales ? 'Ver todos' : 'Provisionales';
+        provisionalBtn.classList.toggle('active', !!showOnlyProvisionales);
+        provisionalBtn.title = showOnlyProvisionales ? 'Mostrar todos los presupuestos' : 'Mostrar solo presupuestos 0000';
+      }
+
       let html = '';
       if(!entries.length){
-        html = '<div class="saved-item template-card" style="padding:14px">No hay documentos todavía. Usa el botón Crear arriba.</div>';
+        if(tipo === 'presupuesto' && showOnlyProvisionales){
+          html = '<div class="saved-item template-card" style="padding:14px">No hay presupuestos provisionales 0000.</div>';
+        }else{
+          html = '<div class="saved-item template-card" style="padding:14px">No hay documentos todavía.</div>';
+        }
       }else{
         entries.slice(0, 80).forEach(function(entry){
           const it = entry.item;
@@ -12917,13 +12954,25 @@ $('btnExport').addEventListener('click', async function(){
     }
 
     $('sheetTitle').textContent = documentTypeListTitle(tipo) + ' guardados';
+    const isPresupuestoList = tipo === 'presupuesto';
     $('sheetContent').innerHTML = `
       <label>${documentTypeListTitle(tipo)} guardados</label>
+      ${isPresupuestoList ? '' : `
       <button type="button" class="btn btn-success" id="btnCreateDocFromList" style="margin-bottom:10px;">
         Crear ${documentTypeLabel(tipo).toLowerCase()}
-      </button>
-      <div class="doc-list-tools">
+      </button>`}
+      <div class="doc-list-tools ${isPresupuestoList ? 'provisional-tools' : ''}">
         <input id="docListSearch" type="search" placeholder="Buscar por número, cliente, fecha, total...">
+        ${isPresupuestoList ? `<button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000">Provisionales</button>` : `
+        <select id="docListSort">
+          <option value="num_desc">Nº mayor primero</option>
+          <option value="num_asc">Nº menor primero</option>
+          <option value="fecha_desc">Fecha reciente</option>
+          <option value="fecha_asc">Fecha antigua</option>
+          <option value="cliente_asc">Cliente A-Z</option>
+        </select>`}
+      </div>
+      ${isPresupuestoList ? `<div class="doc-list-tools" style="grid-template-columns:1fr; margin-top:-4px;">
         <select id="docListSort">
           <option value="num_desc">Nº mayor primero</option>
           <option value="num_asc">Nº menor primero</option>
@@ -12931,7 +12980,7 @@ $('btnExport').addEventListener('click', async function(){
           <option value="fecha_asc">Fecha antigua</option>
           <option value="cliente_asc">Cliente A-Z</option>
         </select>
-      </div>
+      </div>` : ''}
       <div id="docSavedList"></div>
       <div class="sheet-actions" style="grid-template-columns:1fr;">
         <button type="button" class="btn btn-light" id="sheetCancel">Cerrar</button>
@@ -12944,16 +12993,25 @@ $('btnExport').addEventListener('click', async function(){
     document.body.classList.add('sheet-open');
     $('sheetCancel').onclick = closeSheet;
 
-    $('btnCreateDocFromList').onclick = function(){
-      // v2.86.04: crear directamente desde la lista del tipo elegido.
-      // Si es presupuesto preguntamos si lleva imágenes; factura y albarán usan el formato completo por defecto.
-      returnToSettingsAfterSheet = false;
-      if(tipo === 'presupuesto'){
-        openBudgetTypeChooser();
-      }else{
-        createNewDocument(tipo, 'visual');
-      }
-    };
+    if($('btnCreateDocFromList')){
+      $('btnCreateDocFromList').onclick = function(){
+        // v2.86.04: crear directamente desde la lista del tipo elegido.
+        // Si es presupuesto preguntamos si lleva imágenes; factura y albarán usan el formato completo por defecto.
+        returnToSettingsAfterSheet = false;
+        if(tipo === 'presupuesto'){
+          openBudgetTypeChooser();
+        }else{
+          createNewDocument(tipo, 'visual');
+        }
+      };
+    }
+
+    if($('btnProvisionales0000')){
+      $('btnProvisionales0000').onclick = function(){
+        showOnlyProvisionales = !showOnlyProvisionales;
+        renderFilteredList();
+      };
+    }
 
     $('docListSearch').addEventListener('input', renderFilteredList, false);
     $('docListSort').addEventListener('change', renderFilteredList, false);
@@ -18161,4 +18219,4 @@ const mo = new MutationObserver(function(){
 
 </body>
 </html>
-<!-- v4.4.17: integra Pasamanos en catálogos externos -->
+<!-- v4.4.18: filtro rápido Provisionales 0000 en presupuestos guardados -->
