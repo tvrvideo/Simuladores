@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pasamanos v1.9</title>
+<style>
+:root{--bg:#eef2f5;--card:#fff;--ink:#111827;--muted:#667085;--red:#a40000;--gold:#ffe66b;--green:#009d38;--green2:#20ef29;--blue:#e8eef5;--line:#d9e2ec;--edit:#fff4a8;--edit2:#fff9cf}*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}header{position:sticky;top:0;z-index:10;background:#111;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:18px;margin:0}.ver{font-weight:950;background:#2b3842;border-radius:8px;padding:6px 10px}.wrap{width:100%;max-width:980px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.title{font-size:18px;font-weight:950;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;margin:6px 0}.hint{font-size:12px;color:#667085;font-weight:850;margin-top:8px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd5df;border-radius:12px;padding:11px;font-size:20px;font-weight:950;background:#fff;color:#111}.dato input,.dato select{background:var(--edit);border-color:#e0c94d;box-shadow:inset 0 0 0 1px #fff6}.dato input:focus,.dato select:focus{outline:3px solid #ffe16a;background:#fff7bd}.autoBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.autoBox .dato input{background:#fffbe2}button{border:0;border-radius:13px;padding:13px 14px;font-size:16px;font-weight:950;background:#1f2937;color:#fff}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns button{flex:1;min-width:135px}.ok{background:var(--green)}.warn{background:#ffca28;color:#111}.light{background:#e8eef5;color:#111}.danger{background:#b00020}.mini{font-size:13px;padding:8px 10px}.switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.switch button{background:#e8eef5;color:#111}.switch button.active{background:#111;color:white}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.checkrow{display:flex;align-items:center;gap:9px;background:#f3f6f9;border-radius:12px;padding:12px;font-weight:950}.checkrow input{width:24px;height:24px;accent-color:#111}.hidden{display:none}.canvasBox{overflow:hidden}.svgWrap{width:100%;max-width:900px;margin:auto;overflow:hidden;display:flex;justify-content:center;align-items:center;background:white;border:1px solid #dfe6ee;border-radius:14px}#svgWrap svg{width:100%;height:auto;display:block}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}@media(min-width:760px){.result{grid-template-columns:repeat(5,1fr)}}.kpi{background:#eef6ea;border:1px solid #d8ead2;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:12px;color:#4d5b68}.kpi span{font-size:22px;font-weight:950}.total{background:var(--green2)}.mid{background:#fff3bd}.bad{background:#ffd1d1}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tag{font-size:14px;font-weight:950;padding:9px 11px;border-radius:10px}.lg70{background:#bbb}.lg30{background:#8fb3e8}.lgova{background:#555;color:#fff}.lgpas{background:#ddd}.lganc{background:#f5d56a}
+.fabricacion{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.fabBox{border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;padding:10px}.fabBox b{display:block;color:#667085;font-size:12px}.fabBox span{display:block;font-size:22px;font-weight:950}.fabTitle{font-size:18px;font-weight:950;margin:10px 0 8px}.markNote{font-size:13px;color:#667085;font-weight:850;margin:6px 0 10px}.marktable th{font-size:13px}.marktable td{font-size:15px}.marktable .num{background:#eaf7ff}.marktable .cen{background:#fff3bd}.marktable .edge{background:#d8ffff}@media(min-width:760px){.fabricacion{grid-template-columns:repeat(6,1fr)}}
+table{width:100%;border-collapse:collapse;font-size:14px}th{background:var(--red);color:var(--gold);padding:7px}td{border:1px solid #9aa7b5;padding:6px;text-align:center;font-weight:850}.left{text-align:left}textarea{width:100%;min-height:105px;border:1px solid #ccd3dc;border-radius:12px;padding:10px;font-size:15px}.pngModal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:99;display:none;align-items:center;justify-content:center;padding:18px}.pngModal.show{display:flex}.pngCard{background:#fff;border-radius:18px;max-width:960px;width:100%;max-height:92vh;overflow:auto;padding:14px;box-shadow:0 10px 30px #0008}.pngCard h2{margin:0 0 6px;font-size:20px}.pngCard p{margin:6px 0 10px;color:#667085;font-weight:800}.pngCard img{display:block;width:100%;height:auto;border:1px solid #d9e2ec;border-radius:12px;background:#fff}.pngActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pngActions a{display:inline-block;text-decoration:none;border-radius:11px;padding:11px 12px;font-size:15px;font-weight:900;background:#009d38;color:#fff}.fold summary{font-size:17px;font-weight:950;cursor:pointer}.fold{margin-bottom:12px}.cost td:first-child{text-align:left;background:#dcefd6}.cost td:last-child{background:#c2ddb4}.cost.total td:last-child{background:#20ef29}.compactDetails summary{font-size:18px;font-weight:950;cursor:pointer}.compactDetails{margin-bottom:12px}.actionsRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.actionsRow button{width:100%}.actionsRow3{grid-template-columns:1.15fr .85fr 1.15fr}.actionsRow3 button{min-height:52px;padding:10px 6px;font-size:15px;line-height:1.05}@media(max-width:390px){.actionsRow3{gap:6px}.actionsRow3 button{font-size:13px;padding:9px 4px;min-height:48px}}@media(max-width:430px){.wrap{padding:10px}.card{padding:12px}.inputs{gap:8px}.btns button{min-width:110px}.tag{font-size:13px;padding:8px 10px}input,select{font-size:19px}}
+
+/* v5.1 pantalla más compacta */
+.card.dato{padding:12px}.card.dato .title{margin-bottom:8px}.card.dato .inputs{gap:8px}.card.dato label{font-size:11px;margin-bottom:4px}.card.dato input,.card.dato select{font-size:19px;padding:10px;border-radius:11px}.card.dato .checks{gap:8px;margin-top:8px}.card.dato .checkrow{padding:9px 10px;font-size:15px}.card.dato .checkrow input{width:22px;height:22px}.card.dato .hint{margin:7px 0 4px}.card.dato .actionsRow{margin-top:10px}.card.dato .actionsRow button{padding:12px 10px}.datoRow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.autoRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}@media(max-width:390px){.card.dato input,.card.dato select{font-size:18px;padding:9px}.card.dato .checkrow{font-size:14px}.card.dato .title{font-size:17px}}
+/* v5.2 pantalla aún más compacta: 4 inputs en línea y postes/entradas en una sola fila */
+.card.dato{padding:11px 12px}.card.dato .title{font-size:17px;margin:0 0 8px}.main4{display:grid;grid-template-columns:1.1fr .9fr .7fr .85fr 1.15fr;gap:7px;align-items:end}.main4 label,.postGrid label{font-size:10px;line-height:1.05;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main4 label{text-align:center;display:block}.main4 input{font-size:18px;padding:9px 8px;border-radius:10px}.main4 .short input{text-align:center}.postGrid{display:grid;grid-template-columns:.72fr 1.08fr .72fr 1.08fr;gap:7px;margin-top:8px;align-items:end}.postToggle{height:45px;border-radius:10px;background:#f3f6f9;border:1px solid #e4ebf2;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:950;color:#111;padding:0 5px;white-space:nowrap}.postToggle input{width:22px;height:22px;accent-color:#111;margin:0}.postGrid select{font-size:16px;padding:9px 6px;border-radius:10px}.card.dato .hint{font-size:11px;margin:7px 0 2px;line-height:1.2}.card.dato .actionsRow{margin-top:10px}.card.dato .actionsRow button{padding:11px 8px;border-radius:12px}@media(max-width:390px){.main4{gap:5px;grid-template-columns:1fr .82fr .62fr .78fr 1fr}.main4 label,.postGrid label{font-size:9px}.main4 input{font-size:16px;padding:8px 5px}.postGrid{gap:5px;grid-template-columns:.7fr 1.1fr .7fr 1.1fr}.postToggle{font-size:12px;height:42px}.postToggle input{width:20px;height:20px}.postGrid select{font-size:14px;padding:8px 4px}}
+
+/* v5.4: tarjeta de datos más limpia */
+.card.dato{padding-top:12px}
+.card.dato .title{display:none}
+.main4 label{text-align:center;width:100%}
+.main4 input{text-align:center}
+.postGrid label:first-child{text-align:center;width:100%}
+.postGrid .postToggle{text-align:center}
+
+/* v5.5: recalculo automático y ajustes en cabecera */
+.headRight{display:flex;align-items:center;gap:8px}
+.gearBtn{width:38px;height:34px;min-width:38px;padding:0;border-radius:9px;background:#2b3842;color:#fff;font-size:18px;line-height:1}
+.gearBtn.active{background:#ffca28;color:#111}
+.card.dato{padding-bottom:12px}
+.card.dato .actionsRow{display:none}
+
+/* v5.8: segunda línea tipo app compacta */
+.endGrid{display:grid;grid-template-columns:44px 1fr 44px 1fr;gap:7px;margin-top:10px;align-items:center}
+.postChip{height:44px;border-radius:12px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:950;border:1px solid #111;box-shadow:inset 0 0 0 1px #0001}
+.postChip input{position:absolute;opacity:0;pointer-events:none}
+.postChip span{line-height:1}
+.postChip:has(input:not(:checked)){background:#eef2f5;color:#667085;border-color:#dfe6ee}
+.endGrid select{height:44px;font-size:17px;padding:8px 8px;border-radius:12px;background:var(--edit);border-color:#e0c94d;text-align:center}
+@media(max-width:390px){.endGrid{grid-template-columns:40px 1fr 40px 1fr;gap:5px}.postChip{height:41px;font-size:16px}.endGrid select{height:41px;font-size:15px;padding:7px 5px}}
+
+/* v5.9: postes izquierda y entradas editables a la derecha */
+.endGrid{grid-template-columns:.8fr 1.2fr .8fr 1.2fr;gap:8px;align-items:end}
+.postChip{height:48px;background:#00a33b;color:white;border-color:#008c33;border-radius:12px;font-size:17px;gap:6px}
+.postChip span{display:flex;align-items:center;justify-content:center;width:100%}
+.postChip:has(input:not(:checked)){background:#e8eef5;color:#667085;border-color:#dfe6ee}
+.entryBox label{display:block;text-align:center;font-size:10px;color:#667085;font-weight:950;margin:0 0 3px;white-space:nowrap}
+.entryBox input{height:48px;font-size:18px;padding:8px;border-radius:12px;background:var(--edit);border-color:#e0c94d;text-align:center}
+@media(max-width:390px){.endGrid{grid-template-columns:.75fr 1.25fr .75fr 1.25fr;gap:5px}.postChip{height:44px;font-size:15px}.entryBox label{font-size:9px}.entryBox input{height:44px;font-size:16px;padding:7px 4px}}
+
+/* v6.3: fabricación tipo Excel con marcas de centros e inicio/final */
+.endGrid{grid-template-columns:1fr 1fr .92fr .92fr;gap:8px;align-items:end}
+.entryBox label{font-size:11px}
+.postChip{height:48px;background:#00a33b;color:#fff;border-color:#008c33}
+.postChip:has(input:not(:checked)){background:#e8eef5;color:#667085;border-color:#dfe6ee}
+.legend{display:none!important}
+@media(max-width:390px){.endGrid{grid-template-columns:1fr 1fr .88fr .88fr;gap:5px}.postChip{font-size:13px}.entryBox input{font-size:16px}}
+
+/* v1.1: extremos con selector de tipo */
+.endGrid{grid-template-columns:1fr 1fr!important;gap:8px!important;align-items:end!important}
+.sideBox label{display:block;text-align:center;font-size:11px;color:#667085;font-weight:950;margin:0 0 3px;white-space:nowrap}
+.sideBox select{height:48px;font-size:15px;padding:8px 6px;border-radius:12px;background:var(--edit);border-color:#e0c94d;text-align:center;font-weight:950}
+@media(max-width:390px){.sideBox label{font-size:10px}.sideBox select{height:44px;font-size:13px;padding:7px 4px}}
+
+
+.backMenuBtn{border:0;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:950;background:#e74c3c;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:auto;white-space:nowrap;}
+header{gap:8px}.backMenuBtn+h1{flex:1}
+@media(max-width:390px){.backMenuBtn{font-size:12px;padding:7px 8px}}
+@media print{.backMenuBtn{display:none!important}}
+.docsBtn{background:linear-gradient(180deg,#2563eb,#1d4ed8)!important;color:#fff!important;border:0!important}
+.docsFloatingBar{
+  position:fixed;
+  left:8px;
+  right:8px;
+  bottom:calc(8px + env(safe-area-inset-bottom));
+  z-index:9998;
+  display:none;
+  grid-template-columns:1.4fr 1fr;
+  gap:8px;
+  padding:8px;
+  background:rgba(255,255,255,.96);
+  border:1px solid #d9e2ec;
+  border-radius:16px;
+  box-shadow:0 14px 28px rgba(0,0,0,.18);
+  backdrop-filter:blur(10px);
+}
+.docsFloatingBar.show{display:grid!important;}
+.docsFloatingBar button{
+  min-height:46px;
+  border-radius:12px;
+  font-size:14px;
+  font-weight:950;
+  padding:9px 8px;
+}
+.docsFloatingBar .sendDocs{background:linear-gradient(180deg,#2563eb,#1d4ed8)!important;color:#fff!important;}
+.docsFloatingBar .backDocs{background:#e8eef5!important;color:#111!important;}
+@media(max-width:390px){.docsFloatingBar button{font-size:12px;min-height:44px;padding:8px 4px}}
+body.fromDocs{padding-bottom:72px;}
+
+</style>
+</head>
+<body>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.9</span></div></header>
+<div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
+
+<div class="wrap">
+<section class="card dato">
+  <div class="main4">
+    <div><label>Largo</label><input id="largo" inputmode="numeric" type="number" value="1500"></div>
+    <div class="short"><label>Alto</label><input id="alto" inputmode="numeric" type="number" value="940"></div>
+    <div class="short"><label>Grados</label><input id="grados" inputmode="numeric" type="number" value="0"></div>
+    <div class="short"><label>Ovalados</label><input id="ovaladosManual" inputmode="numeric" type="number" value="0"></div>
+    <div class="short"><label>Intermedios</label><input id="interManual" inputmode="numeric" type="number" value="0"></div>
+  </div>
+  <div class="endGrid">
+    <div class="sideBox"><label>Izquierda</label><select id="ladoIzq">
+      <option value="poste">Poste 70×70</option>
+      <option value="compartido">Poste compartido</option>
+      <option value="empotrado">Pared empotrado</option>
+      <option value="angulo">Pared ángulo</option>
+    </select></div>
+    <div class="sideBox"><label>Derecha</label><select id="ladoDer">
+      <option value="poste">Poste 70×70</option>
+      <option value="compartido">Poste compartido</option>
+      <option value="empotrado">Pared empotrado</option>
+      <option value="angulo">Pared ángulo</option>
+    </select></div>
+  </div>
+</section>
+<section class="card canvasBox">
+  <p class="title">Gráfico</p>
+  <div id="svgWrap" class="svgWrap"></div>
+  <div class="actionsRow actionsRow3"><button class="ok" id="pngHD">PNG HD</button><button class="light" id="pngNormal">PNG</button><button class="docsBtn" id="btnAddDocs">Añadir Docs</button></div>
+</section>
+<section class="card"><p class="title">Resultado</p><div id="kpis" class="result"></div></section>
+<section class="card hidden" id="ajustesBox">
+  <p class="title">Ajustes</p>
+  <details class="fold" open><summary>Fabricación</summary><div class="inputs" style="margin-top:10px">
+    <div><label>Ovalado corte mm</label><input id="hOva" type="number" value="740"></div><div><label>Pata suelo mm</label><input id="hPata" type="number" value="50"></div>
+    <div><label>Anclaje inferior alto mm</label><input id="hAncInf" type="number" value="25"></div><div><label>Anclaje superior alto mm</label><input id="hAncSup" type="number" value="25"></div>
+    <div><label>Pasamanos alto mm</label><input id="hPas" type="number" value="50"></div><div><label>Extra bola mm</label><input id="hBola" type="number" value="50"></div>
+    <div><label>Grosor ovalado mm</label><input id="gOva" type="number" value="17"></div><div><label>Hueco objetivo mm</label><input id="huecoObj" type="number" value="105"></div>
+    <div><label>Intermedio cada máx. mm</label><input id="sep30" type="number" value="1300"></div><div><label>Separación mín/máx mm</label><input id="rangoHueco" type="text" value="100-110"></div>
+  </div></details>
+  <details class="fold"><summary>Perfiles</summary><div class="inputs" style="margin-top:10px">
+    <div><label>Poste lateral ancho mm</label><input id="latW" type="number" value="70"></div><div><label>Poste lateral fondo mm</label><input id="latF" type="number" value="70"></div>
+    <div><label>Intermedio ancho mm</label><input id="intW" type="number" value="30"></div><div><label>Intermedio fondo mm</label><input id="intF" type="number" value="30"></div>
+  </div></details>
+  <details class="fold"><summary>Precios</summary><div class="inputs" style="margin-top:10px">
+    <div><label>Pasamanos €/m</label><input id="pPas" type="number" step="0.01" value="13.52"></div><div><label>Anclajes €/m</label><input id="pAnc" type="number" step="0.01" value="5.12"></div>
+    <div><label>Poste lateral €/ud</label><input id="p70" type="number" step="0.01" value="18.51"></div><div><label>Intermedio €/ud</label><input id="p30" type="number" step="0.01" value="6.96"></div>
+    <div><label>Ovalado €/ud</label><input id="pOva" type="number" step="0.01" value="3.86"></div><div><label>Accesorios €</label><input id="acc" type="number" step="0.01" value="50"></div>
+    <div><label>Montaje €</label><input id="mont" type="number" step="0.01" value="200"></div><div><label>Margen %</label><input id="margen" type="number" value="40"></div>
+    <div><label>IVA %</label><input id="iva" type="number" value="21"></div>
+  </div></details>
+  <div class="btns"><button class="ok" id="guardar">Guardar</button><button class="danger" id="reset">Reset</button></div>
+</section>
+<section class="card"><details class="compactDetails"><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details></section>
+<section class="card"><details class="compactDetails"><summary>Texto para presupuesto</summary><textarea id="texto" readonly style="margin-top:10px"></textarea><div class="btns"><button class="ok" id="copiar">Copiar texto</button></div></details></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);const nf=(n,d=0)=>(Number(n)||0).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});const eu=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});const val=id=>parseFloat($(id).value)||0;const ints=id=>parseInt($(id).value)||0;let tipo='recto';let autoOvalados=true,autoInter=true;
+const ids=['largo','alto','grados','ovaladosManual','interManual','hOva','hPata','hAncInf','hAncSup','hPas','hBola','gOva','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer'];
+
+function volverAlIndex(){
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu();
+      return false;
+    }
+  }catch(e){}
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'volverMenu', action:'volverMenu', target:'index'}, '*');
+      window.parent.postMessage('volverMenu', '*');
+      return false;
+    }
+  }catch(e){}
+  try{ window.location.href='index.html'; }catch(e){}
+  return false;
+}
+
+function perfilLat(){return `${nf(val('latW'))}×${nf(val('latF'))}`}
+function perfilInt(){return `${nf(val('intW'))}×${nf(val('intF'))}`}
+function altoTerminado(){return Math.max(0, val('alto') - val('hBola'))}
+function ovaladoCorte(){return Math.max(0, altoTerminado() - val('hPata') - val('hAncInf') - val('hAncSup') - val('hPas'))}
+function lado(id){return $(id)?.value||'poste'}
+function esPoste(id){return lado(id)==='poste'}
+function descuentaLado(id){
+  const t=lado(id);
+  // Solo el poste propio está dentro de la medida total y descuenta para el reparto.
+  // Poste compartido, pared empotrada y pared con ángulo NO modifican el reparto;
+  // solo cambian la entrada/corte del anclaje.
+  return t==='poste';
+}
+function entradaLado(id){
+  // La entrada solo se usa para el corte de anclaje, nunca para repartir ovalados.
+  const t=lado(id);
+  return (t==='poste'||t==='compartido')?30:(t==='empotrado'?100:0);
+}
+function nombreLado(id){const t=lado(id);return t==='poste'?'Poste 70×70':t==='compartido'?'Compartido':t==='empotrado'?'Empotrado':'Ángulo'}
+function save(){let data={tipo,autoOvalados,autoInter};ids.forEach(id=>{data[id]=$(id).value});
+  if(autoOvalados)data.ovaladosManual='0';
+  if(autoInter)data.interManual='0';localStorage.setItem('pasamanos_v16',JSON.stringify(data))}
+function load(){try{let d=JSON.parse(localStorage.getItem('pasamanos_v16')||'{}');if(d.tipo)tipo=d.tipo;ids.forEach(id=>{if(id==='ovaladosManual'||id==='interManual')return;if(d[id]!=null && $(id))$(id).value=d[id]});
+  // Al abrir una versión nueva siempre arranca en automático.
+  // Así no arrastra ovalados/intermedios de pruebas anteriores.
+  if($('ovaladosManual'))$('ovaladosManual').value='0';
+  if($('interManual'))$('interManual').value='0';
+  autoOvalados=true;
+  autoInter=true;
+}catch(e){
+  if($('ovaladosManual'))$('ovaladosManual').value='0';
+  if($('interManual'))$('interManual').value='0';
+  autoOvalados=true;autoInter=true;
+}}
+function setTipo(t){tipo=t;render()}
+function rec30(largoUtilHorizontal){const max=val('sep30')||1300;return Math.max(0,Math.ceil(largoUtilHorizontal/max)-1)}
+function rangoHuecos(){
+  let txt=String($('rangoHueco')?.value||'100-120').replace(',', '.');
+  let nums=txt.match(/\d+(?:\.\d+)?/g)?.map(Number)||[];
+  let min=nums[0]||100, max=nums[1]||120;
+  if(max<min){let t=min;min=max;max=t}
+  return {min,max,target:val('huecoObj')||((min+max)/2)};
+}
+function evaluarOvalados(subUtilHorizontal,n){
+  const g=val('gOva');
+  return n>0 ? (subUtilHorizontal-(n*g))/(n+1) : subUtilHorizontal;
+}
+function recOvalados(subUtilHorizontal){
+  const {min,max,target}=rangoHuecos();
+  const g=val('gOva');
+  let maxN=Math.max(0,Math.floor(subUtilHorizontal/Math.max(g,1)));
+  let best={n:0,h:evaluarOvalados(subUtilHorizontal,0),score:Infinity,inRange:false};
+  for(let n=0;n<=maxN;n++){
+    let h=evaluarOvalados(subUtilHorizontal,n);
+    if(h<0)continue;
+    let inRange=h>=min&&h<=max;
+    let score=inRange?Math.abs(h-target):(h<min?(min-h)*10+Math.abs(h-target):(h-max)*10+Math.abs(h-target));
+    // Si hay varias opciones válidas, escogemos la más cercana al hueco objetivo.
+    if(score<best.score)best={n,h,score,inRange};
+  }
+  return best.n;
+}
+function estadoHueco(h){const r=rangoHuecos();return h>=r.min&&h<=r.max?'ok':(h<r.min?'cerrado':'abierto')}
+function recomendaciones(){const largo=val('largo'), grados=Math.max(0,val('grados')), cos=Math.cos(grados*Math.PI/180)||1;const descIzq=descuentaLado('ladoIzq'),descDer=descuentaLado('ladoDer');const lat=val('latW'),interW=val('intW');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=grados>0?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalPorSub=recOvalados(subH);let totalOva=ovalPorSub*(t30+1);return{t30,totalOva}}
+function syncAutoInputs(){const r=recomendaciones();if(autoInter){$('interManual').value=r.t30}if(autoOvalados){$('ovaladosManual').value=r.totalOva}}
+function calc(){const largo=val('largo'), grados=Math.max(0,val('grados'));tipo=grados>0?'pendiente':'recto';const cos=Math.cos(grados*Math.PI/180);const izq=esPoste('ladoIzq'), der=esPoste('ladoDer'), descIzq=descuentaLado('ladoIzq'), descDer=descuentaLado('ladoDer');const lat=val('latW'), interW=val('intW'), ovaW=val('gOva');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=tipo==='pendiente'?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalManual=autoOvalados?0:Math.max(0,ints('ovaladosManual'));let ovalPorSub=ovalManual>0?Math.max(0,Math.round(ovalManual/(t30+1))):recOvalados(subH);let totalOva=ovalPorSub*(t30+1);let huecoH=ovalPorSub>0?(subH-(ovalPorSub*ovaW))/(ovalPorSub+1):subH;let agujero=tipo==='pendiente'?huecoH/cos:huecoH;let alto=altoTerminado(), alto70=val('alto')||alto+val('hBola');let entradaIzq=entradaLado('ladoIzq'), entradaDer=entradaLado('ladoDer');let corteAnc=utilReal+entradaIzq+entradaDer;if(corteAnc<0)corteAnc=0;let postes70=(izq?1:0)+(der?1:0);let pasamanosCorte=utilReal;if(pasamanosCorte<0)pasamanosCorte=0;let mPas=pasamanosCorte/1000,mAnc=(corteAnc*2)/1000;let cPas=mPas*val('pPas'),cAnc=mAnc*val('pAnc'),c70=postes70*val('p70'),c30=t30*val('p30'),cOva=totalOva*val('pOva'),cAcc=val('acc'),coste=cPas+cAnc+c70+c30+cOva+cAcc,mont=val('mont'),margen=(coste+mont)*val('margen')/100,bruto=coste+mont+margen,iva=bruto*val('iva')/100,pvp=bruto+iva,gan=mont+margen;return{largo,grados,cos,izq,der,descIzq,descDer,utilReal,utilHorizontal,t30,subH,ovalPorSub,totalOva,huecoH,agujero,alto,alto70,entradaIzq,entradaDer,corteAnc,postes70,pasamanosCorte,cPas,cAnc,c70,c30,cOva,cAcc,coste,mont,margen,bruto,iva,pvp,gan}}
+function syncAltura(){if($('hOva'))$('hOva').value=nf(ovaladoCorte())}
+function render(){syncAltura();syncAutoInputs();save();const c=calc();if($('leg70'))$('leg70').textContent=perfilLat();if($('leg30'))$('leg30').textContent=perfilInt();if($('legOva'))$('legOva').textContent=`Ovalado ${nf(ovaladoCorte())}`;$('kpis').innerHTML=`<div class="kpi"><b>Largo total</b><span>${nf(c.largo)} mm</span></div><div class="kpi"><b>Útil real</b><span>${nf(c.utilReal)} mm</span></div><div class="kpi"><b>Ovalados</b><span>${c.totalOva}</span></div><div class="kpi ${estadoHueco(c.huecoH)=='ok'?'':'bad'}"><b>Hueco visible</b><span>${nf(c.huecoH)} mm</span></div><div class="kpi total"><b>PVP IVA incl.</b><span>${eu(c.pvp)}</span></div><div class="kpi ${tipo==='pendiente'?'mid':''}"><b>Marcado agujeros</b><span>${nf(c.agujero)} mm</span></div><div class="kpi"><b>${perfilInt()}</b><span>${c.t30}</span></div><div class="kpi"><b>${perfilLat()}</b><span>${c.postes70}</span></div><div class="kpi"><b>Anclaje corte</b><span>${nf(c.corteAnc)} mm</span></div><div class="kpi"><b>Altura</b><span>${nf(c.alto)} mm</span></div>`;renderSvg(c);renderTabla(c);renderTexto(c)}
+function renderSvg(c){
+const W=900,H=700;
+const ang=(tipo==='pendiente'?c.grados:0)*Math.PI/180;
+const cos=Math.cos(ang)||1, sin=Math.sin(ang)||0;
+const largoHoriz=Math.max(1,tipo==='pendiente'?c.largo*cos:c.largo);
+const riseTotal=tipo==='pendiente'?c.largo*sin:0;
+const altoPoste=c.alto70;
+// Escala real, reservando espacio para las cotas. El conjunto final se centra después.
+let scale=Math.min((W-230)/Math.max(largoHoriz,500),(H-230)/Math.max(altoPoste+riseTotal,650));
+scale=Math.max(0.10,Math.min(scale,0.42));
+const horizPx=largoHoriz*scale, risePx=riseTotal*scale;
+let x0=120, x1=x0+horizPx;
+let yBaseL=tipo==='pendiente' ? 170+risePx+altoPoste*scale : 150+altoPoste*scale;
+let yBaseR=yBaseL-risePx;
+const latW=Math.max(12,val('latW')*scale), intW=Math.max(7,val('intW')*scale), ovaW=Math.max(4,val('gOva')*scale);
+const pasH=Math.max(7,val('hPas')*scale), ancSH=Math.max(5,val('hAncSup')*scale), ancIH=Math.max(5,val('hAncInf')*scale), ovaH=ovaladoCorte()*scale;
+const h70Px=altoPoste*scale, altoPx=c.alto*scale;
+const railX0=x0+(c.descIzq?latW:0), railX1=x1-(c.descDer?latW:0);
+function baseAtX(x){let t=(x-x0)/(x1-x0||1);return yBaseL+(yBaseR-yBaseL)*t}
+function topAtX(x){let t=(x-railX0)/(railX1-railX0||1);let y0=baseAtX(railX0)-altoPx;let y1=baseAtX(railX1)-altoPx;return y0+(y1-y0)*t}
+function vCutBar(xa, yTopA, xb, yTopB, h, fill, stroke='#111'){
+  return `<polygon points="${xa},${yTopA} ${xb},${yTopB} ${xb},${yTopB+h} ${xa},${yTopA+h}" fill="${fill}" stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round"/>`;
+}
+function arrowLine(xa,ya,xb,yb,label,size=42,off=-18){
+  const dx=xb-xa, dy=yb-ya, L=Math.hypot(dx,dy)||1, ux=dx/L, uy=dy/L;
+  const angDeg=Math.atan2(dy,dx)*180/Math.PI;
+  const mx=(xa+xb)/2, my=(ya+yb)/2;
+  let out=`<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="#111" stroke-width="4.6"/>`;
+  out+=`<path d="M ${xa+ux*20-uy*10} ${ya+uy*20+ux*10} L ${xa} ${ya} L ${xa+ux*20+uy*10} ${ya+uy*20-ux*10}" fill="none" stroke="#111" stroke-width="4.6"/>`;
+  out+=`<path d="M ${xb-ux*20-uy*10} ${yb-uy*20+ux*10} L ${xb} ${yb} L ${xb-ux*20+uy*10} ${yb-uy*20-ux*10}" fill="none" stroke="#111" stroke-width="4.6"/>`;
+  out+=`<text x="${mx}" y="${my+off}" text-anchor="middle" font-size="${size}" font-weight="950" transform="rotate(${angDeg} ${mx},${my+off})">${label}</text>`;
+  return out;
+}
+function verticalDim(x,yTop,yBot,label){
+  const mid=(yTop+yBot)/2;
+  let out=`<line x1="${x}" y1="${yBot}" x2="${x}" y2="${yTop}" stroke="#111" stroke-width="4.6"/>`;
+  out+=`<path d="M ${x-10} ${yTop+22} L ${x} ${yTop} L ${x+10} ${yTop+22}" fill="none" stroke="#111" stroke-width="4.6"/>`;
+  out+=`<path d="M ${x-10} ${yBot-22} L ${x} ${yBot} L ${x+10} ${yBot-22}" fill="none" stroke="#111" stroke-width="4.6"/>`;
+  // Texto horizontal, centrado entre flechas, separado de la línea y sin pisar el poste.
+  out+=`<text x="${x+34}" y="${mid+15}" text-anchor="start" font-size="46" font-weight="950">${label}</text>`;
+  return out;
+}
+function verticalCutTube(cx,w,topFn,bottomFn,fill,stroke='#111'){
+  const xL=cx-w/2, xR=cx+w/2;
+  const yTL=topFn(xL), yTR=topFn(xR);
+  const yBR=bottomFn(xR), yBL=bottomFn(xL);
+  return `<polygon points="${xL},${yTL} ${xR},${yTR} ${xR},${yBR} ${xL},${yBL}" fill="${fill}" stroke="${stroke}" stroke-width="1.8" stroke-linejoin="round"/>`;
+}
+function tramoInfo(a,b){
+  if(!isFinite(a)||!isFinite(b)||Math.abs(b-a)<35)return '';
+  const yA=baseAtX(a)+48, yB=baseAtX(b)+48;
+  const dx=b-a, dy=yB-yA, L=Math.hypot(dx,dy)||1;
+  const angDeg=Math.atan2(dy,dx)*180/Math.PI;
+  const midX=(a+b)/2, midY=(yA+yB)/2;
+  const tramoReal = tipo==='pendiente' ? (c.subH/(c.cos||1)) : c.subH;
+  const labelTramo=`${nf(tramoReal)}`;
+  const labelHueco=`HUECO ${nf(c.huecoH)}`; // hueco real entre ovalados
+  const labelTubos=`${c.ovalPorSub} TUBOS`;
+  const left=-L/2, right=L/2;
+  const boxY=20, boxH=36;
+  const huecoW=150, tubosW=130, gap=8;
+  const startX=left+10;
+  let out=`<g transform="translate(${midX},${midY}) rotate(${angDeg})">`;
+  // Cota del primer tramo entre poste/30x30, siguiendo la pendiente cuando existe.
+  out+=`<line x1="${left}" y1="0" x2="${right}" y2="0" stroke="#111" stroke-width="4.2"/>`;
+  out+=`<path d="M ${left+22} -9 L ${left} 0 L ${left+22} 9" fill="none" stroke="#111" stroke-width="4.2"/>`;
+  out+=`<path d="M ${right-22} -9 L ${right} 0 L ${right-22} 9" fill="none" stroke="#111" stroke-width="4.2"/>`;
+  out+=`<text x="0" y="-14" text-anchor="middle" font-size="36" font-weight="950">${labelTramo}</text>`;
+  // Etiquetas grandes como en Excel: HUECO + TUBOS.
+  out+=`<rect x="${startX}" y="${boxY}" width="${huecoW}" height="${boxH}" rx="4" fill="#16e7e7" stroke="#111" stroke-width="1.5"/>`;
+  out+=`<text x="${startX+huecoW/2}" y="${boxY+26}" text-anchor="middle" font-size="23" font-weight="950">${labelHueco}</text>`;
+  out+=`<rect x="${startX+huecoW+gap}" y="${boxY}" width="${tubosW}" height="${boxH}" rx="4" fill="#ffe27a" stroke="#111" stroke-width="1.5"/>`;
+  out+=`<text x="${startX+huecoW+gap+tubosW/2}" y="${boxY+26}" text-anchor="middle" font-size="23" font-weight="950">${labelTubos}</text>`;
+  out+=`</g>`;
+  return out;
+}
+let body='';
+// Postes verticales.
+if(c.izq){body+=`<rect x="${x0}" y="${yBaseL-h70Px}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/><circle cx="${x0+latW/2}" cy="${yBaseL-h70Px-12}" r="12" fill="#aaa" stroke="#111" stroke-width="2"/>`}
+if(c.der){body+=`<rect x="${x1-latW}" y="${yBaseR-h70Px}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/><circle cx="${x1-latW/2}" cy="${yBaseR-h70Px-12}" r="12" fill="#aaa" stroke="#111" stroke-width="2"/>`}
+const yTop0=topAtX(railX0), yTop1=topAtX(railX1);
+const ySupAnc0=yTop0+pasH, ySupAnc1=yTop1+pasH;
+const yInfAnc0=ySupAnc0+ancSH+ovaH, yInfAnc1=ySupAnc1+ancSH+ovaH;
+for(let j=1;j<=c.t30;j++){
+  let cx=railX0+(railX1-railX0)*(j/(c.t30+1));
+  body+=verticalCutTube(cx,intW,x=>topAtX(x)+pasH,x=>baseAtX(x),'#8fb3e8');
+}
+let boundaries=[railX0];for(let j=1;j<=c.t30;j++)boundaries.push(railX0+(railX1-railX0)*(j/(c.t30+1)));boundaries.push(railX1);
+for(let s=0;s<boundaries.length-1;s++){
+  let a=boundaries[s],b=boundaries[s+1];
+  for(let j=1;j<=c.ovalPorSub;j++){
+    let cx=a+(b-a)*(j/(c.ovalPorSub+1));
+    body+=verticalCutTube(cx,ovaW,x=>topAtX(x)+pasH+ancSH,x=>topAtX(x)+pasH+ancSH+ovaH,'#555','none');
+  }
+}
+// Medida de hueco entre postes/intermedios, como en el Excel: solo se marca el primer hueco para no cargar el plano.
+const infoHueco = tramoInfo(boundaries[0], boundaries[1]);
+body+=vCutBar(railX0,yTop0,railX1,yTop1,pasH,'#d9d9d9');
+body+=vCutBar(railX0,ySupAnc0,railX1,ySupAnc1,ancSH,'#f5d56a');
+body+=vCutBar(railX0,yInfAnc0,railX1,yInfAnc1,ancIH,'#f5d56a');
+body+=infoHueco;
+// Cotas: sin mm. Largo paralelo al pasamanos si hay pendiente; alto a la derecha, centrado y separado.
+let bbox={minX:x0-25,maxX:x1+25,minY:Math.min(yBaseL-h70Px,yBaseR-h70Px)-25,maxY:Math.max(yBaseL,yBaseR)+125};
+if(tipo==='pendiente'){
+  const dx=railX1-railX0, dy=yTop1-yTop0, L=Math.hypot(dx,dy)||1;
+  const ux=dx/L, uy=dy/L, nx=-uy, ny=ux;
+  const off=46;
+  // Elegimos la normal que apunta hacia arriba del canvas.
+  let sign=(ny>0)?-1:1;
+  let ox=nx*off*sign, oy=ny*off*sign;
+  body+=arrowLine(railX0+ox, yTop0+oy, railX1+ox, yTop1+oy, `${nf(c.largo)}`, 42, -16);
+  bbox.minX=Math.min(bbox.minX,railX0+ox-35,railX1+ox-35);
+  bbox.maxX=Math.max(bbox.maxX,railX0+ox+35,railX1+ox+35);
+  bbox.minY=Math.min(bbox.minY,yTop0+oy-65,yTop1+oy-65);
+  bbox.maxY=Math.max(bbox.maxY,yTop0+oy+30,yTop1+oy+30);
+}else{
+  const dimY=Math.max(yBaseL,yBaseR)+112;
+  body+=arrowLine(railX0,dimY,railX1,dimY,`${nf(c.largo)}`,42,42);
+  bbox.minX=Math.min(bbox.minX,railX0-35);bbox.maxX=Math.max(bbox.maxX,railX1+35);
+  bbox.maxY=Math.max(bbox.maxY,dimY+62);
+}
+const hx=x1+54, hTop=yBaseR-h70Px, hBot=yBaseR;
+body+=verticalDim(hx,hTop,hBot,`${nf(c.alto70)}`);
+bbox.maxX=Math.max(bbox.maxX,hx+120);bbox.minY=Math.min(bbox.minY,hTop-25);bbox.maxY=Math.max(bbox.maxY,hBot+85);
+// Centrado real del conjunto completo: pasamanos + cotas + medida del primer hueco.
+const bw=bbox.maxX-bbox.minX, bh=bbox.maxY-bbox.minY;
+const tx=(W-bw)/2-bbox.minX;
+const ty=(H-bh)/2-bbox.minY;
+let out=`<svg id="pasamanosSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet"><rect width="900" height="700" fill="#fff"/><g transform="translate(${tx},${ty})">${body}</g></svg>`;
+$('svgWrap').innerHTML=out
+}
+function generarMarcas(c){
+  const ovaW=val('gOva');
+  const entrada=c.entradaIzq;
+  const cos=c.cos||1;
+  const subReal=tipo==='pendiente' ? (c.subH/cos) : c.subH;
+  const paso = c.ovalPorSub>0 ? subReal/(c.ovalPorSub+1) : 0;
+  let filas=[], filasPorHueco=[];
+  for(let i=1;i<=c.ovalPorSub;i++){
+    let centro=i*paso;
+    filasPorHueco.push({n:i,inicio:centro-ovaW/2,centro,final:centro+ovaW/2});
+  }
+  for(let s=0;s<c.t30+1;s++){
+    let base=entrada + s*(subReal + val('intW'));
+    for(let i=1;i<=c.ovalPorSub;i++){
+      let centroLocal=i*paso;
+      filas.push({h:s+1,n:i,inicio:base+centroLocal-ovaW/2,centro:base+centroLocal,final:base+centroLocal+ovaW/2});
+    }
+  }
+  return {subReal,paso,filas,filasPorHueco};
+}
+function renderTabla(c){
+  let cls=estadoHueco(c.huecoH)==='ok'?'':' class="bad"';
+  const m=generarMarcas(c);
+  const subtitulo = tipo==='pendiente' ? `Marcado sobre anclaje inclinado. Hueco visible horizontal ${nf(c.huecoH)}.` : `Marcado sobre anclaje recto.`;
+  let html=`<div class="fabTitle">Fabricación</div>
+  <div class="fabricacion">
+    <div class="fabBox"><b>Largo</b><span>${nf(c.largo)}</span></div>
+    <div class="fabBox"><b>Tramo útil</b><span>${nf(c.utilReal)}</span></div>
+    <div class="fabBox"><b>Huecos</b><span>${c.t30+1}</span></div>
+    <div class="fabBox"><b>Ovalados/hueco</b><span>${c.ovalPorSub}</span></div>
+    <div class="fabBox"><b>Ovalados total</b><span>${c.totalOva}</span></div>
+    <div class="fabBox"><b>Hueco libre</b><span>${nf(tipo==='pendiente'?c.agujero:c.huecoH)}</span></div>
+  </div>
+  <table><tr><th>Dato</th><th>Resultado</th></tr>
+    <tr><td class="left">Tipo</td><td>${tipo==='pendiente'?'Pendiente '+nf(c.grados)+'°':'Recto'}</td></tr>
+    <tr><td class="left">Postes ${perfilLat()}</td><td>${c.postes70}</td></tr>
+    <tr><td class="left">Intermedios ${perfilInt()}</td><td>${c.t30}</td></tr>
+    <tr><td class="left">Tramo útil entre postes</td><td>${nf(c.utilReal)} mm</td></tr>
+    <tr><td class="left">Huecos entre intermedios</td><td>${c.t30+1} × ${nf(tipo==='pendiente'?m.subReal:c.subH)} mm</td></tr>
+    <tr><td class="left">Ovalados por hueco</td><td>${c.ovalPorSub}</td></tr>
+    <tr${cls}><td class="left">Hueco visible horizontal</td><td>${nf(c.huecoH)} mm ${estadoHueco(c.huecoH)==='ok'?'':'('+estadoHueco(c.huecoH)+')'}</td></tr>
+    <tr><td class="left">Marcado entre centros ${tipo==='pendiente'?'en pendiente':'recto'}</td><td>${nf(c.agujero)} mm</td></tr>
+  </table>
+  <div class="fabTitle">Marcas por hueco</div>
+  <p class="markNote">${subtitulo} Tabla como tu Excel: inicio, centro y final del ovalado de ${nf(val('gOva'))} mm.</p>
+  <table class="marktable"><tr><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
+  m.filasPorHueco.forEach(r=>{html+=`<tr><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`});
+  html+=`</table>`;
+  if(c.t30>0){
+    html+=`<div class="fabTitle">Marcas acumuladas desde inicio del anclaje</div><p class="markNote">Incluye entrada izquierda de ${nf(c.entradaIzq)} mm y los intermedios ${perfilInt()}.</p><table class="marktable"><tr><th>Hueco</th><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
+    m.filas.forEach(r=>{html+=`<tr><td>${r.h}</td><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`});
+    html+=`</table>`;
+  }
+  html+=`<br><table><tr><th>Pieza</th><th>Cantidad</th><th>Corte</th></tr>
+    <tr><td>${perfilLat()}</td><td>${c.postes70}</td><td>${nf(c.alto70)} mm</td></tr>
+    <tr><td>${perfilInt()}</td><td>${c.t30}</td><td>${nf(c.alto)} mm</td></tr>
+    <tr><td>Ovalados</td><td>${c.totalOva}</td><td>${nf(ovaladoCorte())} mm</td></tr>
+    <tr><td>Anclaje superior</td><td>1</td><td>${nf(c.corteAnc)} mm</td></tr>
+    <tr><td>Anclaje inferior</td><td>1</td><td>${nf(c.corteAnc)} mm</td></tr>
+    <tr><td>Pasamanos/tapa</td><td>1</td><td>${nf(c.pasamanosCorte)} mm</td></tr>
+  </table><br><table><tr class="cost"><td>Coste material</td><td>${eu(c.coste)}</td></tr><tr class="cost"><td>Montaje</td><td>${eu(c.mont)}</td></tr><tr class="cost"><td>Margen</td><td>${eu(c.margen)}</td></tr><tr class="cost"><td>Bruto</td><td>${eu(c.bruto)}</td></tr><tr class="cost"><td>IVA</td><td>${eu(c.iva)}</td></tr><tr class="cost total"><td>PVP</td><td>${eu(c.pvp)}</td></tr></table>`;
+  $('tabla').innerHTML=html
+}
+function renderTexto(c){$('texto').value=`Pasamanos ${tipo==='pendiente'?'con pendiente de '+nf(c.grados)+'°':'recto'} de ${nf(c.largo)} mm. Altura terminada ${nf(c.alto)} mm. Incluye ${c.postes70} poste(s) ${perfilLat()}, ${c.t30} intermedio(s) ${perfilInt()} y ${c.totalOva} ovalados de ${nf(ovaladoCorte())} mm. PVP IVA incluido: ${eu(c.pvp)}`}
+
+function docsTargetIndex(){
+  try{
+    const qs = new URLSearchParams(location.search || '');
+    const t = qs.get('target') || qs.get('index') || qs.get('concept') || '';
+    if(t !== '') return Number(t);
+  }catch(e){}
+  try{
+    const t = sessionStorage.getItem('rey_docs_external_target_index_v1') || localStorage.getItem('rey_docs_external_target_index_v1') || '';
+    if(t !== '') return Number(t);
+  }catch(e){}
+  return 0;
+}
+function openedFromDocumentos(){
+  try{ const qs = new URLSearchParams(location.search || ''); if(String(qs.get('from')||'').toLowerCase()==='documentos') return true; }catch(e){}
+  try{ return !!(sessionStorage.getItem('rey_docs_external_target_index_v1') || localStorage.getItem('rey_docs_external_target_index_v1')); }catch(e){}
+  return false;
+}
+function volverADocumentos(){
+  const url='documentos.html';
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+      window.parent.abrir(url);
+      return false;
+    }
+  }catch(e){}
+  try{ window.location.href=url; }catch(e){}
+  return false;
+}
+async function enviarADocumentos(){
+  try{ render(); }catch(e){}
+  const c = calc();
+  let img = '';
+  try{ const png = await svgToPng(2); img = png && png.dataUrl ? png.dataUrl : ''; }catch(e){ img=''; }
+  const descripcion = ($('texto') ? $('texto').value : '').trim() || `Pasamanos de ${nf(c.largo)} mm`;
+  const producto = {
+    proveedor: 'Pasamanos',
+    marca: 'Pasamanos',
+    origen: 'pasamanos',
+    referencia: `PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
+    codigo: `PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
+    nombre: 'Pasamanos',
+    descripcion: descripcion,
+    texto: descripcion,
+    cantidad: 1,
+    units: 1,
+    unidad: 'ud',
+    precio: Number(c.bruto || 0).toFixed(2),
+    price: Number(c.bruto || 0).toFixed(2),
+    pvpIvaIncluido: Number(c.pvp || 0).toFixed(2),
+    imagen: img,
+    image: img,
+    png: img,
+    targetIndex: docsTargetIndex()
+  };
+  try{ sessionStorage.setItem('rey_docs_external_product_v1', JSON.stringify(producto)); }catch(e){}
+  try{ localStorage.setItem('rey_docs_external_product_v1', JSON.stringify(producto)); }catch(e){}
+  try{ sessionStorage.setItem('rey_docs_external_target_index_v1', String(producto.targetIndex)); }catch(e){}
+  try{ localStorage.setItem('rey_docs_external_target_index_v1', String(producto.targetIndex)); }catch(e){}
+  const url='documentos.html?externalProduct=1';
+  try{ if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){ window.parent.abrir(url); return; } }catch(e){}
+  try{ window.location.href=url; }catch(e){}
+}
+
+async function svgToPng(scale=2){let svg=$('pasamanosSvg');if(!svg)return null;let data=new XMLSerializer().serializeToString(svg);let blob=new Blob([data],{type:'image/svg+xml;charset=utf-8'});let url=URL.createObjectURL(blob);try{let img=new Image();await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});let canvas=document.createElement('canvas');canvas.width=900*scale;canvas.height=700*scale;let ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);return{blob:await new Promise(r=>canvas.toBlob(r,'image/png')),dataUrl:canvas.toDataURL('image/png')}}finally{URL.revokeObjectURL(url)}}
+async function guardarPNG(scale=2){let r=await svgToPng(scale);if(!r)return;let filename='pasamanos_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+(scale>1?'_HD':'')+'.png';let file=new File([r.blob],filename,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Pasamanos'});return}catch(e){}}$('pngDownload').download=filename;$('pngDownload').href=r.dataUrl;$('pngPreview').src=r.dataUrl;$('pngModal').classList.add('show')}
+const calcBtn=$('calcular');if(calcBtn)calcBtn.onclick=render;
+$('toggleAjustes').onclick=()=>{
+  const box=$('ajustesBox');
+  const open=box.classList.toggle('hidden')===false;
+  $('toggleAjustes').classList.toggle('active',open);
+  if(open){setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'start'}),60)}
+};
+$('guardar').onclick=()=>{render();$('ajustesBox').classList.add('hidden');$('toggleAjustes').classList.remove('active');};$('reset').onclick=()=>{localStorage.removeItem('pasamanos_v16');location.reload()};$('pngHD').onclick=()=>guardarPNG(2);$('pngNormal').onclick=()=>guardarPNG(1);$('cerrarPng').onclick=()=>{$('pngModal').classList.remove('show');$('pngPreview').src=''};$('copiar').onclick=async()=>{try{await navigator.clipboard.writeText($('texto').value);$('copiar').textContent='Copiado';setTimeout(()=>$('copiar').textContent='Copiar texto',1200)}catch(e){$('texto').select();document.execCommand('copy')}};ids.forEach(id=>{let el=$(id);if(!el||id==='ovaladosManual'||id==='interManual')return;el.addEventListener('focus',()=>setTimeout(()=>{if(el.select)el.select()},0));el.addEventListener('change',render);el.addEventListener('keydown',e=>{if(e.key==='Enter')el.blur()})});
+['ovaladosManual','interManual'].forEach(id=>{let el=$(id);el.addEventListener('focus',()=>setTimeout(()=>{if(el.select)el.select()},0));el.addEventListener('change',()=>{if(id==='ovaladosManual')autoOvalados=ints(id)<=0;if(id==='interManual')autoInter=ints(id)<=0;render()});el.addEventListener('keydown',e=>{if(e.key==='Enter')el.blur()})});
+['ladoIzq','ladoDer'].forEach(id=>$(id).addEventListener('change',render));
+if($('btnVolverIndex'))$('btnVolverIndex').onclick=function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} return volverAlIndex();};
+if($('btnVolverIndex'))$('btnVolverIndex').addEventListener('touchend',function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} volverAlIndex();},{passive:false});
+if($('btnAddDocs'))$('btnAddDocs').onclick=enviarADocumentos;
+load();render();
+</script>
+</body>
+</html>
+
+<!-- v6.3: añade fabricación con marcas por hueco y acumuladas -->
+
+<!-- v7.3: canvas muestra tramo entre postes/30x30, HUECO en cm y TUBOS como el Excel -->
+
+<!-- v1.9: integración Documentos estilo Telefonillo/Velux/Baicha: botón Docs guarda payload y vuelve con externalProduct -->

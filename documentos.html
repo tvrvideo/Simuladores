@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.16</title>
+  <title>Documentos Rey v4.4.17</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2219,6 +2219,7 @@ body.png-open .topbar{
   padding:7px 6px!important;
 }
 .external-catalog-btn-v42.nicho{background:linear-gradient(180deg,#22c55e,#15803d) !important;color:#fff!important;}
+.external-catalog-btn-v42.pasamanos{background:linear-gradient(180deg,#a16207,#713f12) !important;color:#fff!important;}
 .template-actions{
   clear:both!important;
   display:grid!important;
@@ -3997,7 +3998,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.16</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.17</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -7131,7 +7132,8 @@ COLOCACIÓN INCLUIDA` }
       baicha: 'tarifa_baicha.html',
       climalit: 'climalit.html',
       cortizo: 'tarifa_accesorios.html',
-      telefonillo: 'telefonillo.html'
+      telefonillo: 'telefonillo.html',
+      pasamanos: 'pasamanos.html'
     };
     const file = map[catalog] || (catalog + '.html');
     const sep = file.indexOf('?') >= 0 ? '&' : '?';
@@ -10858,6 +10860,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
+          <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
         </div>
         <label>Texto ${it.code}</label><div id="editConceptText" class="rich-editor concept-editor-field" contenteditable="true">${richNormalizeHtml(it.text || '')}</div><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
@@ -10895,6 +10898,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 climalit" data-ext-catalog="climalit">Climalit</button>
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
+          <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
         </div>
         <label>Concepto</label><div id="editSimpleText" class="rich-editor concept-editor-field" contenteditable="true">${richNormalizeHtml(it.text || '')}</div><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
@@ -18157,3 +18161,4 @@ const mo = new MutationObserver(function(){
 
 </body>
 </html>
+<!-- v4.4.17: integra Pasamanos en catálogos externos -->
