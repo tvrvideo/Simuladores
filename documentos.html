@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.4.18</title>
+  <title>Documentos Rey v4.4.21</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -547,7 +547,7 @@ body.editing-field .return-app-btn{
 }
 
 
-/* v4.4.18 - Filtro rápido de presupuestos provisionales 0000 */
+/* v4.4.19 - Filtro rápido de presupuestos provisionales 0000 */
 .btn-provisionales-0000{
   background:linear-gradient(180deg,#facc15 0%,#eab308 100%) !important;
   color:#0f172a !important;
@@ -4021,7 +4021,7 @@ Pendiente de integración completa:
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.4.18</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.4.21</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4412,6 +4412,10 @@ Pendiente de integración completa:
   let imageConceptTarget = -1;
   let currentEdit = null;
   let pngDataUrl = "";
+  // v4.4.21 Android: evita que el mismo toque que abre una hoja la cierre al instante.
+  let sheetOpenedAtV4421 = 0;
+  function markSheetOpenedV4421(){ sheetOpenedAtV4421 = Date.now(); }
+  function isRecentSheetOpenV4421(){ return Date.now() - sheetOpenedAtV4421 < 700; }
 
   const pageShell = document.querySelector('.page-shell');
   const canvasWrap = document.querySelector('.canvas-wrap');
@@ -5184,6 +5188,23 @@ Pendiente de integración completa:
     return converted;
   }
 
+
+  // v4.4.19 - Limpieza defensiva para Android: evita que quede un backdrop/sheet invisible bloqueando el documento nuevo
+  function forceCloseInteractionOverlaysV4419(){
+    try{
+      document.body.classList.remove('sheet-open','editing-field','png-open');
+      ['editSheet','settingsSheet','docStatusSheet'].forEach(function(id){
+        var el = $(id);
+        if(el){
+          el.classList.remove('show','field-focus-mode');
+          el.setAttribute('aria-hidden','true');
+        }
+      });
+      var bd = $('sheetBackdrop');
+      if(bd) bd.classList.remove('show');
+    }catch(_e){}
+  }
+
   async function createNewDocument(documentoTipo, tipoPresupuesto, numberMode){
     hideReturnAppButton();
     closeSettings();
@@ -5215,7 +5236,9 @@ Pendiente de integración completa:
       });
     }
     applyZoom();
+    forceCloseInteractionOverlaysV4419();
     render();
+    setTimeout(forceCloseInteractionOverlaysV4419, 80);
     toast('Nuevo ' + documentTypeLabel(state.documentoTipo).toLowerCase() + (state.numero === '0000' ? ' provisional' : ''));
   }
 
@@ -5290,6 +5313,7 @@ Pendiente de integración completa:
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
   }
 
   async function createNewBudgetByType(type){
@@ -5337,6 +5361,7 @@ Pendiente de integración completa:
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
   }
 
   function openTemplateChooserForDocumentType(documentoTipo){
@@ -5371,6 +5396,7 @@ Pendiente de integración completa:
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
   }
 
   function handleStartFromFacturacion(){
@@ -8989,13 +9015,33 @@ COLOCACIÓN INCLUIDA` }
   }
 
   function hit(parent, x, y, w, h, onTap, title){
-    const el = add(parent, 'rect', { x, y, width:w, height:h, fill:'transparent', stroke:'transparent', 'stroke-width':1, rx:2, ry:2, cursor:'pointer' });
+    // v4.4.21 - Android: los rect transparentes de SVG no siempre reciben tap.
+    // Usamos relleno casi invisible + pointer-events all y doble vía pointer/click.
+    const el = add(parent, 'rect', {
+      x, y, width:w, height:h,
+      fill:'rgba(255,255,255,0.001)',
+      stroke:'rgba(255,255,255,0)',
+      'stroke-width':1, rx:2, ry:2,
+      cursor:'pointer',
+      'pointer-events':'all'
+    });
+    el.style.pointerEvents = 'all';
+    el.style.touchAction = 'manipulation';
     el.setAttribute('role','button');
     if(title) el.setAttribute('aria-label', title);
 
     let tapState = null;
-    const MOVE_LIMIT = 12;
-    const TIME_LIMIT = 450;
+    let lastTapTime = 0;
+    const MOVE_LIMIT = 18;
+    const TIME_LIMIT = 650;
+
+    function safeTap(e){
+      const now = Date.now();
+      if(now - lastTapTime < 350) return;
+      lastTapTime = now;
+      try{ if(e){ e.preventDefault(); e.stopPropagation(); } }catch(_e){}
+      try{ onTap(e); }catch(err){ console.error(err); }
+    }
 
     el.addEventListener('pointerdown', function(e){
       tapState = {
@@ -9006,6 +9052,7 @@ COLOCACIÓN INCLUIDA` }
         sx: window.scrollX,
         sy: window.scrollY
       };
+      try{ if(el.setPointerCapture) el.setPointerCapture(e.pointerId); }catch(_e){}
     }, false);
 
     el.addEventListener('pointerup', function(e){
@@ -9013,14 +9060,15 @@ COLOCACIÓN INCLUIDA` }
       const dx = Math.abs(e.clientX - tapState.x);
       const dy = Math.abs(e.clientY - tapState.y);
       const dt = Date.now() - tapState.t;
-      const scrolled = Math.abs(window.scrollX - tapState.sx) > 2 || Math.abs(window.scrollY - tapState.sy) > 2;
+      const scrolled = Math.abs(window.scrollX - tapState.sx) > 3 || Math.abs(window.scrollY - tapState.sy) > 3;
       const isTap = dx <= MOVE_LIMIT && dy <= MOVE_LIMIT && dt <= TIME_LIMIT && !scrolled;
       tapState = null;
-      if(!isTap) return;
-      e.preventDefault();
-      onTap(e);
+      try{ if(el.releasePointerCapture) el.releasePointerCapture(e.pointerId); }catch(_e){}
+      if(isTap) safeTap(e);
     }, false);
 
+    el.addEventListener('click', function(e){ safeTap(e); }, false);
+    el.addEventListener('touchend', function(e){ safeTap(e); }, {passive:false});
     el.addEventListener('pointercancel', function(){ tapState = null; }, false);
     el.addEventListener('pointerleave', function(e){
       if(!tapState) return;
@@ -11637,6 +11685,7 @@ COLOCACIÓN INCLUIDA` }
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
   }
 
   function closeSheet(){
@@ -11993,10 +12042,22 @@ $('btnCloseSheet').addEventListener('click', function(){
     }, false);
   }
 
-  $('sheetBackdrop').addEventListener('click', function(){
+  $('sheetBackdrop').addEventListener('click', function(ev){
+    // v4.4.21 Android: al abrir desde SVG a veces el click termina cayendo sobre el backdrop recién mostrado.
+    if(isRecentSheetOpenV4421()){
+      try{ ev.preventDefault(); ev.stopPropagation(); }catch(_e){}
+      return;
+    }
     closeSheet();
     closeSettings();
   }, false);
+  if($('editSheet')){
+    ['click','pointerup','touchend'].forEach(function(evtName){
+      $('editSheet').addEventListener(evtName, function(ev){
+        try{ ev.stopPropagation(); }catch(_e){}
+      }, evtName === 'touchend' ? {passive:true} : false);
+    });
+  }
   $('btnSave').addEventListener('click', function(){ hideReturnAppButton(); saveNamed(); }, false);
   $('btnNew').addEventListener('click', function(){
     hideReturnAppButton();
@@ -12560,6 +12621,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
   }
 
 
@@ -12991,6 +13053,7 @@ $('btnExport').addEventListener('click', async function(){
     $('editSheet').classList.add('show');
     $('editSheet').setAttribute('aria-hidden','false');
     document.body.classList.add('sheet-open');
+    try{ markSheetOpenedV4421(); }catch(_e){}
     $('sheetCancel').onclick = closeSheet;
 
     if($('btnCreateDocFromList')){
@@ -18218,5 +18281,6 @@ const mo = new MutationObserver(function(){
 </script>
 
 </body>
+<!-- v4.4.21: mejora taps SVG en Android para concepto/precio/gráfico -->
 </html>
-<!-- v4.4.18: filtro rápido Provisionales 0000 en presupuestos guardados -->
+<!-- v4.4.19: filtro rápido Provisionales 0000 en presupuestos guardados -->
