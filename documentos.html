@@ -2450,7 +2450,7 @@ body.png-open #pngPreviewImage{
   -webkit-user-drag:auto !important;
 }
 
-/* v4.5.8 - Botonera inferior de Conceptos compacta y sin desbordes */
+/* v4.5.9 - Botonera inferior de Conceptos compacta y sin desbordes */
 #editSheet .sheet-actions[style*="repeat(4"]{
   grid-template-columns:repeat(4,minmax(0,1fr)) !important;
   gap:6px !important;
@@ -4132,7 +4132,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.5.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.5.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5399,31 +5399,15 @@ body.sheet-open .brand-idb-pill{
       };
     });
     $('sheetCancel').onclick = closeSheet;
-    // v4.5.7: preparar el editor oculto y mostrarlo ya con su tamaño final.
-    // Evita el fotograma intermedio que iOS enseñaba al abrir Conceptos.
-    const editSheetElV457 = $('editSheet');
-    editSheetElV457.style.visibility = 'hidden';
-    editSheetElV457.classList.add('show');
-    editSheetElV457.setAttribute('aria-hidden','false');
-    document.body.classList.add('sheet-open');
-
-    if(type === 'conceptText' || type === 'simpleLine'){
-      ['editConceptText','editSimpleText','editConceptRedLine','editSimpleRedLine'].forEach(function(id){
-        const el = $(id);
-        if(!el) return;
-        try{
-          el.style.height = 'auto';
-          el.style.maxHeight = 'none';
-          el.style.overflow = 'visible';
-          const minH = (id === 'editConceptText' || id === 'editSimpleText') ? 170 : 42;
-          el.style.height = Math.max(minH, el.scrollHeight + 4) + 'px';
-        }catch(_){ }
-      });
-    }
-
-    void editSheetElV457.offsetHeight;
-    editSheetElV457.style.visibility = '';
+    // v4.5.9: mantener abierto el mismo panel sin ejecutar el parche de Conceptos.
+    // El bloque anterior usaba la variable inexistente `type`, provocando un error
+    // al elegir «Modo básico» o «Modo con imágenes» y dejando el fondo bloqueado.
+    const editSheetEl = $('editSheet');
+    editSheetEl.style.visibility = '';
+    editSheetEl.classList.add('show');
+    editSheetEl.setAttribute('aria-hidden','false');
     $('sheetBackdrop').classList.add('show');
+    document.body.classList.add('sheet-open');
     markSheetOpenedV4423();
   }
 
@@ -11791,7 +11775,7 @@ COLOCACIÓN INCLUIDA` }
       closeSheet();
     };
 
-    // v4.5.8: montar el buscador de plantillas antes de enseñar Conceptos.
+    // v4.5.9: montar el buscador de plantillas antes de enseñar Conceptos.
     if((type === 'conceptText' || type === 'simpleLine') && typeof window.installTemplateQuickSearchV458 === 'function'){
       window.installTemplateQuickSearchV458();
     }
@@ -15512,7 +15496,7 @@ const mo = new MutationObserver(function(){
     render();
   }
 
-  // v4.5.8: permitir crear el buscador antes de mostrar la pantalla.
+  // v4.5.9: permitir crear el buscador antes de mostrar la pantalla.
   window.installTemplateQuickSearchV458 = installSearch;
 
   document.addEventListener('click', function(){
