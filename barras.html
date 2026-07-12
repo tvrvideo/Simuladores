@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Recortes de Barras de Aluminio v1.1</title>
-    <style>:root { 
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Recortes de Barras v1.2</title>
+<style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
             --input-bg: #FFFCE6; 
@@ -220,169 +221,325 @@
   justify-content: center;
 }
 
+
+.color-section{padding:0!important;overflow:hidden;border-radius:14px}
+.bar-color-header{display:flex;align-items:baseline;gap:8px;padding:15px 18px 13px;border-bottom:2px solid rgba(255,255,255,.48)}
+.bar-color-header .ral-code{font-size:17px;font-weight:600;opacity:.9}
+.bar-color-header .ral-name{font-size:22px;font-weight:700}
+.bar-color-body{padding:14px 10px 10px}
+.bar-color-body .cut-list{margin:0}
+
+
+/* v2.7 - Mejor aprovechamiento del ancho en móvil */
+@media (max-width: 699px) {
+    body {
+        margin: 0 !important;
+        padding: 0 0 92px !important;
+        background: #f4f4f4;
+        overflow-x: hidden !important;
+    }
+
+    .container {
+        width: calc(100% - 12px) !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        padding: 10px 6px !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
+    }
+
+    .app-screen {
+        width: 100% !important;
+        margin: 8px auto 0 !important;
+        padding: 12px 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    #screen-stock {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    #results-container {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .color-section {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .bar-color-body {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .sort-buttons {
+        gap: 8px !important;
+    }
+
+    .sort-buttons button {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    h1 {
+        font-size: 27px !important;
+        line-height: 1.08 !important;
+    }
+}
+
+
+/* v1.2 - Cabecera limpia sin solaparse con MENÚ */
+@media (max-width: 699px) {
+    .container > h1 {
+        margin: 16px auto 22px !important;
+        padding: 0 8px 0 88px !important;
+        max-width: calc(100% - 16px) !important;
+        font-size: 27px !important;
+        line-height: 1.08 !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        box-sizing:border-box !important;
+    }
+
+    .container > h1 span {
+        display: inline-block;
+        margin-left: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-menu {
+        top: 10px !important;
+        left: 10px !important;
+    }
+}
+
 </style>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
-<link rel="icon" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<link rel="manifest" href="manifest.json"></head>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Ventanas Rey" name="apple-mobile-web-app-title"/>
+<link href="logo.png" rel="icon"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<link href="manifest.json" rel="manifest"/><style>
+/* v2.7 - Interfaz por pantallas */
+body{padding-bottom:92px}
+.container>hr{display:none}
+.app-screen{display:none;margin-top:10px;padding:14px;border-top:0;border-radius:12px}
+.app-screen.active-screen{display:block}
+#screen-search{background:#eef6ff;border:1px solid #b9d8ff}
+#screen-add{background:#effaf1;border:1px solid #b9e4c1}
+#screen-stock,#screen-data{background:#f7f7f7;border:1px solid #d7d7d7}
+#screen-settings{background:#fff8e8;border:1px solid #e5d2a4}
+.compact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-bottom:16px}
+.compact-field{display:flex;flex-direction:column;gap:6px}
+.compact-field label{text-align:center;margin:0}
+.compact-field input,.compact-field select,
+#screen-search input,#screen-add input,#screen-search select,#screen-add select{
+  background:#fff7cf;border:1px solid #d8ca93;border-radius:9px;padding:11px;font-size:16px
+}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:flex;gap:5px;padding:9px 6px calc(9px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #cfcfcf;box-shadow:0 -3px 12px rgba(0,0,0,.16)}
+.bottom-nav button{flex:1;width:auto;margin:0;padding:11px 2px;border-radius:10px;background:#f8f3e4;color:#555;border:1px solid #d7cdb6;font-size:12px;font-weight:bold}
+.bottom-nav button.active{color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.bottom-nav [data-screen="search"].active{background:#007bff;border-color:#007bff}
+.bottom-nav [data-screen="add"].active{background:#28a745;border-color:#28a745}
+.bottom-nav [data-screen="stock"].active{background:#6f42c1;border-color:#6f42c1}
+.bottom-nav [data-screen="data"].active{background:#ff9800;border-color:#ff9800}
+.bottom-nav [data-screen="settings"].active{background:#8a5a2b;border-color:#8a5a2b}
+.search-result-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid rgba(21,87,36,.22);text-align:left}
+.search-result-row:last-child{border-bottom:0}
+.search-result-text{flex:1;cursor:pointer;padding:6px 4px}
+.search-result-row .remove-btn{flex:0 0 auto;margin:0}
+.cut-item{border-bottom:2px solid rgba(255,255,255,.68)}
+.color-title{text-shadow:none!important;font-weight:600}
+.settings-card{background:#f7f0df;border:1px solid #d9c8a6;border-radius:12px;padding:16px;margin-bottom:16px}
+.settings-help{text-align:center;color:#666;font-size:14px}
+.ral-settings-list{display:grid;gap:9px}
+.ral-setting-row{display:grid;grid-template-columns:78px minmax(0,1fr) 90px;gap:8px;align-items:center;padding:9px 10px;background:#fffdf7;border:1px solid #dfd3bc;border-radius:9px}
+.ral-setting-row input[type="text"]{background:#fff7cf;border:1px solid #d8ca93;border-radius:8px;padding:9px 8px}
+.ral-setting-row input[type="color"]{width:52px;height:38px;padding:2px;border:1px solid #c9baa0;border-radius:8px;background:#fff;justify-self:end}
+.ral-setting-save{background:#2f80ed}
+.ral-setting-delete{background:#dc3545}
+.ral-setting-save,.ral-setting-delete{width:100%;margin:0}
+.ral-setting-save{grid-column:1/3}
+.ral-setting-delete{grid-column:3/4}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.settings-color-field{grid-column:1/-1}
+.settings-message{text-align:center;font-weight:bold;min-height:20px}
+.settings-message.ok{color:#176b2c}.settings-message.error{color:#a21d2d}
+.add-cut-message{min-height:22px;margin:10px 0 0;text-align:center;font-weight:bold;font-size:16px}
+.add-cut-message.ok{color:#176b2c}
+.add-cut-message.error{color:#a21d2d}
+.secondary-action{background:#7d6b52;margin-top:12px}
+#export-csv-ios-btn{background:#28a745!important}
+#cancel-delete-btn{background:#e7dfcf;color:#333;border:1px solid #cbbda4}
+@media(min-width:700px){
+ .bottom-nav{gap:8px;padding-left:10px;padding-right:10px}
+ .bottom-nav button{font-size:15px;padding:11px 6px}
+ .ral-setting-row{grid-template-columns:92px minmax(0,1fr) 58px 82px 82px}
+ .ral-setting-save,.ral-setting-delete{grid-column:auto}
+}
+</style></head>
 <body>
-
-<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
-
-
-
-
-
+<button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-    <h1>Recortes de Barras de Aluminio <span style="font-size:.55em;opacity:.75;">v1.1</span></h1>
-    
-    <div class="section">
-        <h2>Buscador de Recortes</h2>
-        <div class="form-group">
-            <label for="search-ral-select">Color RAL a buscar:</label>
-            <select id="search-ral-select">
-                <option value="all">Buscar Todo</option>
-                <option value="1015">RAL 1015 - Ivory</option>
-                <option value="1036">RAL 1036 - Oro</option>
-                <option value="2004">RAL 2004 - Naranja</option>
-                <option value="2015">RAL 2015 - Beige</option>
-                <option value="3005">RAL 3005 - Rojo Vino</option>
-                <option value="5010">RAL 5010 - Azul Genciana</option>
-                <option value="6005">RAL 6005 - Verde</option>
-                <option value="6009">RAL 6009 - Verde Abeto</option>
-                <option value="7016">RAL 7016 - Gris Antracita</option>
-                <option value="7035">RAL 7035 - Natural</option>
-                <option value="7043">RAL 7043 - Gris</option>
-                <option value="8003">RAL 8003 - Roble Dorado</option>
-                <option value="8004">RAL 8004 - Cobre</option>
-                <option value="8011">RAL 8011 - Nogal</option>
-                <option value="8014">RAL 8014 - Marrón</option>
-                <option value="8017">RAL 8017 - Bronce</option>
-                <option value="9005">RAL 9005 - Negro Intenso</option>
-                <option value="9010">RAL 9010 - Blanco Puro</option>
-                <option value="1733">RAL 1733 - Inox</option>
-                <option value="0000">0000 - Otros / Varios</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="search-bar-name-input">Nombre de barra a buscar (parcial):</label>
-            <input type="text" id="search-bar-name-input" placeholder="Ej: T-80 o 65x20">
-        </div>
-        <div class="form-group">
-            <label for="search-min-long-input">Longitud mínima deseada (mm):</label>
-            <input type="number" id="search-min-long-input" placeholder="Ej: 1500">
-        </div>
-        <button id="search-cut-btn">Buscar Barra</button>
-        <div id="search-results-container" class="search-results-container no-results"><p class="search-result-item">No se encontraron barras que cumplan con los criterios especificados.</p></div>
-    </div>
-    
-    <hr>
-
-    <div class="section">
-        <h2>Añadir Recorte de Barra</h2>
-        <div class="form-group">
-            <label for="ral-select">Color:</label>
-            <select id="ral-select">
-                <option value="1015">RAL 1015 - Ivory</option>
-                <option value="1036">RAL 1036 - Oro</option>
-                <option value="2004">RAL 2004 - Naranja</option>
-                <option value="2015">RAL 2015 - Beige</option>
-                <option value="3005">RAL 3005 - Rojo Vino</option>
-                <option value="5010">RAL 5010 - Azul Genciana</option>
-                <option value="6005">RAL 6005 - Verde</option>
-                <option value="6009">RAL 6009 - Verde Abeto</option>
-                <option value="7016">RAL 7016 - Gris Antracita</option>
-                <option value="7035">RAL 7035 - Natural</option>
-                <option value="7043">RAL 7043 - Gris</option>
-                <option value="8003">RAL 8003 - Roble Dorado</option>
-                <option value="8004">RAL 8004 - Cobre</option>
-                <option value="8011">RAL 8011 - Nogal</option>
-                <option value="8014">RAL 8014 - Marrón</option>
-                <option value="8017">RAL 8017 - Bronce</option>
-                <option value="9005">RAL 9005 - Negro Intenso</option>
-                <option value="9010" selected>RAL 9010 - Blanco Puro</option>
-                <option value="1733">RAL 1733 - Inox</option>
-                <option value="0000">0000 - Otros / Varios</option> </select>
-        </div>
-        <div class="form-group" id="custom-color-group" style="display: none;">
-            <label for="custom-color-input">Nombre del Color / Material:</label>
-            <input type="text" id="custom-color-input" placeholder="Ej: Acero, Cobre Brillante, RAL 5021">
-        </div>
-        <div class="form-group">
-            <label for="bar-name-input">Nombre barra:</label>
-            <input type="text" id="bar-name-input" placeholder="Ej: T-80, Perfil 65x20" required="">
-        </div>
-        <div class="form-group">
-            <label for="longitud-input">Longitud (mm):</label>
-            <input type="number" id="longitud-input" placeholder="Ej: 3000" required="">
-        </div>
-        <div class="form-group">
-            <label for="count-input">Cantidad:</label>
-            <input type="number" id="count-input" value="1" min="1" required="">
-        </div>
-        <div class="form-group">
-            <label for="date-input">Fecha:</label>
-            <input type="date" id="date-input" value="" required="">
-        </div>
-        <button id="add-cut-btn">Añadir Recorte</button>
-    </div>
-
-    <hr>
-
-    <div class="section">
-        <h2>Gestión de Datos</h2>
-        <div class="db-buttons">
-            <button id="export-json-ios-btn" style="background-color: #34A853;">Exportar JSON (iOS Share)</button>
-            <button id="export-csv-ios-btn" style="background-color: #FBC02D;">Exportar CSV (iOS Share)</button>
-            <input type="file" id="import-file" accept=".json, .csv" style="display: none;">
-            <button id="import-btn" style="background-color: #4285F4;">Importar JSON/CSV</button>
-        </div>
-    </div>
-
-    <hr>
-
-    <div class="section">
-        <h2>Recortes Guardados</h2>
-        <div class="sort-buttons">
-            <button id="sort-longitud-btn">Ordenar por Longitud</button>
-            <button id="sort-name-btn">Ordenar por Nombre</button>
-        </div>
-        <div id="results-container">
-            <p style="text-align: center; color: #666;">Aún no hay recortes guardados.</p>
-        </div>
-    </div>
+<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2</span></h1>
+<div class="section app-screen active-screen" data-screen="search" id="screen-search">
+<h2>Buscador de Recortes</h2>
+<div class="form-group">
+<label for="search-ral-select">Color RAL a buscar:</label>
+<select id="search-ral-select">
+<option value="all">Buscar Todo</option>
+<option value="1015">RAL 1015 - Ivory</option>
+<option value="1036">RAL 1036 - Oro</option>
+<option value="2004">RAL 2004 - Naranja</option>
+<option value="2015">RAL 2015 - Beige</option>
+<option value="3005">RAL 3005 - Rojo Vino</option>
+<option value="5010">RAL 5010 - Azul Genciana</option>
+<option value="6005">RAL 6005 - Verde</option>
+<option value="6009">RAL 6009 - Verde Abeto</option>
+<option value="7016">RAL 7016 - Gris Antracita</option>
+<option value="7035">RAL 7035 - Natural</option>
+<option value="7043">RAL 7043 - Gris</option>
+<option value="8003">RAL 8003 - Roble Dorado</option>
+<option value="8004">RAL 8004 - Cobre</option>
+<option value="8011">RAL 8011 - Nogal</option>
+<option value="8014">RAL 8014 - Marrón</option>
+<option value="8017">RAL 8017 - Bronce</option>
+<option value="9005">RAL 9005 - Negro Intenso</option>
+<option value="9010">RAL 9010 - Blanco Puro</option>
+<option value="1733">RAL 1733 - Inox</option>
+<option value="0000">0000 - Otros / Varios</option>
+</select>
 </div>
-
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Editar Recorte</h2>
-        <div class="form-group">
-            <label for="modal-bar-name">Nombre barra:</label>
-            <input type="text" id="modal-bar-name" required="">
-        </div>
-        <div class="form-group">
-            <label for="modal-longitud">Longitud (mm):</label>
-            <input type="number" id="modal-longitud" required="">
-        </div>
-        <div class="form-group">
-            <label for="modal-count">Cantidad:</label>
-            <input type="number" id="modal-count" min="0" required="">
-        </div>
-        <div class="form-group">
-            <label for="modal-date">Fecha:</label>
-            <input type="date" id="modal-date" required="">
-        </div>
-        <div class="modal-buttons">
-            <button id="save-edit-btn" style="background-color: #28a745;">Guardar Cambios</button>
-            <button id="cancel-edit-btn" style="background-color: #6c757d;">Cancelar</button>
-        </div>
-    </div>
+<div class="form-group">
+<label for="search-bar-name-input">Nombre de barra a buscar (parcial):</label>
+<input id="search-bar-name-input" placeholder="Ej: T-80 o 65x20" type="text"/>
 </div>
-
+<div class="compact-grid"><div class="compact-field" style="grid-column:1/-1;">
+<label for="search-min-long-input">Longitud mínima</label>
+<input id="search-min-long-input" placeholder="Ej: 1500" type="number"/>
+</div></div><button id="search-cut-btn">Buscar Barra</button>
+<div class="search-results-container no-results" id="search-results-container" style="display:none;"><p class="search-result-item">No se encontraron barras que cumplan con los criterios especificados.</p></div>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="add" id="screen-add">
+<h2>Añadir Recorte de Barra</h2>
+<div class="form-group">
+<label for="ral-select">Color:</label>
+<select id="ral-select">
+<option value="1015">RAL 1015 - Ivory</option>
+<option value="1036">RAL 1036 - Oro</option>
+<option value="2004">RAL 2004 - Naranja</option>
+<option value="2015">RAL 2015 - Beige</option>
+<option value="3005">RAL 3005 - Rojo Vino</option>
+<option value="5010">RAL 5010 - Azul Genciana</option>
+<option value="6005">RAL 6005 - Verde</option>
+<option value="6009">RAL 6009 - Verde Abeto</option>
+<option value="7016">RAL 7016 - Gris Antracita</option>
+<option value="7035">RAL 7035 - Natural</option>
+<option value="7043">RAL 7043 - Gris</option>
+<option value="8003">RAL 8003 - Roble Dorado</option>
+<option value="8004">RAL 8004 - Cobre</option>
+<option value="8011">RAL 8011 - Nogal</option>
+<option value="8014">RAL 8014 - Marrón</option>
+<option value="8017">RAL 8017 - Bronce</option>
+<option value="9005">RAL 9005 - Negro Intenso</option>
+<option selected="" value="9010">RAL 9010 - Blanco Puro</option>
+<option value="1733">RAL 1733 - Inox</option>
+<option value="0000">0000 - Otros / Varios</option> </select>
+</div>
+<div class="form-group" id="custom-color-group" style="display: none;">
+<label for="custom-color-input">Nombre del Color / Material:</label>
+<input id="custom-color-input" placeholder="Ej: Acero, Cobre Brillante, RAL 5021" type="text"/>
+</div>
+<div class="form-group">
+<label for="bar-name-input">Nombre barra:</label>
+<input id="bar-name-input" placeholder="Ej: T-80, Perfil 65x20" required="" type="text"/>
+</div>
+<div class="compact-grid"><div class="compact-field">
+<label for="longitud-input">Longitud (mm):</label>
+<input id="longitud-input" placeholder="Ej: 3000" required="" type="number"/>
+</div><div class="compact-field">
+<label for="count-input">Cantidad:</label>
+<input id="count-input" min="1" required="" type="number" value="1"/>
+</div></div><div class="form-group">
+<label for="date-input">Fecha:</label>
+<input id="date-input" required="" type="date" value=""/>
+</div>
+<button id="add-cut-btn">Añadir Recorte</button>
+<p class="add-cut-message" id="add-cut-message"></p>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="data" id="screen-data">
+<h2>Gestión de Datos</h2>
+<div class="db-buttons">
+<button id="export-json-ios-btn" style="background-color: #34A853;">Exportar JSON (iOS Share)</button>
+<button id="export-csv-ios-btn" style="background-color: #FBC02D;">Exportar CSV (iOS Share)</button>
+<input accept=".json, .csv" id="import-file" style="display: none;" type="file"/>
+<button id="import-btn" style="background-color: #4285F4;">Importar JSON/CSV</button>
+</div>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="stock" id="screen-stock">
+<h2>Recortes Guardados</h2>
+<div class="sort-buttons">
+<button id="sort-longitud-btn">Ordenar por Longitud</button>
+<button id="sort-name-btn">Ordenar por Nombre</button>
+</div>
+<div id="results-container">
+<p style="text-align: center; color: #666;">Aún no hay recortes guardados.</p>
+</div>
+</div>
+<section class="section app-screen" data-screen="settings" id="screen-settings">
+<h2>Ajustes</h2>
+<div class="settings-card" style="background:#EAF4FF;border:1px solid #BFD8F5;">
+<h3>Añadir acabado nuevo</h3>
+<div class="settings-grid">
+<div class="compact-field"><label for="new-ral-code">Código</label><input id="new-ral-code" placeholder="Ej. 9007 o ANOD" type="text"/></div>
+<div class="compact-field"><label for="new-ral-name">Nombre</label><input id="new-ral-name" placeholder="Ej. Anodizado plata" type="text"/></div>
+<div class="compact-field settings-color-field"><label for="new-ral-color">Color</label><input id="new-ral-color" type="color" value="#c9c9c9" style="width:60px;height:42px;padding:3px;border:1px solid #d8ca93;border-radius:9px;background:#fff7cf;"></div>
+</div>
+<button id="add-ral-color-btn">Añadir acabado</button>
+<p class="settings-message" id="settings-message"></p>
+</div>
+<div class="settings-card">
+<h3>Colores y acabados</h3>
+<p class="settings-help">Edita código, nombre y color. Los recortes se mantienen al cambiar el código.</p>
+<div class="ral-settings-list" id="ral-settings-list"></div>
+<button class="secondary-action" id="reset-ral-colors-btn">Restaurar colores originales</button>
+</div>
+</section></div>
+<div class="modal" id="editModal">
+<div class="modal-content">
+<span class="close-btn">×</span>
+<h2>Editar Recorte</h2>
+<div class="form-group">
+<label for="modal-bar-name">Nombre barra:</label>
+<input id="modal-bar-name" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="modal-longitud">Longitud (mm):</label>
+<input id="modal-longitud" required="" type="number"/>
+</div>
+<div class="form-group">
+<label for="modal-count">Cantidad:</label>
+<input id="modal-count" min="0" required="" type="number"/>
+</div>
+<div class="form-group">
+<label for="modal-date">Fecha:</label>
+<input id="modal-date" required="" type="date"/>
+</div>
+<div class="modal-buttons">
+<button id="save-edit-btn" style="background-color: #28a745;">Guardar Cambios</button>
+<button id="cancel-edit-btn" style="background-color: #6c757d;">Cancelar</button>
+</div>
+</div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- Selectores de elementos ---
@@ -400,6 +557,20 @@
         const searchResultsContainer = document.getElementById('search-results-container');
         const sortLongitudBtn = document.getElementById('sort-longitud-btn');
         const sortNameBtn = document.getElementById('sort-name-btn');
+        const addCutMessage = document.getElementById('add-cut-message');
+        let addCutMessageTimer = null;
+
+        function showAddCutMessage(text, type = 'ok') {
+            if (!addCutMessage) return;
+            addCutMessage.textContent = text;
+            addCutMessage.className = `add-cut-message ${type}`;
+
+            if (addCutMessageTimer) clearTimeout(addCutMessageTimer);
+            addCutMessageTimer = setTimeout(() => {
+                addCutMessage.textContent = '';
+                addCutMessage.className = 'add-cut-message';
+            }, 2800);
+        }
         
         // **NUEVOS SELECTORES**
         const customColorGroup = document.getElementById('custom-color-group');
@@ -617,6 +788,7 @@
             const nombreColor = ral === '0000' ? customColorInput.value.trim() : (ralColors[ral] ? ralColors[ral].name : '');
             
             if (ral === '0000' && nombreColor === '') {
+                showAddCutMessage('Introduce un nombre de color o material.', 'error');
                 alert('Por favor, introduce un Nombre de Color / Material.');
                 return;
             }
@@ -644,8 +816,11 @@
                     newCutData.nombre_color = nombreColor; 
                 }
 
+                let addMessageText = 'Recorte añadido correctamente.';
+
                 if (existingCut) {
                     existingCut.cantidad += count;
+                    addMessageText = 'Cantidad actualizada correctamente.';
                     // Si ya existe, nos aseguramos de que tenga el nombre_color por si fue importado de una versión antigua
                     if (ral === '0000' && existingCut.nombre_color !== nombreColor) {
                         existingCut.nombre_color = nombreColor;
@@ -666,10 +841,13 @@
                 customColorInput.value = ''; // Limpiar el campo de texto
                 customColorGroup.style.display = 'none'; // Ocultar el campo de texto
                 // === FIN AJUSTE ===
+
+                showAddCutMessage(addMessageText, 'ok');
                 
                 // dateInput.value = new Date().toISOString().substring(0, 10);
 
             } else {
+                showAddCutMessage('Completa todos los campos correctamente.', 'error');
                 alert('Por favor, completa todos los campos (Nombre de barra, Longitud, Cantidad y Fecha) con valores válidos.');
             }
         });
@@ -1049,8 +1227,6 @@
         renderCuts();
     });
 </script>
-
-
 <script>
 function volverIndexSeguro(){
  try{
@@ -1068,6 +1244,439 @@ function volverIndexSeguro(){
  window.location.href='index.html';
  return false;
 }
+</script>
+<div class="modal" id="deleteConfirmModal">
+<div class="modal-content">
+<h3>Eliminar recorte</h3>
+<p id="deleteConfirmText">¿Seguro que quieres eliminar este recorte?</p>
+<div class="modal-buttons">
+<button id="cancel-delete-btn">Cancelar</button>
+<button id="confirm-delete-btn" style="background:#dc3545">Eliminar</button>
+</div>
+</div>
+</div>
+<div class="modal" id="deleteColorModal">
+<div class="modal-content">
+<h3>Borrar acabado</h3>
+<p id="deleteColorText">¿Seguro que quieres borrar este acabado?</p>
+<div class="modal-buttons">
+<button id="cancel-color-delete-btn">Cancelar</button>
+<button id="confirm-color-delete-btn" style="background:#dc3545">Borrar</button>
+</div>
+</div>
+</div>
+<nav aria-label="Navegación principal" class="bottom-nav">
+<button data-screen="settings" type="button">Ajustes</button>
+<button data-screen="data" type="button">Datos</button>
+<button data-screen="stock" type="button">Recortes</button>
+<button data-screen="add" type="button">Añadir</button>
+<button class="active" data-screen="search" type="button">Buscar</button>
+</nav><script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const STORAGE='aluminiumBarCutsData';
+ const COLOR_KEY='aluminiumBarColorSettings';
+ const CUSTOM_KEY='aluminiumBarCustomColors';
+ const DELETED_KEY='aluminiumBarDeletedColors';
+ const baseColors={
+  '1015':{hex:'#d8c6b3',name:'Ivory'},'1036':{hex:'#9e8c67',name:'Oro'},'2004':{hex:'#f46c24',name:'Naranja'},
+  '2015':{hex:'#e09867',name:'Beige'},'3005':{hex:'#6c2b33',name:'Rojo Vino'},'5010':{hex:'#005b8a',name:'Azul Genciana'},
+  '6005':{hex:'#0f3c2f',name:'Verde'},'6009':{hex:'#3d4431',name:'Verde Abeto'},'7016':{hex:'#383e42',name:'Gris Antracita'},
+  '7035':{hex:'#ccd2d2',name:'Natural'},'7043':{hex:'#5d6468',name:'Gris'},'8003':{hex:'#976e4c',name:'Roble Dorado'},
+  '8004':{hex:'#9e5647',name:'Cobre'},'8011':{hex:'#6d4734',name:'Nogal'},'8014':{hex:'#4d3b31',name:'Marrón'},
+  '8017':{hex:'#5e4334',name:'Bronce'},'9005':{hex:'#0a0a0c',name:'Negro Intenso'},'9010':{hex:'#f7f9ef',name:'Blanco Puro'},
+  '1733':{hex:'#a9a9a9',name:'Inox'},'0000':{hex:'#cccccc',name:'Otros / Varios'}
+ };
+ const colors=JSON.parse(JSON.stringify(baseColors));
+ const deletedColors=new Set(JSON.parse(localStorage.getItem(DELETED_KEY)||'[]'));
+ deletedColors.forEach(code=>delete colors[code]);
+ Object.assign(colors,JSON.parse(localStorage.getItem(CUSTOM_KEY)||'{}'));
+ const saved=JSON.parse(localStorage.getItem(COLOR_KEY)||'{}');
+ Object.keys(saved).forEach(c=>{if(colors[c]){const v=saved[c];if(typeof v==='string')colors[c].hex=v;else Object.assign(colors[c],v)}});
+
+ const readData=()=>{try{const d=JSON.parse(localStorage.getItem(STORAGE)||'{}');return {cutsByRAL:d.cutsByRAL||d||{},nextCutId:Number(d.nextCutId)||0}}catch(e){return {cutsByRAL:{},nextCutId:0}}};
+ const writeData=d=>localStorage.setItem(STORAGE,JSON.stringify(d));
+ const label=c=>`${c==='0000'?'':'RAL '}${c} - ${colors[c]?.name||''}`;
+
+ function refillSelects(){
+  ['ral-select','search-ral-select'].forEach(id=>{
+   const s=document.getElementById(id), current=s.value;
+   const all=id==='search-ral-select';
+   s.innerHTML=all?'<option value="all">Buscar Todo</option>':'';
+   Object.keys(colors).sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).forEach(c=>{
+    const o=document.createElement('option');o.value=c;o.textContent=label(c);s.appendChild(o);
+   });
+   if([...s.options].some(o=>o.value===current))s.value=current;
+  });
+ }
+
+ // Navegación
+ document.querySelectorAll('.bottom-nav button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.app-screen').forEach(s=>s.classList.remove('active-screen'));
+  btn.classList.add('active');
+  document.getElementById('screen-'+btn.dataset.screen).classList.add('active-screen');
+  window.scrollTo({top:0,behavior:'auto'});
+ }));
+
+ // Búsqueda completa ordenada y editable
+ const oldSearch=document.getElementById('search-cut-btn');
+ const newSearch=oldSearch.cloneNode(true);oldSearch.replaceWith(newSearch);
+ const results=document.getElementById('search-results-container');
+ function runSearch(){
+  const data=readData(),ral=document.getElementById('search-ral-select').value;
+  const name=document.getElementById('search-bar-name-input').value.trim().toUpperCase();
+  const min=parseInt(document.getElementById('search-min-long-input').value)||0;
+const found=[];
+  Object.keys(data.cutsByRAL).forEach(code=>{
+   if(ral!=='all'&&code!==ral)return;
+   (data.cutsByRAL[code]||[]).forEach(c=>{
+    if((!name||String(c.nombre_barra).toUpperCase().includes(name))&&Number(c.longitud)>=min)
+      found.push({code,c,waste:Number(c.longitud)-min});
+   });
+  });
+  found.sort((a,b)=>a.waste-b.waste||a.c.longitud-b.c.longitud||String(a.c.nombre_barra).localeCompare(String(b.c.nombre_barra)));
+  results.style.display='block';results.innerHTML='';
+  results.className='search-results-container'+(found.length?'':' no-results');
+  if(!found.length){results.innerHTML='<p>No se encontraron recortes</p>';return}
+  found.forEach(({code,c})=>{
+   const row=document.createElement('div');row.className='search-result-row';
+   row.innerHTML=`<span class="search-result-text" data-id="${c.id}">${label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}</span><button class="remove-btn search-remove-btn" data-id="${c.id}">Quitar</button>`;
+   results.appendChild(row);
+  });
+ }
+ newSearch.addEventListener('click',runSearch);
+
+ // Editar desde búsqueda: abre el editor existente a través del recorte real
+ results.addEventListener('click',e=>{
+  const t=e.target.closest('.search-result-text');if(!t)return;
+  const real=document.querySelector(`.cut-info[data-id="${t.dataset.id}"]`);
+  if(real)real.click();
+ });
+
+ // Confirmación de borrado, interceptando antes del borrado original
+ const modal=document.getElementById('deleteConfirmModal');
+ let pending=null;
+ document.addEventListener('click',e=>{
+  const b=e.target.closest('.remove-btn');if(!b)return;
+  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+  pending=Number(b.dataset.id);
+  const data=readData();let cut=null;
+  for(const r in data.cutsByRAL){cut=(data.cutsByRAL[r]||[]).find(c=>Number(c.id)===pending);if(cut)break}
+  document.getElementById('deleteConfirmText').textContent=cut?`¿Seguro que quieres eliminar ${cut.nombre_barra} de ${cut.longitud} mm?`:'¿Seguro que quieres eliminar este recorte?';
+  modal.style.display='block';
+ },true);
+ document.getElementById('cancel-delete-btn').onclick=()=>{pending=null;modal.style.display='none'};
+ document.getElementById('confirm-delete-btn').onclick=()=>{
+  const data=readData();
+  for(const r in data.cutsByRAL){
+   const i=(data.cutsByRAL[r]||[]).findIndex(c=>Number(c.id)===pending);
+   if(i>=0){data.cutsByRAL[r].splice(i,1);if(!data.cutsByRAL[r].length)delete data.cutsByRAL[r];break}
+  }
+  writeData(data);modal.style.display='none';pending=null;location.reload();
+ };
+
+ // Ajustes
+ const list=document.getElementById('ral-settings-list'),msg=document.getElementById('settings-message');
+ const show=(t,c)=>{msg.textContent=t;msg.className='settings-message '+c};
+
+ const deleteColorModal=document.getElementById('deleteColorModal');
+ const deleteColorText=document.getElementById('deleteColorText');
+ let pendingColorDelete=null;
+ function saveColors(){
+  const overrides={},custom={};
+  Object.keys(colors).forEach(c=>{
+   const item={hex:colors[c].hex,name:colors[c].name};
+   if(baseColors[c]){
+    if(item.hex!==baseColors[c].hex || item.name!==baseColors[c].name){
+      overrides[c]=item;
+    }
+   }else{
+    custom[c]=item;
+   }
+  });
+  localStorage.setItem(COLOR_KEY,JSON.stringify(overrides));
+  localStorage.setItem(CUSTOM_KEY,JSON.stringify(custom));
+ }
+ function renderSettings(){
+  list.innerHTML='';
+  Object.keys(colors).sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).forEach(code=>{
+   const row=document.createElement('div');row.className='ral-setting-row';
+   const ci=document.createElement('input');ci.type='text';ci.value=code;
+   const ni=document.createElement('input');ni.type='text';ni.value=colors[code].name;
+   const pi=document.createElement('input');pi.type='color';pi.value=colors[code].hex;
+   const save=document.createElement('button');save.className='ral-setting-save';save.textContent='Guardar';
+   const borrar=document.createElement('button');borrar.className='ral-setting-delete';borrar.textContent='Borrar';
+   save.onclick=()=>{
+    const nc=ci.value.trim().toUpperCase().replace(/\s+/g,'-'),nn=ni.value.trim();
+    if(!nc||!nn){show('Código y nombre obligatorios.','error');return}
+    if(nc!==code&&colors[nc]){show('Ese código ya existe.','error');return}
+    if(nc!==code){
+     const data=readData();
+     if(data.cutsByRAL[code]){
+      if(!data.cutsByRAL[nc])data.cutsByRAL[nc]=[];
+      data.cutsByRAL[nc]=data.cutsByRAL[nc].concat(data.cutsByRAL[code]);delete data.cutsByRAL[code];writeData(data);
+     }
+     colors[nc]={name:nn,hex:pi.value};delete colors[code];
+    }else colors[code]={name:nn,hex:pi.value};
+    saveColors();
+    refillSelects();
+    renderSettings();
+    if (typeof window.actualizarTarjetasBarras === 'function') {
+      window.actualizarTarjetasBarras();
+    }
+    show('Acabado actualizado.','ok');
+   };
+   borrar.onclick=()=>{
+    const data=readData();
+    const count=Array.isArray(data.cutsByRAL[code]) ? data.cutsByRAL[code].length : 0;
+    pendingColorDelete=code;
+    deleteColorText.textContent=count
+      ? `¿Seguro que quieres borrar ${code} - ${colors[code].name}? También se borrarán ${count} recorte${count===1?'':'s'} asociado${count===1?'':'s'}.`
+      : `¿Seguro que quieres borrar ${code} - ${colors[code].name}?`;
+    deleteColorModal.style.display='block';
+   };
+   row.append(ci,ni,pi,save,borrar);list.appendChild(row);
+  });
+ }
+ document.getElementById('cancel-color-delete-btn').onclick=()=>{
+  pendingColorDelete=null;
+  deleteColorModal.style.display='none';
+ };
+
+ document.getElementById('confirm-color-delete-btn').onclick=()=>{
+  const code=pendingColorDelete;
+  if(!code || !colors[code]){
+    deleteColorModal.style.display='none';
+    pendingColorDelete=null;
+    return;
+  }
+
+  const data=readData();
+  if(data.cutsByRAL[code]){
+    delete data.cutsByRAL[code];
+    writeData(data);
+  }
+
+  if(baseColors[code]){
+    deletedColors.add(code);
+    localStorage.setItem(DELETED_KEY,JSON.stringify([...deletedColors]));
+  }
+
+  delete colors[code];
+  saveColors();
+  refillSelects();
+  renderSettings();
+
+  if(typeof window.actualizarTarjetasBarras==='function'){
+    window.actualizarTarjetasBarras();
+  }
+
+  deleteColorModal.style.display='none';
+  pendingColorDelete=null;
+  show('Acabado eliminado correctamente.','ok');
+ };
+
+ deleteColorModal.addEventListener('click',e=>{
+  if(e.target===deleteColorModal){
+    pendingColorDelete=null;
+    deleteColorModal.style.display='none';
+  }
+ });
+
+ document.getElementById('add-ral-color-btn').onclick=()=>{
+  const c=document.getElementById('new-ral-code').value.trim().toUpperCase().replace(/\s+/g,'-');
+  const n=document.getElementById('new-ral-name').value.trim();
+  const h=document.getElementById('new-ral-color').value;
+  if(!c||!n){show('Escribe código y nombre.','error');return}
+  if(colors[c]){show('Ese código ya existe.','error');return}
+  colors[c]={name:n,hex:h};
+  saveColors();
+  refillSelects();
+  renderSettings();
+  if (typeof window.actualizarTarjetasBarras === 'function') {
+    window.actualizarTarjetasBarras();
+  }
+  show('Acabado añadido.','ok');
+ };
+ document.getElementById('reset-ral-colors-btn').onclick=()=>{
+  Object.keys(baseColors).forEach(c=>{colors[c]=JSON.parse(JSON.stringify(baseColors[c]))});
+  deletedColors.clear();
+  localStorage.removeItem(DELETED_KEY);
+  localStorage.removeItem(COLOR_KEY);
+  saveColors();
+  refillSelects();
+  renderSettings();
+  if (typeof window.actualizarTarjetasBarras === 'function') {
+    window.actualizarTarjetasBarras();
+  }
+  show('Colores restaurados.','ok');
+ };
+
+ // Aplicar colores personalizados a tarjetas, incluso tras redibujar
+ function applyCardColors(){
+  const data=readData();
+  document.querySelectorAll('.color-section').forEach(card=>{
+   const title=card.querySelector('.color-title')?.textContent||'';
+   let code=(title.match(/RAL\s+([A-Z0-9-]+)/i)||[])[1];
+   if(!code&&title.startsWith('0000'))code='0000';
+   if(!code||!colors[code])return;
+   card.style.backgroundColor=colors[code].hex;
+   const dark=((parseInt(colors[code].hex.slice(1,3),16)*299+parseInt(colors[code].hex.slice(3,5),16)*587+parseInt(colors[code].hex.slice(5,7),16)*114)/1000)<140;
+   card.querySelectorAll('.cut-info,.color-title').forEach(x=>x.style.color=dark?'#f4f4f4':'#333');
+  });
+ }
+ new MutationObserver(applyCardColors).observe(document.getElementById('results-container'),{childList:true,subtree:true});
+
+ refillSelects();renderSettings();applyCardColors();
+});
+</script><script>
+(function(){
+ const DEFAULTS={
+  '1015':{hex:'#d8c6b3',name:'Ivory'},'1036':{hex:'#9e8c67',name:'Oro'},'2004':{hex:'#f46c24',name:'Naranja'},
+  '2015':{hex:'#e09867',name:'Beige'},'3005':{hex:'#6c2b33',name:'Rojo Vino'},'5010':{hex:'#005b8a',name:'Azul Genciana'},
+  '6005':{hex:'#0f3c2f',name:'Verde'},'6009':{hex:'#3d4431',name:'Verde Abeto'},'7016':{hex:'#383e42',name:'Gris Antracita'},
+  '7035':{hex:'#ccd2d2',name:'Natural'},'7043':{hex:'#5d6468',name:'Gris'},'8003':{hex:'#976e4c',name:'Roble Dorado'},
+  '8004':{hex:'#9e5647',name:'Cobre'},'8011':{hex:'#6d4734',name:'Nogal'},'8014':{hex:'#4d3b31',name:'Marrón'},
+  '8017':{hex:'#5e4334',name:'Bronce'},'9005':{hex:'#0a0a0c',name:'Negro Intenso'},'9010':{hex:'#f7f9ef',name:'Blanco Puro'},
+  '1733':{hex:'#a9a9a9',name:'Inox'},'0000':{hex:'#cccccc',name:'Otros / Varios'}
+ };
+
+ function getColors(){
+  const colors=JSON.parse(JSON.stringify(DEFAULTS));
+  try{
+   const deleted=JSON.parse(localStorage.getItem('aluminiumBarDeletedColors')||'[]');
+   deleted.forEach(code=>delete colors[code]);
+  }catch(e){}
+  try{Object.assign(colors,JSON.parse(localStorage.getItem('aluminiumBarCustomColors')||'{}'))}catch(e){}
+  try{
+   const saved=JSON.parse(localStorage.getItem('aluminiumBarColorSettings')||'{}');
+   Object.keys(saved).forEach(code=>{
+    if(!colors[code]) return;
+    if(typeof saved[code]==='string') colors[code].hex=saved[code];
+    else{
+     if(saved[code].hex) colors[code].hex=saved[code].hex;
+     if(saved[code].name) colors[code].name=saved[code].name;
+    }
+   });
+  }catch(e){}
+  return colors;
+ }
+
+ function lum(hex){
+  if(!/^#[0-9a-f]{6}$/i.test(hex)) return .5;
+  const r=parseInt(hex.slice(1,3),16)/255;
+  const g=parseInt(hex.slice(3,5),16)/255;
+  const b=parseInt(hex.slice(5,7),16)/255;
+  return .2126*r+.7152*g+.0722*b;
+ }
+
+ function darken(hex,f=.78){
+  if(!/^#[0-9a-f]{6}$/i.test(hex)) return '#888888';
+  const vals=[1,3,5].map(i=>Math.max(0,Math.round(parseInt(hex.slice(i,i+2),16)*f)));
+  return `rgb(${vals.join(',')})`;
+ }
+
+ function parseCardIdentity(card){
+  const header=card.querySelector('.bar-color-header');
+  if(header){
+   const codeText=header.querySelector('.ral-code')?.textContent.trim()||'';
+   const nameText=header.querySelector('.ral-name')?.textContent.trim()||'';
+   const code=(codeText.match(/RAL\s+(.+)/i)||[])[1] || '0000';
+   return {code,name:nameText};
+  }
+
+  const title=card.querySelector('.color-title');
+  if(!title) return null;
+
+  const txt=title.textContent.trim();
+
+  // Admite tarjetas con nombre y también las que inicialmente salen como:
+  // "RAL 0001 (1 tipos)". Después se completa el nombre desde Ajustes.
+  let m=txt.match(/^RAL\s+([A-Z0-9-]+)(?:\s*-\s*(.*?))?\s*(?:\(\d+\s+tipos\))?$/i);
+  if(m) return {code:m[1],name:(m[2]||'').trim()};
+
+  m=txt.match(/^0000(?:\s*-\s*(.*?))?\s*(?:\(\d+\s+tipos\))?$/i);
+  if(m) return {code:'0000',name:(m[1]||'').trim()};
+
+  return null;
+ }
+
+ function updateCards(){
+  const colors=getColors();
+
+  document.querySelectorAll('#results-container .color-section').forEach(card=>{
+   const identity=parseCardIdentity(card);
+   if(!identity) return;
+
+   const code=identity.code;
+   const data=colors[code] || {hex:getComputedStyle(card).backgroundColor,name:identity.name};
+
+   let hex=data.hex;
+   if(hex && hex.startsWith('rgb')){
+    const nums=hex.match(/\d+/g)?.slice(0,3).map(Number)||[204,204,204];
+    hex='#'+nums.map(v=>v.toString(16).padStart(2,'0')).join('');
+   }
+   if(!/^#[0-9a-f]{6}$/i.test(hex)) hex='#cccccc';
+
+   card.style.backgroundColor=hex;
+
+   let header=card.querySelector('.bar-color-header');
+   let body=card.querySelector('.bar-color-body');
+
+   if(!header){
+    const title=card.querySelector('.color-title');
+    const list=card.querySelector('.cut-list');
+    if(!title || !list) return;
+
+    header=document.createElement('div');
+    header.className='bar-color-header';
+
+    body=document.createElement('div');
+    body.className='bar-color-body';
+    body.appendChild(list);
+
+    title.remove();
+    card.innerHTML='';
+    card.append(header,body);
+   }
+
+   const headerBg=darken(hex,.78);
+   const nums=headerBg.match(/\d+/g)?.map(Number)||[100,100,100];
+   const headerHex='#'+nums.map(v=>v.toString(16).padStart(2,'0')).join('');
+   const headerText=lum(headerHex)<.5?'#fff':'#222';
+   const bodyText=lum(hex)<.5?'#f4f4f4':'#333';
+
+   header.style.background=headerBg;
+   header.style.color=headerText;
+   header.innerHTML=`
+    <span class="ral-code">${code==='0000'?'':`RAL ${code}`}</span>
+    <span class="ral-name">${data.name || identity.name}</span>
+   `;
+
+   card.querySelectorAll('.cut-info').forEach(item=>item.style.color=bodyText);
+  });
+ }
+
+ const target=document.getElementById('results-container');
+ if(target){
+  updateCards();
+ }
+
+ // Refrescos controlados, sin observador recursivo.
+ document.addEventListener('click',event=>{
+  const button=event.target.closest(
+   '#sort-longitud-btn, #sort-name-btn, #add-cut-btn, #save-edit-btn, #confirm-delete-btn'
+  );
+  if(!button) return;
+  setTimeout(updateCards,30);
+ });
+
+ document.querySelectorAll('.bottom-nav button[data-screen="stock"]').forEach(button=>{
+  button.addEventListener('click',()=>setTimeout(updateCards,30));
+ });
+
+ window.actualizarTarjetasBarras=updateCards;
+})();
 </script>
 </body>
 </html>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Recortes Chapa v2.0</title>
-    <style>:root { 
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Recortes Chapa v2.4</title>
+<style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
             --input-bg: #FFFCE6; 
@@ -466,8 +467,8 @@ body { padding-bottom: 92px; }
     border-color: #8a5a2b;
 }
 .settings-card {
-    background: #f7f0df;
-    border: 1px solid #d9c8a6;
+    background: #eaf4ff;
+    border: 1px solid #bfd8f5;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 16px;
@@ -489,7 +490,7 @@ body { padding-bottom: 92px; }
 }
 .ral-setting-row {
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr) 58px 82px;
+    grid-template-columns: 92px minmax(0, 1fr) 58px 82px 82px;
     align-items: center;
     gap: 8px;
     padding: 9px 10px;
@@ -520,12 +521,18 @@ body { padding-bottom: 92px; }
     font-size: 15px;
     color: #222;
 }
-.ral-setting-save {
+.ral-setting-save,
+.ral-setting-delete {
     width: auto;
     margin: 0;
     padding: 9px 10px;
     font-size: 14px;
+}
+.ral-setting-save {
     background: #2f80ed;
+}
+.ral-setting-delete {
+    background: #dc3545;
 }
 .ral-setting-row input[type="color"] {
     width: 58px;
@@ -588,9 +595,15 @@ body { padding-bottom: 92px; }
     .ral-setting-row {
         grid-template-columns: 78px minmax(0, 1fr) 52px;
     }
-    .ral-setting-save {
-        grid-column: 1 / -1;
+    .ral-setting-save,
+    .ral-setting-delete {
         width: 100%;
+    }
+    .ral-setting-save {
+        grid-column: 1 / 3;
+    }
+    .ral-setting-delete {
+        grid-column: 3 / 4;
     }
     .bottom-nav {
         gap: 5px;
@@ -687,633 +700,712 @@ body { padding-bottom: 92px; }
     margin: 0;
 }
 
+
+/* Chapa sándwich */
+.sandwich-badge {
+    display:inline-block;
+    margin-left:8px;
+    padding:3px 7px;
+    border-radius:999px;
+    background:rgba(255,255,255,.22);
+    font-size:12px;
+    font-weight:700;
+    vertical-align:middle;
+}
+.sandwich-detail {
+    font-size:13px;
+    opacity:.9;
+}
+
+
+/* v2.3 - Cabecera sin solapamiento */
+@media (max-width:699px){
+    .container > h1{
+        margin:16px auto 22px !important;
+        padding:0 !important;
+        max-width:none !important;
+        box-sizing:border-box !important;
+        text-align:center !important;
+        font-size:25px !important;
+        line-height:1.08 !important;
+        font-weight:700 !important;
+        white-space:nowrap !important;
+        transform:translateX(34px);
+    }
+
+    .container > h1 span{
+        display:inline !important;
+        margin-left:6px !important;
+        white-space:nowrap !important;
+    }
+}
+.container>h1 span{
+ display:inline-block;
+ margin-left:6px;
+ white-space:nowrap;
+}
+}
+
 </style>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ventanas Rey">
-<link rel="icon" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<link rel="manifest" href="manifest.json"></head>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Ventanas Rey" name="apple-mobile-web-app-title"/>
+<link href="logo.png" rel="icon"/>
+<link href="logo.png" rel="apple-touch-icon"/>
+<link href="manifest.json" rel="manifest"/></head>
 <body>
-
-<button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
-
-
-
-
-
+<button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-    <h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v2.0</span></h1>
-    
-    <div class="section app-screen active-screen" id="screen-search" data-screen="search">
-        <h2>Buscador</h2>
-        <div class="form-group">
-            <label for="search-ral-select">Color RAL a buscar:</label>
-            <select id="search-ral-select">
-                <option value="all">Buscar Todo</option>
-                <option value="1015">RAL 1015 - Ivory</option>
-                <option value="1036">RAL 1036 - Oro</option>
-                <option value="2004">RAL 2004 - Naranja</option>
-                <option value="2015">RAL 2015 - Beige</option>
-                <option value="3005">RAL 3005 - Rojo Vino</option>
-                <option value="5010">RAL 5010 - Azul Genciana</option>
-                <option value="6005">RAL 6005 - Verde</option>
-                <option value="6009">RAL 6009 - Verde Abeto</option>
-                <option value="7016">RAL 7016 - Gris Antracita</option>
-                <option value="7035">RAL 7035 - Natural</option>
-                <option value="7043">RAL 7043 - Gris</option>
-                <option value="8003">RAL 8003 - Roble Dorado</option>
-                <option value="8004">RAL 8004 - Cobre</option>
-                <option value="8011">RAL 8011 - Nogal</option>
-                <option value="8014">RAL 8014 - Marrón</option>
-                <option value="8017">RAL 8017 - Bronce</option>
-                <option value="9005">RAL 9005 - Negro Intenso</option>
-                <option value="9010">RAL 9010 - Blanco Puro</option>
-                <option value="1733">RAL 1733 - Inox</option>
-            </select>
-        </div>
-        <div class="compact-grid compact-grid-two">
-            <div class="compact-field">
-                <label for="search-long-input">Largo</label>
-                <input type="number" id="search-long-input" placeholder="Ej: 2000">
-            </div>
-            <div class="compact-field">
-                <label for="search-short-input">Corto</label>
-                <input type="number" id="search-short-input" placeholder="Ej: 1000">
-            </div>
-        </div>
-        <button id="search-cut-btn">Buscar Chapa</button>
-        <div id="search-results-container" class="search-results-container no-results" style="display:none;"><p class="search-result-item">No se encontraron recortes</p></div>
-    </div>
-    
-    <hr>
-
-    <div class="section app-screen" id="screen-add" data-screen="add">
-        <h2>Añadir Recorte</h2>
-        <div class="form-group">
-            <label for="ral-select">Color RAL:</label>
-            <select id="ral-select">
-                <option value="1015">RAL 1015 - Ivory</option>
-                <option value="1036">RAL 1036 - Oro</option>
-                <option value="2004">RAL 2004 - Naranja</option>
-                <option value="2015">RAL 2015 - Beige</option>
-                <option value="3005">RAL 3005 - Rojo Vino</option>
-                <option value="5010">RAL 5010 - Azul Genciana</option>
-                <option value="6005">RAL 6005 - Verde</option>
-                <option value="6009">RAL 6009 - Verde Abeto</option>
-                <option value="7016">RAL 7016 - Gris Antracita</option>
-                <option value="7035">RAL 7035 - Natural</option>
-                <option value="7043">RAL 7043 - Gris</option>
-                <option value="8003">RAL 8003 - Roble Dorado</option>
-                <option value="8004">RAL 8004 - Cobre</option>
-                <option value="8011">RAL 8011 - Nogal</option>
-                <option value="8014">RAL 8014 - Marrón</option>
-                <option value="8017">RAL 8017 - Bronce</option>
-                <option value="9005">RAL 9005 - Negro Intenso</option>
-                <option value="9010">RAL 9010 - Blanco Puro</option>
-                <option value="1733">RAL 1733 - Inox</option>
-            </select>
-        </div>
-        <div class="compact-grid compact-grid-two">
-            <div class="compact-field">
-                <label for="long-input">Largo</label>
-                <input type="number" id="long-input" placeholder="Ej: 2000" required="">
-            </div>
-            <div class="compact-field">
-                <label for="short-input">Corto</label>
-                <input type="number" id="short-input" placeholder="Ej: 1000" required="">
-            </div>
-            <div class="compact-field">
-                <label for="count-input">Cantidad</label>
-                <input type="number" id="count-input" value="1" min="1" required="">
-            </div>
-            <div class="compact-field">
-                <label for="faces-select">Caras</label>
-                <select id="faces-select">
-                    <option value="1">1 Cara</option>
-                    <option value="2">2 Caras</option>
-                </select>
-            </div>
-        </div>
-        <button id="add-cut-btn">Añadir Recorte</button>
-    </div>
-
-    <hr>
-
-    <div class="section app-screen" id="screen-stock" data-screen="stock">
-        <h2>Recortes por Color</h2>
-        <div class="sort-buttons">
-            <button id="sort-long-btn">Ordenar por Largo</button>
-            <button id="sort-short-btn">Ordenar por Corto</button>
-        </div>
-        <div id="results-container"><div class="color-section" style="background-color: rgb(216, 198, 179);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1015 - Ivory</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="1015" data-index="0" style="color: #333;">162 X 77 | 1</span>
-                        <button class="remove-btn" data-ral="1015" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1015" data-index="1" style="color: #333;">129 X 125 | 1</span>
-                        <button class="remove-btn" data-ral="1015" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1015" data-index="2" style="color: #333;">60 X 46 | 2</span>
-                        <button class="remove-btn" data-ral="1015" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1015" data-index="3" style="color: #333;">53 X 46 | 1</span>
-                        <button class="remove-btn" data-ral="1015" data-index="3">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(158, 140, 103);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1036 - Oro</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="1036" data-index="0" style="color: #333;">100 X 65 | 1</span>
-                        <button class="remove-btn" data-ral="1036" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1036" data-index="1" style="color: #333;">100 X 46 | 1</span>
-                        <button class="remove-btn" data-ral="1036" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1036" data-index="2" style="color: #333;">67 X 26 | 1</span>
-                        <button class="remove-btn" data-ral="1036" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1036" data-index="3" style="color: #333;">67 X 19 | 1</span>
-                        <button class="remove-btn" data-ral="1036" data-index="3">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(169, 169, 169);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1733 - Inox</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="0" style="color: #333;">130 X 39 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="1" style="color: #333;">125 X 37 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="2" style="color: #333;">100 X 26 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="3" style="color: #333;">85 X 29 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="4" style="color: #333;">82 X 34 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="5" style="color: #333;">78 X 24 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="6" style="color: #333;">68 X 51 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="7" style="color: #333;">60 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="8" style="color: #333;">58 X 37 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="9" style="color: #333;">56 X 37 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="10" style="color: #333;">46 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="10">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="11" style="color: #333;">43 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="11">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="1733" data-index="12" style="color: #333;">38 X 34 | 1</span>
-                        <button class="remove-btn" data-ral="1733" data-index="12">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(244, 108, 36);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 2004 - Naranja</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="2004" data-index="0" style="color: #333;">153 X 125 | 1</span>
-                        <button class="remove-btn" data-ral="2004" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="2004" data-index="1" style="color: #333;">147 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="2004" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="2004" data-index="2" style="color: #333;">74 X 49 | 2</span>
-                        <button class="remove-btn" data-ral="2004" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="2004" data-index="3" style="color: #333;">49 X 48 | 1</span>
-                        <button class="remove-btn" data-ral="2004" data-index="3">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(224, 152, 103);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 2015 - Beige</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="2015" data-index="0" style="color: #333;">66 X 33 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="2015" data-index="0">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(108, 43, 51);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 3005 - Rojo Vino</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="3005" data-index="0" style="color: #f4f4f4;">156 X 125 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="3005" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="3005" data-index="1" style="color: #f4f4f4;">54 X 47 | 2 | Caras 2</span>
-                        <button class="remove-btn" data-ral="3005" data-index="1">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(0, 91, 138);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 5010 - Azul Genciana</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="0" style="color: #f4f4f4;">125 X 114 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="1" style="color: #f4f4f4;">113 X 22 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="2" style="color: #f4f4f4;">79 X 19 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="3" style="color: #f4f4f4;">76 X 32 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="4" style="color: #f4f4f4;">69 X 32 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="5010" data-index="5" style="color: #f4f4f4;">68 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="5010" data-index="5">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(15, 60, 47);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 6005 - Verde</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="6005" data-index="0" style="color: #f4f4f4;">131 X 115 | 1</span>
-                        <button class="remove-btn" data-ral="6005" data-index="0">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(61, 68, 49);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 6009 - Verde Abeto</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="0" style="color: #f4f4f4;">125 X 87 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="1" style="color: #f4f4f4;">122 X 20 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="2" style="color: #f4f4f4;">121 X 109 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="3" style="color: #f4f4f4;">109 X 61 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="4" style="color: #f4f4f4;">98 X 50 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="5" style="color: #f4f4f4;">97 X 20 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="6" style="color: #f4f4f4;">91 X 21 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="7" style="color: #f4f4f4;">85 X 42 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="8" style="color: #f4f4f4;">79 X 30 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="9" style="color: #f4f4f4;">79 X 45 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="10" style="color: #f4f4f4;">75 X 30 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="10">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="11" style="color: #f4f4f4;">75 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="11">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="12" style="color: #f4f4f4;">74 X 34 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="12">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="13" style="color: #f4f4f4;">73 X 20 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="13">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="14" style="color: #f4f4f4;">65 X 64 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="14">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="15" style="color: #f4f4f4;">59 X 45 | 3</span>
-                        <button class="remove-btn" data-ral="6009" data-index="15">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="6009" data-index="16" style="color: #f4f4f4;">50 X 47 | 1</span>
-                        <button class="remove-btn" data-ral="6009" data-index="16">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(204, 210, 210);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 7035 - Natural</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="0" style="color: #333;">91 X 20 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="1" style="color: #333;">88 X 38 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="2" style="color: #333;">81 X 47 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="3" style="color: #333;">75 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="4" style="color: #333;">70 X 39 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="5" style="color: #333;">68 X 65 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="6" style="color: #333;">66 X 40 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="7" style="color: #333;">65 X 44 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="8" style="color: #333;">62 X 45 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="9" style="color: #333;">60 X 56 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="10" style="color: #333;">58 X 53 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="10">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="11" style="color: #333;">50 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="11">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="12" style="color: #333;">48 X 46 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="12">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="13" style="color: #333;">46 X 26 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="13">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="14" style="color: #333;">46 X 28 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="14">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="7035" data-index="15" style="color: #333;">32 X 31 | 1</span>
-                        <button class="remove-btn" data-ral="7035" data-index="15">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(93, 100, 104);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 7043 - Gris</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="7043" data-index="0" style="color: #f4f4f4;">108 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="7043" data-index="0">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(158, 86, 71);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8004 - Cobre</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="8004" data-index="0" style="color: #f4f4f4;">127 X 125 | 1</span>
-                        <button class="remove-btn" data-ral="8004" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8004" data-index="1" style="color: #f4f4f4;">61 X 59 | 1</span>
-                        <button class="remove-btn" data-ral="8004" data-index="1">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(109, 71, 52);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8011 - Nogal</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="8011" data-index="0" style="color: #f4f4f4;">90 X 56 | 1</span>
-                        <button class="remove-btn" data-ral="8011" data-index="0">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(77, 59, 49);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8014 - Marrón</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="0" style="color: #f4f4f4;">125 X 101 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="1" style="color: #f4f4f4;">70 X 41 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="2" style="color: #f4f4f4;">66 X 42 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="3" style="color: #f4f4f4;">65 X 39 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="4" style="color: #f4f4f4;">63 X 60 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="5" style="color: #f4f4f4;">61 X 54 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="6" style="color: #f4f4f4;">59 X 45 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="7" style="color: #f4f4f4;">58 X 57 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="8" style="color: #f4f4f4;">57 X 56 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="9" style="color: #f4f4f4;">57 X 53 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="10" style="color: #f4f4f4;">57 X 52 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="10">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="11" style="color: #f4f4f4;">54 X 50 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="11">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8014" data-index="12" style="color: #f4f4f4;">51 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="8014" data-index="12">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(94, 67, 52);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8017 - Bronce</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="0" style="color: #f4f4f4;">170 X 125 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="1" style="color: #f4f4f4;">138 X 24 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="2" style="color: #f4f4f4;">129 X 94 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="3" style="color: #f4f4f4;">127 X 125 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="4" style="color: #f4f4f4;">125 X 67 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="5" style="color: #f4f4f4;">90 X 23 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="6" style="color: #f4f4f4;">84 X 25 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="7" style="color: #f4f4f4;">80 X 20 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="8" style="color: #f4f4f4;">77 X 19 | 2</span>
-                        <button class="remove-btn" data-ral="8017" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="9" style="color: #f4f4f4;">74 X 19 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="8017" data-index="10" style="color: #f4f4f4;">63 X 47 | 1</span>
-                        <button class="remove-btn" data-ral="8017" data-index="10">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(13, 13, 13);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 9005 - Negro Intenso</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="0" style="color: #f4f4f4;">77 X 24 | 1</span>
-                        <button class="remove-btn" data-ral="9005" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="1" style="color: #f4f4f4;">71 X 38 | 1</span>
-                        <button class="remove-btn" data-ral="9005" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="2" style="color: #f4f4f4;">68 X 39 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9005" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="3" style="color: #f4f4f4;">68 X 64 | 1</span>
-                        <button class="remove-btn" data-ral="9005" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="4" style="color: #f4f4f4;">66 X 36 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9005" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="5" style="color: #f4f4f4;">46 X 38 | 1</span>
-                        <button class="remove-btn" data-ral="9005" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9005" data-index="6" style="color: #f4f4f4;">36 X 34 | 1</span>
-                        <button class="remove-btn" data-ral="9005" data-index="6">Quitar</button>
-                    </li></ul></div><div class="color-section" style="background-color: rgb(247, 249, 239);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 9010 - Blanco Puro</h3><ul class="cut-list"><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="0" style="color: #333;">150 X 50 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="0">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="1" style="color: #333;">147 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="1">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="2" style="color: #333;">138 X 92 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="2">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="3" style="color: #333;">125 X 60 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="3">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="4" style="color: #333;">123 X 33 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="4">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="5" style="color: #333;">111 X 45 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="5">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="6" style="color: #333;">96 X 45 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="6">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="7" style="color: #333;">80 X 43 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="7">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="8" style="color: #333;">79 X 41 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="8">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="9" style="color: #333;">74 X 39 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="9">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="10" style="color: #333;">72 X 46 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="10">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="11" style="color: #333;">69 X 44 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="11">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="12" style="color: #333;">68 X 58 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="12">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="13" style="color: #333;">67 X 47 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="13">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="14" style="color: #333;">65 X 38 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="14">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="15" style="color: #333;">64 X 27 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="15">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="16" style="color: #333;">64 X 33 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="16">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="17" style="color: #333;">63 X 31 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="17">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="18" style="color: #333;">59 X 44 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="18">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="19" style="color: #333;">58 X 46 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="19">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="20" style="color: #333;">51 X 47 | 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="20">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="21" style="color: #333;">50 X 32 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="21">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="22" style="color: #333;">50 X 47 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="22">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="23" style="color: #333;">49 X 36 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="23">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="24" style="color: #333;">48 X 35 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="24">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="25" style="color: #333;">48 X 40 | 1 | Caras 2</span>
-                        <button class="remove-btn" data-ral="9010" data-index="25">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="26" style="color: #333;">47 X 30 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="26">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="27" style="color: #333;">47 X 40 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="27">Quitar</button>
-                    </li><li class="cut-item">
-                        <span class="cut-info" data-ral="9010" data-index="28" style="color: #333;">38 X 33 | 1</span>
-                        <button class="remove-btn" data-ral="9010" data-index="28">Quitar</button>
-                    </li></ul></div></div>
-    </div>
-
-    <hr>
-
-    <div class="section app-screen" id="screen-data" data-screen="data">
-        <h2>Gestionar Datos</h2>
-        <div class="db-buttons">
-            <button id="export-json-btn">Exportar a JSON (Escritorio)</button>
-            <button id="export-csv-btn">Exportar a CSV (Escritorio)</button>
-            <button id="export-json-ios-btn">Exportar JSON (iOS)</button>
-            <button id="export-csv-ios-btn" style="background:#28a745;color:#fff;">Exportar CSV (iOS)</button>
-            <button id="import-btn">Importar Base de Datos</button>
-        </div>
-        <input type="file" id="import-file" style="display:none;">
-    </div>
-    <div class="section app-screen" id="screen-settings" data-screen="settings">
-        <h2>Ajustes</h2>
-
-        <div class="settings-card">
-            <h3>Colores de los recortes</h3>
-            <p class="settings-help">Toca el color para cambiar el fondo de cada acabado.</p>
-            <div id="ral-settings-list" class="ral-settings-list"></div>
-            <button type="button" id="reset-ral-colors-btn" class="secondary-action">Restaurar colores originales</button>
-        </div>
-
-        <div class="settings-card">
-            <h3>Añadir acabado nuevo</h3>
-
-            <div class="settings-grid">
-                <div class="settings-field">
-                    <label for="new-ral-code">Código</label>
-                    <input id="new-ral-code" type="text" placeholder="Ej. 9007 o SAPELLY">
-                </div>
-
-                <div class="settings-field">
-                    <label for="new-ral-name">Nombre</label>
-                    <input id="new-ral-name" type="text" placeholder="Ej. Gris aluminio">
-                </div>
-
-                <div class="settings-field settings-color-field">
-                    <label for="new-ral-color">Color de fondo</label>
-                    <input id="new-ral-color" type="color" value="#c9c9c9">
-                </div>
-            </div>
-
-            <button type="button" id="add-ral-color-btn">Añadir color</button>
-            <p id="settings-message" class="settings-message" aria-live="polite"></p>
-        </div>
-    </div>
-
+<h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v2.4</span></h1>
+<div class="section app-screen active-screen" data-screen="search" id="screen-search">
+<h2>Buscador</h2>
+<div class="form-group">
+<label for="search-ral-select">Color RAL a buscar:</label>
+<select id="search-ral-select">
+<option value="all">Buscar Todo</option>
+<option value="1015">RAL 1015 - Ivory</option>
+<option value="1036">RAL 1036 - Oro</option>
+<option value="2004">RAL 2004 - Naranja</option>
+<option value="2015">RAL 2015 - Beige</option>
+<option value="3005">RAL 3005 - Rojo Vino</option>
+<option value="5010">RAL 5010 - Azul Genciana</option>
+<option value="6005">RAL 6005 - Verde</option>
+<option value="6009">RAL 6009 - Verde Abeto</option>
+<option value="7016">RAL 7016 - Gris Antracita</option>
+<option value="7035">RAL 7035 - Natural</option>
+<option value="7043">RAL 7043 - Gris</option>
+<option value="8003">RAL 8003 - Roble Dorado</option>
+<option value="8004">RAL 8004 - Cobre</option>
+<option value="8011">RAL 8011 - Nogal</option>
+<option value="8014">RAL 8014 - Marrón</option>
+<option value="8017">RAL 8017 - Bronce</option>
+<option value="9005">RAL 9005 - Negro Intenso</option>
+<option value="9010">RAL 9010 - Blanco Puro</option>
+<option value="1733">RAL 1733 - Inox</option>
+</select>
+</div>
+<div class="compact-grid compact-grid-two">
+<div class="compact-field">
+<label for="search-long-input">Largo</label>
+<input id="search-long-input" placeholder="Ej: 2000" type="number"/>
+</div>
+<div class="compact-field">
+<label for="search-short-input">Corto</label>
+<input id="search-short-input" placeholder="Ej: 1000" type="number"/>
+</div>
+</div>
+<div class="compact-grid compact-grid-two">
+<div class="compact-field">
+<label for="search-type-select">Tipo</label>
+<select id="search-type-select">
+<option value="all">Todos</option>
+<option value="aluminio">Aluminio simple</option>
+<option value="sandwich">Chapa sándwich</option>
+</select>
+</div>
+<div class="compact-field">
+<label for="search-thickness-input">Espesor sándwich</label>
+<input id="search-thickness-input" placeholder="Cualquiera" type="number"/>
+</div>
+</div>
+<button id="search-cut-btn">Buscar Chapa</button>
+<div class="search-results-container no-results" id="search-results-container" style="display:none;"><p class="search-result-item">No se encontraron recortes</p></div>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="add" id="screen-add">
+<h2>Añadir Recorte</h2>
+<div class="form-group">
+<label for="cut-type-select">Tipo de chapa:</label>
+<select id="cut-type-select">
+<option value="aluminio">Aluminio simple</option>
+<option value="sandwich">Chapa sándwich</option>
+</select>
+</div>
+<div class="form-group">
+<label for="ral-select">Color RAL:</label>
+<select id="ral-select">
+<option value="1015">RAL 1015 - Ivory</option>
+<option value="1036">RAL 1036 - Oro</option>
+<option value="2004">RAL 2004 - Naranja</option>
+<option value="2015">RAL 2015 - Beige</option>
+<option value="3005">RAL 3005 - Rojo Vino</option>
+<option value="5010">RAL 5010 - Azul Genciana</option>
+<option value="6005">RAL 6005 - Verde</option>
+<option value="6009">RAL 6009 - Verde Abeto</option>
+<option value="7016">RAL 7016 - Gris Antracita</option>
+<option value="7035">RAL 7035 - Natural</option>
+<option value="7043">RAL 7043 - Gris</option>
+<option value="8003">RAL 8003 - Roble Dorado</option>
+<option value="8004">RAL 8004 - Cobre</option>
+<option value="8011">RAL 8011 - Nogal</option>
+<option value="8014">RAL 8014 - Marrón</option>
+<option value="8017">RAL 8017 - Bronce</option>
+<option value="9005">RAL 9005 - Negro Intenso</option>
+<option value="9010">RAL 9010 - Blanco Puro</option>
+<option value="1733">RAL 1733 - Inox</option>
+</select>
+</div>
+<div class="compact-grid compact-grid-two">
+<div class="compact-field">
+<label for="long-input">Largo</label>
+<input id="long-input" placeholder="Ej: 2000" required="" type="number"/>
+</div>
+<div class="compact-field">
+<label for="short-input">Corto</label>
+<input id="short-input" placeholder="Ej: 1000" required="" type="number"/>
+</div>
+<div class="compact-field">
+<label for="count-input">Cantidad</label>
+<input id="count-input" min="1" required="" type="number" value="1"/>
+</div>
+<div class="compact-field" id="add-faces-field">
+<label for="faces-select">Caras</label>
+<select id="faces-select">
+<option value="1">1 Cara</option>
+<option value="2">2 Caras</option>
+</select>
+</div>
+</div>
+<div class="sandwich-fields" id="sandwich-add-fields" style="display:none;">
+<div class="compact-grid compact-grid-two">
+<div class="compact-field">
+<label for="sandwich-inner-ral-select">RAL interior</label>
+<select id="sandwich-inner-ral-select"></select>
+</div>
+<div class="compact-field">
+<label for="sandwich-thickness-input">Espesor (mm)</label>
+<input id="sandwich-thickness-input" min="1" type="number" value="40"/>
+</div>
+<div class="compact-field" style="grid-column:1/-1;">
+<label for="sandwich-core-select">Núcleo</label>
+<select id="sandwich-core-select">
+<option value="poliuretano">Poliuretano</option>
+<option value="poliestireno">Poliestireno</option>
+<option value="lana-roca">Lana de roca</option>
+<option value="otro">Otro</option>
+</select>
+</div>
+</div>
+</div>
+<button id="add-cut-btn">Añadir Recorte</button>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="stock" id="screen-stock">
+<h2>Recortes por Color</h2>
+<div class="sort-buttons">
+<button id="sort-long-btn">Ordenar por Largo</button>
+<button id="sort-short-btn">Ordenar por Corto</button>
+</div>
+<div id="results-container"><div class="color-section" style="background-color: rgb(216, 198, 179);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1015 - Ivory</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="1015" style="color: #333;">162 X 77 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="1015">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="1015" style="color: #333;">129 X 125 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="1015">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="1015" style="color: #333;">60 X 46 | 2</span>
+<button class="remove-btn" data-index="2" data-ral="1015">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="1015" style="color: #333;">53 X 46 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="1015">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(158, 140, 103);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1036 - Oro</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="1036" style="color: #333;">100 X 65 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="1036">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="1036" style="color: #333;">100 X 46 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="1036">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="1036" style="color: #333;">67 X 26 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="1036">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="1036" style="color: #333;">67 X 19 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="1036">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(169, 169, 169);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 1733 - Inox</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="1733" style="color: #333;">130 X 39 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="1733" style="color: #333;">125 X 37 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="1733" style="color: #333;">100 X 26 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="1733" style="color: #333;">85 X 29 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="1733" style="color: #333;">82 X 34 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="1733" style="color: #333;">78 X 24 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="1733" style="color: #333;">68 X 51 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="1733" style="color: #333;">60 X 25 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="1733" style="color: #333;">58 X 37 | 1</span>
+<button class="remove-btn" data-index="8" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="1733" style="color: #333;">56 X 37 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="1733" style="color: #333;">46 X 25 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="11" data-ral="1733" style="color: #333;">43 X 43 | 1</span>
+<button class="remove-btn" data-index="11" data-ral="1733">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="12" data-ral="1733" style="color: #333;">38 X 34 | 1</span>
+<button class="remove-btn" data-index="12" data-ral="1733">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(244, 108, 36);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 2004 - Naranja</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="2004" style="color: #333;">153 X 125 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="2004">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="2004" style="color: #333;">147 X 25 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="2004">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="2004" style="color: #333;">74 X 49 | 2</span>
+<button class="remove-btn" data-index="2" data-ral="2004">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="2004" style="color: #333;">49 X 48 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="2004">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(224, 152, 103);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 2015 - Beige</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="2015" style="color: #333;">66 X 33 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="0" data-ral="2015">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(108, 43, 51);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 3005 - Rojo Vino</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="3005" style="color: #f4f4f4;">156 X 125 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="0" data-ral="3005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="3005" style="color: #f4f4f4;">54 X 47 | 2 | Caras 2</span>
+<button class="remove-btn" data-index="1" data-ral="3005">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(0, 91, 138);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 5010 - Azul Genciana</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="5010" style="color: #f4f4f4;">125 X 114 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="5010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="5010" style="color: #f4f4f4;">113 X 22 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="5010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="5010" style="color: #f4f4f4;">79 X 19 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="5010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="5010" style="color: #f4f4f4;">76 X 32 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="5010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="5010" style="color: #f4f4f4;">69 X 32 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="5010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="5010" style="color: #f4f4f4;">68 X 25 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="5010">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(15, 60, 47);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 6005 - Verde</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="6005" style="color: #f4f4f4;">131 X 115 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="6005">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(61, 68, 49);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 6009 - Verde Abeto</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="6009" style="color: #f4f4f4;">125 X 87 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="6009" style="color: #f4f4f4;">122 X 20 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="6009" style="color: #f4f4f4;">121 X 109 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="6009" style="color: #f4f4f4;">109 X 61 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="6009" style="color: #f4f4f4;">98 X 50 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="6009" style="color: #f4f4f4;">97 X 20 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="6009" style="color: #f4f4f4;">91 X 21 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="6009" style="color: #f4f4f4;">85 X 42 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="6009" style="color: #f4f4f4;">79 X 30 | 1</span>
+<button class="remove-btn" data-index="8" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="6009" style="color: #f4f4f4;">79 X 45 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="6009" style="color: #f4f4f4;">75 X 30 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="11" data-ral="6009" style="color: #f4f4f4;">75 X 25 | 1</span>
+<button class="remove-btn" data-index="11" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="12" data-ral="6009" style="color: #f4f4f4;">74 X 34 | 1</span>
+<button class="remove-btn" data-index="12" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="13" data-ral="6009" style="color: #f4f4f4;">73 X 20 | 1</span>
+<button class="remove-btn" data-index="13" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="14" data-ral="6009" style="color: #f4f4f4;">65 X 64 | 1</span>
+<button class="remove-btn" data-index="14" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="15" data-ral="6009" style="color: #f4f4f4;">59 X 45 | 3</span>
+<button class="remove-btn" data-index="15" data-ral="6009">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="16" data-ral="6009" style="color: #f4f4f4;">50 X 47 | 1</span>
+<button class="remove-btn" data-index="16" data-ral="6009">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(204, 210, 210);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 7035 - Natural</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="7035" style="color: #333;">91 X 20 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="7035" style="color: #333;">88 X 38 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="7035" style="color: #333;">81 X 47 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="7035" style="color: #333;">75 X 43 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="7035" style="color: #333;">70 X 39 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="7035" style="color: #333;">68 X 65 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="7035" style="color: #333;">66 X 40 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="7035" style="color: #333;">65 X 44 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="7035" style="color: #333;">62 X 45 | 1</span>
+<button class="remove-btn" data-index="8" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="7035" style="color: #333;">60 X 56 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="7035" style="color: #333;">58 X 53 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="11" data-ral="7035" style="color: #333;">50 X 43 | 1</span>
+<button class="remove-btn" data-index="11" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="12" data-ral="7035" style="color: #333;">48 X 46 | 1</span>
+<button class="remove-btn" data-index="12" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="13" data-ral="7035" style="color: #333;">46 X 26 | 1</span>
+<button class="remove-btn" data-index="13" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="14" data-ral="7035" style="color: #333;">46 X 28 | 1</span>
+<button class="remove-btn" data-index="14" data-ral="7035">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="15" data-ral="7035" style="color: #333;">32 X 31 | 1</span>
+<button class="remove-btn" data-index="15" data-ral="7035">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(93, 100, 104);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 7043 - Gris</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="7043" style="color: #f4f4f4;">108 X 25 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="7043">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(158, 86, 71);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8004 - Cobre</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="8004" style="color: #f4f4f4;">127 X 125 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="8004">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="8004" style="color: #f4f4f4;">61 X 59 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="8004">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(109, 71, 52);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8011 - Nogal</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="8011" style="color: #f4f4f4;">90 X 56 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="8011">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(77, 59, 49);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8014 - Marrón</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="8014" style="color: #f4f4f4;">125 X 101 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="8014" style="color: #f4f4f4;">70 X 41 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="8014" style="color: #f4f4f4;">66 X 42 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="8014" style="color: #f4f4f4;">65 X 39 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="8014" style="color: #f4f4f4;">63 X 60 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="8014" style="color: #f4f4f4;">61 X 54 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="8014" style="color: #f4f4f4;">59 X 45 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="8014" style="color: #f4f4f4;">58 X 57 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="8014" style="color: #f4f4f4;">57 X 56 | 1</span>
+<button class="remove-btn" data-index="8" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="8014" style="color: #f4f4f4;">57 X 53 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="8014" style="color: #f4f4f4;">57 X 52 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="11" data-ral="8014" style="color: #f4f4f4;">54 X 50 | 1</span>
+<button class="remove-btn" data-index="11" data-ral="8014">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="12" data-ral="8014" style="color: #f4f4f4;">51 X 43 | 1</span>
+<button class="remove-btn" data-index="12" data-ral="8014">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(94, 67, 52);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 8017 - Bronce</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="8017" style="color: #f4f4f4;">170 X 125 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="8017" style="color: #f4f4f4;">138 X 24 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="8017" style="color: #f4f4f4;">129 X 94 | 1</span>
+<button class="remove-btn" data-index="2" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="8017" style="color: #f4f4f4;">127 X 125 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="8017" style="color: #f4f4f4;">125 X 67 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="8017" style="color: #f4f4f4;">90 X 23 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="8017" style="color: #f4f4f4;">84 X 25 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="8017" style="color: #f4f4f4;">80 X 20 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="8017" style="color: #f4f4f4;">77 X 19 | 2</span>
+<button class="remove-btn" data-index="8" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="8017" style="color: #f4f4f4;">74 X 19 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="8017">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="8017" style="color: #f4f4f4;">63 X 47 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="8017">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(13, 13, 13);"><h3 class="color-title" style="color: rgb(244, 244, 244);">RAL 9005 - Negro Intenso</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="9005" style="color: #f4f4f4;">77 X 24 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="9005" style="color: #f4f4f4;">71 X 38 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="9005" style="color: #f4f4f4;">68 X 39 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="2" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="9005" style="color: #f4f4f4;">68 X 64 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="9005" style="color: #f4f4f4;">66 X 36 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="4" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="9005" style="color: #f4f4f4;">46 X 38 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="9005">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="9005" style="color: #f4f4f4;">36 X 34 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="9005">Quitar</button>
+</li></ul></div><div class="color-section" style="background-color: rgb(247, 249, 239);"><h3 class="color-title" style="color: rgb(51, 51, 51);">RAL 9010 - Blanco Puro</h3><ul class="cut-list"><li class="cut-item">
+<span class="cut-info" data-index="0" data-ral="9010" style="color: #333;">150 X 50 | 1</span>
+<button class="remove-btn" data-index="0" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="1" data-ral="9010" style="color: #333;">147 X 43 | 1</span>
+<button class="remove-btn" data-index="1" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="2" data-ral="9010" style="color: #333;">138 X 92 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="2" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="3" data-ral="9010" style="color: #333;">125 X 60 | 1</span>
+<button class="remove-btn" data-index="3" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="4" data-ral="9010" style="color: #333;">123 X 33 | 1</span>
+<button class="remove-btn" data-index="4" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="5" data-ral="9010" style="color: #333;">111 X 45 | 1</span>
+<button class="remove-btn" data-index="5" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="6" data-ral="9010" style="color: #333;">96 X 45 | 1</span>
+<button class="remove-btn" data-index="6" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="7" data-ral="9010" style="color: #333;">80 X 43 | 1</span>
+<button class="remove-btn" data-index="7" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="8" data-ral="9010" style="color: #333;">79 X 41 | 1</span>
+<button class="remove-btn" data-index="8" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="9" data-ral="9010" style="color: #333;">74 X 39 | 1</span>
+<button class="remove-btn" data-index="9" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="10" data-ral="9010" style="color: #333;">72 X 46 | 1</span>
+<button class="remove-btn" data-index="10" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="11" data-ral="9010" style="color: #333;">69 X 44 | 1</span>
+<button class="remove-btn" data-index="11" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="12" data-ral="9010" style="color: #333;">68 X 58 | 1</span>
+<button class="remove-btn" data-index="12" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="13" data-ral="9010" style="color: #333;">67 X 47 | 1</span>
+<button class="remove-btn" data-index="13" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="14" data-ral="9010" style="color: #333;">65 X 38 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="14" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="15" data-ral="9010" style="color: #333;">64 X 27 | 1</span>
+<button class="remove-btn" data-index="15" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="16" data-ral="9010" style="color: #333;">64 X 33 | 1</span>
+<button class="remove-btn" data-index="16" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="17" data-ral="9010" style="color: #333;">63 X 31 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="17" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="18" data-ral="9010" style="color: #333;">59 X 44 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="18" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="19" data-ral="9010" style="color: #333;">58 X 46 | 1</span>
+<button class="remove-btn" data-index="19" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="20" data-ral="9010" style="color: #333;">51 X 47 | 2</span>
+<button class="remove-btn" data-index="20" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="21" data-ral="9010" style="color: #333;">50 X 32 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="21" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="22" data-ral="9010" style="color: #333;">50 X 47 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="22" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="23" data-ral="9010" style="color: #333;">49 X 36 | 1</span>
+<button class="remove-btn" data-index="23" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="24" data-ral="9010" style="color: #333;">48 X 35 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="24" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="25" data-ral="9010" style="color: #333;">48 X 40 | 1 | Caras 2</span>
+<button class="remove-btn" data-index="25" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="26" data-ral="9010" style="color: #333;">47 X 30 | 1</span>
+<button class="remove-btn" data-index="26" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="27" data-ral="9010" style="color: #333;">47 X 40 | 1</span>
+<button class="remove-btn" data-index="27" data-ral="9010">Quitar</button>
+</li><li class="cut-item">
+<span class="cut-info" data-index="28" data-ral="9010" style="color: #333;">38 X 33 | 1</span>
+<button class="remove-btn" data-index="28" data-ral="9010">Quitar</button>
+</li></ul></div></div>
+</div>
+<hr/>
+<div class="section app-screen" data-screen="data" id="screen-data">
+<h2>Gestionar Datos</h2>
+<div class="db-buttons">
+<button id="export-json-btn">Exportar a JSON (Escritorio)</button>
+<button id="export-csv-btn">Exportar a CSV (Escritorio)</button>
+<button id="export-json-ios-btn">Exportar JSON (iOS)</button>
+<button id="export-csv-ios-btn" style="background:#28a745;color:#fff;">Exportar CSV (iOS)</button>
+<button id="import-btn">Importar Base de Datos</button>
+</div>
+<input id="import-file" style="display:none;" type="file"/>
+</div>
+<div class="section app-screen" data-screen="settings" id="screen-settings">
+<h2>Ajustes</h2><div class="settings-card">
+<h3>Añadir acabado nuevo</h3>
+<div class="settings-grid">
+<div class="settings-field">
+<label for="new-ral-code">Código</label>
+<input id="new-ral-code" placeholder="Ej. 9007 o SAPELLY" type="text"/>
+</div>
+<div class="settings-field">
+<label for="new-ral-name">Nombre</label>
+<input id="new-ral-name" placeholder="Ej. Gris aluminio" type="text"/>
+</div>
+<div class="settings-field settings-color-field">
+<label for="new-ral-color">Color de fondo</label>
+<input id="new-ral-color" type="color" value="#c9c9c9"/>
+</div>
+</div>
+<button id="add-ral-color-btn" type="button">Añadir color</button>
+<p aria-live="polite" class="settings-message" id="settings-message"></p>
+</div>
+<div class="settings-card">
+<h3>Colores de los recortes</h3>
+<p class="settings-help">Toca el color para cambiar el fondo de cada acabado.</p>
+<div class="ral-settings-list" id="ral-settings-list"></div>
+<button class="secondary-action" id="reset-ral-colors-btn" type="button">Restaurar colores originales</button>
 </div>
 
-<div id="deleteConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Eliminar recorte</h3>
-        <p id="deleteConfirmText">¿Seguro que quieres eliminar este recorte?</p>
-        <div class="modal-buttons">
-            <button id="cancel-delete-btn">Cancelar</button>
-            <button id="confirm-delete-btn" style="background-color:#dc3545;">Eliminar</button>
-        </div>
-    </div>
 </div>
-
-
-<nav class="bottom-nav" aria-label="Navegación principal">
-    <button type="button" data-screen="settings">Ajustes</button>
-    <button type="button" data-screen="data">Datos</button>
-    <button type="button" data-screen="stock">Recortes</button>
-    <button type="button" data-screen="add">Añadir</button>
-    <button type="button" class="active" data-screen="search">Buscar</button>
+</div>
+<div class="modal" id="deleteConfirmModal">
+<div class="modal-content">
+<h3 id="deleteConfirmTitle">Eliminar recorte</h3>
+<p id="deleteConfirmText">¿Seguro que quieres eliminar este recorte?</p>
+<div class="modal-buttons">
+<button id="cancel-delete-btn">Cancelar</button>
+<button id="confirm-delete-btn" style="background-color:#dc3545;">Borrar</button>
+</div>
+</div>
+</div>
+<nav aria-label="Navegación principal" class="bottom-nav">
+<button data-screen="settings" type="button">Ajustes</button>
+<button data-screen="data" type="button">Datos</button>
+<button data-screen="stock" type="button">Recortes</button>
+<button data-screen="add" type="button">Añadir</button>
+<button class="active" data-screen="search" type="button">Buscar</button>
 </nav>
-
-
-<div id="editModal" class="modal">
-    <div class="modal-content edit-modal-content">
-        <span class="close-btn">×</span>
-        <h3>Modificar Recorte</h3>
-
-        <div class="edit-grid">
-            <div class="edit-field">
-                <label for="modal-long">Largo</label>
-                <input type="number" id="modal-long">
-            </div>
-
-            <div class="edit-field">
-                <label for="modal-short">Corto</label>
-                <input type="number" id="modal-short">
-            </div>
-
-            <div class="edit-field">
-                <label for="modal-count">Cantidad</label>
-                <input type="number" id="modal-count" min="0">
-            </div>
-
-            <div class="edit-field">
-                <label for="modal-faces">Caras</label>
-                <select id="modal-faces">
-                    <option value="1">1 Cara</option>
-                    <option value="2">2 Caras</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="modal-buttons edit-modal-buttons">
-            <button id="cancel-edit-btn">Cancelar</button>
-            <button id="save-edit-btn">Guardar</button>
-        </div>
-    </div>
+<div class="modal" id="editModal">
+<div class="modal-content edit-modal-content">
+<span class="close-btn">×</span>
+<h3>Modificar Recorte</h3>
+<div class="edit-grid">
+<div class="edit-field" style="grid-column:1/-1;">
+<label for="modal-type">Tipo</label>
+<select id="modal-type">
+<option value="aluminio">Aluminio simple</option>
+<option value="sandwich">Chapa sándwich</option>
+</select>
 </div>
-
+<div class="edit-field">
+<label for="modal-long">Largo</label>
+<input id="modal-long" type="number"/>
+</div>
+<div class="edit-field">
+<label for="modal-short">Corto</label>
+<input id="modal-short" type="number"/>
+</div>
+<div class="edit-field">
+<label for="modal-count">Cantidad</label>
+<input id="modal-count" min="0" type="number"/>
+</div>
+<div class="edit-field" id="modal-faces-field">
+<label for="modal-faces">Caras</label>
+<select id="modal-faces">
+<option value="1">1 Cara</option>
+<option value="2">2 Caras</option>
+</select>
+</div>
+<div class="edit-field sandwich-edit-field" style="display:none;">
+<label for="modal-inner-ral">RAL interior</label>
+<select id="modal-inner-ral"></select>
+</div>
+<div class="edit-field sandwich-edit-field" style="display:none;">
+<label for="modal-thickness">Espesor (mm)</label>
+<input id="modal-thickness" min="1" type="number" value="40"/>
+</div>
+<div class="edit-field sandwich-edit-field" style="display:none;grid-column:1/-1;">
+<label for="modal-core">Núcleo</label>
+<select id="modal-core">
+<option value="poliuretano">Poliuretano</option>
+<option value="poliestireno">Poliestireno</option>
+<option value="lana-roca">Lana de roca</option>
+<option value="otro">Otro</option>
+</select>
+</div>
+</div>
+<div class="modal-buttons edit-modal-buttons">
+<button id="cancel-edit-btn">Cancelar</button>
+<button id="save-edit-btn">Guardar</button>
+</div>
+</div>
 </div>
 
 <script>
@@ -1330,6 +1422,15 @@ body { padding-bottom: 92px; }
         const searchLongInput = document.getElementById('search-long-input');
         const searchShortInput = document.getElementById('search-short-input');
         const searchResultsContainer = document.getElementById('search-results-container');
+        const cutTypeSelect = document.getElementById('cut-type-select');
+        const sandwichAddFields = document.getElementById('sandwich-add-fields');
+        const addFacesField = document.getElementById('add-faces-field');
+        const sandwichInnerRalSelect = document.getElementById('sandwich-inner-ral-select');
+        const sandwichThicknessInput = document.getElementById('sandwich-thickness-input');
+        const sandwichCoreSelect = document.getElementById('sandwich-core-select');
+        const searchTypeSelect = document.getElementById('search-type-select');
+        const searchThicknessInput = document.getElementById('search-thickness-input');
+
 
         const sortLongBtn = document.getElementById('sort-long-btn');
         const sortShortBtn = document.getElementById('sort-short-btn');
@@ -1342,6 +1443,13 @@ body { padding-bottom: 92px; }
         const modalShortInput = document.getElementById('modal-short');
         const modalFacesSelect = document.getElementById('modal-faces');
         const modalCountInput = document.getElementById('modal-count');
+        const modalTypeSelect = document.getElementById('modal-type');
+        const modalFacesField = document.getElementById('modal-faces-field');
+        const modalInnerRal = document.getElementById('modal-inner-ral');
+        const modalThickness = document.getElementById('modal-thickness');
+        const modalCore = document.getElementById('modal-core');
+        const sandwichEditFields = Array.from(document.querySelectorAll('.sandwich-edit-field'));
+
 
         const exportJsonBtn = document.getElementById('export-json-btn');
         const exportCsvBtn = document.getElementById('export-csv-btn');
@@ -1352,6 +1460,7 @@ body { padding-bottom: 92px; }
 
         const deleteConfirmModal = document.getElementById('deleteConfirmModal');
         const deleteConfirmText = document.getElementById('deleteConfirmText');
+        const deleteConfirmTitle = document.getElementById('deleteConfirmTitle');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         let pendingDelete = null;
@@ -1382,27 +1491,47 @@ body { padding-bottom: 92px; }
         };
 
         const defaultRalColors = JSON.parse(JSON.stringify(ralColors));
-        const savedRalSettings = JSON.parse(localStorage.getItem('ralColorSettings') || '{}');
-        const savedCustomRals = JSON.parse(localStorage.getItem('customRalColors') || '{}');
 
-        Object.keys(savedCustomRals).forEach(code => {
-            const item = savedCustomRals[code];
-            if (item && item.name && item.hex) {
-                ralColors[code] = { name: item.name, hex: item.hex };
-            }
-        });
+        // El catálogo completo guardado es la única fuente de verdad.
+        // Así, un acabado eliminado no vuelve a crearse desde los valores de fábrica.
+        const savedRalCatalog = JSON.parse(localStorage.getItem('ralCatalog') || 'null');
 
-        Object.keys(savedRalSettings).forEach(code => {
-            if (!ralColors[code] || !savedRalSettings[code]) return;
+        if (savedRalCatalog && typeof savedRalCatalog === 'object' && !Array.isArray(savedRalCatalog)) {
+            Object.keys(ralColors).forEach(code => delete ralColors[code]);
+            Object.keys(savedRalCatalog).forEach(code => {
+                const item = savedRalCatalog[code];
+                if (item && item.name && item.hex) {
+                    ralColors[code] = { name: item.name, hex: item.hex };
+                }
+            });
+        } else {
+            // Migración de versiones anteriores.
+            const savedRalSettings = JSON.parse(localStorage.getItem('ralColorSettings') || '{}');
+            const savedCustomRals = JSON.parse(localStorage.getItem('customRalColors') || '{}');
+            const deletedDefaultRals = new Set(
+                JSON.parse(localStorage.getItem('deletedDefaultRals') || '[]')
+            );
 
-            const saved = savedRalSettings[code];
-            if (typeof saved === 'string') {
-                ralColors[code].hex = saved;
-            } else {
-                if (saved.hex) ralColors[code].hex = saved.hex;
-                if (saved.name) ralColors[code].name = saved.name;
-            }
-        });
+            deletedDefaultRals.forEach(code => delete ralColors[code]);
+
+            Object.keys(savedCustomRals).forEach(code => {
+                const item = savedCustomRals[code];
+                if (item && item.name && item.hex) {
+                    ralColors[code] = { name: item.name, hex: item.hex };
+                }
+            });
+
+            Object.keys(savedRalSettings).forEach(code => {
+                if (!ralColors[code] || !savedRalSettings[code]) return;
+                const saved = savedRalSettings[code];
+                if (typeof saved === 'string') {
+                    ralColors[code].hex = saved;
+                } else {
+                    if (saved.hex) ralColors[code].hex = saved.hex;
+                    if (saved.name) ralColors[code].name = saved.name;
+                }
+            });
+        }
 
         function colorLabel(code) {
             const data = ralColors[code];
@@ -1439,28 +1568,13 @@ body { padding-bottom: 92px; }
         }
 
         function saveRalSettings() {
-            const overrides = {};
-            Object.keys(ralColors).forEach(code => {
-                if (defaultRalColors[code]) {
-                    const changedHex = ralColors[code].hex !== defaultRalColors[code].hex;
-                    const changedName = ralColors[code].name !== defaultRalColors[code].name;
-                    if (changedHex || changedName) {
-                        overrides[code] = {
-                            hex: ralColors[code].hex,
-                            name: ralColors[code].name
-                        };
-                    }
-                }
-            });
-            localStorage.setItem('ralColorSettings', JSON.stringify(overrides));
+            // Guardar siempre el catálogo completo actual.
+            localStorage.setItem('ralCatalog', JSON.stringify(ralColors));
 
-            const custom = {};
-            Object.keys(ralColors).forEach(code => {
-                if (!defaultRalColors[code]) {
-                    custom[code] = { name: ralColors[code].name, hex: ralColors[code].hex };
-                }
-            });
-            localStorage.setItem('customRalColors', JSON.stringify(custom));
+            // Limpiar formatos antiguos para que no puedan resucitar acabados eliminados.
+            localStorage.removeItem('ralColorSettings');
+            localStorage.removeItem('customRalColors');
+            localStorage.removeItem('deletedDefaultRals');
         }
 
         const ralSettingsList = document.getElementById('ral-settings-list');
@@ -1505,6 +1619,11 @@ body { padding-bottom: 92px; }
                     saveButton.type = 'button';
                     saveButton.className = 'ral-setting-save';
                     saveButton.textContent = 'Guardar';
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';
+                    deleteButton.className = 'ral-setting-delete';
+                    deleteButton.textContent = 'Borrar';
 
                     saveButton.addEventListener('click', () => {
                         const newCode = codeInput.value.trim().toUpperCase().replace(/\s+/g, '-');
@@ -1555,11 +1674,21 @@ body { padding-bottom: 92px; }
                         showSettingsMessage('RAL, nombre y color actualizados.', 'ok');
                     });
 
+                    deleteButton.addEventListener('click', () => {
+                        const recortes = Array.isArray(cutsByRAL[code]) ? cutsByRAL[code].length : 0;
+                        pendingDelete = { type: 'finish', ral: code, recortes };
+                        deleteConfirmTitle.textContent = 'Eliminar acabado';
+                        deleteConfirmText.textContent = recortes
+                            ? `¿Eliminar el acabado ${code} - ${ralColors[code].name}? También se eliminarán ${recortes} recorte${recortes === 1 ? '' : 's'} asociado${recortes === 1 ? '' : 's'}.`
+                            : `¿Eliminar el acabado ${code} - ${ralColors[code].name}?`;
+                        deleteConfirmModal.style.display = 'block';
+                    });
+
                     picker.addEventListener('input', () => {
                         row.style.boxShadow = `inset 5px 0 0 ${picker.value}`;
                     });
 
-                    row.append(codeInput, nameInput, picker, saveButton);
+                    row.append(codeInput, nameInput, picker, saveButton, deleteButton);
                     ralSettingsList.appendChild(row);
                 });
         }
@@ -1592,13 +1721,19 @@ body { padding-bottom: 92px; }
 
         resetRalColorsBtn.addEventListener('click', () => {
             Object.keys(defaultRalColors).forEach(code => {
-                if (ralColors[code]) {
-                    ralColors[code].hex = defaultRalColors[code].hex;
-                    ralColors[code].name = defaultRalColors[code].name;
-                }
+                ralColors[code] = {
+                    hex: defaultRalColors[code].hex,
+                    name: defaultRalColors[code].name
+                };
             });
+
+            localStorage.removeItem('ralCatalog');
             localStorage.removeItem('ralColorSettings');
+            localStorage.removeItem('customRalColors');
+            localStorage.removeItem('deletedDefaultRals');
+
             saveRalSettings();
+            refreshRalSelects();
             renderRalSettings();
             renderCuts();
             showSettingsMessage('Colores originales restaurados.', 'ok');
@@ -1625,6 +1760,59 @@ body { padding-bottom: 92px; }
 
         let cutsByRAL = JSON.parse(localStorage.getItem('cutsByRAL')) || {};
         cutsByRAL = migrateOldData(cutsByRAL);
+
+
+        function normalizeCut(cut) {
+            if (!cut.type) cut.type = 'aluminio';
+            if (cut.type === 'aluminio' && !cut.faces) cut.faces = 1;
+            if (cut.type === 'sandwich') {
+                if (!cut.innerRal) cut.innerRal = '';
+                if (!cut.thickness) cut.thickness = 40;
+                if (!cut.core) cut.core = 'poliuretano';
+                cut.faces = 2;
+            }
+            return cut;
+        }
+
+        Object.keys(cutsByRAL).forEach(ral => {
+            cutsByRAL[ral] = (cutsByRAL[ral] || []).map(normalizeCut);
+        });
+
+        function fillRalSelect(select, includeAll = false) {
+            const current = select.value;
+            select.innerHTML = includeAll ? '<option value="all">Buscar Todo</option>' : '';
+            Object.keys(ralColors)
+                .sort((a,b) => a.localeCompare(b, 'es', {numeric:true}))
+                .forEach(code => {
+                    const opt = document.createElement('option');
+                    opt.value = code;
+                    opt.textContent = colorLabel(code);
+                    select.appendChild(opt);
+                });
+            if ([...select.options].some(o => o.value === current)) select.value = current;
+        }
+
+        function refreshSandwichRalSelects() {
+            fillRalSelect(sandwichInnerRalSelect);
+            fillRalSelect(modalInnerRal);
+        }
+
+        function setAddTypeMode() {
+            const isSandwich = cutTypeSelect.value === 'sandwich';
+            sandwichAddFields.style.display = isSandwich ? 'block' : 'none';
+            addFacesField.style.display = isSandwich ? 'none' : 'flex';
+        }
+
+        function setEditTypeMode(type) {
+            const isSandwich = type === 'sandwich';
+            modalFacesField.style.display = isSandwich ? 'none' : 'flex';
+            sandwichEditFields.forEach(el => el.style.display = isSandwich ? 'flex' : 'none');
+        }
+
+        cutTypeSelect.addEventListener('change', setAddTypeMode);
+        modalTypeSelect.addEventListener('change', () => setEditTypeMode(modalTypeSelect.value));
+        refreshSandwichRalSelects();
+        setAddTypeMode();
 
         function saveCuts() {
             localStorage.setItem('cutsByRAL', JSON.stringify(cutsByRAL));
@@ -1655,9 +1843,7 @@ body { padding-bottom: 92px; }
                 const colorData = ralColors[ral];
                 const colorHex = colorData ? colorData.hex : '#ccc';
                 const colorName = colorData ? colorData.name : '';
-                const titleText = colorName ? `RAL ${ral} - ${colorName}` : `RAL ${ral}`;
 
-                // Ordenar los recortes según el criterio actual
                 if (currentSortOrder === 'long') {
                     cutsByRAL[ral].sort((a, b) => b.long - a.long);
                 } else {
@@ -1672,35 +1858,35 @@ body { padding-bottom: 92px; }
                 colorDiv.style.backgroundColor = colorHex;
 
                 const headerColor = darkenHexColor(colorHex, 0.78);
-                const headerIsDark = getLuminance(
-                    '#' + headerColor.match(/\d+/g)
-                        .map(v => Number(v).toString(16).padStart(2, '0'))
-                        .join('')
-                ) < 0.5;
-                const headerTextColor = headerIsDark ? '#ffffff' : '#222222';
+                const rgb = headerColor.match(/\d+/g).map(Number);
+                const headerHex = '#' + rgb.map(v => v.toString(16).padStart(2,'0')).join('');
+                const headerTextColor = getLuminance(headerHex) < 0.5 ? '#fff' : '#222';
 
                 colorDiv.innerHTML = `
                     <div class="color-header" style="background:${headerColor};color:${headerTextColor};">
                         <span class="ral-code">RAL ${ral}</span>
                         <span class="ral-name">${colorName}</span>
                     </div>
-                    <div class="color-body">
-                        <ul class="cut-list"></ul>
-                    </div>
+                    <div class="color-body"><ul class="cut-list"></ul></div>
                 `;
 
                 const cutList = colorDiv.querySelector('ul');
                 cutsByRAL[ral].forEach((cut, index) => {
+                    normalizeCut(cut);
                     const listItem = document.createElement('li');
                     listItem.className = 'cut-item';
 
-                    let cutText = `${cut.long} X ${cut.short} | ${cut.count}`;
-                    if (cut.faces === 2) {
-                        cutText += ` | Caras ${cut.faces}`;
+                    let cutText;
+                    if (cut.type === 'sandwich') {
+                        const innerName = ralColors[cut.innerRal]?.name || '';
+                        cutText = `${cut.long} X ${cut.short} | ${cut.count} <span class="sandwich-badge">SÁNDWICH ${cut.thickness} mm</span><br><span class="sandwich-detail">Interior: RAL ${cut.innerRal}${innerName ? ' - ' + innerName : ''} · ${cut.core}</span>`;
+                    } else {
+                        cutText = `${cut.long} X ${cut.short} | ${cut.count}`;
+                        if (cut.faces === 2) cutText += ` | Caras 2`;
                     }
 
                     listItem.innerHTML = `
-                        <span class="cut-info" data-ral="${ral}" data-index="${index}" style="color: ${textColor};">${cutText}</span>
+                        <span class="cut-info" data-ral="${ral}" data-index="${index}" style="color:${textColor};">${cutText}</span>
                         <button class="remove-btn" data-ral="${ral}" data-index="${index}">Quitar</button>
                     `;
                     cutList.appendChild(listItem);
@@ -1710,36 +1896,57 @@ body { padding-bottom: 92px; }
         }
 
         addCutBtn.addEventListener('click', () => {
+            const type = cutTypeSelect.value;
             const ral = ralSelect.value;
             const long = parseInt(longInput.value);
             const short = parseInt(shortInput.value);
-            const faces = parseInt(facesSelect.value);
             const count = parseInt(countInput.value);
 
-            if (long > 0 && short > 0 && count > 0) {
-                const l = Math.max(long, short);
-                const s = Math.min(long, short);
-
-                if (!cutsByRAL[ral]) {
-                    cutsByRAL[ral] = [];
-                }
-
-                let existingCut = cutsByRAL[ral].find(cut => cut.long === l && cut.short === s && cut.faces === faces);
-                if (existingCut) {
-                    existingCut.count += count;
-                } else {
-                    cutsByRAL[ral].push({ long: l, short: s, faces: faces, count });
-                }
-
-                saveCuts();
-                renderCuts();
-                alert('Recorte añadido con éxito.');
-                longInput.value = '';
-                shortInput.value = '';
-                countInput.value = '1';
-            } else {
-                alert('Por favor, introduce valores válidos para el largo, corto y número de chapas.');
+            if (!(long > 0 && short > 0 && count > 0)) {
+                alert('Introduce valores válidos para largo, corto y cantidad.');
+                return;
             }
+
+            const l = Math.max(long, short);
+            const s = Math.min(long, short);
+            if (!cutsByRAL[ral]) cutsByRAL[ral] = [];
+
+            if (type === 'sandwich') {
+                const innerRal = sandwichInnerRalSelect.value;
+                const thickness = parseInt(sandwichThicknessInput.value);
+                const core = sandwichCoreSelect.value;
+                if (!(thickness > 0)) {
+                    alert('Introduce un espesor válido para la chapa sándwich.');
+                    return;
+                }
+                const existing = cutsByRAL[ral].find(c =>
+                    (c.type || 'aluminio') === 'sandwich' &&
+                    c.long === l && c.short === s &&
+                    c.innerRal === innerRal &&
+                    Number(c.thickness) === thickness &&
+                    c.core === core
+                );
+                if (existing) existing.count += count;
+                else cutsByRAL[ral].push({
+                    type:'sandwich', long:l, short:s, faces:2, count,
+                    innerRal, thickness, core
+                });
+            } else {
+                const faces = parseInt(facesSelect.value);
+                const existing = cutsByRAL[ral].find(c =>
+                    (c.type || 'aluminio') === 'aluminio' &&
+                    c.long === l && c.short === s && c.faces === faces
+                );
+                if (existing) existing.count += count;
+                else cutsByRAL[ral].push({type:'aluminio', long:l, short:s, faces, count});
+            }
+
+            saveCuts();
+            renderCuts();
+            alert('Recorte añadido con éxito.');
+            longInput.value = '';
+            shortInput.value = '';
+            countInput.value = '1';
         });
 
         sortLongBtn.addEventListener('click', () => {
@@ -1755,14 +1962,16 @@ body { padding-bottom: 92px; }
         searchCutBtn.addEventListener('click', () => {
             searchResultsContainer.style.display = 'block';
             const searchRal = searchRalSelect.value;
+            const searchType = searchTypeSelect.value;
+            const wantedThickness = parseInt(searchThicknessInput.value);
             const searchLong = parseInt(searchLongInput.value);
             const searchShort = parseInt(searchShortInput.value);
 
             searchResultsContainer.innerHTML = '';
             searchResultsContainer.className = 'search-results-container';
 
-            if (searchLong <= 0 || searchShort <= 0) {
-                searchResultsContainer.innerHTML = `<p class="search-result-item">Por favor, introduce medidas válidas para la búsqueda.</p>`;
+            if (!(searchLong > 0 && searchShort > 0)) {
+                searchResultsContainer.innerHTML = '<p class="search-result-item">Introduce medidas válidas.</p>';
                 searchResultsContainer.classList.add('no-results');
                 return;
             }
@@ -1771,122 +1980,92 @@ body { padding-bottom: 92px; }
             const neededShort = Math.min(searchLong, searchShort);
             const neededArea = neededLong * neededShort;
             const foundCuts = [];
-
             const ralList = searchRal === 'all' ? Object.keys(cutsByRAL) : [searchRal];
 
             ralList.forEach(ral => {
-                const cuts = cutsByRAL[ral] || [];
-                cuts.forEach(cut => {
-                    const fitsNormal = cut.long >= neededLong && cut.short >= neededShort;
-                    const fitsRotated = cut.long >= neededShort && cut.short >= neededLong;
+                (cutsByRAL[ral] || []).forEach((cut, index) => {
+                    normalizeCut(cut);
+                    if (searchType !== 'all' && cut.type !== searchType) return;
+                    if (cut.type === 'sandwich' && wantedThickness > 0 && Number(cut.thickness) !== wantedThickness) return;
 
-                    if (fitsNormal || fitsRotated) {
-                        foundCuts.push({
-                            ...cut,
-                            ral,
-                            waste: (cut.long * cut.short) - neededArea
-                        });
-                    }
+                    const fits = (cut.long >= neededLong && cut.short >= neededShort) ||
+                                 (cut.long >= neededShort && cut.short >= neededLong);
+                    if (!fits) return;
+
+                    foundCuts.push({...cut, ral, index, waste:(cut.long*cut.short)-neededArea});
                 });
             });
 
-            // Primero el recorte que deja menos sobrante; después los progresivamente mayores.
-            foundCuts.sort((a, b) =>
-                a.waste - b.waste ||
-                a.long - b.long ||
-                a.short - b.short ||
+            foundCuts.sort((a,b) =>
+                a.waste-b.waste || a.long-b.long || a.short-b.short ||
                 String(a.ral).localeCompare(String(b.ral))
             );
 
-            if (foundCuts.length > 0) {
-                foundCuts.forEach(cut => {
-                    const colorName = ralColors[cut.ral] ? ralColors[cut.ral].name : '';
-                    let searchText = `RAL ${cut.ral} - ${colorName} | ${cut.long} X ${cut.short} | ${cut.count}`;
-                    if (cut.faces === 2) searchText += ` | Caras ${cut.faces}`;
-
-                    const row = document.createElement('div');
-                    row.className = 'search-result-row';
-
-                    const text = document.createElement('span');
-                    text.className = 'search-result-text';
-                    text.dataset.ral = cut.ral;
-                    text.dataset.long = String(cut.long);
-                    text.dataset.short = String(cut.short);
-                    text.dataset.faces = String(cut.faces);
-                    text.textContent = searchText;
-
-                    const removeButton = document.createElement('button');
-                    removeButton.type = 'button';
-                    removeButton.className = 'remove-btn search-remove-btn';
-                    removeButton.dataset.ral = cut.ral;
-                    removeButton.dataset.long = String(cut.long);
-                    removeButton.dataset.short = String(cut.short);
-                    removeButton.dataset.faces = String(cut.faces);
-                    removeButton.textContent = 'Quitar';
-
-                    row.appendChild(text);
-                    row.appendChild(removeButton);
-                    searchResultsContainer.appendChild(row);
-                });
-            } else {
-                searchResultsContainer.innerHTML = `<p class="search-result-item">No se encontraron recortes</p>`;
+            if (!foundCuts.length) {
+                searchResultsContainer.innerHTML = '<p class="search-result-item">No se encontraron recortes</p>';
                 searchResultsContainer.classList.add('no-results');
+                return;
             }
+
+            foundCuts.forEach(cut => {
+                const colorName = ralColors[cut.ral]?.name || '';
+                let textValue = `RAL ${cut.ral} - ${colorName} | ${cut.long} X ${cut.short} | ${cut.count}`;
+                if (cut.type === 'sandwich') {
+                    textValue += ` | Sándwich ${cut.thickness} mm | Interior RAL ${cut.innerRal} | ${cut.core}`;
+                } else if (cut.faces === 2) {
+                    textValue += ' | Caras 2';
+                }
+
+                const row = document.createElement('div');
+                row.className = 'search-result-row';
+
+                const text = document.createElement('span');
+                text.className = 'search-result-text';
+                text.dataset.ral = cut.ral;
+                text.dataset.index = String(cut.index);
+                text.textContent = textValue;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'remove-btn search-remove-btn';
+                removeButton.dataset.ral = cut.ral;
+                removeButton.dataset.index = String(cut.index);
+                removeButton.textContent = 'Quitar';
+
+                row.append(text, removeButton);
+                searchResultsContainer.appendChild(row);
+            });
         });
 
         searchResultsContainer.addEventListener('click', (event) => {
             const removeButton = event.target.closest('.search-remove-btn');
+            const target = removeButton || event.target.closest('.search-result-text');
+            if (!target) return;
 
-            // Quitar desde los resultados.
+            const ral = target.dataset.ral;
+            const index = parseInt(target.dataset.index);
+            const cut = cutsByRAL[ral]?.[index];
+            if (!cut) return;
+            normalizeCut(cut);
+
             if (removeButton) {
-                const ral = removeButton.dataset.ral;
-                const long = parseInt(removeButton.dataset.long);
-                const short = parseInt(removeButton.dataset.short);
-                const faces = parseInt(removeButton.dataset.faces);
-                if (!cutsByRAL[ral]) return;
-
-                const index = cutsByRAL[ral].findIndex(cut =>
-                    cut.long === long && cut.short === short && cut.faces === faces
-                );
-                if (index < 0) return;
-
-                const cut = cutsByRAL[ral][index];
-                pendingDelete = { ral, index, refreshSearch: true, long, short, faces };
+                pendingDelete = {ral, index, refreshSearch:true};
                 deleteConfirmText.textContent = `¿Seguro que quieres eliminar el recorte ${cut.long} X ${cut.short} del RAL ${ral}?`;
                 deleteConfirmModal.style.display = 'block';
                 return;
             }
 
-            // Editar tocando el texto del resultado.
-            const resultText = event.target.closest('.search-result-text');
-            if (!resultText) return;
-
-            const ral = resultText.dataset.ral;
-            const long = parseInt(resultText.dataset.long);
-            const short = parseInt(resultText.dataset.short);
-            const faces = parseInt(resultText.dataset.faces);
-            if (!cutsByRAL[ral]) return;
-
-            const index = cutsByRAL[ral].findIndex(cut =>
-                cut.long === long && cut.short === short && cut.faces === faces
-            );
-            if (index < 0) return;
-
-            const cut = cutsByRAL[ral][index];
             modalLongInput.value = cut.long;
             modalShortInput.value = cut.short;
-            modalFacesSelect.value = cut.faces;
             modalCountInput.value = cut.count;
+            modalTypeSelect.value = cut.type;
+            modalFacesSelect.value = cut.faces || 1;
+            modalInnerRal.value = cut.innerRal || ral;
+            modalThickness.value = cut.thickness || 40;
+            modalCore.value = cut.core || 'poliuretano';
+            setEditTypeMode(cut.type);
 
-            currentEditInfo = {
-                ral,
-                index,
-                originalLong: cut.long,
-                originalShort: cut.short,
-                originalFaces: cut.faces,
-                refreshSearch: true
-            };
-
+            currentEditInfo = {ral, index, refreshSearch:true};
             editModal.style.display = 'block';
         });
 
@@ -1913,13 +2092,18 @@ body { padding-bottom: 92px; }
                 const cut = cutsByRAL[ral][index];
 
                 if (cut) {
+                    normalizeCut(cut);
                     modalLongInput.value = cut.long;
                     modalShortInput.value = cut.short;
-                    modalFacesSelect.value = cut.faces;
                     modalCountInput.value = cut.count;
+                    modalTypeSelect.value = cut.type;
+                    modalFacesSelect.value = cut.faces || 1;
+                    modalInnerRal.value = cut.innerRal || ral;
+                    modalThickness.value = cut.thickness || 40;
+                    modalCore.value = cut.core || 'poliuretano';
+                    setEditTypeMode(cut.type);
 
-                    currentEditInfo = { ral, index, originalLong: cut.long, originalShort: cut.short, originalFaces: cut.faces, refreshSearch: false };
-
+                    currentEditInfo = { ral, index, refreshSearch: false };
                     editModal.style.display = 'block';
                 }
             }
@@ -1927,47 +2111,51 @@ body { padding-bottom: 92px; }
 
         confirmDeleteBtn.addEventListener('click', () => {
             if (!pendingDelete) return;
-            const { ral, index, refreshSearch } = pendingDelete;
-            if (cutsByRAL[ral] && cutsByRAL[ral][index]) {
-                cutsByRAL[ral].splice(index, 1);
-                if (cutsByRAL[ral].length === 0) {
-                    delete cutsByRAL[ral];
-                }
+
+            if (pendingDelete.type === 'finish') {
+                const ral = pendingDelete.ral;
+                delete cutsByRAL[ral];
+                delete ralColors[ral];
                 saveCuts();
+                saveRalSettings();
+                refreshRalSelects();
+                renderRalSettings();
                 renderCuts();
-            }
-            deleteConfirmModal.style.display = 'none';
-
-            if (refreshSearch) {
-                // Quitar inmediatamente de la pantalla el resultado utilizado.
-                // No relanzamos la búsqueda automáticamente porque podría mostrar
-                // otro recorte y dar la impresión de que el anterior no se eliminó.
-                const resultButton = searchResultsContainer.querySelector(
-                    `.search-remove-btn[data-ral="${ral}"][data-long="${pendingDelete.long}"][data-short="${pendingDelete.short}"][data-faces="${pendingDelete.faces}"]`
-                );
-                if (resultButton) {
-                    const resultRow = resultButton.closest('.search-result-row');
-                    if (resultRow) resultRow.remove();
+                showSettingsMessage('Acabado eliminado correctamente.', 'ok');
+            } else {
+                const { ral, index, refreshSearch } = pendingDelete;
+                if (cutsByRAL[ral] && cutsByRAL[ral][index]) {
+                    cutsByRAL[ral].splice(index, 1);
+                    if (cutsByRAL[ral].length === 0) {
+                        delete cutsByRAL[ral];
+                    }
+                    saveCuts();
+                    renderCuts();
                 }
-
-                if (!searchResultsContainer.querySelector('.search-result-row')) {
-                    searchResultsContainer.innerHTML = '<p class="search-result-item">El recorte se ha eliminado y ya no está disponible.</p>';
-                    searchResultsContainer.classList.add('no-results');
+                if (refreshSearch) {
+                    searchCutBtn.click();
                 }
             }
 
             pendingDelete = null;
+            deleteConfirmModal.style.display = 'none';
+            deleteConfirmTitle.textContent = 'Eliminar recorte';
+            deleteConfirmText.textContent = '¿Seguro que quieres eliminar este recorte?';
         });
 
         cancelDeleteBtn.addEventListener('click', () => {
             pendingDelete = null;
             deleteConfirmModal.style.display = 'none';
+            deleteConfirmTitle.textContent = 'Eliminar recorte';
+            deleteConfirmText.textContent = '¿Seguro que quieres eliminar este recorte?';
         });
 
         deleteConfirmModal.addEventListener('click', (event) => {
             if (event.target === deleteConfirmModal) {
                 pendingDelete = null;
                 deleteConfirmModal.style.display = 'none';
+                deleteConfirmTitle.textContent = 'Eliminar recorte';
+                deleteConfirmText.textContent = '¿Seguro que quieres eliminar este recorte?';
             }
         });
 
@@ -1987,45 +2175,51 @@ body { padding-bottom: 92px; }
         });
 
         saveEditBtn.addEventListener('click', () => {
-            const { ral, index } = currentEditInfo;
+            const {ral, index} = currentEditInfo;
+            const cut = cutsByRAL[ral]?.[index];
+            if (!cut) return;
+
             const newLong = parseInt(modalLongInput.value);
             const newShort = parseInt(modalShortInput.value);
-            const newFaces = parseInt(modalFacesSelect.value);
             const newCount = parseInt(modalCountInput.value);
+            const newType = modalTypeSelect.value;
 
-            if (newLong > 0 && newShort > 0 && newCount >= 0) {
-                const l = Math.max(newLong, newShort);
-                const s = Math.min(newLong, newShort);
-
-                let existingCut = cutsByRAL[ral].find(cut => cut.long === l && cut.short === s && cut.faces === newFaces);
-
-                if (existingCut && existingCut !== cutsByRAL[ral][index]) {
-                    existingCut.count += newCount;
-                    cutsByRAL[ral].splice(index, 1);
-                } else if (newCount === 0) {
-                    cutsByRAL[ral].splice(index, 1);
-                } else {
-                    cutsByRAL[ral][index].long = l;
-                    cutsByRAL[ral][index].short = s;
-                    cutsByRAL[ral][index].faces = newFaces;
-                    cutsByRAL[ral][index].count = newCount;
-                }
-
-                if (cutsByRAL[ral].length === 0) {
-                    delete cutsByRAL[ral];
-                }
-
-                saveCuts();
-                renderCuts();
-
-                if (currentEditInfo.refreshSearch) {
-                    searchCutBtn.click();
-                }
-
-                editModal.style.display = 'none';
-            } else {
-                alert('Por favor, introduce valores válidos para el largo, corto, caras y cantidad.');
+            if (!(newLong > 0 && newShort > 0 && newCount >= 0)) {
+                alert('Introduce valores válidos.');
+                return;
             }
+
+            if (newCount === 0) {
+                cutsByRAL[ral].splice(index,1);
+            } else {
+                cut.long = Math.max(newLong,newShort);
+                cut.short = Math.min(newLong,newShort);
+                cut.count = newCount;
+                cut.type = newType;
+
+                if (newType === 'sandwich') {
+                    const t = parseInt(modalThickness.value);
+                    if (!(t > 0)) {
+                        alert('Introduce un espesor válido.');
+                        return;
+                    }
+                    cut.faces = 2;
+                    cut.innerRal = modalInnerRal.value;
+                    cut.thickness = t;
+                    cut.core = modalCore.value;
+                } else {
+                    cut.faces = parseInt(modalFacesSelect.value);
+                    delete cut.innerRal;
+                    delete cut.thickness;
+                    delete cut.core;
+                }
+            }
+
+            if (!cutsByRAL[ral].length) delete cutsByRAL[ral];
+            saveCuts();
+            renderCuts();
+            if (currentEditInfo.refreshSearch) searchCutBtn.click();
+            editModal.style.display = 'none';
         });
 
         // Funciones de importación/exportación
@@ -2042,11 +2236,11 @@ body { padding-bottom: 92px; }
         });
 
         exportCsvBtn.addEventListener('click', () => {
-            const header = 'RAL,Largo,Corto,Caras,Cantidad\n';
+            const header = 'Tipo,RAL_Exterior,RAL_Interior,Largo,Corto,Caras,Espesor,Nucleo,Cantidad\n';
             let csv = header;
             for (const ral in cutsByRAL) {
                 cutsByRAL[ral].forEach(cut => {
-                    csv += `${ral},${cut.long},${cut.short},${cut.faces},${cut.count}\n`;
+                    csv += `${cut.type || 'aluminio'},${ral},${cut.innerRal || ''},${cut.long},${cut.short},${cut.faces || 1},${cut.thickness || ''},${cut.core || ''},${cut.count}\n`;
                 });
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -2086,11 +2280,11 @@ body { padding-bottom: 92px; }
         });
 
         exportCsvIosBtn.addEventListener('click', () => {
-            const header = 'RAL,Largo,Corto,Caras,Cantidad\n';
+            const header = 'Tipo,RAL_Exterior,RAL_Interior,Largo,Corto,Caras,Espesor,Nucleo,Cantidad\n';
             let csv = header;
             for (const ral in cutsByRAL) {
                 cutsByRAL[ral].forEach(cut => {
-                    csv += `${ral},${cut.long},${cut.short},${cut.faces},${cut.count}\n`;
+                    csv += `${cut.type || 'aluminio'},${ral},${cut.innerRal || ''},${cut.long},${cut.short},${cut.faces || 1},${cut.thickness || ''},${cut.core || ''},${cut.count}\n`;
                 });
             }
             const now = new Date();
@@ -2116,6 +2310,7 @@ body { padding-bottom: 92px; }
                         const importedData = JSON.parse(fileContent);
                         if (importedData && typeof importedData === 'object') {
                             cutsByRAL = importedData;
+                            Object.keys(cutsByRAL).forEach(r => cutsByRAL[r] = (cutsByRAL[r] || []).map(normalizeCut));
                             saveCuts();
                             renderCuts();
                             alert('Base de datos importada desde JSON con éxito.');
@@ -2126,21 +2321,36 @@ body { padding-bottom: 92px; }
                         alert('Error al leer el archivo JSON. Asegúrate de que es un archivo JSON válido.');
                     }
                 } else if (file.name.endsWith('.csv')) {
-                    const lines = fileContent.split('\n');
+                    const lines = fileContent.split('\\n');
                     const importedData = {};
-                    lines.forEach(line => {
-                        const [ral, long, short, faces, count] = line.trim().split(',');
-                        if (ral && !isNaN(long) && !isNaN(short) && !isNaN(faces) && !isNaN(count)) {
-                            if (!importedData[ral]) {
-                                importedData[ral] = [];
-                            }
-                            importedData[ral].push({
-                                long: parseInt(long),
-                                short: parseInt(short),
-                                faces: parseInt(faces),
-                                count: parseInt(count)
-                            });
+                    lines.forEach((line, lineIndex) => {
+                        if (!line.trim()) return;
+                        const parts = line.trim().split(',');
+                        if (lineIndex === 0 && /RAL|Tipo/i.test(parts[0])) return;
+
+                        let type, ral, innerRal, long, short, faces, thickness, core, count;
+                        if (parts.length >= 9) {
+                            [type, ral, innerRal, long, short, faces, thickness, core, count] = parts;
+                        } else {
+                            [ral, long, short, faces, count] = parts;
+                            type = 'aluminio';
+                            innerRal = '';
+                            thickness = '';
+                            core = '';
                         }
+
+                        if (!ral || isNaN(long) || isNaN(short) || isNaN(count)) return;
+                        if (!importedData[ral]) importedData[ral] = [];
+                        importedData[ral].push(normalizeCut({
+                            type: type || 'aluminio',
+                            long: parseInt(long),
+                            short: parseInt(short),
+                            faces: parseInt(faces) || 1,
+                            count: parseInt(count),
+                            innerRal: innerRal || '',
+                            thickness: thickness ? parseInt(thickness) : undefined,
+                            core: core || undefined
+                        }));
                     });
                     cutsByRAL = importedData;
                     saveCuts();
@@ -2156,7 +2366,6 @@ body { padding-bottom: 92px; }
         renderCuts();
     });
 </script>
-
 <script>
 function volverIndexSeguro(){
 try{if(window.parent&&window.parent!==window&&typeof window.parent.volverMenu==='function'){window.parent.volverMenu();return false;}}catch(e){}
@@ -2185,6 +2394,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-
 </body>
 </html>
