@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Recortes Chapa v1.1</title>
+    <title>Recortes Chapa v2.0</title>
     <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -85,7 +85,12 @@
             padding: 5px;
             border-radius: 3px;
             color: white;
-            text-shadow: 1px 1px 2px #000;
+            font-weight: 600;
+            letter-spacing: .1px;
+            line-height: 1.2;
+            text-shadow: none;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
         .cut-list {
             list-style-type: none;
@@ -96,7 +101,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.62);
         }
         .cut-item:last-child {
             border-bottom: none;
@@ -124,6 +129,31 @@
         .search-results-container .search-result-item {
             padding: 5px 0;
             border-bottom: 1px solid #c3e6cb;
+        }
+        .search-result-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid #c3e6cb;
+            text-align: left;
+        }
+        .search-result-row:last-child {
+            border-bottom: none;
+        }
+        .search-result-text {
+            flex: 1;
+            cursor: pointer;
+            padding: 6px 4px;
+            border-radius: 6px;
+        }
+        .search-result-text:active {
+            background: rgba(21, 87, 36, .10);
+        }
+        .search-result-row .remove-btn {
+            flex: 0 0 auto;
+            margin-top: 0;
         }
         .search-results-container.no-results .search-result-item {
              border-bottom: 1px solid #f5c6cb;
@@ -212,6 +242,451 @@
   justify-content: center;
 }
 
+
+
+/* Navegación inferior por pantallas */
+body { padding-bottom: 92px; }
+.container > hr { display: none; }
+.app-screen {
+    display: none;
+    margin-top: 10px;
+    padding: 18px;
+    border-top: none;
+    border-radius: 12px;
+}
+.app-screen.active-screen { display: block; }
+#screen-search { background: #eef6ff; border: 1px solid #b9d8ff; }
+#screen-add { background: #effaf1; border: 1px solid #b9e4c1; }
+#screen-stock, #screen-data { background: #f7f7f7; border: 1px solid #d7d7d7; }
+#screen-data { margin-top: 16px; }
+.bottom-nav {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 9000;
+    display: flex;
+    gap: 8px;
+    padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.97);
+    border-top: 1px solid #cfcfcf;
+    box-shadow: 0 -3px 12px rgba(0,0,0,.16);
+}
+.bottom-nav button {
+    flex: 1;
+    width: auto;
+    margin: 0;
+    padding: 11px 6px;
+    border-radius: 10px;
+    background: #f8f3e4; color:#555; border:1px solid #d7cdb6;
+    font-size: 15px;
+    font-weight: bold;
+}
+.bottom-nav button.active { background: #007bff; color:#fff; border-color:#007bff; box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.bottom-nav button[data-screen="add"].active { background: #28a745; color:#fff; border-color:#28a745;}
+.bottom-nav button[data-screen="stock"].active { background: #6f42c1; color:#fff; border-color:#6f42c1;}
+.bottom-nav button[data-screen="data"].active { background: #ff9800; color:#fff; border-color:#ff9800;}
+.bottom-nav button[data-screen="add"].active { background: #28a745; }
+.bottom-nav button[data-screen="stock"].active { background: #6f42c1; }
+@media (max-width: 520px) {
+    body { margin: 10px; padding-bottom: 92px; }
+    .container { padding: 12px; }
+    .app-screen { padding: 14px; }
+    .bottom-nav button { font-size: 14px; padding: 11px 4px; }
+}
+
+
+/* Separación clara entre recortes */
+.cut-item {
+    border-bottom: 2px solid rgba(255,255,255,.68);
+}
+.color-section[style*="247, 249, 239"] .cut-item,
+.color-section[style*="216, 198, 179"] .cut-item,
+.color-section[style*="204, 210, 210"] .cut-item,
+.color-section[style*="169, 169, 169"] .cut-item {
+    border-bottom-color: rgba(70,70,70,.30);
+}
+.search-result-row {
+    border-bottom: 2px solid rgba(21,87,36,.22);
+}
+
+
+/* Editor compacto de recortes */
+.edit-modal-content {
+    width: min(88%, 520px);
+    max-width: 520px;
+    margin: 12vh auto;
+    padding: 22px;
+    background: #f4efe3;
+    border: 1px solid #d3c6aa;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.28);
+}
+.edit-modal-content h3 {
+    margin: 8px 0 18px;
+    font-size: 24px;
+    color: #2f2f2f;
+}
+.edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 12px;
+}
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.edit-field label {
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+}
+.edit-field input,
+.edit-field select {
+    width: 100%;
+    padding: 11px 12px;
+    background: #fff7cf;
+    border: 1px solid #d8ca93;
+    border-radius: 9px;
+    font-size: 17px;
+    color: #222;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+}
+.edit-field input:focus,
+.edit-field select:focus {
+    outline: none;
+    border-color: #c2a94d;
+    box-shadow: 0 0 0 3px rgba(194,169,77,.18);
+}
+.edit-modal-buttons {
+    margin-top: 18px;
+    gap: 12px;
+}
+.edit-modal-buttons button {
+    margin: 0;
+    border-radius: 10px;
+    font-weight: bold;
+}
+#cancel-edit-btn {
+    background: #e7dfcf;
+    color: #3f3f3f;
+    border: 1px solid #cbbda4;
+}
+#save-edit-btn {
+    background: #2f80ed;
+    color: white;
+}
+@media (max-width: 430px) {
+    .edit-modal-content {
+        width: calc(100% - 28px);
+        padding: 18px 14px;
+        margin: 10vh auto;
+    }
+    .edit-grid {
+        gap: 12px 10px;
+    }
+    .edit-field label {
+        font-size: 15px;
+    }
+    .edit-field input,
+    .edit-field select {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+
+/* Formularios compactos Buscar / Añadir */
+.compact-grid {
+    display: grid;
+    gap: 14px 12px;
+    margin-bottom: 16px;
+}
+.compact-grid-two {
+    grid-template-columns: 1fr 1fr;
+}
+.compact-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.compact-field label {
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+}
+.compact-field input,
+.compact-field select {
+    width: 100%;
+    padding: 11px 12px;
+    background: #fff7cf;
+    border: 1px solid #d8ca93;
+    border-radius: 9px;
+    font-size: 17px;
+    color: #222;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+}
+.compact-field input:focus,
+.compact-field select:focus {
+    outline: none;
+    border-color: #c2a94d;
+    box-shadow: 0 0 0 3px rgba(194,169,77,.18);
+}
+#screen-search .form-group:first-of-type,
+#screen-add .form-group:first-of-type {
+    margin-bottom: 16px;
+}
+#search-results-container {
+    margin-top: 16px;
+}
+@media (max-width: 430px) {
+    .compact-grid {
+        gap: 12px 10px;
+    }
+    .compact-field label {
+        font-size: 15px;
+    }
+    .compact-field input,
+    .compact-field select {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+
+/* Pantalla de ajustes */
+#screen-settings {
+    background: #fff8e8;
+    border: 1px solid #e5d2a4;
+}
+.bottom-nav button[data-screen="settings"].active {
+    background: #8a5a2b;
+    color: #fff;
+    border-color: #8a5a2b;
+}
+.settings-card {
+    background: #f7f0df;
+    border: 1px solid #d9c8a6;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.settings-card h3 {
+    margin: 0 0 8px;
+    text-align: center;
+    color: #333;
+}
+.settings-help {
+    margin: 0 0 14px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+.ral-settings-list {
+    display: grid;
+    gap: 9px;
+}
+.ral-setting-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 58px 82px;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    background: #fffdf7;
+    border: 1px solid #dfd3bc;
+    border-radius: 9px;
+}
+.ral-setting-code-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 8px;
+    background: #fff7cf;
+    border: 1px solid #d8ca93;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+.ral-setting-name-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    background: #fff7cf;
+    border: 1px solid #d8ca93;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #222;
+}
+.ral-setting-save {
+    width: auto;
+    margin: 0;
+    padding: 9px 10px;
+    font-size: 14px;
+    background: #2f80ed;
+}
+.ral-setting-row input[type="color"] {
+    width: 58px;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid #c9baa0;
+    border-radius: 8px;
+    background: #fff;
+}
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+}
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.settings-field label {
+    margin: 0;
+    text-align: center;
+    font-size: 15px;
+}
+.settings-field input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px;
+    background: #fff7cf;
+    border: 1px solid #d8ca93;
+    border-radius: 9px;
+    font-size: 16px;
+}
+.settings-color-field {
+    grid-column: 1 / -1;
+}
+.settings-color-field input[type="color"] {
+    width: 100%;
+    height: 46px;
+    padding: 3px;
+    border: 1px solid #d8ca93;
+    border-radius: 9px;
+    background: #fff7cf;
+}
+.secondary-action {
+    margin-top: 14px;
+    background: #7d6b52;
+}
+.settings-message {
+    min-height: 20px;
+    margin: 10px 0 0;
+    text-align: center;
+    font-weight: bold;
+}
+.settings-message.ok { color: #176b2c; }
+.settings-message.error { color: #a21d2d; }
+
+@media (max-width: 430px) {
+    .ral-setting-row {
+        grid-template-columns: 78px minmax(0, 1fr) 52px;
+    }
+    .ral-setting-save {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+    .bottom-nav {
+        gap: 5px;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+    .bottom-nav button {
+        font-size: 12px;
+        padding: 11px 2px;
+    }
+    .settings-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+}
+
+
+/* Títulos RAL más finos y nítidos */
+.color-section .color-title {
+    font-size: 20px;
+}
+.color-section[style*="rgb(13, 13, 13)"] .color-title,
+.color-section[style*="rgb(15, 60, 47)"] .color-title,
+.color-section[style*="rgb(61, 68, 49)"] .color-title,
+.color-section[style*="rgb(77, 59, 49)"] .color-title,
+.color-section[style*="rgb(94, 67, 52)"] .color-title,
+.color-section[style*="rgb(108, 43, 51)"] .color-title,
+.color-section[style*="rgb(0, 91, 138)"] .color-title,
+.color-section[style*="rgb(93, 100, 104)"] .color-title,
+.color-section[style*="rgb(109, 71, 52)"] .color-title,
+.color-section[style*="rgb(158, 86, 71)"] .color-title {
+    color: #fff !important;
+}
+.color-section[style*="rgb(216, 198, 179)"] .color-title,
+.color-section[style*="rgb(158, 140, 103)"] .color-title,
+.color-section[style*="rgb(169, 169, 169)"] .color-title,
+.color-section[style*="rgb(204, 210, 210)"] .color-title,
+.color-section[style*="rgb(247, 249, 239)"] .color-title,
+.color-section[style*="rgb(224, 152, 103)"] .color-title,
+.color-section[style*="rgb(244, 108, 36)"] .color-title {
+    color: #222 !important;
+}
+
+
+/* v2.0 - Tarjetas con cabecera diferenciada */
+.color-section{
+  overflow:hidden;
+  border-radius:14px;
+}
+.color-header{
+  padding:14px 18px;
+  border-bottom:2px solid rgba(255,255,255,.45);
+}
+.color-header .ral-code{
+  font-size:18px;
+  font-weight:600;
+  opacity:.9;
+}
+.color-header .ral-name{
+  font-size:24px;
+  font-weight:700;
+}
+.color-body{
+  padding-top:16px;
+}
+
+
+/* v2.0 - Cabecera real integrada en cada tarjeta */
+.color-section {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 14px;
+}
+.color-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 15px 18px 13px;
+    border-bottom: 2px solid rgba(255,255,255,.48);
+}
+.color-header .ral-code {
+    font-size: 17px;
+    font-weight: 600;
+    opacity: .9;
+}
+.color-header .ral-name {
+    font-size: 22px;
+    font-weight: 700;
+}
+.color-body {
+    padding: 14px 10px 10px;
+}
+.color-body .cut-list {
+    margin: 0;
+}
+
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -229,9 +704,9 @@
 
 
 <div class="container">
-    <h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v1.1</span></h1>
+    <h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v2.0</span></h1>
     
-    <div class="section">
+    <div class="section app-screen active-screen" id="screen-search" data-screen="search">
         <h2>Buscador</h2>
         <div class="form-group">
             <label for="search-ral-select">Color RAL a buscar:</label>
@@ -258,21 +733,23 @@
                 <option value="1733">RAL 1733 - Inox</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="search-long-input">Largo deseado:</label>
-            <input type="number" id="search-long-input" placeholder="Ej: 2000">
-        </div>
-        <div class="form-group">
-            <label for="search-short-input">Corto deseado:</label>
-            <input type="number" id="search-short-input" placeholder="Ej: 1000">
+        <div class="compact-grid compact-grid-two">
+            <div class="compact-field">
+                <label for="search-long-input">Largo</label>
+                <input type="number" id="search-long-input" placeholder="Ej: 2000">
+            </div>
+            <div class="compact-field">
+                <label for="search-short-input">Corto</label>
+                <input type="number" id="search-short-input" placeholder="Ej: 1000">
+            </div>
         </div>
         <button id="search-cut-btn">Buscar Chapa</button>
-        <div id="search-results-container" class="search-results-container no-results"><p class="search-result-item">No se encontraron chapas que cumplan con las medidas especificadas.</p></div>
+        <div id="search-results-container" class="search-results-container no-results" style="display:none;"><p class="search-result-item">No se encontraron recortes</p></div>
     </div>
     
     <hr>
 
-    <div class="section">
+    <div class="section app-screen" id="screen-add" data-screen="add">
         <h2>Añadir Recorte</h2>
         <div class="form-group">
             <label for="ral-select">Color RAL:</label>
@@ -298,31 +775,33 @@
                 <option value="1733">RAL 1733 - Inox</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="long-input">Largo:</label>
-            <input type="number" id="long-input" placeholder="Ej: 2000" required="">
-        </div>
-        <div class="form-group">
-            <label for="short-input">Corto:</label>
-            <input type="number" id="short-input" placeholder="Ej: 1000" required="">
-        </div>
-        <div class="form-group">
-            <label for="faces-select">Caras Lacadas:</label>
-            <select id="faces-select">
-                <option value="1">1 Cara</option>
-                <option value="2">2 Caras</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="count-input">Número de chapas:</label>
-            <input type="number" id="count-input" value="1" min="1" required="">
+        <div class="compact-grid compact-grid-two">
+            <div class="compact-field">
+                <label for="long-input">Largo</label>
+                <input type="number" id="long-input" placeholder="Ej: 2000" required="">
+            </div>
+            <div class="compact-field">
+                <label for="short-input">Corto</label>
+                <input type="number" id="short-input" placeholder="Ej: 1000" required="">
+            </div>
+            <div class="compact-field">
+                <label for="count-input">Cantidad</label>
+                <input type="number" id="count-input" value="1" min="1" required="">
+            </div>
+            <div class="compact-field">
+                <label for="faces-select">Caras</label>
+                <select id="faces-select">
+                    <option value="1">1 Cara</option>
+                    <option value="2">2 Caras</option>
+                </select>
+            </div>
         </div>
         <button id="add-cut-btn">Añadir Recorte</button>
     </div>
 
     <hr>
 
-    <div class="section">
+    <div class="section app-screen" id="screen-stock" data-screen="stock">
         <h2>Recortes por Color</h2>
         <div class="sort-buttons">
             <button id="sort-long-btn">Ordenar por Largo</button>
@@ -729,47 +1208,112 @@
 
     <hr>
 
-    <div class="section">
+    <div class="section app-screen" id="screen-data" data-screen="data">
         <h2>Gestionar Datos</h2>
         <div class="db-buttons">
             <button id="export-json-btn">Exportar a JSON (Escritorio)</button>
             <button id="export-csv-btn">Exportar a CSV (Escritorio)</button>
             <button id="export-json-ios-btn">Exportar JSON (iOS)</button>
-            <button id="export-csv-ios-btn">Exportar CSV (iOS)</button>
+            <button id="export-csv-ios-btn" style="background:#28a745;color:#fff;">Exportar CSV (iOS)</button>
             <button id="import-btn">Importar Base de Datos</button>
         </div>
         <input type="file" id="import-file" style="display:none;">
     </div>
-</div>
+    <div class="section app-screen" id="screen-settings" data-screen="settings">
+        <h2>Ajustes</h2>
 
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">×</span>
-        <h3>Modificar Recorte</h3>
-        <div class="form-group">
-            <label for="modal-long">Largo:</label>
-            <input type="number" id="modal-long">
+        <div class="settings-card">
+            <h3>Colores de los recortes</h3>
+            <p class="settings-help">Toca el color para cambiar el fondo de cada acabado.</p>
+            <div id="ral-settings-list" class="ral-settings-list"></div>
+            <button type="button" id="reset-ral-colors-btn" class="secondary-action">Restaurar colores originales</button>
         </div>
-        <div class="form-group">
-            <label for="modal-short">Corto:</label>
-            <input type="number" id="modal-short">
-        </div>
-        <div class="form-group">
-            <label for="modal-faces">Caras Lacadas:</label>
-            <select id="modal-faces">
-                <option value="1">1 Cara</option>
-                <option value="2">2 Caras</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="modal-count">Cantidad:</label>
-            <input type="number" id="modal-count" min="0">
-        </div>
-        <div class="modal-buttons">
-            <button id="save-edit-btn">Guardar</button>
-            <button id="cancel-edit-btn">Cancelar</button>
+
+        <div class="settings-card">
+            <h3>Añadir acabado nuevo</h3>
+
+            <div class="settings-grid">
+                <div class="settings-field">
+                    <label for="new-ral-code">Código</label>
+                    <input id="new-ral-code" type="text" placeholder="Ej. 9007 o SAPELLY">
+                </div>
+
+                <div class="settings-field">
+                    <label for="new-ral-name">Nombre</label>
+                    <input id="new-ral-name" type="text" placeholder="Ej. Gris aluminio">
+                </div>
+
+                <div class="settings-field settings-color-field">
+                    <label for="new-ral-color">Color de fondo</label>
+                    <input id="new-ral-color" type="color" value="#c9c9c9">
+                </div>
+            </div>
+
+            <button type="button" id="add-ral-color-btn">Añadir color</button>
+            <p id="settings-message" class="settings-message" aria-live="polite"></p>
         </div>
     </div>
+
+</div>
+
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Eliminar recorte</h3>
+        <p id="deleteConfirmText">¿Seguro que quieres eliminar este recorte?</p>
+        <div class="modal-buttons">
+            <button id="cancel-delete-btn">Cancelar</button>
+            <button id="confirm-delete-btn" style="background-color:#dc3545;">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+
+<nav class="bottom-nav" aria-label="Navegación principal">
+    <button type="button" data-screen="settings">Ajustes</button>
+    <button type="button" data-screen="data">Datos</button>
+    <button type="button" data-screen="stock">Recortes</button>
+    <button type="button" data-screen="add">Añadir</button>
+    <button type="button" class="active" data-screen="search">Buscar</button>
+</nav>
+
+
+<div id="editModal" class="modal">
+    <div class="modal-content edit-modal-content">
+        <span class="close-btn">×</span>
+        <h3>Modificar Recorte</h3>
+
+        <div class="edit-grid">
+            <div class="edit-field">
+                <label for="modal-long">Largo</label>
+                <input type="number" id="modal-long">
+            </div>
+
+            <div class="edit-field">
+                <label for="modal-short">Corto</label>
+                <input type="number" id="modal-short">
+            </div>
+
+            <div class="edit-field">
+                <label for="modal-count">Cantidad</label>
+                <input type="number" id="modal-count" min="0">
+            </div>
+
+            <div class="edit-field">
+                <label for="modal-faces">Caras</label>
+                <select id="modal-faces">
+                    <option value="1">1 Cara</option>
+                    <option value="2">2 Caras</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="modal-buttons edit-modal-buttons">
+            <button id="cancel-edit-btn">Cancelar</button>
+            <button id="save-edit-btn">Guardar</button>
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -806,6 +1350,12 @@
         const importBtn = document.getElementById('import-btn');
         const importFile = document.getElementById('import-file');
 
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        const deleteConfirmText = document.getElementById('deleteConfirmText');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        let pendingDelete = null;
+
         let currentEditInfo = {};
         let currentSortOrder = 'long';
 
@@ -830,6 +1380,233 @@
             '9010': { hex: '#f7f9ef', name: 'Blanco Puro' },
             '1733': { hex: '#a9a9a9', name: 'Inox' }
         };
+
+        const defaultRalColors = JSON.parse(JSON.stringify(ralColors));
+        const savedRalSettings = JSON.parse(localStorage.getItem('ralColorSettings') || '{}');
+        const savedCustomRals = JSON.parse(localStorage.getItem('customRalColors') || '{}');
+
+        Object.keys(savedCustomRals).forEach(code => {
+            const item = savedCustomRals[code];
+            if (item && item.name && item.hex) {
+                ralColors[code] = { name: item.name, hex: item.hex };
+            }
+        });
+
+        Object.keys(savedRalSettings).forEach(code => {
+            if (!ralColors[code] || !savedRalSettings[code]) return;
+
+            const saved = savedRalSettings[code];
+            if (typeof saved === 'string') {
+                ralColors[code].hex = saved;
+            } else {
+                if (saved.hex) ralColors[code].hex = saved.hex;
+                if (saved.name) ralColors[code].name = saved.name;
+            }
+        });
+
+        function colorLabel(code) {
+            const data = ralColors[code];
+            return data ? `RAL ${code} - ${data.name}` : `RAL ${code}`;
+        }
+
+        function refreshRalSelects() {
+            const currentAdd = ralSelect.value;
+            const currentSearch = searchRalSelect.value;
+            const codes = Object.keys(ralColors).sort((a, b) =>
+                a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' })
+            );
+
+            ralSelect.innerHTML = '';
+            codes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = colorLabel(code);
+                ralSelect.appendChild(option);
+            });
+
+            searchRalSelect.innerHTML = '<option value="all">Buscar Todo</option>';
+            codes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = colorLabel(code);
+                searchRalSelect.appendChild(option);
+            });
+
+            if (codes.includes(currentAdd)) ralSelect.value = currentAdd;
+            if (currentSearch === 'all' || codes.includes(currentSearch)) {
+                searchRalSelect.value = currentSearch || 'all';
+            }
+        }
+
+        function saveRalSettings() {
+            const overrides = {};
+            Object.keys(ralColors).forEach(code => {
+                if (defaultRalColors[code]) {
+                    const changedHex = ralColors[code].hex !== defaultRalColors[code].hex;
+                    const changedName = ralColors[code].name !== defaultRalColors[code].name;
+                    if (changedHex || changedName) {
+                        overrides[code] = {
+                            hex: ralColors[code].hex,
+                            name: ralColors[code].name
+                        };
+                    }
+                }
+            });
+            localStorage.setItem('ralColorSettings', JSON.stringify(overrides));
+
+            const custom = {};
+            Object.keys(ralColors).forEach(code => {
+                if (!defaultRalColors[code]) {
+                    custom[code] = { name: ralColors[code].name, hex: ralColors[code].hex };
+                }
+            });
+            localStorage.setItem('customRalColors', JSON.stringify(custom));
+        }
+
+        const ralSettingsList = document.getElementById('ral-settings-list');
+        const resetRalColorsBtn = document.getElementById('reset-ral-colors-btn');
+        const newRalCode = document.getElementById('new-ral-code');
+        const newRalName = document.getElementById('new-ral-name');
+        const newRalColor = document.getElementById('new-ral-color');
+        const addRalColorBtn = document.getElementById('add-ral-color-btn');
+        const settingsMessage = document.getElementById('settings-message');
+
+        function showSettingsMessage(text, type) {
+            settingsMessage.textContent = text;
+            settingsMessage.className = `settings-message ${type || ''}`;
+        }
+
+        function renderRalSettings() {
+            ralSettingsList.innerHTML = '';
+            Object.keys(ralColors)
+                .sort((a, b) => a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' }))
+                .forEach(code => {
+                    const row = document.createElement('div');
+                    row.className = 'ral-setting-row';
+
+                    const codeInput = document.createElement('input');
+                    codeInput.type = 'text';
+                    codeInput.className = 'ral-setting-code-input';
+                    codeInput.value = code;
+                    codeInput.setAttribute('aria-label', `Código del color ${code}`);
+
+                    const nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.className = 'ral-setting-name-input';
+                    nameInput.value = ralColors[code].name;
+                    nameInput.setAttribute('aria-label', `Nombre de ${code}`);
+
+                    const picker = document.createElement('input');
+                    picker.type = 'color';
+                    picker.value = ralColors[code].hex;
+                    picker.setAttribute('aria-label', `Color de fondo de ${colorLabel(code)}`);
+
+                    const saveButton = document.createElement('button');
+                    saveButton.type = 'button';
+                    saveButton.className = 'ral-setting-save';
+                    saveButton.textContent = 'Guardar';
+
+                    saveButton.addEventListener('click', () => {
+                        const newCode = codeInput.value.trim().toUpperCase().replace(/\s+/g, '-');
+                        const newName = nameInput.value.trim();
+                        const newHex = picker.value;
+
+                        if (!newCode) {
+                            showSettingsMessage('El código RAL no puede quedar vacío.', 'error');
+                            codeInput.focus();
+                            return;
+                        }
+                        if (!newName) {
+                            showSettingsMessage('El nombre no puede quedar vacío.', 'error');
+                            nameInput.focus();
+                            return;
+                        }
+                        if (newCode !== code && ralColors[newCode]) {
+                            showSettingsMessage('Ese código ya existe. Usa otro diferente.', 'error');
+                            codeInput.focus();
+                            return;
+                        }
+
+                        if (newCode !== code) {
+                            if (cutsByRAL[code]) {
+                                if (!cutsByRAL[newCode]) cutsByRAL[newCode] = [];
+                                cutsByRAL[newCode] = cutsByRAL[newCode].concat(cutsByRAL[code]);
+                                delete cutsByRAL[code];
+                            }
+
+                            ralColors[newCode] = { name: newName, hex: newHex };
+                            delete ralColors[code];
+                        } else {
+                            ralColors[code].name = newName;
+                            ralColors[code].hex = newHex;
+                        }
+
+                        saveCuts();
+                        saveRalSettings();
+                        refreshRalSelects();
+                        renderRalSettings();
+                        renderCuts();
+
+                        if (searchResultsContainer.style.display !== 'none' &&
+                            searchLongInput.value && searchShortInput.value) {
+                            searchCutBtn.click();
+                        }
+
+                        showSettingsMessage('RAL, nombre y color actualizados.', 'ok');
+                    });
+
+                    picker.addEventListener('input', () => {
+                        row.style.boxShadow = `inset 5px 0 0 ${picker.value}`;
+                    });
+
+                    row.append(codeInput, nameInput, picker, saveButton);
+                    ralSettingsList.appendChild(row);
+                });
+        }
+
+        addRalColorBtn.addEventListener('click', () => {
+            const code = newRalCode.value.trim().toUpperCase().replace(/\s+/g, '-');
+            const name = newRalName.value.trim();
+            const hex = newRalColor.value;
+
+            if (!code || !name) {
+                showSettingsMessage('Escribe el código y el nombre del nuevo color.', 'error');
+                return;
+            }
+            if (ralColors[code]) {
+                showSettingsMessage('Ese código ya existe.', 'error');
+                return;
+            }
+
+            ralColors[code] = { name, hex };
+            saveRalSettings();
+            refreshRalSelects();
+            renderRalSettings();
+            renderCuts();
+
+            newRalCode.value = '';
+            newRalName.value = '';
+            newRalColor.value = '#c9c9c9';
+            showSettingsMessage('Color añadido correctamente.', 'ok');
+        });
+
+        resetRalColorsBtn.addEventListener('click', () => {
+            Object.keys(defaultRalColors).forEach(code => {
+                if (ralColors[code]) {
+                    ralColors[code].hex = defaultRalColors[code].hex;
+                    ralColors[code].name = defaultRalColors[code].name;
+                }
+            });
+            localStorage.removeItem('ralColorSettings');
+            saveRalSettings();
+            renderRalSettings();
+            renderCuts();
+            showSettingsMessage('Colores originales restaurados.', 'ok');
+        });
+
+        refreshRalSelects();
+        renderRalSettings();
+
 
         // Mapeo del antiguo RAL 9006 al nuevo 9010 para la carga inicial
         function migrateOldData(data) {
@@ -861,6 +1638,17 @@
             return luminance;
         }
 
+        function darkenHexColor(hex, factor = 0.78) {
+            const clean = hex.replace('#', '');
+            if (!/^[0-9a-fA-F]{6}$/.test(clean)) return '#555555';
+
+            const r = Math.max(0, Math.round(parseInt(clean.slice(0, 2), 16) * factor));
+            const g = Math.max(0, Math.round(parseInt(clean.slice(2, 4), 16) * factor));
+            const b = Math.max(0, Math.round(parseInt(clean.slice(4, 6), 16) * factor));
+
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
         function renderCuts() {
             resultsContainer.innerHTML = '';
             for (const ral in cutsByRAL) {
@@ -882,8 +1670,24 @@
                 const colorDiv = document.createElement('div');
                 colorDiv.className = 'color-section';
                 colorDiv.style.backgroundColor = colorHex;
-                colorDiv.innerHTML = `<h3 class="color-title">${titleText}</h3><ul class="cut-list"></ul>`;
-                colorDiv.querySelector('.color-title').style.color = textColor;
+
+                const headerColor = darkenHexColor(colorHex, 0.78);
+                const headerIsDark = getLuminance(
+                    '#' + headerColor.match(/\d+/g)
+                        .map(v => Number(v).toString(16).padStart(2, '0'))
+                        .join('')
+                ) < 0.5;
+                const headerTextColor = headerIsDark ? '#ffffff' : '#222222';
+
+                colorDiv.innerHTML = `
+                    <div class="color-header" style="background:${headerColor};color:${headerTextColor};">
+                        <span class="ral-code">RAL ${ral}</span>
+                        <span class="ral-name">${colorName}</span>
+                    </div>
+                    <div class="color-body">
+                        <ul class="cut-list"></ul>
+                    </div>
+                `;
 
                 const cutList = colorDiv.querySelector('ul');
                 cutsByRAL[ral].forEach((cut, index) => {
@@ -949,6 +1753,7 @@
         });
 
         searchCutBtn.addEventListener('click', () => {
+            searchResultsContainer.style.display = 'block';
             const searchRal = searchRalSelect.value;
             const searchLong = parseInt(searchLongInput.value);
             const searchShort = parseInt(searchShortInput.value);
@@ -962,92 +1767,127 @@
                 return;
             }
 
-            const searchLongNormalized = Math.max(searchLong, searchShort);
-            const searchShortNormalized = Math.min(searchLong, searchShort);
-
+            const neededLong = Math.max(searchLong, searchShort);
+            const neededShort = Math.min(searchLong, searchShort);
+            const neededArea = neededLong * neededShort;
             const foundCuts = [];
 
-            if (searchRal === 'all') {
-                for (const ral in cutsByRAL) {
-                    let bestMatchForColor = null;
-                    let minWasteAreaForColor = Infinity;
+            const ralList = searchRal === 'all' ? Object.keys(cutsByRAL) : [searchRal];
 
-                    cutsByRAL[ral].forEach(cut => {
-                        let canFit = false;
-                        let potentialWaste = Infinity;
+            ralList.forEach(ral => {
+                const cuts = cutsByRAL[ral] || [];
+                cuts.forEach(cut => {
+                    const fitsNormal = cut.long >= neededLong && cut.short >= neededShort;
+                    const fitsRotated = cut.long >= neededShort && cut.short >= neededLong;
 
-                        if (cut.long >= searchLongNormalized && cut.short >= searchShortNormalized) {
-                            canFit = true;
-                            potentialWaste = cut.long * cut.short - searchLongNormalized * searchShortNormalized;
-                        }
-
-                        if (cut.long >= searchShortNormalized && cut.short >= searchLongNormalized) {
-                            const rotatedWaste = cut.long * cut.short - searchLongNormalized * searchShortNormalized;
-                            if (rotatedWaste < potentialWaste) {
-                                canFit = true;
-                                potentialWaste = rotatedWaste;
-                            }
-                        }
-
-                        if (canFit && potentialWaste < minWasteAreaForColor) {
-                            minWasteAreaForColor = potentialWaste;
-                            bestMatchForColor = { ...cut, ral: ral };
-                        }
-                    });
-
-                    if (bestMatchForColor) {
-                        foundCuts.push(bestMatchForColor);
-                    }
-                }
-            } else {
-                const relevantCuts = cutsByRAL[searchRal] || [];
-                let bestMatch = null;
-                let minWasteArea = Infinity;
-                
-                relevantCuts.forEach(cut => {
-                    let canFit = false;
-                    let potentialWaste = Infinity;
-
-                    if (cut.long >= searchLongNormalized && cut.short >= searchShortNormalized) {
-                        canFit = true;
-                        potentialWaste = cut.long * cut.short - searchLongNormalized * searchShortNormalized;
-                    }
-
-                    if (cut.long >= searchShortNormalized && cut.short >= searchLongNormalized) {
-                        const rotatedWaste = cut.long * cut.short - searchLongNormalized * searchShortNormalized;
-                        if (rotatedWaste < potentialWaste) {
-                            canFit = true;
-                            potentialWaste = rotatedWaste;
-                        }
-                    }
-
-                    if (canFit && potentialWaste < minWasteArea) {
-                        minWasteArea = potentialWaste;
-                        bestMatch = { ...cut, ral: searchRal };
+                    if (fitsNormal || fitsRotated) {
+                        foundCuts.push({
+                            ...cut,
+                            ral,
+                            waste: (cut.long * cut.short) - neededArea
+                        });
                     }
                 });
-                
-                if (bestMatch) {
-                    foundCuts.push(bestMatch);
-                }
-            }
+            });
+
+            // Primero el recorte que deja menos sobrante; después los progresivamente mayores.
+            foundCuts.sort((a, b) =>
+                a.waste - b.waste ||
+                a.long - b.long ||
+                a.short - b.short ||
+                String(a.ral).localeCompare(String(b.ral))
+            );
 
             if (foundCuts.length > 0) {
                 foundCuts.forEach(cut => {
                     const colorName = ralColors[cut.ral] ? ralColors[cut.ral].name : '';
                     let searchText = `RAL ${cut.ral} - ${colorName} | ${cut.long} X ${cut.short} | ${cut.count}`;
-                    if (cut.faces === 2) {
-                        searchText += ` | Caras ${cut.faces}`;
-                    }
-                    const p = document.createElement('p');
-                    p.className = 'search-result-item';
-                    p.textContent = searchText;
-                    searchResultsContainer.appendChild(p);
+                    if (cut.faces === 2) searchText += ` | Caras ${cut.faces}`;
+
+                    const row = document.createElement('div');
+                    row.className = 'search-result-row';
+
+                    const text = document.createElement('span');
+                    text.className = 'search-result-text';
+                    text.dataset.ral = cut.ral;
+                    text.dataset.long = String(cut.long);
+                    text.dataset.short = String(cut.short);
+                    text.dataset.faces = String(cut.faces);
+                    text.textContent = searchText;
+
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'remove-btn search-remove-btn';
+                    removeButton.dataset.ral = cut.ral;
+                    removeButton.dataset.long = String(cut.long);
+                    removeButton.dataset.short = String(cut.short);
+                    removeButton.dataset.faces = String(cut.faces);
+                    removeButton.textContent = 'Quitar';
+
+                    row.appendChild(text);
+                    row.appendChild(removeButton);
+                    searchResultsContainer.appendChild(row);
                 });
             } else {
-                searchResultsContainer.innerHTML = `<p class="search-result-item">No se encontraron chapas que cumplan con las medidas especificadas.</p>`;
+                searchResultsContainer.innerHTML = `<p class="search-result-item">No se encontraron recortes</p>`;
                 searchResultsContainer.classList.add('no-results');
             }
+        });
+
+        searchResultsContainer.addEventListener('click', (event) => {
+            const removeButton = event.target.closest('.search-remove-btn');
+
+            // Quitar desde los resultados.
+            if (removeButton) {
+                const ral = removeButton.dataset.ral;
+                const long = parseInt(removeButton.dataset.long);
+                const short = parseInt(removeButton.dataset.short);
+                const faces = parseInt(removeButton.dataset.faces);
+                if (!cutsByRAL[ral]) return;
+
+                const index = cutsByRAL[ral].findIndex(cut =>
+                    cut.long === long && cut.short === short && cut.faces === faces
+                );
+                if (index < 0) return;
+
+                const cut = cutsByRAL[ral][index];
+                pendingDelete = { ral, index, refreshSearch: true, long, short, faces };
+                deleteConfirmText.textContent = `¿Seguro que quieres eliminar el recorte ${cut.long} X ${cut.short} del RAL ${ral}?`;
+                deleteConfirmModal.style.display = 'block';
+                return;
+            }
+
+            // Editar tocando el texto del resultado.
+            const resultText = event.target.closest('.search-result-text');
+            if (!resultText) return;
+
+            const ral = resultText.dataset.ral;
+            const long = parseInt(resultText.dataset.long);
+            const short = parseInt(resultText.dataset.short);
+            const faces = parseInt(resultText.dataset.faces);
+            if (!cutsByRAL[ral]) return;
+
+            const index = cutsByRAL[ral].findIndex(cut =>
+                cut.long === long && cut.short === short && cut.faces === faces
+            );
+            if (index < 0) return;
+
+            const cut = cutsByRAL[ral][index];
+            modalLongInput.value = cut.long;
+            modalShortInput.value = cut.short;
+            modalFacesSelect.value = cut.faces;
+            modalCountInput.value = cut.count;
+
+            currentEditInfo = {
+                ral,
+                index,
+                originalLong: cut.long,
+                originalShort: cut.short,
+                originalFaces: cut.faces,
+                refreshSearch: true
+            };
+
+            editModal.style.display = 'block';
         });
 
 
@@ -1060,12 +1900,10 @@
                 const index = parseInt(button.dataset.index);
 
                 if (cutsByRAL[ral] && cutsByRAL[ral][index]) {
-                    cutsByRAL[ral].splice(index, 1);
-                    if (cutsByRAL[ral].length === 0) {
-                        delete cutsByRAL[ral];
-                    }
-                    saveCuts();
-                    renderCuts();
+                    const cut = cutsByRAL[ral][index];
+                    pendingDelete = { ral, index, refreshSearch: false };
+                    deleteConfirmText.textContent = `¿Seguro que quieres eliminar el recorte ${cut.long} X ${cut.short} del RAL ${ral}?`;
+                    deleteConfirmModal.style.display = 'block';
                 }
             }
             // Manejar la edición al hacer clic en la info de la chapa
@@ -1080,10 +1918,56 @@
                     modalFacesSelect.value = cut.faces;
                     modalCountInput.value = cut.count;
 
-                    currentEditInfo = { ral, index, originalLong: cut.long, originalShort: cut.short, originalFaces: cut.faces };
+                    currentEditInfo = { ral, index, originalLong: cut.long, originalShort: cut.short, originalFaces: cut.faces, refreshSearch: false };
 
                     editModal.style.display = 'block';
                 }
+            }
+        });
+
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (!pendingDelete) return;
+            const { ral, index, refreshSearch } = pendingDelete;
+            if (cutsByRAL[ral] && cutsByRAL[ral][index]) {
+                cutsByRAL[ral].splice(index, 1);
+                if (cutsByRAL[ral].length === 0) {
+                    delete cutsByRAL[ral];
+                }
+                saveCuts();
+                renderCuts();
+            }
+            deleteConfirmModal.style.display = 'none';
+
+            if (refreshSearch) {
+                // Quitar inmediatamente de la pantalla el resultado utilizado.
+                // No relanzamos la búsqueda automáticamente porque podría mostrar
+                // otro recorte y dar la impresión de que el anterior no se eliminó.
+                const resultButton = searchResultsContainer.querySelector(
+                    `.search-remove-btn[data-ral="${ral}"][data-long="${pendingDelete.long}"][data-short="${pendingDelete.short}"][data-faces="${pendingDelete.faces}"]`
+                );
+                if (resultButton) {
+                    const resultRow = resultButton.closest('.search-result-row');
+                    if (resultRow) resultRow.remove();
+                }
+
+                if (!searchResultsContainer.querySelector('.search-result-row')) {
+                    searchResultsContainer.innerHTML = '<p class="search-result-item">El recorte se ha eliminado y ya no está disponible.</p>';
+                    searchResultsContainer.classList.add('no-results');
+                }
+            }
+
+            pendingDelete = null;
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            pendingDelete = null;
+            deleteConfirmModal.style.display = 'none';
+        });
+
+        deleteConfirmModal.addEventListener('click', (event) => {
+            if (event.target === deleteConfirmModal) {
+                pendingDelete = null;
+                deleteConfirmModal.style.display = 'none';
             }
         });
 
@@ -1133,6 +2017,11 @@
 
                 saveCuts();
                 renderCuts();
+
+                if (currentEditInfo.refreshSearch) {
+                    searchCutBtn.click();
+                }
+
                 editModal.style.display = 'none';
             } else {
                 alert('Por favor, introduce valores válidos para el largo, corto, caras y cantidad.');
@@ -1273,5 +2162,29 @@ function volverIndexSeguro(){
 try{if(window.parent&&window.parent!==window&&typeof window.parent.volverMenu==='function'){window.parent.volverMenu();return false;}}catch(e){}
 try{if(window.parent&&window.parent!==window){window.parent.postMessage({type:'volverMenu',action:'volverMenu'},'*');window.parent.postMessage('volverMenu','*');return false;}}catch(e){}
 window.location.href='index.html';return false;}
-</script></body>
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const navButtons = document.querySelectorAll('.bottom-nav button[data-screen]');
+    const screens = document.querySelectorAll('.app-screen[data-screen]');
+
+    function openScreen(name) {
+        screens.forEach(function (screen) {
+            screen.classList.toggle('active-screen', screen.dataset.screen === name);
+        });
+        navButtons.forEach(function (button) {
+            button.classList.toggle('active', button.dataset.screen === name);
+        });
+        window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    navButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openScreen(button.dataset.screen);
+        });
+    });
+});
+</script>
+
+</body>
 </html>
