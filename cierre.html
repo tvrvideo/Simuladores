@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre con lamas v2.4</title>
+  <title>Cierre v3.6.4</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -76,13 +76,13 @@
 
     input, select {
       width: 100%;
-      padding: 10px 5px;
-      border: 2px solid #000;
+      padding: 9px 5px;
+      border: 3px solid #000;
       border-radius: 8px;
       font-size: 16px; /* 16px para evitar zoom automático en iPhone */
       text-align: center;
       background-color: #fffacd;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 8px rgba(0,0,0,0.32);
       box-sizing: border-box;
     }
 
@@ -91,16 +91,18 @@
     .color-row { display: flex; gap: 12px; }
     .color-picker-button {
         flex: 1;
-        padding: 16px 10px;
+        padding: 12px 8px;
         font-size: 16px;
-        font-weight: 600;
-        border: none;
-        border-radius: 14px;
+        font-weight: 500;
+        border: 1px solid #93a4bf;
+        border-radius: 8px;
         background: #4b5563;
         color: #ffffff;
         text-align: center;
-        box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.32);
         position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
     }
     .color-picker-button input[type="color"] {
         position: absolute;
@@ -110,69 +112,114 @@
     }
 
 
-    /* BOTONES RAL */
+    /* BOTONES RAL: misma proporción visual que la versión antigua,
+       adaptada al ancho móvil actual (sin convertirlos en cuadrados) */
+    .ral-title {
+      margin: 2px 0 4px;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+      color: #111;
+    }
     .ral-buttons-container {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); 
-      gap: 10px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
     }
     .ral-button {
       cursor: pointer;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 12px;
+      width: 100%;
+      min-width: 0;
+      min-height: 43px;
+      height: auto;
+      padding: 2px 3px;
+      box-sizing: border-box;
+      border-radius: 7px;
       border: 2px solid #000;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      aspect-ratio: 1;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      text-align: center;
+      line-height: 1;
+      box-shadow: 0 5px 7px rgba(0,0,0,0.42);
+      transition: border-color .15s ease, box-shadow .15s ease;
+      -webkit-tap-highlight-color: transparent;
     }
-    .ral-button span:first-child { font-weight: bold; margin-bottom: 2px; }
-    .ral-button.selected { border: 3px solid #0061FE; transform: scale(1.05); }
+    .ral-button span:first-child {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 1px;
+    }
+    .ral-button span:last-child {
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .ral-button.selected {
+      border: 3px solid #0797ff;
+      box-shadow: 0 0 8px rgba(7,151,255,.75), 0 4px 6px rgba(0,0,0,.38);
+      transform: none;
+    }
+
+
+    .fence-info-box{
+      background:#fffacd;
+      border:2px solid #000;
+      border-radius:10px;
+      min-height:58px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 4px 6px rgba(0,0,0,.25);
+      box-sizing:border-box;
+    }
+    .fence-info-box span{font-size:13px;font-weight:700;line-height:1.1;}
+    .fence-info-box strong{font-size:21px;line-height:1.15;margin-top:3px;}
 
     /* =========================================
        DISEÑO DE BOTONES DE ACCIÓN (ESTILO FOTO 1)
        ========================================= */
     .button-row {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 columnas */
-      gap: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
       width: 100%;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
+    /* Botones compactos, con el aspecto de la versión antigua */
     .action-button {
       cursor: pointer;
-      background-color: #1e3a8a; /* AZUL OSCURO ORIGINAL */
+      background-color: #1e3a8a;
       color: #fff;
-
-      /* Tamaño uniforme para todos */
-      height: 64px;
       width: 100%;
-      padding: 0 6px;
-
-      /* Texto centrado y encajado */
+      min-width: 0;
+      min-height: 34px;
+      height: auto;
+      padding: 7px 5px;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      line-height: 1.1;
+      line-height: 1.05;
       white-space: normal;
-      word-break: break-word;
-      hyphens: auto;
-
-      border-radius: 12px;
-      border: none;
-      box-shadow: 0 6px 10px rgba(0,0,0,0.3); /* SOMBRA FUERTE */
-      transition: all 0.2s ease;
-      min-width: 0; /* clave para 4 columnas */
+      word-break: normal;
+      border: 1px solid #1e3a8a;
+      border-radius: 7px;
+      box-shadow: 0 5px 8px rgba(0,0,0,0.42);
+      transition: background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .08s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .action-button:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .action-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+    }
 
     .action-button:disabled{ opacity:0.45; filter:grayscale(0.2); }
 
@@ -411,8 +458,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <div class="verline">v2.4</div>
-  <h1>Cierre con lamas</h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.6.4</span></h1>
 </div>
 
 <form id="form">
@@ -440,6 +486,7 @@ body.dock-on #controls{
         </div>
     </div>
 
+    <div class="ral-title">Colores RAL</div>
     <div class="ral-buttons-container" id="ral-buttons">
         <div class="ral-button" data-color="#2b2c7c" data-ral="5010"><span>RAL</span><span>5010</span></div>
         <div class="ral-button" data-color="#1c1c1c" data-ral="9005"><span>RAL</span><span>9005</span></div>
@@ -458,23 +505,28 @@ body.dock-on #controls{
         <div class="ral-button" data-color="#e86b16" data-ral="2004"><span>RAL</span><span>2004</span></div>
     </div>
 
-    <div style="width:100%">
+    <div id="utilSection" style="width:100%">
         <label id="lblUtiles">Alto lamas (mm)</label>
         <input type="number" id="altoUtillamas" step="1" inputmode="numeric">
+        <div id="fenceInfo" style="display:none; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;">
+            <div class="fence-info-box"><span>Lamas</span><strong id="fenceInfoLamas">0</strong></div>
+            <div class="fence-info-box"><span>Hueco real</span><strong id="fenceInfoHueco">0 mm</strong></div>
+        </div>
     </div>
 
     <div class="button-row">
-        <button type="button" class="action-button" id="toggleDistrMode">Variar huecos</button>
-        <button type="button" class="action-button" id="toggleWidthCota">Ocultar ancho</button>
-        <button type="button" class="action-button" id="toggleHeightCota">Ocultar alto</button>
-        <button type="button" class="action-button" id="toggleRedCota">Mostrar cota roja</button>
-        <button type="button" class="action-button" id="togglePostMeasures">Mostrar medidas postes</button>
-        <button type="button" class="action-button" id="toggleMarco">Ocultar marco</button>
-        <button type="button" class="action-button" id="toggleOrientation">Cambiar horizontal</button>
-        <button type="button" class="action-button" id="toggleLarguero">Añadir larguero</button>
+        <button type="button" class="action-button" id="toggleDistrMode">Ajustar huecos</button>
+        <button type="button" class="action-button" id="toggleWidthCota">Cota ancho</button>
+        <button type="button" class="action-button" id="toggleHeightCota">Cota alto</button>
+        <button type="button" class="action-button" id="toggleRedCota">Cota roja</button>
+        <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
+        <button type="button" class="action-button" id="toggleMarco">Marco</button>
+        <button type="button" class="action-button" id="toggleOrientation">Horizontal / vertical</button>
+        <button type="button" class="action-button" id="toggleLarguero">Larguero</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
         <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
             <button type="button" class="action-button" id="btnFence">Modo valla</button>
+        <button type="button" class="action-button" id="btnFenceSides">Laterales: ON</button>
     </div>
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
@@ -505,7 +557,10 @@ body.dock-on #controls{
 <script>
     // --- LÓGICA COMPLETA ---
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
-    let showLarguero = false, posteCount = 0, fenceMode = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let showLarguero = false, posteCount = 0, fenceMode = false, fenceSides = true, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    // Guarda los valores anteriores al activar el modo alternativo de reparto.
+    // Al volver a desactivarlo, la app recupera exactamente el estado inicial.
+    let distrModeSnapshot = null;
 
     // --- v1.7: Sincronización reversible (manda el último input editado) ---
     let lastComputedN = 0;              // nº de lamas usado en el último dibujo
@@ -753,115 +808,198 @@ body.dock-on #controls{
 }
 
     function drawCierre() {
-        const ancho = +document.getElementById("ancho").value, alto = +document.getElementById("alto").value;
+        let ancho = +document.getElementById("ancho").value;
+        let alto = +document.getElementById("alto").value;
         const marco = +document.getElementById("marco").value, altoLamaInput = +document.getElementById("altoLama").value;
         const sep = +document.getElementById("sep").value;
         const cMarco = document.getElementById("colorMarcoPicker").value;
         const cLama = document.getElementById("colorLamaPicker").value;
 
+        // En modo valla, "Ajustar altura" mantiene fijas la lama y el hueco.
+        // Se conserva el número de lamas del último reparto y se recalcula la dimensión total.
+        let fenceFixedN = 0;
+        if(fenceMode && isLamaMode && altoLamaInput > 0 && sep >= 0) {
+            const currentSpan = isVertical ? ancho : alto;
+            fenceFixedN = lastComputedN > 0
+                ? lastComputedN
+                : Math.max(1, Math.floor(currentSpan / (altoLamaInput + sep)));
+            const adjustedSpan = fenceFixedN * (altoLamaInput + sep);
+            if(isVertical) {
+                ancho = adjustedSpan;
+                if(document.activeElement !== document.getElementById("ancho")) document.getElementById("ancho").value = Math.round(adjustedSpan);
+            } else {
+                alto = adjustedSpan;
+                if(document.activeElement !== document.getElementById("alto")) document.getElementById("alto").value = Math.round(adjustedSpan);
+            }
+        }
+
         const svg = document.getElementById("canvas");
         svg.innerHTML = '';
-        // --- Escala con márgenes (para que no quede pegado a los lados) ---
-        const canvasW = 900;
-        const canvasH = 800;
-        const padding = 140; // margen alrededor del dibujo y sus cotas
+        const canvasW = 900, canvasH = 800, padding = 140;
         scale = Math.min((canvasW - 2 * padding) / ancho, (canvasH - 2 * padding) / alto);
 
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform", `translate(${(canvasW - ancho * scale)/2}, ${(canvasH - alto * scale)/2}) scale(${scale})`);
         svg.appendChild(g);
 
-        if(showMarco) {
+        // En modo cierre se mantiene el marco completo. En modo valla nunca hay marco superior/inferior.
+        if(showMarco && !fenceMode) {
             g.appendChild(createRect(0, 0, ancho, alto, cMarco, "#000", 1));
-            g.appendChild(createRect(marco, marco, ancho - marco*2, alto - marco*2, "#fff", "#000", 1));
+            // El fondo interior se dibuja primero. Su contorno de contraste se añade
+            // después de las lamas para que estas no lo tapen.
+            g.appendChild(createRect(marco, marco, ancho - marco*2, alto - marco*2, "#fff", "none", 0));
         }
 
-        let areaUtil = isVertical ? (ancho - marco*2) : (alto - marco*2), n, esp, nuevoAL = altoLamaInput;
-        if (isLamaMode) {
-            n = Math.round(areaUtil / (altoLamaInput + sep));
-            if (n > 0) nuevoAL = (areaUtil - (n+1)*sep) / n;
-            if(!updatingFromDraw) document.getElementById("altoLama").value = Math.round(nuevoAL);
-            esp = sep;
-        } else {
-            n = Math.floor(areaUtil / (altoLamaInput + sep));
-            esp = n > 0 ? (areaUtil - n * altoLamaInput) / (n + 1) : 0;
+        // Zona de reparto. En valla se usa toda la altura/anchura: hueco inicial y lama final sin hueco exterior superior.
+        const areaUtil = fenceMode
+            ? (isVertical ? ancho : alto)
+            : (isVertical ? ancho - marco*2 : alto - marco*2);
+
+        let n = 0, esp = 0, nuevoAL = altoLamaInput;
+        if(areaUtil > 0 && altoLamaInput > 0) {
+            if(fenceMode) {
+                // VALLA: N huecos + N lamas. Empieza con hueco y termina con lama.
+                if(isLamaMode) {
+                    // AJUSTAR ALTURA: lama y hueco son fijos; cambia la altura/anchura total.
+                    n = Math.max(1, fenceFixedN || lastComputedN || Math.floor(areaUtil / (altoLamaInput + Math.max(0, sep))));
+                    esp = Math.max(0, sep);
+                    nuevoAL = altoLamaInput;
+                } else {
+                    // AJUSTAR HUECOS: altura total y lama son fijas; se reparte el sobrante entre N huecos.
+                    n = Math.max(1, Math.floor(areaUtil / (altoLamaInput + Math.max(0, sep))));
+                    esp = Math.max(0, (areaUtil - n * altoLamaInput) / n);
+                    nuevoAL = altoLamaInput;
+                }
+            } else if (isLamaMode) {
+                n = Math.round(areaUtil / (altoLamaInput + sep));
+                if (n > 0) nuevoAL = (areaUtil - (n+1)*sep) / n;
+                if(!updatingFromDraw) document.getElementById("altoLama").value = Math.round(nuevoAL);
+                esp = sep;
+            } else {
+                n = Math.floor(areaUtil / (altoLamaInput + sep));
+                esp = n > 0 ? (areaUtil - n * altoLamaInput) / (n + 1) : 0;
+            }
         }
+
+        // Las lamas de valla quedan entre los perfiles laterales cuando están activos.
+        const lamaX = fenceMode && fenceSides ? marco : (fenceMode ? 0 : marco);
+        const lamaW = fenceMode && fenceSides ? Math.max(0, ancho - marco*2) : (fenceMode ? ancho : ancho - marco*2);
+        const lamaY = fenceMode && fenceSides && isVertical ? 0 : (fenceMode ? 0 : marco);
+        const lamaH = fenceMode ? alto : alto - marco*2;
+        const startBase = fenceMode ? 0 : marco;
 
         for(let i=0; i<n; i++) {
-            const pos = marco + esp + i*(nuevoAL + esp);
-            if(isVertical) g.appendChild(createRect(pos, marco, nuevoAL, alto - marco*2, cLama, "#000", 0.5));
-            else g.appendChild(createRect(marco, pos, ancho - marco*2, nuevoAL, cLama, "#000", 0.5));
+            let pos;
+            if(fenceMode && !isVertical) {
+                // Valla horizontal: el hueco queda ABAJO y la última lama termina ARRIBA.
+                // En SVG el eje Y crece hacia abajo, por eso dibujamos desde abajo hacia arriba.
+                pos = alto - esp - nuevoAL - i * (nuevoAL + esp);
+            } else {
+                // Cierre normal y valla vertical: hueco inicial y lama final en el extremo contrario.
+                pos = startBase + esp + i * (nuevoAL + esp);
+            }
+
+            if(isVertical) g.appendChild(createRect(pos, lamaY, nuevoAL, lamaH, cLama, "#000", 0.5));
+            else g.appendChild(createRect(lamaX, pos, lamaW, nuevoAL, cLama, "#000", 0.5));
         }
 
-        if(showLarguero && ancho > 1000) {
+        // Cuando el hueco real es cero, dibujamos separadores de contraste
+        // tanto en cierre con marco como en modo valla.
+        if(n > 1 && Math.abs(esp) < 0.01) {
+            const separatorColor = getContrastColor(cLama);
+            const separatorWidth = 1.5;
+
+            for(let i = 1; i < n; i++) {
+                let separatorPos;
+
+                if(fenceMode && !isVertical) {
+                    // En valla horizontal las lamas se colocan desde abajo hacia arriba.
+                    separatorPos = alto - i * nuevoAL;
+                } else {
+                    separatorPos = startBase + i * nuevoAL;
+                }
+
+                if(isVertical) {
+                    g.appendChild(createLine(
+                        separatorPos, lamaY,
+                        separatorPos, lamaY + lamaH,
+                        separatorColor, separatorWidth
+                    ));
+                } else {
+                    g.appendChild(createLine(
+                        lamaX, separatorPos,
+                        lamaX + lamaW, separatorPos,
+                        separatorColor, separatorWidth
+                    ));
+                }
+            }
+
+            // En cierre con marco también destacamos la unión entre lamas y marco.
+            if(showMarco && !fenceMode) {
+                g.appendChild(createRect(
+                    marco,
+                    marco,
+                    Math.max(0, ancho - marco * 2),
+                    Math.max(0, alto - marco * 2),
+                    "none",
+                    separatorColor,
+                    separatorWidth
+                ));
+            }
+        }
+
+        if(showLarguero && ancho > 1000 && !fenceMode) {
             g.appendChild(createRect(ancho/2 - marco, 0, marco, alto, cMarco, "#fff", 0.5));
             g.appendChild(createRect(ancho/2 + 5, 0, marco, alto, cMarco, "#fff", 0.5));
         }
 
-        // Postes: se reparten automáticamente en huecos iguales
-        // v1.8: "Modo valla" => recorte de postes cuando el marco está oculto + 2 postes laterales
-        const utilSpan = n * nuevoAL + Math.max(0, (n - 1)) * esp; // alto/ancho útil real (sin marcos ni huecos exteriores)
-        const cropPosts = (fenceMode && !showMarco);
-
+        // Postes interiores: en valla recorren toda la altura, incluido el hueco inferior.
         if(posteCount > 0) {
-            const spanX = Math.max(0, ancho - marco*2);
-            const spanY = Math.max(0, alto - marco*2);
-
-            // Rango de recorte para que no sobresalga por arriba/izquierda y se vea la lama extrema limpia
-            const cropX0 = marco + esp;
-            const cropX1 = cropX0 + utilSpan;
-            const cropY0 = marco + esp;
-            const cropY1 = cropY0 + utilSpan;
+            const leftLimit = fenceMode && fenceSides ? marco : (fenceMode ? 0 : marco);
+            const rightLimit = fenceMode && fenceSides ? ancho - marco : (fenceMode ? ancho : ancho - marco);
+            const spanX = Math.max(0, rightLimit - leftLimit);
+            const spanY = Math.max(0, alto - (fenceMode ? 0 : marco*2));
 
             for(let k = 1; k <= posteCount; k++) {
                 if(isVertical) {
-                    // Lamas verticales => el poste es horizontal (como el original), repartido en altura útil
-                    const y = (spanY > 0) ? (marco + (k * spanY / (posteCount + 1)) - marco/2) : (alto/2 - marco/2);
-
-                    const x0 = cropPosts ? cropX0 : 0;
-                    const w  = cropPosts ? Math.max(0, cropX1 - cropX0) : ancho;
-                    g.appendChild(createRect(x0, y, w, marco, cMarco, "#000", 0.5));
+                    const y = fenceMode
+                        ? (k * alto / (posteCount + 1) - marco/2)
+                        : (marco + k * spanY / (posteCount + 1) - marco/2);
+                    g.appendChild(createRect(fenceMode ? 0 : marco, y, fenceMode ? ancho : ancho-marco*2, marco, cMarco, "#000", 0.5));
                 } else {
-                    // Lamas horizontales => el poste es vertical, repartido en ancho útil
-                    const x = (spanX > 0) ? (marco + (k * spanX / (posteCount + 1)) - marco/2) : (ancho/2 - marco/2);
-
-                    const y0 = cropPosts ? cropY0 : 0;
-                    const h  = cropPosts ? Math.max(0, cropY1 - cropY0) : alto;
-                    g.appendChild(createRect(x, y0, marco, h, cMarco, "#000", 0.5));
+                    const x = leftLimit + k * spanX / (posteCount + 1) - marco/2;
+                    g.appendChild(createRect(x, fenceMode ? 0 : marco, marco, fenceMode ? alto : alto-marco*2, cMarco, "#000", 0.5));
                 }
             }
         }
 
-        // 2 postes extra (laterales) para simular valla cuando está activo
-        if(fenceMode) {
-            const cropX0 = marco + esp;
-            const cropX1 = cropX0 + utilSpan;
-            const cropY0 = marco + esp;
-            const cropY1 = cropY0 + utilSpan;
+        // Perfiles laterales independientes en modo valla.
+        if(fenceMode && fenceSides) {
+            g.appendChild(createRect(0, 0, marco, alto, cMarco, "#000", 0.5));
+            g.appendChild(createRect(ancho - marco, 0, marco, alto, cMarco, "#000", 0.5));
 
-            if(isVertical) {
-                // postes horizontales arriba y abajo
-                const x0 = cropPosts ? cropX0 : 0;
-                const w  = cropPosts ? Math.max(0, cropX1 - cropX0) : ancho;
-                g.appendChild(createRect(x0, 0, w, marco, cMarco, "#000", 0.5));
-                g.appendChild(createRect(x0, alto - marco, w, marco, cMarco, "#000", 0.5));
-            } else {
-                // postes verticales izquierda y derecha
-                const y0 = cropPosts ? cropY0 : 0;
-                const h  = cropPosts ? Math.max(0, cropY1 - cropY0) : alto;
-                g.appendChild(createRect(0, y0, marco, h, cMarco, "#000", 0.5));
-                g.appendChild(createRect(ancho - marco, y0, marco, h, cMarco, "#000", 0.5));
-            }
+            // Línea interior de contraste entre las lamas y cada lateral.
+            // Se dibuja al final para que no quede tapada por las lamas.
+            const sideSeparatorColor = getContrastColor(cLama);
+            const sideSeparatorWidth = 1.5;
+            g.appendChild(createLine(
+                marco, 0,
+                marco, alto,
+                sideSeparatorColor, sideSeparatorWidth
+            ));
+            g.appendChild(createLine(
+                ancho - marco, 0,
+                ancho - marco, alto,
+                sideSeparatorColor, sideSeparatorWidth
+            ));
         }
 
-        const cotaUtil = n * nuevoAL + (n-1)*esp;
-        // Guardar últimos resultados para sincronización reversible (v1.7)
+        const cotaUtil = fenceMode ? areaUtil : (n * nuevoAL + Math.max(0, n-1)*esp);
         lastComputedN = n;
         lastComputedAL = nuevoAL;
         lastComputedEsp = esp;
         lastComputedUtil = cotaUtil;
 
-        // No pisar el campo si el usuario lo está editando
         if(!updatingFromDraw) {
             const utilEl = document.getElementById("altoUtillamas");
             if(document.activeElement !== utilEl) utilEl.value = Math.round(cotaUtil);
@@ -870,42 +1008,48 @@ body.dock-on #controls{
         if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + " mm", false, 3);
         if(showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + " mm", true, 3, "#1d4ed8", false, true);
         if(showRedCota && n > 0) {
-            if(isVertical) drawDimLineSVG(marco+esp, alto, marco+esp+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
-            else drawDimLineSVG(ancho, marco+esp, ancho, marco+esp+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
+            if(isVertical) drawDimLineSVG(fenceMode ? 0 : marco+esp, alto, (fenceMode ? 0 : marco+esp)+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
+            else drawDimLineSVG(ancho, fenceMode ? 0 : marco+esp, ancho, (fenceMode ? 0 : marco+esp)+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
         }
 
-        // --- Medidas entre postes (verde) ---
         if (showPostMeasures) {
             const green = "#16a34a";
-            const extra = 35 / scale; // separación visual fuera del dibujo (en unidades del modelo)
-
-            // REPARTO TOTAL: solo importa la división del ancho/alto total:
-            // 1 poste => ancho/2, 2 postes => ancho/3, 3 postes => ancho/4, etc.
-            // (no se descuentan marcos ni el grosor del poste)
+            const extra = 35 / scale;
             const segments = Math.max(1, posteCount + 1);
-
             if (!isVertical) {
-                // Postes verticales => medir en horizontal, abajo (0..ancho)
                 const yBase = alto + extra;
                 for (let i = 0; i < segments; i++) {
-                    const x1 = (i * ancho) / segments;
-                    const x2 = ((i + 1) * ancho) / segments;
-                    const dist = Math.abs(x2 - x1);
-                    drawDimLineSVG(x1, yBase, x2, yBase, (i === 0 ? (Math.round(dist) + " mm") : ""), false, 1, green, false, false, true);
+                    const x1 = (i * ancho) / segments, x2 = ((i + 1) * ancho) / segments;
+                    drawDimLineSVG(x1, yBase, x2, yBase, (i === 0 ? (Math.round(x2-x1) + " mm") : ""), false, 1, green, false, false, true);
                 }
             } else {
-                // Postes horizontales => medir en vertical, a la derecha (0..alto)
                 const xBase = ancho + extra;
                 for (let i = 0; i < segments; i++) {
-                    const y1 = (i * alto) / segments;
-                    const y2 = ((i + 1) * alto) / segments;
-                    const dist = Math.abs(y2 - y1);
-                    drawDimLineSVG(xBase, y1, xBase, y2, (i === 0 ? (Math.round(dist) + " mm") : ""), true, 1, green, true, true, true);
+                    const y1 = (i * alto) / segments, y2 = ((i + 1) * alto) / segments;
+                    drawDimLineSVG(xBase, y1, xBase, y2, (i === 0 ? (Math.round(y2-y1) + " mm") : ""), true, 1, green, true, true, true);
                 }
             }
         }
 
-        document.getElementById("stats").textContent = `Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount}`;
+        const utilInputEl = document.getElementById("altoUtillamas");
+        const utilLabelEl = document.getElementById("lblUtiles");
+        const fenceInfoEl = document.getElementById("fenceInfo");
+        if (fenceMode) {
+            if (utilInputEl) utilInputEl.style.display = "none";
+            if (utilLabelEl) utilLabelEl.style.display = "none";
+            if (fenceInfoEl) fenceInfoEl.style.display = "grid";
+            const fiL = document.getElementById("fenceInfoLamas");
+            const fiH = document.getElementById("fenceInfoHueco");
+            if (fiL) fiL.textContent = String(n);
+            if (fiH) fiH.textContent = `${Math.round(esp * 10) / 10} mm`;
+        } else {
+            if (utilInputEl) utilInputEl.style.display = "block";
+            if (utilLabelEl) utilLabelEl.style.display = "block";
+            if (fenceInfoEl) fenceInfoEl.style.display = "none";
+        }
+
+        const tipo = fenceMode ? `Valla | Laterales: ${fenceSides ? 'Sí' : 'No'}` : 'Cierre';
+        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount}`;
     }
 
     // --- EVENTOS ---
@@ -926,7 +1070,7 @@ body.dock-on #controls{
             // Este input sirve para "repartir huecos", así que forzamos modo huecos
             isLamaMode = false;
             const btnDistr = document.getElementById("toggleDistrMode");
-            if(btnDistr) btnDistr.textContent = "Variar huecos";
+            if(btnDistr) btnDistr.textContent = fenceMode ? "Ajustar huecos" : "Variar huecos";
 
             const m = +document.getElementById("marco").value;
             const al = +document.getElementById("altoLama").value;
@@ -974,7 +1118,7 @@ body.dock-on #controls{
         // pero podemos poner un borde grueso o un pequeño indicador.
         // En este diseño tipo "Foto 1", el botón suele ser blanco con borde de color o fondo claro.
         // Ajustamos ligeramente:
-        wrapper.style.borderLeft = `10px solid ${color}`;
+        wrapper.style.borderLeft = `4px solid ${color}`;
     }
     
     document.getElementById("colorMarcoPicker").oninput = (e) => {
@@ -1008,11 +1152,39 @@ actionIds.forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
     el.addEventListener('click', (e) => {
-        if(id === "toggleDistrMode") { isLamaMode = !isLamaMode; e.target.textContent = isLamaMode ? "Variar lamas" : "Variar huecos"; }
+        if(id === "toggleDistrMode") {
+            if(!isLamaMode) {
+                // Antes de cambiar el reparto, recordar exactamente los valores actuales.
+                distrModeSnapshot = {
+                    ancho: document.getElementById("ancho").value,
+                    alto: document.getElementById("alto").value,
+                    altoLama: document.getElementById("altoLama").value,
+                    sep: document.getElementById("sep").value,
+                    lastComputedN
+                };
+                isLamaMode = true;
+            } else {
+                // Al desactivar, dejar la app exactamente como estaba al principio.
+                isLamaMode = false;
+                if(distrModeSnapshot) {
+                    document.getElementById("ancho").value = distrModeSnapshot.ancho;
+                    document.getElementById("alto").value = distrModeSnapshot.alto;
+                    document.getElementById("altoLama").value = distrModeSnapshot.altoLama;
+                    document.getElementById("sep").value = distrModeSnapshot.sep;
+                    lastComputedN = distrModeSnapshot.lastComputedN || 0;
+                    distrModeSnapshot = null;
+                }
+            }
+            if(fenceMode) {
+                e.target.textContent = isLamaMode ? "Ajustar altura" : "Ajustar huecos";
+            } else {
+                e.target.textContent = isLamaMode ? "Variar lamas" : "Variar huecos";
+            }
+        }
         if(id === "toggleWidthCota") showWidthCota = !showWidthCota;
         if(id === "toggleHeightCota") showHeightCota = !showHeightCota;
         if(id === "toggleRedCota") showRedCota = !showRedCota;
-        if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; e.target.textContent = showPostMeasures ? "Ocultar medidas postes" : "Mostrar medidas postes"; }
+        if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; }
         if(id === "toggleMarco") showMarco = !showMarco;
         if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; }
         if(id === "toggleLarguero") showLarguero = !showLarguero;
@@ -1061,15 +1233,36 @@ bindTap(btnPosteMinus, () => {
 
 updatePosteBtns();
 
-// --- MODO VALLA (v1.8) ---
+// --- MODO VALLA REAL + LATERALES INDEPENDIENTES ---
 const btnFence = document.getElementById('btnFence');
+const btnFenceSides = document.getElementById('btnFenceSides');
+const btnMarco = document.getElementById('toggleMarco');
 function updateFenceBtn(){
-    if(!btnFence) return;
-    btnFence.classList.toggle('active', fenceMode);
-    btnFence.textContent = fenceMode ? 'Modo valla: ON' : 'Modo valla';
+    if(btnFence) {
+        btnFence.classList.toggle('active', fenceMode);
+        btnFence.textContent = fenceMode ? 'Valla ON' : 'Valla';
+    }
+    const btnDistr = document.getElementById('toggleDistrMode');
+    if(btnDistr) {
+        btnDistr.textContent = fenceMode
+            ? (isLamaMode ? 'Ajustar altura' : 'Ajustar huecos')
+            : (isLamaMode ? 'Variar lamas' : 'Variar huecos');
+    }
+    if(btnFenceSides) {
+        btnFenceSides.disabled = !fenceMode;
+        btnFenceSides.classList.toggle('active', fenceMode && fenceSides);
+        btnFenceSides.textContent = `Laterales: ${fenceSides ? 'ON' : 'OFF'}`;
+    }
+    if(btnMarco) btnMarco.disabled = fenceMode;
 }
 bindTap(btnFence, () => {
     fenceMode = !fenceMode;
+    updateFenceBtn();
+    drawCierre();
+});
+bindTap(btnFenceSides, () => {
+    if(!fenceMode) return;
+    fenceSides = !fenceSides;
     updateFenceBtn();
     drawCierre();
 });
