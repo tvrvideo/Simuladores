@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.5.4</title>
+  <title>Documentos Rey v4.6</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2472,6 +2472,14 @@ body.png-open #pngPreviewImage{
     padding:0 2px !important;
   }
 }
+
+/* v4.5.5 - Un único sistema visible de plantillas */
+.template-quick-unified-head-v455{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.template-quick-unified-head-v455 strong{font-size:15px;font-weight:900;color:#0f172a}
+.template-quick-unified-head-v455 .btn{min-height:36px;padding:0 11px;font-size:12px}
+.template-quick-sort-v455{width:100%;min-height:42px;margin-top:8px;border:1px solid #d4dde9;border-radius:13px;padding:0 11px;background:#fff;color:#0f172a;font-weight:850;font-size:14px}
+#conceptTemplateSelect{display:none!important}
+.template-quick-selected-v455{margin-top:8px;padding:8px 10px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:12px;font-weight:900;line-height:1.2}
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -4122,6 +4130,36 @@ body.sheet-open .brand-idb-pill{
   display:inline-flex !important;
 }
 </style>
+
+<style>
+/* v4.5.12 - Editor visible y plantillas con desplazamiento propio */
+#sheetContent #editConceptText,
+#sheetContent #editSimpleText{
+  min-height:190px !important;
+  scroll-margin-top:90px !important;
+}
+#sheetContent .template-quick-search-v289087{
+  margin-top:12px !important;
+}
+#sheetContent .template-quick-results-v289087{
+  max-height:min(32vh,220px) !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  padding:6px;
+  background:#f8fafc;
+}
+#sheetContent .template-actions{
+  position:sticky;
+  bottom:72px;
+  z-index:7;
+  padding:6px;
+  border-radius:14px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+</style>
 </head>
 <body>
 <button type="button" class="btn-menu-index" id="btnVolverIndex" onclick="return solicitarVolverIndex()">← MENÚ</button>
@@ -4132,7 +4170,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.5.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -7064,6 +7102,14 @@ COLOCACIÓN INCLUIDA` }
     if(textarea.isContentEditable) textarea.innerHTML = esc(nextText).replace(/\n/g,'<br>');
     else textarea.value = nextText;
     textarea.dispatchEvent(new Event('input', { bubbles:true }));
+    try{
+      textarea.focus({preventScroll:true});
+      if(!textarea.isContentEditable && typeof textarea.setSelectionRange === 'function'){
+        const end = textarea.value.length;
+        textarea.setSelectionRange(end, end);
+      }
+      textarea.scrollIntoView({block:'nearest', behavior:'auto'});
+    }catch(_){ }
   }
   let savedClients = [];
 
@@ -9115,6 +9161,10 @@ COLOCACIÓN INCLUIDA` }
     });
   }
 
+  // v4.5.10 - Puente público para abrir la gestión de plantillas
+  // desde el buscador insertado en la pantalla de Conceptos.
+  window.openDocumentTemplates = instantOpenTemplates;
+
   function instantCloseTemplatesToSettings(){
     withoutSheetAnimation(function(){
       $('editSheet').classList.remove('show');
@@ -11009,13 +11059,14 @@ COLOCACIÓN INCLUIDA` }
         templateOptions += `<option value="${idx}">${esc(tpl.category)} · ${esc(tpl.name)}</option>`;
       });
       body.innerHTML = `
-        <label>Plantillas predefinidas</label>
-        <select id="conceptTemplateSelect" style="width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;color:var(--text);margin-bottom:10px">
+        <label>Texto ${it.code}</label><textarea id="editConceptText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
+        <select id="conceptTemplateSelect" aria-hidden="true" tabindex="-1" style="display:none">
           ${templateOptions}
         </select>
-        <div class="template-actions">
-          <button type="button" class="btn btn-light" id="btnUseTemplate">Reemplazar</button>
-          <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
+        <div class="template-picker-launch-v456">
+          <button type="button" class="btn btn-primary" id="btnOpenTemplatePickerV456">Plantillas</button>
+          <button type="button" id="btnUseTemplate" hidden>Reemplazar</button>
+          <button type="button" id="btnAppendTemplate" hidden>Añadir</button>
         </div>
         <div class="external-catalog-note-v42">Catálogos externos</div>
         <div class="external-catalog-grid-v42">
@@ -11026,13 +11077,12 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
           <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
         </div>
-        <label>Texto ${it.code}</label><textarea id="editConceptText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <div class="sheet-actions" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
-          <button type="button" class="btn btn-light" id="sheetImageBtn">Gráfico</button>
+          <button type="button" class="btn" id="sheetImageBtn" style="background:linear-gradient(180deg,#22d3ee 0%,#0891b2 100%) !important;color:#fff !important;border-color:#0891b2 !important;">Gráfico</button>
           <button type="button" class="btn btn-danger" id="sheetCancel">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
         </div>`;
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
@@ -11048,13 +11098,14 @@ COLOCACIÓN INCLUIDA` }
         templateOptions += `<option value="${idx}">${esc(tpl.category)} · ${esc(tpl.name)}</option>`;
       });
       body.innerHTML = `
-        <label>Plantillas predefinidas</label>
-        <select id="conceptTemplateSelect" style="width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;color:var(--text);margin-bottom:10px">
+        <label>Concepto</label><textarea id="editSimpleText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
+        <select id="conceptTemplateSelect" aria-hidden="true" tabindex="-1" style="display:none">
           ${templateOptions}
         </select>
-        <div class="template-actions">
-          <button type="button" class="btn btn-light" id="btnUseTemplate">Reemplazar</button>
-          <button type="button" class="btn btn-light" id="btnAppendTemplate">Añadir</button>
+        <div class="template-picker-launch-v456">
+          <button type="button" class="btn btn-primary" id="btnOpenTemplatePickerV456">Plantillas</button>
+          <button type="button" id="btnUseTemplate" hidden>Reemplazar</button>
+          <button type="button" id="btnAppendTemplate" hidden>Añadir</button>
         </div>
         <div class="external-catalog-note-v42">Catálogos externos</div>
         <div class="external-catalog-grid-v42">
@@ -11065,7 +11116,6 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
           <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
         </div>
-        <label>Concepto</label><textarea id="editSimpleText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
         <label class="import-field-label">Precio base</label><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
@@ -11522,15 +11572,89 @@ COLOCACIÓN INCLUIDA` }
 
     } else if(type === 'templateForm'){
       const idx = index == null ? -1 : Number(index);
-      const tpl = idx >= 0 ? (getConceptTemplates()[idx] || {category:'General',name:'',text:''}) : {category:'General',name:'',text:''};
+      const tpl = idx >= 0 ? (getConceptTemplates()[idx] || {category:'PVC',name:'',text:''}) : {category:'PVC',name:'',text:''};
+
+      const normTemplateCategoryV4511 = function(v){
+        return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      };
+      const templateNameKeyV4511 = normTemplateCategoryV4511(tpl.name || '');
+      let categoryMapV4511 = {};
+      let legacyCategoryMapV4511 = {};
+      let customCategoriesV4511 = [];
+      try{ categoryMapV4511 = JSON.parse(localStorage.getItem('documentos_rey_template_categories_v28904') || '{}') || {}; }catch(_){}
+      try{ legacyCategoryMapV4511 = JSON.parse(localStorage.getItem('templateCategoryMapV28904') || '{}') || {}; }catch(_){}
+      try{
+        const savedCustom = JSON.parse(localStorage.getItem('documentos_rey_custom_template_categories_v289083') || '[]');
+        customCategoriesV4511 = Array.isArray(savedCustom) ? savedCustom.filter(Boolean).map(String) : [];
+      }catch(_){}
+
+      const standardCategoriesV4511 = [
+        {id:'pvc', label:'PVC'},
+        {id:'aluminio', label:'ALUMINIO'},
+        {id:'persiana', label:'PERSIANA'},
+        {id:'cristal', label:'CRISTAL'},
+        {id:'mosquitera', label:'MOSQUITERA'},
+        {id:'otros', label:'OTROS'}
+      ];
+      const allCategoriesV4511 = standardCategoriesV4511.concat(customCategoriesV4511.map(function(label){
+        return {id:'custom:' + String(label).toUpperCase(), label:String(label).toUpperCase()};
+      }));
+
+      let selectedCategoryIdV4511 = categoryMapV4511[templateNameKeyV4511] || legacyCategoryMapV4511[templateNameKeyV4511] || '';
+      if(!selectedCategoryIdV4511){
+        const storedCategory = normTemplateCategoryV4511(tpl.category || '');
+        const foundCategory = allCategoriesV4511.find(function(cat){
+          return normTemplateCategoryV4511(cat.id) === storedCategory || normTemplateCategoryV4511(cat.label) === storedCategory || normTemplateCategoryV4511(String(cat.id).replace(/^custom:/,'')) === storedCategory;
+        });
+        selectedCategoryIdV4511 = foundCategory ? foundCategory.id : 'pvc';
+      }
+
+      const categoryOptionsV4511 = allCategoriesV4511.map(function(cat){
+        return '<option value="' + esc(cat.id) + '"' + (cat.id === selectedCategoryIdV4511 ? ' selected' : '') + '>' + esc(cat.label) + '</option>';
+      }).join('');
+
       body.innerHTML = `
-        <label>Título que se ve en el selector</label><input id="editTemplateName" value="${esc(tpl.name || '')}">
-        <label>Categoría</label><input id="editTemplateCategory" value="${esc(tpl.category || 'General')}">
+        <label>Nombre para mostrar</label><input id="editTemplateName" value="${esc(tpl.name || '')}">
+        <label>Categoría</label>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center">
+          <select id="editTemplateCategory" style="width:100%;min-height:46px;border:1px solid var(--line);border-radius:14px;padding:0 12px;background:#fff;color:var(--text);font-weight:800">${categoryOptionsV4511}</select>
+          <button type="button" class="btn btn-neutral" id="btnTemplateCategoryAddV4511" style="min-height:46px;white-space:nowrap">+ Nueva</button>
+        </div>
+        <div style="margin-top:6px;color:var(--muted);font-size:12px;font-weight:800">La misma categoría se mostrará en la lista, búsqueda y ordenación.</div>
         <label>Líneas para añadir a concepto</label><textarea id="editTemplateText">${esc(tpl.text || '')}</textarea>
         <div class="sheet-actions">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
+
+      const addCategoryBtnV4511 = $('btnTemplateCategoryAddV4511');
+      if(addCategoryBtnV4511) addCategoryBtnV4511.onclick = function(){
+        const entered = prompt('Nombre de la nueva categoría');
+        const label = String(entered || '').trim().toUpperCase();
+        if(!label) return;
+        let custom = [];
+        try{
+          const current = JSON.parse(localStorage.getItem('documentos_rey_custom_template_categories_v289083') || '[]');
+          custom = Array.isArray(current) ? current.filter(Boolean).map(String) : [];
+        }catch(_){}
+        if(!custom.some(function(item){ return String(item).toUpperCase() === label; })){
+          custom.push(label);
+          try{ localStorage.setItem('documentos_rey_custom_template_categories_v289083', JSON.stringify(custom)); }catch(_){}
+        }
+        const select = $('editTemplateCategory');
+        if(select){
+          const id = 'custom:' + label;
+          let option = Array.from(select.options).find(function(opt){ return opt.value === id; });
+          if(!option){
+            option = document.createElement('option');
+            option.value = id;
+            option.textContent = label;
+            select.appendChild(option);
+          }
+          select.value = id;
+        }
+        toast('Categoría creada');
+      };
     } else if(type === 'clients'){
       const clients = getClients();
       let listHtml = '';
@@ -12042,12 +12166,29 @@ COLOCACIÓN INCLUIDA` }
       const idx = currentEdit.index == null ? -1 : Number(currentEdit.index);
       ensureTemplateIds();
       const previousTpl = idx >= 0 && idx < conceptTemplates.length ? conceptTemplates[idx] : null;
+      const selectedCategoryIdV4511 = String(($('editTemplateCategory').value || '').trim() || 'pvc');
+      const selectedCategoryLabelV4511 = selectedCategoryIdV4511.indexOf('custom:') === 0
+        ? selectedCategoryIdV4511.slice(7).toUpperCase()
+        : ({pvc:'PVC',aluminio:'ALUMINIO',persiana:'PERSIANA',cristal:'CRISTAL',mosquitera:'MOSQUITERA',otros:'OTROS'}[selectedCategoryIdV4511] || 'OTROS');
       const tpl = {
         id: previousTpl && previousTpl.id ? previousTpl.id : makeTemplateId(),
         name: String(($('editTemplateName').value || '').trim() || 'Sin título'),
-        category: String(($('editTemplateCategory').value || '').trim() || 'General'),
+        category: selectedCategoryLabelV4511,
         text: String($('editTemplateText').value || '')
       };
+
+      const normTemplateKeyV4511 = function(v){
+        return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      };
+      const oldNameKeyV4511 = normTemplateKeyV4511(previousTpl && previousTpl.name ? previousTpl.name : '');
+      const newNameKeyV4511 = normTemplateKeyV4511(tpl.name);
+      ['documentos_rey_template_categories_v28904','templateCategoryMapV28904'].forEach(function(storageKey){
+        let map = {};
+        try{ map = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; }catch(_){}
+        if(oldNameKeyV4511 && oldNameKeyV4511 !== newNameKeyV4511) delete map[oldNameKeyV4511];
+        map[newNameKeyV4511] = selectedCategoryIdV4511;
+        try{ localStorage.setItem(storageKey, JSON.stringify(map)); }catch(_){}
+      });
       if(idx >= 0 && idx < conceptTemplates.length){
         conceptTemplates[idx] = tpl;
       }else{
@@ -15389,7 +15530,7 @@ const mo = new MutationObserver(function(){
     if(!isTextEditSheet()) return;
 
     const body = document.querySelector('#sheetContent');
-    if(!body || body.querySelector('#templateQuickSearchV289087')) return;
+    if(!body || body.querySelector('#templateQuickSearchV289087') || body.querySelector('#btnOpenTemplatePickerV456')) return;
 
     const select = Array.from(body.querySelectorAll('select')).find(sel=>{
       const opts = templateOptions(sel);
@@ -15398,50 +15539,53 @@ const mo = new MutationObserver(function(){
     if(!select) return;
 
     const box = document.createElement('div');
-    box.className = 'template-quick-search-v289087 template-quick-collapsed-v34';
+    box.className = 'template-quick-search-v289087';
     box.innerHTML = `
-      <button type="button" id="templateQuickToggleV34" class="template-quick-toggle-v34" aria-expanded="false">
-        <span>Buscar plantilla</span><small>Mostrar</small>
-      </button>
+      <div class="template-quick-unified-head-v455">
+        <strong>Plantillas</strong>
+        <button type="button" id="templateQuickManageV455" class="btn btn-neutral">Editar plantillas</button>
+      </div>
       <div class="template-quick-body-v34">
         <div class="template-quick-input-wrap-v289087">
           <input id="templateQuickSearchV289087" type="search" placeholder="Buscar por nombre o categoría">
           <button type="button" id="templateQuickClearV289087">×</button>
         </div>
+        <select id="templateQuickSortV455" class="template-quick-sort-v455" aria-label="Ordenar plantillas">
+          <option value="category">Categoría y nombre</option>
+          <option value="name_asc">Nombre A-Z</option>
+          <option value="name_desc">Nombre Z-A</option>
+        </select>
+        <div id="templateQuickSelectedV455" class="template-quick-selected-v455">Ninguna plantilla seleccionada</div>
         <div id="templateQuickResultsV289087" class="template-quick-results-v289087"></div>
       </div>
     `;
 
     select.parentNode.insertBefore(box, select.nextSibling);
 
-    const toggle = box.querySelector('#templateQuickToggleV34');
+    const manage = box.querySelector('#templateQuickManageV455');
+    const sort = box.querySelector('#templateQuickSortV455');
     const input = box.querySelector('#templateQuickSearchV289087');
     const clear = box.querySelector('#templateQuickClearV289087');
     const results = box.querySelector('#templateQuickResultsV289087');
+    const selected = box.querySelector('#templateQuickSelectedV455');
 
-    function setCollapsed(collapsed){
-      box.classList.toggle('template-quick-collapsed-v34', !!collapsed);
-      if(toggle){
-        toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-        const small = toggle.querySelector('small');
-        if(small) small.textContent = collapsed ? 'Mostrar' : 'Ocultar';
-      }
-    }
-
-    if(toggle){
-      toggle.addEventListener('click', function(e){
+    if(manage){
+      manage.addEventListener('click', function(e){
         e.preventDefault();
         e.stopPropagation();
-        const collapsed = box.classList.contains('template-quick-collapsed-v34');
-        setCollapsed(!collapsed);
-        if(collapsed){ setTimeout(function(){ try{ input.focus(); }catch(_){} }, 60); }
+        if(typeof window.openDocumentTemplates === 'function'){
+          window.openDocumentTemplates();
+        }
       }, false);
     }
-    input.addEventListener('focus', function(){ setCollapsed(false); }, false);
 
     function render(){
       const q = norm(input.value);
-      let list = sortTemplates(templateOptions(select));
+      let list = templateOptions(select);
+      const order = sort ? sort.value : 'category';
+      if(order === 'name_asc') list.sort((a,b)=>nameOfText(a.text).localeCompare(nameOfText(b.text),'es'));
+      else if(order === 'name_desc') list.sort((a,b)=>nameOfText(b.text).localeCompare(nameOfText(a.text),'es'));
+      else list = sortTemplates(list);
       if(q){
         list = list.filter(o => norm(o.text).includes(q));
       }
@@ -15474,8 +15618,8 @@ const mo = new MutationObserver(function(){
     }
 
     input.addEventListener('input', render, false);
+    if(sort) sort.addEventListener('change', render, false);
     clear.addEventListener('click', function(){
-      setCollapsed(false);
       input.value = '';
       render();
       input.focus();
@@ -15487,9 +15631,10 @@ const mo = new MutationObserver(function(){
       e.preventDefault();
       e.stopPropagation();
       applyTemplateSelection(select, btn.getAttribute('data-value'));
+      const chosen = templateOptions(select).find(o => String(o.value) === String(btn.getAttribute('data-value')));
+      if(selected && chosen) selected.textContent = 'Seleccionada: ' + nameOfText(chosen.text) + (categoryOfText(chosen.text) ? ' · ' + categoryOfText(chosen.text) : '');
       input.value = '';
-      results.innerHTML = '';
-      setCollapsed(true);
+      render();
       try{ if(typeof toast === 'function') toast('Plantilla seleccionada'); }catch(_){}
     }, false);
 
@@ -18373,6 +18518,226 @@ const mo = new MutationObserver(function(){
       }
     }catch(e){}
   }, true);
+})();
+</script>
+
+
+<style>
+/* v4.5.15 - Editar plantillas a la izquierda y color gris azulado */
+.template-picker-launch-v456{
+  margin:12px 0;
+}
+.template-picker-launch-v456 #btnOpenTemplatePickerV456{
+  width:100%;
+  min-height:50px;
+  font-size:16px;
+  font-weight:900;
+}
+.template-picker-overlay-v456{
+  position:fixed;
+  inset:0;
+  z-index:36000;
+  display:none;
+  align-items:stretch;
+  justify-content:center;
+  padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));
+  background:rgba(15,23,42,.58);
+}
+.template-picker-overlay-v456.show{display:flex;}
+.template-picker-panel-v456{
+  width:min(720px,100%);
+  height:100%;
+  max-height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #d5dfeb;
+  border-radius:24px;
+  background:linear-gradient(180deg,#fff 0%,#f7faff 100%);
+  box-shadow:0 24px 70px rgba(0,0,0,.30);
+}
+.template-picker-head-v456{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:15px;
+  border-bottom:1px solid #dbe4ef;
+}
+.template-picker-head-v456 h2{margin:0;font-size:20px;font-weight:900;}
+.template-picker-close-v456{
+  min-width:44px;
+  min-height:44px;
+  border:1px solid #d4dde9;
+  border-radius:14px;
+  background:#fff;
+  color:#0f172a;
+  font-size:24px;
+  font-weight:900;
+}
+.template-picker-tools-v456{padding:12px 14px 8px;display:grid;gap:8px;}
+.template-picker-search-wrap-v456{position:relative;}
+.template-picker-search-v456{
+  width:100%;min-height:50px;padding:12px 48px 12px 14px;
+  border:1px solid #cbd5e1;border-radius:15px;background:#fff;
+  font-size:16px;font-weight:800;
+}
+.template-picker-clear-v456{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border:0;border-radius:999px;
+  background:#e5e7eb;color:#374151;font-size:23px;font-weight:900;
+}
+.template-picker-sort-v456{
+  width:100%;min-height:44px;padding:0 12px;border:1px solid #d4dde9;
+  border-radius:14px;background:#fff;color:#0f172a;font-weight:900;
+}
+.template-picker-selected-v456{
+  padding:9px 12px;border-radius:13px;background:#eff6ff;border:1px solid #bfdbfe;
+  color:#1e3a8a;font-size:13px;font-weight:900;
+}
+.template-picker-results-v456{
+  flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;
+  margin:0 14px 10px;border:1px solid #dbe5f0;border-radius:16px;background:#fff;
+}
+.template-picker-item-v456{
+  width:100%;min-height:54px;padding:10px 13px;border:0;border-bottom:1px solid #edf2f7;
+  background:#fff;color:#0f172a;text-align:left;font-size:16px;font-weight:900;
+}
+.template-picker-item-v456:last-child{border-bottom:0;}
+.template-picker-item-v456 small{display:block;margin-top:3px;color:#64748b;font-size:12px;font-weight:800;}
+.template-picker-item-v456.selected{background:#dbeafe;color:#1d4ed8;}
+.template-picker-empty-v456{padding:18px;text-align:center;color:#64748b;font-weight:800;}
+.template-picker-actions-v456{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid #dbe4ef;background:rgba(255,255,255,.98);
+}
+.template-picker-actions-v456 button{min-height:50px;border-radius:14px;font-weight:900;}
+.template-picker-actions-v456 .replace{background:#2563eb;color:#fff;border:1px solid #2563eb;}
+.template-picker-actions-v456 .append{background:#16a34a;color:#fff;border:1px solid #16a34a;}
+.template-picker-manage-v456{
+  grid-column:auto;
+  background:linear-gradient(180deg,#64748b 0%,#475569 100%);
+  color:#fff;
+  border:1px solid #475569;
+}
+@media (max-width:430px){
+  .template-picker-actions-v456{gap:6px;padding-left:10px;padding-right:10px;}
+  .template-picker-actions-v456 button{font-size:12px;padding:0 5px;}
+}
+body.template-picker-open-v456{overflow:hidden;}
+</style>
+<script>
+/* v4.5.13 - Plantillas fuera del editor del concepto */
+(function(){
+  'use strict';
+  var selectedValue = '';
+
+  function norm(v){
+    try{return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+    catch(_){return String(v||'').toLowerCase().trim();}
+  }
+  function escHtml(v){
+    return String(v||'').replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
+  }
+  function splitText(text){
+    var parts=String(text||'').split('·');
+    return {category:parts.length>1?parts[0].trim():'',name:(parts.length>1?parts.slice(1).join('·'):text).trim()};
+  }
+  function getSelect(){return document.getElementById('conceptTemplateSelect');}
+  function options(){
+    var sel=getSelect();
+    if(!sel)return [];
+    return Array.from(sel.options||[]).filter(function(o){
+      return !o.disabled && o.value!=='' && !/^selecciona/i.test(String(o.textContent||'').trim());
+    }).map(function(o){var p=splitText(o.textContent||'');return {value:String(o.value),name:p.name,category:p.category};});
+  }
+  function ensureOverlay(){
+    var ov=document.getElementById('templatePickerOverlayV456');
+    if(ov)return ov;
+    ov=document.createElement('div');
+    ov.id='templatePickerOverlayV456';
+    ov.className='template-picker-overlay-v456';
+    ov.setAttribute('aria-hidden','true');
+    ov.innerHTML='\
+      <div class="template-picker-panel-v456" role="dialog" aria-modal="true" aria-label="Seleccionar plantilla">\
+        <div class="template-picker-head-v456"><h2>Seleccionar plantilla</h2><button type="button" class="template-picker-close-v456" id="templatePickerCloseV456">×</button></div>\
+        <div class="template-picker-tools-v456">\
+          <div class="template-picker-search-wrap-v456"><input class="template-picker-search-v456" id="templatePickerSearchV456" type="search" placeholder="Buscar por nombre o categoría"><button type="button" class="template-picker-clear-v456" id="templatePickerClearV456">×</button></div>\
+          <select class="template-picker-sort-v456" id="templatePickerSortV456"><option value="category">Categoría y nombre</option><option value="name_asc">Nombre A-Z</option><option value="name_desc">Nombre Z-A</option></select>\
+          <div class="template-picker-selected-v456" id="templatePickerSelectedV456">Selecciona una plantilla</div>\
+        </div>\
+        <div class="template-picker-results-v456" id="templatePickerResultsV456"></div>\
+        <div class="template-picker-actions-v456">\
+          <button type="button" class="template-picker-manage-v456" id="templatePickerManageV456">Editar plantillas</button>\
+          <button type="button" class="replace" id="templatePickerReplaceV456">Reemplazar</button>\
+          <button type="button" class="append" id="templatePickerAppendV456">Añadir</button>\
+        </div>\
+      </div>';
+    document.body.appendChild(ov);
+    ov.querySelector('#templatePickerCloseV456').onclick=closePicker;
+    ov.querySelector('#templatePickerClearV456').onclick=function(){var i=ov.querySelector('#templatePickerSearchV456');i.value='';render();i.focus();};
+    ov.querySelector('#templatePickerSearchV456').addEventListener('input',render,false);
+    ov.querySelector('#templatePickerSortV456').addEventListener('change',render,false);
+    ov.querySelector('#templatePickerResultsV456').addEventListener('click',function(e){
+      var b=e.target.closest&&e.target.closest('[data-template-value]');
+      if(!b)return;
+      selectedValue=String(b.getAttribute('data-template-value')||'');
+      var sel=getSelect();if(sel){sel.value=selectedValue;sel.dispatchEvent(new Event('change',{bubbles:true}));}
+      render();
+    },false);
+    ov.querySelector('#templatePickerReplaceV456').onclick=function(){apply('replace');};
+    ov.querySelector('#templatePickerAppendV456').onclick=function(){apply('append');};
+    ov.querySelector('#templatePickerManageV456').onclick=function(){
+      closePicker();
+      try{if(typeof window.openDocumentTemplates==='function')window.openDocumentTemplates();}catch(_){}
+    };
+    ov.addEventListener('click',function(e){if(e.target===ov)closePicker();},false);
+    return ov;
+  }
+  function render(){
+    var ov=ensureOverlay(), q=norm(ov.querySelector('#templatePickerSearchV456').value), order=ov.querySelector('#templatePickerSortV456').value;
+    var list=options().filter(function(x){return !q||norm(x.name+' '+x.category).includes(q);});
+    list.sort(function(a,b){
+      if(order==='name_desc')return b.name.localeCompare(a.name,'es');
+      if(order==='name_asc')return a.name.localeCompare(b.name,'es');
+      var c=a.category.localeCompare(b.category,'es');return c||a.name.localeCompare(b.name,'es');
+    });
+    var results=ov.querySelector('#templatePickerResultsV456');
+    results.innerHTML=list.length?list.map(function(x){return '<button type="button" class="template-picker-item-v456'+(x.value===selectedValue?' selected':'')+'" data-template-value="'+escHtml(x.value)+'"><span>'+escHtml(x.name)+'</span>'+(x.category?'<small>'+escHtml(x.category)+'</small>':'')+'</button>';}).join(''):'<div class="template-picker-empty-v456">No hay plantillas que coincidan.</div>';
+    var chosen=list.find(function(x){return x.value===selectedValue;})||options().find(function(x){return x.value===selectedValue;});
+    ov.querySelector('#templatePickerSelectedV456').textContent=chosen?('Seleccionada: '+chosen.name+(chosen.category?' · '+chosen.category:'')):'Selecciona una plantilla';
+  }
+  function openPicker(){
+    var sel=getSelect();if(!sel)return;
+    try{if(document.activeElement)document.activeElement.blur();}catch(_){}
+    selectedValue=(Number(sel.value)>=0)?String(sel.value):'';
+    var ov=ensureOverlay();
+    ov.querySelector('#templatePickerSearchV456').value='';
+    ov.classList.add('show');ov.setAttribute('aria-hidden','false');document.body.classList.add('template-picker-open-v456');
+    render();
+  }
+  function closePicker(){
+    var ov=document.getElementById('templatePickerOverlayV456');if(!ov)return;
+    ov.classList.remove('show');ov.setAttribute('aria-hidden','true');document.body.classList.remove('template-picker-open-v456');
+  }
+  function apply(mode){
+    if(selectedValue==='')return;
+    var sel=getSelect();if(!sel)return;
+    sel.value=selectedValue;
+    var btn=document.getElementById(mode==='append'?'btnAppendTemplate':'btnUseTemplate');
+    if(btn)btn.click();
+    closePicker();
+    setTimeout(function(){
+      var ta=document.getElementById('editConceptText')||document.getElementById('editSimpleText');
+      if(ta){try{ta.scrollIntoView({block:'center',behavior:'auto'});}catch(_){} }
+    },30);
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('#btnOpenTemplatePickerV456');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();openPicker();
+  },true);
 })();
 </script>
 
