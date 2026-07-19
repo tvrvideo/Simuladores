@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Coste Ventanas Series 600/800 v2.7</title>
+<style>
+:root{
+  --bg:#edf2f7;--card:#fff;--line:#d7e0ea;--text:#132038;--muted:#64748b;
+  --blue:#1769d2;--green:#159447;--purple:#7438c7;--orange:#e28b20;
+  --yellow:#fff1a8;--soft:#f5f8fc;--danger:#c73a3a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#e8f3fb,#f3f5f8);color:var(--text);overflow:hidden}
+body{padding:6px 7px calc(68px + env(safe-area-inset-bottom,0px))}
+header{height:39px;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+header h1{font-size:20px;margin:0;font-weight:950}
+.version{margin-left:8px;font-size:11px;font-weight:900;color:#59677a}
+.screen{display:none;height:calc(100vh - 113px - env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1px 1px 8px}
+.screen.active{display:block}
+#ajustes.screen.active{padding-bottom:82px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:7px;box-shadow:0 4px 14px rgba(15,23,42,.08)}
+.card h2{margin:0 0 8px;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.field{min-width:0}
+label{display:block;text-align:center;font-size:10px;font-weight:900;color:#475569;margin-bottom:4px}
+input,select{width:100%;min-width:0;border:1px solid #adb8c6;border-radius:9px;padding:9px 6px;font-size:15px;font-weight:800;text-align:center;background:var(--yellow);color:#111827}
+select{background:#fff}
+.option-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.segment{border:2px solid #cdd6e1;border-radius:9px;padding:9px 4px;background:#f7f9fc;font-size:12px;font-weight:900;color:#526176}
+.segment.active{background:#dff6e7;border-color:#31b861;color:#12642d}
+.toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.toggle-row.three{grid-template-columns:repeat(3,1fr)}
+.toggle-row.three .toggle{font-size:12px;padding:9px 3px}
+.toggle{border:2px solid #cdd6e1;border-radius:10px;padding:9px 6px;background:#f7f9fc;font-size:13px;font-weight:900;color:#536176}
+.toggle.on{background:#dff6e7;border-color:#2eae5c;color:#135f2c}
+.price-card{background:linear-gradient(135deg,#e9fff0,#d8f6e2);border:1px solid #a5d9b3;border-radius:17px;text-align:center;padding:12px 10px;margin-bottom:7px}
+.price-label{font-size:10px;font-weight:900;color:#3c6847}
+.price-main{font-size:28px;font-weight:950;color:#11642a;margin-top:2px}
+.price-note{font-size:10px;color:#53705a;font-weight:700}
+.cost-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #e4e9ef;font-size:13px}
+.cost-row:last-child{border-bottom:0}.cost-row strong{font-size:16px}
+.total-row{margin-top:6px;border-radius:10px;padding:9px;display:grid;grid-template-columns:1fr auto;align-items:center;font-weight:950;background:#eaf7ee;border:1px solid #b8dbc2}
+.total-row.sale{background:#eef2ff;border-color:#c4cdf8}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 4px;border-bottom:1px solid #e1e7ef}
+th{background:#eef3f8;color:#445269;text-align:left}
+th:nth-child(2),td:nth-child(2){text-align:center;width:62px}
+th:last-child,td:last-child{text-align:right}
+.measure{font-weight:950;font-size:15px}
+.info{font-size:10px;line-height:1.35;color:var(--muted);margin:8px 2px 0}
+.section-title{font-size:12px;font-weight:950;color:#314158;margin:12px 0 7px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.setting-row{display:grid;grid-template-columns:1fr 95px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #e4e9ef}
+.setting-row span{font-size:12px;font-weight:800}
+.setting-row input{background:#fff;font-size:14px;padding:7px 5px}
+.actions{position:fixed;left:12px;right:12px;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0;padding:6px;background:rgba(255,255,255,.97);border:1px solid #d7e0ea;border-radius:13px;box-shadow:0 -3px 16px rgba(15,23,42,.16);backdrop-filter:blur(8px)}
+.action{border:0;border-radius:9px;padding:10px 3px;color:#fff;font-weight:950;font-size:11px;min-width:0;white-space:nowrap}
+.save{background:var(--green)}.reset{background:var(--danger)}
+.bottom-nav{position:fixed;left:7px;right:7px;bottom:calc(5px + env(safe-area-inset-bottom,0px));height:55px;background:rgba(255,255,255,.96);border:1px solid #d7e0ea;border-radius:14px;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;box-shadow:0 -4px 18px rgba(15,23,42,.16);backdrop-filter:blur(8px)}
+.nav-btn{border:0;border-radius:10px;color:#fff;font-size:11px;font-weight:950;min-width:0}
+.nav-inicio{background:linear-gradient(180deg,#65d1ef,#43b8dd);color:#10233d}
+.nav-despiece{background:linear-gradient(180deg,#2c83ee,#1763d8)}
+.nav-coste{background:linear-gradient(180deg,#8c49df,#7130c8)}
+.nav-ajustes{background:linear-gradient(180deg,#f1a83d,#db851d);color:#2c1b08}
+.nav-btn.active{outline:3px solid rgba(17,24,39,.17);transform:translateY(-1px)}
+
+.fixed-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.fixed-btn{border:2px solid #cdd6e1;border-radius:9px;padding:9px 3px;background:#f7f9fc;font-size:11px;font-weight:950;color:#526176}
+.fixed-btn.on{background:#dff6e7;border-color:#31b861;color:#12642d}
+.fixed-inputs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.fixed-box{border:1px solid #d7e0ea;border-radius:10px;padding:8px;background:#f7f9fc}
+.fixed-box.hidden{display:none}
+.fixed-box label{font-size:10px}
+.fixed-summary{font-size:11px;color:#536176;font-weight:800;margin-top:7px;text-align:center}
+
+/* Tarjetas con color suave por sección · v2.5 */
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,#ffffff 0%,#f7fbff 100%);border-color:#cbd9e8;box-shadow:0 5px 16px rgba(31,67,108,.10)}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#8fb9df}
+.card h2{color:#244464}
+#inicio .card{background:linear-gradient(145deg,#fafdff 0%,#eaf5ff 100%);border-color:#bfd6ea}
+#inicio .card::before{background:#48a7dc}
+#despiece .card{background:linear-gradient(145deg,#ffffff 0%,#eef3ff 100%);border-color:#c9d2ef}
+#despiece .card::before{background:#667fd3}
+#coste .card{background:linear-gradient(145deg,#ffffff 0%,#edf9f1 100%);border-color:#bfdfca}
+#coste .card::before{background:#38a866}
+#ajustes .card{background:linear-gradient(145deg,#fffefa 0%,#fff4df 100%);border-color:#ead2a8}
+#ajustes .card::before{background:#df962e}
+#ajustes .setting-row{border-bottom-color:#eadfcf}
+#despiece th{background:#e6edfb}
+#coste .total-row{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}
+
+.hidden{display:none!important}
+@media(max-width:370px){header h1{font-size:18px}.nav-btn{font-size:10px}.grid3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><h1>Coste Ventanas 600/800</h1><span class="version">v2.7</span></header>
+
+<section id="inicio" class="screen active">
+  <div class="price-card">
+    <div id="precioLabelPrincipal" class="price-label">PRECIO DE VENTA · SIN IVA</div>
+    <div id="precioVentaPrincipal" class="price-main">0,00 €</div>
+    <div id="precioIvaPrincipal" class="price-note">IVA oculto</div>
+  </div>
+
+  <div class="card">
+    <h2>Medidas y configuración</h2>
+    <div class="grid2">
+      <div class="field"><label>ANCHO TOTAL (mm)</label><input id="ancho" type="number" inputmode="numeric" value="1000" min="1"></div>
+      <div class="field"><label>ALTO TOTAL (mm)</label><input id="alto" type="number" inputmode="numeric" value="1000" min="1"></div>
+      <div class="field"><label>COLOR</label>
+        <select id="acabado">
+          <option value="blanco">Blanco</option><option value="estandar">Estándar</option>
+          <option value="especial">Especial</option><option value="madera">Madera</option>
+          <option value="anodizado">Anodizado</option>
+        </select>
+      </div>
+      <div class="field"><label>JUNQUILLO</label>
+        <select id="tipoJunquillo"><option value="climalit">Climalit</option><option value="luna">Luna</option></select>
+      </div>
+      <div class="field"><label>SERIE MARCO</label>
+        <select id="serieMarco"><option value="600">600</option><option value="800">800</option></select>
+      </div>
+      <div id="campoSerieHoja" class="field"><label>SERIE HOJA</label>
+        <select id="serieHoja"><option value="600">600</option><option value="800">800</option></select>
+      </div>
+    </div>
+
+    <div style="margin-top:9px"><label>TIPO DE VENTANA</label>
+      <div class="option-group">
+        <button id="btnFijo" class="segment" type="button" onclick="seleccionarTipo('fijo')">FIJO</button>
+        <button id="btn1h" class="segment active" type="button" onclick="seleccionarTipo('1h')">1 HOJA</button>
+        <button id="btn2h" class="segment" type="button" onclick="seleccionarTipo('2h')">2 HOJAS</button>
+      </div>
+    </div>
+
+    <div style="margin-top:9px" class="toggle-row three">
+      <button id="btnIVA" class="toggle" type="button" onclick="toggleIVA()">VER CON IVA</button>
+      <button id="btnVidrio" class="toggle on" type="button" onclick="toggleOpcion('vidrio')">VIDRIO ON</button>
+      <button id="btnPersiana" class="toggle" type="button" onclick="toggleOpcion('persiana')">PERSIANA OFF</button>
+    </div>
+
+    <div style="margin-top:11px"><label>FIJOS ADICIONALES</label>
+      <div class="fixed-buttons">
+        <button id="fijoIzqBtn" class="fixed-btn" type="button" onclick="toggleFijo('izq')">IZQ.</button>
+        <button id="fijoDerBtn" class="fixed-btn" type="button" onclick="toggleFijo('der')">DER.</button>
+        <button id="fijoSupBtn" class="fixed-btn" type="button" onclick="toggleFijo('sup')">SUPERIOR</button>
+        <button id="fijoInfBtn" class="fixed-btn" type="button" onclick="toggleFijo('inf')">INFERIOR</button>
+      </div>
+      <div class="fixed-inputs">
+        <div id="fijoIzqBox" class="fixed-box hidden"><label>ANCHO FIJO IZQ. (mm)</label><input id="fijoIzq" type="number" inputmode="numeric" value="400" min="1"></div>
+        <div id="fijoDerBox" class="fixed-box hidden"><label>ANCHO FIJO DER. (mm)</label><input id="fijoDer" type="number" inputmode="numeric" value="400" min="1"></div>
+        <div id="fijoSupBox" class="fixed-box hidden"><label>ALTO FIJO SUPERIOR (mm)</label><input id="fijoSup" type="number" inputmode="numeric" value="400" min="1"></div>
+        <div id="fijoInfBox" class="fixed-box hidden"><label>ALTO FIJO INFERIOR (mm)</label><input id="fijoInf" type="number" inputmode="numeric" value="400" min="1"></div>
+      </div>
+      <div class="fixed-summary">Los fijos adicionales usan la misma serie de marco seleccionada.</div>
+    </div>
+  </div>
+</section>
+
+<section id="despiece" class="screen">
+  <div class="price-card">
+    <div id="precioLabelDespiece" class="price-label">PRECIO DE VENTA · SIN IVA</div>
+    <div id="precioVentaDespiece" class="price-main">0,00 €</div>
+    <div class="price-note">Despiece calculado automáticamente</div>
+  </div>
+
+  <div class="card">
+    <h2 id="tituloMarco">Marco</h2>
+    <table><thead><tr><th>Pieza</th><th>Uds.</th><th>Medida</th></tr></thead><tbody>
+      <tr><td>Marco horizontal</td><td>2</td><td id="marcoH" class="measure"></td></tr>
+      <tr><td>Marco vertical</td><td>2</td><td id="marcoV" class="measure"></td></tr>
+    </tbody></table>
+  </div>
+
+  <div id="cardHojas" class="card">
+    <h2 id="tituloHojas">Hojas</h2>
+    <table><thead><tr><th>Pieza</th><th>Uds.</th><th>Medida</th></tr></thead><tbody id="tablaHojas"></tbody></table>
+  </div>
+
+  <div id="cardZanca" class="card hidden">
+    <h2>Zanca / inversora · siempre Serie 600</h2>
+    <table><tbody><tr><td>Zanca vertical</td><td>1</td><td id="zancaMedida" class="measure"></td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Junquillos</h2>
+    <table><thead><tr><th>Pieza</th><th>Uds.</th><th>Medida</th></tr></thead><tbody id="tablaJunquillos"></tbody></table>
+  </div>
+
+  <div id="cardFijos" class="card hidden">
+    <h2>Fijos adicionales</h2>
+    <table><thead><tr><th>Posición</th><th>Medida total</th><th>Vidrio</th></tr></thead><tbody id="tablaFijos"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Vidrio y goma</h2>
+    <div id="datosVidrio" class="cost-row"></div>
+    <div id="datosGomaMarco" class="cost-row"></div>
+    <div id="datosGomaHojas" class="cost-row"></div>
+  </div>
+</section>
+
+<section id="coste" class="screen">
+  <div class="price-card">
+    <div id="precioLabelCoste" class="price-label">PRECIO DE VENTA · SIN IVA</div>
+    <div id="precioVentaCoste" class="price-main">0,00 €</div>
+    <div id="precioVentaConIva" class="price-note"></div>
+  </div>
+
+  <div class="card">
+    <h2>Desglose completo</h2>
+    <div id="listaCostes"></div>
+    <div class="total-row"><span>COSTE FABRICACIÓN</span><strong id="costeFabricacion"></strong></div>
+    <div class="total-row sale"><span>BENEFICIO</span><strong id="beneficio"></strong></div>
+    <div class="total-row sale"><span>VENTA SIN IVA</span><strong id="ventaSinIva"></strong></div>
+    <div class="total-row sale"><span>VENTA CON IVA</span><strong id="ventaConIva"></strong></div>
+  </div>
+</section>
+
+<section id="ajustes" class="screen">
+  <div class="card">
+    <h2>Ajustes de venta</h2>
+    <div class="setting-row"><span>Margen sobre coste total (%)</span><input id="ajMargen" type="number" step="0.01"></div>
+    <div class="setting-row"><span>IVA (%)</span><input id="ajIva" type="number" step="0.01"></div>
+  </div>
+
+  <div class="card">
+    <h2>Materiales y accesorios</h2>
+    <div class="setting-row"><span>Vidrio 4/10/4 (€/m²)</span><input id="ajVidrio" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Persiana (€/m²)</span><input id="ajPersiana" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Goma (€/m)</span><input id="ajGoma" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Escuadra (€/ud)</span><input id="ajEscuadra" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Bisagra (€/ud)</span><input id="ajBisagra" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Herraje por ventana (€)</span><input id="ajHerraje" type="number" step="0.01"></div>
+  </div>
+
+  <div class="card">
+    <h2>Mano de obra</h2>
+    <div class="setting-row"><span>Marco fijo (€)</span><input id="ajMoFijo" type="number" step="0.01"></div>
+    <div class="setting-row"><span>1 hoja (€)</span><input id="ajMo1h" type="number" step="0.01"></div>
+    <div class="setting-row"><span>2 hojas (€)</span><input id="ajMo2h" type="number" step="0.01"></div>
+    <div class="setting-row"><span>Fijo adicional (€)</span><input id="ajMoFijoExtra" type="number" step="0.01"></div>
+  </div>
+
+  <div class="card">
+    <h2>Precios de perfiles y junquillos</h2>
+    <div id="preciosAcabados"></div>
+    <div class="actions">
+      <button class="action reset" onclick="restablecerAjustes()">RESTABLECER</button>
+      <button class="action reset" onclick="document.getElementById('importarJson').click()">IMPORTAR</button>
+      <button class="action save" onclick="exportarAjustes()">EXPORTAR</button>
+      <button class="action save" onclick="guardarAjustes()">GUARDAR</button>
+    </div>
+    <input id="importarJson" type="file" accept=".json,application/json" class="hidden">
+  </div>
+</section>
+
+<nav class="bottom-nav">
+  <button id="navInicio" class="nav-btn nav-inicio active" onclick="mostrarPantalla('inicio')">INICIO</button>
+  <button id="navDespiece" class="nav-btn nav-despiece" onclick="mostrarPantalla('despiece')">DESPIECE</button>
+  <button id="navCoste" class="nav-btn nav-coste" onclick="mostrarPantalla('coste')">COSTE</button>
+  <button id="navAjustes" class="nav-btn nav-ajustes" onclick="mostrarPantalla('ajustes')">AJUSTES</button>
+</nav>
+
+<script>
+const ACABADOS=["blanco","estandar","especial","madera","anodizado"];
+const NOMBRES={blanco:"Blanco",estandar:"Estándar",especial:"Especial",madera:"Madera",anodizado:"Anodizado"};
+const DEFAULTS={
+  margen:40,iva:21,vidrio:65,persiana:65,goma:.70,escuadra:1.20,bisagra:12,herraje:30,
+  manoObra:{fijo:100,"1h":150,"2h":200,fijoExtra:40},
+  marco:{
+    "600":{blanco:5.08,estandar:5.64,especial:6.06,madera:7.43,anodizado:6.74},
+    "800":{blanco:6.91,estandar:7.60,especial:8.12,madera:9.76,anodizado:8.87}
+  },
+  hoja:{
+    "600":{blanco:5.24,estandar:5.89,especial:6.38,madera:7.93,anodizado:7.10},
+    "800":{blanco:6.75,estandar:7.52,especial:8.10,madera:9.92,anodizado:8.89}
+  },
+  junquillo:{
+    luna:{blanco:1.76,estandar:2.04,especial:2.23,madera:2.88,anodizado:2.72},
+    climalit:{blanco:1.57,estandar:1.85,especial:2.05,madera:2.70,anodizado:2.53}
+  }
+};
+let ajustes=cargarObjeto();
+let tipo="1h",vidrioOn=true,persianaOn=false,verIva=false;
+let fijos={izq:false,der:false,sup:false,inf:false};
+
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function repararPreciosSerie800(obj){
+  let reparado=false;
+  ["marco","hoja"].forEach(grupo=>{
+    if(!obj[grupo])obj[grupo]={};
+    if(!obj[grupo]["800"])obj[grupo]["800"]={};
+    ACABADOS.forEach(acabado=>{
+      const valor=Number(obj[grupo]["800"][acabado]);
+      if(!Number.isFinite(valor)||valor<=0){
+        obj[grupo]["800"][acabado]=DEFAULTS[grupo]["800"][acabado];
+        reparado=true;
+      }
+    });
+  });
+  return reparado;
+}
+function cargarObjeto(){
+  try{
+    const g=JSON.parse(localStorage.getItem("costeSeries600800Ajustes_v2")||localStorage.getItem("costeSerie600Ajustes_v1"));
+    const base=clone(DEFAULTS);
+    if(!g)return base;
+    const r=Object.assign(base,g);
+    r.manoObra=Object.assign({},base.manoObra,g.manoObra||{});
+    const gm=g.marco||{}, gh=g.hoja||{};
+    r.marco={
+      "600":Object.assign({},base.marco["600"],gm["600"]||(!gm["600"]&&!gm["800"]?gm:{})),
+      "800":Object.assign({},base.marco["800"],gm["800"]||{})
+    };
+    r.hoja={
+      "600":Object.assign({},base.hoja["600"],gh["600"]||(!gh["600"]&&!gh["800"]?gh:{})),
+      "800":Object.assign({},base.hoja["800"],gh["800"]||{})
+    };
+    r.junquillo={
+      luna:Object.assign({},base.junquillo.luna,(g.junquillo&&g.junquillo.luna)||{}),
+      climalit:Object.assign({},base.junquillo.climalit,(g.junquillo&&g.junquillo.climalit)||{})
+    };
+    if(repararPreciosSerie800(r)){
+      localStorage.setItem("costeSeries600800Ajustes_v2",JSON.stringify(r));
+    }
+    return r;
+  }catch(e){return clone(DEFAULTS)}
+}
+function euros(v){return Number(v||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+function n(id){return Number(document.getElementById(id).value)||0}
+function fmt(v,d=3){return Number(v).toLocaleString("es-ES",{minimumFractionDigits:0,maximumFractionDigits:d})}
+function seleccionarTipo(t){
+  tipo=t;
+  ["fijo","1h","2h"].forEach(x=>document.getElementById("btn"+(x==="fijo"?"Fijo":x)).classList.toggle("active",x===t));
+  const campoHoja=document.getElementById("campoSerieHoja");
+  const selectorHoja=document.getElementById("serieHoja");
+  const esFijo=t==="fijo";
+  campoHoja.classList.toggle("hidden",esFijo);
+  selectorHoja.disabled=esFijo;
+  calcular();
+}
+function toggleOpcion(o){if(o==="vidrio"){vidrioOn=!vidrioOn;btnVidrio.classList.toggle("on",vidrioOn);btnVidrio.textContent="VIDRIO "+(vidrioOn?"ON":"OFF")}else{persianaOn=!persianaOn;btnPersiana.classList.toggle("on",persianaOn);btnPersiana.textContent="PERSIANA "+(persianaOn?"ON":"OFF")}calcular()}
+function toggleFijo(pos){
+  fijos[pos]=!fijos[pos];
+  const cap={izq:"Izq",der:"Der",sup:"Sup",inf:"Inf"}[pos];
+  document.getElementById("fijo"+cap+"Btn").classList.toggle("on",fijos[pos]);
+  document.getElementById("fijo"+cap+"Box").classList.toggle("hidden",!fijos[pos]);
+  calcular();
+}
+function toggleIVA(){verIva=!verIva;btnIVA.classList.toggle("on",verIva);btnIVA.textContent=verIva?"OCULTAR IVA":"VER CON IVA";calcular()}
+function mostrarPantalla(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));document.getElementById("nav"+id.charAt(0).toUpperCase()+id.slice(1)).classList.add("active");
+  document.getElementById(id).scrollTop=0;
+}
+function minM2(real){return Math.max(1,real)}
+function calcular(){
+  const W=n("ancho"),H=n("alto"),acabado=document.getElementById("acabado").value,junqTipo=document.getElementById("tipoJunquillo").value;
+  const serieMarco=document.getElementById("serieMarco").value;
+  const serieHoja=document.getElementById("serieHoja").value;
+  if(W<=0||H<=0)return;
+  const costes=[];
+  const addCost=(nombre,importe)=>{costes.push([nombre,importe]);return importe};
+  const marcoM=2*(W+H)/1000;
+  addCost("Marco Serie "+serieMarco,marcoM*ajustes.marco[serieMarco][acabado]);
+
+  let hojaW=0,hojaH=0,nHojas=tipo==="fijo"?0:(tipo==="1h"?1:2),zanca=0;
+  let vidrioW=0,vidrioH=0,vidrioReal=0,vidrioFact=0;
+  let gomaMarco=0,gomaHojas=0,jh=0,jv=0;
+
+  if(tipo==="fijo"){
+    jh=W-52;jv=H-80;vidrioW=W-57;vidrioH=H-52;
+    const jm=2*(jh+jv)/1000;
+    addCost("Junquillos marco",jm*ajustes.junquillo[junqTipo][acabado]);
+    if(vidrioOn){vidrioReal=vidrioW*vidrioH/1e6;vidrioFact=minM2(vidrioReal);addCost("Vidrio 4/10/4",vidrioFact*ajustes.vidrio)}
+    addCost("Escuadras marco · 4 uds.",4*ajustes.escuadra);
+  }else{
+    const descuentoMarco=serieMarco==="800"?74:40;
+    hojaH=H-descuentoMarco;
+    hojaW=tipo==="1h"?W-descuentoMarco:W/2-(serieMarco==="800"?44:27);
+    const hojaM=nHojas*2*(hojaW+hojaH)/1000;
+    addCost("Perfil de hojas Serie "+serieHoja,hojaM*ajustes.hoja[serieHoja][acabado]);
+
+    if(tipo==="2h"){
+      zanca=hojaH-56;
+      addCost("Inversora Serie 600",zanca/1000*ajustes.hoja["600"][acabado]);
+    }
+
+    if(serieHoja==="800"){
+      jh=hojaW-114;jv=hojaH-142;
+      vidrioW=hojaW-119;vidrioH=hojaH-114;
+    }else{
+      jh=hojaW-80;jv=hojaH-108;
+      vidrioW=hojaW-85;vidrioH=hojaH-80;
+    }
+
+    const jm=nHojas*2*(jh+jv)/1000;
+    addCost("Junquillos de hojas",jm*ajustes.junquillo[junqTipo][acabado]);
+    if(vidrioOn){
+      const realUna=vidrioW*vidrioH/1e6;
+      vidrioReal=realUna*nHojas;vidrioFact=minM2(realUna)*nHojas;
+      addCost("Vidrio 4/10/4",vidrioFact*ajustes.vidrio);
+    }
+    gomaMarco=marcoM;gomaHojas=hojaM;
+    addCost("Goma marco y hojas",(gomaMarco+gomaHojas)*ajustes.goma);
+    addCost("Escuadras marco y hojas",(4+4*nHojas)*ajustes.escuadra);
+    addCost("Herraje por ventana",ajustes.herraje);
+    addCost("Bisagras · "+(2*nHojas)+" uds.",2*nHojas*ajustes.bisagra);
+  }
+
+  if(persianaOn){const m2=minM2(W*H/1e6);addCost("Persiana",m2*ajustes.persiana)}
+
+  const fijosActivos=[];
+  const agregarFijo=(pos,nombre,fw,fh)=>{
+    if(fw<=0||fh<=0)return;
+    const marcoM2=2*(fw+fh)/1000;
+    const jh2=fw-52,jv2=fh-80;
+    const junqM2=2*(Math.max(0,jh2)+Math.max(0,jv2))/1000;
+    const vw=fw-57,vh=fh-52;
+    let subtotal=marcoM2*ajustes.marco[serieMarco][acabado]+junqM2*ajustes.junquillo[junqTipo][acabado]+4*ajustes.escuadra;
+    let vidrioMedida="Sin vidrio";
+    if(vidrioOn && vw>0 && vh>0){subtotal+=minM2(vw*vh/1e6)*ajustes.vidrio;vidrioMedida=fmt(vw)+" × "+fmt(vh)+" mm"}
+    subtotal+=Number(ajustes.manoObra.fijoExtra ?? 40);
+    addCost("Fijo "+nombre+" Serie "+serieMarco+" · materiales + mano de obra",subtotal);
+    fijosActivos.push({pos:nombre,w:fw,h:fh,vidrio:vidrioMedida});
+  };
+  if(fijos.izq)agregarFijo("izq","izquierdo",n("fijoIzq"),H);
+  if(fijos.der)agregarFijo("der","derecho",n("fijoDer"),H);
+  if(fijos.sup)agregarFijo("sup","superior",W,n("fijoSup"));
+  if(fijos.inf)agregarFijo("inf","inferior",W,n("fijoInf"));
+
+  const materiales=costes.reduce((s,x)=>s+x[1],0);
+  const manoObra=Number(ajustes.manoObra[tipo] ?? 0);
+  const costeTotal=materiales+manoObra;
+  const beneficio=costeTotal*ajustes.margen/100;
+  const venta=costeTotal+beneficio;
+  const iva=venta*ajustes.iva/100;
+  const ventaIva=venta+iva;
+
+  const precioMostrado=verIva?ventaIva:venta;
+  ["precioVentaPrincipal","precioVentaDespiece","precioVentaCoste"].forEach(id=>document.getElementById(id).textContent=euros(precioMostrado));
+  ["precioLabelPrincipal","precioLabelDespiece","precioLabelCoste"].forEach(id=>document.getElementById(id).textContent=verIva?"PRECIO DE VENTA · CON IVA":"PRECIO DE VENTA · SIN IVA");
+  precioIvaPrincipal.textContent=verIva?("Base sin IVA: "+euros(venta)+" · IVA: "+euros(iva)):"IVA oculto";
+  precioVentaConIva.textContent=verIva?("Base sin IVA: "+euros(venta)+" · IVA: "+euros(iva)):("Con IVA: "+euros(ventaIva));
+
+  tituloMarco.textContent="Marco Serie "+serieMarco;
+  tituloHojas.textContent="Hojas Serie "+serieHoja;
+  marcoH.textContent=W+" mm";marcoV.textContent=H+" mm";
+  cardHojas.classList.toggle("hidden",tipo==="fijo");cardZanca.classList.toggle("hidden",tipo!=="2h");
+  tablaHojas.innerHTML=tipo==="fijo"?"":`<tr><td>Horizontal de hoja</td><td>${2*nHojas}</td><td class="measure">${fmt(hojaW)} mm</td></tr><tr><td>Vertical de hoja</td><td>${2*nHojas}</td><td class="measure">${fmt(hojaH)} mm</td></tr>`;
+  if(tipo==="2h")zancaMedida.textContent=fmt(zanca)+" mm";
+  tablaJunquillos.innerHTML=`<tr><td>Horizontal</td><td>${tipo==="fijo"?2:2*nHojas}</td><td class="measure">${fmt(jh)} mm</td></tr><tr><td>Vertical</td><td>${tipo==="fijo"?2:2*nHojas}</td><td class="measure">${fmt(jv)} mm</td></tr>`;
+  datosVidrio.innerHTML=`<span>Vidrio${vidrioOn?"":" desactivado"}</span><strong>${vidrioOn?fmt(vidrioW)+" × "+fmt(vidrioH)+" mm"+(nHojas>1?" · "+nHojas+" uds.":""):"—"}</strong>`;
+  datosGomaMarco.innerHTML=`<span>Goma marco</span><strong>${tipo==="fijo"?"No lleva":fmt(gomaMarco)+" m"}</strong>`;
+  datosGomaHojas.innerHTML=`<span>Goma hojas</span><strong>${tipo==="fijo"?"—":fmt(gomaHojas)+" m"}</strong>`;
+  cardFijos.classList.toggle("hidden",fijosActivos.length===0);
+  tablaFijos.innerHTML=fijosActivos.map(f=>`<tr><td>${f.pos}</td><td class="measure">${fmt(f.w)} × ${fmt(f.h)} mm</td><td>${f.vidrio}</td></tr>`).join("");
+
+  listaCostes.innerHTML=costes.map(([a,b])=>`<div class="cost-row"><span>${a}</span><strong>${euros(b)}</strong></div>`).join("")+`<div class="cost-row"><span>Mano de obra</span><strong>${euros(manoObra)}</strong></div>`;
+  costeFabricacion.textContent=euros(costeTotal);
+  beneficio.textContent=euros(beneficio)+" · "+fmt(ajustes.margen,2)+" %";
+  ventaSinIva.textContent=euros(venta);ventaConIva.textContent=euros(ventaIva);
+}
+function crearAjustes(){
+  ajMargen.value=ajustes.margen;ajIva.value=ajustes.iva;ajVidrio.value=ajustes.vidrio;ajPersiana.value=ajustes.persiana;
+  ajGoma.value=ajustes.goma;ajEscuadra.value=ajustes.escuadra;ajBisagra.value=ajustes.bisagra;ajHerraje.value=ajustes.herraje;
+  ajMoFijo.value=ajustes.manoObra.fijo;ajMo1h.value=ajustes.manoObra["1h"];ajMo2h.value=ajustes.manoObra["2h"];
+  ajMoFijoExtra.value=Number(ajustes.manoObra.fijoExtra ?? 40);
+  let h="";
+  ["600","800"].forEach(serie=>{
+    h+=`<div class="section-title">SERIE ${serie}</div>`;
+    ACABADOS.forEach(a=>{h+=`<div class="section-title">${NOMBRES[a]}</div>
+      <div class="setting-row"><span>Marco ${serie} €/m</span><input id="pMarco${serie}_${a}" type="number" step="0.01" value="${ajustes.marco[serie][a]}"></div>
+      <div class="setting-row"><span>Hoja ${serie} €/m</span><input id="pHoja${serie}_${a}" type="number" step="0.01" value="${ajustes.hoja[serie][a]}"></div>`});
+  });
+  h+=`<div class="section-title">JUNQUILLOS · COMUNES A 600 Y 800</div>`;
+  ACABADOS.forEach(a=>{h+=`<div class="section-title">${NOMBRES[a]}</div>
+    <div class="setting-row"><span>Junquillo Climalit €/m</span><input id="pJC_${a}" type="number" step="0.01" value="${ajustes.junquillo.climalit[a]}"></div>
+    <div class="setting-row"><span>Junquillo Luna €/m</span><input id="pJL_${a}" type="number" step="0.01" value="${ajustes.junquillo.luna[a]}"></div>`});
+  preciosAcabados.innerHTML=h;
+}
+function guardarAjustes(){
+  guardarAjustesSilencioso();
+  alert("Ajustes guardados.");
+}
+
+async function exportarAjustes(){
+  guardarAjustesSilencioso();
+
+  const datos={
+    app:"Coste Ventanas Series 600/800",
+    version:"2.7",
+    fecha:new Date().toISOString(),
+    ajustes:ajustes
+  };
+
+  const f=new Date();
+  const pad=v=>String(v).padStart(2,"0");
+  const nombre=`Tarifa_Series_600_800_${f.getFullYear()}${pad(f.getMonth()+1)}${pad(f.getDate())}_${pad(f.getHours())}${pad(f.getMinutes())}.json`;
+  const contenido=JSON.stringify(datos,null,2);
+  const archivo=new File([contenido],nombre,{type:"application/json"});
+
+  try{
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[archivo]})){
+      await navigator.share({
+        files:[archivo],
+        title:"Tarifa Series 600/800",
+        text:"Guardar tarifa y ajustes de precios"
+      });
+      return;
+    }
+  }catch(error){
+    if(error && error.name==="AbortError") return;
+  }
+
+  const blob=new Blob([contenido],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=nombre;
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function guardarAjustesSilencioso(){
+  ajustes.margen=n("ajMargen");ajustes.iva=n("ajIva");ajustes.vidrio=n("ajVidrio");ajustes.persiana=n("ajPersiana");
+  ajustes.goma=n("ajGoma");ajustes.escuadra=n("ajEscuadra");ajustes.bisagra=n("ajBisagra");ajustes.herraje=n("ajHerraje");
+  ajustes.manoObra={fijo:n("ajMoFijo"),"1h":n("ajMo1h"),"2h":n("ajMo2h"),fijoExtra:n("ajMoFijoExtra")};
+  ["600","800"].forEach(serie=>ACABADOS.forEach(a=>{
+    ajustes.marco[serie][a]=n("pMarco"+serie+"_"+a);
+    ajustes.hoja[serie][a]=n("pHoja"+serie+"_"+a);
+  }));
+  ACABADOS.forEach(a=>{
+    ajustes.junquillo.climalit[a]=n("pJC_"+a);
+    ajustes.junquillo.luna[a]=n("pJL_"+a);
+  });
+  localStorage.setItem("costeSeries600800Ajustes_v2",JSON.stringify(ajustes));
+  calcular();
+}
+function importarAjustesArchivo(file){
+  if(!file)return;
+  const lector=new FileReader();
+  lector.onload=()=>{
+    try{
+      const data=JSON.parse(lector.result);
+      const entrada=data.ajustes||data;
+      if(!entrada || typeof entrada!=="object")throw new Error("JSON no válido");
+      const base=clone(DEFAULTS);
+      ajustes=Object.assign(base,entrada);
+      ajustes.manoObra=Object.assign({},base.manoObra,entrada.manoObra||{});
+      const em=entrada.marco||{},eh=entrada.hoja||{};
+      ajustes.marco={
+        "600":Object.assign({},base.marco["600"],em["600"]||(!em["600"]&&!em["800"]?em:{})),
+        "800":Object.assign({},base.marco["800"],em["800"]||{})
+      };
+      ajustes.hoja={
+        "600":Object.assign({},base.hoja["600"],eh["600"]||(!eh["600"]&&!eh["800"]?eh:{})),
+        "800":Object.assign({},base.hoja["800"],eh["800"]||{})
+      };
+      ajustes.junquillo={
+        luna:Object.assign({},base.junquillo.luna,(entrada.junquillo&&entrada.junquillo.luna)||{}),
+        climalit:Object.assign({},base.junquillo.climalit,(entrada.junquillo&&entrada.junquillo.climalit)||{})
+      };
+      repararPreciosSerie800(ajustes);
+      localStorage.setItem("costeSeries600800Ajustes_v2",JSON.stringify(ajustes));
+      crearAjustes();calcular();alert("Tarifa importada correctamente.");
+    }catch(e){
+      alert("No se pudo importar el JSON. Revisa que sea una tarifa válida de la app.");
+    }finally{document.getElementById("importarJson").value=""}
+  };
+  lector.readAsText(file);
+}
+function restablecerAjustes(){if(!confirm("¿Restablecer todos los precios y ajustes iniciales?"))return;ajustes=clone(DEFAULTS);localStorage.removeItem("costeSeries600800Ajustes_v2");crearAjustes();calcular()}
+["ancho","alto","acabado","tipoJunquillo","serieMarco","serieHoja","fijoIzq","fijoDer","fijoSup","fijoInf"].forEach(id=>{document.getElementById(id).addEventListener("input",calcular);document.getElementById(id).addEventListener("change",calcular)});
+document.getElementById("importarJson").addEventListener("change",e=>importarAjustesArchivo(e.target.files[0]));
+crearAjustes();calcular();
+</script>
+</body>
+</html>
