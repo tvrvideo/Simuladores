@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Coste Ventanas Series 600/800 v2.7</title>
+<title>Coste Ventanas Series 600/800 v2.9</title>
 <style>
 :root{
   --bg:#edf2f7;--card:#fff;--line:#d7e0ea;--text:#132038;--muted:#64748b;
@@ -98,7 +98,7 @@ th:last-child,td:last-child{text-align:right}
 </style>
 </head>
 <body>
-<header><h1>Coste Ventanas 600/800</h1><span class="version">v2.7</span></header>
+<header><h1>Coste Ventanas 600/800</h1><span class="version">v2.9</span></header>
 
 <section id="inicio" class="screen active">
   <div class="price-card">
@@ -443,6 +443,15 @@ function calcular(){
   const iva=venta*ajustes.iva/100;
   const ventaIva=venta+iva;
 
+  window.__coste600Resultado={
+    coste:Number(costeTotal.toFixed(2)),
+    beneficio:Number(beneficio.toFixed(2)),
+    venta:Number(venta.toFixed(2)),
+    ventaConIva:Number(ventaIva.toFixed(2)),
+    precio:Number(venta.toFixed(2)),
+    ancho:W,alto:H,tipo:tipo,serieMarco:serieMarco,serieHoja:serieHoja,acabado:acabado,persiana:persianaOn
+  };
+
   const precioMostrado=verIva?ventaIva:venta;
   ["precioVentaPrincipal","precioVentaDespiece","precioVentaCoste"].forEach(id=>document.getElementById(id).textContent=euros(precioMostrado));
   ["precioLabelPrincipal","precioLabelDespiece","precioLabelCoste"].forEach(id=>document.getElementById(id).textContent=verIva?"PRECIO DE VENTA · CON IVA":"PRECIO DE VENTA · SIN IVA");
@@ -582,6 +591,45 @@ function restablecerAjustes(){if(!confirm("¿Restablecer todos los precios y aju
 ["ancho","alto","acabado","tipoJunquillo","serieMarco","serieHoja","fijoIzq","fijoDer","fijoSup","fijoInf"].forEach(id=>{document.getElementById(id).addEventListener("input",calcular);document.getElementById(id).addEventListener("change",calcular)});
 document.getElementById("importarJson").addEventListener("change",e=>importarAjustesArchivo(e.target.files[0]));
 crearAjustes();calcular();
+</script>
+
+<style>
+/* v2.9 · Integración con Documentos */
+#btnVolverDocumentos600{display:none;position:fixed;right:12px;top:8px;z-index:1000;width:auto!important;margin:0!important;padding:9px 13px!important;border-radius:999px!important;background:#159447!important;color:#fff!important;font-size:13px!important;font-weight:950!important;box-shadow:0 5px 14px rgba(0,0,0,.2)}
+body.from-docs-600 #btnVolverDocumentos600{display:block}
+body.from-docs-600 header{padding-right:118px}
+</style>
+<button id="btnVolverDocumentos600" type="button">✓ DOCUMENTOS</button>
+<script>
+(function(){
+  'use strict';
+  var AUTO_KEY='ALU600_AUTODATA_V1', RETURN_KEY='ALU600_PRICE_RETURN_V1';
+  function fromDocs(){try{return new URLSearchParams(location.search).get('from_docs')==='1'}catch(e){return false}}
+  function readAuto(){try{var r=sessionStorage.getItem(AUTO_KEY)||localStorage.getItem(AUTO_KEY)||'';return r?JSON.parse(r):null}catch(e){return null}}
+  function setSelect(id,v){var el=document.getElementById(id);if(el&&v!=null){el.value=String(v);el.dispatchEvent(new Event('change',{bubbles:true}))}}
+  function preload(){
+    if(!fromDocs())return;document.body.classList.add('from-docs-600');
+    var d=readAuto();if(!d)return;
+    var a=document.getElementById('ancho'),h=document.getElementById('alto');
+    if(a&&Number(d.ancho)>0)a.value=Number(d.ancho);if(h&&Number(d.alto)>0)h.value=Number(d.alto);
+    var t=Number(d.hojas)<=0?'fijo':(Number(d.hojas)>=2?'2h':'1h');
+    try{seleccionarTipo(t)}catch(e){}
+    var acabado=d.colorTipo==='m'?'madera':(d.colorTipo==='b'?'blanco':'estandar');setSelect('acabado',acabado);
+    if(!!d.persiana!==!!persianaOn)try{toggleOpcion('persiana')}catch(e){}
+    try{calcular()}catch(e){}
+  }
+  function volver(){
+    var d=readAuto()||{},r=window.__coste600Resultado||{};
+    if(!(Number(r.venta)>0)){alert('No hay un precio válido para enviar.');return}
+    var p=Object.assign({},r,{index:Number(d.index),codigo:d.codigo||'',fecha:Date.now(),origen:'coste_ventanas.html'});
+    try{sessionStorage.setItem(RETURN_KEY,JSON.stringify(p))}catch(e){}
+    try{localStorage.setItem(RETURN_KEY,JSON.stringify(p))}catch(e){}
+    try{if(window.parent&&window.parent!==window&&typeof window.parent.abrir==='function'){window.parent.abrir('documentos.html?alu600_return=1&t='+Date.now());return}}catch(e){}
+    window.location.href='documentos.html?alu600_return=1&t='+Date.now();
+  }
+  var b=document.getElementById('btnVolverDocumentos600');if(b)b.addEventListener('click',volver);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',preload,{once:true});else setTimeout(preload,0);
+})();
 </script>
 </body>
 </html>

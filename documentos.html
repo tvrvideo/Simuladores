@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.6</title>
+  <title>Documentos Rey v4.7.4</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4170,7 +4170,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.7.4</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -10648,6 +10648,83 @@ COLOCACIÓN INCLUIDA` }
     return true;
   }
 
+
+  async function applyALU600PriceReturnV1(){
+    let payload = null;
+    try{
+      const raw = sessionStorage.getItem('ALU600_PRICE_RETURN_V1') ||
+                  localStorage.getItem('ALU600_PRICE_RETURN_V1') || '';
+      if(raw) payload = JSON.parse(raw);
+    }catch(_){}
+    if(!payload) return false;
+
+    const idx = Number(payload.index);
+    const salePrice = Number(payload.precio || payload.venta || payload.price || 0);
+    const costPrice = Number(payload.coste || payload.costeTotal || payload.cost || 0);
+
+    if(!Number.isFinite(idx) || !state.items[idx]){
+      toast('No se encontró el concepto para el precio 600');
+      return false;
+    }
+    if(!(salePrice > 0)){
+      toast('Precio 600 no válido');
+      return false;
+    }
+
+    const it = state.items[idx];
+    const finalSale = Number(salePrice.toFixed(2));
+    const finalCost = costPrice > 0
+      ? Number(costPrice.toFixed(2))
+      : finalSale;
+
+    it.costPrice = finalCost;
+    it.basePrice = finalSale;
+    it.gainAmount = 0;
+    it.gain = '';
+    it.margin = '';
+    it.price = finalSale;
+    if(!it.units) it.units = 1;
+    it.alu600PriceData = payload;
+
+    try{
+      const priceInput = $('editPrice');
+      if(priceInput){
+        priceInput.value = String(finalSale.toFixed(2)).replace('.', ',');
+        priceInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const gainInput = $('editGainAmount');
+      if(gainInput){
+        gainInput.value = '0';
+        gainInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const gainPctInput = $('editGain');
+      if(gainPctInput){
+        gainPctInput.value = '0';
+        gainPctInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+
+      const unitsInput = $('editUnits');
+      if(unitsInput && !String(unitsInput.value || '').trim()){
+        unitsInput.value = '1';
+        unitsInput.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    }catch(_){}
+
+    try{ sessionStorage.removeItem('ALU600_PRICE_RETURN_V1'); }catch(_){}
+    try{ localStorage.removeItem('ALU600_PRICE_RETURN_V1'); }catch(_){}
+    try{ sessionStorage.removeItem('ALU600_AUTODATA_V1'); }catch(_){}
+    try{ localStorage.removeItem('ALU600_AUTODATA_V1'); }catch(_){}
+
+    await persistCurrent();
+    render();
+    toast('Precio 600 insertado en ' + (it.code || ('V' + (idx + 1))));
+    return true;
+  }
+
+  window.applyALU600PriceReturnCore = applyALU600PriceReturnV1;
+
   async function openEdit(type, title, index){
     try{ if(state && !String(state.acceptanceText || defaultAcceptanceTextV2934()).trim()) state.acceptanceText = defaultAcceptanceTextV2934(); }catch(_){}
 
@@ -13389,6 +13466,7 @@ $('btnExport').addEventListener('click', async function(){
     await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.04 tras bridge
     await applyReturnedDesignImage();
     try{ await applyPVCPriceReturnV1(); }catch(_){ }
+    try{ await applyALU600PriceReturnV1(); }catch(_){ }
     await tryLoadDefaultLogo();
     await loadConceptTemplates();
     await loadClients();
@@ -13409,6 +13487,7 @@ $('btnExport').addEventListener('click', async function(){
     try{ await applyExternalProductReturnV42(); }catch(_){ }
     render();
     setTimeout(function(){ try{ applyPVCPriceReturnV1(); }catch(_){ } }, 350);
+    setTimeout(function(){ try{ applyALU600PriceReturnV1(); }catch(_){ } }, 350);
     updateDocumentStatusBadge();
     handleStartFromFacturacion();
 
@@ -18741,6 +18820,183 @@ body.template-picker-open-v456{overflow:hidden;}
 })();
 </script>
 
+
+<style>
+/* v4.7 · Selector de precio PVC / 600 */
+#sheetPVCBtnV13,#sheet600BtnV47{
+  min-height:46px!important;border:0!important;border-radius:12px!important;
+  padding:6px 6px!important;color:#fff!important;font-size:16px!important;
+  font-weight:900!important;box-shadow:none!important;
+}
+#sheetPVCBtnV13{background:linear-gradient(180deg,#3b82f6,#2563eb)!important}
+#sheet600BtnV47{background:linear-gradient(180deg,#22c55e,#15803d)!important}
+.sheet-actions.price-v47-four{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+.sheet-actions.price-v47-four .btn{min-width:0!important;padding-left:4px!important;padding-right:4px!important;font-size:15px!important}
+@media(max-width:420px){
+  #sheetPVCBtnV13,#sheet600BtnV47,.sheet-actions.price-v47-four .btn{min-height:52px!important;font-size:15px!important}
+  .sheet-actions.price-v47-four{gap:4px!important}
+}
+</style>
+<script>
+/* v4.7 · Coste aluminio Series 600/800 */
+(function(){
+  'use strict';
+  var AUTO_KEY='ALU600_AUTODATA_V1';
+  var RETURN_KEY='ALU600_PRICE_RETURN_V1';
+
+  function currentImportesIndex(){
+    try{
+      var t=document.getElementById('sheetTitle');
+      var m=String(t&&t.textContent||'').match(/Importes\s+V(\d+)/i);
+      return m?Math.max(0,Number(m[1])-1):null;
+    }catch(e){return null}
+  }
+
+  window.open600ForConceptV47=function(index){
+    index=Number(index);
+    if(!Number.isFinite(index)){
+      try{toast('No se encontró el concepto')}catch(e){alert('No se encontró el concepto')}
+      return;
+    }
+
+    /* Igual que el puente PVC: los datos de Ventana Pro se leen del almacenamiento.
+       Este bloque está fuera del núcleo de Documentos y no debe acceder a state. */
+    var data=null;
+    try{
+      var raw=sessionStorage.getItem('PVC_AUTODATA_V1')||localStorage.getItem('PVC_AUTODATA_V1')||'';
+      if(raw)data=JSON.parse(raw);
+    }catch(e){}
+
+    if(!data||!Number(data.ancho)||!Number(data.alto)){
+      try{toast('Primero diseña la ventana de este concepto')}catch(e){alert('Primero diseña la ventana de este concepto')}
+      return;
+    }
+
+    var payload=Object.assign({},data,{
+      index:index,
+      codigo:'V'+(index+1),
+      origen:'documentos.html',
+      fecha:Date.now()
+    });
+    try{sessionStorage.setItem(AUTO_KEY,JSON.stringify(payload))}catch(e){}
+    try{localStorage.setItem(AUTO_KEY,JSON.stringify(payload))}catch(e){}
+    try{closeSheet()}catch(e){}
+    try{
+      if(window.parent&&window.parent!==window&&typeof window.parent.abrir==='function'){
+        window.parent.abrir('coste_ventanas.html?from_docs=1');
+        return;
+      }
+    }catch(e){}
+    window.location.href='coste_ventanas.html?from_docs=1';
+  };
+
+  async function apply600Return(){
+    try{
+      if(typeof window.applyALU600PriceReturnCore === 'function'){
+        return await window.applyALU600PriceReturnCore();
+      }
+    }catch(e){}
+    return false;
+  }
+  window.apply600PriceReturnV47=apply600Return;
+
+  var lastActions=null;
+  function ensureButtons(){
+    var idx=currentImportesIndex(), save=document.getElementById('sheetSave'), cancel=document.getElementById('sheetCancel');
+    var pvc=document.getElementById('sheetPVCBtnV13'), alu=document.getElementById('sheet600BtnV47');
+    if(idx===null||!save||!cancel){
+      if(alu&&alu.parentNode)alu.parentNode.removeChild(alu);
+      if(lastActions)lastActions.classList.remove('price-v47-four');
+      lastActions=null;
+      return;
+    }
+    var actions=save.closest('.sheet-actions')||cancel.closest('.sheet-actions');
+    if(!actions)return;
+    if(lastActions&&lastActions!==actions)lastActions.classList.remove('price-v47-four');
+    lastActions=actions;
+    if(!actions.classList.contains('price-v47-four'))actions.classList.add('price-v47-four');
+    if(pvc){
+      if(pvc.textContent!=='PVC')pvc.textContent='PVC';
+      if(!pvc.dataset.v47Bound){
+        pvc.dataset.v47Bound='1';
+        pvc.addEventListener('click',function(ev){
+          ev.preventDefault();ev.stopPropagation();
+          openPVCForConceptV1(currentImportesIndex());
+        },false);
+      }
+    }
+    if(!alu){
+      alu=document.createElement('button');alu.type='button';alu.id='sheet600BtnV47';alu.className='btn btn-success';alu.textContent='600';
+      actions.insertBefore(alu,cancel);
+      alu.addEventListener('click',function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        window.open600ForConceptV47(currentImportesIndex());
+      },false);
+    }else if(alu.parentNode!==actions){
+      actions.insertBefore(alu,cancel);
+    }
+  }
+
+  function boot(){
+    ensureButtons();
+    /* Comprobación ligera: evita el MutationObserver recursivo que bloqueaba la app. */
+    setInterval(ensureButtons,1200);
+    document.addEventListener('click',function(){setTimeout(ensureButtons,0)},true);
+    setTimeout(apply600Return,250);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+  window.addEventListener('pageshow',function(){setTimeout(apply600Return,200)});
+  window.addEventListener('focus',function(){setTimeout(apply600Return,200)});
+})();
+</script>
+
+<script>
+/* v4.7.2 · Refuerzo táctil del botón 600, igual que el puente PVC */
+(function(){
+  'use strict';
+  var lastRun=0;
+
+  function getImportesIndex600(){
+    try{
+      var title=document.querySelector('#editSheet .sheet-title, #sheetTitle');
+      var txt=title?String(title.textContent||''):'';
+      var m=txt.match(/Importes\s+V(\d+)/i)||txt.match(/V(\d+)/i);
+      if(m)return Math.max(0,Number(m[1])-1);
+    }catch(e){}
+    return null;
+  }
+
+  function handler600(ev){
+    var btn=ev.target&&ev.target.closest?ev.target.closest('#sheet600BtnV47'):null;
+    if(!btn)return;
+    var now=Date.now();
+    if(now-lastRun<500){
+      try{ev.preventDefault();ev.stopPropagation()}catch(e){}
+      return false;
+    }
+    lastRun=now;
+    try{ev.preventDefault();ev.stopPropagation()}catch(e){}
+    var idx=getImportesIndex600();
+    if(idx===null){
+      try{toast('No se pudo detectar V para 600')}catch(e){alert('No se pudo detectar V para 600')}
+      return false;
+    }
+    try{
+      if(typeof window.open600ForConceptV47==='function'){
+        window.open600ForConceptV47(idx);
+      }else{
+        alert('No está cargada la conexión 600');
+      }
+    }catch(e){
+      alert('No se pudo abrir Coste Ventanas 600');
+    }
+    return false;
+  }
+
+  document.addEventListener('touchend',handler600,{capture:true,passive:false});
+  document.addEventListener('click',handler600,true);
+})();
+</script>
 </body>
 </html>
 <!-- v4.5.2: textarea nativo en conceptos + compatibilidad Android -->
