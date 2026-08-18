@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title id="mainTitle">Diseño Reja V4.1</title>
+<title id="mainTitle">Diseño Reja V4.2</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,7 +24,6 @@
     border-radius: 12px;
   }
 
-
   .input-group {
     display: flex;
     flex-direction: column;
@@ -33,7 +32,6 @@
   }
 
   label {
-    
     display: block;
     width: auto;
     font-weight: 600;
@@ -174,12 +172,7 @@
     margin-bottom: 4px;
   }
 
-
-
-/* FIX para evitar reglas generales de button */
-
-
-/* BOTÓN MENÚ (IGUAL QUE REJILLA / POLIGONO / CIERRE) */
+/* BOTÓN MENÚ */
 .btn-menu { 
   position: fixed; 
   top: 10px; 
@@ -194,15 +187,14 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
   cursor: pointer;
   font-size: 0.9rem;
-  width: auto !important;      /* evita estilos globales */
+  width: auto !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
 }
 
-
-/* --- EXPORT PNG (vista separada) --- */
+/* --- EXPORT PNG --- */
 .export-card{
   max-width: 520px;
   margin: 0 auto;
@@ -251,7 +243,7 @@
 }
 .export-back-btn:active{ transform: translateY(2px); }
 
-/* Botón Exportar PNG (verde) */
+/* Botón Exportar PNG */
 .action-buttons-container .btn-export{
   background: #34A853;
   box-shadow: 0 4px 10px rgba(52,168,83,0.35);
@@ -261,10 +253,7 @@
   box-shadow: 0 6px 15px rgba(52,168,83,0.55);
 }
 
-
-/* ====== V4 + BOTÓN FIJAR + LAYOUT FIJO ====== */
-
-/* Título: que no se corte en móvil/PC */
+/* ====== V4.2 + LAYOUT FIJO ====== */
 h1{
   font-size: clamp(1.4em, 4.8vw, 2.1em);
   line-height: 1.1;
@@ -273,7 +262,7 @@ h1{
   word-break: break-word;
 }
 #mainHeading::after{
-  content: " V4.1";
+  content: " V4.2";
   font-size: 0.55em;
   font-weight: 800;
   opacity: 0.75;
@@ -289,7 +278,7 @@ h1{
   padding: 10px 15px;
   border-radius: 20px;
   border: none;
-  background: #6b7280; /* gris (OFF) */
+  background: #6b7280;
   color: #ffffff;
   font-weight: bold;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -301,9 +290,8 @@ h1{
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
 }
-.btn-fijar.active{ background: #e74c3c; } /* rojo (ON) */
+.btn-fijar.active{ background: #e74c3c; }
 
-/* Modo normal: flujo normal (sin blanco ni panel fijo) */
 #scrollArea, #dockArea{
   display: block;
   width: 100%;
@@ -311,7 +299,6 @@ h1{
   box-sizing: border-box;
 }
 
-/* Modo fijo: controles arriba con scroll + canvas abajo fijo */
 :root{ --dock-height: 48vh; }
 
 body.dock-on{
@@ -327,7 +314,7 @@ body.dock-on #scrollArea{
   bottom: var(--dock-height);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 60px 10px 15px; /* deja sitio para botones fijos */
+  padding: 60px 10px 15px;
   box-sizing: border-box;
   background: #f0f0f0;
 }
@@ -347,13 +334,11 @@ body.dock-on #dockArea{
   box-shadow: 0 -8px 18px rgba(0,0,0,0.12);
 }
 
-/* Canvas visible y adaptable dentro del dock */
 #rejaCanvas{
   max-width: 100%;
   height: auto;
 }
 
-/* Exportación como overlay (para evitar duplicados y scroll) */
 #vista-exportar{
   position: fixed;
   inset: 0;
@@ -364,7 +349,6 @@ body.dock-on #dockArea{
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
-
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -372,7 +356,8 @@ body.dock-on #dockArea{
 <meta name="apple-mobile-web-app-title" content="Ventanas Rey">
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
-<link rel="manifest" href="manifest.json"></head>
+<link rel="manifest" href="manifest.json">
+</head>
 <body>
 
 <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
@@ -380,10 +365,6 @@ body.dock-on #dockArea{
 
 <div id="vista-diseno">
 <div id="scrollArea">
-
-
-
-
 
 <h1 id="mainHeading">Diseño Reja</h1>
 
@@ -397,8 +378,12 @@ body.dock-on #dockArea{
     <input type="number" id="altoInput" value="1200" placeholder="Ej: 1200">
   </div>
   <div class="input-group">
-    <label for="grosorInput">Grosor:</label>
+    <label for="grosorInput">Grosor marco:</label>
     <input type="number" id="grosorInput" value="20" placeholder="Ej: 20">
+  </div>
+  <div class="input-group">
+    <label for="grosorTubosInput">Grosor tubos centrales:</label>
+    <input type="number" id="grosorTubosInput" value="20" placeholder="Ej: 20">
   </div>
   <div class="input-group" id="grosorLateralInputGroup" style="display: none;">
     <label for="grosorLateralInput">Grosor tubos laterales:</label>
@@ -414,16 +399,14 @@ body.dock-on #dockArea{
   <button id="toggleBalconModeBtn">Modo Balcón</button>
   <button id="forceCenterTubeBtn" style="display: none;">Forzar tubo central</button>
   <button id="btnExportPng" class="btn-export">Exportar PNG</button>
-
 </div>
 
-
 </div>
-<div id="dockArea"><canvas id="rejaCanvas" width="400" height="400"></canvas>
+<div id="dockArea">
+<canvas id="rejaCanvas" width="400" height="400"></canvas>
 
 <div id="info">Tubos: <strong>7</strong> | Hueco: <strong>103 mm</strong></div>
 <div id="tube-positions-info"><h4>Posición tubos desde exterior:</h4><ul><li>Tubo 1: 123 / 143</li><li>Tubo 2: 245 / 265</li><li>Tubo 3: 368 / 388</li><li>Tubo 4: 490 / 510</li><li>Tubo 5: 613 / 633</li><li>Tubo 6: 735 / 755</li><li>Tubo 7: 858 / 878</li></ul></div>
-
 
 </div>
 </div>
@@ -444,6 +427,7 @@ body.dock-on #dockArea{
   const anchoInput = document.getElementById('anchoInput');
   const altoInput = document.getElementById('altoInput');
   const grosorInput = document.getElementById('grosorInput');
+  const grosorTubosInput = document.getElementById('grosorTubosInput');
   const grosorLateralInput = document.getElementById('grosorLateralInput');
   const grosorLateralInputGroup = document.getElementById('grosorLateralInputGroup');
   const colorButtonsDiv = document.getElementById('color-buttons');
@@ -547,11 +531,12 @@ body.dock-on #dockArea{
 
     const ancho = Math.max(1, Number(anchoInput.value) || 1);
     const alto = Math.max(1, Number(altoInput.value) || 1);
-    const grosor = Math.max(1, Number(grosorInput.value) || 1);
+    const grosorMarco = Math.max(1, Number(grosorInput.value) || 1);
+    const grosorTubosCent = Math.max(1, Number(grosorTubosInput.value) || 1);
     const grosorLateralBalcon = balconMode ? Math.max(1, Number(grosorLateralInput.value) || 1) : 0;
 
-    const marcoGrosorLateral = balconMode ? grosorLateralBalcon : 20;
-    const marcoGrosorSuperiorInferior = 20;
+    const marcoGrosorLateral = balconMode ? grosorLateralBalcon : grosorMarco;
+    const marcoGrosorSuperiorInferior = grosorMarco;
 
     const totalAltoDibujo = balconMode ? alto + 2 * BALCON_OVERHANG : alto;
 
@@ -631,19 +616,19 @@ body.dock-on #dockArea{
         let numTubosInSection = 0;
         let espacioEntreTubosInSection = 0;
 
-        if (sectionWidth_mm >= grosor + (2 * espacioMin)) {
-            numTubosInSection = Math.floor((sectionWidth_mm - espacioMin) / (grosor + espacioMin));
+        if (sectionWidth_mm >= grosorTubosCent + (2 * espacioMin)) {
+            numTubosInSection = Math.floor((sectionWidth_mm - espacioMin) / (grosorTubosCent + espacioMin));
             numTubosInSection = Math.max(0, numTubosInSection);
 
             if (numTubosInSection > 0) {
-                espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosor)) / (numTubosInSection + 1);
+                espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosorTubosCent)) / (numTubosInSection + 1);
                 while (espacioEntreTubosInSection < espacioMin && numTubosInSection > 0) {
                     numTubosInSection--;
                     if (numTubosInSection === 0) {
                         espacioEntreTubosInSection = sectionWidth_mm;
                         break;
                     }
-                    espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosor)) / (numTubosInSection + 1);
+                    espacioEntreTubosInSection = (sectionWidth_mm - (numTubosInSection * grosorTubosCent)) / (numTubosInSection + 1);
                 }
             }
         } else {
@@ -657,16 +642,16 @@ body.dock-on #dockArea{
             let posActualInternaSection = espacioEntreTubosInSection;
             for (let i = 0; i < numTubosInSection; i++) {
                 const posicionInicioDesdeExterior = Math.round(currentSectionStartX_mm_for_tubes + posActualInternaSection);
-                const posicionFinDesdeExterior = Math.round(posicionInicioDesdeExterior + grosor);
+                const posicionFinDesdeExterior = Math.round(posicionInicioDesdeExterior + grosorTubosCent);
                 posicionesTubosMedidas.push(`Tubo ${posicionesTubosMedidas.length + 1}: ${posicionInicioDesdeExterior} / ${posicionFinDesdeExterior}`);
 
                 const xDraw = startX + posicionInicioDesdeExterior * scale;
-                const wDraw = grosor * scale;
+                const wDraw = grosorTubosCent * scale;
 
                 if (showCenterTube) {
-                    const centerTubeY_mm_inicio = alto / 2 - grosor / 2;
+                    const centerTubeY_mm_inicio = alto / 2 - grosorTubosCent / 2;
                     const centerTubeY_scaled_start = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + centerTubeY_mm_inicio * scale;
-                    const hTravesano = grosor * scale;
+                    const hTravesano = grosorTubosCent * scale;
 
                     const yTopDraw = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + marcoGrosorSuperiorInferior * scale;
                     const hTopDraw = (centerTubeY_mm_inicio - marcoGrosorSuperiorInferior) * scale;
@@ -676,7 +661,7 @@ body.dock-on #dockArea{
                     }
 
                     const yBottomDraw = centerTubeY_scaled_start + hTravesano;
-                    const hBottomDraw = (alto - (centerTubeY_mm_inicio + grosor) - marcoGrosorSuperiorInferior) * scale;
+                    const hBottomDraw = (alto - (centerTubeY_mm_inicio + grosorTubosCent) - marcoGrosorSuperiorInferior) * scale;
                     if (hBottomDraw > 0) {
                         ctx.fillRect(xDraw, yBottomDraw, wDraw, hBottomDraw);
                         ctx.strokeRect(xDraw, yBottomDraw, wDraw, hBottomDraw);
@@ -689,7 +674,7 @@ body.dock-on #dockArea{
                     ctx.strokeRect(xDraw, yDraw, wDraw, hDraw);
                 }
 
-                posActualInternaSection += grosor + espacioEntreTubosInSection;
+                posActualInternaSection += grosorTubosCent + espacioEntreTubosInSection;
             }
         }
         currentSectionStartX_mm_for_tubes += sectionWidth_mm;
@@ -700,7 +685,7 @@ body.dock-on #dockArea{
 
     // Dibujar el travesaño horizontal si está activado
     if (showCenterTube) {
-        const centerTubeY_mm_inicio = alto / 2 - grosor / 2;
+        const centerTubeY_mm_inicio = alto / 2 - grosorTubosCent / 2;
         const centerTubeY_scaled = startY + (balconMode ? BALCON_OVERHANG : 0) * scale + centerTubeY_mm_inicio * scale;
 
         let travesanoStartX = startX + marcoGrosorLateral * scale;
@@ -710,21 +695,19 @@ body.dock-on #dockArea{
             const centralReinforcementTubeX_scaled = startX + centralReinforcementTubeX_mm * scale;
             const centralReinforcementTubeW_scaled = centralReinforcementTubeW_mm * scale;
 
-            ctx.fillRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosor * scale);
-            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosor * scale);
+            ctx.fillRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosorTubosCent * scale);
+            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, (centralReinforcementTubeX_scaled - travesanoStartX), grosorTubosCent * scale);
 
             const rightSectionStartX = centralReinforcementTubeX_scaled + centralReinforcementTubeW_scaled;
-            ctx.fillRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosor * scale);
-            ctx.strokeRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosor * scale);
+            ctx.fillRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosorTubosCent * scale);
+            ctx.strokeRect(rightSectionStartX, centerTubeY_scaled, (startX + ancho * scale - marcoGrosorLateral * scale - rightSectionStartX), grosorTubosCent * scale);
         } else {
-            ctx.fillRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosor * scale);
-            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosor * scale);
+            ctx.fillRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosorTubosCent * scale);
+            ctx.strokeRect(travesanoStartX, centerTubeY_scaled, travesanoWidth, grosorTubosCent * scale);
         }
     }
 
-
     // --- Mostrar Medidas ---
-    // NOTA: Se respeta la instrucción de recordar respetar los gráficos que indican las medidas con sus flechas
     if(showMeasures){
       // Medida de Ancho total
       drawDimensionArrow(
@@ -734,7 +717,7 @@ body.dock-on #dockArea{
         startY - 20,
         ancho + ' mm'
       );
-      // Medida de Alto total (incluyendo el sobrepaso en modo balcón)
+      // Medida de Alto total
       drawDimensionArrow(
         startX - 20,
         startY,
@@ -746,7 +729,6 @@ body.dock-on #dockArea{
       );
 
       if (balconMode) {
-        // Medidas del sobrepaso y alto de la reja base en el lado derecho
         ctx.strokeStyle = 'red';
         ctx.fillStyle = 'red';
         const rightArrowX = startX + ancho * scale + 20;
@@ -779,7 +761,6 @@ body.dock-on #dockArea{
           25
         );
 
-        // Medidas de las divisiones cuando hay tubo central y modo balcón
         if (showCentralReinforcementTubeForDrawing) {
             ctx.strokeStyle = 'blue';
             ctx.fillStyle = 'blue';
@@ -809,17 +790,17 @@ body.dock-on #dockArea{
     // --- Actualizar Información de Tubos ---
     if (totalNumTubos > 0) {
         let displayEspacioEntreTubos = 0;
-        if (huecosAnchosParaTubosVerticales[0] >= grosor + (2 * espacioMin)) {
-            let tempNumTubos = Math.floor((huecosAnchosParaTubosVerticales[0] - espacioMin) / (grosor + espacioMin));
+        if (huecosAnchosParaTubosVerticales[0] >= grosorTubosCent + (2 * espacioMin)) {
+            let tempNumTubos = Math.floor((huecosAnchosParaTubosVerticales[0] - espacioMin) / (grosorTubosCent + espacioMin));
             if (tempNumTubos > 0) {
-                 displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosor)) / (tempNumTubos + 1);
+                 displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosorTubosCent)) / (tempNumTubos + 1);
                  while (displayEspacioEntreTubos < espacioMin && tempNumTubos > 0) {
                     tempNumTubos--;
                     if (tempNumTubos === 0) {
                         displayEspacioEntreTubos = huecosAnchosParaTubosVerticales[0];
                         break;
                     }
-                    displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosor)) / (tempNumTubos + 1);
+                    displayEspacioEntreTubos = (huecosAnchosParaTubosVerticales[0] - (tempNumTubos * grosorTubosCent)) / (tempNumTubos + 1);
                 }
             } else {
                  displayEspacioEntreTubos = huecosAnchosParaTubosVerticales[0];
@@ -866,7 +847,7 @@ body.dock-on #dockArea{
       }
   }
 
-  [anchoInput, altoInput, grosorInput, grosorLateralInput].forEach(input => {
+  [anchoInput, altoInput, grosorInput, grosorTubosInput, grosorLateralInput].forEach(input => {
     input.addEventListener('input', (event) => {
         if (event.target === anchoInput) {
             if (!balconMode && Number(anchoInput.value) >= REINFORCEMENT_WIDTH_THRESHOLD) {
@@ -914,14 +895,12 @@ body.dock-on #dockArea{
     draw();
   });
 
-
   // --- EXPORTAR PNG ---
   function exportarPNG(){
-    // Guardar estado de FIJAR y desactivarlo para exportar
     window.__rejaWasDockOn = document.body.classList.contains('dock-on');
     if(window.__rejaWasDockOn){ document.body.classList.remove('dock-on'); const bf=document.getElementById('btnFijar'); if(bf) bf.classList.remove('active'); }
 
-const srcCanvas = document.getElementById('rejaCanvas');
+    const srcCanvas = document.getElementById('rejaCanvas');
     const imgOut = document.getElementById('img-resultado');
     const vistaDiseno = document.getElementById('vista-diseno');
     const vistaExport = document.getElementById('vista-exportar');
@@ -931,7 +910,6 @@ const srcCanvas = document.getElementById('rejaCanvas');
       return;
     }
 
-    // Crear canvas de salida con más calidad
     const ratio = 2;
     const outCanvas = document.createElement('canvas');
     outCanvas.width = srcCanvas.width * ratio;
@@ -943,19 +921,15 @@ const srcCanvas = document.getElementById('rejaCanvas');
       return;
     }
 
-    // Fondo blanco
     octx.fillStyle = '#ffffff';
     octx.fillRect(0, 0, outCanvas.width, outCanvas.height);
 
-    // Dibujo escalado
     octx.imageSmoothingEnabled = true;
     octx.imageSmoothingQuality = 'high';
     octx.drawImage(srcCanvas, 0, 0, outCanvas.width, outCanvas.height);
 
-    // Pasar a imagen
     imgOut.src = outCanvas.toDataURL('image/png');
 
-    // Cambiar de vista
     vistaDiseno.style.display = 'none';
     vistaExport.style.display = 'block';
     window.scrollTo(0,0);
@@ -969,7 +943,6 @@ const srcCanvas = document.getElementById('rejaCanvas');
     document.getElementById('vista-exportar').style.display = 'none';
     document.getElementById('vista-diseno').style.display = 'block';
 
-    // Restaurar FIJAR si estaba activado
     if(window.__rejaWasDockOn){
       document.body.classList.add('dock-on');
       const bf=document.getElementById('btnFijar');
@@ -978,16 +951,13 @@ const srcCanvas = document.getElementById('rejaCanvas');
     }
   }, {passive:true});
 
-
-  // --- FIJAR (como en Grados) ---
+  // --- FIJAR ---
   const btnFijar = document.getElementById('btnFijar');
   function setDock(on){
     document.body.classList.toggle('dock-on', on);
     if(btnFijar) btnFijar.classList.toggle('active', on);
-    // Redibujar por si el tamaño visible cambia
     draw();
   }
-  // Por defecto: OFF
   setDock(false);
 
   if(btnFijar){
@@ -1002,9 +972,8 @@ const srcCanvas = document.getElementById('rejaCanvas');
 })();
 </script>
 
-
 <script>
-/* V4.1 - Volver seguro al index desde iframe/GitHub/iPhone */
+/* V4.2 - Volver seguro al index */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
