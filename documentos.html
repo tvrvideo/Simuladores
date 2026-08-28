@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.7.5</title>
+  <title>Documentos Rey v4.7.7</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4170,7 +4170,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.7.5</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.7.7</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -6601,9 +6601,10 @@ body.sheet-open .brand-idb-pill{
     const box = $('postalPopulationMatches');
     if(!box) return;
 
-    if(!Array.isArray(matches) || matches.length <= 1){
+    if(!Array.isArray(matches) || matches.length === 0){
       box.classList.remove('show');
       box.innerHTML = '';
+      window.__clientPostalMatchesV2987 = [];
       return;
     }
 
@@ -7453,6 +7454,7 @@ COLOCACIÓN INCLUIDA` }
       nombre: String(state.clienteNombre || 'Cliente contado').trim(),
       telefono: String(state.clienteTelefono || '').trim(),
       direccion: String(state.clienteDireccion || '').trim(),
+      cp: String(state.clienteCp || '').trim(),
       poblacion: String(state.clientePoblacion || '').trim(),
       municipio: String(state.clienteMunicipio || '').trim(),
       provincia: String(state.clienteProvincia || '').trim(),
@@ -7462,7 +7464,7 @@ COLOCACIÓN INCLUIDA` }
 
   function clientHasData(c){
     if(!c) return false;
-    return !!(String(c.nombre || '').trim() || String(c.telefono || '').trim() || String(c.direccion || '').trim() || String(c.poblacion || '').trim() || String(c.municipio || '').trim() || String(c.provincia || '').trim() || String(c.nif || '').trim());
+    return !!(String(c.nombre || '').trim() || String(c.telefono || '').trim() || String(c.direccion || '').trim() || String(c.cp || '').trim() || String(c.poblacion || '').trim() || String(c.municipio || '').trim() || String(c.provincia || '').trim() || String(c.nif || '').trim());
   }
 
   function applyClientToState(c){
@@ -7470,6 +7472,7 @@ COLOCACIÓN INCLUIDA` }
     state.clienteNombre = String(c.nombre || '');
     state.clienteTelefono = String(c.telefono || '');
     state.clienteDireccion = String(c.direccion || '');
+    state.clienteCp = String(c.cp || '');
     state.clientePoblacion = String(c.poblacion || '');
     state.clienteMunicipio = String(c.municipio || '');
     state.clienteProvincia = String(c.provincia || '');
@@ -10820,8 +10823,6 @@ COLOCACIÓN INCLUIDA` }
         const cpEl = $('editClienteCp');
         if(cpEl){
           cpEl.addEventListener('input', function(){ applyPostalCodeToClientForm(); }, false);
-          cpEl.addEventListener('change', function(){ applyPostalCodeToClientForm(); }, false);
-          if(cpEl.value) applyPostalCodeToClientForm();
         }
       }, 30);
       $('sheetSaveClientBtn').onclick = async function(){
@@ -11903,8 +11904,13 @@ COLOCACIÓN INCLUIDA` }
         <label>Nombre</label><input id="editSavedClientNombre" value="${esc(c.nombre || '')}">
         <label>Teléfono</label><input id="editSavedClientTelefono" value="${esc(c.telefono || '')}">
         <label>Dirección</label><input id="editSavedClientDireccion" value="${esc(c.direccion || '')}">
-        <label>Población</label><input id="editSavedClientPoblacion" value="${esc(c.poblacion || '')}">
-        <label>Provincia</label><input id="editSavedClientProvincia" value="${esc(c.provincia || '')}">
+        <label>Código postal</label><input id="editClienteCp" inputmode="numeric" autocomplete="postal-code" value="${esc(c.cp || '')}">
+        <div class="postal-hint" id="postalHint">Escribe código postal o población para autocompletar.</div>
+        <div class="postal-matches" id="postalPopulationMatches"></div>
+        <label>Población</label><input id="editClientePoblacion" value="${esc(c.poblacion || '')}">
+        <label>Municipio</label><input id="editClienteMunicipio" value="${esc(c.municipio || '')}">
+        <label>Provincia</label><input id="editClienteProvincia" value="${esc(c.provincia || '')}">
+        <label>País</label><input id="editClientePais" value="${esc(c.pais || 'España')}">
         <label>N.I.F.</label><input id="editSavedClientNif" value="${esc(c.nif || '')}">
         <div class="sheet-actions">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
@@ -12235,8 +12241,11 @@ COLOCACIÓN INCLUIDA` }
         nombre: String($('editSavedClientNombre').value || '').trim(),
         telefono: String($('editSavedClientTelefono').value || '').trim(),
         direccion: String($('editSavedClientDireccion').value || '').trim(),
-        poblacion: String($('editSavedClientPoblacion').value || '').trim(),
-        provincia: String($('editSavedClientProvincia').value || '').trim(),
+        cp: String(($('editClienteCp') && $('editClienteCp').value) || '').trim(),
+        poblacion: String(($('editClientePoblacion') && $('editClientePoblacion').value) || '').trim(),
+        municipio: String(($('editClienteMunicipio') && $('editClienteMunicipio').value) || '').trim(),
+        provincia: String(($('editClienteProvincia') && $('editClienteProvincia').value) || '').trim(),
+        pais: String(($('editClientePais') && $('editClientePais').value) || 'España').trim() || 'España',
         nif: String($('editSavedClientNif').value || '').trim()
       };
       if(!clientHasData(c)){
@@ -13274,6 +13283,15 @@ $('btnExport').addEventListener('click', async function(){
 
           const converted = await createConvertedDocument(picked, targetType, { sinImagenes: convertirSinImagenes });
           await ensureUniqueDocumentNumber(converted, current);
+
+          // Al convertir un presupuesto o albarán en factura,
+          // el documento de origen queda automáticamente marcado como FACTURADO.
+          if(targetType === 'factura'){
+            picked.estado = 'facturado';
+            current[idx] = picked;
+            try{ syncStatusToFacturacionLegacy(picked, 'facturado'); }catch(_){}
+          }
+
           current.unshift(converted);
           await storageSetJSON(SAVE_LIST_KEY, current);
           state = converted;
@@ -14035,6 +14053,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     if(cp && r.cp) cp.value = r.cp;
     if(pob && r.poblacion) pob.value = r.poblacion;
+    if(byId('editClienteMunicipio') && r.municipio) byId('editClienteMunicipio').value = r.municipio;
     if(prov && r.provincia) prov.value = r.provincia;
     if(pais && r.pais) pais.value = r.pais || 'España';
 
@@ -14095,7 +14114,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(seen[key]) return false;
       seen[key] = true;
       return true;
-    }).slice(0, 10);
+    });
 
     if(!matches.length){
       hideMatches();
@@ -14104,11 +14123,64 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     showMatches(matches);
-    setHint('Toca una coincidencia para rellenar CP y provincia.', 'ok');
+    setHint('Toca una coincidencia para rellenar CP, municipio y provincia.', 'ok');
+  }
+
+  async function searchCp(value){
+    var q = String(value || '').replace(/\D/g,'').slice(0,5);
+
+    if(q.length < 3){
+      hideMatches();
+      if(q.length) setHint('Escribe al menos 3 cifras del código postal.', '');
+      return;
+    }
+
+    var data = await loadCpList();
+    if(!data.length){
+      hideMatches();
+      setHint('Base CP no cargada.', 'warn');
+      return;
+    }
+
+    var exact = [];
+    var starts = [];
+    data.forEach(function(r){
+      var cp = String(r && r.cp || '').replace(/\D/g,'');
+      if(!cp) return;
+      if(cp === q) exact.push(r);
+      else if(cp.startsWith(q)) starts.push(r);
+    });
+
+    var seen = {};
+    var matches = exact.concat(starts).filter(function(r){
+      var key = [r.cp, r.poblacion, r.provincia].join('|');
+      if(seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+
+    if(!matches.length){
+      hideMatches();
+      setHint('No hay coincidencias para ese código postal.', 'warn');
+      return;
+    }
+
+    showMatches(matches);
+    setHint('Toca una coincidencia para rellenar los datos.', 'ok');
   }
 
   document.addEventListener('input', function(ev){
-    if(!ev.target || ev.target.id !== 'editClientePoblacion') return;
+    if(!ev.target) return;
+
+    if(ev.target.id === 'editClienteCp'){
+      clearTimeout(window.__postalCpSearchTimer);
+      window.__postalCpSearchTimer = setTimeout(function(){
+        searchCp(ev.target.value);
+      }, 220);
+      return;
+    }
+
+    if(ev.target.id !== 'editClientePoblacion') return;
 
     clearTimeout(window.__postalPopulationSearchTimer);
     window.__postalPopulationSearchTimer = setTimeout(function(){
@@ -17545,7 +17617,7 @@ const mo = new MutationObserver(function(){
 
 
 <script>
-/* v4.7.5 - Botones de Importes integrados directamente en el editor.
+/* v4.7.7 - Botones de Importes integrados directamente en el editor.
    Se elimina la antigua inyección periódica PVC v13. */
 </script>
 
@@ -18845,7 +18917,7 @@ body.template-picker-open-v456{overflow:hidden;}
 </script>
 
 <script>
-/* v4.7.5 - Eliminado el refuerzo táctil duplicado del botón 600.
+/* v4.7.7 - Eliminado el refuerzo táctil duplicado del botón 600.
    El botón ya tiene una única acción dentro del editor de Importes. */
 </script>
 </body>
