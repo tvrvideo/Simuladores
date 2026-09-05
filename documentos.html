@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.7.7</title>
+  <title>Documentos Rey v4.7.8</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -796,6 +796,13 @@ body.editing-field .return-app-btn{
 }
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
+
+/* v4.7.8 - botón flotante de duplicar sobre cada página */
+.page-dup-overlay{position:absolute;left:0;right:0;pointer-events:none;z-index:30;}
+.page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
+.page-dup-button:active{transform:scale(.97);}
+@media print{.page-dup-overlay{display:none!important;}}
+
 .page-floating-actions{
   position:fixed;
   left:6px;
@@ -4170,7 +4177,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.7.7</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.7.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4338,6 +4345,10 @@ body.sheet-open .brand-idb-pill{
       <span>Quitar última página vacía<small>Elimina la última hoja vacía.</small></span>
       <span>−</span>
     </button>
+    <button type="button" class="settings-item menu-page-add" id="btnDuplicatePage">
+      <span>Duplicar página<small>Copia una página completa como nueva alternativa independiente.</small></span>
+      <span>⧉</span>
+    </button>
     <button type="button" class="settings-item menu-clear" id="btnClear">
       <span>⚠️ Zona peligrosa: eliminar TODOS los documentos<small>Protegido con confirmación escrita y copia automática.</small></span>
       <span>›</span>
@@ -4391,6 +4402,17 @@ body.sheet-open .brand-idb-pill{
   <button type="button" id="btnPageRemove" onclick="document.getElementById('btnRemovePage').click(); return false;">− Página</button>
   <button type="button" id="btnPageIva" onclick="return window.__docToggleIva && window.__docToggleIva();">IVA ON</button>
   <button type="button" id="btnFabricarPdf" onclick="this.style.setProperty('background','linear-gradient(180deg,#22c55e 0%,#16a34a 100%)','important'); this.style.setProperty('border-color','#16a34a','important'); this.textContent='Fabricar ✓'; return false;">Fabricar</button>
+</div>
+
+
+<div id="pageDuplicateChoiceV478" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:99999;align-items:center;justify-content:center;padding:18px;">
+  <div style="width:min(430px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px">Duplicar página</div>
+    <div id="pageDuplicateChoiceTextV478" style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:18px">¿Cómo quieres crear la copia?</div>
+    <button type="button" id="pageDuplicateContinueV478" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800">Duplicar como continuación</button>
+    <button type="button" id="pageDuplicateIndependentV478" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Duplicar como independiente</button>
+    <button type="button" id="pageDuplicateCancelV478" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>
+  </div>
 </div>
 
 <div id="clientDeleteConfirmOverlay" aria-hidden="true">
@@ -5734,23 +5756,73 @@ body.sheet-open .brand-idb-pill{
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
+  // v4.7.8 - Cálculo de totales por página completamente aislado.
+  // Una página marcada como independiente NUNCA puede heredar importes de otra.
+  // Para exportación trabajamos siempre con el índice original de la página,
+  // evitando mezclar el índice PDF con el índice de state.items.
   function footerTotalsForPage(pageNumber, forExport){
     const totalPages = forExport ? getExportPageCount() : getAppPageCount();
-    const currentIndex = Math.max(0, Number(pageNumber || 1) - 1);
-    const currentItems = getPageItems(currentIndex, !!forExport);
+    const renderIndex = Math.max(0, Number(pageNumber || 1) - 1);
+    const originalIndex = getOriginalPageIndexForRender(renderIndex, !!forExport);
+    const mode = getPageMode(originalIndex);
+
+    // Obtener directamente los conceptos de ESTA página original.
+    const perPage = CONCEPTS_PER_PAGE;
+    const currentItems = isSimpleBudget()
+      ? getPageItems(renderIndex, !!forExport)
+      : getAllItems().slice(originalIndex * perPage, (originalIndex + 1) * perPage)
+          .filter(function(it){ return !forExport || conceptHasContent(it); });
+
     const current = totalsFromItems(currentItems);
+
+    // Independiente: solo sus propios conceptos, sin ninguna acumulación.
+    if(mode === 'independent'){
+      return {
+        multiPage: false,
+        currentBase: current.base,
+        previousBase: 0,
+        accumulatedBase: current.base,
+        accumulatedIva: current.iva,
+        accumulatedTotal: current.total,
+        pageCount: totalPages,
+        mode: 'independent'
+      };
+    }
+
+    // Continuación: acumula desde el inicio del bloque de continuidad.
+    // Si antes hay una página independiente, esa página no entra en la suma.
     let previousBase = 0;
-    for(let i=0;i<currentIndex;i++) previousBase += totalsFromItems(getPageItems(i, !!forExport)).base;
+    if(renderIndex > 0){
+      let startRenderIndex = 0;
+      for(let i=renderIndex-1;i>=0;i--){
+        const oi = getOriginalPageIndexForRender(i, !!forExport);
+        if(getPageMode(oi) === 'independent'){
+          startRenderIndex = i + 1;
+          break;
+        }
+      }
+      for(let i=startRenderIndex;i<renderIndex;i++){
+        const oi = getOriginalPageIndexForRender(i, !!forExport);
+        const pageItems = isSimpleBudget()
+          ? getPageItems(i, !!forExport)
+          : getAllItems().slice(oi * perPage, (oi + 1) * perPage)
+              .filter(function(it){ return !forExport || conceptHasContent(it); });
+        previousBase += totalsFromItems(pageItems).base;
+      }
+    }
+
     const accumulatedBase = previousBase + current.base;
     const accumulatedIva = accumulatedBase * ivaRate();
+
     return {
-      multiPage: totalPages > 1 && currentIndex > 0,
+      multiPage: previousBase > 0,
       currentBase: current.base,
       previousBase,
       accumulatedBase,
       accumulatedIva,
       accumulatedTotal: accumulatedBase + accumulatedIva,
-      pageCount: totalPages
+      pageCount: totalPages,
+      mode: 'continuar'
     };
   }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
@@ -6901,7 +6973,8 @@ async function updateIndexedDBStatus(){
       acceptanceEnabled:false,
       acceptanceText: defaultAcceptanceTextV2934(),
       style: defaultStyle(),
-      items: buildConceptList(CONCEPTS_PER_PAGE)
+      items: buildConceptList(CONCEPTS_PER_PAGE),
+      pageModes: ['continuar']
     };
   }
 
@@ -7493,6 +7566,13 @@ COLOCACIÓN INCLUIDA` }
     const merged = Object.assign({}, base, raw || {});
     merged.style = Object.assign(defaultStyle(), raw && raw.style ? raw.style : {});
     merged.items = ensureConceptList(raw && raw.items);
+    const visualPageCount = Math.max(1, Math.ceil(merged.items.length / CONCEPTS_PER_PAGE));
+    const simplePageCount = (merged.tipoPresupuesto === 'sencillo') ? Math.max(1, Number(merged.simpleExtraPages || 1)) : 1;
+    const pageModeCount = Math.max(visualPageCount, simplePageCount);
+    const rawPageModes = Array.isArray(raw && raw.pageModes) ? raw.pageModes : [];
+    merged.pageModes = Array.from({length: pageModeCount}, function(_, i){
+      return rawPageModes[i] === 'independent' ? 'independent' : 'continuar';
+    });
     merged.documentId = raw && raw.documentId ? String(raw.documentId) : ('doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
     merged.documentoTipo = (raw && ['presupuesto','factura','albaran'].includes(raw.documentoTipo)) ? raw.documentoTipo : 'presupuesto';
     merged.ivaEnabled = raw && raw.ivaEnabled === false ? false : true;
@@ -9299,11 +9379,82 @@ COLOCACIÓN INCLUIDA` }
     return pages;
   }
 
+  function getVisualStoredPageCount(){
+    return Math.max(1, Math.ceil(Math.max(CONCEPTS_PER_PAGE, getAllItems().length) / CONCEPTS_PER_PAGE));
+  }
+
+  function getStoredPageCount(){
+    if(isSimpleBudget()) return Math.max(1, simplePaginateItems().length, Number(state.simpleExtraPages || 1));
+    return getVisualStoredPageCount();
+  }
+
+  function ensurePageModes(){
+    const count = getStoredPageCount();
+    if(!Array.isArray(state.pageModes)) state.pageModes = [];
+    while(state.pageModes.length < count) state.pageModes.push('continuar');
+    if(state.pageModes.length > count) state.pageModes = state.pageModes.slice(0, count);
+    for(let i=0;i<state.pageModes.length;i++){
+      state.pageModes[i] = state.pageModes[i] === 'independent' ? 'independent' : 'continuar';
+    }
+    return state.pageModes;
+  }
+
+  function getPageMode(originalPageIndex){
+    ensurePageModes();
+    return state.pageModes[Math.max(0, Number(originalPageIndex || 0))] === 'independent' ? 'independent' : 'continuar';
+  }
+
+  function getExportPageRefs(){
+    if(isSimpleBudget()){
+      const pages = simplePaginateItems();
+      const refs = [];
+      pages.forEach(function(page, i){ if((page || []).some(conceptHasContent)) refs.push(i); });
+      return refs.length ? refs : [0];
+    }
+    ensurePageModes();
+    const refs = [];
+    const count = getVisualStoredPageCount();
+    for(let original=0; original<count; original++){
+      const start = original * CONCEPTS_PER_PAGE;
+      const page = getAllItems().slice(start, start + CONCEPTS_PER_PAGE);
+      if(page.some(conceptHasContent)) refs.push(original);
+    }
+    return refs.length ? refs : [0];
+  }
+
+  function getOriginalPageIndexForRender(pageIndex, forExport){
+    const idx = Math.max(0, Number(pageIndex || 0));
+    if(!forExport) return idx;
+    const refs = getExportPageRefs();
+    return refs[Math.max(0, Math.min(refs.length - 1, idx))] || 0;
+  }
+
+  function getDisplayDocumentNumber(pageNumber, forExport){
+    const base = String(state && state.numero || '').trim();
+    if(!base || isFacturaDocument()) return base;
+
+    const renderIndex = Math.max(0, Number(pageNumber || 1) - 1);
+    const originalIndex = getOriginalPageIndexForRender(renderIndex, !!forExport);
+    if(getPageMode(originalIndex) !== 'independent') return base;
+
+    // El sufijo cuenta únicamente páginas independientes anteriores
+    // dentro del mismo presupuesto: -1, -2, -3...
+    let suffix = 0;
+    const pageCount = getStoredPageCount();
+    for(let i=0;i<pageCount;i++){
+      if(getPageMode(i) === 'independent'){
+        suffix++;
+        if(i === originalIndex) break;
+      }
+    }
+    return suffix > 0 ? (base + '-' + suffix) : base;
+  }
+
   function getAppPageCount(){
     if(isSimpleBudget()){
       return Math.max(simplePaginateItems().length, Math.max(1, Number(state.simpleExtraPages || 1)));
     }
-    return Math.max(1, Math.ceil(getAllItems().length / CONCEPTS_PER_PAGE));
+    return getVisualStoredPageCount();
   }
 
   function getExportItems(){
@@ -9312,15 +9463,19 @@ COLOCACIÓN INCLUIDA` }
 
   function getExportPageCount(){
     if(isSimpleBudget()) return simplePaginateItems().length;
-    const usedCount = getExportItems().length;
-    return Math.max(1, Math.ceil(Math.max(1, usedCount) / CONCEPTS_PER_PAGE));
+    return getExportPageRefs().length;
   }
 
   function getPageItems(pageIndex, forExport){
     if(isSimpleBudget()){
       const pages = simplePaginateItems();
       const requested = Math.max(0, Number(pageIndex || 0));
-      const idx = Math.max(0, Math.min(Math.max(pages.length, Number(state.simpleExtraPages || 1)) - 1, requested));
+      let idx = requested;
+      if(forExport){
+        const refs = getExportPageRefs();
+        idx = refs[Math.max(0, Math.min(refs.length - 1, requested))] || 0;
+      }
+      idx = Math.max(0, Math.min(Math.max(pages.length, Number(state.simpleExtraPages || 1)) - 1, idx));
       const page = (pages[idx] || []).slice();
 
       // En edición, una página añadida manualmente puede estar vacía.
@@ -9344,15 +9499,14 @@ COLOCACIÓN INCLUIDA` }
     }
 
     const perPage = CONCEPTS_PER_PAGE;
-    const start = Math.max(0, Number(pageIndex || 0)) * perPage;
     if(forExport){
-      const used = getExportItems();
-      if(!used.length){
-        const fallback = getAllItems()[0] || blankConcept(conceptCodeForIndex(0));
-        return [fallback];
-      }
-      return used.slice(start, start + perPage);
+      const refs = getExportPageRefs();
+      const pdfIndex = Math.max(0, Math.min(refs.length - 1, Number(pageIndex || 0)));
+      const originalPage = refs[pdfIndex] || 0;
+      const start = originalPage * perPage;
+      return getAllItems().slice(start, start + perPage).filter(conceptHasContent);
     }
+    const start = Math.max(0, Number(pageIndex || 0)) * perPage;
     return getAllItems().slice(start, start + perPage);
   }
 
@@ -9491,7 +9645,7 @@ COLOCACIÓN INCLUIDA` }
     });
 
     const root = add(parent, 'g', { transform:'translate(0 ' + pageY + ')' });
-    renderHeader(root);
+    renderHeader(root, pageNumber, !!forExport);
 
     const conceptZoneStretch = Number(numStyle('conceptZoneStretch')) || 0;
     const facturaHeaderOffset = isFacturaDocument() ? 94 : 0;
@@ -9567,6 +9721,7 @@ COLOCACIÓN INCLUIDA` }
     state.items = getAllItems();
     await persistCurrent();
     await renderDocument(svg, false);
+    setTimeout(installPageDuplicateButtonsV478, 0);
   }
 
   function resolveLogoSrc(){
@@ -9758,7 +9913,7 @@ COLOCACIÓN INCLUIDA` }
     return hit(parent, x, y, w, h, onTap, title);
   }
 
-  function renderHeader(root){
+  function renderHeader(root, pageNumber, forExport){
     if(isFacturaDocument()){
       renderFacturaHeader(root);
       return;
@@ -9871,7 +10026,8 @@ COLOCACIÓN INCLUIDA` }
     const numberLabel = getDocumentType()==='factura'
       ? 'Número de factura: '
       : (getDocumentType()==='albaran' ? 'Número de albarán: ' : 'Número de presupuesto: ');
-    addText(root, 26, numberY, numberLabel + safe(state.numero), { fs:numberFs, fw:'700', fill:s.titleColor });
+    const displayNumber = getDisplayDocumentNumber(pageNumber || 1, !!forExport);
+    addText(root, 26, numberY, numberLabel + safe(displayNumber), { fs:numberFs, fw:'700', fill:s.titleColor });
 
     hit(root, 28, 50, 340, 105, () => openEdit('company', 'Empresa'), 'Editar empresa o logo');
     hit(root, 410, 76, 350, 150, () => openEdit('client', 'Cliente'), 'Editar cliente');
@@ -9882,7 +10038,7 @@ COLOCACIÓN INCLUIDA` }
 
     const labelW = approxSvgTextWidthV304(numberLabel, numberFs, '700');
     const numberTapX = 26 + labelW - 8;
-    const numberTapW = Math.max(128, approxSvgTextWidthV304(state.numero, numberFs, '700') + 34);
+    const numberTapW = Math.max(128, approxSvgTextWidthV304(displayNumber, numberFs, '700') + 34);
     addSvgTapHaloV304(root, numberTapX, numberY - 34, numberTapW, 52, () => openEdit('numero', 'Número presupuesto'), 'Editar número');
   }
 
@@ -10208,9 +10364,9 @@ COLOCACIÓN INCLUIDA` }
     addText(root, v1 + c2/2, tableY+16, 'TIPO IMPUESTO', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'middle', fill:s.titleColor });
     addText(root, x+w-8, tableY+16, 'IMPUESTO', { fs:isFacturaDocument() ? 12 : 11, fw:'800', anchor:'end', fill:s.titleColor });
 
-    const baseValue = ft.multiPage ? ft.accumulatedBase : t.base;
-    const ivaValue = ft.multiPage ? ft.accumulatedIva : t.iva;
-    const totalValue = ft.multiPage ? ft.accumulatedTotal : t.total;
+    const baseValue = ft.accumulatedBase;
+    const ivaValue = ft.accumulatedIva;
+    const totalValue = ft.accumulatedTotal;
 
     addText(root, v1-8, tableY+40, money(baseValue), { fs:isFacturaDocument() ? 12 : 11, anchor:'end', fill:s.textColor });
     addText(root, v1 + c2/2, tableY+40, 'IVA 21%', { fs:isFacturaDocument() ? 12 : 11, anchor:'middle', fill:s.textColor });
@@ -10290,7 +10446,7 @@ COLOCACIÓN INCLUIDA` }
       addText(root, v2 - 6, y+39, money(ft.currentBase), { fs:fsBody, anchor:'end' });
     } else {
       addText(root, v1 + c2/2, y+16, 'BASE IMPONIBLE', { fs:fsHeader, anchor:'middle' });
-      addText(root, v2-6, y+39, money(t.base), { fs:fsBody, anchor:'end' });
+      addText(root, v2-6, y+39, money(ft.accumulatedBase), { fs:fsBody, anchor:'end' });
     }
 
     addText(root, v2 + c3/2, y+16, ivaEnabled() ? 'TIPO IMPUESTO' : '', { fs:fsHeader, anchor:'middle' });
@@ -10298,7 +10454,7 @@ COLOCACIÓN INCLUIDA` }
 
     addText(root, x+8, y+39, fmtDate(state.validez), { fs:Math.max(8, Math.min(14, Number(numStyle('dateSize')) || 0)), fw:'700' });
     if(ivaEnabled()) addText(root, v3-6, y+39, 'IVA 21%', { fs:fsBody, anchor:'end' });
-    if(ivaEnabled()) addText(root, x+w-8, y+39, money(ft.multiPage ? ft.accumulatedIva : t.iva), { fs:fsBody, anchor:'end' });
+    if(ivaEnabled()) addText(root, x+w-8, y+39, money(ft.accumulatedIva), { fs:fsBody, anchor:'end' });
 
     const legalWidth = Math.max(120, v2 - x - 20);
     const legalFs = Number(numStyle('legalTextSize')) || fsSmall;
@@ -10310,7 +10466,7 @@ COLOCACIÓN INCLUIDA` }
     const pagosFs = Math.max(8, Number(numStyle('pagosTextSize')) || 12);
     hit(root, v2, y, c3, h, () => openEdit('pagos', 'Pagos'), 'Editar pagos');
     addText(root, pagosCenterX, splitY+15, 'PAGOS', { fs:pagosFs, anchor:'middle' });
-    const pagosTotal = ft.multiPage ? ft.accumulatedTotal : t.total;
+    const pagosTotal = ft.accumulatedTotal;
     const pago1Pct = Math.max(0, Math.min(100, Number(state.pago1Percent || 0)));
     const pago2Pct = Math.max(0, Math.min(100, Number(state.pago2Percent != null ? state.pago2Percent : (100 - pago1Pct))));
     const pago1Amount = pagosTotal * (pago1Pct / 100);
@@ -10329,10 +10485,10 @@ COLOCACIÓN INCLUIDA` }
       addText(root, rightX, splitY+72, 'TOTAL ' + money(ft.accumulatedTotal), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     } else {
       addText(root, v3+12, splitY+20, 'Base imponible', { fs:fsBody });
-      addText(root, rightX, splitY+20, money(t.base), { fs:fsBody, anchor:'end' });
+      addText(root, rightX, splitY+20, money(ft.accumulatedBase), { fs:fsBody, anchor:'end' });
       if(ivaEnabled()) addText(root, v3+12, splitY+38, 'Total IVA', { fs:fsBody });
-      if(ivaEnabled()) addText(root, rightX, splitY+38, money(t.iva), { fs:fsBody, anchor:'end' });
-      addText(root, rightX, splitY+72, 'TOTAL ' + money(t.total), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
+      if(ivaEnabled()) addText(root, rightX, splitY+38, money(ft.accumulatedIva), { fs:fsBody, anchor:'end' });
+      addText(root, rightX, splitY+72, 'TOTAL ' + money(ft.accumulatedTotal), { fs:fsTotal, fw:'700', anchor:'end', fill:'#111827' });
     }
 
     hit(root, x, y, c1, headH + valuesH, () => openEdit('validez', 'Válido hasta'), 'Editar validez');
@@ -12483,53 +12639,219 @@ $('btnCloseSheet').addEventListener('click', function(){
     closeSettings();
     openEdit('style', 'Estilo plantilla');
   }, false);
-  $('btnAddPage').addEventListener('click', function(){
+  function showPageChoiceModal(){
+    return new Promise(function(resolve){
+      const old = document.getElementById('pageChoiceModalV478');
+      if(old) old.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'pageChoiceModalV478';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;';
+      overlay.innerHTML = '<div style="width:min(430px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">'
+        + '<div style="font-size:20px;font-weight:800;margin-bottom:8px">Nueva página</div>'
+        + '<div style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:18px">¿Cómo quieres que funcione la siguiente hoja?</div>'
+        + '<button data-choice="continuar" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800">Continuar presupuesto</button>'
+        + '<button data-choice="independent" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Nueva página independiente</button>'
+        + '<button data-choice="cancel" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>'
+        + '</div>';
+      document.body.appendChild(overlay);
+      function close(value){ overlay.remove(); resolve(value); }
+      overlay.querySelectorAll('[data-choice]').forEach(function(btn){ btn.addEventListener('click', function(){ close(btn.getAttribute('data-choice')); }); });
+      overlay.addEventListener('click', function(e){ if(e.target === overlay) close('cancel'); });
+    });
+  }
+
+  function showPageSelectModal(){
+    return new Promise(function(resolve){
+      const old = document.getElementById('pageSelectModalV478');
+      if(old) old.remove();
+      const count = getAppPageCount();
+      const overlay = document.createElement('div');
+      overlay.id = 'pageSelectModalV478';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;';
+      let buttons = '';
+      for(let i=0;i<count;i++){
+        buttons += '<button data-page="'+i+'" style="display:block;width:100%;padding:13px;margin:7px 0;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a;font-size:15px;font-weight:800;text-align:left">Página '+(i+1)+' — '+(getPageMode(i)==='independent'?'independiente':'continuar')+'</button>';
+      }
+      overlay.innerHTML = '<div style="width:min(430px,100%);max-height:85vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">'
+        + '<div style="font-size:20px;font-weight:800;margin-bottom:8px">Duplicar página</div>'
+        + '<div style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:14px">Elige la página que quieres copiar. La copia será una nueva página independiente.</div>'
+        + buttons
+        + '<button data-cancel="1" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>'
+        + '</div>';
+      document.body.appendChild(overlay);
+      function close(value){ overlay.remove(); resolve(value); }
+      overlay.querySelectorAll('[data-page]').forEach(function(btn){ btn.addEventListener('click', function(){ close(Number(btn.getAttribute('data-page'))); }); });
+      overlay.querySelector('[data-cancel]').addEventListener('click', function(){ close(null); });
+      overlay.addEventListener('click', function(e){ if(e.target === overlay) close(null); });
+    });
+  }
+
+  $('btnAddPage').addEventListener('click', async function(){
     hideReturnAppButton();
     closeSettings();
+
+    ensurePageModes();
+    const choice = await showPageChoiceModal();
+    if(choice === 'cancel') return;
 
     if(isSimpleBudget()){
       const perPage = getSimpleRowsPerPage();
       const newPageIndex = getAppPageCount();
       const startIndex = newPageIndex * perPage;
-
       const nextItems = Array.isArray(state.items) ? state.items.slice() : [];
-      while(nextItems.length <= startIndex){
-        nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
-      }
-
+      while(nextItems.length < startIndex) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
+      for(let i=0;i<perPage;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
       state.items = ensureConceptList(nextItems);
       state.simpleExtraPages = Math.max(Number(state.simpleExtraPages || 1), newPageIndex + 1);
-      render();
-      toast('Página sencilla añadida');
+      ensurePageModes();
+      state.pageModes[newPageIndex] = choice === 'independent' ? 'independent' : 'continuar';
+      await render();
+      toast(choice === 'independent' ? 'Página independiente añadida' : 'Página añadida');
       return;
     }
 
+    ensurePageModes();
+    if(choice === 'cancel') return;
+    const newPageIndex = getVisualStoredPageCount();
     const nextItems = getAllItems().slice();
-    for(let i=0;i<CONCEPTS_PER_PAGE;i++){
-      nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
-    }
+    for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    render();
-    toast('Página añadida');
+    // v4.7.8: la nueva página debe ocupar exactamente su índice real.
+    // No hacemos push después de ensurePageModes(), porque ensurePageModes()
+    // ya puede haber creado la entrada para esa página al crecer state.items.
+    ensurePageModes();
+    state.pageModes[newPageIndex] = choice === 'independent' ? 'independent' : 'continuar';
+    await render();
+    toast(choice === 'independent' ? 'Página independiente añadida' : 'Página añadida');
   }, false);
+
+
+  function cloneConceptForPageV478(it, fallbackIndex){
+    try { return JSON.parse(JSON.stringify(it)); }
+    catch(_) { return Object.assign({}, it || blankConcept(fallbackIndex)); }
+  }
+
+  async function duplicatePageAtIndexV478(sourcePage, mode){
+    sourcePage = Math.max(0, Number(sourcePage || 0));
+    mode = mode === 'independent' ? 'independent' : 'continuar';
+    const perPage = isSimpleBudget() ? getSimpleRowsPerPage() : CONCEPTS_PER_PAGE;
+
+    if(isSimpleBudget()){
+      const pages = simplePaginateItems().map(function(pg){ return (pg || []).slice(); });
+      while(pages.length <= sourcePage) pages.push([]);
+      const source = pages[sourcePage].slice();
+      const copy = [];
+      source.forEach(function(it, i){ copy.push(cloneConceptForPageV478(it, (sourcePage+1)*perPage+i)); });
+      while(copy.length < perPage) copy.push(blankConcept(conceptCodeForIndex((sourcePage+1)*perPage+copy.length)));
+      pages.splice(sourcePage+1, 0, copy);
+
+      const flat = [];
+      pages.forEach(function(pg){ pg.forEach(function(it){ flat.push(it); }); });
+      state.items = ensureConceptList(flat);
+      state.simpleExtraPages = pages.length;
+      ensurePageModes();
+      state.pageModes.splice(sourcePage+1, 0, mode);
+      state.pageModes = state.pageModes.slice(0, pages.length);
+    }else{
+      const items = getAllItems().slice();
+      const startIndex = sourcePage * perPage;
+      const source = items.slice(startIndex, startIndex+perPage);
+      const copy = source.map(function(it,i){ return cloneConceptForPageV478(it, startIndex+perPage+i); });
+      while(copy.length < perPage) copy.push(blankConcept(conceptCodeForIndex(startIndex+perPage+copy.length)));
+      items.splice(startIndex+perPage, 0, ...copy);
+      state.items = ensureConceptList(items);
+      ensurePageModes();
+      state.pageModes.splice(sourcePage+1, 0, mode);
+    }
+
+    ensurePageModes();
+    await render();
+    toast(mode === 'independent' ? 'Página duplicada como independiente' : 'Página duplicada como continuación');
+  }
+
+  function openDuplicateChoiceV478(sourcePage){
+    return new Promise(function(resolve){
+      const overlay = $('pageDuplicateChoiceV478');
+      if(!overlay){ resolve(null); return; }
+      overlay.style.display='flex';
+      overlay.setAttribute('aria-hidden','false');
+      $('pageDuplicateChoiceTextV478').textContent='Página '+(Number(sourcePage)+1)+': elige cómo quieres crear la copia.';
+      let closed=false;
+      function close(value){
+        if(closed) return;
+        closed=true;
+        overlay.style.display='none';
+        overlay.setAttribute('aria-hidden','true');
+        resolve(value);
+      }
+      $('pageDuplicateContinueV478').onclick=function(){close('continuar');};
+      $('pageDuplicateIndependentV478').onclick=function(){close('independent');};
+      $('pageDuplicateCancelV478').onclick=function(){close(null);};
+      overlay.onclick=function(e){if(e.target===overlay)close(null);};
+    });
+  }
+
+  async function duplicatePageFromButtonV478(pageIndex){
+    const choice = await openDuplicateChoiceV478(pageIndex);
+    if(choice) await duplicatePageAtIndexV478(pageIndex, choice);
+  }
+
+  function installPageDuplicateButtonsV478(){
+    const shell=document.querySelector('.page-shell');
+    const svgEl=document.getElementById('docSvg');
+    if(!shell || !svgEl) return;
+    const old=document.getElementById('pageDuplicateOverlayV478');
+    if(old) old.remove();
+
+    const pageCount=getAppPageCount();
+    const vb=svgEl.viewBox && svgEl.viewBox.baseVal;
+    const vbW=(vb && vb.width)||794;
+    const vbH=(vb && vb.height)||(1123*pageCount);
+    const pageH=(typeof PAGE_H==='number'?PAGE_H:1123);
+    const gap=pageCount>1?(typeof PAGE_GAP==='number'?PAGE_GAP:24):0;
+    const h=svgEl.clientHeight || Math.round(shell.clientWidth*vbH/vbW);
+
+    const layer=document.createElement('div');
+    layer.id='pageDuplicateOverlayV478';
+    layer.className='page-dup-overlay';
+    layer.style.height=h+'px';
+
+    for(let p=0;p<pageCount;p++){
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='page-dup-button';
+      b.textContent='⧉ Duplicar';
+      b.title='Duplicar página '+(p+1);
+      b.style.top=(((p*(pageH+gap))/vbH)*h)+'px';
+      b.addEventListener('click',function(e){
+        e.preventDefault(); e.stopPropagation();
+        duplicatePageFromButtonV478(p);
+      });
+      layer.appendChild(b);
+    }
+    shell.style.position='relative';
+    shell.appendChild(layer);
+  }
+
   $('btnRemovePage').addEventListener('click', async function(){
     hideReturnAppButton();
     closeSettings();
 
     if(isSimpleBudget()){
-      const realPages = simplePaginateItems().length;
       const shownPages = getAppPageCount();
-      if(shownPages <= 1){
-        toast('Ya hay una sola página');
-        return;
-      }
-      if(Number(state.simpleExtraPages || 1) > realPages){
-        state.simpleExtraPages = Math.max(1, Number(state.simpleExtraPages || 1) - 1);
-        await render();
-        toast('Última página eliminada');
-        return;
-      }
-      toast('La última página tiene conceptos');
+      if(shownPages <= 1){ toast('Ya hay una sola página'); return; }
+      const lastPageIndex = shownPages - 1;
+      const perPage = getSimpleRowsPerPage();
+      const start = lastPageIndex * perPage;
+      const pageItems = getAllItems().slice(start, start + perPage);
+      const hasContent = pageItems.some(conceptHasContent);
+      if(hasContent){ toast('La última página tiene conceptos'); return; }
+      state.items = getAllItems().slice(0, start);
+      state.simpleExtraPages = Math.max(1, lastPageIndex);
+      if(Array.isArray(state.pageModes)) state.pageModes = state.pageModes.slice(0, state.simpleExtraPages);
+      state.items = ensureConceptList(state.items);
+      await render();
+      toast('Última página eliminada');
       return;
     }
 
