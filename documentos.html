@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.7.8</title>
+  <title>Documentos Rey v4.7.9</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -797,7 +797,7 @@ body.editing-field .return-app-btn{
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
 
-/* v4.7.8 - botón flotante de duplicar sobre cada página */
+/* v4.7.9 - botón flotante de duplicar sobre cada página */
 .page-dup-overlay{position:absolute;left:0;right:0;pointer-events:none;z-index:30;}
 .page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
 .page-dup-button:active{transform:scale(.97);}
@@ -4177,7 +4177,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.7.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.7.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5756,7 +5756,7 @@ body.sheet-open .brand-idb-pill{
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
-  // v4.7.8 - Cálculo de totales por página completamente aislado.
+  // v4.7.9 - Cálculo de totales por página completamente aislado.
   // Una página marcada como independiente NUNCA puede heredar importes de otra.
   // Para exportación trabajamos siempre con el índice original de la página,
   // evitando mezclar el índice PDF con el índice de state.items.
@@ -12716,7 +12716,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const nextItems = getAllItems().slice();
     for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    // v4.7.8: la nueva página debe ocupar exactamente su índice real.
+    // v4.7.9: la nueva página debe ocupar exactamente su índice real.
     // No hacemos push después de ensurePageModes(), porque ensurePageModes()
     // ya puede haber creado la entrada para esa página al crecer state.items.
     ensurePageModes();
@@ -13476,7 +13476,7 @@ $('btnExport').addEventListener('click', async function(){
           html = '<div class="saved-item template-card" style="padding:14px">No hay documentos todavía.</div>';
         }
       }else{
-        entries.slice(0, 80).forEach(function(entry){
+        entries.forEach(function(entry){
           const it = entry.item;
           const idx = entry.originalIndex;
           html += `
