@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.7.9</title>
+  <title>Documentos Rey v4.8</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -797,10 +797,13 @@ body.editing-field .return-app-btn{
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
 
-/* v4.7.9 - botón flotante de duplicar sobre cada página */
-.page-dup-overlay{position:absolute;left:0;right:0;pointer-events:none;z-index:30;}
+/* v4.8 - botón flotante de duplicar sobre cada página */
+.page-dup-overlay{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:30;}
 .page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
 .page-dup-button:active{transform:scale(.97);}
+.page-del-button{pointer-events:auto;position:absolute;left:10px;top:6px;border:1px solid #fecaca;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#b91c1c;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
+.page-del-button:active{transform:scale(.97);}
+
 @media print{.page-dup-overlay{display:none!important;}}
 
 .page-floating-actions{
@@ -4177,7 +4180,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.7.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4405,12 +4408,21 @@ body.sheet-open .brand-idb-pill{
 </div>
 
 
+
+<div id="pageDeleteChoiceV479" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:100000;align-items:center;justify-content:center;padding:18px;">
+  <div style="width:min(430px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px">Eliminar página</div>
+    <div id="pageDeleteChoiceTextV479" style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:16px"></div>
+    <button id="pageDeleteConfirmV479" type="button" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#dc2626;color:#fff;font-size:16px;font-weight:800">Eliminar página</button>
+    <button id="pageDeleteCancelV479" type="button" style="display:block;width:100%;padding:12px;margin-top:8px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>
+  </div>
+</div>
 <div id="pageDuplicateChoiceV478" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:99999;align-items:center;justify-content:center;padding:18px;">
   <div style="width:min(430px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
     <div style="font-size:20px;font-weight:800;margin-bottom:8px">Duplicar página</div>
     <div id="pageDuplicateChoiceTextV478" style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:18px">¿Cómo quieres crear la copia?</div>
     <button type="button" id="pageDuplicateContinueV478" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800">Duplicar como continuación</button>
-    <button type="button" id="pageDuplicateIndependentV478" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Duplicar como independiente</button>
+    <button type="button" id="pageDuplicateIndependentV478" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Copiar presupuesto</button>
     <button type="button" id="pageDuplicateCancelV478" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>
   </div>
 </div>
@@ -5756,7 +5768,7 @@ body.sheet-open .brand-idb-pill{
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
-  // v4.7.9 - Cálculo de totales por página completamente aislado.
+  // v4.8 - Cálculo de totales por página completamente aislado.
   // Una página marcada como independiente NUNCA puede heredar importes de otra.
   // Para exportación trabajamos siempre con el índice original de la página,
   // evitando mezclar el índice PDF con el índice de state.items.
@@ -12650,7 +12662,8 @@ $('btnCloseSheet').addEventListener('click', function(){
         + '<div style="font-size:20px;font-weight:800;margin-bottom:8px">Nueva página</div>'
         + '<div style="font-size:14px;color:#64748b;line-height:1.45;margin-bottom:18px">¿Cómo quieres que funcione la siguiente hoja?</div>'
         + '<button data-choice="continuar" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800">Continuar presupuesto</button>'
-        + '<button data-choice="independent" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Nueva página independiente</button>'
+        + '<button data-choice="independent" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Crear nuevo</button>'
+        + '<button data-choice="copy" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#f59e0b;color:#fff;font-size:16px;font-weight:800">Copiar presupuesto</button>'
         + '<button data-choice="cancel" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>'
         + '</div>';
       document.body.appendChild(overlay);
@@ -12693,6 +12706,13 @@ $('btnCloseSheet').addEventListener('click', function(){
     ensurePageModes();
     const choice = await showPageChoiceModal();
     if(choice === 'cancel') return;
+    if(choice === 'copy'){
+      const sourcePage = Math.max(0, getAppPageCount() - 1);
+      await duplicatePageAtIndexV478(sourcePage, 'independent');
+      toast('Presupuesto copiado como nueva alternativa');
+      return;
+    }
+
 
     if(isSimpleBudget()){
       const perPage = getSimpleRowsPerPage();
@@ -12716,7 +12736,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const nextItems = getAllItems().slice();
     for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    // v4.7.9: la nueva página debe ocupar exactamente su índice real.
+    // v4.8: la nueva página debe ocupar exactamente su índice real.
     // No hacemos push después de ensurePageModes(), porque ensurePageModes()
     // ya puede haber creado la entrada para esa página al crecer state.items.
     ensurePageModes();
@@ -12800,21 +12820,41 @@ $('btnCloseSheet').addEventListener('click', function(){
     const shell=document.querySelector('.page-shell');
     const svgEl=document.getElementById('docSvg');
     if(!shell || !svgEl) return;
+
     const old=document.getElementById('pageDuplicateOverlayV478');
     if(old) old.remove();
 
     const pageCount=getAppPageCount();
-    const vb=svgEl.viewBox && svgEl.viewBox.baseVal;
-    const vbW=(vb && vb.width)||794;
-    const vbH=(vb && vb.height)||(1123*pageCount);
     const pageH=(typeof PAGE_H==='number'?PAGE_H:1123);
     const gap=pageCount>1?(typeof PAGE_GAP==='number'?PAGE_GAP:24):0;
-    const h=svgEl.clientHeight || Math.round(shell.clientWidth*vbH/vbW);
+    const vb=svgEl.viewBox && svgEl.viewBox.baseVal;
+    const vbH=(vb && vb.height)||(pageCount*pageH+(pageCount-1)*gap);
 
     const layer=document.createElement('div');
     layer.id='pageDuplicateOverlayV478';
     layer.className='page-dup-overlay';
-    layer.style.height=h+'px';
+    layer.style.pointerEvents='none';
+
+    const pairs=[];
+
+    function sync(){
+      if(!document.body.contains(layer) || !document.body.contains(svgEl)) return;
+
+      const sr=shell.getBoundingClientRect();
+      const vr=svgEl.getBoundingClientRect();
+
+      layer.style.left=(vr.left-sr.left)+'px';
+      layer.style.top=(vr.top-sr.top)+'px';
+      layer.style.width=vr.width+'px';
+      layer.style.height=vr.height+'px';
+
+      const scale=vr.height/Math.max(1,vbH);
+      pairs.forEach(function(pair){
+        const top=pair.pageIndex*(pageH+gap)*scale;
+        pair.dup.style.top=top+'px';
+        pair.del.style.top=top+'px';
+      });
+    }
 
     for(let p=0;p<pageCount;p++){
       const b=document.createElement('button');
@@ -12822,15 +12862,139 @@ $('btnCloseSheet').addEventListener('click', function(){
       b.className='page-dup-button';
       b.textContent='⧉ Duplicar';
       b.title='Duplicar página '+(p+1);
-      b.style.top=(((p*(pageH+gap))/vbH)*h)+'px';
       b.addEventListener('click',function(e){
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         duplicatePageFromButtonV478(p);
       });
       layer.appendChild(b);
+
+      const d=document.createElement('button');
+      d.type='button';
+      d.className='page-del-button';
+      d.textContent='🗑 Eliminar';
+      d.title='Eliminar página '+(p+1);
+      d.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        deletePageFromButtonV479(p);
+      });
+      layer.appendChild(d);
+
+      pairs.push({pageIndex:p,dup:b,del:d});
     }
+
     shell.style.position='relative';
     shell.appendChild(layer);
+
+    sync();
+    requestAnimationFrame(sync);
+
+    if(window.ResizeObserver){
+      const ro=new ResizeObserver(sync);
+      ro.observe(svgEl);
+      ro.observe(shell);
+      layer.__resizeObserverV48=ro;
+    }
+
+    if(window.visualViewport && !window.__pageButtonsVVHandlerV48){
+      window.__pageButtonsVVHandlerV48=function(){
+        const ov=document.getElementById('pageDuplicateOverlayV478');
+        const s=document.querySelector('.page-shell');
+        const svg=document.getElementById('docSvg');
+        if(!ov || !s || !svg) return;
+
+        const sr=s.getBoundingClientRect();
+        const vr=svg.getBoundingClientRect();
+        const vb2=svg.viewBox && svg.viewBox.baseVal;
+        const totalH=(vb2 && vb2.height)||1123;
+        const ph=(typeof PAGE_H==='number'?PAGE_H:1123);
+        const gp=(getAppPageCount()>1?(typeof PAGE_GAP==='number'?PAGE_GAP:24):0);
+
+        ov.style.left=(vr.left-sr.left)+'px';
+        ov.style.top=(vr.top-sr.top)+'px';
+        ov.style.width=vr.width+'px';
+        ov.style.height=vr.height+'px';
+
+        const sc=vr.height/Math.max(1,totalH);
+        Array.from(ov.querySelectorAll('.page-dup-button,.page-del-button'))
+          .forEach(function(el,index){
+            const pi=Math.floor(index/2);
+            el.style.top=((pi*(ph+gp))*sc)+'px';
+          });
+      };
+      visualViewport.addEventListener('resize',window.__pageButtonsVVHandlerV48,{passive:true});
+      visualViewport.addEventListener('scroll',window.__pageButtonsVVHandlerV48,{passive:true});
+    }
+  }
+
+
+  async function deletePageAtIndexV479(pageIndex){
+    pageIndex = Math.max(0, Number(pageIndex || 0));
+    const pageCount = getAppPageCount();
+    if(pageCount <= 1){
+      toast('No se puede eliminar la única página');
+      return;
+    }
+
+    if(isSimpleBudget()){
+      const perPage = getSimpleRowsPerPage();
+      const pages = simplePaginateItems().map(function(pg){ return (pg || []).slice(); });
+      if(pageIndex >= pages.length) return;
+      pages.splice(pageIndex, 1);
+
+      const flat = [];
+      pages.forEach(function(pg){
+        for(let i=0;i<perPage;i++){
+          flat.push(pg[i] || blankConcept(conceptCodeForIndex(flat.length)));
+        }
+      });
+      state.items = ensureConceptList(flat);
+      state.simpleExtraPages = Math.max(1, pages.length);
+      ensurePageModes();
+      state.pageModes.splice(pageIndex, 1);
+      state.pageModes = state.pageModes.slice(0, pages.length);
+    }else{
+      const perPage = CONCEPTS_PER_PAGE;
+      const items = getAllItems().slice();
+      const start = pageIndex * perPage;
+      if(start >= items.length) return;
+      items.splice(start, perPage);
+      state.items = ensureConceptList(items);
+      ensurePageModes();
+      state.pageModes.splice(pageIndex, 1);
+    }
+
+    ensurePageModes();
+    await render();
+    toast('Página '+(pageIndex+1)+' eliminada');
+  }
+
+  function openDeleteChoiceV479(pageIndex){
+    return new Promise(function(resolve){
+      const overlay = $('pageDeleteChoiceV479');
+      if(!overlay){ resolve(false); return; }
+      overlay.style.display='flex';
+      overlay.setAttribute('aria-hidden','false');
+      $('pageDeleteChoiceTextV479').textContent =
+        'Vas a eliminar la página '+(Number(pageIndex)+1)+'. Se eliminarán todos sus conceptos y, si los tiene, sus imágenes. Esta acción no se puede deshacer desde aquí.';
+      let closed=false;
+      function close(value){
+        if(closed) return;
+        closed=true;
+        overlay.style.display='none';
+        overlay.setAttribute('aria-hidden','true');
+        resolve(value);
+      }
+      $('pageDeleteConfirmV479').onclick=function(){close(true);};
+      $('pageDeleteCancelV479').onclick=function(){close(false);};
+      overlay.onclick=function(e){if(e.target===overlay)close(false);};
+    });
+  }
+
+  async function deletePageFromButtonV479(pageIndex){
+    const ok = await openDeleteChoiceV479(pageIndex);
+    if(ok) await deletePageAtIndexV479(pageIndex);
   }
 
   $('btnRemovePage').addEventListener('click', async function(){
