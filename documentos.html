@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8</title>
+  <title>Documentos Rey v4.8.4</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -797,7 +797,7 @@ body.editing-field .return-app-btn{
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
 
-/* v4.8 - botón flotante de duplicar sobre cada página */
+/* v4.8.4 - botón flotante de duplicar sobre cada página */
 .page-dup-overlay{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:30;}
 .page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
 .page-dup-button:active{transform:scale(.97);}
@@ -4180,7 +4180,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.4</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5170,6 +5170,7 @@ body.sheet-open .brand-idb-pill{
     ];
   }
 
+
   function openDocStatusSheet(tipo, originalIndex, doc){
     docStatusContext = { tipo:String(tipo || 'presupuesto'), index:Number(originalIndex) };
     const title = documentTypeLabel(tipo) + ' · ' + String((doc && doc.numero) || 'Sin número');
@@ -5768,7 +5769,7 @@ body.sheet-open .brand-idb-pill{
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
-  // v4.8 - Cálculo de totales por página completamente aislado.
+  // v4.8.4 - Cálculo de totales por página completamente aislado.
   // Una página marcada como independiente NUNCA puede heredar importes de otra.
   // Para exportación trabajamos siempre con el índice original de la página,
   // evitando mezclar el índice PDF con el índice de state.items.
@@ -5890,7 +5891,45 @@ body.sheet-open .brand-idb-pill{
     if(el.isContentEditable) return richNormalizeHtml(el.innerHTML || '');
     return el.value || '';
   }
-  function appendRedLineV447(html, inputId){
+  function splitRedLineV481(html){
+  const raw = String(html || '');
+  if(!raw) return {main:'', red:''};
+  try{
+    const box = document.createElement('div');
+    box.innerHTML = raw;
+    const spans = Array.from(box.querySelectorAll('span')).filter(function(el){
+      const c = String((el.style && el.style.color) || '').toLowerCase();
+      return c.includes('220') || c.includes('38') || c.includes('red') || c.includes('#dc2626');
+    });
+    if(!spans.length) return {main:richPlainText(raw), red:''};
+    const redEl = spans[spans.length - 1];
+    let node = redEl, trailing = false;
+    while(node && node !== box){
+      let sib = node.nextSibling;
+      while(sib){
+        if(String(sib.textContent || '').trim()){ trailing = true; break; }
+        sib = sib.nextSibling;
+      }
+      if(trailing) break;
+      node = node.parentNode;
+    }
+    if(trailing) return {main:richPlainText(raw), red:''};
+    const red = richPlainText(redEl.innerHTML || redEl.textContent || '').trim();
+    if(!red) return {main:richPlainText(raw), red:''};
+    redEl.remove();
+    const prev = redEl.previousSibling;
+    if(prev && prev.nodeType === 1 && prev.tagName.toLowerCase() === 'br') prev.remove();
+    else if(prev && prev.nodeType === 3 && !String(prev.nodeValue || '').trim()){
+      const pprev = prev.previousSibling;
+      if(pprev && pprev.nodeType === 1 && pprev.tagName.toLowerCase() === 'br') pprev.remove();
+    }
+    return {main:richPlainText(box.innerHTML || '').trimEnd(), red:red};
+  }catch(e){
+    return {main:richPlainText(raw), red:''};
+  }
+}
+
+function appendRedLineV447(html, inputId){
     const inp = $(inputId);
     const txt = inp ? String(inp.value || '').trim() : '';
     let out = String(html || '');
@@ -7358,6 +7397,23 @@ COLOCACIÓN INCLUIDA` }
     ]);
 
     return out;
+  }
+
+  function bindCatalogImageFallbackV484(root){
+    if(!root) return;
+    Array.from(root.querySelectorAll('img[data-catalog-image]')).forEach(function(img){
+      if(img.dataset.catalogFallbackBound === '1') return;
+      img.dataset.catalogFallbackBound = '1';
+      let candidates = [];
+      try{ candidates = JSON.parse(img.getAttribute('data-catalog-image') || '[]'); }catch(_){ candidates = []; }
+      candidates = Array.isArray(candidates) ? candidates.filter(Boolean) : [];
+      let pos = 0;
+      img.addEventListener('error', function(){
+        pos++;
+        if(pos < candidates.length) img.src = candidates[pos];
+        else img.style.display = 'none';
+      }, false);
+    });
   }
 
   function firstProductImage(p){
@@ -10915,6 +10971,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-light" id="sheetLogoBtn">Cambiar logo</button>
         </div>`;
+
       $('sheetLogoBtn').onclick = () => $('fileLogo').click();
 
     } else if(type === 'themeConfig'){
@@ -11304,8 +11361,9 @@ COLOCACIÓN INCLUIDA` }
       templates.forEach((tpl, idx) => {
         templateOptions += `<option value="${idx}">${esc(tpl.category)} · ${esc(tpl.name)}</option>`;
       });
-      body.innerHTML = `
-        <label>Texto ${it.code}</label><textarea id="editConceptText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
+            const redDataV482 = splitRedLineV481(it.text || '');
+body.innerHTML = `
+        <label>Texto ${it.code}</label><textarea id="editConceptText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(redDataV482.main)}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA">${esc(redDataV482.red)}</textarea></div>
         <select id="conceptTemplateSelect" aria-hidden="true" tabindex="-1" style="display:none">
           ${templateOptions}
         </select>
@@ -11343,8 +11401,10 @@ COLOCACIÓN INCLUIDA` }
       templates.forEach((tpl, idx) => {
         templateOptions += `<option value="${idx}">${esc(tpl.category)} · ${esc(tpl.name)}</option>`;
       });
-      body.innerHTML = `
-        <label>Concepto</label><textarea id="editSimpleText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(richPlainText(it.text || ''))}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA"></textarea></div>
+      const redDataV481Simple = splitRedLineV481(it.text || '');
+      const redDataV482Simple = splitRedLineV481(it.text || '');
+body.innerHTML = `
+        <label>Concepto</label><textarea id="editSimpleText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(redDataV482Simple.main)}</textarea><div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editSimpleRedLine" inputmode="text" rows="1" placeholder="Ej: 164,00 € + IVA">${esc(redDataV482Simple.red)}</textarea></div>
         <select id="conceptTemplateSelect" aria-hidden="true" tabindex="-1" style="display:none">
           ${templateOptions}
         </select>
@@ -11380,6 +11440,7 @@ COLOCACIÓN INCLUIDA` }
           <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
+
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
@@ -11478,7 +11539,7 @@ COLOCACIÓN INCLUIDA` }
           listHtml += `
             <div class="saved-item template-card catalog-card-compact catalog-fact-card" data-catalog-action="${idx}" role="button" tabindex="0">
               <div class="catalog-card-media">
-                ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
+                ${img ? `<img class="catalog-thumb" src="${esc(img)}" data-catalog-image="${esc(JSON.stringify(productImageCandidates(p)))}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
                 <div style="min-width:0;flex:1">
                   <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
                   <div class="catalog-meta">${esc(sub.join(' · '))}</div>
@@ -11487,6 +11548,7 @@ COLOCACIÓN INCLUIDA` }
             </div>`;
         });
         $('catalogListV33').innerHTML = listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay productos encontrados</div>';
+        bindCatalogImageFallbackV484($('catalogListV33'));
         const badge = $('catalogCountV33');
         if(badge) badge.textContent = String(rows.length) + ' / ' + String(products.length);
         Array.from($('catalogListV33').querySelectorAll('[data-catalog-action]')).forEach(card => {
@@ -11534,7 +11596,7 @@ COLOCACIÓN INCLUIDA` }
       const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
       body.innerHTML = `
         <div class="catalog-product-action-head">
-          ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
+          ${img ? `<img class="catalog-thumb" src="${esc(img)}" data-catalog-image="${esc(JSON.stringify(productImageCandidates(p)))}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
           <div style="min-width:0;flex:1">
             <div class="catalog-product-action-title">${esc(p.nombre || 'Sin nombre')}</div>
             <div class="catalog-product-action-sub">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}${p.proveedor ? ' · Prov: ' + esc(String(p.proveedor)) : ''}${(p.referencia || p.ref) ? ' · Ref: ' + esc(String(p.referencia || p.ref)) : ''}</div>
@@ -11601,7 +11663,7 @@ COLOCACIÓN INCLUIDA` }
           listHtml += `
             <div class="saved-item template-card catalog-fact-card" data-catalog-pick="${idx}" style="margin-top:8px">
               <div class="catalog-card-media">
-                ${img ? `<img class="catalog-thumb" src="${esc(img)}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
+                ${img ? `<img class="catalog-thumb" src="${esc(img)}" data-catalog-image="${esc(JSON.stringify(productImageCandidates(p)))}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
                 <div style="min-width:0;flex:1">
                   <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
                   <div class="catalog-meta">${esc(formatMoneyValue(p.precio || 0))} · Stock ${esc(String(p.stock || 0))}</div>
@@ -11611,6 +11673,7 @@ COLOCACIÓN INCLUIDA` }
         });
 
         $('catalogPickerList').innerHTML = listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay productos encontrados</div>';
+        bindCatalogImageFallbackV484($('catalogPickerList'));
 
         Array.from($('catalogPickerList').querySelectorAll('[data-catalog-pick]')).forEach(btn => {
           btn.onclick = async function(){
@@ -11659,17 +11722,32 @@ COLOCACIÓN INCLUIDA` }
           <div><label>Ganancia (%)</label><input id="editProductGanancia" inputmode="decimal" value="${esc(String(p.gananciaPct != null ? p.gananciaPct : 100))}"></div>
           <div><label>Precio compra (€)</label><input id="editProductCompra" inputmode="decimal" value="${esc(String(p.precioCompra || 0))}"></div>
         </div>
-        <label>Imagen (archivo en la misma carpeta)</label>
+        <label>Enlace de imagen</label>
+        <input id="editProductImageLink" value="${esc(productImageDraft || '')}" placeholder="Ej: img/recogedor.jpg" autocomplete="off">
         <div class="template-actions">
-          <button type="button" class="btn btn-neutral" id="btnProductImagePick">Seleccionar</button>
+          <button type="button" class="btn btn-neutral" id="btnProductImagePick">Seleccionar archivo</button>
           <button type="button" class="btn btn-light" id="btnProductImageRemove">Quitar</button>
         </div>
-        <div id="productImagePreviewWrap">${productImageDraft ? `<img class="catalog-thumb" src="${esc(productImageDraft)}" alt="" style="width:88px;height:88px">` : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`}</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:800;margin:5px 0 8px">Puedes escribir una ruta como <b>img/recogedor.jpg</b>, una URL o seleccionar una imagen.</div>
+        <div id="productImagePreviewWrap">${productImageDraft ? `<img class="catalog-thumb" src="${esc(productImageDraft)}" alt="" style="width:88px;height:88px;object-fit:contain;background:#fff">` : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`}</div>
         <div class="sheet-actions">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
       $('btnProductImagePick').onclick = () => $('fileCatalogProduct').click();
+      const imageLinkInputV484 = $('editProductImageLink');
+      if(imageLinkInputV484){
+        imageLinkInputV484.addEventListener('input', function(){
+          productImageDraft = String(imageLinkInputV484.value || '').trim();
+          const wrap = $('productImagePreviewWrap');
+          if(wrap){
+            const src = normalizeImagePath(productImageDraft);
+            wrap.innerHTML = src
+              ? `<img class="catalog-thumb" src="${esc(src)}" alt="" style="width:88px;height:88px;object-fit:contain;background:#fff">`
+              : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`;
+          }
+        }, false);
+      }
       $('btnProductImageRemove').onclick = function(){
         productImageDraft = '';
         openEdit('catalogForm', (productEditIndex != null && productEditIndex >= 0) ? 'Editar producto' : 'Nuevo producto', productEditIndex);
@@ -12384,9 +12462,9 @@ COLOCACIÓN INCLUIDA` }
         precioCompra: Math.max(0, Number(String(($('editProductCompra') && $('editProductCompra').value) || '0').replace(',','.')) || 0),
         gananciaPct: Number(String(($('editProductGanancia') && $('editProductGanancia').value) || '100').replace(',','.')) || 0,
         stock: Math.max(0, Number($('editProductStock').value || '0') || 0),
-        imgThumb: String(productImageDraft || ''),
-        imgFull: String(productImageDraft || ''),
-        img: String(productImageDraft || '')
+        imgThumb: String((($('editProductImageLink') && $('editProductImageLink').value) || productImageDraft || '')).trim(),
+        imgFull: String((($('editProductImageLink') && $('editProductImageLink').value) || productImageDraft || '')).trim(),
+        img: String((($('editProductImageLink') && $('editProductImageLink').value) || productImageDraft || '')).trim()
       };
       if(!p.nombre){
         toast('Pon un nombre de producto');
@@ -12736,7 +12814,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const nextItems = getAllItems().slice();
     for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    // v4.8: la nueva página debe ocupar exactamente su índice real.
+    // v4.8.4: la nueva página debe ocupar exactamente su índice real.
     // No hacemos push después de ensurePageModes(), porque ensurePageModes()
     // ya puede haber creado la entrada para esa página al crecer state.items.
     ensurePageModes();
@@ -13614,6 +13692,47 @@ $('btnExport').addEventListener('click', async function(){
     // abrimos igualmente la pantalla para poder crear el primero.
 
     let showOnlyProvisionales = false;
+    let selectedEstadoFilter = '';
+
+      function openBudgetStateFilterSheet(){
+        const opts = statusOptionsForDocumentType('presupuesto');
+        if($('docStatusTitle')) $('docStatusTitle').textContent = 'Filtrar presupuestos por estado';
+        if($('docStatusInfo')) $('docStatusInfo').textContent = 'Elige un estado para ver solo los presupuestos que lo tienen.';
+        if($('docStatusContent')){
+          $('docStatusContent').innerHTML = `
+            <div style="font-size:13px;color:#64748b;font-weight:800;line-height:1.35;margin-bottom:10px">
+              Estado seleccionado: <span class="saved-status-badge">${esc(selectedEstadoFilter ? documentStatusLabel(selectedEstadoFilter) : 'TODOS')}</span>
+            </div>
+            <div class="doc-status-actions-grid">
+              <button type="button" class="doc-status-action-btn" data-budget-filter-status="">TODOS</button>
+              ${opts.map(function(o){
+                return `<button type="button" class="doc-status-action-btn ${o.cls}" data-budget-filter-status="${o.value}">${o.label}</button>`;
+              }).join('')}
+            </div>
+            <div class="sheet-actions" style="grid-template-columns:1fr;margin-top:14px">
+              <button type="button" class="btn btn-light" id="btnCancelBudgetStateFilter">Cancelar</button>
+            </div>`;
+
+          Array.from(document.querySelectorAll('[data-budget-filter-status]')).forEach(function(btn){
+            btn.addEventListener('click', function(){
+              selectedEstadoFilter = String(btn.getAttribute('data-budget-filter-status') || '').toLowerCase();
+              showOnlyProvisionales = false;
+              closeDocStatusSheet();
+              renderFilteredList();
+            }, false);
+          });
+
+          const cancel = $('btnCancelBudgetStateFilter');
+          if(cancel) cancel.onclick = closeDocStatusSheet;
+        }
+
+        if($('sheetBackdrop')) $('sheetBackdrop').classList.add('show');
+        if($('docStatusSheet')){
+          $('docStatusSheet').classList.add('show');
+          $('docStatusSheet').setAttribute('aria-hidden','false');
+        }
+        document.body.classList.add('sheet-open');
+      }
 
     function renderFilteredList(){
       const q = String(($('docListSearch') && $('docListSearch').value) || '').trim().toLowerCase();
@@ -13621,6 +13740,7 @@ $('btnExport').addEventListener('click', async function(){
 
       let entries = indexedAll.filter(function(entry){
         if(tipo === 'presupuesto' && showOnlyProvisionales && !isPlaceholderDocumentNumber(entry.item && entry.item.numero)) return false;
+        if(tipo === 'presupuesto' && selectedEstadoFilter && String(entry.item && entry.item.estado || '').toLowerCase() !== selectedEstadoFilter) return false;
         return documentMatchesSearch(entry.item, q);
       });
       entries = sortDocumentEntries(entries, order);
@@ -13852,7 +13972,10 @@ $('btnExport').addEventListener('click', async function(){
       </button>`}
       <div class="doc-list-tools ${isPresupuestoList ? 'provisional-tools' : ''}">
         <input id="docListSearch" type="search" placeholder="Buscar por número, cliente, fecha, total...">
-        ${isPresupuestoList ? `<button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000">Provisionales</button>` : `
+        ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000">Provisionales</button>
+          <button type="button" class="btn btn-provisionales-0000" id="btnEstadosPresupuestos">Estados</button>
+        </div>` : `
         <select id="docListSort">
           <option value="num_desc">Nº mayor primero</option>
           <option value="num_asc">Nº menor primero</option>
@@ -13899,7 +14022,14 @@ $('btnExport').addEventListener('click', async function(){
     if($('btnProvisionales0000')){
       $('btnProvisionales0000').onclick = function(){
         showOnlyProvisionales = !showOnlyProvisionales;
+        if(showOnlyProvisionales) selectedEstadoFilter = '';
         renderFilteredList();
+      };
+    }
+
+    if($('btnEstadosPresupuestos')){
+      $('btnEstadosPresupuestos').onclick = function(){
+        openBudgetStateFilterSheet();
       };
     }
 
