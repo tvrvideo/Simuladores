@@ -1,0 +1,3162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cálculo Precios - Ventanas Rey</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #0284c7;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding-top: 65px; padding-bottom: 75px; padding-left: 12px; padding-right: 12px; }
+    
+    header { position: fixed; top: 0; left: 0; right: 0; background: var(--primary); color: white; padding: 12px 15px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    
+    .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid var(--border); padding: 8px 12px; z-index: 1000; display: flex; gap: 6px; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+    .tab-btn { padding: 10px 12px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; text-align: center; color: #475569; }
+    .tab-btn.active { background: var(--secondary); color: white; }
+    
+    .tab-content { display: none; background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; }
+    .tab-content.active { display: block; }
+    
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.85em; }
+    input, select, button, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
+    
+    .input-medida { background-color: #fef08a !important; font-weight: bold; font-size: 1.1em; text-align: center; }
+    .search-input { background-color: #ffffff; border: 2px solid var(--secondary); margin-bottom: 10px; font-size: 0.9em; }
+    
+    button { background: var(--secondary); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px; }
+    button.danger { background: #ef4444; }
+    button.warning { background: #f59e0b; }
+    button.secondary { background: #64748b; }
+    button.success { background: #10b981; }
+    
+    .btn-group { display: flex; gap: 6px; width: 100%; margin-top: 4px; }
+    .btn-toggle { flex: 1; padding: 10px 4px; background: #f1f5f9; color: #475569; border: 2px solid var(--border); border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .btn-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .price-card { background: #e0f2fe; border: 2px solid #38bdf8; padding: 8px 12px; border-radius: 8px; text-align: center; margin-bottom: 12px; }
+    .price-card h2 { font-size: 2.1em; color: var(--primary); line-height: 1.1; margin: 0; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; font-size: 0.82em; }
+    th { background: #f1f5f9; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .row-medidas { display: flex; gap: 10px; }
+    .row-medidas .form-group { flex: 1; }
+    
+    .box { border: 1px solid var(--border); padding: 12px; border-radius: 6px; margin-bottom: 12px; background: #fafafa; }
+    .sub-tab { display: flex; gap: 5px; margin: 10px 0; flex-wrap: wrap; }
+    .sub-tab-btn { padding: 6px 12px; background: #cbd5e1; border: none; border-radius: 4px; cursor: pointer; }
+    .sub-tab-btn.active { background: var(--primary); color: white; }
+    textarea { font-family: monospace; font-size: 12px; resize: vertical; }
+    
+    .selector-especifico { background: #e0f2fe; padding: 10px; border-radius: 6px; border: 1px solid #bae6fd; margin-top: 8px; }
+    .formula-error { color: var(--error); font-weight: bold; background-color: #fee2e2; border-color: var(--error); }
+    .tag-minimo { color: #d97706; font-size: 0.8em; font-weight: bold; display: block; }
+    .badge-mat { padding: 2px 5px; border-radius: 3px; font-size: 0.75em; font-weight: bold; color: white; }
+    .badge-alu { background-color: #0284c7; }
+    .badge-pvc { background-color: #16a34a; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER FIJO -->
+  <header>
+    <h1>Cálculo Precios</h1>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.2</span>
+  </header>
+
+  <!-- NAVEGACIÓN INFERIOR FIJA -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(event, 'inicio')">Inicio</button>
+    <button class="tab-btn" onclick="switchTab(event, 'despiece')">Despiece</button>
+    <button class="tab-btn" onclick="switchTab(event, 'almacen')">Almacén</button>
+    <button class="tab-btn" onclick="switchTab(event, 'series')">Series</button>
+  </div>
+
+  <!-- INICIO -->
+  <div id="inicio" class="tab-content active">
+    <div class="price-card">
+      <h2 id="totalPrecioMain">0.00 €</h2>
+    </div>
+
+    <div class="row-medidas">
+      <div class="form-group">
+        <label>Ancho (mm)</label>
+        <input type="number" id="inpAncho" class="input-medida" value="1000" oninput="calcular()">
+      </div>
+      <div class="form-group">
+        <label>Alto (mm)</label>
+        <input type="number" id="inpAlto" class="input-medida" value="1000" oninput="calcular()">
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top: 5px;">
+      <div class="form-group">
+        <label>Serie</label>
+        <select id="selSerie" onchange="alCambiarSerieInicio()"></select>
+      </div>
+      <div class="form-group">
+        <label>Color / Acabado</label>
+        <select id="selColor" onchange="calcular()"></select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Número de Hojas</label>
+      <div class="btn-group" id="groupHojasBotones">
+        <button type="button" class="btn-toggle" data-val="0" onclick="seleccionarHojasBtn(0)">0 (Fijo)</button>
+        <button type="button" class="btn-toggle" data-val="1" onclick="seleccionarHojasBtn(1)">1</button>
+        <button type="button" class="btn-toggle active" data-val="2" onclick="seleccionarHojasBtn(2)">2</button>
+        <button type="button" class="btn-toggle" data-val="3" onclick="seleccionarHojasBtn(3)">3</button>
+        <button type="button" class="btn-toggle" data-val="4" onclick="seleccionarHojasBtn(4)">4</button>
+      </div>
+    </div>
+
+    <!-- BOTONES PULSADORES DE OPCIONES/COMPONENTES -->
+    <div class="form-group" style="margin-top: 15px;">
+      <label>Opciones y Componentes</label>
+      <div class="btn-group">
+        <button type="button" id="btnPulsadorVidrio" class="btn-toggle active" onclick="toggleOpcionPulsador(this, 'containerSelVidrio')">Vidrio</button>
+        <button type="button" id="btnPulsadorChapa" class="btn-toggle" onclick="toggleOpcionPulsador(this, 'containerSelChapa')">Chapa / Panel</button>
+        <button type="button" id="btnPulsadorPersiana" class="btn-toggle" onclick="toggleOpcionPulsador(this, 'containerSelPersiana')">Persiana</button>
+      </div>
+    </div>
+
+    <!-- SELECTORES -->
+    <div class="form-group selector-especifico" id="containerSelVidrio">
+      <label style="color: #0369a1;">Seleccionar Vidrio Específico</label>
+      <select id="selVidrioMaterial" onchange="calcular()"></select>
+    </div>
+
+    <div class="form-group selector-especifico" id="containerSelChapa" style="display:none;">
+      <label style="color: #0369a1;">Seleccionar Chapa / Panel Específico</label>
+      <select id="selChapaMaterial" onchange="calcular()"></select>
+    </div>
+
+    <div class="form-group selector-especifico" id="containerSelPersiana" style="display:none;">
+      <label style="color: #0369a1;">Seleccionar Modelo de Persiana</label>
+      <select id="selPersianaMaterial" onchange="calcular()"></select>
+    </div>
+  </div>
+
+  <!-- DESPIECE -->
+  <div id="despiece" class="tab-content">
+    <h3>Despiece Calculado</h3>
+    
+    <h4>Perfiles a cortar</h4>
+    <table id="tblDespiecePerfiles">
+      <thead>
+        <tr>
+          <th>Perfil (Color)</th>
+          <th>Cant.</th>
+          <th>Base</th>
+          <th>Fórmula</th>
+          <th>Corte (mm)</th>
+          <th>Coste (€)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h4>Relleno (Vidrio / Chapa)</h4>
+    <table id="tblDespieceVidrios">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Cant.</th>
+          <th>Ancho (mm)</th>
+          <th>Alto (mm)</th>
+          <th>Superficie Unit. / Facturada</th>
+          <th>Coste (€)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h4>Accesorios y Persianas</h4>
+    <table id="tblDespieceAccesorios">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Cantidad / M²</th>
+          <th>Precio (€)</th>
+          <th>Coste (€)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- ALMACÉN GENERAL CON BUSCADOR -->
+  <div id="almacen" class="tab-content">
+    <h3>Almacén General de Materiales</h3>
+    
+    <div class="sub-tab">
+      <button class="sub-tab-btn active" onclick="switchAlmacenCat(event, 'barras')">Barras / Perfiles</button>
+      <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'vidrios')">Vidrios y Chapas</button>
+      <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'accesorios')">Accesorios / Persianas</button>
+    </div>
+
+    <!-- BUSCADOR DE ALMACÉN -->
+    <div class="form-group">
+      <input type="text" id="busquedaAlmacen" class="search-input" placeholder="🔍 Buscar por nombre o referencia..." oninput="filtrarAlmacen()">
+    </div>
+
+    <div class="box" id="boxFormAlmacen">
+      <h5 id="albTituloForm">Añadir / Editar Elemento</h5>
+      <input type="hidden" id="editItemIndex" value="-1">
+      
+      <!-- FORMULARIO BARRAS / PERFILES -->
+      <div id="formBarrasFields" class="grid">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Nombre del Perfil / Referencia</label>
+          <input type="text" id="albBarraNombre" placeholder="Ej: Marco G-90 o Ref. 7001">
+        </div>
+        <div class="form-group">
+          <label>Material</label>
+          <select id="albBarraMaterial">
+            <option value="Aluminio">Aluminio</option>
+            <option value="PVC">PVC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Longitud Barra (mm)</label>
+          <input type="number" id="albBarraLongitud" value="6500">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Precios por Color (€/m)</label>
+          <div id="contenedorPreciosColores" style="display:flex; flex-direction:column; gap:6px;"></div>
+          <button type="button" class="secondary" style="margin-top:6px; font-size:0.8em;" onclick="agregarCampoColorAlmacen()">+ Añadir Color/Acabado Especial</button>
+        </div>
+      </div>
+
+      <!-- FORMULARIO VIDRIOS -->
+      <div id="formVidriosFields" class="grid" style="display:none;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Descripción Material</label>
+          <input type="text" id="albVidrioNombre" placeholder="Ej: Climalit 4/12/4 o Sandwich 20mm">
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="albVidrioTipo">
+            <option value="vidrio">Vidrio</option>
+            <option value="chapa">Chapa / Panel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio / m² (€)</label>
+          <input type="number" id="albVidrioPrecio" step="0.01" placeholder="32.00">
+        </div>
+        <div class="form-group">
+          <label>Mínimo Facturable (m² / ud)</label>
+          <input type="number" id="albVidrioMinimo" step="0.01" value="0.70" placeholder="0.70">
+        </div>
+      </div>
+
+      <!-- FORMULARIO ACCESORIOS -->
+      <div id="formAccesoriosFields" class="grid" style="display:none;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Nombre Elemento / Persiana</label>
+          <input type="text" id="albAccNombre" placeholder="Ej: Ruleta G-90 o Persiana PVC">
+        </div>
+        <div class="form-group">
+          <label>Tipo Cálculo</label>
+          <select id="albAccTipo">
+            <option value="fijo">Precio Fijo (por Ud.)</option>
+            <option value="m2">Por M² (Superficie total)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio (€)</label>
+          <input type="number" id="albAccPrecio" step="0.01" placeholder="45.00">
+        </div>
+      </div>
+
+      <div style="display:flex; gap: 10px; margin-top: 10px;">
+        <button onclick="guardarElementoAlmacen()">Guardar en Almacén</button>
+        <button type="button" class="secondary" onclick="limpiarFormAlmacen()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- TABLA ALMACÉN -->
+    <div style="overflow-x: auto;">
+      <table id="tblAlmacen">
+        <thead><tr id="thAlmacen"></tr></thead>
+        <tbody id="tbAlmacen"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONFIGURACIÓN DE SERIES -->
+  <div id="series" class="tab-content">
+    <h3>Configuración de Series</h3>
+    
+    <div class="box" style="background:#eef2ff; border-color:#c7d2fe;">
+      <h5 style="color:var(--primary); margin-bottom:8px;">📦 Copia de Seguridad JSON</h5>
+      <div class="grid">
+        <div>
+          <button class="success" onclick="exportarSeriesJSON()">Descargar Archivo JSON</button>
+          <button class="secondary" onclick="copiarJSONAlPortapapeles()" style="margin-top:5px;">Copiar JSON</button>
+        </div>
+        <div>
+          <label>Importar desde Archivo:</label>
+          <input type="file" id="fileImportJSON" accept=".json,application/json,text/plain" onchange="importarSeriesDesdeArchivo(event)">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <textarea id="txtJsonImport" rows="3" placeholder="Pega el JSON aquí si no puedes descargar el archivo directamente..."></textarea>
+        <button onclick="importarSeriesDesdeTexto()" style="margin-top:5px;">Cargar Datos desde Texto</button>
+      </div>
+    </div>
+
+    <div class="box grid">
+      <div class="form-group">
+        <label>Nombre de Nueva Serie</label>
+        <input type="text" id="serNombre" placeholder="Ej: Serie PVC 70mm / Serie G-90">
+      </div>
+      <div class="form-group">
+        <label>Acción</label>
+        <button onclick="crearSerie()">Crear Serie</button>
+      </div>
+    </div>
+
+    <hr style="margin: 15px 0;">
+
+    <div class="form-group">
+      <label>Seleccionar Serie a Configurar:</label>
+      <select id="selSerieConfig" onchange="cargarConfigSerie()"></select>
+    </div>
+
+    <div id="editorSerie" style="display:none;">
+      <div class="box">
+        <label>Hojas Permitidas en esta Serie:</label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:5px;">
+          <label><input type="checkbox" id="chkHojas0" onchange="actualizarHojasPermitidas()"> 0 (Fijo)</label>
+          <label><input type="checkbox" id="chkHojas1" onchange="actualizarHojasPermitidas()"> 1 Hoja</label>
+          <label><input type="checkbox" id="chkHojas2" onchange="actualizarHojasPermitidas()"> 2 Hojas</label>
+          <label><input type="checkbox" id="chkHojas3" onchange="actualizarHojasPermitidas()"> 3 Hojas</label>
+          <label><input type="checkbox" id="chkHojas4" onchange="actualizarHojasPermitidas()"> 4 Hojas</label>
+        </div>
+      </div>
+
+      <h4>Configurando Reglas para Hojas Seleccionadas:</h4>
+      <div class="sub-tab" id="subTabHojas"></div>
+
+      <!-- CORTES DE PERFILES -->
+      <div class="box" id="boxFormCorte">
+        <h5 id="lblTituloCorte">Perfiles / Cortes Requeridos</h5>
+        <input type="hidden" id="editReglaCorteIndex" value="-1">
+        <div class="grid">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Perfil (del Almacén)</label>
+            <select id="cfgPerfilSelect"></select>
+          </div>
+          <div class="form-group">
+            <label>Cantidad</label>
+            <input type="number" id="cfgPerfilCant" value="2">
+          </div>
+          <div class="form-group">
+            <label>Aplica a</label>
+            <select id="cfgPerfilBase">
+              <option value="ANCHO">ANCHO</option>
+              <option value="ALTO">ALTO</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Fórmula</label>
+            <input type="text" id="cfgPerfilFormula" placeholder="Ej: ANCHO - 40" oninput="validarInputFormula(this)">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button id="btnGuardarReglaCorte" onclick="guardarReglaCorte()">+ Añadir Regla Corte</button>
+          <button type="button" class="secondary" onclick="limpiarFormReglaCorte()">Cancelar</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Perfil</th><th>Cant.</th><th>Base</th><th>Fórmula</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tblReglasCorte"></tbody>
+        </table>
+      </div>
+
+      <!-- VIDRIOS Y CHAPAS -->
+      <div class="box" id="boxFormVidrio">
+        <h5 id="lblTituloVidrio">Vidrios / Chapas Requeridos</h5>
+        <input type="hidden" id="editReglaVidrioIndex" value="-1">
+        <div class="grid">
+          <div class="form-group">
+            <label>Material Predeterminado</label>
+            <select id="cfgVidrioSelect"></select>
+          </div>
+          <div class="form-group">
+            <label>Cantidad</label>
+            <input type="number" id="cfgVidrioCant" value="1">
+          </div>
+          <div class="form-group">
+            <label>Fórmula Ancho</label>
+            <input type="text" id="cfgVidrioAncho" placeholder="Ej: Ancho - 60" oninput="validarInputFormula(this)">
+          </div>
+          <div class="form-group">
+            <label>Fórmula Alto</label>
+            <input type="text" id="cfgVidrioAlto" placeholder="Ej: Alto - 60" oninput="validarInputFormula(this)">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button id="btnGuardarReglaVidrio" onclick="guardarReglaVidrio()">+ Añadir Regla Relleno</button>
+          <button type="button" class="secondary" onclick="limpiarFormReglaVidrio()">Cancelar</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Material</th><th>Cant.</th><th>Fórmula Ancho</th><th>Fórmula Alto</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tblReglasVidrios"></tbody>
+        </table>
+      </div>
+
+      <!-- ACCESORIOS Y PERSIANAS -->
+      <div class="box" id="boxFormAcc">
+        <h5 id="lblTituloAcc">Accesorios y Persianas</h5>
+        <input type="hidden" id="editReglaAccIndex" value="-1">
+        <div class="grid">
+          <div class="form-group">
+            <label>Accesorio / Persiana</label>
+            <select id="cfgAccSelect"></select>
+          </div>
+          <div class="form-group">
+            <label>Cantidad (si es fijo)</label>
+            <input type="number" id="cfgAccCant" value="1">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button id="btnGuardarReglaAcc" onclick="guardarReglaAccesorio()">+ Añadir Elemento</button>
+          <button type="button" class="secondary" onclick="limpiarFormReglaAcc()">Cancelar</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Concepto</th><th>Cantidad / Config</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tblReglasAccesorios"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DATALIST SUGERENCIAS DE COLORES -->
+  <datalist id="listaSugerenciasColores">
+    <option value="Blanco">
+    <option value="Verde Pino">
+    <option value="Gris Antracita">
+    <option value="Nogal">
+    <option value="Roble Dorado">
+    <option value="Anodizado Plata">
+    <option value="Madera">
+    <option value="Especial">
+  </datalist>
+
+  <script>
+    const APP_VERSION = "v1.3";
+
+    let db = {
+      "coloresDisponibles": [
+        "Blanco",
+        "Verde Pino",
+        "Gris Antracita",
+        "Nogal",
+        "Roble Dorado",
+        "Anodizado Plata",
+        "Madera",
+        "Especial",
+        "Estandar",
+        "Natural",
+        "Inox"
+      ],
+      "almacenBarras": [
+        {
+          "id": "b1",
+          "nombre": "Marco superior G-90",
+          "precios": {
+            "Blanco": 9,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 660
+        },
+        {
+          "id": "b3",
+          "nombre": "Marco lateral G-90",
+          "precios": {
+            "Blanco": 9.2,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b4",
+          "nombre": "Hoja Lateral G-90",
+          "precios": {
+            "Blanco": 7.8,
+            "Anodizado Plata": 8.9,
+            "Madera": 10.5,
+            "Especial": 9.5
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b5",
+          "nombre": "Hoja Central G-90",
+          "precios": {
+            "Blanco": 8.1,
+            "Anodizado Plata": 9.2,
+            "Madera": 10.8,
+            "Especial": 9.8
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785118321655",
+          "nombre": "Marco inferior G-90",
+          "precios": {
+            "Blanco": 12,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1785118426657",
+          "nombre": "Hoja ruleta G-90",
+          "precios": {
+            "Blanco": 5.6,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1785120220535",
+          "nombre": "Marco COR-60 7022",
+          "precios": {
+            "Blanco": 23.32,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785120242343",
+          "nombre": "Hoja ventana COR-60 7035",
+          "precios": {
+            "Blanco": 28.56,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785355421068",
+          "nombre": "Unión 4 hojas G-90",
+          "precios": {
+            "Blanco": 5.88,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6350
+        },
+        {
+          "id": "b1785361629776",
+          "nombre": "Marco puerta COR-60 7042",
+          "precios": {
+            "Blanco": 28.9,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785361714886",
+          "nombre": "Zanca puerta COR-60 7043",
+          "precios": {
+            "Blanco": 31.72,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785361764089",
+          "nombre": "Zanca ventana COR-60 7033",
+          "precios": {
+            "Blanco": 26,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362001390",
+          "nombre": "Hoja puerta COR-60 7059",
+          "precios": {
+            "Blanco": 37.42,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362081613",
+          "nombre": "Inversor COR-60 7044",
+          "precios": {
+            "Blanco": 26.42,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362254558",
+          "nombre": "Junquillo recto 26 2015",
+          "precios": {
+            "Blanco": 5.16,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362320194",
+          "nombre": "Junquillo recto 12 2019",
+          "precios": {
+            "Blanco": 4.22,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362454560",
+          "nombre": "Grapa junquillo 2012",
+          "precios": {
+            "Blanco": 2,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362593411",
+          "nombre": "Alargadera 60 7056",
+          "precios": {
+            "Blanco": 4.88,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362681937",
+          "nombre": "Condensación COR-60 7064",
+          "precios": {
+            "Blanco": 21.36,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785362989075",
+          "nombre": "Marco ventana COR-2300 2322",
+          "precios": {
+            "Blanco": 9.98,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785363053501",
+          "nombre": "Marco puerta COR-2300 2342",
+          "precios": {
+            "Blanco": 12.54,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785363132826",
+          "nombre": "Marco escaparate COR-2300 2348",
+          "precios": {
+            "Blanco": 17.34,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785363226238",
+          "nombre": "Zanca ventana COR-2300 2333",
+          "precios": {
+            "Blanco": 12.52,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785363311650",
+          "nombre": "Zanca puerta COR-2300 2343",
+          "precios": {
+            "Blanco": 15.24,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785363402795",
+          "nombre": "Inversor COR-2300 2324",
+          "precios": {
+            "Blanco": 11.52,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785364008113",
+          "nombre": "Condensación COR-2300 2356",
+          "precios": {
+            "Blanco": 8.42,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785364232546",
+          "nombre": "Hoja ventana COR-2300 2396",
+          "precios": {
+            "Blanco": 14.5,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1785657184591",
+          "nombre": "Hoja puerta COR-2300 2398",
+          "precios": {
+            "Blanco": 16.48,
+            "Anodizado Plata": 0,
+            "Madera": 0,
+            "Especial": 0
+          },
+          "longitud": 6500
+        },
+        {
+          "id": "b1786195094886",
+          "nombre": "Marco 600",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 7.84,
+            "Estandar": 8.46,
+            "Natural": 9.12,
+            "Inox": 10.67,
+            "Madera": 17.28
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786195238854",
+          "nombre": "Hoja 600",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 8.06,
+            "Estandar": 8.78,
+            "Natural": 9.44,
+            "Inox": 11.18,
+            "Madera": 19.44
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786195490529",
+          "nombre": "Zanca 600",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 8.06,
+            "Estandar": 8.78,
+            "Natural": 9.44,
+            "Inox": 11.18,
+            "Madera": 19.44
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786196719990",
+          "nombre": "Junquillo 600 luna",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 2.67,
+            "Estandar": 2.98,
+            "Natural": 3.5,
+            "Inox": 4.38,
+            "Madera": 6.99
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786196894237",
+          "nombre": "Junquillo 600 Climalit",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 2.35,
+            "Estandar": 2.66,
+            "Natural": 3.2,
+            "Inox": 4.03,
+            "Madera": 6.67
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786197071546",
+          "nombre": "Marco 800",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 10.48,
+            "Estandar": 11.3,
+            "Natural": 11.98,
+            "Inox": 12.81,
+            "Madera": 22.78
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786197187440",
+          "nombre": "Hoja 800",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 10.42,
+            "Estandar": 11.28,
+            "Natural": 11.97,
+            "Inox": 14.02,
+            "Madera": 23.89
+          },
+          "longitud": 6600
+        },
+        {
+          "id": "b1786197285437",
+          "nombre": "Zanca 800",
+          "material": "Aluminio",
+          "precios": {
+            "Blanco": 10.42,
+            "Estandar": 11.28,
+            "Natural": 11.97,
+            "Inox": 14.02,
+            "Madera": 23.89
+          },
+          "longitud": 6600
+        }
+      ],
+      "almacenVidrios": [
+        {
+          "id": "v1",
+          "nombre": "Climalit 4/16/4",
+          "tipo": "vidrio",
+          "precio": 60,
+          "minimoM2": 0.7
+        },
+        {
+          "id": "v2",
+          "nombre": "Climalit 4/16/4 4S",
+          "tipo": "vidrio",
+          "precio": 75,
+          "minimoM2": 0.7
+        },
+        {
+          "id": "v3",
+          "nombre": "Sandwich 20mm",
+          "tipo": "chapa",
+          "precio": 28,
+          "minimoM2": 0
+        },
+        {
+          "id": "v4",
+          "nombre": "Chapa Aluminio",
+          "tipo": "chapa",
+          "precio": 25,
+          "minimoM2": 0
+        }
+      ],
+      "almacenAccesorios": [
+        {
+          "id": "a1",
+          "nombre": "Ruleta G-90",
+          "precio": 9,
+          "tipo": "fijo"
+        },
+        {
+          "id": "a2",
+          "nombre": "Kit oscilobatiente",
+          "precio": 75
+        },
+        {
+          "id": "a3",
+          "nombre": "Bisagra CE",
+          "precio": 12
+        },
+        {
+          "id": "a1785120132661",
+          "nombre": "Persiana",
+          "tipo": "m2",
+          "precio": 60
+        },
+        {
+          "id": "a1785120144097",
+          "nombre": "Persiana motor",
+          "tipo": "m2",
+          "precio": 120
+        },
+        {
+          "id": "a1785652713734",
+          "nombre": "Cierre G-90",
+          "tipo": "fijo",
+          "precio": 10
+        },
+        {
+          "id": "a1785652979893",
+          "nombre": "Cortavientos G-90",
+          "tipo": "fijo",
+          "precio": 9
+        },
+        {
+          "id": "a1785653005426",
+          "nombre": "Venturi",
+          "tipo": "fijo",
+          "precio": 1
+        },
+        {
+          "id": "a1785653224278",
+          "nombre": "Cepillo 7X4 por hoja",
+          "tipo": "fijo",
+          "precio": 10
+        },
+        {
+          "id": "a1785653548917",
+          "nombre": "Escuadra tetón",
+          "tipo": "fijo",
+          "precio": 5
+        },
+        {
+          "id": "a1785654936807",
+          "nombre": "Cremona CE",
+          "tipo": "fijo",
+          "precio": 20
+        },
+        {
+          "id": "a1785655022442",
+          "nombre": "Goma por hoja",
+          "tipo": "fijo",
+          "precio": 10
+        },
+        {
+          "id": "a1785658517668",
+          "nombre": "Juego manillas puerta",
+          "tipo": "fijo",
+          "precio": 35
+        },
+        {
+          "id": "a1785658582324",
+          "nombre": "Cerradura CE",
+          "tipo": "fijo",
+          "precio": 35
+        }
+      ],
+      "series": [
+        {
+          "id": "s1",
+          "nombre": "Serie G-90",
+          "hojasPermitidas": [
+            2,
+            3,
+            4
+          ],
+          "reglas": {
+            "2": {
+              "cortes": [
+                {
+                  "perfilId": "b4",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "ALTO - 68"
+                },
+                {
+                  "perfilId": "b1785118426657",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -10"
+                },
+                {
+                  "perfilId": "b5",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b3",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b1785118321655",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 2,
+                  "formulaAncho": "(Ancho /2) -88",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1",
+                  "cantidad": 4
+                },
+                {
+                  "accesorioId": "a1785652713734",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653224278",
+                  "cantidad": 2
+                }
+              ]
+            },
+            "3": {
+              "cortes": [
+                {
+                  "perfilId": "b1",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b3",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785118321655",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b4",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b5",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b1785355421068",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b1785118426657",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "(Ancho /3) -12"
+                },
+                {
+                  "perfilId": "b1785118426657",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "(Ancho /3) -22"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 3,
+                  "formulaAncho": "(Ancho /3) -70",
+                  "formulaAlto": "-150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1",
+                  "cantidad": 6
+                },
+                {
+                  "accesorioId": "a1785652713734",
+                  "cantidad": 3
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 3
+                },
+                {
+                  "accesorioId": "a1785653224278",
+                  "cantidad": 3
+                }
+              ]
+            },
+            "4": {
+              "cortes": [
+                {
+                  "perfilId": "b1785118321655",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b1",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b3",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b4",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b5",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b1785355421068",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -68"
+                },
+                {
+                  "perfilId": "b1785118426657",
+                  "cantidad": 8,
+                  "base": "ANCHO",
+                  "formula": "Ancho / 4 -2"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 4,
+                  "formulaAncho": "Ancho /4 -76",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1",
+                  "cantidad": 8
+                },
+                {
+                  "accesorioId": "a1785652713734",
+                  "cantidad": 3
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 3
+                },
+                {
+                  "accesorioId": "a1785653224278",
+                  "cantidad": 4
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "s1785120272151",
+          "nombre": "COR-60",
+          "hojasPermitidas": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "reglas": {
+            "0": {
+              "cortes": [
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362681937",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "-70",
+                  "formulaAlto": "-70"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 4
+                }
+              ]
+            },
+            "1": {
+              "cortes": [
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "-42"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "-42"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362681937",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "-60",
+                  "formulaAlto": "-60"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 8
+                },
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785654936807",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 1
+                }
+              ]
+            },
+            "2": {
+              "cortes": [
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362681937",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -42"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -24"
+                },
+                {
+                  "perfilId": "b1785362081613",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -112"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -115"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -174"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 2,
+                  "formulaAncho": "Ancho /2 -131",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 4
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 8
+                },
+                {
+                  "accesorioId": "a1785654936807",
+                  "cantidad": 1
+                }
+              ]
+            },
+            "3": {
+              "cortes": [
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120220535",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362681937",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 6,
+                  "base": "ALTO",
+                  "formula": "Alto -42"
+                },
+                {
+                  "perfilId": "b1785120242343",
+                  "cantidad": 6,
+                  "base": "ANCHO",
+                  "formula": "Ancho /3 -27"
+                },
+                {
+                  "perfilId": "b1785362081613",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -112"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 6,
+                  "base": "ANCHO",
+                  "formula": "Ancho /3 -117"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 6,
+                  "base": "ALTO",
+                  "formula": "Alto -173"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 3,
+                  "formulaAncho": "Ancho /3 -134",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785654936807",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 6
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 3
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 16
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 3
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "s1785363532688",
+          "nombre": "COR-2300",
+          "hojasPermitidas": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "reglas": {
+            "0": {
+              "cortes": [
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -92"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -52"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "-70",
+                  "formulaAlto": "-70"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 4
+                }
+              ]
+            },
+            "1": {
+              "cortes": [
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -42"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -42"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -134"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -174"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "-150",
+                  "formulaAlto": "-150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 8
+                }
+              ]
+            },
+            "2": {
+              "cortes": [
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -2,4"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -42"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -115"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -174"
+                },
+                {
+                  "perfilId": "b1785363402795",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -109"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 2,
+                  "formulaAncho": "Ancho /2 -131",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 4
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 12
+                }
+              ]
+            },
+            "3": {
+              "cortes": [
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362989075",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785362593411",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785363311650",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -52"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 6,
+                  "base": "ALTO",
+                  "formula": "Alto -42"
+                },
+                {
+                  "perfilId": "b1785364232546",
+                  "cantidad": 6,
+                  "base": "ANCHO",
+                  "formula": "Ancho /3 -26"
+                },
+                {
+                  "perfilId": "b1785363402795",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Alto -109"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 6,
+                  "base": "ALTO",
+                  "formula": "Alto -173"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 6,
+                  "base": "ANCHO",
+                  "formula": "Ancho /3 -117"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 3,
+                  "formulaAncho": "Ancho /3 -134",
+                  "formulaAlto": "Alto -150"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 16
+                },
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 6
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "s1785656720098",
+          "nombre": "Puerta 2300",
+          "hojasPermitidas": [
+            0,
+            1,
+            2
+          ],
+          "reglas": {
+            "0": {
+              "cortes": [
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -45"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -85"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "Ancho -80",
+                  "formulaAlto": "Alto -80"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 4
+                }
+              ]
+            },
+            "1": {
+              "cortes": [
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785657184591",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -78"
+                },
+                {
+                  "perfilId": "b1785657184591",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -45"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -218"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -225"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "Ancho -218",
+                  "formulaAlto": "Alto -186"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 4
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 6
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785658517668",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785658582324",
+                  "cantidad": 1
+                }
+              ]
+            },
+            "2": {
+              "cortes": [
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1785363132826",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785657184591",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -43"
+                },
+                {
+                  "perfilId": "b1785657184591",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -45"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -183"
+                },
+                {
+                  "perfilId": "b1785362320194",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -225"
+                },
+                {
+                  "perfilId": "b1785363402795",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -108"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "Ancho /2 -183",
+                  "formulaAlto": "Alto -186"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 8
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 12
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785658517668",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785658582324",
+                  "cantidad": 1
+                }
+              ]
+            },
+            "3": {
+              "cortes": [],
+              "vidrios": [],
+              "accesorios": []
+            }
+          }
+        },
+        {
+          "id": "s1786197347491",
+          "nombre": "Ventana 600",
+          "hojasPermitidas": [
+            0,
+            1,
+            2
+          ],
+          "reglas": {
+            "0": {
+              "cortes": [
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -52"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -80"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "Ancho -57",
+                  "formulaAlto": "Alto -57"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 4
+                }
+              ]
+            },
+            "1": {
+              "cortes": [
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786195238854",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -40"
+                },
+                {
+                  "perfilId": "b1786195238854",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -40"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho -120"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto -148"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 1,
+                  "formulaAncho": "Ancho -125",
+                  "formulaAlto": "Alto -120"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 8
+                },
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785654936807",
+                  "cantidad": 1
+                }
+              ]
+            },
+            "2": {
+              "cortes": [
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786195094886",
+                  "cantidad": 2,
+                  "base": "ALTO",
+                  "formula": "Alto"
+                },
+                {
+                  "perfilId": "b1785364008113",
+                  "cantidad": 1,
+                  "base": "ANCHO",
+                  "formula": "Ancho"
+                },
+                {
+                  "perfilId": "b1786195238854",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -27"
+                },
+                {
+                  "perfilId": "b1786195238854",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -40"
+                },
+                {
+                  "perfilId": "b1786195490529",
+                  "cantidad": 1,
+                  "base": "ALTO",
+                  "formula": "Alto -96"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 4,
+                  "base": "ALTO",
+                  "formula": "Alto -148"
+                },
+                {
+                  "perfilId": "b1786196719990",
+                  "cantidad": 4,
+                  "base": "ANCHO",
+                  "formula": "Ancho /2 -67"
+                }
+              ],
+              "vidrios": [
+                {
+                  "vidrioId": "v1",
+                  "cantidad": 2,
+                  "formulaAncho": "Ancho /2 -72",
+                  "formulaAlto": "Alto -125"
+                }
+              ],
+              "accesorios": [
+                {
+                  "accesorioId": "a3",
+                  "cantidad": 4
+                },
+                {
+                  "accesorioId": "a1785653005426",
+                  "cantidad": 2
+                },
+                {
+                  "accesorioId": "a1785653548917",
+                  "cantidad": 12
+                },
+                {
+                  "accesorioId": "a1785654936807",
+                  "cantidad": 1
+                },
+                {
+                  "accesorioId": "a1785655022442",
+                  "cantidad": 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    };
+
+    let almacenCatActual = 'barras';
+    let hojasConfigActual = 2;
+    let hojasInicioSeleccionadas = 2;
+
+    function init() {
+      document.getElementById('appVersionHeader').innerText = APP_VERSION;
+      actualizarSelectColoresInicio();
+      renderSelectSeries();
+      poblarSelectsRelleno();
+      alCambiarSerieInicio();
+      renderAlmacen();
+      cargarConfigSerie();
+      calcular();
+    }
+
+    function scrollToElement(elemId) {
+      const el = document.getElementById(elemId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function actualizarSelectColoresInicio() {
+      const selCol = document.getElementById('selColor');
+      selCol.innerHTML = '';
+      db.coloresDisponibles.forEach(c => {
+        selCol.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+    }
+
+    function poblarSelectsRelleno() {
+      const selV = document.getElementById('selVidrioMaterial');
+      const selC = document.getElementById('selChapaMaterial');
+      const selP = document.getElementById('selPersianaMaterial');
+      
+      selV.innerHTML = ''; selC.innerHTML = ''; selP.innerHTML = '';
+
+      db.almacenVidrios.forEach(m => {
+        const esChapa = m.tipo === 'chapa' || m.nombre.toLowerCase().includes('chapa') || m.nombre.toLowerCase().includes('panel') || m.nombre.toLowerCase().includes('sandwich');
+        const minTxt = (m.minimoM2 && m.minimoM2 > 0) ? ` | Mín: ${m.minimoM2}m²` : '';
+        const optHtml = `<option value="${m.id}">${m.nombre} (${m.precio.toFixed(2)} €/m²${minTxt})</option>`;
+        if (esChapa) selC.innerHTML += optHtml;
+        else selV.innerHTML += optHtml;
+      });
+
+      db.almacenAccesorios.forEach(a => {
+        const esPersiana = a.tipo === 'm2' || a.nombre.toLowerCase().includes('persiana');
+        if (esPersiana) {
+          selP.innerHTML += `<option value="${a.id}">${a.nombre} (${a.precio.toFixed(2)} €${a.tipo === 'm2' ? '/m²' : ' ud'})</option>`;
+        }
+      });
+
+      if (selV.options.length === 0) selV.innerHTML = '<option value="">Sin vidrios registrados</option>';
+      if (selC.options.length === 0) selC.innerHTML = '<option value="">Sin chapas registradas</option>';
+      if (selP.options.length === 0) selP.innerHTML = '<option value="">Sin persianas registradas</option>';
+    }
+
+    function toggleOpcionPulsador(btn, containerId) {
+      btn.classList.toggle('active');
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.style.display = btn.classList.contains('active') ? 'block' : 'none';
+      }
+      calcular();
+    }
+
+    function evaluarFormula(formulaStr, ANCHO, ALTO) {
+      if (!formulaStr) return { valor: 0, error: true };
+      try {
+        let cleanStr = formulaStr.toString().trim();
+        if (cleanStr.startsWith('-') || cleanStr.startsWith('+')) {
+          cleanStr = ANCHO + cleanStr;
+        }
+        let parsedStr = cleanStr.replace(/ANCHO/gi, ANCHO).replace(/ALTO/gi, ALTO);
+        let res = Function('"use strict"; return (' + parsedStr + ')')();
+        if (isNaN(res)) return { valor: 0, error: true };
+        return { valor: res, error: false };
+      } catch (e) {
+        return { valor: 0, error: true };
+      }
+    }
+
+    function validarInputFormula(input) {
+      const res = evaluarFormula(input.value, 1000, 1000);
+      if (res.error && input.value.trim() !== '') {
+        input.classList.add('formula-error');
+      } else {
+        input.classList.remove('formula-error');
+      }
+    }
+
+    function switchTab(e, tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      e.target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function switchAlmacenCat(e, cat) {
+      almacenCatActual = cat;
+      document.querySelectorAll('#almacen .sub-tab-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      document.getElementById('busquedaAlmacen').value = '';
+      limpiarFormAlmacen();
+      renderAlmacen();
+    }
+
+    function seleccionarHojasBtn(cant) {
+      hojasInicioSeleccionadas = cant;
+      document.querySelectorAll('#groupHojasBotones .btn-toggle').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-val')) === cant) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      calcular();
+    }
+
+    function alCambiarSerieInicio() {
+      const serieId = document.getElementById('selSerie').value;
+      const serie = db.series.find(s => s.id === serieId);
+      
+      if (serie && serie.hojasPermitidas) {
+        document.querySelectorAll('#groupHojasBotones .btn-toggle').forEach(btn => {
+          let val = parseInt(btn.getAttribute('data-val'));
+          if (serie.hojasPermitidas.includes(val)) btn.style.display = 'block';
+          else btn.style.display = 'none';
+        });
+        if (!serie.hojasPermitidas.includes(hojasInicioSeleccionadas)) {
+          seleccionarHojasBtn(serie.hojasPermitidas[0]);
+        } else {
+          calcular();
+        }
+      } else {
+        calcular();
+      }
+    }
+
+    function calcular() {
+      const serieId = document.getElementById('selSerie').value;
+      const colorSel = document.getElementById('selColor').value;
+      const ancho = parseFloat(document.getElementById('inpAncho').value) || 0;
+      const alto = parseFloat(document.getElementById('inpAlto').value) || 0;
+
+      const tieneVidrio = document.getElementById('btnPulsadorVidrio').classList.contains('active');
+      const tieneChapa = document.getElementById('btnPulsadorChapa').classList.contains('active');
+      const tienePersiana = document.getElementById('btnPulsadorPersiana').classList.contains('active');
+
+      const vidrioMaterialId = document.getElementById('selVidrioMaterial').value;
+      const chapaMaterialId = document.getElementById('selChapaMaterial').value;
+      const persianaMaterialId = document.getElementById('selPersianaMaterial').value;
+
+      const serie = db.series.find(s => s.id === serieId);
+      const reglas = (serie && serie.reglas && serie.reglas[hojasInicioSeleccionadas]) ? serie.reglas[hojasInicioSeleccionadas] : { cortes: [], vidrios: [], accesorios: [] };
+
+      let total = 0;
+
+      const tbC = document.querySelector('#tblDespiecePerfiles tbody');
+      const tbV = document.querySelector('#tblDespieceVidrios tbody');
+      const tbA = document.querySelector('#tblDespieceAccesorios tbody');
+
+      tbC.innerHTML = ''; tbV.innerHTML = ''; tbA.innerHTML = '';
+
+      // 1. Perfiles
+      (reglas.cortes || []).forEach(c => {
+        const perf = db.almacenBarras.find(b => b.id === c.perfilId) || { nombre: 'Desconocido', precios: {} };
+        const precioMetro = (perf.precios && perf.precios[colorSel] !== undefined) ? perf.precios[colorSel] : (perf.precios ? perf.precios['Blanco'] || 0 : 0);
+        
+        const resCorte = evaluarFormula(c.formula, ancho, alto);
+        const coste = (resCorte.valor / 1000) * c.cantidad * precioMetro;
+        total += coste;
+
+        let estiloCorte = resCorte.error ? 'style="color: var(--error); font-weight: bold;"' : '';
+        let textoCorte = resCorte.error ? 'Fórmula incorrecta' : `${Math.round(resCorte.valor)} mm`;
+
+        tbC.innerHTML += `<tr>
+          <td>${perf.nombre} (${perf.material || 'Alu'}) [${colorSel}]</td>
+          <td>${c.cantidad}</td>
+          <td>${c.base}</td>
+          <td ${estiloCorte}>${c.formula}</td>
+          <td ${estiloCorte}>${textoCorte}</td>
+          <td>${coste.toFixed(2)} €</td>
+        </tr>`;
+      });
+
+      // 2. Rellenos
+      let numRellenosCalculados = 0;
+
+      function calcularMedidaRelleno(formulaStr, dimTotal) {
+        if (!formulaStr) return { valor: 0, error: true };
+        let str = formulaStr.toString().trim();
+        if (str.startsWith('-') || str.startsWith('+')) {
+          return evaluarFormula(dimTotal + str, ancho, alto);
+        }
+        return evaluarFormula(str, ancho, alto);
+      }
+
+      function procesarRelleno(itemRegla, materialObj) {
+        if (!materialObj || !materialObj.id) return;
+        
+        const resW = calcularMedidaRelleno(itemRegla.formulaAncho, ancho);
+        const resH = calcularMedidaRelleno(itemRegla.formulaAlto, alto);
+        
+        const m2UnitarioReal = (resW.valor / 1000) * (resH.valor / 1000);
+        const minRegla = (materialObj.minimoM2 !== undefined) ? parseFloat(materialObj.minimoM2) : 0.70;
+        
+        const m2UnitarioFacturar = Math.max(m2UnitarioReal, minRegla);
+        const m2TotalFacturar = m2UnitarioFacturar * itemRegla.cantidad;
+        const coste = m2TotalFacturar * materialObj.precio;
+        
+        total += coste;
+        numRellenosCalculados++;
+
+        let errClass = (resW.error || resH.error) ? 'style="color: var(--error);"' : '';
+        let avisoMinimo = (minRegla > 0 && m2UnitarioReal < minRegla) ? `<span class="tag-minimo">(Mínimo ${minRegla.toFixed(2)} m²/ud)</span>` : '';
+
+        tbV.innerHTML += `<tr ${errClass}>
+          <td>${materialObj.nombre}</td>
+          <td>${itemRegla.cantidad}</td>
+          <td>${resW.error ? 'Error' : Math.round(resW.valor) + ' mm'}</td>
+          <td>${resH.error ? 'Error' : Math.round(resH.valor) + ' mm'}</td>
+          <td>
+            Real: ${m2UnitarioReal.toFixed(2)} m²/ud<br>
+            <strong>Facturado: ${m2UnitarioFacturar.toFixed(2)} m²/ud</strong> (${m2TotalFacturar.toFixed(2)} m² tot.)
+            ${avisoMinimo}
+          </td>
+          <td>${coste.toFixed(2)} €</td>
+        </tr>`;
+      }
+
+      if (tieneVidrio) {
+        let matVidrio = db.almacenVidrios.find(m => m.id === vidrioMaterialId) || db.almacenVidrios.find(m => m.tipo !== 'chapa') || db.almacenVidrios[0];
+        if (matVidrio) (reglas.vidrios || []).forEach(v => procesarRelleno(v, matVidrio));
+      }
+
+      if (tieneChapa) {
+        let matChapa = db.almacenVidrios.find(m => m.id === chapaMaterialId) || db.almacenVidrios.find(m => m.tipo === 'chapa') || db.almacenVidrios[0];
+        if (matChapa) (reglas.vidrios || []).forEach(v => procesarRelleno(v, matChapa));
+      }
+
+      if (numRellenosCalculados === 0) {
+        tbV.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Sin Relleno Seleccionado o Activo</td></tr>`;
+      }
+
+      // 3. Accesorios
+      (reglas.accesorios || []).forEach(a => {
+        const acc = db.almacenAccesorios.find(x => x.id === a.accesorioId) || { nombre: 'Desconocido', precio: 0 };
+        let coste = a.cantidad * acc.precio;
+        total += coste;
+
+        tbA.innerHTML += `<tr>
+          <td>${acc.nombre}</td>
+          <td>${a.cantidad} ud</td>
+          <td>${acc.precio.toFixed(2)} €</td>
+          <td>${coste.toFixed(2)} €</td>
+        </tr>`;
+      });
+
+      // 4. Persiana
+      if (tienePersiana) {
+        let matPersiana = db.almacenAccesorios.find(x => x.id === persianaMaterialId) || db.almacenAccesorios.find(x => x.tipo === 'm2' || x.nombre.toLowerCase().includes('persiana')) || db.almacenAccesorios[0];
+        if (matPersiana) {
+          let costePersiana = 0;
+          let cantStrPersiana = '';
+
+          if (matPersiana.tipo === 'm2') {
+            const m2Persiana = (ancho / 1000) * (alto / 1000);
+            costePersiana = m2Persiana * matPersiana.precio;
+            cantStrPersiana = `${m2Persiana.toFixed(2)} m²`;
+          } else {
+            costePersiana = matPersiana.precio;
+            cantStrPersiana = `1 ud`;
+          }
+
+          total += costePersiana;
+
+          tbA.innerHTML += `<tr>
+            <td>${matPersiana.nombre}</td>
+            <td>${cantStrPersiana}</td>
+            <td>${matPersiana.precio.toFixed(2)} €${matPersiana.tipo === 'm2' ? '/m²' : ''}</td>
+            <td>${costePersiana.toFixed(2)} €</td>
+          </tr>`;
+        }
+      }
+
+      document.getElementById('totalPrecioMain').innerText = total.toFixed(2) + ' €';
+    }
+
+    function filtrarAlmacen() {
+      renderAlmacen();
+    }
+
+    function renderAlmacen() {
+      const th = document.getElementById('thAlmacen');
+      const tb = document.getElementById('tbAlmacen');
+      const filtro = (document.getElementById('busquedaAlmacen').value || '').toLowerCase().trim();
+      
+      document.getElementById('formBarrasFields').style.display = almacenCatActual === 'barras' ? 'grid' : 'none';
+      document.getElementById('formVidriosFields').style.display = almacenCatActual === 'vidrios' ? 'grid' : 'none';
+      document.getElementById('formAccesoriosFields').style.display = almacenCatActual === 'accesorios' ? 'grid' : 'none';
+
+      tb.innerHTML = '';
+
+      if (almacenCatActual === 'barras') {
+        th.innerHTML = `<th>Perfil / Ref.</th><th>Mat.</th><th>Precios por Color (€/m)</th><th>Acciones</th>`;
+        
+        let datosFiltrados = db.almacenBarras.filter(b => b.nombre.toLowerCase().includes(filtro) || (b.material && b.material.toLowerCase().includes(filtro)));
+
+        datosFiltrados.forEach((b) => {
+          let idx = db.almacenBarras.indexOf(b);
+          let p = b.precios || {};
+          let badgeMat = (b.material === 'PVC') ? '<span class="badge-mat badge-pvc">PVC</span>' : '<span class="badge-mat badge-alu">Alu</span>';
+          
+          let listaPreciosHtml = '';
+          Object.keys(p).forEach(col => {
+            if (p[col] > 0) {
+              listaPreciosHtml += `<div style="font-size:0.85em;"><strong>${col}:</strong> ${parseFloat(p[col]).toFixed(2)} €</div>`;
+            }
+          });
+
+          tb.innerHTML += `<tr>
+            <td><strong>${b.nombre}</strong></td>
+            <td>${badgeMat}</td>
+            <td>${listaPreciosHtml || 'Sin precios'}</td>
+            <td>
+              <button class="warning" style="width:auto; padding:3px 8px;" onclick="cargarEdicionAlmacen(${idx})">Editar</button>
+              <button class="danger" style="width:auto; padding:3px 8px;" onclick="eliminarAlmacen(${idx})">X</button>
+            </td>
+          </tr>`;
+        });
+      } else if (almacenCatActual === 'vidrios') {
+        th.innerHTML = `<th>Material</th><th>Tipo</th><th>Precio / m² (€)</th><th>Mínimo m²/ud</th><th>Acciones</th>`;
+        
+        let datosFiltrados = db.almacenVidrios.filter(v => v.nombre.toLowerCase().includes(filtro));
+
+        datosFiltrados.forEach((v) => {
+          let idx = db.almacenVidrios.indexOf(v);
+          let tipoLabel = (v.tipo === 'chapa' || v.nombre.toLowerCase().includes('chapa') || v.nombre.toLowerCase().includes('panel') || v.nombre.toLowerCase().includes('sandwich')) ? 'Chapa/Panel' : 'Vidrio';
+          let minVal = (v.minimoM2 !== undefined) ? v.minimoM2 : 0.70;
+          tb.innerHTML += `<tr>
+            <td>${v.nombre}</td>
+            <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-weight:bold;">${tipoLabel}</span></td>
+            <td>${v.precio.toFixed(2)} €</td>
+            <td><strong>${minVal.toFixed(2)} m²</strong></td>
+            <td>
+              <button class="warning" style="width:auto; padding:3px 8px;" onclick="cargarEdicionAlmacen(${idx})">Editar</button>
+              <button class="danger" style="width:auto; padding:3px 8px;" onclick="eliminarAlmacen(${idx})">X</button>
+            </td>
+          </tr>`;
+        });
+      } else {
+        th.innerHTML = `<th>Accesorio / Persiana</th><th>Tipo Cálculo</th><th>Precio (€)</th><th>Acciones</th>`;
+        
+        let datosFiltrados = db.almacenAccesorios.filter(a => a.nombre.toLowerCase().includes(filtro));
+
+        datosFiltrados.forEach((a) => {
+          let idx = db.almacenAccesorios.indexOf(a);
+          let tipoLabel = a.tipo === 'm2' ? 'Por M²' : 'Fijo (Unidad)';
+          tb.innerHTML += `<tr>
+            <td>${a.nombre}</td>
+            <td><span style="background:#e0f2fe; padding:2px 6px; border-radius:4px; font-weight:bold; color:#0369a1;">${tipoLabel}</span></td>
+            <td>${a.precio.toFixed(2)} €${a.tipo === 'm2' ? '/m²' : ''}</td>
+            <td>
+              <button class="warning" style="width:auto; padding:3px 8px;" onclick="cargarEdicionAlmacen(${idx})">Editar</button>
+              <button class="danger" style="width:auto; padding:3px 8px;" onclick="eliminarAlmacen(${idx})">X</button>
+            </td>
+          </tr>`;
+        });
+      }
+      poblarSelectsFormulas();
+    }
+
+    function agregarCampoColorAlmacen(nombreColor = '', precio = '') {
+      const container = document.getElementById('contenedorPreciosColores');
+      const div = document.createElement('div');
+      div.className = 'row-color-item';
+      div.style.cssText = 'display:flex; gap:6px; align-items:center;';
+      div.innerHTML = `
+        <input type="text" list="listaSugerenciasColores" class="inp-color-nombre" placeholder="Ej: Blanco / Nogal" value="${nombreColor}" style="flex:2;">
+        <input type="number" step="0.01" class="inp-color-precio" placeholder="€/m" value="${precio}" style="flex:1;">
+        <button type="button" class="danger" style="width:auto; padding:6px 10px; margin:0;" onclick="this.parentElement.remove()">X</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function guardarElementoAlmacen() {
+      const idx = parseInt(document.getElementById('editItemIndex').value);
+
+      if (almacenCatActual === 'barras') {
+        const nom = document.getElementById('albBarraNombre').value.trim();
+        const mat = document.getElementById('albBarraMaterial').value;
+        const lng = parseFloat(document.getElementById('albBarraLongitud').value) || 6500;
+
+        if (!nom) return alert('Introduce el nombre del perfil');
+
+        const preciosObj = {};
+        const filasColores = document.querySelectorAll('#contenedorPreciosColores .row-color-item');
+        filasColores.forEach(row => {
+          const colNombre = row.querySelector('.inp-color-nombre').value.trim();
+          const colPrecio = parseFloat(row.querySelector('.inp-color-precio').value) || 0;
+          if (colNombre) {
+            preciosObj[colNombre] = colPrecio;
+            if (!db.coloresDisponibles.includes(colNombre)) {
+              db.coloresDisponibles.push(colNombre);
+            }
+          }
+        });
+
+        actualizarSelectColoresInicio();
+
+        const itemData = { nombre: nom, material: mat, precios: preciosObj, longitud: lng };
+
+        if (idx >= 0) db.almacenBarras[idx] = { ...db.almacenBarras[idx], ...itemData };
+        else db.almacenBarras.push({ id: 'b' + Date.now(), ...itemData });
+      } else if (almacenCatActual === 'vidrios') {
+        const nom = document.getElementById('albVidrioNombre').value.trim();
+        const tipo = document.getElementById('albVidrioTipo').value;
+        const pre = parseFloat(document.getElementById('albVidrioPrecio').value);
+        const minM2 = parseFloat(document.getElementById('albVidrioMinimo').value);
+        
+        if (!nom || isNaN(pre)) return alert('Completa todos los campos');
+
+        const objVidrio = { nombre: nom, tipo: tipo, precio: pre, minimoM2: isNaN(minM2) ? 0.70 : minM2 };
+
+        if (idx >= 0) db.almacenVidrios[idx] = { ...db.almacenVidrios[idx], ...objVidrio };
+        else db.almacenVidrios.push({ id: 'v' + Date.now(), ...objVidrio });
+        poblarSelectsRelleno();
+      } else {
+        const nom = document.getElementById('albAccNombre').value.trim();
+        const tipo = document.getElementById('albAccTipo').value;
+        const pre = parseFloat(document.getElementById('albAccPrecio').value);
+        if (!nom || isNaN(pre)) return alert('Completa los campos');
+
+        if (idx >= 0) db.almacenAccesorios[idx] = { ...db.almacenAccesorios[idx], nombre: nom, tipo: tipo, precio: pre };
+        else db.almacenAccesorios.push({ id: 'a' + Date.now(), nombre: nom, tipo: tipo, precio: pre });
+        poblarSelectsRelleno();
+      }
+
+      limpiarFormAlmacen();
+      renderAlmacen();
+      calcular();
+    }
+
+    function cargarEdicionAlmacen(idx) {
+      document.getElementById('editItemIndex').value = idx;
+      document.getElementById('albTituloForm').innerText = 'Editar Elemento del Almacén';
+
+      if (almacenCatActual === 'barras') {
+        let b = db.almacenBarras[idx];
+        document.getElementById('albBarraNombre').value = b.nombre;
+        document.getElementById('albBarraMaterial').value = b.material || 'Aluminio';
+        document.getElementById('albBarraLongitud').value = b.longitud;
+        
+        const container = document.getElementById('contenedorPreciosColores');
+        container.innerHTML = '';
+        let p = b.precios || {};
+        Object.keys(p).forEach(colName => {
+          agregarCampoColorAlmacen(colName, p[colName]);
+        });
+        if (Object.keys(p).length === 0) {
+          agregarCampoColorAlmacen('Blanco', '');
+        }
+      } else if (almacenCatActual === 'vidrios') {
+        let v = db.almacenVidrios[idx];
+        document.getElementById('albVidrioNombre').value = v.nombre;
+        document.getElementById('albVidrioTipo').value = v.tipo || 'vidrio';
+        document.getElementById('albVidrioPrecio').value = v.precio;
+        document.getElementById('albVidrioMinimo').value = (v.minimoM2 !== undefined) ? v.minimoM2 : 0.70;
+      } else {
+        let a = db.almacenAccesorios[idx];
+        document.getElementById('albAccNombre').value = a.nombre;
+        document.getElementById('albAccTipo').value = a.tipo || 'fijo';
+        document.getElementById('albAccPrecio').value = a.precio;
+      }
+
+      scrollToElement('boxFormAlmacen');
+    }
+
+    function limpiarFormAlmacen() {
+      document.getElementById('editItemIndex').value = -1;
+      document.getElementById('albTituloForm').innerText = 'Añadir / Editar Elemento';
+      document.querySelectorAll('#almacen input').forEach(i => i.value = '');
+      document.getElementById('albBarraLongitud').value = 6500;
+      document.getElementById('albVidrioMinimo').value = 0.70;
+      
+      const container = document.getElementById('contenedorPreciosColores');
+      container.innerHTML = '';
+      agregarCampoColorAlmacen('Blanco', '');
+      agregarCampoColorAlmacen('Gris Antracita', '');
+    }
+
+    function eliminarAlmacen(idx) {
+      if (almacenCatActual === 'barras') db.almacenBarras.splice(idx, 1);
+      else if (almacenCatActual === 'vidrios') { db.almacenVidrios.splice(idx, 1); poblarSelectsRelleno(); }
+      else { db.almacenAccesorios.splice(idx, 1); poblarSelectsRelleno(); }
+      renderAlmacen();
+      calcular();
+    }
+
+    function renderSelectSeries() {
+      const s1 = document.getElementById('selSerie');
+      const s2 = document.getElementById('selSerieConfig');
+      s1.innerHTML = ''; s2.innerHTML = '';
+      db.series.forEach(s => {
+        s1.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+        s2.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+      });
+    }
+
+    function crearSerie() {
+      const nom = document.getElementById('serNombre').value.trim();
+      if (!nom) return;
+      const id = 's' + Date.now();
+      db.series.push({ id, nombre: nom, hojasPermitidas: [0, 1, 2, 3, 4], reglas: {} });
+      document.getElementById('serNombre').value = '';
+      renderSelectSeries();
+      document.getElementById('selSerieConfig').value = id;
+      cargarConfigSerie();
+      alCambiarSerieInicio();
+    }
+
+    function cargarConfigSerie() {
+      const id = document.getElementById('selSerieConfig').value;
+      const editor = document.getElementById('editorSerie');
+      if (!id) { editor.style.display = 'none'; return; }
+      editor.style.display = 'block';
+
+      const serie = db.series.find(s => s.id === id);
+      for (let i = 0; i <= 4; i++) {
+        document.getElementById(`chkHojas${i}`).checked = serie.hojasPermitidas.includes(i);
+      }
+      renderSubTabsHojas();
+    }
+
+    function actualizarHojasPermitidas() {
+      const id = document.getElementById('selSerieConfig').value;
+      const serie = db.series.find(s => s.id === id);
+      serie.hojasPermitidas = [];
+      for (let i = 0; i <= 4; i++) {
+        if (document.getElementById(`chkHojas${i}`).checked) serie.hojasPermitidas.push(i);
+      }
+      renderSubTabsHojas();
+      alCambiarSerieInicio();
+    }
+
+    function renderSubTabsHojas() {
+      const id = document.getElementById('selSerieConfig').value;
+      const serie = db.series.find(s => s.id === id);
+      const container = document.getElementById('subTabHojas');
+      container.innerHTML = '';
+
+      if (serie.hojasPermitidas.length === 0) {
+        container.innerHTML = '<p style="color:var(--error)">Selecciona al menos una opción de hojas arriba.</p>';
+        return;
+      }
+
+      if (!serie.hojasPermitidas.includes(hojasConfigActual)) {
+        hojasConfigActual = serie.hojasPermitidas[0];
+      }
+
+      serie.hojasPermitidas.forEach(h => {
+        let label = h === 0 ? '0 (Fijo)' : `${h} Hoja${h > 1 ? 's' : ''}`;
+        let activeClass = h === hojasConfigActual ? 'active' : '';
+        container.innerHTML += `<button class="sub-tab-btn ${activeClass}" onclick="switchHojasConfig(${h})">${label}</button>`;
+      });
+
+      limpiarFormReglaCorte();
+      limpiarFormReglaVidrio();
+      limpiarFormReglaAcc();
+      renderReglasActuales();
+    }
+
+    function switchHojasConfig(h) {
+      hojasConfigActual = h;
+      renderSubTabsHojas();
+    }
+
+    function poblarSelectsFormulas() {
+      const selP = document.getElementById('cfgPerfilSelect');
+      const selV = document.getElementById('cfgVidrioSelect');
+      const selA = document.getElementById('cfgAccSelect');
+
+      if (selP) {
+        selP.innerHTML = '';
+        db.almacenBarras.forEach(b => { 
+          selP.innerHTML += `<option value="${b.id}">${b.nombre} (${b.material || 'Alu'})</option>`; 
+        });
+      }
+      if (selV) {
+        selV.innerHTML = '';
+        db.almacenVidrios.forEach(v => { selV.innerHTML += `<option value="${v.id}">${v.nombre}</option>`; });
+      }
+      if (selA) {
+        selA.innerHTML = '';
+        db.almacenAccesorios.forEach(a => { selA.innerHTML += `<option value="${a.id}">${a.nombre}</option>`; });
+      }
+    }
+
+    function getReglasCurrentHojas() {
+      const id = document.getElementById('selSerieConfig').value;
+      const serie = db.series.find(s => s.id === id);
+      if (!serie.reglas) serie.reglas = {};
+      if (!serie.reglas[hojasConfigActual]) {
+        serie.reglas[hojasConfigActual] = { cortes: [], vidrios: [], accesorios: [] };
+      }
+      return serie.reglas[hojasConfigActual];
+    }
+
+    function renderReglasActuales() {
+      const reglas = getReglasCurrentHojas();
+
+      const tbC = document.getElementById('tblReglasCorte');
+      tbC.innerHTML = '';
+      (reglas.cortes || []).forEach((c, idx) => {
+        const perf = db.almacenBarras.find(b => b.id === c.perfilId) || { nombre: '-' };
+        tbC.innerHTML += `<tr>
+          <td>${perf.nombre}</td>
+          <td>${c.cantidad}</td>
+          <td>${c.base}</td>
+          <td>${c.formula}</td>
+          <td>
+            <button class="warning" style="width:auto; padding:2px 6px;" onclick="cargarEdicionReglaCorte(${idx})">Editar</button>
+            <button class="danger" style="width:auto; padding:2px 6px;" onclick="borrarRegla('cortes', ${idx})">X</button>
+          </td>
+        </tr>`;
+      });
+
+      const tbV = document.getElementById('tblReglasVidrios');
+      tbV.innerHTML = '';
+      (reglas.vidrios || []).forEach((v, idx) => {
+        const mat = db.almacenVidrios.find(m => m.id === v.vidrioId) || { nombre: '-' };
+        tbV.innerHTML += `<tr>
+          <td>${mat.nombre}</td>
+          <td>${v.cantidad}</td>
+          <td>${v.formulaAncho}</td>
+          <td>${v.formulaAlto}</td>
+          <td>
+            <button class="warning" style="width:auto; padding:2px 6px;" onclick="cargarEdicionReglaVidrio(${idx})">Editar</button>
+            <button class="danger" style="width:auto; padding:2px 6px;" onclick="borrarRegla('vidrios', ${idx})">X</button>
+          </td>
+        </tr>`;
+      });
+
+      const tbA = document.getElementById('tblReglasAccesorios');
+      tbA.innerHTML = '';
+      (reglas.accesorios || []).forEach((a, idx) => {
+        const acc = db.almacenAccesorios.find(x => x.id === a.accesorioId) || { nombre: '-' };
+        tbA.innerHTML += `<tr>
+          <td>${acc.nombre}</td>
+          <td>${a.cantidad} ud</td>
+          <td>
+            <button class="warning" style="width:auto; padding:2px 6px;" onclick="cargarEdicionReglaAcc(${idx})">Editar</button>
+            <button class="danger" style="width:auto; padding:2px 6px;" onclick="borrarRegla('accesorios', ${idx})">X</button>
+          </td>
+        </tr>`;
+      });
+    }
+
+    function guardarReglaCorte() {
+      const idx = parseInt(document.getElementById('editReglaCorteIndex').value);
+      const fElem = document.getElementById('cfgPerfilFormula');
+      const testRes = evaluarFormula(fElem.value, 1000, 1000);
+      if (!fElem.value.trim() || testRes.error) return alert('La fórmula contiene errores o está vacía.');
+
+      const r = getReglasCurrentHojas();
+      const objetoRegla = {
+        perfilId: document.getElementById('cfgPerfilSelect').value,
+        cantidad: parseInt(document.getElementById('cfgPerfilCant').value) || 1,
+        base: document.getElementById('cfgPerfilBase').value,
+        formula: fElem.value.trim()
+      };
+
+      if (idx >= 0) r.cortes[idx] = objetoRegla;
+      else r.cortes.push(objetoRegla);
+
+      limpiarFormReglaCorte();
+      renderReglasActuales();
+      calcular();
+    }
+
+    function cargarEdicionReglaCorte(idx) {
+      const r = getReglasCurrentHojas();
+      const c = r.cortes[idx];
+      document.getElementById('editReglaCorteIndex').value = idx;
+      document.getElementById('lblTituloCorte').innerText = 'Editar Regla de Corte';
+      document.getElementById('btnGuardarReglaCorte').innerText = 'Guardar Cambios';
+
+      document.getElementById('cfgPerfilSelect').value = c.perfilId;
+      document.getElementById('cfgPerfilCant').value = c.cantidad;
+      document.getElementById('cfgPerfilBase').value = c.base;
+      document.getElementById('cfgPerfilFormula').value = c.formula;
+
+      scrollToElement('boxFormCorte');
+    }
+
+    function limpiarFormReglaCorte() {
+      document.getElementById('editReglaCorteIndex').value = -1;
+      document.getElementById('lblTituloCorte').innerText = 'Perfiles / Cortes Requeridos';
+      document.getElementById('btnGuardarReglaCorte').innerText = '+ Añadir Regla Corte';
+      document.getElementById('cfgPerfilCant').value = 2;
+      document.getElementById('cfgPerfilFormula').value = '';
+      document.getElementById('cfgPerfilFormula').classList.remove('formula-error');
+    }
+
+    function guardarReglaVidrio() {
+      const idx = parseInt(document.getElementById('editReglaVidrioIndex').value);
+      const fa = document.getElementById('cfgVidrioAncho').value.trim();
+      const fh = document.getElementById('cfgVidrioAlto').value.trim();
+      if (!fa || !fh) return alert('Las fórmulas son obligatorias.');
+
+      const r = getReglasCurrentHojas();
+      const objetoRegla = {
+        vidrioId: document.getElementById('cfgVidrioSelect').value,
+        cantidad: parseInt(document.getElementById('cfgVidrioCant').value) || 1,
+        formulaAncho: fa,
+        formulaAlto: fh
+      };
+
+      if (idx >= 0) r.vidrios[idx] = objetoRegla;
+      else r.vidrios.push(objetoRegla);
+
+      limpiarFormReglaVidrio();
+      renderReglasActuales();
+      calcular();
+    }
+
+    function cargarEdicionReglaVidrio(idx) {
+      const r = getReglasCurrentHojas();
+      const v = r.vidrios[idx];
+      document.getElementById('editReglaVidrioIndex').value = idx;
+      document.getElementById('lblTituloVidrio').innerText = 'Editar Regla de Vidrio/Chapa';
+      document.getElementById('btnGuardarReglaVidrio').innerText = 'Guardar Cambios';
+
+      document.getElementById('cfgVidrioSelect').value = v.vidrioId;
+      document.getElementById('cfgVidrioCant').value = v.cantidad;
+      document.getElementById('cfgVidrioAncho').value = v.formulaAncho;
+      document.getElementById('cfgVidrioAlto').value = v.formulaAlto;
+
+      scrollToElement('boxFormVidrio');
+    }
+
+    function limpiarFormReglaVidrio() {
+      document.getElementById('editReglaVidrioIndex').value = -1;
+      document.getElementById('lblTituloVidrio').innerText = 'Vidrios / Chapas Requeridos';
+      document.getElementById('btnGuardarReglaVidrio').innerText = '+ Añadir Regla Relleno';
+      document.getElementById('cfgVidrioCant').value = 1;
+      document.getElementById('cfgVidrioAncho').value = '';
+      document.getElementById('cfgVidrioAlto').value = '';
+      document.getElementById('cfgVidrioAncho').classList.remove('formula-error');
+      document.getElementById('cfgVidrioAlto').classList.remove('formula-error');
+    }
+
+    function guardarReglaAccesorio() {
+      const idx = parseInt(document.getElementById('editReglaAccIndex').value);
+      const r = getReglasCurrentHojas();
+      const objetoRegla = {
+        accesorioId: document.getElementById('cfgAccSelect').value,
+        cantidad: parseInt(document.getElementById('cfgAccCant').value) || 1
+      };
+
+      if (idx >= 0) r.accesorios[idx] = objetoRegla;
+      else r.accesorios.push(objetoRegla);
+
+      limpiarFormReglaAcc();
+      renderReglasActuales();
+      calcular();
+    }
+
+    function cargarEdicionReglaAcc(idx) {
+      const r = getReglasCurrentHojas();
+      const a = r.accesorios[idx];
+      document.getElementById('editReglaAccIndex').value = idx;
+      document.getElementById('lblTituloAcc').innerText = 'Editar Elemento';
+      document.getElementById('btnGuardarReglaAcc').innerText = 'Guardar Cambios';
+
+      document.getElementById('cfgAccSelect').value = a.accesorioId;
+      document.getElementById('cfgAccCant').value = a.cantidad;
+
+      scrollToElement('boxFormAcc');
+    }
+
+    function limpiarFormReglaAcc() {
+      document.getElementById('editReglaAccIndex').value = -1;
+      document.getElementById('lblTituloAcc').innerText = 'Accesorios y Persianas';
+      document.getElementById('btnGuardarReglaAcc').innerText = '+ Añadir Elemento';
+      document.getElementById('cfgAccCant').value = 1;
+    }
+
+    function borrarRegla(tipo, idx) {
+      const r = getReglasCurrentHojas();
+      r[tipo].splice(idx, 1);
+      renderReglasActuales();
+      calcular();
+    }
+
+    async function exportarSeriesJSON() {
+      try {
+        const ahora = new Date();
+        const fechaStr = ahora.toISOString().split('T')[0];
+        const horaStr = ahora.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const nombreArchivo = `motor series_${fechaStr}_${horaStr}.json`;
+        const dataStr = JSON.stringify(db, null, 2);
+
+        // En iPhone/iPad usamos la hoja nativa de compartir para que
+        // aparezca "Guardar en Archivos" y se pueda elegir la carpeta.
+        const archivo = new File([dataStr], nombreArchivo, { type: 'application/json' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [archivo] })) {
+          await navigator.share({
+            files: [archivo],
+            title: nombreArchivo,
+            text: 'Copia de seguridad de Motor Series'
+          });
+          return;
+        }
+
+        // Fallback para navegadores que sí admiten descargas mediante <a download>.
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
+
+        alert("Archivo JSON exportado correctamente.");
+      } catch (error) {
+        // Cancelar la hoja de compartir no es un error de la aplicación.
+        if (error && error.name === 'AbortError') return;
+        alert("Error al exportar: " + (error && error.message ? error.message : error));
+      }
+    }
+
+    async function copiarJSONAlPortapapeles() {
+      try {
+        const dataStr = JSON.stringify(db, null, 2);
+        await navigator.clipboard.writeText(dataStr);
+        alert("JSON copiado al portapapeles con éxito.");
+      } catch (err) {
+        alert("No se pudo copiar automáticamente. Puedes seleccionar el texto en la caja inferior.");
+        document.getElementById('txtJsonImport').value = JSON.stringify(db, null, 2);
+      }
+    }
+
+    function importarSeriesDesdeArchivo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedDB = JSON.parse(e.target.result);
+          if(importedDB && importedDB.series && importedDB.almacenBarras) {
+             db = importedDB;
+             init();
+             alert("Base de datos cargada correctamente.");
+          } else {
+             alert("El archivo no tiene el formato de base de datos esperado.");
+          }
+        } catch (error) {
+          alert("Error al leer el archivo JSON: " + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function importarSeriesDesdeTexto() {
+      const txt = document.getElementById('txtJsonImport').value;
+      if (!txt.trim()) {
+        alert("Por favor, pega el contenido JSON en la caja de texto.");
+        return;
+      }
+      try {
+        const importedDB = JSON.parse(txt);
+        if(importedDB && importedDB.series && importedDB.almacenBarras) {
+           db = importedDB;
+           init();
+           alert("Base de datos cargada correctamente desde el texto.");
+           document.getElementById('txtJsonImport').value = '';
+        } else {
+           alert("El texto no tiene el formato de base de datos esperado.");
+        }
+      } catch (error) {
+        alert("Error al parsear el JSON: " + error.message);
+      }
+    }
+
+    // Inicializar la App cuando se cargue el DOM
+    window.onload = init;
+  </script>
+</body>
+</html>
