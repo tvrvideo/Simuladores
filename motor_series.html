@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo Precios - Ventanas Rey</title>
+  <title>Cálculo Precios - Ventanas Rey v1.5</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -68,14 +68,42 @@
     .badge-mat { padding: 2px 5px; border-radius: 3px; font-size: 0.75em; font-weight: bold; color: white; }
     .badge-alu { background-color: #0284c7; }
     .badge-pvc { background-color: #16a34a; }
+
+    /* v1.5 - Botón Menú para volver al index de GitHub */
+    .btn-menu-index {
+      position: fixed;
+      top: 8px;
+      left: 10px;
+      z-index: 2000;
+      width: auto;
+      padding: 9px 13px;
+      margin: 0;
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-menu-index:active { transform: scale(0.97); }
+
+    /* Deja espacio para que el botón Menú no tape el título */
+    header h1 { margin-left: 88px; }
+    #appVersionHeader { flex: 0 0 auto; white-space: nowrap; }
   </style>
 </head>
 <body>
+  <!-- v1.5 - Volver al menú principal de GitHub -->
+  <button type="button" class="btn-menu-index" onclick="volverAlIndex()">Menú</button>
+
 
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.2</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.5</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -472,8 +500,9 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.3";
+    const APP_VERSION = "v1.5";
 
+    // La base de datos está integrada en este HTML: no necesita cargar un JSON externo.
     let db = {
       "coloresDisponibles": [
         "Blanco",
@@ -2269,6 +2298,15 @@
     let almacenCatActual = 'barras';
     let hojasConfigActual = 2;
     let hojasInicioSeleccionadas = 2;
+
+    function volverAlIndex() {
+      // Funciona tanto dentro del iframe del index como abriendo esta app directamente.
+      try {
+        window.top.location.href = 'index.html';
+      } catch (e) {
+        window.location.href = 'index.html';
+      }
+    }
 
     function init() {
       document.getElementById('appVersionHeader').innerText = APP_VERSION;
