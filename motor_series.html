@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo Precios - Ventanas Rey v1.5</title>
+  <title>Cálculo Precios - Ventanas Rey v1.6</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -103,7 +103,7 @@
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.5</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.6</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -500,1800 +500,1905 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.5";
+    const APP_VERSION = "v1.6";
 
     // La base de datos está integrada en este HTML: no necesita cargar un JSON externo.
     let db = {
-      "coloresDisponibles": [
-        "Blanco",
-        "Verde Pino",
-        "Gris Antracita",
-        "Nogal",
-        "Roble Dorado",
-        "Anodizado Plata",
-        "Madera",
-        "Especial",
-        "Estandar",
-        "Natural",
-        "Inox"
+  "coloresDisponibles": [
+    "Blanco",
+    "Verde Pino",
+    "Gris Antracita",
+    "Nogal",
+    "Roble Dorado",
+    "Anodizado Plata",
+    "Madera",
+    "Especial",
+    "Estandar",
+    "Natural",
+    "Inox",
+    "Negro",
+    "Plata aluminio",
+    "Plata Aluminio"
+  ],
+  "almacenBarras": [
+    {
+      "id": "b1",
+      "nombre": "Marco superior G-90",
+      "precios": {
+        "Blanco": 9,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 660
+    },
+    {
+      "id": "b3",
+      "nombre": "Marco lateral G-90",
+      "precios": {
+        "Blanco": 9.2,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b4",
+      "nombre": "Hoja Lateral G-90",
+      "precios": {
+        "Blanco": 7.8,
+        "Anodizado Plata": 8.9,
+        "Madera": 10.5,
+        "Especial": 9.5
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b5",
+      "nombre": "Hoja Central G-90",
+      "precios": {
+        "Blanco": 8.1,
+        "Anodizado Plata": 9.2,
+        "Madera": 10.8,
+        "Especial": 9.8
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785118321655",
+      "nombre": "Marco inferior G-90",
+      "precios": {
+        "Blanco": 12,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1785118426657",
+      "nombre": "Hoja ruleta G-90",
+      "precios": {
+        "Blanco": 5.6,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1785120220535",
+      "nombre": "Marco COR-60 7022",
+      "precios": {
+        "Blanco": 23.32,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785120242343",
+      "nombre": "Hoja ventana COR-60 7035",
+      "precios": {
+        "Blanco": 28.56,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785355421068",
+      "nombre": "Unión 4 hojas G-90",
+      "precios": {
+        "Blanco": 5.88,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6350
+    },
+    {
+      "id": "b1785361629776",
+      "nombre": "Marco puerta COR-60 7042",
+      "precios": {
+        "Blanco": 28.9,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785361714886",
+      "nombre": "Zanca puerta COR-60 7043",
+      "precios": {
+        "Blanco": 31.72,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785361764089",
+      "nombre": "Zanca ventana COR-60 7033",
+      "precios": {
+        "Blanco": 26,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362001390",
+      "nombre": "Hoja puerta COR-60 7059",
+      "precios": {
+        "Blanco": 37.42,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362081613",
+      "nombre": "Inversor COR-60 7044",
+      "precios": {
+        "Blanco": 26.42,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362254558",
+      "nombre": "Junquillo recto 26 2015",
+      "precios": {
+        "Blanco": 5.16,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362320194",
+      "nombre": "Junquillo recto 12 2019",
+      "precios": {
+        "Blanco": 4.22,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362454560",
+      "nombre": "Grapa junquillo 2012",
+      "precios": {
+        "Blanco": 2,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362593411",
+      "nombre": "Alargadera 60 7056",
+      "precios": {
+        "Blanco": 4.88,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362681937",
+      "nombre": "Condensación COR-60 7064",
+      "precios": {
+        "Blanco": 21.36,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785362989075",
+      "nombre": "Marco ventana COR-2300 2322",
+      "precios": {
+        "Blanco": 9.98,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785363053501",
+      "nombre": "Marco puerta COR-2300 2342",
+      "precios": {
+        "Blanco": 12.54,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785363132826",
+      "nombre": "Marco escaparate COR-2300 2348",
+      "precios": {
+        "Blanco": 17.34,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785363226238",
+      "nombre": "Zanca ventana COR-2300 2333",
+      "precios": {
+        "Blanco": 12.52,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785363311650",
+      "nombre": "Zanca puerta COR-2300 2343",
+      "precios": {
+        "Blanco": 15.24,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785363402795",
+      "nombre": "Inversor COR-2300 2324",
+      "precios": {
+        "Blanco": 11.52,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785364008113",
+      "nombre": "Condensación COR-2300 2356",
+      "precios": {
+        "Blanco": 8.42,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785364232546",
+      "nombre": "Hoja ventana COR-2300 2396",
+      "precios": {
+        "Blanco": 14.5,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1785657184591",
+      "nombre": "Hoja puerta COR-2300 2398",
+      "precios": {
+        "Blanco": 16.48,
+        "Anodizado Plata": 0,
+        "Madera": 0,
+        "Especial": 0
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1786195094886",
+      "nombre": "Marco 600",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 7.84,
+        "Estandar": 8.46,
+        "Natural": 9.12,
+        "Inox": 10.67,
+        "Madera": 17.28
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786195238854",
+      "nombre": "Hoja 600",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 8.06,
+        "Estandar": 8.78,
+        "Natural": 9.44,
+        "Inox": 11.18,
+        "Madera": 19.44
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786195490529",
+      "nombre": "Zanca 600",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 8.06,
+        "Estandar": 8.78,
+        "Natural": 9.44,
+        "Inox": 11.18,
+        "Madera": 19.44
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786196719990",
+      "nombre": "Junquillo 600 luna",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 2.67,
+        "Estandar": 2.98,
+        "Natural": 3.5,
+        "Inox": 4.38,
+        "Madera": 6.99
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786196894237",
+      "nombre": "Junquillo 600 Climalit",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 2.35,
+        "Estandar": 2.66,
+        "Natural": 3.2,
+        "Inox": 4.03,
+        "Madera": 6.67
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786197071546",
+      "nombre": "Marco 800",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 10.48,
+        "Estandar": 11.3,
+        "Natural": 11.98,
+        "Inox": 12.81,
+        "Madera": 22.78
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786197187440",
+      "nombre": "Hoja 800",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 10.42,
+        "Estandar": 11.28,
+        "Natural": 11.97,
+        "Inox": 14.02,
+        "Madera": 23.89
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1786197285437",
+      "nombre": "Zanca 800",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 10.42,
+        "Estandar": 11.28,
+        "Natural": 11.97,
+        "Inox": 14.02,
+        "Madera": 23.89
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1789605723778",
+      "nombre": "207004 Escuadra tapajuntas",
+      "material": "PVC",
+      "precios": {
+        "Negro": 0.1
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789606595374",
+      "nombre": "12371 Moldura Solape tapajuntas 70 mm",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 1.84,
+        "Plata aluminio": 4.55,
+        "Gris Antracita": 4.55,
+        "Roble Dorado": 3.78,
+        "Nogal": 3.78,
+        "Verde Pino": 4.55
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789607003387",
+      "nombre": "12351  Moldura Solape tapajuntas 50 mm",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 1.37,
+        "Gris Antracita": 3.52,
+        "Roble Dorado": 2.91,
+        "Nogal": 2.91,
+        "Verde Pino": 3.52,
+        "Plata Aluminio": 3.52
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789607776855",
+      "nombre": "12391  Moldura Solape tapajuntas 90 mm",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 2.61,
+        "Gris Antracita": 5.82,
+        "Roble Dorado": 4.91,
+        "Nogal": 4.91,
+        "Plata Aluminio": 5.82,
+        "Verde Pino": 5.82
+      },
+      "longitud": 6500
+    }
+  ],
+  "almacenVidrios": [
+    {
+      "id": "v1",
+      "nombre": "Climalit 4/16/4",
+      "tipo": "vidrio",
+      "precio": 60,
+      "minimoM2": 0.7
+    },
+    {
+      "id": "v2",
+      "nombre": "Climalit 4/16/4 4S",
+      "tipo": "vidrio",
+      "precio": 75,
+      "minimoM2": 0.7
+    },
+    {
+      "id": "v3",
+      "nombre": "Sandwich 20mm",
+      "tipo": "chapa",
+      "precio": 28,
+      "minimoM2": 0
+    },
+    {
+      "id": "v4",
+      "nombre": "Chapa Aluminio",
+      "tipo": "chapa",
+      "precio": 25,
+      "minimoM2": 0
+    }
+  ],
+  "almacenAccesorios": [
+    {
+      "id": "a1",
+      "nombre": "Ruleta G-90",
+      "precio": 9,
+      "tipo": "fijo"
+    },
+    {
+      "id": "a2",
+      "nombre": "Kit oscilobatiente",
+      "precio": 75
+    },
+    {
+      "id": "a3",
+      "nombre": "Bisagra CE",
+      "precio": 12
+    },
+    {
+      "id": "a1785120132661",
+      "nombre": "Persiana",
+      "tipo": "m2",
+      "precio": 60
+    },
+    {
+      "id": "a1785120144097",
+      "nombre": "Persiana motor",
+      "tipo": "m2",
+      "precio": 120
+    },
+    {
+      "id": "a1785652713734",
+      "nombre": "Cierre G-90",
+      "tipo": "fijo",
+      "precio": 10
+    },
+    {
+      "id": "a1785652979893",
+      "nombre": "Cortavientos G-90",
+      "tipo": "fijo",
+      "precio": 9
+    },
+    {
+      "id": "a1785653005426",
+      "nombre": "Venturi",
+      "tipo": "fijo",
+      "precio": 1
+    },
+    {
+      "id": "a1785653224278",
+      "nombre": "Cepillo 7X4 por hoja",
+      "tipo": "fijo",
+      "precio": 10
+    },
+    {
+      "id": "a1785653548917",
+      "nombre": "Escuadra tetón",
+      "tipo": "fijo",
+      "precio": 5
+    },
+    {
+      "id": "a1785654936807",
+      "nombre": "Cremona CE",
+      "tipo": "fijo",
+      "precio": 20
+    },
+    {
+      "id": "a1785655022442",
+      "nombre": "Goma por hoja",
+      "tipo": "fijo",
+      "precio": 10
+    },
+    {
+      "id": "a1785658517668",
+      "nombre": "Juego manillas puerta",
+      "tipo": "fijo",
+      "precio": 35
+    },
+    {
+      "id": "a1785658582324",
+      "nombre": "Cerradura CE",
+      "tipo": "fijo",
+      "precio": 35
+    }
+  ],
+  "series": [
+    {
+      "id": "s1",
+      "nombre": "Serie G-90",
+      "hojasPermitidas": [
+        2,
+        3,
+        4
       ],
-      "almacenBarras": [
-        {
-          "id": "b1",
-          "nombre": "Marco superior G-90",
-          "precios": {
-            "Blanco": 9,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 660
+      "reglas": {
+        "2": {
+          "cortes": [
+            {
+              "perfilId": "b4",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "ALTO - 68"
+            },
+            {
+              "perfilId": "b1785118426657",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -10"
+            },
+            {
+              "perfilId": "b5",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b3",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b1785118321655",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 2,
+              "formulaAncho": "(Ancho /2) -88",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785652713734",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653224278",
+              "cantidad": 2
+            }
+          ]
         },
-        {
-          "id": "b3",
-          "nombre": "Marco lateral G-90",
-          "precios": {
-            "Blanco": 9.2,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6600
+        "3": {
+          "cortes": [
+            {
+              "perfilId": "b1",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b3",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785118321655",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b4",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b5",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b1785355421068",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b1785118426657",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "(Ancho /3) -12"
+            },
+            {
+              "perfilId": "b1785118426657",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "(Ancho /3) -22"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 3,
+              "formulaAncho": "(Ancho /3) -70",
+              "formulaAlto": "-150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1",
+              "cantidad": 6
+            },
+            {
+              "accesorioId": "a1785652713734",
+              "cantidad": 3
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 3
+            },
+            {
+              "accesorioId": "a1785653224278",
+              "cantidad": 3
+            }
+          ]
         },
-        {
-          "id": "b4",
-          "nombre": "Hoja Lateral G-90",
-          "precios": {
-            "Blanco": 7.8,
-            "Anodizado Plata": 8.9,
-            "Madera": 10.5,
-            "Especial": 9.5
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b5",
-          "nombre": "Hoja Central G-90",
-          "precios": {
-            "Blanco": 8.1,
-            "Anodizado Plata": 9.2,
-            "Madera": 10.8,
-            "Especial": 9.8
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785118321655",
-          "nombre": "Marco inferior G-90",
-          "precios": {
-            "Blanco": 12,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1785118426657",
-          "nombre": "Hoja ruleta G-90",
-          "precios": {
-            "Blanco": 5.6,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1785120220535",
-          "nombre": "Marco COR-60 7022",
-          "precios": {
-            "Blanco": 23.32,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785120242343",
-          "nombre": "Hoja ventana COR-60 7035",
-          "precios": {
-            "Blanco": 28.56,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785355421068",
-          "nombre": "Unión 4 hojas G-90",
-          "precios": {
-            "Blanco": 5.88,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6350
-        },
-        {
-          "id": "b1785361629776",
-          "nombre": "Marco puerta COR-60 7042",
-          "precios": {
-            "Blanco": 28.9,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785361714886",
-          "nombre": "Zanca puerta COR-60 7043",
-          "precios": {
-            "Blanco": 31.72,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785361764089",
-          "nombre": "Zanca ventana COR-60 7033",
-          "precios": {
-            "Blanco": 26,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362001390",
-          "nombre": "Hoja puerta COR-60 7059",
-          "precios": {
-            "Blanco": 37.42,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362081613",
-          "nombre": "Inversor COR-60 7044",
-          "precios": {
-            "Blanco": 26.42,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362254558",
-          "nombre": "Junquillo recto 26 2015",
-          "precios": {
-            "Blanco": 5.16,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362320194",
-          "nombre": "Junquillo recto 12 2019",
-          "precios": {
-            "Blanco": 4.22,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362454560",
-          "nombre": "Grapa junquillo 2012",
-          "precios": {
-            "Blanco": 2,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362593411",
-          "nombre": "Alargadera 60 7056",
-          "precios": {
-            "Blanco": 4.88,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362681937",
-          "nombre": "Condensación COR-60 7064",
-          "precios": {
-            "Blanco": 21.36,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785362989075",
-          "nombre": "Marco ventana COR-2300 2322",
-          "precios": {
-            "Blanco": 9.98,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785363053501",
-          "nombre": "Marco puerta COR-2300 2342",
-          "precios": {
-            "Blanco": 12.54,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785363132826",
-          "nombre": "Marco escaparate COR-2300 2348",
-          "precios": {
-            "Blanco": 17.34,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785363226238",
-          "nombre": "Zanca ventana COR-2300 2333",
-          "precios": {
-            "Blanco": 12.52,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785363311650",
-          "nombre": "Zanca puerta COR-2300 2343",
-          "precios": {
-            "Blanco": 15.24,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785363402795",
-          "nombre": "Inversor COR-2300 2324",
-          "precios": {
-            "Blanco": 11.52,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785364008113",
-          "nombre": "Condensación COR-2300 2356",
-          "precios": {
-            "Blanco": 8.42,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785364232546",
-          "nombre": "Hoja ventana COR-2300 2396",
-          "precios": {
-            "Blanco": 14.5,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1785657184591",
-          "nombre": "Hoja puerta COR-2300 2398",
-          "precios": {
-            "Blanco": 16.48,
-            "Anodizado Plata": 0,
-            "Madera": 0,
-            "Especial": 0
-          },
-          "longitud": 6500
-        },
-        {
-          "id": "b1786195094886",
-          "nombre": "Marco 600",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 7.84,
-            "Estandar": 8.46,
-            "Natural": 9.12,
-            "Inox": 10.67,
-            "Madera": 17.28
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786195238854",
-          "nombre": "Hoja 600",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 8.06,
-            "Estandar": 8.78,
-            "Natural": 9.44,
-            "Inox": 11.18,
-            "Madera": 19.44
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786195490529",
-          "nombre": "Zanca 600",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 8.06,
-            "Estandar": 8.78,
-            "Natural": 9.44,
-            "Inox": 11.18,
-            "Madera": 19.44
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786196719990",
-          "nombre": "Junquillo 600 luna",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 2.67,
-            "Estandar": 2.98,
-            "Natural": 3.5,
-            "Inox": 4.38,
-            "Madera": 6.99
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786196894237",
-          "nombre": "Junquillo 600 Climalit",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 2.35,
-            "Estandar": 2.66,
-            "Natural": 3.2,
-            "Inox": 4.03,
-            "Madera": 6.67
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786197071546",
-          "nombre": "Marco 800",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 10.48,
-            "Estandar": 11.3,
-            "Natural": 11.98,
-            "Inox": 12.81,
-            "Madera": 22.78
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786197187440",
-          "nombre": "Hoja 800",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 10.42,
-            "Estandar": 11.28,
-            "Natural": 11.97,
-            "Inox": 14.02,
-            "Madera": 23.89
-          },
-          "longitud": 6600
-        },
-        {
-          "id": "b1786197285437",
-          "nombre": "Zanca 800",
-          "material": "Aluminio",
-          "precios": {
-            "Blanco": 10.42,
-            "Estandar": 11.28,
-            "Natural": 11.97,
-            "Inox": 14.02,
-            "Madera": 23.89
-          },
-          "longitud": 6600
+        "4": {
+          "cortes": [
+            {
+              "perfilId": "b1785118321655",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b1",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b3",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b4",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b5",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b1785355421068",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -68"
+            },
+            {
+              "perfilId": "b1785118426657",
+              "cantidad": 8,
+              "base": "ANCHO",
+              "formula": "Ancho / 4 -2"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 4,
+              "formulaAncho": "Ancho /4 -76",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a1785652713734",
+              "cantidad": 3
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 3
+            },
+            {
+              "accesorioId": "a1785653224278",
+              "cantidad": 4
+            }
+          ]
         }
+      }
+    },
+    {
+      "id": "s1785120272151",
+      "nombre": "COR-60",
+      "hojasPermitidas": [
+        0,
+        1,
+        2,
+        3
       ],
-      "almacenVidrios": [
-        {
-          "id": "v1",
-          "nombre": "Climalit 4/16/4",
-          "tipo": "vidrio",
-          "precio": 60,
-          "minimoM2": 0.7
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785362681937",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "-70",
+              "formulaAlto": "-70"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 4
+            }
+          ]
         },
-        {
-          "id": "v2",
-          "nombre": "Climalit 4/16/4 4S",
-          "tipo": "vidrio",
-          "precio": 75,
-          "minimoM2": 0.7
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "-42"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "-42"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362681937",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "-60",
+              "formulaAlto": "-60"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785654936807",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 1
+            }
+          ]
         },
-        {
-          "id": "v3",
-          "nombre": "Sandwich 20mm",
-          "tipo": "chapa",
-          "precio": 28,
-          "minimoM2": 0
+        "2": {
+          "cortes": [
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785362681937",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -42"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -24"
+            },
+            {
+              "perfilId": "b1785362081613",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -112"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -115"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -174"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 2,
+              "formulaAncho": "Ancho /2 -131",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a1785654936807",
+              "cantidad": 1
+            }
+          ]
         },
-        {
-          "id": "v4",
-          "nombre": "Chapa Aluminio",
-          "tipo": "chapa",
-          "precio": 25,
-          "minimoM2": 0
+        "3": {
+          "cortes": [
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120220535",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362681937",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 6,
+              "base": "ALTO",
+              "formula": "Alto -42"
+            },
+            {
+              "perfilId": "b1785120242343",
+              "cantidad": 6,
+              "base": "ANCHO",
+              "formula": "Ancho /3 -27"
+            },
+            {
+              "perfilId": "b1785362081613",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -112"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 6,
+              "base": "ANCHO",
+              "formula": "Ancho /3 -117"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 6,
+              "base": "ALTO",
+              "formula": "Alto -173"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 3,
+              "formulaAncho": "Ancho /3 -134",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785654936807",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 6
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 3
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 16
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 3
+            }
+          ]
         }
+      }
+    },
+    {
+      "id": "s1785363532688",
+      "nombre": "COR-2300",
+      "hojasPermitidas": [
+        0,
+        1,
+        2,
+        3
       ],
-      "almacenAccesorios": [
-        {
-          "id": "a1",
-          "nombre": "Ruleta G-90",
-          "precio": 9,
-          "tipo": "fijo"
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -92"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -52"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "-70",
+              "formulaAlto": "-70"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 4
+            }
+          ]
         },
-        {
-          "id": "a2",
-          "nombre": "Kit oscilobatiente",
-          "precio": 75
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -42"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -42"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -134"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -174"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "-150",
+              "formulaAlto": "-150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a3",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            }
+          ]
         },
-        {
-          "id": "a3",
-          "nombre": "Bisagra CE",
-          "precio": 12
+        "2": {
+          "cortes": [
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -2,4"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -42"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -115"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -174"
+            },
+            {
+              "perfilId": "b1785363402795",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -109"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 2,
+              "formulaAncho": "Ancho /2 -131",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a3",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 12
+            }
+          ]
         },
-        {
-          "id": "a1785120132661",
-          "nombre": "Persiana",
-          "tipo": "m2",
-          "precio": 60
-        },
-        {
-          "id": "a1785120144097",
-          "nombre": "Persiana motor",
-          "tipo": "m2",
-          "precio": 120
-        },
-        {
-          "id": "a1785652713734",
-          "nombre": "Cierre G-90",
-          "tipo": "fijo",
-          "precio": 10
-        },
-        {
-          "id": "a1785652979893",
-          "nombre": "Cortavientos G-90",
-          "tipo": "fijo",
-          "precio": 9
-        },
-        {
-          "id": "a1785653005426",
-          "nombre": "Venturi",
-          "tipo": "fijo",
-          "precio": 1
-        },
-        {
-          "id": "a1785653224278",
-          "nombre": "Cepillo 7X4 por hoja",
-          "tipo": "fijo",
-          "precio": 10
-        },
-        {
-          "id": "a1785653548917",
-          "nombre": "Escuadra tetón",
-          "tipo": "fijo",
-          "precio": 5
-        },
-        {
-          "id": "a1785654936807",
-          "nombre": "Cremona CE",
-          "tipo": "fijo",
-          "precio": 20
-        },
-        {
-          "id": "a1785655022442",
-          "nombre": "Goma por hoja",
-          "tipo": "fijo",
-          "precio": 10
-        },
-        {
-          "id": "a1785658517668",
-          "nombre": "Juego manillas puerta",
-          "tipo": "fijo",
-          "precio": 35
-        },
-        {
-          "id": "a1785658582324",
-          "nombre": "Cerradura CE",
-          "tipo": "fijo",
-          "precio": 35
+        "3": {
+          "cortes": [
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362989075",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785362593411",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1785363311650",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -52"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 6,
+              "base": "ALTO",
+              "formula": "Alto -42"
+            },
+            {
+              "perfilId": "b1785364232546",
+              "cantidad": 6,
+              "base": "ANCHO",
+              "formula": "Ancho /3 -26"
+            },
+            {
+              "perfilId": "b1785363402795",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Alto -109"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 6,
+              "base": "ALTO",
+              "formula": "Alto -173"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 6,
+              "base": "ANCHO",
+              "formula": "Ancho /3 -117"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 3,
+              "formulaAncho": "Ancho /3 -134",
+              "formulaAlto": "Alto -150"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 16
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 6
+            }
+          ]
         }
+      }
+    },
+    {
+      "id": "s1785656720098",
+      "nombre": "Puerta 2300",
+      "hojasPermitidas": [
+        0,
+        1,
+        2
       ],
-      "series": [
-        {
-          "id": "s1",
-          "nombre": "Serie G-90",
-          "hojasPermitidas": [
-            2,
-            3,
-            4
-          ],
-          "reglas": {
-            "2": {
-              "cortes": [
-                {
-                  "perfilId": "b4",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "ALTO - 68"
-                },
-                {
-                  "perfilId": "b1785118426657",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -10"
-                },
-                {
-                  "perfilId": "b5",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b3",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b1785118321655",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 2,
-                  "formulaAncho": "(Ancho /2) -88",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1",
-                  "cantidad": 4
-                },
-                {
-                  "accesorioId": "a1785652713734",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653224278",
-                  "cantidad": 2
-                }
-              ]
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
             },
-            "3": {
-              "cortes": [
-                {
-                  "perfilId": "b1",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b3",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785118321655",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b4",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b5",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b1785355421068",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b1785118426657",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "(Ancho /3) -12"
-                },
-                {
-                  "perfilId": "b1785118426657",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "(Ancho /3) -22"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 3,
-                  "formulaAncho": "(Ancho /3) -70",
-                  "formulaAlto": "-150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1",
-                  "cantidad": 6
-                },
-                {
-                  "accesorioId": "a1785652713734",
-                  "cantidad": 3
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 3
-                },
-                {
-                  "accesorioId": "a1785653224278",
-                  "cantidad": 3
-                }
-              ]
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
             },
-            "4": {
-              "cortes": [
-                {
-                  "perfilId": "b1785118321655",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b1",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b3",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b4",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b5",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b1785355421068",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -68"
-                },
-                {
-                  "perfilId": "b1785118426657",
-                  "cantidad": 8,
-                  "base": "ANCHO",
-                  "formula": "Ancho / 4 -2"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 4,
-                  "formulaAncho": "Ancho /4 -76",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1",
-                  "cantidad": 8
-                },
-                {
-                  "accesorioId": "a1785652713734",
-                  "cantidad": 3
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 3
-                },
-                {
-                  "accesorioId": "a1785653224278",
-                  "cantidad": 4
-                }
-              ]
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -45"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -85"
             }
-          }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -80",
+              "formulaAlto": "Alto -80"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 4
+            }
+          ]
         },
-        {
-          "id": "s1785120272151",
-          "nombre": "COR-60",
-          "hojasPermitidas": [
-            0,
-            1,
-            2,
-            3
-          ],
-          "reglas": {
-            "0": {
-              "cortes": [
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362681937",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "-70",
-                  "formulaAlto": "-70"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 4
-                }
-              ]
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
             },
-            "1": {
-              "cortes": [
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "-42"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "-42"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362681937",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "-60",
-                  "formulaAlto": "-60"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 8
-                },
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785654936807",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 1
-                }
-              ]
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
             },
-            "2": {
-              "cortes": [
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362681937",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -42"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -24"
-                },
-                {
-                  "perfilId": "b1785362081613",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -112"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -115"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -174"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 2,
-                  "formulaAncho": "Ancho /2 -131",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 4
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 8
-                },
-                {
-                  "accesorioId": "a1785654936807",
-                  "cantidad": 1
-                }
-              ]
+            {
+              "perfilId": "b1785657184591",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -78"
             },
-            "3": {
-              "cortes": [
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120220535",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362681937",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 6,
-                  "base": "ALTO",
-                  "formula": "Alto -42"
-                },
-                {
-                  "perfilId": "b1785120242343",
-                  "cantidad": 6,
-                  "base": "ANCHO",
-                  "formula": "Ancho /3 -27"
-                },
-                {
-                  "perfilId": "b1785362081613",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -112"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 6,
-                  "base": "ANCHO",
-                  "formula": "Ancho /3 -117"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 6,
-                  "base": "ALTO",
-                  "formula": "Alto -173"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 3,
-                  "formulaAncho": "Ancho /3 -134",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785654936807",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 6
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 3
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 16
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 3
-                }
-              ]
+            {
+              "perfilId": "b1785657184591",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -45"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -218"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -225"
             }
-          }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -218",
+              "formulaAlto": "Alto -186"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a3",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 6
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785658517668",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785658582324",
+              "cantidad": 1
+            }
+          ]
         },
-        {
-          "id": "s1785363532688",
-          "nombre": "COR-2300",
-          "hojasPermitidas": [
-            0,
-            1,
-            2,
-            3
-          ],
-          "reglas": {
-            "0": {
-              "cortes": [
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -92"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -52"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "-70",
-                  "formulaAlto": "-70"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 4
-                }
-              ]
+        "2": {
+          "cortes": [
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
             },
-            "1": {
-              "cortes": [
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -42"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -42"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -134"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -174"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "-150",
-                  "formulaAlto": "-150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 8
-                }
-              ]
+            {
+              "perfilId": "b1785363132826",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
             },
-            "2": {
-              "cortes": [
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -2,4"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -42"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -115"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -174"
-                },
-                {
-                  "perfilId": "b1785363402795",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -109"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 2,
-                  "formulaAncho": "Ancho /2 -131",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 4
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 12
-                }
-              ]
+            {
+              "perfilId": "b1785657184591",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -43"
             },
-            "3": {
-              "cortes": [
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362989075",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785362593411",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785363311650",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -52"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 6,
-                  "base": "ALTO",
-                  "formula": "Alto -42"
-                },
-                {
-                  "perfilId": "b1785364232546",
-                  "cantidad": 6,
-                  "base": "ANCHO",
-                  "formula": "Ancho /3 -26"
-                },
-                {
-                  "perfilId": "b1785363402795",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Alto -109"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 6,
-                  "base": "ALTO",
-                  "formula": "Alto -173"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 6,
-                  "base": "ANCHO",
-                  "formula": "Ancho /3 -117"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 3,
-                  "formulaAncho": "Ancho /3 -134",
-                  "formulaAlto": "Alto -150"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 16
-                },
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 6
-                }
-              ]
+            {
+              "perfilId": "b1785657184591",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -45"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -183"
+            },
+            {
+              "perfilId": "b1785362320194",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -225"
+            },
+            {
+              "perfilId": "b1785363402795",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -108"
             }
-          }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho /2 -183",
+              "formulaAlto": "Alto -186"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a3",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 12
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785658517668",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785658582324",
+              "cantidad": 1
+            }
+          ]
         },
-        {
-          "id": "s1785656720098",
-          "nombre": "Puerta 2300",
-          "hojasPermitidas": [
-            0,
-            1,
-            2
-          ],
-          "reglas": {
-            "0": {
-              "cortes": [
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -45"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -85"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "Ancho -80",
-                  "formulaAlto": "Alto -80"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 4
-                }
-              ]
-            },
-            "1": {
-              "cortes": [
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785657184591",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -78"
-                },
-                {
-                  "perfilId": "b1785657184591",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -45"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -218"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -225"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "Ancho -218",
-                  "formulaAlto": "Alto -186"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 4
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 6
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785658517668",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785658582324",
-                  "cantidad": 1
-                }
-              ]
-            },
-            "2": {
-              "cortes": [
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1785363132826",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785657184591",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -43"
-                },
-                {
-                  "perfilId": "b1785657184591",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -45"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -183"
-                },
-                {
-                  "perfilId": "b1785362320194",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -225"
-                },
-                {
-                  "perfilId": "b1785363402795",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -108"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "Ancho /2 -183",
-                  "formulaAlto": "Alto -186"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 8
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 12
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785658517668",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785658582324",
-                  "cantidad": 1
-                }
-              ]
-            },
-            "3": {
-              "cortes": [],
-              "vidrios": [],
-              "accesorios": []
-            }
-          }
-        },
-        {
-          "id": "s1786197347491",
-          "nombre": "Ventana 600",
-          "hojasPermitidas": [
-            0,
-            1,
-            2
-          ],
-          "reglas": {
-            "0": {
-              "cortes": [
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -52"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -80"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "Ancho -57",
-                  "formulaAlto": "Alto -57"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 4
-                }
-              ]
-            },
-            "1": {
-              "cortes": [
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786195238854",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -40"
-                },
-                {
-                  "perfilId": "b1786195238854",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -40"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho -120"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto -148"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 1,
-                  "formulaAncho": "Ancho -125",
-                  "formulaAlto": "Alto -120"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 8
-                },
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785654936807",
-                  "cantidad": 1
-                }
-              ]
-            },
-            "2": {
-              "cortes": [
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786195094886",
-                  "cantidad": 2,
-                  "base": "ALTO",
-                  "formula": "Alto"
-                },
-                {
-                  "perfilId": "b1785364008113",
-                  "cantidad": 1,
-                  "base": "ANCHO",
-                  "formula": "Ancho"
-                },
-                {
-                  "perfilId": "b1786195238854",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -27"
-                },
-                {
-                  "perfilId": "b1786195238854",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -40"
-                },
-                {
-                  "perfilId": "b1786195490529",
-                  "cantidad": 1,
-                  "base": "ALTO",
-                  "formula": "Alto -96"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 4,
-                  "base": "ALTO",
-                  "formula": "Alto -148"
-                },
-                {
-                  "perfilId": "b1786196719990",
-                  "cantidad": 4,
-                  "base": "ANCHO",
-                  "formula": "Ancho /2 -67"
-                }
-              ],
-              "vidrios": [
-                {
-                  "vidrioId": "v1",
-                  "cantidad": 2,
-                  "formulaAncho": "Ancho /2 -72",
-                  "formulaAlto": "Alto -125"
-                }
-              ],
-              "accesorios": [
-                {
-                  "accesorioId": "a3",
-                  "cantidad": 4
-                },
-                {
-                  "accesorioId": "a1785653005426",
-                  "cantidad": 2
-                },
-                {
-                  "accesorioId": "a1785653548917",
-                  "cantidad": 12
-                },
-                {
-                  "accesorioId": "a1785654936807",
-                  "cantidad": 1
-                },
-                {
-                  "accesorioId": "a1785655022442",
-                  "cantidad": 2
-                }
-              ]
-            }
-          }
+        "3": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
         }
-      ]
-    };
+      }
+    },
+    {
+      "id": "s1786197347491",
+      "nombre": "Ventana 600",
+      "hojasPermitidas": [
+        0,
+        1,
+        2
+      ],
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -52"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -80"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -57",
+              "formulaAlto": "Alto -57"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 4
+            }
+          ]
+        },
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786195238854",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -40"
+            },
+            {
+              "perfilId": "b1786195238854",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -40"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -120"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -148"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -125",
+              "formulaAlto": "Alto -120"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785654936807",
+              "cantidad": 1
+            }
+          ]
+        },
+        "2": {
+          "cortes": [
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786195094886",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1785364008113",
+              "cantidad": 1,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1786195238854",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -27"
+            },
+            {
+              "perfilId": "b1786195238854",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -40"
+            },
+            {
+              "perfilId": "b1786195490529",
+              "cantidad": 1,
+              "base": "ALTO",
+              "formula": "Alto -96"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 4,
+              "base": "ALTO",
+              "formula": "Alto -148"
+            },
+            {
+              "perfilId": "b1786196719990",
+              "cantidad": 4,
+              "base": "ANCHO",
+              "formula": "Ancho /2 -67"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 2,
+              "formulaAncho": "Ancho /2 -72",
+              "formulaAlto": "Alto -125"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a3",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 12
+            },
+            {
+              "accesorioId": "a1785654936807",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "s1789607092649",
+      "nombre": "Moldura tapajuntas",
+      "hojasPermitidas": [
+        0,
+        3
+      ],
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1789606595374",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho + 140"
+            },
+            {
+              "perfilId": "b1789606595374",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto + 140"
+            }
+          ],
+          "vidrios": [],
+          "accesorios": []
+        },
+        "2": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
+        },
+        "3": {
+          "cortes": [
+            {
+              "perfilId": "b1789606595374",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto + 70"
+            },
+            {
+              "perfilId": "b1789606595374",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho + 140"
+            }
+          ],
+          "vidrios": [],
+          "accesorios": []
+        }
+      }
+    }
+  ]
+};;
 
     let almacenCatActual = 'barras';
     let hojasConfigActual = 2;
