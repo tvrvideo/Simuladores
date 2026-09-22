@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>Generador colores v10</title>
+    <title>Generador colores v1.1</title>
     <style>
     :root{
         --primary: #e74c3c;
@@ -48,7 +48,7 @@
     }
 
     /* Estilos generales App principal */
-    .app-title{
+    .app-title{ font-size:1.3em; margin-left:80px;
         text-align: center; font-size: 1.6em; margin: 52px 0 18px;
         letter-spacing: .2px; font-weight: 950; line-height: 1.1; color: var(--primary);
     }
@@ -252,10 +252,10 @@
 </head>
 <body>
 
-<button type="button" class="btn-menu" onclick="if(window.parent && window.parent.volverMenu){window.parent.volverMenu()}"><- MENÚ</button>
+<button type="button" class="btn-menu" onclick="return volverIndexSeguro()">← MENÚ</button>
 
 <div class="container" id="main-app">
-    <h1 class="app-title">Generador de colores <span class="ver">v10</span></h1>
+    <h1 class="app-title">Generador de colores <span class="ver">v1.1</span></h1>
 
     <button type="button" class="btn-camera-launch" onclick="openGalleryDirect()">
          Seleccionar imagen
@@ -926,5 +926,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+<script>
+function volverIndexSeguro(){
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage('volverMenu','*');
+      return false;
+    }
+  }catch(e){}
+  window.location.href='index.html';
+  return false;
+}
+</script>
+
 </body>
 </html>
