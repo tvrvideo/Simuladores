@@ -11702,6 +11702,18 @@ async function compartirBackupJSON(){
         };
         card.innerHTML = map.html(item.row, item.i);
         res.appendChild(card);
+        // v25.9.11 - Las imágenes enlazadas del catálogo deben usar el mismo
+        // cargador con fallback que la lista principal. Antes la búsqueda ponía
+        // el src directamente y podía perder rutas como img/archivo.jpg.
+        if(prefix === 'catalogo') {
+          try{
+            const img = card.querySelector('img[data-catalog-search-image]');
+            if(img){
+              const raw = getProductImageRef(item.row);
+              if(raw) setImageWithFallback(img, raw);
+            }
+          }catch(e){}
+        }
       });
     }
 
@@ -11796,7 +11808,7 @@ async function compartirBackupJSON(){
           if(p.stock !== undefined) sub.push("Stock: " + (parseInt(p.stock) || 0));
           const thumbData = getProductImageRef(p);
           const imgHtml = thumbData
-            ? '<img class="list-thumb" alt="Foto" loading="lazy" decoding="async" src="'+ escapeHtml(thumbData) +'">'
+            ? '<img class="list-thumb" data-catalog-search-image="1" alt="Foto" loading="lazy" decoding="async">'
             : '';
           return '<div class="list-main">'
             + imgHtml
@@ -14477,5 +14489,6 @@ function volverIndexSeguro(){
   setTimeout(function(){ bind(); refreshGastosPeriodo(); },800);
 })();
 </script>
+<!-- v25.9.11 - Imágenes enlazadas visibles también en búsqueda de catálogo -->
 </body>
 </html>
