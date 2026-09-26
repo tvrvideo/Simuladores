@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo Precios - Ventanas Rey v1.6</title>
+  <title>Cálculo Precios - Ventanas Rey v1.7</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -94,16 +94,41 @@
     header h1 { margin-left: 88px; }
     #appVersionHeader { flex: 0 0 auto; white-space: nowrap; }
   </style>
+
+<style id="ganancia-v180-style">
+.gain-title{font-weight:700;margin-bottom:7px}
+.gain-row{display:flex;gap:7px;flex-wrap:wrap}
+.gain-row button{border:0;border-radius:9px;padding:8px 10px;font-weight:700;background:#f0c400;color:#111}
+.gain-fields{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.gain-fields label{font-size:13px;font-weight:600}
+.gain-fields input{display:block;width:110px;margin-top:4px;padding:8px;border:1px solid #c8b45b;border-radius:8px;background:#fff}
+.gain-result{margin-top:8px;font-weight:700}
+</style>
+<style id="ajustes-v181-style">
+.tab-btn-settings{flex:0 0 48px;min-width:48px;font-size:20px;line-height:1;padding-left:6px;padding-right:6px}
+</style>
+
+<style id="v185-fixes-style">
+#gainBoxAjustes{margin:12px 0;padding:10px;border-radius:12px;background:#fff4bf;border:1px solid #e4cf69}
+#inicio .price-card{
+  position:sticky;
+  top:65px;
+  z-index:900;
+  box-shadow:0 2px 7px rgba(0,0,0,.14);
+}
+</style>
 </head>
 <body>
   <!-- v1.5 - Volver al menú principal de GitHub -->
   <button type="button" class="btn-menu-index" onclick="volverAlIndex()">Menú</button>
+  <button type="button" id="btnVolverVentanaPro" onclick="volverAVentanaProDesdeMotor()" style="display:none;position:fixed;right:10px;bottom:64px;z-index:1200;border:0;border-radius:8px;padding:6px 9px;background:#b91c1c;color:#fff;font-size:11px;line-height:1.15;font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.18);width:auto;min-width:0">← Ventana Pro</button>
+  <button type="button" id="btnVolverDocumentosMotor" onclick="volverADocumentosDesdeMotor()" style="display:none;position:fixed;right:112px;bottom:64px;z-index:1200;border:0;border-radius:8px;padding:7px 10px;background:#16a34a;color:#fff;font-size:11px;line-height:1.15;font-weight:800;box-shadow:0 2px 5px rgba(0,0,0,.18);width:auto;min-width:0">✓ Documentos</button>
 
 
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.6</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.7</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -112,10 +137,13 @@
     <button class="tab-btn" onclick="switchTab(event, 'despiece')">Despiece</button>
     <button class="tab-btn" onclick="switchTab(event, 'almacen')">Almacén</button>
     <button class="tab-btn" onclick="switchTab(event, 'series')">Series</button>
+    <button class="tab-btn tab-btn-settings" aria-label="Ajustes" title="Ajustes" onclick="switchTab(event, 'ajustes')">⚙️</button>
   </div>
 
   <!-- INICIO -->
   <div id="inicio" class="tab-content active">
+
+
     <div class="price-card">
       <h2 id="totalPrecioMain">0.00 €</h2>
     </div>
@@ -160,6 +188,7 @@
         <button type="button" id="btnPulsadorVidrio" class="btn-toggle active" onclick="toggleOpcionPulsador(this, 'containerSelVidrio')">Vidrio</button>
         <button type="button" id="btnPulsadorChapa" class="btn-toggle" onclick="toggleOpcionPulsador(this, 'containerSelChapa')">Chapa / Panel</button>
         <button type="button" id="btnPulsadorPersiana" class="btn-toggle" onclick="toggleOpcionPulsador(this, 'containerSelPersiana')">Persiana</button>
+        <button type="button" id="btnPulsadorGanancia" class="btn-toggle" onclick="toggleGananciaDesdeInicio()">Ganancia</button>
       </div>
     </div>
 
@@ -179,6 +208,22 @@
       <select id="selPersianaMaterial" onchange="calcular()"></select>
     </div>
   </div>
+
+    <div id="containerSelGanancia" class="form-group selector-especifico" style="display:none;">
+  <label style="color:#0369a1;">Configurar Ganancia</label>
+  <div class="gain-row">
+    <button type="button" id="btnGananciaModo" onclick="alternarModoGanancia()">Modo: PORCENTAJE</button>
+  </div>
+  <div class="gain-fields">
+    <label id="lblGananciaPct">Porcentaje
+      <input id="inpGananciaPct" type="number" inputmode="decimal" min="0" step="0.01" value="40">
+    </label>
+    <label id="lblGananciaFija" style="display:none">Importe fijo (€)
+      <input id="inpGananciaFija" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+    </label>
+  </div>
+  <div id="gananciaResultado" class="gain-result">Ganancia: 0,00 €</div>
+</div>
 
   <!-- DESPIECE -->
   <div id="despiece" class="tab-content">
@@ -332,24 +377,7 @@
   <!-- CONFIGURACIÓN DE SERIES -->
   <div id="series" class="tab-content">
     <h3>Configuración de Series</h3>
-    
-    <div class="box" style="background:#eef2ff; border-color:#c7d2fe;">
-      <h5 style="color:var(--primary); margin-bottom:8px;">📦 Copia de Seguridad JSON</h5>
-      <div class="grid">
-        <div>
-          <button class="success" onclick="exportarSeriesJSON()">Descargar Archivo JSON</button>
-          <button class="secondary" onclick="copiarJSONAlPortapapeles()" style="margin-top:5px;">Copiar JSON</button>
-        </div>
-        <div>
-          <label>Importar desde Archivo:</label>
-          <input type="file" id="fileImportJSON" accept=".json,application/json,text/plain" onchange="importarSeriesDesdeArchivo(event)">
-        </div>
-      </div>
-      <div style="margin-top:10px;">
-        <textarea id="txtJsonImport" rows="3" placeholder="Pega el JSON aquí si no puedes descargar el archivo directamente..."></textarea>
-        <button onclick="importarSeriesDesdeTexto()" style="margin-top:5px;">Cargar Datos desde Texto</button>
-      </div>
-    </div>
+
 
     <div class="box grid">
       <div class="form-group">
@@ -487,6 +515,61 @@
     </div>
   </div>
 
+  <!-- AJUSTES -->
+  <div id="ajustes" class="tab-content">
+    <h3>Ajustes</h3>
+
+    <div class="gain-box" id="gainBoxAjustes">
+      <div class="gain-title">Ganancia</div>
+      <div class="gain-row">
+        <button type="button" id="btnGananciaToggleAjustes" onclick="toggleGananciaUnica()">Ganancia: ACTIVADA</button>
+        <button type="button" id="btnGananciaModoAjustes" onclick="alternarModoGanancia()">Modo: PORCENTAJE</button>
+      </div>
+      <div class="gain-fields">
+        <label id="lblGananciaPctAjustes">Porcentaje
+          <input id="inpGananciaPctAjustes" type="number" inputmode="decimal" min="0" step="0.01" value="40"
+                 oninput="sincronizarGananciaDesdeAjustes('porcentaje')">
+        </label>
+        <label id="lblGananciaFijaAjustes" style="display:none">Importe fijo (€)
+          <input id="inpGananciaFijaAjustes" type="number" inputmode="decimal" min="0" step="0.01" value="0"
+                 oninput="sincronizarGananciaDesdeAjustes('fijo')">
+        </label>
+      </div>
+      <div id="gananciaResultadoAjustes" class="gain-result">Ganancia: 0,00 €</div>
+    </div>
+
+
+
+    <div class="box" style="background:#ecfeff; border-color:#67e8f9;">
+      <h5 style="color:#0e7490; margin-bottom:8px;">🪟 Ventana actual</h5>
+      <div class="grid">
+        <button class="success" type="button" onclick="exportarVentanaActual()">Exportar ventana</button>
+        <label>Importar ventana:
+          <input type="file" id="fileImportVentana" accept=".json,application/json,text/plain" onchange="importarVentanaActual(event)">
+        </label>
+      </div>
+      <div style="font-size:12px;color:#475569;margin-top:7px;">Guarda solo la configuración de esta ventana. Este mismo formato se usa para comunicarse con Ventana Pro.</div>
+    </div>
+
+    <div class="box" style="background:#eef2ff; border-color:#c7d2fe;">
+      <h5 style="color:var(--primary); margin-bottom:8px;">📦 Copia de Seguridad JSON</h5>
+      <div class="grid">
+        <div>
+          <button class="success" onclick="exportarSeriesJSON()">Descargar Archivo JSON</button>
+          <button class="secondary" onclick="copiarJSONAlPortapapeles()" style="margin-top:5px;">Copiar JSON</button>
+        </div>
+        <div>
+          <label>Importar desde Archivo:</label>
+          <input type="file" id="fileImportJSON" accept=".json,application/json,text/plain" onchange="importarSeriesDesdeArchivo(event)">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <textarea id="txtJsonImport" rows="3" placeholder="Pega el JSON aquí si no puedes descargar el archivo directamente..."></textarea>
+        <button onclick="importarSeriesDesdeTexto()" style="margin-top:5px;">Cargar Datos desde Texto</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DATALIST SUGERENCIAS DE COLORES -->
   <datalist id="listaSugerenciasColores">
     <option value="Blanco">
@@ -497,10 +580,11 @@
     <option value="Anodizado Plata">
     <option value="Madera">
     <option value="Especial">
+    <option value="Anodizado">
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.6";
+    const APP_VERSION = "v1.7";
 
     // La base de datos está integrada en este HTML: no necesita cargar un JSON externo.
     let db = {
@@ -518,7 +602,8 @@
     "Inox",
     "Negro",
     "Plata aluminio",
-    "Plata Aluminio"
+    "Plata Aluminio",
+    "Anodizado"
   ],
   "almacenBarras": [
     {
@@ -983,6 +1068,93 @@
         "Verde Pino": 5.82
       },
       "longitud": 6500
+    },
+    {
+      "id": "b1789704582395",
+      "nombre": "Tubo 20 X 10",
+      "material": "Aluminio",
+      "precios": {
+        "Anodizado": 5.41,
+        "Blanco": 3.84
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1789705967282",
+      "nombre": "Tubo 20 X 40",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 5.2,
+        "Natural": 6.9
+      },
+      "longitud": 6600
+    },
+    {
+      "id": "b1789708225223",
+      "nombre": "13301 Marco PVC",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 5.27,
+        "Gris Antracita": 7.79,
+        "Verde Pino": 7.79,
+        "Roble Dorado": 7.08,
+        "Nogal": 7.08,
+        "Plata aluminio": 7.79
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789708544399",
+      "nombre": "13201 Hoja ventana PVC",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 5.72,
+        "Roble Dorado": 8.93,
+        "Nogal": 8.93,
+        "Verde Pino": 10.2,
+        "Gris Antracita": 10.2
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789708733497",
+      "nombre": "16041 Junquillo 25 mm PVC",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 1.06,
+        "Gris Antracita": 2.29,
+        "Verde Pino": 2.29,
+        "Nogal": 1.94,
+        "Roble Dorado": 1.94,
+        "Plata aluminio": 2.29
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789709012458",
+      "nombre": "1390 Refuerzo 30 X 30 Marco PVC",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 2.17,
+        "Verde Pino": 2.17,
+        "Gris Antracita": 2.17,
+        "Nogal": 2.17,
+        "Roble Dorado": 2.17
+      },
+      "longitud": 6500
+    },
+    {
+      "id": "b1789711608075",
+      "nombre": "1391 Refuerzo U 30 X 26 hoja PVC",
+      "material": "PVC",
+      "precios": {
+        "Blanco": 1.56,
+        "Gris Antracita": 1.56,
+        "Verde Pino": 1.56,
+        "Nogal": 1.56,
+        "Roble Dorado": 1.56
+      },
+      "longitud": 6500
     }
   ],
   "almacenVidrios": [
@@ -1013,6 +1185,13 @@
       "tipo": "chapa",
       "precio": 25,
       "minimoM2": 0
+    },
+    {
+      "id": "v1789704971857",
+      "nombre": "Luna 4 mm",
+      "tipo": "vidrio",
+      "precio": 17.75,
+      "minimoM2": 0.7
     }
   ],
   "almacenAccesorios": [
@@ -1097,6 +1276,18 @@
       "nombre": "Cerradura CE",
       "tipo": "fijo",
       "precio": 35
+    },
+    {
+      "id": "a1789705191331",
+      "nombre": "Cerradura nicho",
+      "tipo": "fijo",
+      "precio": 25
+    },
+    {
+      "id": "a1789705387397",
+      "nombre": "Perilla nicho",
+      "tipo": "fijo",
+      "precio": 2.5
     }
   ],
   "series": [
@@ -1483,7 +1674,7 @@
             },
             {
               "perfilId": "b1785120242343",
-              "cantidad": 2,
+              "cantidad": 4,
               "base": "ANCHO",
               "formula": "Ancho /2 -24"
             },
@@ -1510,8 +1701,8 @@
             {
               "vidrioId": "v1",
               "cantidad": 2,
-              "formulaAncho": "Ancho /2 -131",
-              "formulaAlto": "Alto -150"
+              "formulaAncho": "Ancho /2 -125",
+              "formulaAlto": "Alto -144"
             }
           ],
           "accesorios": [
@@ -1529,10 +1720,14 @@
             },
             {
               "accesorioId": "a1785653548917",
-              "cantidad": 8
+              "cantidad": 12
             },
             {
               "accesorioId": "a1785654936807",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a2",
               "cantidad": 1
             }
           ]
@@ -1554,13 +1749,13 @@
             {
               "perfilId": "b1785362593411",
               "cantidad": 1,
-              "base": "ALTO",
+              "base": "ANCHO",
               "formula": "Ancho"
             },
             {
               "perfilId": "b1785362681937",
               "cantidad": 1,
-              "base": "ALTO",
+              "base": "ANCHO",
               "formula": "Ancho"
             },
             {
@@ -1622,6 +1817,10 @@
             {
               "accesorioId": "a1785655022442",
               "cantidad": 3
+            },
+            {
+              "accesorioId": "a2",
+              "cantidad": 1
             }
           ]
         }
@@ -2396,6 +2595,247 @@
           "accesorios": []
         }
       }
+    },
+    {
+      "id": "s1789704369218",
+      "nombre": "Nicho",
+      "hojasPermitidas": [
+        1
+      ],
+      "reglas": {
+        "0": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
+        },
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1789704582395",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1789704582395",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1789704582395",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto - 60"
+            },
+            {
+              "perfilId": "b1789704582395",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho - 60"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1789704971857",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -65",
+              "formulaAlto": "Alto -65"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1789705387397",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a1789705191331",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            }
+          ]
+        },
+        "2": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
+        }
+      }
+    },
+    {
+      "id": "s1789706514264",
+      "nombre": "PVC A-70",
+      "hojasPermitidas": [
+        0,
+        1,
+        2
+      ],
+      "reglas": {
+        "0": {
+          "cortes": [
+            {
+              "perfilId": "b1789708225223",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1789708225223",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1789709012458",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -90"
+            },
+            {
+              "perfilId": "b1789709012458",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -90"
+            },
+            {
+              "perfilId": "b1789708733497",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -100"
+            },
+            {
+              "perfilId": "b1789708733497",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -100"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -110",
+              "formulaAlto": "Alto -110"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 4
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            }
+          ]
+        },
+        "1": {
+          "cortes": [
+            {
+              "perfilId": "b1789708225223",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho"
+            },
+            {
+              "perfilId": "b1789708225223",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto"
+            },
+            {
+              "perfilId": "b1789708544399",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -84"
+            },
+            {
+              "perfilId": "b1789708544399",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -84"
+            },
+            {
+              "perfilId": "b1789709012458",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -90"
+            },
+            {
+              "perfilId": "b1789709012458",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -90"
+            },
+            {
+              "perfilId": "b1789711608075",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -194"
+            },
+            {
+              "perfilId": "b1789711608075",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -194"
+            },
+            {
+              "perfilId": "b1789708733497",
+              "cantidad": 2,
+              "base": "ANCHO",
+              "formula": "Ancho -200"
+            },
+            {
+              "perfilId": "b1789708733497",
+              "cantidad": 2,
+              "base": "ALTO",
+              "formula": "Alto -200"
+            }
+          ],
+          "vidrios": [
+            {
+              "vidrioId": "v1",
+              "cantidad": 1,
+              "formulaAncho": "Ancho -208",
+              "formulaAlto": "Alto -208"
+            }
+          ],
+          "accesorios": [
+            {
+              "accesorioId": "a1785653005426",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a2",
+              "cantidad": 1
+            },
+            {
+              "accesorioId": "a3",
+              "cantidad": 2
+            },
+            {
+              "accesorioId": "a1785653548917",
+              "cantidad": 8
+            },
+            {
+              "accesorioId": "a1785655022442",
+              "cantidad": 1
+            }
+          ]
+        },
+        "2": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
+        }
+      }
     }
   ]
 };;
@@ -2405,12 +2845,16 @@
     let hojasInicioSeleccionadas = 2;
 
     function volverAlIndex() {
-      // Funciona tanto dentro del iframe del index como abriendo esta app directamente.
+      // Si Motor está abierto dentro del Index, vuelve al menú sin recargarlo.
       try {
-        window.top.location.href = 'index.html';
-      } catch (e) {
-        window.location.href = 'index.html';
-      }
+        if (window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function') {
+          window.parent.volverMenu();
+          return;
+        }
+      } catch (e) {}
+      // Si Motor se abrió directamente, vuelve al Index de GitHub/local.
+      try { window.location.href = 'index.html'; }
+      catch (e) { window.top.location.href = 'index.html'; }
     }
 
     function init() {
@@ -2422,6 +2866,7 @@
       renderAlmacen();
       cargarConfigSerie();
       calcular();
+      setTimeout(consumirVentanaExterna, 0);
     }
 
     function scrollToElement(elemId) {
@@ -2546,7 +2991,104 @@
       }
     }
 
-    function calcular() {
+    
+let configGanancia={activa:true,modo:'porcentaje',porcentaje:40,fijo:0};
+function cargarConfigGanancia(){
+  try{
+    const g=JSON.parse(localStorage.getItem('calculoPreciosGanancia_v1')||'null');
+    if(g&&typeof g==='object')configGanancia=Object.assign(configGanancia,g);
+  }catch(e){}
+  actualizarUIGanancia();
+}
+function guardarConfigGanancia(){
+  try{localStorage.setItem('calculoPreciosGanancia_v1',JSON.stringify(configGanancia));}catch(e){}
+}
+function actualizarUIGanancia(){
+  sincronizarGananciaAjustes();
+  sincronizarBotonGananciaInicio();
+  const b1=document.getElementById('btnGananciaToggle'),b2=document.getElementById('btnGananciaModo');
+  const p=document.getElementById('lblGananciaPct'),f=document.getElementById('lblGananciaFija');
+  const ip=document.getElementById('inpGananciaPct'),iff=document.getElementById('inpGananciaFija');
+  if(b1)b1.textContent='Ganancia: '+(configGanancia.activa?'ACTIVADA':'DESACTIVADA');
+  if(b2)b2.textContent='Modo: '+(configGanancia.modo==='fijo'?'IMPORTE FIJO':'PORCENTAJE');
+  if(p)p.style.display=configGanancia.modo==='fijo'?'none':'';
+  if(f)f.style.display=configGanancia.modo==='fijo'?'':'none';
+  if(ip)ip.value=configGanancia.porcentaje;
+  if(iff)iff.value=configGanancia.fijo;
+}
+
+
+function sincronizarGananciaAjustes(){
+  const bt=document.getElementById('btnGananciaToggleAjustes');
+  const bm=document.getElementById('btnGananciaModoAjustes');
+  const pct=document.getElementById('inpGananciaPctAjustes');
+  const fijo=document.getElementById('inpGananciaFijaAjustes');
+  const lp=document.getElementById('lblGananciaPctAjustes');
+  const lf=document.getElementById('lblGananciaFijaAjustes');
+  if(bt) bt.textContent='Ganancia: '+(configGanancia.activa?'ACTIVADA':'DESACTIVADA');
+  if(bm) bm.textContent='Modo: '+(configGanancia.modo==='fijo'?'IMPORTE FIJO':'PORCENTAJE');
+  if(pct && document.activeElement!==pct) pct.value=configGanancia.porcentaje;
+  if(fijo && document.activeElement!==fijo) fijo.value=configGanancia.fijo;
+  if(lp) lp.style.display=configGanancia.modo==='fijo'?'none':'block';
+  if(lf) lf.style.display=configGanancia.modo==='fijo'?'block':'none';
+  const r=document.getElementById('gananciaResultadoAjustes');
+  const src=document.getElementById('gananciaResultado');
+  if(r && src) r.textContent=src.textContent;
+}
+function sincronizarGananciaDesdeAjustes(tipo){
+  if(tipo==='porcentaje'){
+    const e=document.getElementById('inpGananciaPctAjustes');
+    configGanancia.porcentaje=Math.max(0,Number(e?.value)||0);
+    const main=document.getElementById('inpGananciaPct');
+    if(main) main.value=configGanancia.porcentaje;
+  }else{
+    const e=document.getElementById('inpGananciaFijaAjustes');
+    configGanancia.fijo=Math.max(0,Number(e?.value)||0);
+    const main=document.getElementById('inpGananciaFija');
+    if(main) main.value=configGanancia.fijo;
+  }
+  guardarConfigGanancia();
+  calcular();
+}
+function sincronizarBotonGananciaInicio(){
+  const btn = document.getElementById('btnPulsadorGanancia');
+  if(!btn) return;
+  btn.classList.toggle('active', !!configGanancia.activa);
+  btn.setAttribute('aria-pressed', configGanancia.activa ? 'true' : 'false');
+  const panel = document.getElementById('containerSelGanancia');
+  if(panel) panel.style.display = configGanancia.activa ? 'block' : 'none';
+}
+
+function toggleGananciaDesdeInicio(){
+  configGanancia.activa = !configGanancia.activa;
+  guardarConfigGanancia();
+  actualizarUIGanancia();
+  sincronizarBotonGananciaInicio();
+  calcular();
+}
+
+function toggleGananciaUnica(){
+  configGanancia.activa=!configGanancia.activa;
+  guardarConfigGanancia();actualizarUIGanancia();
+  if(typeof calcular==='function')calcular();
+}
+function alternarModoGanancia(){
+  configGanancia.modo=configGanancia.modo==='fijo'?'porcentaje':'fijo';
+  guardarConfigGanancia();actualizarUIGanancia();
+  if(typeof calcular==='function')calcular();
+}
+function guardarYCalcularGanancia(){
+  const ip=document.getElementById('inpGananciaPct'),iff=document.getElementById('inpGananciaFija');
+  if(ip)configGanancia.porcentaje=Math.max(0,Number(ip.value)||0);
+  if(iff)configGanancia.fijo=Math.max(0,Number(iff.value)||0);
+  guardarConfigGanancia();actualizarUIGanancia();
+  if(typeof calcular==='function')calcular();
+}
+document.addEventListener('input',function(e){
+  if(e.target&&(e.target.id==='inpGananciaPct'||e.target.id==='inpGananciaFija'))guardarYCalcularGanancia();
+});
+
+function calcular() {
       const serieId = document.getElementById('selSerie').value;
       const colorSel = document.getElementById('selColor').value;
       const ancho = parseFloat(document.getElementById('inpAncho').value) || 0;
@@ -2564,6 +3106,8 @@
       const reglas = (serie && serie.reglas && serie.reglas[hojasInicioSeleccionadas]) ? serie.reglas[hojasInicioSeleccionadas] : { cortes: [], vidrios: [], accesorios: [] };
 
       let total = 0;
+      // Fuente única de fabricación: se construye a la vez que las tablas visibles de Despiece.
+      const despieceReal={serie:(serie&&serie.nombre)||'',acabado:colorSel,ancho:ancho,alto:alto,hojas:Number(hojasInicioSeleccionadas)||0,barras:[],vidrios:[],accesorios:[]};
 
       const tbC = document.querySelector('#tblDespiecePerfiles tbody');
       const tbV = document.querySelector('#tblDespieceVidrios tbody');
@@ -2579,6 +3123,22 @@
         const resCorte = evaluarFormula(c.formula, ancho, alto);
         const coste = (resCorte.valor / 1000) * c.cantidad * precioMetro;
         total += coste;
+        if(!resCorte.error && Number(resCorte.valor)>0 && Number(c.cantidad)>0){
+          despieceReal.barras.push({
+            referencia:String(perf.referencia||perf.ref||''),
+            nombre:String(perf.nombre||'Perfil'),
+            material:String(perf.material||'Aluminio'),
+            acabado:String(colorSel||''),
+            cantidad:Number(c.cantidad)||0,
+            longitud:Math.round(Number(resCorte.valor)||0),
+            largoBarra:Number(perf.longitud)||6500,
+            precioUnidad:Number(precioMetro)||0,
+            unidadPrecio:'€/m',
+            coste:Number(coste)||0,
+            corte:String(c.tipoCorte||c.corte||'recto'),
+            base:String(c.base||''),formula:String(c.formula||'')
+          });
+        }
 
         let estiloCorte = resCorte.error ? 'style="color: var(--error); font-weight: bold;"' : '';
         let textoCorte = resCorte.error ? 'Fórmula incorrecta' : `${Math.round(resCorte.valor)} mm`;
@@ -2620,6 +3180,9 @@
         
         total += coste;
         numRellenosCalculados++;
+        if(!resW.error && !resH.error){
+          despieceReal.vidrios.push({nombre:String(materialObj.nombre||'Relleno'),tipo:String(materialObj.tipo||'vidrio'),cantidad:Number(itemRegla.cantidad)||0,ancho:Math.round(Number(resW.valor)||0),alto:Math.round(Number(resH.valor)||0),precioUnidad:Number(materialObj.precio)||0,unidadPrecio:'€/m²',coste:Number(coste)||0});
+        }
 
         let errClass = (resW.error || resH.error) ? 'style="color: var(--error);"' : '';
         let avisoMinimo = (minRegla > 0 && m2UnitarioReal < minRegla) ? `<span class="tag-minimo">(Mínimo ${minRegla.toFixed(2)} m²/ud)</span>` : '';
@@ -2657,6 +3220,7 @@
         const acc = db.almacenAccesorios.find(x => x.id === a.accesorioId) || { nombre: 'Desconocido', precio: 0 };
         let coste = a.cantidad * acc.precio;
         total += coste;
+        despieceReal.accesorios.push({nombre:String(acc.nombre||'Accesorio'),tipo:String(acc.tipo||'fijo'),cantidad:Number(a.cantidad)||0,precioUnidad:Number(acc.precio)||0,unidadPrecio:acc.tipo==='m2'?'€/m²':'€/ud',coste:Number(coste)||0});
 
         tbA.innerHTML += `<tr>
           <td>${acc.nombre}</td>
@@ -2683,6 +3247,7 @@
           }
 
           total += costePersiana;
+          despieceReal.accesorios.push({nombre:String(matPersiana.nombre||'Persiana'),tipo:String(matPersiana.tipo||'fijo'),cantidad:matPersiana.tipo==='m2'?Number(((ancho/1000)*(alto/1000)).toFixed(4)):1,precioUnidad:Number(matPersiana.precio)||0,unidadPrecio:matPersiana.tipo==='m2'?'€/m²':'€/ud',coste:Number(costePersiana)||0});
 
           tbA.innerHTML += `<tr>
             <td>${matPersiana.nombre}</td>
@@ -2693,7 +3258,19 @@
         }
       }
 
-      document.getElementById('totalPrecioMain').innerText = total.toFixed(2) + ' €';
+      const baseCalculada=total;
+  let ganancia=0;
+  if(configGanancia.activa){
+    ganancia=configGanancia.modo==='fijo'
+      ? Math.max(0,Number(configGanancia.fijo)||0)
+      : baseCalculada*Math.max(0,Number(configGanancia.porcentaje)||0)/100;
+  }
+  const venta=baseCalculada+ganancia;
+  document.getElementById('totalPrecioMain').innerText=venta.toFixed(2)+' €';
+  window.__reyMotorLastResult={coste:baseCalculada,ganancia:ganancia,venta:venta,despiece:despieceReal};
+  const gr=document.getElementById('gananciaResultado');
+  if(gr)gr.textContent='Ganancia: '+ganancia.toFixed(2)+' €'+
+    (configGanancia.modo==='porcentaje'?' · '+(Number(configGanancia.porcentaje)||0).toFixed(2)+' %':'');
     }
 
     function filtrarAlmacen() {
@@ -2907,7 +3484,21 @@
       calcular();
     }
 
+    const MOTOR_SERIES_CATALOG_KEY='REY_MOTOR_SERIES_CATALOG_V1';
+    function publicarCatalogoSeriesMotor(){
+      try{
+        const catalogo=(db&&Array.isArray(db.series)?db.series:[]).map(s=>({
+          id:String(s.id||''),
+          nombre:String(s.nombre||'').trim()
+        })).filter(s=>s.nombre);
+        const raw=JSON.stringify({version:1,fecha:Date.now(),series:catalogo});
+        localStorage.setItem(MOTOR_SERIES_CATALOG_KEY,raw);
+        try{sessionStorage.setItem(MOTOR_SERIES_CATALOG_KEY,raw);}catch(_){}
+      }catch(_){}
+    }
+
     function renderSelectSeries() {
+      publicarCatalogoSeriesMotor();
       const s1 = document.getElementById('selSerie');
       const s2 = document.getElementById('selSerieConfig');
       s1.innerHTML = ''; s2.innerHTML = '';
@@ -2922,6 +3513,7 @@
       if (!nom) return;
       const id = 's' + Date.now();
       db.series.push({ id, nombre: nom, hojasPermitidas: [0, 1, 2, 3, 4], reglas: {} });
+      publicarCatalogoSeriesMotor();
       document.getElementById('serNombre').value = '';
       renderSelectSeries();
       document.getElementById('selSerieConfig').value = id;
@@ -3203,6 +3795,178 @@
       calcular();
     }
 
+    const MOTOR_WINDOW_IN_KEY = 'REY_MOTOR_WINDOW_IN_V1';
+    const MOTOR_WINDOW_OUT_KEY = 'REY_MOTOR_WINDOW_OUT_V1';
+    const MOTOR_RETURN_KEY = 'REY_MOTOR_RETURN_URL_V1';
+
+    function normalizarTextoMotor(v){
+      return String(v == null ? '' : v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+    }
+
+    function obtenerVentanaActual(){
+      const serieId=document.getElementById('selSerie').value;
+      const serie=db.series.find(s=>s.id===serieId);
+      return {
+        schema:'rey-window-v1', version:1, origen:'motor_series.html', fecha:Date.now(),
+        referencia:'',
+        serie:{id:serieId,nombre:serie?serie.nombre:''},
+        medidas:{ancho:Number(document.getElementById('inpAncho').value)||0,alto:Number(document.getElementById('inpAlto').value)||0},
+        hojas:Number(hojasInicioSeleccionadas)||0,
+        acabado:{codigo:document.getElementById('selColor').value||'',nombre:document.getElementById('selColor').value||'',tipo:'acabado'},
+        opciones:{
+          vidrio:{activo:document.getElementById('btnPulsadorVidrio').classList.contains('active'),id:document.getElementById('selVidrioMaterial').value||''},
+          panel:{activo:document.getElementById('btnPulsadorChapa').classList.contains('active'),id:document.getElementById('selChapaMaterial').value||''},
+          persiana:{activo:document.getElementById('btnPulsadorPersiana').classList.contains('active'),id:document.getElementById('selPersianaMaterial').value||''}
+        }
+      };
+    }
+
+    function setToggleMotor(id, activo){
+      const b=document.getElementById(id); if(!b) return;
+      b.classList.toggle('active',!!activo);
+      const mapa={btnPulsadorVidrio:'containerSelVidrio',btnPulsadorChapa:'containerSelChapa',btnPulsadorPersiana:'containerSelPersiana'};
+      const c=document.getElementById(mapa[id]); if(c)c.style.display=activo?'block':'none';
+    }
+
+    const MOTOR_FROM_DOCUMENTOS_KEY='REY_MOTOR_FROM_DOCUMENTOS_V1';
+    const MOTOR_DESIGN_IMG_KEY='REY_MOTOR_DESIGN_IMG_V1';
+    const DESIGN_RETURN_IMG_KEY='presupuesto_visual_design_return_img_v1';
+    const DESIGN_RETURN_INDEX_KEY='presupuesto_visual_design_target_index_v1';
+    function actualizarRetornoMotor(){
+      let url='',desdeDocs=false;
+      try{
+        url=sessionStorage.getItem(MOTOR_RETURN_KEY)||localStorage.getItem(MOTOR_RETURN_KEY)||'';
+        desdeDocs=(sessionStorage.getItem(MOTOR_FROM_DOCUMENTOS_KEY)||localStorage.getItem(MOTOR_FROM_DOCUMENTOS_KEY)||'')==='1';
+      }catch(e){}
+      const b=document.getElementById('btnVolverVentanaPro'); if(b)b.style.display=url?'block':'none';
+      const d=document.getElementById('btnVolverDocumentosMotor'); if(d)d.style.display=desdeDocs?'block':'none';
+    }
+    function construirProyectoCutMasterMotor(dp,prefijo){
+      dp=dp||{}; const barras=Array.isArray(dp.barras)?dp.barras:[]; const mats={};
+      barras.forEach(function(c){
+        const len=Number(c.longitud)||0,qty=Math.max(0,Number(c.cantidad)||0); if(!(len>0&&qty>0))return;
+        const refUtil=(c.referencia && !/^b\d{8,}$/i.test(String(c.referencia)))?String(c.referencia):'';
+        const key=String(refUtil||c.nombre||'Perfil')+'|'+String(c.acabado||dp.acabado||'');
+        if(!mats[key])mats[key]={name:(refUtil?refUtil+' · ':'')+(c.nombre||'Perfil')+(c.acabado?' · '+c.acabado:''),profileFace:Number(c.profileFace)||40,pieces:[],stock:[{label:'Barra',length:Number(c.largoBarra)||6500,qty:999}]};
+        mats[key].pieces.push({label:(prefijo?prefijo+' · ':'')+(c.nombre||'Pieza'),length:len,qty:qty,cutType:String(c.corte||'recto')});
+      });
+      return {name:'Motor · '+String(dp.serie||'Ventana'),settings:{unit:'mm',kerfMm:0,colorCuts:true},materials:Object.keys(mats).map(k=>mats[k]),resultTab:'diagram'};
+    }
+    function guardarProyectoCutMasterPorV(idx,dp){
+      if(idx===null||idx===''||!dp||!Array.isArray(dp.barras)||!dp.barras.length)return;
+      const code='V'+(Number(idx)+1), project=construirProyectoCutMasterMotor(dp,code);
+      if(!project.materials.length)return;
+      let map={}; try{map=JSON.parse(localStorage.getItem('REY_CUTMASTER_POR_V_V1')||'{}')||{};}catch(_){map={};}
+      map[code]={project:project,despiece:JSON.parse(JSON.stringify(dp)),fecha:Date.now()};
+      const raw=JSON.stringify(map); localStorage.setItem('REY_CUTMASTER_POR_V_V1',raw); try{sessionStorage.setItem('REY_CUTMASTER_POR_V_V1',raw);}catch(_){}
+    }
+    function volverADocumentosDesdeMotor(){
+      try{ calcular(); }catch(e){}
+      let idx=null,img='';
+      try{
+        idx=sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); if(idx===null)idx=localStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+        img=sessionStorage.getItem(MOTOR_DESIGN_IMG_KEY)||localStorage.getItem(MOTOR_DESIGN_IMG_KEY)||'';
+      }catch(e){}
+      if(idx===null){alert('No se encontró el concepto de Documentos al que volver.');return;}
+      const r=window.__reyMotorLastResult||{};
+      const venta=Number(r.venta)||0, coste=Number(r.coste)||0;
+      if(!(venta>0)){alert('Calcula primero un precio válido.');return;}
+      try{
+        const payload={index:Number(idx),precio:venta,venta:venta,coste:coste,ganancia:Number(r.ganancia)||0,despiece:r.despiece||null,origen:'motor_series.html',fecha:Date.now(),ventana:obtenerVentanaActual()};
+        guardarProyectoCutMasterPorV(idx,r.despiece);
+        const raw=JSON.stringify(payload);
+        sessionStorage.setItem('ALU600_PRICE_RETURN_V1',raw); localStorage.setItem('ALU600_PRICE_RETURN_V1',raw);
+        if(r.despiece && Array.isArray(r.despiece.barras) && r.despiece.barras.length){
+          const fabRaw=JSON.stringify({index:Number(idx),despiece:r.despiece,ventana:payload.ventana||null,fecha:Date.now()});
+          sessionStorage.setItem('REY_MOTOR_DESPIECE_RETURN_V1',fabRaw); localStorage.setItem('REY_MOTOR_DESPIECE_RETURN_V1',fabRaw);
+        }
+        if(img){sessionStorage.setItem(DESIGN_RETURN_IMG_KEY,img);localStorage.setItem(DESIGN_RETURN_IMG_KEY,img);}
+        sessionStorage.removeItem(MOTOR_FROM_DOCUMENTOS_KEY); localStorage.removeItem(MOTOR_FROM_DOCUMENTOS_KEY);
+      }catch(e){alert('No se pudo preparar el retorno a Documentos.');return;}
+      window.location.href='documentos.html';
+    }
+    window.volverADocumentosDesdeMotor=volverADocumentosDesdeMotor;
+    function enviarMotorACutMaster(){
+      try{ calcular(); }catch(e){}
+      const dp=(window.__reyMotorLastResult&&window.__reyMotorLastResult.despiece)||{};
+      const project=construirProyectoCutMasterMotor(dp,'');
+      if(!project.materials.length){alert('No hay barras calculadas en el despiece.');return;}
+      const raw=JSON.stringify({project:project});
+      try{sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);sessionStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html');localStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html');}catch(_){}
+      window.location.href='optimizar_barra.html';
+    }
+    window.enviarMotorACutMaster=enviarMotorACutMaster;
+    document.addEventListener('DOMContentLoaded',function(){
+      if(document.getElementById('btnMotorCutMaster'))return; const b=document.createElement('button');b.type='button';b.id='btnMotorCutMaster';b.textContent='Cut Máster';b.onclick=enviarMotorACutMaster;
+      b.style.cssText='position:fixed;right:14px;bottom:112px;z-index:1190;width:auto;min-width:92px;height:38px;border:0;border-radius:9px;padding:0 10px;background:#0f766e;color:#fff;font-weight:800;font-size:11px;line-height:38px;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.18)';document.body.appendChild(b);
+    });
+    function volverAVentanaProDesdeMotor(){
+      let url='ventana.html';
+      try{url=sessionStorage.getItem(MOTOR_RETURN_KEY)||localStorage.getItem(MOTOR_RETURN_KEY)||url;}catch(e){}
+      try{
+        const out=obtenerVentanaActual(), rr=window.__reyMotorLastResult||{};
+        out.resultadoMotor={coste:Number(rr.coste)||0,ganancia:Number(rr.ganancia)||0,venta:Number(rr.venta)||0,despiece:rr.despiece||null};
+        const raw=JSON.stringify(out);sessionStorage.setItem(MOTOR_WINDOW_OUT_KEY,raw);localStorage.setItem(MOTOR_WINDOW_OUT_KEY,raw);
+        let idx=sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); if(idx===null)idx=localStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+        guardarProyectoCutMasterPorV(idx,rr.despiece);
+        if(idx!==null && rr.despiece && Array.isArray(rr.despiece.barras) && rr.despiece.barras.length){
+          const fabRaw=JSON.stringify({index:Number(idx),despiece:rr.despiece,ventana:out,fecha:Date.now()});
+          sessionStorage.setItem('REY_MOTOR_DESPIECE_RETURN_V1',fabRaw);localStorage.setItem('REY_MOTOR_DESPIECE_RETURN_V1',fabRaw);
+        }
+      }catch(e){}
+      window.location.href=url;
+    }
+    window.volverAVentanaProDesdeMotor=volverAVentanaProDesdeMotor;
+
+    function aplicarVentanaExterna(w){
+      if(!w || (w.schema && w.schema!=='rey-window-v1')) return false;
+      const medidas=w.medidas||{};
+      if(Number(medidas.ancho)>0) document.getElementById('inpAncho').value=Number(medidas.ancho);
+      if(Number(medidas.alto)>0) document.getElementById('inpAlto').value=Number(medidas.alto);
+      const hojas=Math.max(0,Math.min(4,Number(w.hojas)||0));
+      seleccionarHojasBtn(hojas);
+      const serieMotor=(w.serie&&((w.serie.motor)||(w.serie.nombre)))||'';
+      const buscada=normalizarTextoMotor(serieMotor);
+      if(buscada){
+        const exacta=db.series.find(x=>normalizarTextoMotor(x.nombre)===buscada);
+        if(exacta){ document.getElementById('selSerie').value=exacta.id; alCambiarSerieInicio(); }
+        else { alert('La serie '+serieMotor+' todavía no está configurada en Motor.'); return false; }
+      }
+      const ac=(w.acabado&&((w.acabado.codigo)||w.acabado.nombre))||'';
+      if(ac && Array.from(document.getElementById('selColor').options).some(o=>o.value===ac)) document.getElementById('selColor').value=ac;
+      const op=w.opciones||{};
+      setToggleMotor('btnPulsadorVidrio',!!(op.vidrio&&op.vidrio.activo));
+      setToggleMotor('btnPulsadorChapa',!!(op.panel&&op.panel.activo));
+      setToggleMotor('btnPulsadorPersiana',!!(op.persiana&&op.persiana.activo));
+      if(op.vidrio&&op.vidrio.id && document.querySelector('#selVidrioMaterial option[value="'+CSS.escape(op.vidrio.id)+'"]')) document.getElementById('selVidrioMaterial').value=op.vidrio.id;
+      if(op.panel&&op.panel.id && document.querySelector('#selChapaMaterial option[value="'+CSS.escape(op.panel.id)+'"]')) document.getElementById('selChapaMaterial').value=op.panel.id;
+      if(op.persiana&&op.persiana.id && document.querySelector('#selPersianaMaterial option[value="'+CSS.escape(op.persiana.id)+'"]')) document.getElementById('selPersianaMaterial').value=op.persiana.id;
+      calcular(); return true;
+    }
+
+    function consumirVentanaExterna(){
+      actualizarRetornoMotor();
+      let raw=null; try{raw=sessionStorage.getItem(MOTOR_WINDOW_IN_KEY)||localStorage.getItem(MOTOR_WINDOW_IN_KEY);}catch(e){}
+      if(!raw) return;
+      try{ const w=JSON.parse(raw); aplicarVentanaExterna(w); }catch(e){ console.error(e); }
+      try{sessionStorage.removeItem(MOTOR_WINDOW_IN_KEY);localStorage.removeItem(MOTOR_WINDOW_IN_KEY);}catch(e){}
+    }
+
+    async function exportarVentanaActual(){
+      try{
+        const w=obtenerVentanaActual(); const data=JSON.stringify(w,null,2);
+        const serie=(w.serie&&w.serie.nombre)||'Ventana'; const nombre=('Ventana_'+serie+'_'+w.medidas.ancho+'x'+w.medidas.alto+'.json').replace(/[^a-zA-Z0-9._-]+/g,'_');
+        const file=new File([data],nombre,{type:'application/json'});
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:nombre,text:'Ventana Motor Series'});return;}
+        const blob=new Blob([data],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      }catch(e){if(!e||e.name!=='AbortError') alert('No se pudo exportar la ventana.');}
+    }
+
+    function importarVentanaActual(ev){
+      const f=ev.target.files&&ev.target.files[0]; if(!f)return; const r=new FileReader();
+      r.onload=()=>{try{const w=JSON.parse(r.result);if(!aplicarVentanaExterna(w))throw new Error();alert('Ventana cargada.');}catch(e){alert('El archivo no es una ventana compatible.');}};r.readAsText(f);
+    }
+
     async function exportarSeriesJSON() {
       try {
         const ahora = new Date();
@@ -3301,5 +4065,12 @@
     // Inicializar la App cuando se cargue el DOM
     window.onload = init;
   </script>
+
+<script id="ganancia-v180-init">
+document.addEventListener('DOMContentLoaded',function(){
+  cargarConfigGanancia();
+  if(typeof calcular==='function')calcular();
+});
+</script>
 </body>
 </html>

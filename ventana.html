@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v95.4</title>
-    <!-- v95.4: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
+    <title>Ventana Pro v96.1</title>
+    <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
     <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
     <!-- v95.0: Ajuste fino al enviar a Documentos y defaults automáticos por número de hojas. -->
@@ -674,28 +674,64 @@ body.dock-off #canvasDock{
 /* Conexión Documentos Rey: enviar diseño como imagen al concepto */
 .btn-enviar-documentos{
   position:fixed;
-  right:10px;
-  top:108px;
-  z-index:10000;
-  width:auto !important;
-  min-height:38px;
-  padding:9px 13px;
-  border-radius:20px;
+  right:116px;
+  top:auto!important;
+  bottom:calc(58px + env(safe-area-inset-bottom, 0px));
+  z-index:10002;
+  width:104px!important;
+  min-width:104px!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:8px 8px!important;
+  border-radius:12px;
   border:none;
   background:#16a34a;
   color:#fff;
   font-weight:900;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  box-shadow:0 2px 7px rgba(0,0,0,.25);
   cursor:pointer;
-  font-size:0.9rem;
+  font-size:11px;
+  line-height:1;
   display:none;
   align-items:center;
   justify-content:center;
+  white-space:nowrap;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
 }
 body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 .btn-enviar-documentos:active{transform:translateY(1px) scale(.98)}
+
+/* v95.6 - acceso Motor siempre visible, independiente del retorno a Documentos */
+.btn-motor-series{
+  position:fixed;
+  right:12px;
+  top:auto;
+  bottom:calc(58px + env(safe-area-inset-bottom, 0px));
+  z-index:10002;
+  width:auto!important;
+  min-width:0!important;
+  min-height:0;
+  margin:0!important;
+  padding:8px 11px!important;
+  border-radius:12px;
+  border:none;
+  background:#0f766e;
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 2px 7px rgba(0,0,0,.25);
+  cursor:pointer;
+  font-size:11px;
+  line-height:1;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.btn-motor-series:active{transform:translateY(1px) scale(.98)}
+
 
 
 /* v91.8 - retorno a Documentos sin aire + texturas integradas */
@@ -735,7 +771,7 @@ body.from-documentos .btn-enviar-documentos{display:inline-flex!important}
 .btn-persiana-rapida{ top: 102px; background:#6b7280; font-size:8.5px; }
 .btn-persiana-rapida.active{ background:#e74c3c; }
 .btn-png-hd{ top: 148px; background:#16a34a; font-size:9px; }
-body.from-documentos .btn-enviar-documentos{ top: 194px; }
+body.from-documentos .btn-enviar-documentos{ top:auto!important; }
 
 
 /* v89.6 - botones madera visibles y textura 256px */
@@ -1100,6 +1136,7 @@ body.dock-off #canvasDock{
 <link rel="manifest" href="manifest.json"></head>
 <body class="dock-off">
 <button id="btnEnviarDocumentos" class="btn-enviar-documentos" type="button">✓ Documentos</button>
+<button id="btnAbrirMotorSeries" class="btn-motor-series" type="button" onclick="abrirMotorSeries()" title="Calcular precio y despiece en Motor">€ MOTOR</button>
 
 
 <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
@@ -1197,7 +1234,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v95.4"><span class="title-main">Ventana Pro</span><span class="title-version">v95.4</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.1"><span class="title-main">Ventana Pro</span><span class="title-version">v96.1</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1252,6 +1289,8 @@ body.dock-off #canvasDock{
                 <label for="presetSerie">Serie:</label>
                 <select id="presetSerie" onchange="aplicarPresetMedidas(); actualizarVisibilidadDespieceCOR2300(); actualizarVisibilidadDespiece600(); actualizarVisibilidadDespiecePuerta800(); actualizarVisibilidadDespieceNicho(); actualizarVisibilidadDespieceTelefonillo(); actualizarDespieceCOR2300SiActivo(); actualizarDespiecePuerta800SiActivo(); actualizarDespieceNichoSiActivo(); actualizarDespieceTelefonilloSiActivo()">
                     <option value="ventana600">Ventana 600</option>
+                    <option value="g90">G-90 / COR-5000</option>
+                    <option value="c70">C-70</option>
                     <option value="puerta800">Puerta 800</option>
                     <option value="ventanace">Ventana CE</option>
                     <option value="puertace">Puerta CE</option>
@@ -2400,6 +2439,8 @@ function aplicarRellenoMarco(ctx){
 
     const presetsMedidas = {
         ventana600: { marco: 20, hoja: 54, zanca: 54 },
+        g90: { marco: 35, hoja: 60, zanca: 55 },
+        c70: { marco: 60, hoja: 90, zanca: 110 },
         puerta800: { marco: 36, hoja: 71, zanca: 71 },
         ventanace: { marco: 22, hoja: 66, zanca: 66 },
         puertace: { marco: 39, hoja: 90, zanca: 90 },
@@ -2446,11 +2487,74 @@ function aplicarRellenoMarco(ctx){
         if (ap) ap.value = 'derecha';
         if (hojasData[0]) {
             hojasData[0].savedApertura = 'derecha';
-            hojasData[0].manilla = hojasData[0].manilla || { enabled: true, color: 'black', side: 'derecha' };
-            hojasData[0].manilla.enabled = true;
+            hojasData[0].manilla = hojasData[0].manilla || { enabled: false, color: 'black', side: 'derecha' };
+            hojasData[0].manilla.enabled = false;
             hojasData[0].manilla.side = 'derecha';
         }
         toggleManillaVisibility(0);
+    }
+
+    // v96.6: cambio de serie atómico; evita mezclar la apertura de la serie anterior.
+    let cambioSerieEnCurso_v966 = false;
+
+    function aperturasPracticablesPorNumero_v966(n) {
+        const serie = (document.getElementById('presetSerie') || {}).value || '';
+        const es600 = serie === 'ventana600';
+        const cfgNormal = {
+            1:['der-ob'],
+            2:['izquierda','der-ob'],
+            3:['izq-ob','izquierda','der-ob'],
+            4:['izquierda','der-ob','izquierda','der-ob']
+        };
+        const cfg600 = {
+            1:['derecha'],
+            2:['izquierda','derecha'],
+            3:['izquierda','izquierda','derecha'],
+            4:['izquierda','derecha','izquierda','derecha']
+        };
+        const cfg = (es600 ? cfg600 : cfgNormal)[n] || [];
+        for (let i=0; i<hojasData.length; i++) {
+            hojasData[i].savedApertura = cfg[i] || 'fija';
+            delete hojasData[i].tipoCorredera;
+            hojasData[i].bisagras = hojasData[i].bisagras || { visible:true, color:'black' };
+            hojasData[i].bisagras.visible = true;
+        }
+    }
+
+    // v96.6: configuración inicial según la serie seleccionada.
+    function esSerieCorrederaSeleccionada() {
+        const select = document.getElementById('presetSerie');
+        return !!select && (select.value === 'g90' || select.value === 'c70');
+    }
+
+    function tipoCorrederaDeSerie_v966() {
+        const select = document.getElementById('presetSerie');
+        return select && select.value === 'c70' ? 'perimetral' : 'recta';
+    }
+
+    function prepararAperturasSerie_v966() {
+        const hojasSelect = document.getElementById('hojas');
+        if (!hojasSelect) return;
+        let n = Number(hojasSelect.value) || 0;
+
+        if (esSerieCorrederaSeleccionada()) {
+            if (n < 2) { n = 2; hojasSelect.value = '2'; }
+            const tipo = tipoCorrederaDeSerie_v966();
+            while (hojasData.length < n) {
+                hojasData.push({
+                    manilla:{enabled:false,color:'black',side:'derecha'},
+                    bisagras:{visible:true,color:'black'},
+                    colorCristal:colorCristalGlobal
+                });
+            }
+            hojasData.splice(n);
+            for (let i=0; i<n; i++) {
+                hojasData[i].savedApertura = 'corredera';
+                hojasData[i].tipoCorredera = tipo;
+            }
+        } else {
+            aperturasPracticablesPorNumero_v966(n);
+        }
     }
 
     function aplicarPresetMedidas() {
@@ -2471,6 +2575,9 @@ function aplicarRellenoMarco(ctx){
         if (hojaInput) hojaInput.value = preset.hoja;
         if (zancaInput) zancaInput.value = preset.zanca;
 
+        cambioSerieEnCurso_v966 = true;
+        prepararAperturasSerie_v966();
+
         if (select.value === 'puerta800') {
             const hojasSelect = document.getElementById('hojas');
             if (hojasSelect && (!hojasSelect.value || Number(hojasSelect.value) < 1)) hojasSelect.value = '1';
@@ -2486,6 +2593,8 @@ function aplicarRellenoMarco(ctx){
         }
 
         actualizarEstadoEspecialSerie();
+        actualizarHojas();
+        cambioSerieEnCurso_v966 = false;
         recalcularAnchosHojas();
         actualizarOpcionesFijos();
         actualizarVista();
@@ -2547,9 +2656,11 @@ function aplicarRellenoMarco(ctx){
         const manillaGroup = document.getElementById(`manillaGroup${hojaIndex}`);
         const travesanoButtons = document.getElementById(`travesanoButtons${hojaIndex}`);
         const manillaSideSelector = document.getElementById(`corredera-manilla-side${hojaIndex}`);
+        const tipoCorrederaGroup = document.getElementById(`tipoCorrederaGroup${hojaIndex}`);
+        if (tipoCorrederaGroup) tipoCorrederaGroup.style.display = apertura === 'corredera' ? 'flex' : 'none';
 
         if (manillaGroup) {
-            if (apertura === 'fija' || apertura === 'fijo-con-travesano') {
+            if (esSerieSinPersiana() || apertura === 'fija' || apertura === 'fijo-con-travesano') {
                 manillaGroup.style.display = 'none';
             } else {
                 manillaGroup.style.display = 'flex';
@@ -3952,13 +4063,15 @@ function cambiarColorMarco(c) {
         mostrarPersiana = n > 0;
         sincronizarBotonPersianaRapida_v950();
 
+        const serieActualDefaults = (document.getElementById('presetSerie') || {}).value || '';
+        const esVentana600Defaults = serieActualDefaults === 'ventana600';
         const configs = {
             1: [
-                { apertura:'der-ob', manilla:true,  manillaSide:'derecha', bisagras:true }
+                { apertura: esVentana600Defaults ? 'derecha' : 'der-ob', manilla:true, manillaSide:'derecha', bisagras:true }
             ],
             2: [
                 { apertura:'izquierda', manilla:false, manillaSide:'izquierda', bisagras:true },
-                { apertura:'der-ob',    manilla:true,  manillaSide:'derecha',   bisagras:true }
+                { apertura: esVentana600Defaults ? 'derecha' : 'der-ob', manilla:true, manillaSide:'derecha', bisagras:true }
             ],
             3: [
                 { apertura:'izq-ob',    manilla:true,  manillaSide:'izquierda', bisagras:true },
@@ -3992,10 +4105,11 @@ function cambiarColorMarco(c) {
         let n = +document.getElementById('hojas').value;
         const countChanged = (hojasData.length !== n);
 
-        // Guardar estado actual de apertura y anchos antes de borrar
+        // Guardar estado actual, excepto durante un cambio de serie:
+        // en ese caso las aperturas nuevas ya están preparadas y no deben ser pisadas por el DOM anterior.
         for(let i=0; i<hojasData.length; i++) {
              const apEl = document.getElementById(`apertura${i}`);
-             if(apEl) hojasData[i].savedApertura = apEl.value;
+             if(apEl && !cambioSerieEnCurso_v966) hojasData[i].savedApertura = apEl.value;
              
              if (!countChanged) {
                  const anchoEl = document.getElementById(`anchoHoja${i}`);
@@ -4022,7 +4136,7 @@ function cambiarColorMarco(c) {
         }
         travesanosHojas.splice(n);
 
-        if (countChanged) {
+        if (countChanged && !cambioSerieEnCurso_v966) {
             aplicarDefaultsPorNumeroHojas_v950(n);
         }
 
@@ -4128,6 +4242,8 @@ function cambiarColorMarco(c) {
                 const barrotesColorValue = normalizarColorHexBarrote(barrotesColorMode === 'ventana' ? colorPerfilActualParaBarrotillos() : (hojasData[i].barrotes.color || colorPerfilActualParaBarrotillos()));
 
                 const currentGlassColor = hojasData[i].colorCristal;
+                if (!hojasData[i].tipoCorredera) hojasData[i].tipoCorredera = 'recta';
+                const tipoCorredera = hojasData[i].tipoCorredera;
                 
                 cont.innerHTML += `
                 <div class="hoja-config" style="background-color: #E1E2D6;"> 
@@ -4144,6 +4260,14 @@ function cambiarColorMarco(c) {
                         <option value="fija" ${aperturaSeleccionada === 'fija' ? 'selected' : ''}>Fija</option>
                         <option value="fijo-con-travesano" ${aperturaSeleccionada === 'fijo-con-travesano' ? 'selected' : ''}>Fijo con travesaño</option>
                     </select>
+
+                    <div class="option-group" id="tipoCorrederaGroup${i}" style="display:${aperturaSeleccionada === 'corredera' ? 'flex' : 'none'}; align-items:center; gap:8px;">
+                        <label for="tipoCorredera${i}">Hoja corredera:</label>
+                        <select id="tipoCorredera${i}" onchange="hojasData[${i}].tipoCorredera=this.value; actualizarVista();">
+                            <option value="recta" ${tipoCorredera === 'recta' ? 'selected' : ''}>Corte recto</option>
+                            <option value="perimetral" ${tipoCorredera === 'perimetral' ? 'selected' : ''}>Perimetral 45°</option>
+                        </select>
+                    </div>
                     
                     <div class="apertura-exterior-linea">
                         <input type="checkbox" id="aperturaExterior${i}" ${aperturaExteriorChecked} onchange="toggleAperturaExteriorHoja(${i}, this.checked)">
@@ -5896,8 +6020,16 @@ function cambiarColorMarco(c) {
                 
                 const hojaGlassColor = (hojasData[i] && hojasData[i].colorCristal) ? hojasData[i].colorCristal : colorCristalGlobal;
 
-                const xHojaLeft = currentHojaXPos;
-                const xHojaRight = currentHojaXPos + anchoHojaEsc;
+                let xHojaLeft = currentHojaXPos;
+                let xHojaRight = currentHojaXPos + anchoHojaEsc;
+                // v96.1: solape SOLO visual; no cambia medidas, cálculos ni despieces.
+                if (ap === 'corredera') {
+                    const prevEl = i > 0 ? document.getElementById("apertura" + (i - 1)) : null;
+                    const nextEl = i < hojas - 1 ? document.getElementById("apertura" + (i + 1)) : null;
+                    const solapeVisual = Math.max(8, Math.min(hojaThicknessEsc * 0.72, anchoHojaEsc * 0.10));
+                    if (prevEl && prevEl.value === 'corredera') xHojaLeft -= solapeVisual;
+                    if (nextEl && nextEl.value === 'corredera') xHojaRight += solapeVisual;
+                }
                 const yHojaBottom = mainWinY0 + maxAltoPrincipalSidesMM * esc - marcoThicknessEsc;
                 
                 const yHojaTopLeft = y_top_frame(xHojaLeft) + marcoThicknessEsc;
@@ -6037,6 +6169,31 @@ function cambiarColorMarco(c) {
                     dibujarBarrotesVidrioHoja(ctx, hojaGlassPoints, hojasData[i].barrotes, esc);
                 }
 
+                // v96.2: cortes constructivos.
+                // Todas las aperturas llevan ingletes a 45° por defecto.
+                // En corredera se respeta el selector: Recta o Perimetral 45°.
+                {
+                    const tipoCorrederaActual = (hojasData[i] && hojasData[i].tipoCorredera) || 'recta';
+                    const corteRectoCorredera = ap === 'corredera' && tipoCorrederaActual === 'recta';
+                    ctx.save();
+                    ctx.strokeStyle = getBordeHojaColor();
+                    ctx.lineWidth = Math.max(0.8, getBordeHojaGrosor() * 0.72);
+                    ctx.beginPath();
+                    if (!corteRectoCorredera) {
+                        ctx.moveTo(xHojaLeft, yHojaTopLeft); ctx.lineTo(p1.x, p1.y);
+                        ctx.moveTo(xHojaRight, yHojaTopRight); ctx.lineTo(p2.x, p2.y);
+                        ctx.moveTo(xHojaRight, yHojaBottom); ctx.lineTo(p3.x, p3.y);
+                        ctx.moveTo(xHojaLeft, yHojaBottom); ctx.lineTo(p4.x, p4.y);
+                    } else {
+                        ctx.moveTo(p1.x, yHojaTopLeft); ctx.lineTo(p1.x, p1.y);
+                        ctx.moveTo(p2.x, yHojaTopRight); ctx.lineTo(p2.x, p2.y);
+                        ctx.moveTo(p3.x, p3.y); ctx.lineTo(p3.x, yHojaBottom);
+                        ctx.moveTo(p4.x, p4.y); ctx.lineTo(p4.x, yHojaBottom);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
                 const centerXGlass = (p1.x + p2.x) / 2;
                 const centerYGlassTopLine = (p1.y + p2.y) / 2;
                 const centerYGlassBottomLine = (p3.y + p4.y) / 2;
@@ -6093,18 +6250,17 @@ function cambiarColorMarco(c) {
                 
                 aplicarEstiloApertura(ctx, false);
                 if (ap === "corredera") {
+                    const margenFlecha = Math.max(12, (p2.x - p1.x) * 0.18);
+                    const desdeX = p1.x + margenFlecha, hastaX = p2.x - margenFlecha;
+                    const haciaDerecha = (i % 2 === 0);
+                    const puntaX = haciaDerecha ? hastaX : desdeX;
+                    const colaX = haciaDerecha ? desdeX : hastaX;
+                    const dir = haciaDerecha ? -1 : 1;
                     ctx.beginPath();
-                    ctx.moveTo(p1.x + (anchoHojaEsc * 0.1), centerYGlassMid);
-                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1), centerYGlassMid);
-
-                    ctx.moveTo(p2.x - (anchoHojaEsc * 0.1) - 10, centerYGlassMid - 5);
-                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1), centerYGlassMid);
-                    ctx.lineTo(p2.x - (anchoHojaEsc * 0.1) - 10, centerYGlassMid + 5);
-
-                    ctx.moveTo(p1.x + (anchoHojaEsc * 0.1) + 10, centerYGlassMid - 5);
-                    ctx.lineTo(p1.x + (anchoHojaEsc * 0.1), centerYGlassMid);
-                    ctx.lineTo(p1.x + (anchoHojaEsc * 0.1) + 10, centerYGlassMid + 5);
-
+                    ctx.moveTo(colaX, centerYGlassMid); ctx.lineTo(puntaX, centerYGlassMid);
+                    ctx.moveTo(puntaX + dir * 12, centerYGlassMid - 7);
+                    ctx.lineTo(puntaX, centerYGlassMid);
+                    ctx.lineTo(puntaX + dir * 12, centerYGlassMid + 7);
                     ctx.stroke();
                 }
                 
@@ -6124,7 +6280,27 @@ function cambiarColorMarco(c) {
                 window.__aperturaExteriorActiva = false;
                 try { ctx.setLineDash([]); } catch(e) {}
 
-                if (hojasData[i] && hojasData[i].manilla.enabled) {
+                // v96.8: Nicho y Telefonillo llevan pomo, no manilla.
+                // Diámetro real 20 mm; negro sobre acabados claros y blanco sobre oscuros.
+                if (esSerieSinPersiana() && i === 0) {
+                    const rgbPomo = _hexToRgbSafe(typeof colorMarco !== 'undefined' ? colorMarco : '#FFFFFF');
+                    const luminosidadPomo = rgbPomo ? (0.299*rgbPomo.r + 0.587*rgbPomo.g + 0.114*rgbPomo.b) : 255;
+                    const colorPomo = luminosidadPomo < 135 ? '#FFFFFF' : '#000000';
+                    const pomoX = xHojaLeft + hojaThicknessEsc / 2;
+                    const pomoY = yHojaTopLeft + (yHojaBottom - yHojaTopLeft) / 2;
+                    const radioPomo = Math.max(2.5, (20 * esc) / 2);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(pomoX, pomoY, radioPomo, 0, Math.PI * 2);
+                    ctx.fillStyle = colorPomo;
+                    ctx.fill();
+                    ctx.lineWidth = Math.max(1, esc);
+                    ctx.strokeStyle = colorPomo === '#FFFFFF' ? '#000000' : '#FFFFFF';
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                if (!esSerieSinPersiana() && hojasData[i] && hojasData[i].manilla.enabled) {
                     const manillaColor = hojasData[i].manilla.color;
                     
                     let manillaX, manillaY, verticalManilla = true;
@@ -6134,6 +6310,8 @@ function cambiarColorMarco(c) {
                         manillaX = xHojaRight - hojaThicknessEsc / 2;
                         manillaY = yHojaTopRight + (yHojaBottom - yHojaTopRight) / 2;
                     } else if (ap === "derecha" || ap === "der-ob") {
+                        // v96.10: hoja principal derecha -> manilla en el encuentro central,
+                        // no en el lateral exterior junto al marco.
                         manillaX = xHojaLeft + hojaThicknessEsc / 2;
                         manillaY = yHojaTopLeft + (yHojaBottom - yHojaTopLeft) / 2;
                     } else if (ap === "proyectante") {
@@ -8891,7 +9069,7 @@ if (mostrarAltoTotalDer) {
       }
     });
 
-    // v95.4: casillas numéricas directas junto a los deslizadores.
+    // v95.5: casillas numéricas directas junto a los deslizadores.
     if(typeof guardarAjustesVisualesDesdePanel === 'function'){
       document.querySelectorAll('.visual-number-value[id$="Val"]').forEach(function(box){
         const baseId = box.id.replace(/Val$/, '');
@@ -9885,6 +10063,177 @@ function volverIndexSeguro(){
 
 
 <script>
+/* v95.5 - idioma común Ventana Pro -> Motor Series */
+(function(){
+  'use strict';
+  const MOTOR_WINDOW_IN_KEY='REY_MOTOR_WINDOW_IN_V1';
+  const MOTOR_RETURN_KEY='REY_MOTOR_RETURN_URL_V1';
+  const MOTOR_SERIES_CATALOG_KEY='REY_MOTOR_SERIES_CATALOG_V1';
+  const MOTOR_SERIES_MAP_KEY='REY_VENTANA_MOTOR_SERIES_MAP_V1';
+
+  function leerSeriesMotor(){
+    try{
+      const raw=sessionStorage.getItem(MOTOR_SERIES_CATALOG_KEY)||localStorage.getItem(MOTOR_SERIES_CATALOG_KEY)||'';
+      const data=raw?JSON.parse(raw):null;
+      if(data&&Array.isArray(data.series)) return data.series.filter(s=>s&&s.nombre);
+    }catch(_){}
+    /* Compatibilidad inicial antes de haber abierto Motor v1.8.29 al menos una vez. */
+    return [
+      {nombre:'Serie G-90'},{nombre:'COR-60'},{nombre:'COR-2300'},
+      {nombre:'Puerta 2300'},{nombre:'Ventana 600'},{nombre:'Nicho'},{nombre:'PVC A-70'}
+    ];
+  }
+  function leerMapaSeriesMotor(){
+    try{return JSON.parse(localStorage.getItem(MOTOR_SERIES_MAP_KEY)||'{}')||{};}catch(_){return {};}
+  }
+  function guardarMapaSerieMotor(id,nombre){
+    try{
+      const mapa=leerMapaSeriesMotor();
+      mapa[id]=nombre;
+      localStorage.setItem(MOTOR_SERIES_MAP_KEY,JSON.stringify(mapa));
+    }catch(_){}
+  }
+  function serieMotorExiste(nombre){
+    const n=String(nombre||'').trim().toLocaleLowerCase('es');
+    return leerSeriesMotor().some(s=>String(s.nombre||'').trim().toLocaleLowerCase('es')===n);
+  }
+  function resolverSerieMotor(){
+    const serieSel=document.getElementById('presetSerie');
+    const id=serieSel?serieSel.value:'';
+    const nombre=serieSel&&serieSel.selectedOptions&&serieSel.selectedOptions[0]?serieSel.selectedOptions[0].textContent:'';
+    const mapa=leerMapaSeriesMotor();
+    if(mapa[id]&&serieMotorExiste(mapa[id])) return {ok:true,familia:nombre,motor:mapa[id]};
+    if(id==='ventana600'&&serieMotorExiste('Ventana 600')) return {ok:true,familia:nombre,motor:'Ventana 600'};
+    if(id==='g90'&&serieMotorExiste('Serie G-90')) return {ok:true,familia:nombre,motor:'Serie G-90'};
+    if(id==='c70'&&serieMotorExiste('C-70')) return {ok:true,familia:nombre,motor:'C-70'};
+    if(id==='nicho'&&serieMotorExiste('Nicho')) return {ok:true,familia:nombre,motor:'Nicho'};
+    if((id==='ventanapvc'||id==='puertapvc')&&serieMotorExiste('PVC A-70')) return {ok:true,familia:nombre,motor:'PVC A-70'};
+    /* CE y cualquier familia sin asociación muestran TODAS las series reales de Motor. */
+    return {ok:true,familia:nombre,motor:null,requiereEleccion:true,idVentana:id};
+  }
+  function elegirSerieCEMotor(familia,idVentana){
+    return new Promise(resolve=>{
+      const series=leerSeriesMotor();
+      const fondo=document.createElement('div');
+      fondo.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px';
+      const caja=document.createElement('div');
+      caja.style.cssText='width:min(390px,100%);max-height:82vh;overflow:auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 12px 36px rgba(0,0,0,.28);font-family:inherit';
+      const titulo=document.createElement('div');
+      titulo.style.cssText='font-size:18px;font-weight:800;margin-bottom:6px';
+      titulo.textContent=familia||'Ventana';
+      const ayuda=document.createElement('div');
+      ayuda.style.cssText='font-size:14px;color:#555;margin-bottom:14px';
+      ayuda.textContent='Selecciona la serie técnica de Motor. La elección quedará guardada para esta familia.';
+      caja.appendChild(titulo);caja.appendChild(ayuda);
+      series.forEach(s=>{
+        const b=document.createElement('button');
+        b.type='button'; b.textContent=s.nombre;
+        b.style.cssText='width:100%;padding:12px;margin:0 0 9px;border:0;border-radius:9px;background:#2563eb;color:white;font-weight:800';
+        b.onclick=()=>{if(idVentana)guardarMapaSerieMotor(idVentana,s.nombre);fondo.remove();resolve(s.nombre);};
+        caja.appendChild(b);
+      });
+      const cancelar=document.createElement('button');
+      cancelar.type='button';cancelar.textContent='Cancelar';
+      cancelar.style.cssText='width:100%;padding:10px;border:1px solid #ccc;border-radius:9px;background:#f3f4f6;font-weight:700';
+      cancelar.onclick=()=>{fondo.remove();resolve(null);};
+      caja.appendChild(cancelar);
+      fondo.appendChild(caja);document.body.appendChild(fondo);
+      fondo.addEventListener('click',e=>{if(e.target===fondo){fondo.remove();resolve(null);}});
+    });
+  }
+  window.obtenerVentanaParaMotor=function(serieMotor){
+    const serieSel=document.getElementById('presetSerie');
+    const serieNombre=serieSel&&serieSel.selectedOptions&&serieSel.selectedOptions[0]?serieSel.selectedOptions[0].textContent:'';
+    let acabadoNombre='';
+    try{
+      if(marcoTextura==='nogal') acabadoNombre='Nogal';
+      else if(marcoTextura==='roble') acabadoNombre='Roble Dorado';
+      else if(marcoTextura==='pino') acabadoNombre='Verde Pino';
+    }catch(e){}
+    return {
+      schema:'rey-window-v1',version:1,origen:'ventana.html',fecha:Date.now(),referencia:'',
+      serie:{id:serieSel?serieSel.value:'',nombre:serieNombre,motor:serieMotor||''},
+      medidas:{ancho:Number((document.getElementById('ancho')||{}).value)||0,alto:Number((document.getElementById('alto')||{}).value)||0},
+      hojas:Number((document.getElementById('hojas')||{}).value)||0,
+      acabado:{codigo:acabadoNombre,nombre:acabadoNombre,tipo:acabadoNombre?'acabado':'pendiente'},
+      opciones:{vidrio:{activo:true,id:''},panel:{activo:false,id:''},persiana:{activo:(typeof mostrarPersiana!=='undefined'?!!mostrarPersiana:!!window.mostrarPersiana),id:''}},
+      geometria:{
+        fijoIzquierdo:Number(window.anchoFijoIzquierdoMM)||0,fijoDerecho:Number(window.anchoFijoDerechoMM)||0,
+        fijoInferior:Number(window.altoFijoInferiorMM)||0,
+        fijoSuperiorIzquierdo:Number(window.altoFijoSupIzqMM)||0,fijoSuperiorDerecho:Number(window.altoFijoSupDerMM)||0
+      }
+    };
+  };
+  window.abrirMotorSeries=async function(){
+    try{
+      const res=resolverSerieMotor();
+      if(!res.ok){alert(res.mensaje);return;}
+      let serieMotor=res.motor;
+      if(res.requiereEleccion){serieMotor=await elegirSerieCEMotor(res.familia,res.idVentana);if(!serieMotor)return;}
+      /* En Puerta CE, COR-2300 usa la configuración específica Puerta 2300 existente en Motor. */
+      const serieSel=document.getElementById('presetSerie');
+      if(serieSel&&serieSel.value==='puertace'&&serieMotor==='COR-2300') serieMotor='Puerta 2300';
+      const data=window.obtenerVentanaParaMotor(serieMotor); const raw=JSON.stringify(data);
+      /* v95.9: conserva el origen Documentos y el gráfico para retorno directo desde Motor. */
+      try{
+        const IDX='presupuesto_visual_design_target_index_v1';
+        const FROM='REY_MOTOR_FROM_DOCUMENTOS_V1';
+        const IMG='REY_MOTOR_DESIGN_IMG_V1';
+        let idx=sessionStorage.getItem(IDX); if(idx===null) idx=localStorage.getItem(IDX);
+        const desdeDocs=(new URLSearchParams(window.location.search).get('from_budget')==='1'||idx!==null);
+        if(desdeDocs){
+          sessionStorage.setItem(FROM,'1'); localStorage.setItem(FROM,'1');
+          const c=document.getElementById('canvas');
+          if(c){ const img=(typeof window.__capturarDisenoParaDocumentos==='function'?window.__capturarDisenoParaDocumentos(c):c.toDataURL('image/png')); sessionStorage.setItem(IMG,img); localStorage.setItem(IMG,img); }
+        }else{
+          sessionStorage.removeItem(FROM); localStorage.removeItem(FROM);
+          sessionStorage.removeItem(IMG); localStorage.removeItem(IMG);
+        }
+      }catch(_){ }
+      /* v96.0: un fallo de cuota en localStorage no puede impedir abrir Motor. */
+      try{sessionStorage.setItem(MOTOR_WINDOW_IN_KEY,raw);}catch(_){}
+      try{localStorage.setItem(MOTOR_WINDOW_IN_KEY,raw);}catch(_){}
+      try{sessionStorage.setItem(MOTOR_RETURN_KEY,'ventana.html');}catch(_){}
+      try{localStorage.setItem(MOTOR_RETURN_KEY,'ventana.html');}catch(_){}
+      window.location.href='motor_series.html';
+    }catch(e){
+      /* Último recurso: no bloquear la navegación por un fallo accesorio del puente. */
+      try{
+        window.location.href='motor_series.html';
+      }catch(_){alert('No se pudo abrir Motor Series.');}
+    }
+  };
+})();
+</script>
+
+<script>
+/* v95.12 - conserva precio y despiece de Motor al volver a Ventana Pro */
+(function(){
+  function consumirResultadoMotor(){
+    try{
+      var raw=sessionStorage.getItem('REY_MOTOR_WINDOW_OUT_V1')||localStorage.getItem('REY_MOTOR_WINDOW_OUT_V1')||'';
+      if(!raw)return;
+      var out=JSON.parse(raw);
+      var r=out&&out.resultadoMotor;
+      if(!r || !(Number(r.venta)>0))return;
+      var idx=sessionStorage.getItem('presupuesto_visual_design_target_index_v1');
+      if(idx===null)idx=localStorage.getItem('presupuesto_visual_design_target_index_v1');
+      if(idx===null)return;
+      var payload={index:Number(idx),precio:Number(r.venta),venta:Number(r.venta),
+        coste:Number(r.coste)||0,ganancia:Number(r.ganancia)||0,
+        despiece:r.despiece||null,
+        origen:'motor_series.html',fecha:Date.now(),ventana:out};
+      var pr=JSON.stringify(payload);
+      sessionStorage.setItem('ALU600_PRICE_RETURN_V1',pr);
+      localStorage.setItem('ALU600_PRICE_RETURN_V1',pr);
+    }catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',consumirResultadoMotor,false);
+  else consumirResultadoMotor();
+})();
+</script>
+
+<script>
 /* v89.6 conectada: devuelve el canvas a Documentos Rey */
 (function(){
   'use strict';
@@ -9980,6 +10329,8 @@ function volverIndexSeguro(){
 
     return out.toDataURL('image/jpeg', 0.9);
   }
+
+  window.__capturarDisenoParaDocumentos = canvasToWhitePng;
 
   function enviarDisenoADocumentos(){
     try{

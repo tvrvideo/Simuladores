@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.5</title>
+  <title>Documentos Rey v4.8.6</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -797,7 +797,7 @@ body.editing-field .return-app-btn{
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
 
-/* v4.8.5 - botón flotante de duplicar sobre cada página */
+/* v4.8.26 - botón flotante de duplicar sobre cada página */
 .page-dup-overlay{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:30;}
 .page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
 .page-dup-button:active{transform:scale(.97);}
@@ -4180,7 +4180,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.5</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5769,7 +5769,7 @@ body.sheet-open .brand-idb-pill{
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
-  // v4.8.5 - Cálculo de totales por página completamente aislado.
+  // v4.8.26 - Cálculo de totales por página completamente aislado.
   // Una página marcada como independiente NUNCA puede heredar importes de otra.
   // Para exportación trabajamos siempre con el índice original de la página,
   // evitando mezclar el índice PDF con el índice de state.items.
@@ -9271,6 +9271,9 @@ COLOCACIÓN INCLUIDA` }
     return true;
   };
 
+    // v4.8.26: exponer el motor PDF existente para la Hoja de materiales.
+    window.__reyExportSvgToEditablePdf = exportSvgToEditablePdf;
+
     async function exportPDF(){
     try{
       const exportPages = buildExportPageSvgs();
@@ -10925,6 +10928,21 @@ COLOCACIÓN INCLUIDA` }
   }
 
 
+  async function applyMotorDespieceReturnV1(){
+    let pack=null;
+    try{const raw=sessionStorage.getItem('REY_MOTOR_DESPIECE_RETURN_V1')||localStorage.getItem('REY_MOTOR_DESPIECE_RETURN_V1')||'';if(raw)pack=JSON.parse(raw);}catch(_){}
+    if(!pack||!pack.despiece||!Array.isArray(pack.despiece.barras)||!pack.despiece.barras.length)return false;
+    const idx=Number(pack.index);
+    if(!Number.isFinite(idx)||!state||!Array.isArray(state.items)||!state.items[idx])return false;
+    state.items[idx].despieceFabricacion=JSON.parse(JSON.stringify(pack.despiece));
+    if(pack.ventana)state.items[idx].configuracionVentana=JSON.parse(JSON.stringify(pack.ventana));
+    try{await persistCurrent();}catch(_){}
+    try{sessionStorage.removeItem('REY_MOTOR_DESPIECE_RETURN_V1');localStorage.removeItem('REY_MOTOR_DESPIECE_RETURN_V1');}catch(_){}
+    try{if(typeof window.actualizarFabricacionTestOpciones==='function')window.actualizarFabricacionTestOpciones();}catch(_){}
+    return true;
+  }
+  window.applyMotorDespieceReturnV1=applyMotorDespieceReturnV1;
+
   async function applyALU600PriceReturnV1(){
     let payload = null;
     try{
@@ -10961,6 +10979,11 @@ COLOCACIÓN INCLUIDA` }
     it.price = finalSale;
     if(!it.units) it.units = 1;
     it.alu600PriceData = payload;
+    // Fabricación: guardar dentro de la V el MISMO despiece calculado por Motor.
+    if(payload.despiece && Array.isArray(payload.despiece.barras) && payload.despiece.barras.length){
+      it.despieceFabricacion = JSON.parse(JSON.stringify(payload.despiece));
+      if(payload.ventana) it.configuracionVentana = JSON.parse(JSON.stringify(payload.ventana));
+    }
 
     try{
       const priceInput = $('editPrice');
@@ -12863,7 +12886,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const nextItems = getAllItems().slice();
     for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    // v4.8.5: la nueva página debe ocupar exactamente su índice real.
+    // v4.8.26: la nueva página debe ocupar exactamente su índice real.
     // No hacemos push después de ensurePageModes(), porque ensurePageModes()
     // ya puede haber creado la entrada para esa página al crecer state.items.
     ensurePageModes();
@@ -14162,6 +14185,7 @@ $('btnExport').addEventListener('click', async function(){
 
     await applyFacturacionBridge();
     await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.04 tras bridge
+    try{ await applyMotorDespieceReturnV1(); }catch(_){ }
     await applyReturnedDesignImage();
     try{ await applyPVCPriceReturnV1(); }catch(_){ }
     try{ await applyALU600PriceReturnV1(); }catch(_){ }
@@ -18612,9 +18636,12 @@ const mo = new MutationObserver(function(){
       <input id="fabricarIncluirTexto" type="checkbox" style="width:20px;height:20px;flex:0 0 auto;">
       Texto editable en notas
     </label>
+    <div id="fabricarDespieceEstado" style="margin-top:8px;padding:9px 10px;border:1px solid #d4dde9;border-radius:13px;background:#f8fafc;font-size:12px;font-weight:900;color:#475569">Despiece Motor: selecciona diseños.</div>
     <div id="fabricarTestResultado" class="fabricar-test-result"></div>
-    <div class="fabricar-test-actions">
+    <div class="fabricar-test-actions" style="grid-template-columns:1fr 1fr 1fr 1fr">
       <button type="button" class="all" onclick="seleccionarTodosFabricacionTest()">Todos</button>
+      <button type="button" style="background:#0f766e" onclick="enviarFabricacionACutMaster()">Cut Máster</button>
+      <button type="button" style="background:#7c3aed" onclick="return window.mostrarMaterialesDirecto();">Materiales</button>
       <button type="button" class="ok" onclick="confirmarFabricacionTest()">Aceptar</button>
     </div>
   </div>
@@ -18896,6 +18923,7 @@ const mo = new MutationObserver(function(){
     var ov=document.getElementById('fabricarTestOverlay');
     if(ov) ov.classList.add('show');
     window.actualizarFabricacionTestOpciones();
+    fabActualizarEstadoDespiece();
     return false;
   };
   window.cerrarFabricacionTest = function(){
@@ -18905,6 +18933,7 @@ const mo = new MutationObserver(function(){
   window.seleccionarTodosFabricacionTest = function(){
     fabricarSeleccionados = fabricarCodigos.slice();
     window.actualizarFabricacionTestOpciones();
+    fabActualizarEstadoDespiece();
     return false;
   };
 
@@ -18930,6 +18959,211 @@ const mo = new MutationObserver(function(){
     }catch(_){ }
     return null;
   }
+  function fabEntradaMotorDe(code){
+    code=String(code||'').toUpperCase();
+    try{
+      var raw=''; try{raw=sessionStorage.getItem('REY_CUTMASTER_POR_V_V1')||'';}catch(_){}
+      if(!raw){try{raw=localStorage.getItem('REY_CUTMASTER_POR_V_V1')||'';}catch(_){}}
+      if(!raw)return null;
+      var map=JSON.parse(raw)||{};
+      return map[code]||null;
+    }catch(_){return null;}
+  }
+  function fabProyectoCutMasterDe(code){
+    var entry=fabEntradaMotorDe(code), project=entry&&entry.project;
+    return project&&Array.isArray(project.materials)&&project.materials.length?project:null;
+  }
+  function fabActualizarEstadoDespiece(){
+    var el=document.getElementById('fabricarDespieceEstado'); if(!el)return;
+    if(!fabricarSeleccionados.length){el.textContent='Despiece Motor: selecciona diseños.';el.style.color='#475569';return;}
+    var ok=[],falta=[];
+    fabricarSeleccionados.forEach(function(code){(fabProyectoCutMasterDe(code)?ok:falta).push(code);});
+    if(falta.length){el.textContent='⚠ Sin despiece Motor: '+falta.join(', ');el.style.color='#b45309';}
+    else{el.textContent='✓ Con despiece Motor: '+ok.join(', ');el.style.color='#166534';}
+  }
+  window.enviarFabricacionACutMaster=function(){
+    if(!fabricarSeleccionados.length){alert('Selecciona al menos una ventana.');return false;}
+    var mats={},falta=[];
+    fabricarSeleccionados.forEach(function(code){
+      var project=fabProyectoCutMasterDe(code); if(!project){falta.push(code);return;}
+      var it=fabFindItemByCode(code), uds=Math.max(1,Number(it&&(it.units||it.uds)||1)||1);
+      project.materials.forEach(function(mat){
+        var key=String(mat.name||'Perfil');
+        if(!mats[key])mats[key]={name:mat.name||'Perfil',profileFace:Number(mat.profileFace)||40,pieces:[],stock:Array.isArray(mat.stock)?JSON.parse(JSON.stringify(mat.stock)):[{label:'Barra',length:6500,qty:999}]};
+        (mat.pieces||[]).forEach(function(pc){mats[key].pieces.push({label:String(pc.label||code+' · Pieza'),length:Number(pc.length)||0,qty:(Number(pc.qty)||0)*uds,cutType:String(pc.cutType||'recto')});});
+      });
+    });
+    if(falta.length){alert('Sin despiece Motor: '+falta.join(', ')+'. Calcula esas ventanas con Motor una vez.');return false;}
+    var materials=Object.keys(mats).map(function(k){return mats[k];}).filter(function(x){return x.pieces.length;});
+    if(!materials.length){alert('No hay barras para enviar a Cut Máster.');return false;}
+    var raw=JSON.stringify({project:{name:'Fabricación · '+fabricarSeleccionados.join(', '),settings:{unit:'mm',kerfMm:0,colorCuts:true},materials:materials,resultTab:'diagram'}});
+    try{sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);sessionStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');localStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');}catch(_){}
+    /* v4.8.6: navegación directa dentro del visor del Index.
+       Evita depender de window.parent.abrir(), que puede fallar en iOS/WKWebView. */
+    window.location.href='optimizar_barra.html';return false;
+  };
+  // v4.8.26 - Puente de solo lectura para Materiales.
+  // Se define dentro del mismo ámbito de Fabricación para acceder a su selección real.
+  window.__reyGetMaterialesFabricacion=function(){
+    return fabricarSeleccionados.map(function(code){
+      var it=fabFindItemByCode(code);
+      return {
+        code:code,
+        units:Math.max(1,Number(it&&(it.units||it.uds)||1)||1),
+        project:fabProyectoCutMasterDe(code),
+        despiece:(fabEntradaMotorDe(code)&&fabEntradaMotorDe(code).despiece)||null
+      };
+    });
+  };
+
+  function fabEscXml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function fabBarrasNecesarias(piezas,largoBarra){
+    largoBarra=Number(largoBarra)||6500; var lens=[];
+    (piezas||[]).forEach(function(p){var l=Number(p.longitud)||0,q=Math.max(0,Math.round(Number(p.cantidad)||0));for(var i=0;i<q;i++)if(l>0)lens.push(l);});
+    lens.sort(function(a,b){return b-a;}); var bins=[];
+    lens.forEach(function(l){var puesto=false;for(var i=0;i<bins.length;i++){if(bins[i]+l<=largoBarra){bins[i]+=l;puesto=true;break;}}if(!puesto)bins.push(l);});
+    return bins.length;
+  }
+  function fabRecogerMateriales(){
+    var perfiles={},vidrios={},accesorios={},falta=[];
+    fabricarSeleccionados.forEach(function(code){
+      var entry=fabEntradaMotorDe(code), project=entry&&entry.project, d=entry&&entry.despiece;
+      if(!project || !Array.isArray(project.materials) || !project.materials.length){falta.push(code);return;}
+      var it=fabFindItemByCode(code), uds=Math.max(1,Number(it&&(it.units||it.uds)||1)||1);
+
+      // PERFILES: el proyecto Cut Máster sigue siendo la garantía del corte.
+      // Si Motor guardó el despiece completo, añadimos precio y referencia comercial.
+      project.materials.forEach(function(mat){
+        var stock=(Array.isArray(mat.stock)&&mat.stock.length)?mat.stock[0]:null;
+        var largoBarra=Number(stock&&stock.length)||6500;
+        var nombreMat=String(mat.name||'Perfil').replace(/^b\d{8,}\s*·?\s*/i,'');
+        var ref='',nom=nombreMat,acab='';
+        var barrasD=(d&&Array.isArray(d.barras))?d.barras:[];
+        var muestra=barrasD.find(function(b){return nombreMat.indexOf(String(b.nombre||''))>=0;})||null;
+        if(muestra){
+          ref=String(muestra.referencia||''); if(/^b\d{8,}$/i.test(ref))ref='';
+          nom=String(muestra.nombre||nombreMat); acab=String(muestra.acabado||'');
+        }
+        var key=[ref||nom,acab,largoBarra].join('|');
+        if(!perfiles[key])perfiles[key]={referencia:ref,nombre:nom,acabado:acab,largoBarra:largoBarra,piezas:[],precioUnidad:muestra?Number(muestra.precioUnidad)||0:0,coste:0};
+        (mat.pieces||[]).forEach(function(pc){
+          var len=Number(pc.length)||0, qty=(Number(pc.qty)||0)*uds;
+          if(len>0&&qty>0)perfiles[key].piezas.push({longitud:len,cantidad:qty});
+        });
+        if(muestra) perfiles[key].coste+=(Number(muestra.coste)||0)*uds;
+      });
+
+      // VIDRIOS/CHAPA Y ACCESORIOS: información adicional guardada por Motor.
+      if(d){
+        (Array.isArray(d.vidrios)?d.vidrios:[]).forEach(function(v){
+          var key=[v.nombre||'Relleno',v.tipo||'vidrio',Number(v.ancho)||0,Number(v.alto)||0].join('|');
+          if(!vidrios[key])vidrios[key]={nombre:v.nombre||'Relleno',tipo:v.tipo||'vidrio',ancho:Number(v.ancho)||0,alto:Number(v.alto)||0,cantidad:0,precioUnidad:Number(v.precioUnidad)||0,coste:0};
+          vidrios[key].cantidad+=(Number(v.cantidad)||0)*uds; vidrios[key].coste+=(Number(v.coste)||0)*uds;
+        });
+        (Array.isArray(d.accesorios)?d.accesorios:[]).forEach(function(a){
+          var key=[a.nombre||'Accesorio',a.tipo||'fijo'].join('|');
+          if(!accesorios[key])accesorios[key]={nombre:a.nombre||'Accesorio',tipo:a.tipo||'fijo',cantidad:0,precioUnidad:Number(a.precioUnidad)||0,unidadPrecio:String(a.unidadPrecio||''),coste:0};
+          accesorios[key].cantidad+=(Number(a.cantidad)||0)*uds; accesorios[key].coste+=(Number(a.coste)||0)*uds;
+        });
+      }
+    });
+    return {perfiles:Object.keys(perfiles).map(function(k){return perfiles[k];}).filter(function(p){return p.piezas.length;}),vidrios:Object.keys(vidrios).map(function(k){return vidrios[k];}),accesorios:Object.keys(accesorios).map(function(k){return accesorios[k];}),falta:falta};
+  }
+  function fabCrearPaginasMateriales(datos){
+    var rows=[];
+    rows.push({section:'PERFILES / BARRAS'});
+    datos.perfiles.forEach(function(p){
+      var total=0,pzs=0;p.piezas.forEach(function(x){total+=(Number(x.longitud)||0)*(Number(x.cantidad)||0);pzs+=Number(x.cantidad)||0;});
+      var nb=fabBarrasNecesarias(p.piezas,p.largoBarra);
+      rows.push({cols:[(p.referencia?p.referencia+' · ':'')+p.nombre,p.acabado||'-',String(pzs)+' cortes · '+(total/1000).toFixed(2)+' m',(Number(p.precioUnidad)||0).toFixed(2)+' €/m · '+(Number(p.coste)||0).toFixed(2)+' €',String(nb)+' barras × '+p.largoBarra+' mm']});
+    });
+    rows.push({section:'VIDRIOS / CHAPA'});
+    datos.vidrios.forEach(function(v){rows.push({cols:[v.nombre,String(v.tipo||''),String(v.ancho)+' × '+String(v.alto)+' mm',(Number(v.precioUnidad)||0).toFixed(2)+' €/m² · '+(Number(v.coste)||0).toFixed(2)+' €',String(v.cantidad)+' ud']});});
+    rows.push({section:'ACCESORIOS'});
+    datos.accesorios.forEach(function(a){var q=Number(a.cantidad)||0;rows.push({cols:[a.nombre,String(a.tipo||''),'',(Number(a.precioUnidad)||0).toFixed(2)+' '+(a.unidadPrecio||'')+' · '+(Number(a.coste)||0).toFixed(2)+' €',a.tipo==='m2'?q.toFixed(2)+' m²':String(q)+' ud']});});
+    var per=32,pages=[];for(var i=0;i<rows.length;i+=per)pages.push(rows.slice(i,i+per));
+    return pages.map(function(chunk,pi){
+      var y=150, body='';
+      chunk.forEach(function(r){
+        if(r.section){body+='<rect x="38" y="'+(y-18)+'" width="718" height="28" rx="5" fill="#e2e8f0"/><text x="50" y="'+y+'" font-size="14" font-weight="700">'+fabEscXml(r.section)+'</text>';y+=38;return;}
+        body+='<line x1="38" y1="'+(y+9)+'" x2="756" y2="'+(y+9)+'" stroke="#d7dee8" stroke-width="1"/>'+
+          '<text x="44" y="'+y+'" font-size="11">'+fabEscXml(r.cols[0])+'</text><text x="292" y="'+y+'" font-size="11">'+fabEscXml(r.cols[1])+'</text><text x="410" y="'+y+'" font-size="11">'+fabEscXml(r.cols[2])+'</text><text x="530" y="'+y+'" font-size="11">'+fabEscXml(r.cols[3])+'</text><text x="650" y="'+y+'" font-size="11" font-weight="700">'+fabEscXml(r.cols[4])+'</text>';y+=27;
+      });
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" width="794" height="1123"><rect width="794" height="1123" fill="white"/><text x="38" y="52" font-size="25" font-weight="800">HOJA DE MATERIALES</text><text x="38" y="79" font-size="13">'+fabEscXml((state&&state.numero)||'')+' · '+fabEscXml(fabricarSeleccionados.join(', '))+'</text><text x="756" y="52" text-anchor="end" font-size="12">Página '+(pi+1)+' / '+pages.length+'</text><line x1="38" y1="98" x2="756" y2="98" stroke="#0f172a" stroke-width="2"/><text x="44" y="125" font-size="10" font-weight="700">MATERIAL / REFERENCIA</text><text x="292" y="125" font-size="10" font-weight="700">ACABADO / TIPO</text><text x="410" y="125" font-size="10" font-weight="700">MEDIDA / CORTES</text><text x="530" y="125" font-size="10" font-weight="700">PRECIO / COSTE</text><text x="650" y="125" font-size="10" font-weight="700">PEDIDO</text>'+body+'</svg>';
+      var wrap=document.createElement('div');wrap.innerHTML=svg;return wrap.firstElementChild;
+    });
+  }
+  function fabAbrirVistaMateriales(datos){
+    var ov=document.getElementById('fabricarTestOverlay');
+    if(!ov) throw new Error('No se encuentra la ventana Fabricación');
+    var panel=ov.querySelector('.fabricar-test-panel');
+    if(!panel) throw new Error('No se encuentra el panel Fabricación');
+
+    // v4.8.26: construir TODO antes de modificar Fabricación. Así, si un dato
+    // inesperado falla, nunca dejamos el modal oculto/bloqueado.
+    function sec(t){return '<div style="margin:18px 0 8px;padding:9px 10px;background:#e2e8f0;border-radius:9px;font-weight:900">'+fabEscXml(t)+'</div>';}
+    function row(a,b,c,d){return '<div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:7px;padding:9px 5px;border-bottom:1px solid #e5e7eb;font-size:13px;align-items:center"><div style="font-weight:800">'+fabEscXml(a)+'</div><div>'+fabEscXml(b)+'</div><div>'+fabEscXml(c)+'</div><div style="text-align:right;font-weight:900">'+fabEscXml(d)+'</div></div>';}
+
+    var h='<div style="display:flex;align-items:center;gap:10px;position:sticky;top:0;background:#fff;padding:8px 0 12px;z-index:2"><div style="font-size:24px;font-weight:950;flex:1">Hoja de materiales</div><button id="fabMatVolverTop" type="button" style="border:0;border-radius:12px;background:#dc2626;color:#fff;font-weight:900;padding:11px 16px">Volver</button></div>'+
+      '<div style="font-size:13px;font-weight:800;color:#475569">'+fabEscXml((state&&state.numero)||'')+' · '+fabEscXml(fabricarSeleccionados.join(', '))+'</div>';
+
+    h+=sec('PERFILES / BARRAS');
+    if(!datos.perfiles.length) h+='<div style="padding:10px;color:#64748b">Sin perfiles.</div>';
+    datos.perfiles.forEach(function(p){
+      var total=0,pzs=0;
+      (Array.isArray(p.piezas)?p.piezas:[]).forEach(function(x){total+=(Number(x.longitud)||0)*(Number(x.cantidad)||0);pzs+=Number(x.cantidad)||0;});
+      var nb=fabBarrasNecesarias(Array.isArray(p.piezas)?p.piezas:[],p.largoBarra);
+      h+=row((p.referencia?p.referencia+' · ':'')+(p.nombre||'Perfil'),p.acabado||'-',pzs+' cortes · '+(total/1000).toFixed(2)+' m · '+(Number(p.precioUnidad)||0).toFixed(2)+' €/m',nb+' barras × '+(Number(p.largoBarra)||6500)+' · '+(Number(p.coste)||0).toFixed(2)+' €');
+    });
+    h+=sec('VIDRIOS / CHAPA');
+    if(!datos.vidrios.length) h+='<div style="padding:10px;color:#64748b">Sin vidrios/chapa guardados.</div>';
+    datos.vidrios.forEach(function(v){h+=row(v.nombre||'Relleno',v.tipo||'',(Number(v.ancho)||0)+' × '+(Number(v.alto)||0)+' mm · '+(Number(v.precioUnidad)||0).toFixed(2)+' €/m²',(Number(v.cantidad)||0)+' ud · '+(Number(v.coste)||0).toFixed(2)+' €');});
+    h+=sec('ACCESORIOS');
+    if(!datos.accesorios.length) h+='<div style="padding:10px;color:#64748b">Sin accesorios guardados.</div>';
+    datos.accesorios.forEach(function(a){var q=Number(a.cantidad)||0;h+=row(a.nombre||'Accesorio',a.tipo||'',(Number(a.precioUnidad)||0).toFixed(2)+' '+(a.unidadPrecio||''),(a.tipo==='m2'?q.toFixed(2)+' m²':q+' ud')+' · '+(Number(a.coste)||0).toFixed(2)+' €');});
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px"><button id="fabMatPdf" type="button" style="border:0;border-radius:13px;background:#2563eb;color:#fff;font-weight:900;font-size:16px;padding:14px">PDF</button><button id="fabMatVolver" type="button" style="border:0;border-radius:13px;background:#475569;color:#fff;font-weight:900;font-size:16px;padding:14px">Volver</button></div>';
+
+    // Guardamos el contenido REAL del panel y reutilizamos el mismo panel.
+    // No ocultamos ni creamos una segunda capa.
+    if(!panel.__reyFabricacionHTML) panel.__reyFabricacionHTML=panel.innerHTML;
+    panel.innerHTML=h;
+    panel.scrollTop=0;
+
+    function volver(){
+      var html=panel.__reyFabricacionHTML;
+      if(!html) return;
+      panel.innerHTML=html;
+      panel.scrollTop=0;
+      // innerHTML recrea los botones; los onclick inline siguen funcionando.
+      fabRenderDisenos();
+      fabRenderOpciones();
+      fabActualizarEstadoDespiece();
+    }
+    var bt=panel.querySelector('#fabMatVolverTop'); if(bt)bt.onclick=volver;
+    var bv=panel.querySelector('#fabMatVolver'); if(bv)bv.onclick=volver;
+    var bp=panel.querySelector('#fabMatPdf');
+    if(bp)bp.onclick=async function(){
+      try{
+        var svgs=fabCrearPaginasMateriales(datos);
+        if(typeof window.__reyExportSvgToEditablePdf!=='function')throw new Error('Motor PDF no disponible');
+        await window.__reyExportSvgToEditablePdf(svgs,{filename:'Materiales_'+((state&&state.numero)||'documento'),title:'Hoja de materiales'});
+      }catch(e){console.error(e);alert('No se pudo generar el PDF: '+(e&&e.message?e.message:e));}
+    };
+  }
+
+  window.exportarHojaMateriales=function(){
+    try{
+      if(!fabricarSeleccionados.length){alert('Selecciona al menos una ventana.');return false;}
+      var datos=fabRecogerMateriales();
+      if(datos.falta.length){alert('Sin datos de materiales: '+datos.falta.join(', ')+'. Calcula esas ventanas con Motor una vez.');return false;}
+      if(!datos.perfiles.length&&!datos.vidrios.length&&!datos.accesorios.length){alert('No hay materiales para mostrar.');return false;}
+      fabAbrirVistaMateriales(datos);
+    }catch(e){
+      console.error('Hoja materiales',e);
+      alert('Error al abrir Materiales: '+(e&&e.message?e.message:String(e)));
+    }
+    return false;
+  };
   function fabApplyNotasToConceptos(notas){
     try{
       Object.keys(notas || {}).forEach(function(key){
@@ -19070,6 +19304,7 @@ const mo = new MutationObserver(function(){
       ev.preventDefault(); ev.stopPropagation();
       fabricarPorHojaTest = opt.getAttribute('data-fab-hojas');
       window.actualizarFabricacionTestOpciones();
+      fabActualizarEstadoDespiece();
       return;
     }
     var v=ev.target && ev.target.closest ? ev.target.closest('[data-fab-v]') : null;
@@ -19080,6 +19315,7 @@ const mo = new MutationObserver(function(){
       if(i>=0) fabricarSeleccionados.splice(i,1); else fabricarSeleccionados.push(code);
       fabricarSeleccionados.sort(function(a,b){return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);});
       window.actualizarFabricacionTestOpciones();
+      fabActualizarEstadoDespiece();
     }
   }, true);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', engancharFabricar); else engancharFabricar();
@@ -19575,11 +19811,11 @@ body.template-picker-open-v456{overflow:hidden;}
   }
   window.apply600PriceReturnV47=apply600Return;
 
-  function bootReturn(){ setTimeout(apply600Return,250); }
+  function bootReturn(){ setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},250); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bootReturn,{once:true});
   else bootReturn();
-  window.addEventListener('pageshow',function(){setTimeout(apply600Return,200)});
-  window.addEventListener('focus',function(){setTimeout(apply600Return,200)});
+  window.addEventListener('pageshow',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},200)});
+  window.addEventListener('focus',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},200)});
 })();
 </script>
 
@@ -19587,6 +19823,70 @@ body.template-picker-open-v456{overflow:hidden;}
 /* v4.7.7 - Eliminado el refuerzo táctil duplicado del botón 600.
    El botón ya tiene una única acción dentro del editor de Importes. */
 </script>
+
+<script>
+/* v4.8.31 — Materiales independiente y robusto: usa el puente v4.8.26 que ya funcionaba. */
+(function(){
+  function esc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function euros(n){return (Number(n)||0).toFixed(2)+' €';}
+  function barrasNecesarias(piezas,largo){
+    largo=Number(largo)||6500; var a=[];
+    (piezas||[]).forEach(function(p){var l=Number(p.len||p.longitud)||0,q=Math.max(0,Math.round(Number(p.qty||p.cantidad)||0));for(var i=0;i<q;i++)if(l>0)a.push(l);});
+    a.sort(function(x,y){return y-x}); var r=[];
+    a.forEach(function(l){var ok=false;for(var i=0;i<r.length;i++){if(r[i]>=l){r[i]-=l;ok=true;break;}}if(!ok)r.push(largo-l);}); return r.length;
+  }
+  function recoger(){
+    var ctx=(typeof window.__reyGetMaterialesFabricacion==='function')?window.__reyGetMaterialesFabricacion():[];
+    if(!Array.isArray(ctx)||!ctx.length)throw new Error('Selecciona al menos una ventana.');
+    var perfiles={},vidrios={},acc={},falta=[];
+    ctx.forEach(function(e){
+      var code=e.code,uds=Math.max(1,Number(e.units)||1),pr=e.project,d=e.despiece||null;
+      if(!pr||!Array.isArray(pr.materials)||!pr.materials.length){falta.push(code);return;}
+      (pr.materials||[]).forEach(function(m){
+        var stock=(m.stock&&m.stock[0])||{}, largo=Number(stock.length)||6500;
+        var nm=String(m.name||'Perfil').replace(/^b\d{8,}\s*·?\s*/i,'');
+        var db=(d&&Array.isArray(d.barras))?d.barras:[], muestra=db.find(function(b){return nm.indexOf(String(b.nombre||''))>=0;})||null;
+        var nom=muestra?String(muestra.nombre||nm):nm, ref=muestra?String(muestra.referencia||''):''; if(/^b\d{8,}$/i.test(ref))ref='';
+        var ac=muestra?String(muestra.acabado||''):''; var key=(ref||nom)+'|'+ac+'|'+largo;
+        if(!perfiles[key])perfiles[key]={ref:ref,nom:nom,ac:ac,largo:largo,piezas:[],precio:muestra?Number(muestra.precioUnidad)||0:0,coste:0};
+        (m.pieces||[]).forEach(function(pc){var len=Number(pc.length)||0,q=(Number(pc.qty)||0)*uds;if(len>0&&q>0)perfiles[key].piezas.push({len:len,qty:q});});
+        if(muestra)perfiles[key].coste+=(Number(muestra.coste)||0)*uds;
+      });
+      if(d){
+        (d.vidrios||[]).forEach(function(v){var k=[v.nombre,v.tipo,v.ancho,v.alto].join('|');if(!vidrios[k])vidrios[k]={nom:v.nombre||'Relleno',tipo:v.tipo||'',ancho:Number(v.ancho)||0,alto:Number(v.alto)||0,qty:0,precio:Number(v.precioUnidad)||0,coste:0};vidrios[k].qty+=(Number(v.cantidad)||0)*uds;vidrios[k].coste+=(Number(v.coste)||0)*uds;});
+        (d.accesorios||[]).forEach(function(a){var k=[a.nombre,a.tipo].join('|');if(!acc[k])acc[k]={nom:a.nombre||'Accesorio',tipo:a.tipo||'',qty:0,precio:Number(a.precioUnidad)||0,unidad:a.unidadPrecio||'',coste:0};acc[k].qty+=(Number(a.cantidad)||0)*uds;acc[k].coste+=(Number(a.coste)||0)*uds;});
+      }
+    });
+    if(falta.length)throw new Error('Sin datos de Motor: '+falta.join(', ')+'.');
+    return {codes:ctx.map(function(x){return x.code}),perfiles:Object.values(perfiles),vidrios:Object.values(vidrios),acc:Object.values(acc)};
+  }
+  function crearSvg(datos){
+    var rows=[{s:'PERFILES / BARRAS'}];
+    datos.perfiles.forEach(function(p){var mt=0,c=0;p.piezas.forEach(function(x){mt+=x.len*x.qty;c+=x.qty});rows.push({a:(p.ref?p.ref+' · ':'')+p.nom,b:p.ac||'-',c:c+' cortes · '+(mt/1000).toFixed(2)+' m',d:(p.precio?euros(p.precio)+'/m · ':'')+euros(p.coste),e:barrasNecesarias(p.piezas,p.largo)+' barras × '+p.largo+' mm'});});
+    rows.push({s:'VIDRIOS / CHAPA'});datos.vidrios.forEach(function(v){rows.push({a:v.nom,b:v.tipo,c:v.ancho+' × '+v.alto+' mm',d:(v.precio?euros(v.precio)+'/m² · ':'')+euros(v.coste),e:v.qty+' ud'});});
+    rows.push({s:'ACCESORIOS / PERSIANAS'});datos.acc.forEach(function(a){rows.push({a:a.nom,b:a.tipo,c:a.precio?euros(a.precio)+' '+a.unidad:'',d:euros(a.coste),e:(a.tipo==='m2'?a.qty.toFixed(2)+' m²':a.qty+' ud')});});
+    var pages=[],per=29;for(var z=0;z<rows.length;z+=per)pages.push(rows.slice(z,z+per));
+    return pages.map(function(pg,pi){var y=150,body='';pg.forEach(function(r){if(r.s){body+='<rect x="38" y="'+(y-18)+'" width="718" height="28" rx="5" fill="#e2e8f0"/><text x="50" y="'+y+'" font-size="14" font-weight="700">'+esc(r.s)+'</text>';y+=38;}else{body+='<line x1="38" y1="'+(y+9)+'" x2="756" y2="'+(y+9)+'" stroke="#d7dee8"/><text x="44" y="'+y+'" font-size="10">'+esc(r.a)+'</text><text x="280" y="'+y+'" font-size="10">'+esc(r.b)+'</text><text x="390" y="'+y+'" font-size="10">'+esc(r.c)+'</text><text x="525" y="'+y+'" font-size="10">'+esc(r.d)+'</text><text x="650" y="'+y+'" font-size="10" font-weight="700">'+esc(r.e)+'</text>';y+=27;}});var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123"><rect width="794" height="1123" fill="white"/><text x="38" y="52" font-size="25" font-weight="800">HOJA DE MATERIALES</text><text x="38" y="79" font-size="13">'+esc(datos.codes.join(', '))+'</text><text x="756" y="52" text-anchor="end" font-size="12">Página '+(pi+1)+' / '+pages.length+'</text><line x1="38" y1="98" x2="756" y2="98" stroke="#0f172a" stroke-width="2"/><text x="44" y="125" font-size="9" font-weight="700">MATERIAL / REFERENCIA</text><text x="280" y="125" font-size="9" font-weight="700">ACABADO</text><text x="390" y="125" font-size="9" font-weight="700">MEDIDA / CORTES</text><text x="525" y="125" font-size="9" font-weight="700">PRECIO / COSTE</text><text x="650" y="125" font-size="9" font-weight="700">PEDIDO</text>'+body+'</svg>';var w=document.createElement('div');w.innerHTML=svg;return w.firstElementChild;});
+  }
+  window.mostrarMaterialesDirecto=function(){
+    try{
+      var d=recoger(), old=document.getElementById('reyMaterialesOverlay'); if(old)old.remove();
+      var ov=document.createElement('div');ov.id='reyMaterialesOverlay';ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.72);padding:18px;overflow:auto;-webkit-overflow-scrolling:touch';
+      var card=document.createElement('div');card.style.cssText='max-width:900px;margin:0 auto;background:#fff;border-radius:22px;padding:18px;color:#0f172a';
+      var h='<div style="display:flex;gap:10px;align-items:center;position:sticky;top:-18px;background:#fff;padding:10px 0;z-index:2"><div style="font-size:24px;font-weight:950;flex:1">Hoja de materiales</div><button id="rmPdf" style="width:auto;background:#2563eb;color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:900">PDF</button><button id="rmCerrar" style="width:auto;background:#dc2626;color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:900">Cerrar</button></div><div style="font-weight:800;color:#475569">'+esc(d.codes.join(', '))+'</div>';
+      function sec(t){h+='<div style="margin:18px 0 6px;padding:10px;background:#e2e8f0;border-radius:10px;font-weight:950">'+esc(t)+'</div>'} function row(a,b){h+='<div style="padding:10px;border-bottom:1px solid #e5e7eb"><div style="font-weight:900">'+esc(a)+'</div><div style="margin-top:4px">'+esc(b)+'</div></div>'}
+      sec('PERFILES / BARRAS');d.perfiles.forEach(function(p){var mt=0,c=0;p.piezas.forEach(function(x){mt+=x.len*x.qty;c+=x.qty});row((p.ref?p.ref+' · ':'')+p.nom+(p.ac?' · '+p.ac:''),c+' cortes · '+(mt/1000).toFixed(2)+' m · '+barrasNecesarias(p.piezas,p.largo)+' barras × '+p.largo+' mm · Precio '+(p.precio?euros(p.precio)+'/m':'—')+' · Coste '+euros(p.coste));});
+      sec('VIDRIOS / CHAPA');d.vidrios.forEach(function(v){row(v.nom,v.qty+' uds · '+v.ancho+' × '+v.alto+' mm · Precio '+(v.precio?euros(v.precio)+'/m²':'—')+' · Coste '+euros(v.coste));});
+      sec('ACCESORIOS / PERSIANAS');d.acc.forEach(function(a){row(a.nom,(a.tipo==='m2'?a.qty.toFixed(2)+' m²':a.qty+' uds')+' · Precio '+(a.precio?euros(a.precio)+' '+a.unidad:'—')+' · Coste '+euros(a.coste));});
+      card.innerHTML=h;ov.appendChild(card);document.body.appendChild(ov);document.body.style.overflow='hidden';
+      card.querySelector('#rmCerrar').onclick=function(){ov.remove();document.body.style.overflow='';};
+      card.querySelector('#rmPdf').onclick=async function(){try{if(typeof window.__reyExportSvgToEditablePdf!=='function')throw new Error('Exportador PDF no disponible');await window.__reyExportSvgToEditablePdf(crearSvg(d),{filename:'Materiales_'+d.codes.join('_'),title:'Hoja de materiales'});}catch(e){alert('No se pudo generar el PDF: '+e.message);}};
+    }catch(e){alert(e&&e.message?e.message:String(e));}
+    return false;
+  };
+})();
+</script>
+
 </body>
 </html>
 <!-- v4.5.2: textarea nativo en conceptos + compatibilidad Android -->
