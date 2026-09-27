@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.6</title>
+  <title>Documentos Rey v4.8.8</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -608,6 +608,7 @@ body.editing-field .return-app-btn{
 .doc-status-pendiente{background:#fee2e2;color:#991b1b}
 .doc-status-anticipo{background:#f97316;color:#ffffff}
 .doc-status-pagada{background:#dcfce7;color:#166534}
+.doc-status-pagado{background:#cffafe;color:#155e75}
 .doc-status-cancelado{background:#374151;color:#ffffff}
 @media print{.doc-status-badge{display:none!important}}
 
@@ -632,6 +633,7 @@ body.editing-field .return-app-btn{
 .saved-status-pendiente{background:#fee2e2;color:#991b1b}
 .saved-status-anticipo{background:#f97316;color:#ffffff}
 .saved-status-pagada{background:#dcfce7;color:#166534}
+.saved-status-pagado{background:#cffafe;color:#155e75}
 .saved-status-cancelado{background:#374151;color:#ffffff}
 
 .btn-menu-index{
@@ -1749,6 +1751,7 @@ body.editing-field .brand-idb-pill{
 .doc-status-pendiente-btn{background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%)}
 .doc-status-anticipo-btn{background:linear-gradient(180deg,#fb923c 0%,#ea580c 100%)}
 .doc-status-pagada-btn{background:linear-gradient(180deg,#22c55e 0%,#15803d 100%)}
+.doc-status-pagado-btn{background:linear-gradient(180deg,#06b6d4 0%,#0e7490 100%)}
 .doc-status-facturado-btn{background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%)}
 .doc-status-cancelado-btn{background:linear-gradient(180deg,#4b5563 0%,#1f2937 100%)}
 .btn-status-mini{
@@ -2911,6 +2914,7 @@ function searchCompactV4416(v){
   color:#fff !important;
   border-color:#14532d !important;
 }
+.saved-status-pagado, #sheetContent .saved-status-pagado, #settingsSheet .saved-status-pagado{background:linear-gradient(180deg,#06b6d4 0%,#0e7490 100%) !important;color:#fff !important;border-color:#155e75 !important;}
 </style>
 
 
@@ -4180,7 +4184,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.6</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4841,6 +4845,7 @@ body.sheet-open .brand-idb-pill{
   function documentStatusLabel(v){
     const s = String(v || 'creado').toLowerCase();
     if(s === 'pagada') return 'PAGADA';
+    if(s === 'pagado') return 'PAGADO';
     if(s === 'pendiente') return 'PENDIENTE';
     if(s === 'anticipo') return 'ANTICIPO';
     if(s === 'enviado') return 'ENVIADO';
@@ -4853,7 +4858,7 @@ body.sheet-open .brand-idb-pill{
 
   function documentStatusClass(v){
     const s = String(v || 'creado').toLowerCase();
-    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','anticipo','pagada','cancelado'].includes(s) ? s : 'creado';
+    return ['creado','enviado','aceptado','rechazado','facturado','pendiente','anticipo','pagada','pagado','cancelado'].includes(s) ? s : 'creado';
   }
 
   function updateDocumentStatusBadge(){
@@ -5157,7 +5162,7 @@ body.sheet-open .brand-idb-pill{
       {value:'cancelado', label:'CANCELADO', cls:'doc-status-cancelado-btn'}
     ];
 
-    // Presupuestos: se mantienen TODOS los estados anteriores y se añade CANCELADO.
+    // Presupuestos: se mantienen los estados anteriores y se añade PAGADO.
     return [
       {value:'creado', label:'CREADO', cls:'doc-status-creado-btn'},
       {value:'pendiente', label:'PENDIENTE', cls:'doc-status-pendiente-btn'},
@@ -5166,6 +5171,7 @@ body.sheet-open .brand-idb-pill{
       {value:'aceptado', label:'ACEPTADO', cls:'doc-status-aceptado-btn'},
       {value:'rechazado', label:'RECHAZADO', cls:'doc-status-rechazado-btn'},
       {value:'facturado', label:'FACTURADO', cls:'doc-status-facturado-btn'},
+      {value:'pagado', label:'PAGADO', cls:'doc-status-pagado-btn'},
       {value:'cancelado', label:'CANCELADO', cls:'doc-status-cancelado-btn'}
     ];
   }
