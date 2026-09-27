@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras v2.4</title>
+  <title>Calculadoras v2.5</title>
 
   <style>
     :root{
@@ -1194,8 +1194,48 @@
 
 
 
+    #viewPersiana .perBoxHeightField{margin-top:8px}
+    #viewPersiana .perBoxHeightField input{max-width:100%}
+    #viewPersiana .perSketchControls{margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.16);border-radius:15px;display:grid;gap:10px}
+    #viewPersiana .perSketchControls strong{font-size:14px}
+    #viewPersiana .perSketchControls .perMeasureRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    #viewPersiana .perSketchControls .field{min-width:0}
+    #viewPersiana .perSketchControls .field label{font-size:11px;line-height:1.15;min-height:27px}
+    #viewPersiana .perSketchControls .btn{justify-self:start}
+    #viewPersiana #perCajonMedida{width:100%;padding:6px 8px;min-height:34px;border-radius:9px;border:1px solid transparent;background:linear-gradient(180deg,var(--inputBg),var(--inputBg2));color:var(--inputText);font-size:16px;font-weight:900;outline:none;-webkit-appearance:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10)}
+    #viewPersiana #perCajonMedida:focus{box-shadow:inset 0 0 0 1px rgba(255,214,102,.55),0 0 0 3px var(--focus)}
+    #viewPersiana #perExportPng{background:#c5222d;border:1px solid #f46c70;color:#fff;font-weight:900;box-shadow:0 2px 8px rgba(197,34,45,.35)}
+    #viewPersiana #perExportPng:active{background:#9d1720}
+    #viewPersiana .perRecBtns,.perExportChoices,.perExportActions{display:flex;gap:6px}
+    #viewPersiana .perRecBtns button,.perExportChoices button{flex:1;min-width:0;padding:9px 3px;border:1px solid #6680a6;border-radius:10px;background:#29354a;color:white;font-size:12px;font-weight:700}
+    #viewPersiana .perRecBtns button.active,.perExportChoices button.active{background:#2479d6;border-color:#a6d5ff}
+    #viewPersiana .perCaption{font-size:12px;font-weight:700}
+    #viewPersiana .perLamasResult{font-size:13px;color:#d8e7f8}
+    #viewPersiana .perLamasResult strong{color:#fff;font-size:16px}
+    .perExportModal[hidden]{display:none!important}
+    .perExportModal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:12px}
+    .perExportPanel{background:#18253a;border-radius:16px;padding:15px;width:min(100%,560px);max-height:94vh;overflow:auto;color:white;display:grid;gap:12px}
+    .perExportPanel img{display:block;max-width:100%;max-height:57vh;object-fit:contain;margin:auto;background:white;border-radius:8px}
+    .perExportPanel p{margin:0;font-size:12px;color:#c9d8ed}
+    .perExportActions{justify-content:space-between;flex-wrap:wrap}
+    #perSavePng{background:#2479d6;color:#fff;border:1px solid #77b9fb;box-shadow:0 3px 10px rgba(36,121,214,.28)}
+    #perCloseExport{background:#17765e;color:#fff;border:1px solid #5ccead;box-shadow:0 3px 10px rgba(23,118,94,.28)}
     /* v2.13: ajustes persiana y barra fija clara */
-    #viewPersiana .persianaTitleBtns{ display:flex; gap:8px; align-items:center; flex-wrap:nowrap; }
+    #viewPersiana .persianaTitleBtns{ display:flex; gap:6px; align-items:center; flex-wrap:nowrap; }
+    #viewPersiana #perPinGraph{background:#c5222d;color:#fff;border:1px solid #f46c70;padding:7px 10px;border-radius:10px;font-size:12px}
+    #viewPersiana #perPinGraph[aria-pressed="true"]{background:#8e1923}
+    #viewPersiana #persianaSettings{font-size:19px;line-height:1;padding:6px 9px;border-radius:10px}
+    #viewPersiana #perFixedPreview[hidden]{display:none!important}
+    #viewPersiana .persianaTitleRow{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:4px}
+    #viewPersiana .persianaTitleRow > span{flex:1;min-width:0;font-size:clamp(14px,4.1vw,19px);white-space:nowrap}
+    #viewPersiana .persianaTitleBtns{flex:0 0 auto;display:flex;gap:4px}
+    #viewPersiana #perFixedPreview{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 150px);left:22px;right:22px;width:auto;max-width:760px;aspect-ratio:420/270;margin:auto;background:#111827;border:1px solid #536477;border-radius:12px;z-index:9997;box-shadow:0 6px 16px rgba(0,0,0,.4);pointer-events:none;overflow:hidden}
+    #viewPersiana #perFixedPreview svg{width:100%;height:100%;display:block}
+    #viewPersiana .perFloatingActions{position:fixed;left:22px;right:22px;bottom:calc(env(safe-area-inset-bottom) + 92px);z-index:9999;max-width:760px;margin:auto;padding:5px;background:#18263b;border:1px solid #536477;border-radius:11px;box-shadow:0 5px 15px rgba(0,0,0,.4);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+    #viewPersiana .perFloatingActions .perCaption{display:none}
+    #viewPersiana .perFloatingActions .perRecBtns{display:contents}
+    #viewPersiana .perFloatingActions .perRecBtns button,#viewPersiana .perFloatingActions #perExportPng{min-width:0;width:100%;min-height:40px;padding:6px 2px;border-radius:9px;font-size:clamp(10px,2.5vw,12px);line-height:1.05;white-space:normal;text-align:center}
+    body.persianaActive .wrap{padding-bottom:220px}
     #viewPersiana .perSettingsPanel{
       display:none;
       margin-top:10px;
@@ -1277,7 +1317,7 @@
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
-      <div class="title">Calculadoras <small>v2.4</small></div>
+      <div class="title">Calculadoras <small>v2.5</small></div>
 
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
@@ -1593,12 +1633,14 @@
     <!-- DIMENSIONES PERSIANA -->
     <section id="viewPersiana" class="view" aria-label="Calculadora Dimensiones persiana">
       <div class="title persianaTitleRow">
-        <span>Dimensiones persiana <small>v1.0</small></span>
+        <span>Dimensiones persiana <small>v1.1</small></span>
         <div class="persianaTitleBtns">
-          <button id="persianaSettings" class="btn btn-ghost btn-mini" type="button" aria-label="Ajustes Dimensiones persiana">Ajustes</button>
+          <button id="perPinGraph" class="btn btn-mini" type="button" aria-pressed="false">Fijar</button>
+          <button id="persianaSettings" class="btn btn-ghost btn-mini" type="button" aria-label="Ajustes Dimensiones persiana" title="Ajustes">⚙</button>
         </div>
       </div>
 
+      <div id="perFixedPreview" aria-label="Gráfico fijado" hidden></div>
       <section class="card" aria-label="Calculadora dimensiones persiana">
         <div class="inner">
           <div class="perMeasureRow">
@@ -1614,6 +1656,7 @@
             </div>
           </div>
 
+          <div class="field perBoxHeightField"><label for="perAltoCajon">Alto del cajón (mm)</label><input id="perAltoCajon" type="number" inputmode="decimal" min="1" step="1" value="185"></div>
           <div class="perTypeBox" aria-label="Tipo de persiana">
             <label>Tipo persiana</label>
             <div class="perTypeBtns">
@@ -1652,8 +1695,42 @@
             </div>
           </div>
 
+          <div class="perSketchControls" aria-label="Opciones del dibujo para presupuesto">
+            <strong>Dibujo para presupuesto</strong>
+            <div class="perMeasureRow">
+              <div class="field"><label for="perExtraIzq">Cajón extra izquierda (mm)</label><input id="perExtraIzq" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
+              <div class="field"><label for="perExtraDer">Cajón extra derecha (mm)</label><input id="perExtraDer" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
+            </div>
+            <div class="perMeasureRow">
+              <div class="field"><label for="perCajonMedida">Texto del cajón</label><input id="perCajonMedida" type="text" value="Monoblock 185" autocomplete="off"></div>
+              <div class="field"><label for="perAltoLama">Alto lama (mm)</label><input id="perAltoLama" type="number" inputmode="decimal" min="1" step="0.1" value="45"></div>
+            </div>
+            <div class="perLamasResult" aria-live="polite">Lamas necesarias: <strong id="perLamasCantidad">—</strong></div>
+            <div class="perFloatingActions">
+            <span class="perCaption sr-only">Recogedor de cinta</span>
+            <div class="perRecBtns" role="group" aria-label="Lado del recogedor">
+              <button type="button" data-rec="izquierda" class="active" aria-pressed="true">Izquierda</button>
+              <button type="button" data-rec="ninguno" aria-pressed="false">Sin recogedor</button>
+              <button type="button" data-rec="derecha" aria-pressed="false">Derecha</button>
+            </div>
+            <button id="perExportPng" class="btn btn-ghost btn-mini" type="button" aria-label="Exportar PNG">Exportar</button>
+            </div>
+          </div>
           <div class="persianaSvgWrap" aria-label="Dibujo de persiana con medidas">
-            <svg id="persianaSvg" class="persianaSvg" viewBox="0 0 420 320" xmlns="http://www.w3.org/2000/svg"></svg>
+            <svg id="persianaSvg" class="persianaSvg" viewBox="0 0 420 270" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+          <svg id="perSketch" style="display:none" viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div id="perExportModal" class="perExportModal" role="dialog" aria-modal="true" aria-label="Exportar dibujo de persiana" hidden>
+            <div class="perExportPanel">
+              <strong>Elegir dibujo para el presupuesto</strong>
+              <div class="perExportChoices">
+                <button type="button" data-export-style="original" class="active">Dibujo original</button>
+                <button type="button" data-export-style="simple">Esquema sencillo</button>
+              </div>
+              <img id="perExportPreview" alt="Vista previa del dibujo de persiana">
+              <p id="perSaveHint" role="status">Pulsa «Guardar PNG» para elegir dónde guardar la imagen.</p>
+              <div class="perExportActions"><button id="perSavePng" type="button" class="btn btn-ghost btn-mini">Guardar PNG</button><button id="perCloseExport" type="button" class="btn btn-ghost btn-mini">Volver al diseño</button></div>
+            </div>
           </div>
 
           <div class="persianaStats" aria-live="polite">
@@ -2254,6 +2331,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         btnHome.style.display = isMenu ? "none" : "inline-flex";
         // Dock de resultado: solo en calculadoras
         document.body.classList.toggle("hasDock", !isMenu);
+        document.body.classList.toggle("persianaActive", name === "persiana");
         const dockTensor = document.getElementById("dockTensor");
         const dockIVA = document.getElementById("dockIVA");
         if(dockTensor) dockTensor.style.display = (name === "tensor") ? "block" : "none";
@@ -2697,7 +2775,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         function perSet(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
         function perError(on){ if($err) $err.style.display=on?"block":"none"; const d=document.getElementById("dockErrorPersiana"); if(d) d.style.display=on?"block":"none"; }
         function svgEl(tag,attrs){ const el=document.createElementNS("http://www.w3.org/2000/svg",tag); Object.keys(attrs||{}).forEach(k=>el.setAttribute(k,String(attrs[k]))); return el; }
-        function txt(x,y,text,size,anchor,fill){ const t=svgEl("text",{x,y,"font-size":size||14,"font-weight":950,fill:fill||"rgba(238,243,255,.95)","text-anchor":anchor||"middle"}); t.textContent=text; return t; }
+        function txt(x,y,text,size,anchor,fill){ const t=svgEl("text",{x,y,"font-size":size||14,"font-family":"Arial, Helvetica, sans-serif","font-weight":800,fill:fill||"rgba(238,243,255,.95)","text-anchor":anchor||"middle"}); t.textContent=text; return t; }
         function clearSvg(){ while($svg.firstChild) $svg.removeChild($svg.firstChild); }
         function motorRecomendado(nm){ if(nm<=10) return "15 Nm"; if(nm<=14) return "20 Nm"; if(nm<=22) return "30 Nm"; return "Superior"; }
         function setGuia(guia){ perGuia=guia; $guideBtns.forEach(btn=>{ const a=btn.getAttribute("data-guide")===guia; btn.classList.toggle("active",a); btn.setAttribute("aria-pressed",a?"true":"false"); }); calcPersiana(); }
@@ -2705,55 +2783,87 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         function updateExactPanel(){ const on=!!($exact&&$exact.checked); if($exactPanel) $exactPanel.classList.toggle("show",on); if(on){ if($exactAncho&&!$exactAncho.value) $exactAncho.value=$pa.value||""; if($exactAlto&&!$exactAlto.value) $exactAlto.value=$ph.value||""; } calcPersiana(); }
         function drawPersiana(anchoHueco, altoHueco, anchoFab, altoPano, tipoNombre, exactMode){
           clearSvg();
-          $svg.setAttribute("viewBox", "0 0 420 230");
-          $svg.appendChild(svgEl("rect",{x:0,y:0,width:420,height:230,fill:"rgba(5,7,17,.10)"}));
+          $svg.setAttribute("viewBox", "0 0 420 270");
+          $svg.appendChild(svgEl("rect",{x:0,y:0,width:420,height:270,fill:"rgba(5,7,17,.10)"}));
 
-          const maxW = Math.max(anchoHueco, anchoFab, 1);
-          const maxH = Math.max(altoHueco, altoPano, 1);
-          const scale = Math.min(230 / maxW, 145 / maxH);
-          const w = Math.max(92, anchoFab * scale);
-          const h = Math.max(96, altoPano * scale);
-          const x = (420 - w) / 2;
-          const y = 42;
+          const extraLeft = Math.max(0, Number(document.getElementById("perExtraIzq")?.value)||0);
+          const extraRight = Math.max(0, Number(document.getElementById("perExtraDer")?.value)||0);
+          const recSide = document.querySelector("#viewPersiana .perRecBtns button.active")?.getAttribute("data-rec") || "ninguno";
+          const maxW = Math.max(anchoHueco, anchoFab + extraLeft + extraRight, 1);
+          const cajonAlto=Math.max(1,Number(document.getElementById("perAltoCajon")?.value)||185);
+          const scale = Math.min(230 / maxW, 155 / (altoPano+cajonAlto));
+          const w = anchoFab * scale;
+          const h = altoPano * scale;
+          const x = (420 - (w + (extraLeft + extraRight)*scale)) / 2 + extraLeft*scale;
+          const y = (270-(h+cajonAlto*scale))/2+cajonAlto*scale-8;
           const guideW = Math.max(7, Math.min(12, w * .045));
-          const boxH = tipoNombre === "Monoblock" ? 24 : 16;
+          const boxH=cajonAlto*scale;
 
-          // Marco exterior limpio
-          $svg.appendChild(svgEl("rect",{x:x-18,y:y-10,width:w+36,height:h+20,rx:14,fill:"rgba(255,255,255,.035)",stroke:"rgba(255,255,255,.20)","stroke-width":1.5}));
+          // Tres formas rectas: cajón arriba, guías a los lados y paño en el centro.
+          // Cada pieza ocupa su propia zona; no hay marco decorativo superpuesto.
+          const boxX=x-guideW-extraLeft*scale;
+          const boxW=w+guideW*2+(extraLeft+extraRight)*scale;
+          $svg.appendChild(svgEl("rect",{x:boxX,y:y-boxH,width:boxW,height:boxH,fill:"#3b3540",stroke:"#ffc68c","stroke-width":1.8}));
+          const cajonTexto=document.getElementById("perCajonMedida")?.value.trim();
+          if(cajonTexto){
+            const text=txt(boxX+boxW/2,y-boxH/2,cajonTexto,Math.min(17,boxH*.57),"middle","#ffe7d0");
+            text.setAttribute("dominant-baseline","central");
+            $svg.appendChild(text);
+            // Ajuste por la anchura real de la fuente, incluidos acentos y letras anchas.
+            const available=Math.max(1,boxW-12);
+            const measured=text.getComputedTextLength();
+            if(measured>available){text.setAttribute("textLength",available);text.setAttribute("lengthAdjust","spacingAndGlyphs");}
+          }
 
-          // Cajón superior / tapa
-          $svg.appendChild(svgEl("rect",{x:x-8,y:y-boxH-6,width:w+16,height:boxH,rx:8,fill:"rgba(255,198,140,.20)",stroke:"rgba(255,198,140,.48)","stroke-width":1.2}));
-          $svg.appendChild(txt(210,y-boxH+9,tipoNombre,10,"middle","rgba(255,231,208,.94)"));
+          $svg.appendChild(svgEl("rect",{x:x-guideW,y:y,width:guideW,height:h,fill:"#23433d",stroke:"#a4ffca","stroke-width":1.2}));
+          $svg.appendChild(svgEl("rect",{x:x+w,y:y,width:guideW,height:h,fill:"#23433d",stroke:"#a4ffca","stroke-width":1.2}));
 
-          // Guías laterales
-          $svg.appendChild(svgEl("rect",{x:x-guideW-5,y:y,width:guideW,height:h,rx:4,fill:"rgba(164,255,202,.19)",stroke:"rgba(164,255,202,.45)","stroke-width":1}));
-          $svg.appendChild(svgEl("rect",{x:x+w+5,y:y,width:guideW,height:h,rx:4,fill:"rgba(164,255,202,.19)",stroke:"rgba(164,255,202,.45)","stroke-width":1}));
-
-          // Paño de lamas
-          $svg.appendChild(svgEl("rect",{x:x,y:y,width:w,height:h,rx:7,fill:"rgba(110,231,255,.12)",stroke:"rgba(110,231,255,.52)","stroke-width":2}));
-          const step = Math.max(7, h / 15);
-          for(let yy = y + step; yy < y + h; yy += step){
-            $svg.appendChild(svgEl("line",{x1:x+5,y1:yy,x2:x+w-5,y2:yy,stroke:"rgba(238,243,255,.22)","stroke-width":1}));
+          $svg.appendChild(svgEl("rect",{x:x,y:y,width:w,height:h,fill:"#25404d",stroke:"#6ee7ff","stroke-width":1.8}));
+          const lamaAlto=Number(document.getElementById("perAltoLama")?.value);
+          const nLamas=lamaAlto>0?Math.ceil(altoPano/lamaAlto):0;
+          for(let i=1;i<Math.min(nLamas,400);i++){
+            const yy=y+h*Math.min(i*lamaAlto/altoPano,1);
+            if(yy>=y+h)break;
+            $svg.appendChild(svgEl("line",{x1:x+4,y1:yy,x2:x+w-4,y2:yy,stroke:"rgba(238,243,255,.38)","stroke-width":.75}));
           }
           // Lama final
-          $svg.appendChild(svgEl("rect",{x:x+7,y:y+h-12,width:w-14,height:8,rx:4,fill:"rgba(238,243,255,.14)"}));
+          $svg.appendChild(svgEl("rect",{x:x+5,y:y+h-11,width:w-10,height:7,fill:"rgba(238,243,255,.14)"}));
 
+          if(recSide !== "ninguno"){
+            const recW=40*scale,recH=170*scale;
+            const rx = recSide === "izquierda" ? x-guideW-45*scale-recW : x+w+guideW+45*scale;
+            $svg.appendChild(svgEl("rect",{x:rx,y:y+h-recH-5,width:recW,height:recH,fill:"rgba(110,231,255,.12)",stroke:"rgba(110,231,255,.8)","stroke-width":1.5}));
+          }
           // Cotas principales: ancho total y alto total
-          const cy = y + h + 18;
+          const cy = y + h + 20;
           $svg.appendChild(svgEl("line",{x1:x,y1:cy,x2:x+w,y2:cy,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
           $svg.appendChild(svgEl("line",{x1:x,y1:cy-5,x2:x,y2:cy+5,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
           $svg.appendChild(svgEl("line",{x1:x+w,y1:cy-5,x2:x+w,y2:cy+5,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
-          $svg.appendChild(txt(210,cy+16,`${Math.round(anchoFab)} mm`,12,"middle","rgba(164,255,202,.95)"));
+          $svg.appendChild(txt(x+w/2,cy+25,`${Math.round(anchoFab)}`,22,"middle","rgba(164,255,202,.95)"));
 
-          const vx = x - 31;
+          const vx = x - (recSide === "izquierda" ? guideW+85*scale+12 : 31);
           $svg.appendChild(svgEl("line",{x1:vx,y1:y,x2:vx,y2:y+h,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
           $svg.appendChild(svgEl("line",{x1:vx-5,y1:y,x2:vx+5,y2:y,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
           $svg.appendChild(svgEl("line",{x1:vx-5,y1:y+h,x2:vx+5,y2:y+h,stroke:"rgba(164,255,202,.86)","stroke-width":2}));
-          const vt=txt(vx-10,y+h/2,`${Math.round(altoPano)} mm`,12,"middle","rgba(164,255,202,.95)");
+          const vt=txt(vx-10,y+h/2,`${Math.round(altoPano)}`,22,"middle","rgba(164,255,202,.95)");
           vt.setAttribute("transform",`rotate(-90 ${vx-10} ${y+h/2})`);
           $svg.appendChild(vt);
 
-          // Sin texto superior: evitamos que se monte con el cajón o el nombre.
+          // Solo se muestran las cotas de los tramos que sobresalen del cajón.
+          function cotaSaliente(start,end,value,side){
+            if(!(value>0)) return;
+            const lineY=y-boxH-10, labelY=lineY-7;
+            $svg.appendChild(svgEl("line",{x1:start,y1:lineY,x2:end,y2:lineY,stroke:"#ffc68c","stroke-width":1.5}));
+            [start,end].forEach(px=>$svg.appendChild(svgEl("line",{x1:px,y1:lineY-4,x2:px,y2:lineY+4,stroke:"#ffc68c","stroke-width":1.5})));
+            const label=String(Math.round(value));
+            $svg.appendChild(txt(side==="izquierda"?end-2:start+2,labelY,label,19,side==="izquierda"?"end":"start","#ffe7d0"));
+          }
+          cotaSaliente(boxX,x-guideW,extraLeft,"izquierda");
+          cotaSaliente(x+w+guideW,boxX+boxW,extraRight,"derecha");
+        }
+        function updatePinnedGraph(){
+          const pinned=document.getElementById("perFixedPreview");
+          if(pinned && !pinned.hidden) pinned.replaceChildren($svg.cloneNode(true));
         }
         function calcPersiana(){
           const ancho=toNumber($pa.value), alto=toNumber($ph.value), cfgBase=TIPOS[perTipo]||TIPOS.monoblock, exactMode=!!($exact&&$exact.checked);
@@ -2766,6 +2876,9 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           perError(false); const area=(anchoFab*altoPano)/1000000, peso=area*cfg.pesoKgM2, nm=peso*settings.factorNm, rec=motorRecomendado(nm);
           perSet("perTipoTxt",cfg.nombre); perSet("perMedidaFab",`${Math.round(anchoFab)} × ${Math.round(altoPano)} mm`); perSet("perFabAncho",`${Math.round(anchoFab)} mm`); perSet("perFabAlto",`${Math.round(altoPano)} mm`); perSet("perArea",`${area.toFixed(2)} m²`); perSet("perPeso",`${peso.toFixed(1)} kg`); perSet("perMotorNec",`${Math.max(1,nm).toFixed(1)} Nm`); perSet("perMotorRec",rec); perSet("dockPerAncho",`${Math.round(anchoFab)}`); perSet("dockPerAlto",`${Math.round(altoPano)}`); perSet("dockPerPeso",`${peso.toFixed(1)} kg`); perSet("dockPerArea",`${area.toFixed(2)}`); perSet("dockPerMotor",rec);
           drawPersiana(ancho,alto,anchoFab,altoPano,cfg.nombre,exactMode);
+          updatePinnedGraph();
+          const lamaAlto=Number(document.getElementById("perAltoLama")?.value);
+          perSet("perLamasCantidad",lamaAlto>0?Math.ceil(altoPano/lamaAlto):"—");
         }
         [$pa,$ph,$exactAncho,$exactAlto].forEach(el=>{ if(!el) return; ["input","change"].forEach(evt=>el.addEventListener(evt,calcPersiana,{passive:true})); });
         $tipoBtns.forEach(btn=>btn.addEventListener("click",()=>setTipo(btn.getAttribute("data-type")||"monoblock"),{passive:true}));
@@ -2774,12 +2887,158 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         if($settingsBtn && $settingsPanel){ $settingsBtn.addEventListener("click",()=>{ $settingsPanel.classList.toggle("show"); },{passive:true}); }
         [$pesoObra,$pesoMono,$factorNm,$motoresLista].forEach(el=>{ if(!el) return; ["input","change"].forEach(evt=>el.addEventListener(evt,()=>{ saveSettings(); calcPersiana(); },{passive:true})); });
         if($settingsDefault){ $settingsDefault.addEventListener("click",()=>{ if($pesoObra) $pesoObra.value=DEFAULT_SETTINGS.pesoObra; if($pesoMono) $pesoMono.value=DEFAULT_SETTINGS.pesoMono; if($factorNm) $factorNm.value=DEFAULT_SETTINGS.factorNm; if($motoresLista) $motoresLista.value=DEFAULT_SETTINGS.motores; saveSettings(); calcPersiana(); },{passive:true}); }
+        const pinBtn=document.getElementById("perPinGraph"),fixedPreview=document.getElementById("perFixedPreview");
+        if(pinBtn && fixedPreview) pinBtn.addEventListener("click",()=>{
+          const active=pinBtn.getAttribute("aria-pressed")!=="true";
+          pinBtn.setAttribute("aria-pressed",active?"true":"false");
+          pinBtn.textContent=active?"Soltar":"Fijar";
+          fixedPreview.hidden=!active;
+          document.getElementById("viewPersiana").classList.toggle("perGraphPinned",active);
+          if(active)updatePinnedGraph();
+        });
         const $reset=document.getElementById("persianaReset");
         if($reset){ $reset.addEventListener("click",()=>{ $pa.value="1000"; $ph.value="1400"; if($exact) $exact.checked=false; if($exactAncho) $exactAncho.value=""; if($exactAlto) $exactAlto.value=""; setGuia("reductora"); setTipo("monoblock"); updateExactPanel(); },{passive:true}); }
+        // Dibujo de presupuesto: datos visuales independientes de las fórmulas.
+        const sketch=document.getElementById("perSketch"), extraL=document.getElementById("perExtraIzq"), extraR=document.getElementById("perExtraDer"), boxMeasure=document.getElementById("perCajonMedida"), boxHeight=document.getElementById("perAltoCajon"), lamaMeasure=document.getElementById("perAltoLama"), exportPng=document.getElementById("perExportPng");
+        const recBtns=Array.from(document.querySelectorAll("#viewPersiana .perRecBtns button"));
+        let recValue="izquierda";
+        recBtns.forEach(btn=>btn.addEventListener("click",()=>{recValue=btn.getAttribute("data-rec");recBtns.forEach(b=>{b.classList.toggle("active",b===btn);b.setAttribute("aria-pressed",b===btn?"true":"false");});calcPersiana();drawSketch();}));
+        function drawSketch(){
+          if(!sketch) return;
+          while(sketch.firstChild) sketch.removeChild(sketch.firstChild);
+          const n=v=>Math.max(0,Number(String(v||0).replace(",","."))||0);
+          const width=($exact&&$exact.checked)?n($exactAncho.value):n($pa.value)+(perTipo==="obra"||perGuia==="sin"?42:23);
+          const height=($exact&&$exact.checked)?n($exactAlto.value):n($ph.value);
+          const left=n(extraL.value),right=n(extraR.value),total=width+left+right;
+          function el(tag,attrs,label){const e=document.createElementNS("http://www.w3.org/2000/svg",tag);Object.keys(attrs).forEach(k=>e.setAttribute(k,attrs[k]));if(label!=null)e.textContent=label;sketch.appendChild(e);return e;}
+          el("rect",{x:0,y:0,width:900,height:700,fill:"#fff"});
+          if(width<=0||height<=0||total<=0) return;
+          const cajonAlto=n(boxHeight.value)||185;
+          const scale=Math.min(720/total,460/(height+cajonAlto)),boxX=(900-total*scale)/2,bodyX=boxX+left*scale,bodyW=width*scale,bodyH=height*scale,boxH=cajonAlto*scale,top=(700-(boxH+bodyH))/2-20;
+          const stroke={fill:"#e3e3e3",stroke:"#1683ee","stroke-width":5};
+          el("rect",Object.assign({x:boxX,y:top,width:total*scale,height:boxH},stroke));
+          el("rect",Object.assign({x:bodyX,y:top+boxH,width:bodyW,height:bodyH},stroke));
+          const lamaAlto=n(lamaMeasure.value),nLamas=lamaAlto>0?Math.ceil(height/lamaAlto):0;
+          for(let i=1;i<Math.min(nLamas,400);i++){
+            const yy=top+boxH+bodyH*Math.min(i*lamaAlto/height,1);
+            if(yy>=top+boxH+bodyH)break;
+            el("line",{x1:bodyX+5,y1:yy,x2:bodyX+bodyW-5,y2:yy,stroke:"#8294a6","stroke-width":1.3});
+          }
+          if(recValue!=="ninguno"){
+            const onLeft=recValue==="izquierda",recW=40*scale,recH=170*scale;
+            const rx=onLeft?bodyX-22-recW:bodyX+bodyW+22;
+            el("rect",Object.assign({x:rx,y:top+boxH+bodyH-recH-14,width:recW,height:recH},stroke));
+          }
+          function line(x1,y1,x2,y2){el("line",{x1,y1,x2,y2,stroke:"#1683ee","stroke-width":2});}
+          function label(x,y,value,anchor="middle",rotation=""){
+            const attrs={x,y,"text-anchor":anchor,"font-size":46,"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"};
+            if(rotation)attrs.transform=rotation;
+            el("text",attrs,String(Math.round(value)));
+          }
+          function horizontal(a,b,y,value,below=false){if(value<=0)return;line(a,y,b,y);line(a,y-7,a,y+7);line(b,y-7,b,y+7);label((a+b)/2,below?y+52:y-12,value);}
+          horizontal(boxX,bodyX,top-15,left);
+          horizontal(bodyX+bodyW,boxX+total*scale,top-15,right);
+          if(boxMeasure.value.trim())el("text",{x:boxX+total*scale/2,y:top+boxH/2+12,"text-anchor":"middle","font-size":Math.min(40,Math.max(16,(total*scale-20)/(boxMeasure.value.trim().length*.58))),"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"},boxMeasure.value.trim());
+          horizontal(bodyX,bodyX+bodyW,top+boxH+bodyH+30,width,true);
+          const hx=recValue==="izquierda"?Math.max(55,bodyX-62):Math.max(55,bodyX-45),hy=top+boxH+bodyH/2;
+          line(hx,top+boxH,hx,top+boxH+bodyH);
+          line(hx-7,top+boxH,hx+7,top+boxH);
+          line(hx-7,top+boxH+bodyH,hx+7,top+boxH+bodyH);
+          label(hx-12,hy,height,"middle",`rotate(-90 ${hx-12} ${hy})`);
+        }
+        [$pa,$ph,$exactAncho,$exactAlto,extraL,extraR].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
+        if($exact)$exact.addEventListener("change",drawSketch);
+        [extraL,extraR].forEach(e=>e.addEventListener("focus",()=>{if(e.value==="0")e.value="";}));
+        [extraL,extraR,boxMeasure,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",calcPersiana);});
+        let priorBoxHeight="185";
+        if(boxHeight)boxHeight.addEventListener("input",()=>{
+          if(boxMeasure && boxMeasure.value.trim()==="Monoblock "+priorBoxHeight){boxMeasure.value="Monoblock "+boxHeight.value;}
+          priorBoxHeight=boxHeight.value;
+          calcPersiana();drawSketch();
+        });
+        [boxMeasure,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
+        $tipoBtns.concat($guideBtns).forEach(e=>e.addEventListener("click",drawSketch));
+        const modal=document.getElementById("perExportModal"), preview=document.getElementById("perExportPreview");
+        const styles=Array.from(modal.querySelectorAll("[data-export-style]"));
+        let exportStyle="original",currentUrl="",currentBlob=null;
+        function previewExport(){
+          drawSketch();
+          let source=exportStyle==="original"?$svg:sketch;
+          if(exportStyle==="original"){
+            source=$svg.cloneNode(true);
+            // Encuadrar la figura y sus cotas, conservando el formato 9:7 del PNG.
+            const content=Array.from($svg.children).slice(1);
+            const bounds=content.map(el=>{try{return el.getBBox();}catch{return null;}}).filter(Boolean);
+            const minX=Math.min(...bounds.map(b=>b.x)),maxX=Math.max(...bounds.map(b=>b.x+b.width));
+            const minY=Math.min(...bounds.map(b=>b.y)),maxY=Math.max(...bounds.map(b=>b.y+b.height));
+            const frameW=Math.max(maxX-minX+32,(maxY-minY+32)*9/7),frameH=frameW*7/9;
+            const frameX=(minX+maxX-frameW)/2,frameY=(minY+maxY-frameH)/2;
+            source.setAttribute("viewBox",`${frameX} ${frameY} ${frameW} ${frameH}`);
+            const backdrop=source.firstElementChild;
+            backdrop.setAttribute("x",frameX);backdrop.setAttribute("y",frameY);
+            backdrop.setAttribute("width",frameW);backdrop.setAttribute("height",frameH);
+            const shapes=source.querySelectorAll("rect,line,text");
+            shapes.forEach((el,i)=>{
+              const tag=el.tagName.toLowerCase(),fill=el.getAttribute("fill")||"",stroke=el.getAttribute("stroke")||"";
+              if(tag==="rect"){
+                if(i===0)el.setAttribute("fill","#ffffff");
+                else if(fill==="#3b3540"){el.setAttribute("fill","#eeeeee");el.setAttribute("stroke","#b8783b");}
+                else if(fill==="#23433d"){el.setAttribute("fill","#e5ecef");el.setAttribute("stroke","#159969");}
+                else if(fill==="#25404d"){el.setAttribute("fill","#f0f3f5");el.setAttribute("stroke","#1689a8");}
+                else {el.setAttribute("fill","#e4eaf0");if(stroke)el.setAttribute("stroke","#1689a8");}
+              }else if(tag==="text")el.setAttribute("fill","#182331");
+              else if(tag==="line")el.setAttribute("stroke",stroke.includes("238,243,255")?"#b6c5cf":stroke.includes("255,198,140")?"#b8783b":stroke.includes("164,255,202")?"#159969":"#1689a8");
+              if(el.hasAttribute("stroke-width") && !(tag==="line" && stroke.includes("238,243,255"))){
+                el.setAttribute("stroke-width",Math.min(Number(el.getAttribute("stroke-width")),tag==="rect"?1.15:1.1));
+              }
+            });
+          }
+          const xml=new XMLSerializer().serializeToString(source),img=new Image();
+          img.onload=()=>{
+            const canvas=document.createElement("canvas"),isOriginal=exportStyle==="original";
+            canvas.width=1800;canvas.height=1400;
+            const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            if(currentUrl)URL.revokeObjectURL(currentUrl);
+            currentBlob=null;
+            if(canvas.toBlob)canvas.toBlob(blob=>{if(blob){currentBlob=blob;currentUrl=URL.createObjectURL(blob);preview.src=currentUrl;}},"image/png");
+            else preview.src=canvas.toDataURL("image/png");
+          };
+          img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(xml);
+        }
+        styles.forEach(btn=>btn.addEventListener("click",()=>{exportStyle=btn.getAttribute("data-export-style");styles.forEach(b=>b.classList.toggle("active",b===btn));previewExport();}));
+        if(exportPng)exportPng.addEventListener("click",()=>{modal.hidden=false;previewExport();});
+        document.getElementById("perCloseExport").addEventListener("click",()=>{modal.hidden=true;preview.removeAttribute("src");if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl="";currentBlob=null;});
+        document.getElementById("perSavePng").addEventListener("click",async()=>{
+          if(!preview.getAttribute("src"))return;
+          const hint=document.getElementById("perSaveHint");
+          const name="persiana_"+exportStyle+"_"+Math.round(Number($pa.value)||0)+"x"+Math.round(Number($ph.value)||0)+".png";
+          try{
+            const blob=currentBlob;
+            if(!blob){hint.textContent="Espera a que termine de prepararse la imagen y vuelve a pulsar Guardar PNG.";return;}
+            const file=new File([blob],name,{type:"image/png"});
+            if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+              await navigator.share({files:[file],title:name});
+              hint.textContent="Pulsa «Guardar PNG» para elegir dónde guardar la imagen.";
+              return;
+            }
+            if(window.showSaveFilePicker){
+              const handle=await window.showSaveFilePicker({suggestedName:name,types:[{description:"Imagen PNG",accept:{"image/png":[".png"]}}]});
+              const writable=await handle.createWritable();await writable.write(blob);await writable.close();
+              hint.textContent="Imagen guardada.";
+              return;
+            }
+            hint.textContent="Este visor no permite elegir dónde guardar. Abre el HTML en Safari y vuelve a pulsar «Guardar PNG», o mantén pulsada la vista previa.";
+          }catch(e){
+            if(e && e.name==="AbortError")return;
+            hint.textContent="No se pudo abrir el selector desde este visor. Prueba en Safari o mantén pulsada la vista previa.";
+          }
+        });
         loadSettings();
         setGuia("reductora");
         setTipo("monoblock");
         updateExactPanel();
+        drawSketch();
+        if(pinBtn)pinBtn.click();
       })();
 
       // --- Oscilos / Herrajes OB ---
