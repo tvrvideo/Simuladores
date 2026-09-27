@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.8</title>
+  <title>Documentos Rey v4.8.9</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4184,7 +4184,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.8</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4354,6 +4354,10 @@ body.sheet-open .brand-idb-pill{
     </button>
     <button type="button" class="settings-item menu-page-add" id="btnDuplicatePage">
       <span>Duplicar página<small>Copia una página completa como nueva alternativa independiente.</small></span>
+      <span>⧉</span>
+    </button>
+    <button type="button" class="settings-item menu-page-add" id="btnDuplicateAllPages">
+      <span>Duplicar todas las páginas<small>Copia todas las hojas al final, en el mismo orden.</small></span>
       <span>⧉</span>
     </button>
     <button type="button" class="settings-item menu-clear" id="btnClear">
@@ -12820,6 +12824,7 @@ $('btnCloseSheet').addEventListener('click', function(){
         + '<button data-choice="continuar" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800">Continuar presupuesto</button>'
         + '<button data-choice="independent" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#16a34a;color:#fff;font-size:16px;font-weight:800">Crear nuevo</button>'
         + '<button data-choice="copy" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#f59e0b;color:#fff;font-size:16px;font-weight:800">Copiar presupuesto</button>'
+        + '<button data-choice="copy-all" style="display:block;width:100%;padding:15px;margin:8px 0;border:0;border-radius:12px;background:#0891b2;color:#fff;font-size:16px;font-weight:800">Duplicar todas las páginas al final</button>'
         + '<button data-choice="cancel" style="display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#334155;font-size:15px;font-weight:700">Cancelar</button>'
         + '</div>';
       document.body.appendChild(overlay);
@@ -12862,6 +12867,11 @@ $('btnCloseSheet').addEventListener('click', function(){
     ensurePageModes();
     const choice = await showPageChoiceModal();
     if(choice === 'cancel') return;
+    if(choice === 'copy-all'){
+      if(getDocumentType() !== 'presupuesto'){ toast('Disponible para presupuestos'); return; }
+      await duplicateAllPagesV489();
+      return;
+    }
     if(choice === 'copy'){
       const sourcePage = Math.max(0, getAppPageCount() - 1);
       await duplicatePageAtIndexV478(sourcePage, 'independent');
@@ -12906,6 +12916,41 @@ $('btnCloseSheet').addEventListener('click', function(){
     try { return JSON.parse(JSON.stringify(it)); }
     catch(_) { return Object.assign({}, it || blankConcept(fallbackIndex)); }
   }
+
+  async function duplicateAllPagesV489(){
+    const pageCount = getAppPageCount();
+    const perPage = isSimpleBudget() ? getSimpleRowsPerPage() : CONCEPTS_PER_PAGE;
+    ensurePageModes();
+    const originalModes = state.pageModes.slice(0, pageCount);
+    const originalItems = getAllItems().slice(0, pageCount*perPage);
+    const copies = [];
+    for(let page=0;page<pageCount;page++){
+      for(let row=0;row<perPage;row++){
+        const index = page*perPage+row;
+        copies.push(cloneConceptForPageV478(originalItems[index] || blankConcept(conceptCodeForIndex(index)), index));
+      }
+    }
+    const paddedOriginal = originalItems.slice();
+    while(paddedOriginal.length < pageCount*perPage){
+      paddedOriginal.push(blankConcept(conceptCodeForIndex(paddedOriginal.length)));
+    }
+    state.items = ensureConceptList(paddedOriginal.concat(copies));
+    if(isSimpleBudget()) state.simpleExtraPages = pageCount*2;
+    state.pageModes = originalModes.concat(originalModes);
+    ensurePageModes();
+    await render();
+    toast(pageCount === 1 ? 'Página copiada al final' : pageCount+' páginas copiadas al final');
+  }
+
+  $('btnDuplicateAllPages').addEventListener('click', async function(){
+    hideReturnAppButton();
+    closeSettings();
+    if(getDocumentType() !== 'presupuesto'){
+      toast('Disponible para presupuestos');
+      return;
+    }
+    await duplicateAllPagesV489();
+  }, false);
 
   async function duplicatePageAtIndexV478(sourcePage, mode){
     sourcePage = Math.max(0, Number(sourcePage || 0));
