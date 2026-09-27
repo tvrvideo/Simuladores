@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1c" />
-  <title>Calculadoras v2.5</title>
+  <title>Calculadoras v2.6</title>
 
   <style>
     :root{
@@ -1194,7 +1194,7 @@
 
 
 
-    #viewPersiana .perBoxHeightField{margin-top:8px}
+    #viewPersiana .perBoxHeightField{margin-top:0}
     #viewPersiana .perBoxHeightField input{max-width:100%}
     #viewPersiana .perSketchControls{margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.16);border-radius:15px;display:grid;gap:10px}
     #viewPersiana .perSketchControls strong{font-size:14px}
@@ -1317,7 +1317,7 @@
   <main class="wrap">
     <!-- MENÚ -->
     <section id="viewMenu" class="view active" aria-label="Menu de calculadoras">
-      <div class="title">Calculadoras <small>v2.5</small></div>
+      <div class="title">Calculadoras <small>v2.6</small></div>
 
       <section class="card card-menu" aria-label="Listado de calculadoras">
         <div class="inner">
@@ -1633,7 +1633,7 @@
     <!-- DIMENSIONES PERSIANA -->
     <section id="viewPersiana" class="view" aria-label="Calculadora Dimensiones persiana">
       <div class="title persianaTitleRow">
-        <span>Dimensiones persiana <small>v1.1</small></span>
+        <span>Dimensiones persiana <small>v1.2</small></span>
         <div class="persianaTitleBtns">
           <button id="perPinGraph" class="btn btn-mini" type="button" aria-pressed="false">Fijar</button>
           <button id="persianaSettings" class="btn btn-ghost btn-mini" type="button" aria-label="Ajustes Dimensiones persiana" title="Ajustes">⚙</button>
@@ -1656,7 +1656,10 @@
             </div>
           </div>
 
-          <div class="field perBoxHeightField"><label for="perAltoCajon">Alto del cajón (mm)</label><input id="perAltoCajon" type="number" inputmode="decimal" min="1" step="1" value="185"></div>
+          <div class="perMeasureRow">
+            <div class="field"><label for="perLargoCajon">Largo cajón</label><input id="perLargoCajon" type="number" inputmode="decimal" min="1" step="1" placeholder="Medida con guías"></div>
+            <div class="field perBoxHeightField"><label for="perAltoCajon">Alto del cajón (mm)</label><input id="perAltoCajon" type="number" inputmode="decimal" min="1" step="1" value="185"></div>
+          </div>
           <div class="perTypeBox" aria-label="Tipo de persiana">
             <label>Tipo persiana</label>
             <div class="perTypeBtns">
@@ -1698,8 +1701,8 @@
           <div class="perSketchControls" aria-label="Opciones del dibujo para presupuesto">
             <strong>Dibujo para presupuesto</strong>
             <div class="perMeasureRow">
-              <div class="field"><label for="perExtraIzq">Cajón extra izquierda (mm)</label><input id="perExtraIzq" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
-              <div class="field"><label for="perExtraDer">Cajón extra derecha (mm)</label><input id="perExtraDer" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
+              <div class="field"><label for="perExtraIzq">Lado izquierdo</label><input id="perExtraIzq" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
+              <div class="field"><label for="perExtraDer">Lado derecho</label><input id="perExtraDer" type="number" inputmode="decimal" min="0" step="1" value="0"></div>
             </div>
             <div class="perMeasureRow">
               <div class="field"><label for="perCajonMedida">Texto del cajón</label><input id="perCajonMedida" type="text" value="Monoblock 185" autocomplete="off"></div>
@@ -2788,8 +2791,9 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           const extraLeft = Math.max(0, Number(document.getElementById("perExtraIzq")?.value)||0);
           const extraRight = Math.max(0, Number(document.getElementById("perExtraDer")?.value)||0);
+          const baseInput=Number(document.getElementById("perLargoCajon")?.value);
           const recSide = document.querySelector("#viewPersiana .perRecBtns button.active")?.getAttribute("data-rec") || "ninguno";
-          const maxW = Math.max(anchoHueco, anchoFab + extraLeft + extraRight, 1);
+          const maxW = Math.max(anchoHueco, anchoFab+extraLeft+extraRight, 1);
           const cajonAlto=Math.max(1,Number(document.getElementById("perAltoCajon")?.value)||185);
           const scale = Math.min(230 / maxW, 155 / (altoPano+cajonAlto));
           const w = anchoFab * scale;
@@ -2801,8 +2805,10 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
 
           // Tres formas rectas: cajón arriba, guías a los lados y paño en el centro.
           // Cada pieza ocupa su propia zona; no hay marco decorativo superpuesto.
-          const boxX=x-guideW-extraLeft*scale;
-          const boxW=w+guideW*2+(extraLeft+extraRight)*scale;
+          const baseW=w+guideW*2;
+          const baseX=x-guideW;
+          const boxX=baseX-extraLeft*scale;
+          const boxW=baseW+(extraLeft+extraRight)*scale;
           $svg.appendChild(svgEl("rect",{x:boxX,y:y-boxH,width:boxW,height:boxH,fill:"#3b3540",stroke:"#ffc68c","stroke-width":1.8}));
           const cajonTexto=document.getElementById("perCajonMedida")?.value.trim();
           if(cajonTexto){
@@ -2850,16 +2856,23 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           $svg.appendChild(vt);
 
           // Solo se muestran las cotas de los tramos que sobresalen del cajón.
+          const baseLineY=y-boxH-10;
+          const baseStart=baseX,baseEnd=baseX+baseW;
+          if(baseInput>0){
+            $svg.appendChild(svgEl("line",{x1:baseStart,y1:baseLineY,x2:baseEnd,y2:baseLineY,stroke:"#ffc68c","stroke-width":1.1}));
+            [baseStart,baseEnd].forEach(px=>$svg.appendChild(svgEl("line",{x1:px,y1:baseLineY-4,x2:px,y2:baseLineY+4,stroke:"#ffc68c","stroke-width":1.1})));
+            $svg.appendChild(txt((baseStart+baseEnd)/2,baseLineY-7,`${Math.round(baseInput)}`,19,"middle","#ffe7d0"));
+          }
           function cotaSaliente(start,end,value,side){
             if(!(value>0)) return;
-            const lineY=y-boxH-10, labelY=lineY-7;
+            const lineY=baseLineY, labelY=lineY-7;
             $svg.appendChild(svgEl("line",{x1:start,y1:lineY,x2:end,y2:lineY,stroke:"#ffc68c","stroke-width":1.5}));
             [start,end].forEach(px=>$svg.appendChild(svgEl("line",{x1:px,y1:lineY-4,x2:px,y2:lineY+4,stroke:"#ffc68c","stroke-width":1.5})));
             const label=String(Math.round(value));
             $svg.appendChild(txt(side==="izquierda"?end-2:start+2,labelY,label,19,side==="izquierda"?"end":"start","#ffe7d0"));
           }
-          cotaSaliente(boxX,x-guideW,extraLeft,"izquierda");
-          cotaSaliente(x+w+guideW,boxX+boxW,extraRight,"derecha");
+          cotaSaliente(boxX,baseStart,extraLeft,"izquierda");
+          cotaSaliente(baseEnd,boxX+boxW,extraRight,"derecha");
         }
         function updatePinnedGraph(){
           const pinned=document.getElementById("perFixedPreview");
@@ -2899,7 +2912,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         const $reset=document.getElementById("persianaReset");
         if($reset){ $reset.addEventListener("click",()=>{ $pa.value="1000"; $ph.value="1400"; if($exact) $exact.checked=false; if($exactAncho) $exactAncho.value=""; if($exactAlto) $exactAlto.value=""; setGuia("reductora"); setTipo("monoblock"); updateExactPanel(); },{passive:true}); }
         // Dibujo de presupuesto: datos visuales independientes de las fórmulas.
-        const sketch=document.getElementById("perSketch"), extraL=document.getElementById("perExtraIzq"), extraR=document.getElementById("perExtraDer"), boxMeasure=document.getElementById("perCajonMedida"), boxHeight=document.getElementById("perAltoCajon"), lamaMeasure=document.getElementById("perAltoLama"), exportPng=document.getElementById("perExportPng");
+        const sketch=document.getElementById("perSketch"), extraL=document.getElementById("perExtraIzq"), extraR=document.getElementById("perExtraDer"), boxMeasure=document.getElementById("perCajonMedida"), boxBase=document.getElementById("perLargoCajon"), boxHeight=document.getElementById("perAltoCajon"), lamaMeasure=document.getElementById("perAltoLama"), exportPng=document.getElementById("perExportPng");
         const recBtns=Array.from(document.querySelectorAll("#viewPersiana .perRecBtns button"));
         let recValue="izquierda";
         recBtns.forEach(btn=>btn.addEventListener("click",()=>{recValue=btn.getAttribute("data-rec");recBtns.forEach(b=>{b.classList.toggle("active",b===btn);b.setAttribute("aria-pressed",b===btn?"true":"false");});calcPersiana();drawSketch();}));
@@ -2909,7 +2922,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           const n=v=>Math.max(0,Number(String(v||0).replace(",","."))||0);
           const width=($exact&&$exact.checked)?n($exactAncho.value):n($pa.value)+(perTipo==="obra"||perGuia==="sin"?42:23);
           const height=($exact&&$exact.checked)?n($exactAlto.value):n($ph.value);
-          const left=n(extraL.value),right=n(extraR.value),total=width+left+right;
+          const left=n(extraL.value),right=n(extraR.value),measuredBase=n(boxBase.value),total=width+left+right;
           function el(tag,attrs,label){const e=document.createElementNS("http://www.w3.org/2000/svg",tag);Object.keys(attrs).forEach(k=>e.setAttribute(k,attrs[k]));if(label!=null)e.textContent=label;sketch.appendChild(e);return e;}
           el("rect",{x:0,y:0,width:900,height:700,fill:"#fff"});
           if(width<=0||height<=0||total<=0) return;
@@ -2936,6 +2949,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             el("text",attrs,String(Math.round(value)));
           }
           function horizontal(a,b,y,value,below=false){if(value<=0)return;line(a,y,b,y);line(a,y-7,a,y+7);line(b,y-7,b,y+7);label((a+b)/2,below?y+52:y-12,value);}
+          if(measuredBase>0)horizontal(bodyX,bodyX+bodyW,top-15,measuredBase);
           horizontal(boxX,bodyX,top-15,left);
           horizontal(bodyX+bodyW,boxX+total*scale,top-15,right);
           if(boxMeasure.value.trim())el("text",{x:boxX+total*scale/2,y:top+boxH/2+12,"text-anchor":"middle","font-size":Math.min(40,Math.max(16,(total*scale-20)/(boxMeasure.value.trim().length*.58))),"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"},boxMeasure.value.trim());
@@ -2949,14 +2963,14 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
         [$pa,$ph,$exactAncho,$exactAlto,extraL,extraR].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
         if($exact)$exact.addEventListener("change",drawSketch);
         [extraL,extraR].forEach(e=>e.addEventListener("focus",()=>{if(e.value==="0")e.value="";}));
-        [extraL,extraR,boxMeasure,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",calcPersiana);});
+        [extraL,extraR,boxMeasure,boxBase,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",calcPersiana);});
         let priorBoxHeight="185";
         if(boxHeight)boxHeight.addEventListener("input",()=>{
           if(boxMeasure && boxMeasure.value.trim()==="Monoblock "+priorBoxHeight){boxMeasure.value="Monoblock "+boxHeight.value;}
           priorBoxHeight=boxHeight.value;
           calcPersiana();drawSketch();
         });
-        [boxMeasure,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
+        [boxMeasure,boxBase,lamaMeasure].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
         $tipoBtns.concat($guideBtns).forEach(e=>e.addEventListener("click",drawSketch));
         const modal=document.getElementById("perExportModal"), preview=document.getElementById("perExportPreview");
         const styles=Array.from(modal.querySelectorAll("[data-export-style]"));
