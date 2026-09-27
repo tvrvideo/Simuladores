@@ -5799,7 +5799,7 @@ body.sheet-open .brand-idb-pill{
     const current = totalsFromItems(currentItems);
 
     // Independiente: solo sus propios conceptos, sin ninguna acumulación.
-    if(mode === 'independent'){
+    if(mode === 'independent' || mode === 'alternative'){
       return {
         multiPage: false,
         currentBase: current.base,
@@ -5819,8 +5819,8 @@ body.sheet-open .brand-idb-pill{
       let startRenderIndex = 0;
       for(let i=renderIndex-1;i>=0;i--){
         const oi = getOriginalPageIndexForRender(i, !!forExport);
-        if(getPageMode(oi) === 'independent'){
-          startRenderIndex = i + 1;
+        if(getPageMode(oi) === 'independent' || getPageMode(oi) === 'alternative'){
+          startRenderIndex = i + (getPageMode(oi) === 'alternative' ? 0 : 1);
           break;
         }
       }
@@ -7649,7 +7649,7 @@ COLOCACIÓN INCLUIDA` }
     const pageModeCount = Math.max(visualPageCount, simplePageCount);
     const rawPageModes = Array.isArray(raw && raw.pageModes) ? raw.pageModes : [];
     merged.pageModes = Array.from({length: pageModeCount}, function(_, i){
-      return rawPageModes[i] === 'independent' ? 'independent' : 'continuar';
+      return ['independent','alternative'].includes(rawPageModes[i]) ? rawPageModes[i] : 'continuar';
     });
     merged.documentId = raw && raw.documentId ? String(raw.documentId) : ('doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
     merged.documentoTipo = (raw && ['presupuesto','factura','albaran'].includes(raw.documentoTipo)) ? raw.documentoTipo : 'presupuesto';
@@ -9475,14 +9475,14 @@ COLOCACIÓN INCLUIDA` }
     while(state.pageModes.length < count) state.pageModes.push('continuar');
     if(state.pageModes.length > count) state.pageModes = state.pageModes.slice(0, count);
     for(let i=0;i<state.pageModes.length;i++){
-      state.pageModes[i] = state.pageModes[i] === 'independent' ? 'independent' : 'continuar';
+      state.pageModes[i] = ['independent','alternative'].includes(state.pageModes[i]) ? state.pageModes[i] : 'continuar';
     }
     return state.pageModes;
   }
 
   function getPageMode(originalPageIndex){
     ensurePageModes();
-    return state.pageModes[Math.max(0, Number(originalPageIndex || 0))] === 'independent' ? 'independent' : 'continuar';
+    return state.pageModes[Math.max(0, Number(originalPageIndex || 0))];
   }
 
   function getExportPageRefs(){
@@ -9516,14 +9516,14 @@ COLOCACIÓN INCLUIDA` }
 
     const renderIndex = Math.max(0, Number(pageNumber || 1) - 1);
     const originalIndex = getOriginalPageIndexForRender(renderIndex, !!forExport);
-    if(getPageMode(originalIndex) !== 'independent') return base;
+    if(!['independent','alternative'].includes(getPageMode(originalIndex))) return base;
 
     // El sufijo cuenta únicamente páginas independientes anteriores
     // dentro del mismo presupuesto: -1, -2, -3...
     let suffix = 0;
     const pageCount = getStoredPageCount();
     for(let i=0;i<pageCount;i++){
-      if(getPageMode(i) === 'independent'){
+      if(['independent','alternative'].includes(getPageMode(i))){
         suffix++;
         if(i === originalIndex) break;
       }
@@ -12844,7 +12844,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;';
       let buttons = '';
       for(let i=0;i<count;i++){
-        buttons += '<button data-page="'+i+'" style="display:block;width:100%;padding:13px;margin:7px 0;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a;font-size:15px;font-weight:800;text-align:left">Página '+(i+1)+' — '+(getPageMode(i)==='independent'?'independiente':'continuar')+'</button>';
+        buttons += '<button data-page="'+i+'" style="display:block;width:100%;padding:13px;margin:7px 0;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;color:#0f172a;font-size:15px;font-weight:800;text-align:left">Página '+(i+1)+' — '+(getPageMode(i)==='continuar'?'continuar':'independiente')+'</button>';
       }
       overlay.innerHTML = '<div style="width:min(430px,100%);max-height:85vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">'
         + '<div style="font-size:20px;font-weight:800;margin-bottom:8px">Duplicar página</div>'
@@ -12936,7 +12936,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     }
     state.items = ensureConceptList(paddedOriginal.concat(copies));
     if(isSimpleBudget()) state.simpleExtraPages = pageCount*2;
-    state.pageModes = originalModes.concat(originalModes);
+    state.pageModes = originalModes.concat(['alternative'].concat(originalModes.slice(1)));
     ensurePageModes();
     await render();
     toast(pageCount === 1 ? 'Página copiada al final' : pageCount+' páginas copiadas al final');
