@@ -1633,7 +1633,7 @@
     <!-- DIMENSIONES PERSIANA -->
     <section id="viewPersiana" class="view" aria-label="Calculadora Dimensiones persiana">
       <div class="title persianaTitleRow">
-        <span>Dimensiones persiana <small>v1.2</small></span>
+        <span>Dimensiones persiana <small>v1.3</small></span>
         <div class="persianaTitleBtns">
           <button id="perPinGraph" class="btn btn-mini" type="button" aria-pressed="false">Fijar</button>
           <button id="persianaSettings" class="btn btn-ghost btn-mini" type="button" aria-label="Ajustes Dimensiones persiana" title="Ajustes">⚙</button>
@@ -2812,13 +2812,15 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           $svg.appendChild(svgEl("rect",{x:boxX,y:y-boxH,width:boxW,height:boxH,fill:"#3b3540",stroke:"#ffc68c","stroke-width":1.8}));
           const cajonTexto=document.getElementById("perCajonMedida")?.value.trim();
           if(cajonTexto){
-            const text=txt(boxX+boxW/2,y-boxH/2,cajonTexto,Math.min(17,boxH*.57),"middle","#ffe7d0");
+            let fontSize=Math.min(27,boxH*.88);
+            const available=Math.max(1,boxW-12);
+            const ctx=document.createElement("canvas").getContext("2d");
+            ctx.font=`800 ${fontSize}px Arial`;
+            const measured=ctx.measureText(cajonTexto).width;
+            if(measured>available)fontSize*=available/measured;
+            const text=txt(boxX+boxW/2,y-boxH/2,cajonTexto,fontSize,"middle","#ffe7d0");
             text.setAttribute("dominant-baseline","central");
             $svg.appendChild(text);
-            // Ajuste por la anchura real de la fuente, incluidos acentos y letras anchas.
-            const available=Math.max(1,boxW-12);
-            const measured=text.getComputedTextLength();
-            if(measured>available){text.setAttribute("textLength",available);text.setAttribute("lengthAdjust","spacingAndGlyphs");}
           }
 
           $svg.appendChild(svgEl("rect",{x:x-guideW,y:y,width:guideW,height:h,fill:"#23433d",stroke:"#a4ffca","stroke-width":1.2}));
@@ -2861,7 +2863,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           if(baseInput>0){
             $svg.appendChild(svgEl("line",{x1:baseStart,y1:baseLineY,x2:baseEnd,y2:baseLineY,stroke:"#ffc68c","stroke-width":1.1}));
             [baseStart,baseEnd].forEach(px=>$svg.appendChild(svgEl("line",{x1:px,y1:baseLineY-4,x2:px,y2:baseLineY+4,stroke:"#ffc68c","stroke-width":1.1})));
-            $svg.appendChild(txt((baseStart+baseEnd)/2,baseLineY-7,`${Math.round(baseInput)}`,19,"middle","#ffe7d0"));
+            $svg.appendChild(txt((baseStart+baseEnd)/2,baseLineY-7,`${Math.round(baseInput)}`,Math.min(19,baseW/(String(Math.round(baseInput)).length*.65)),"middle","#ffe7d0"));
           }
           function cotaSaliente(start,end,value,side){
             if(!(value>0)) return;
@@ -2869,9 +2871,9 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             $svg.appendChild(svgEl("line",{x1:start,y1:lineY,x2:end,y2:lineY,stroke:"#ffc68c","stroke-width":1.5}));
             [start,end].forEach(px=>$svg.appendChild(svgEl("line",{x1:px,y1:lineY-4,x2:px,y2:lineY+4,stroke:"#ffc68c","stroke-width":1.5})));
             const label=String(Math.round(value));
-            $svg.appendChild(txt(side==="izquierda"?end-2:start+2,labelY,label,19,side==="izquierda"?"end":"start","#ffe7d0"));
+            $svg.appendChild(txt(side==="izquierda"?start-7:start+7,labelY,label,19,side==="izquierda"?"end":"start","#ffe7d0"));
           }
-          cotaSaliente(boxX,baseStart,extraLeft,"izquierda");
+          cotaSaliente(baseStart,boxX,extraLeft,"izquierda");
           cotaSaliente(baseEnd,boxX+boxW,extraRight,"derecha");
         }
         function updatePinnedGraph(){
@@ -2927,7 +2929,7 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
           el("rect",{x:0,y:0,width:900,height:700,fill:"#fff"});
           if(width<=0||height<=0||total<=0) return;
           const cajonAlto=n(boxHeight.value)||185;
-          const scale=Math.min(720/total,460/(height+cajonAlto)),boxX=(900-total*scale)/2,bodyX=boxX+left*scale,bodyW=width*scale,bodyH=height*scale,boxH=cajonAlto*scale,top=(700-(boxH+bodyH))/2-20;
+          const scale=Math.min(650/total,460/(height+cajonAlto)),boxX=(900-total*scale)/2,bodyX=boxX+left*scale,bodyW=width*scale,bodyH=height*scale,boxH=cajonAlto*scale,top=(700-(boxH+bodyH))/2-20;
           const stroke={fill:"#e3e3e3",stroke:"#1683ee","stroke-width":5};
           el("rect",Object.assign({x:boxX,y:top,width:total*scale,height:boxH},stroke));
           el("rect",Object.assign({x:bodyX,y:top+boxH,width:bodyW,height:bodyH},stroke));
@@ -2943,22 +2945,28 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             el("rect",Object.assign({x:rx,y:top+boxH+bodyH-recH-14,width:recW,height:recH},stroke));
           }
           function line(x1,y1,x2,y2){el("line",{x1,y1,x2,y2,stroke:"#1683ee","stroke-width":2});}
-          function label(x,y,value,anchor="middle",rotation=""){
-            const attrs={x,y,"text-anchor":anchor,"font-size":46,"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"};
+          function label(x,y,value,anchor="middle",rotation="",fontSize=53){
+            const attrs={x,y,"text-anchor":anchor,"font-size":fontSize,"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"};
             if(rotation)attrs.transform=rotation;
             el("text",attrs,String(Math.round(value)));
           }
-          function horizontal(a,b,y,value,below=false){if(value<=0)return;line(a,y,b,y);line(a,y-7,a,y+7);line(b,y-7,b,y+7);label((a+b)/2,below?y+52:y-12,value);}
-          if(measuredBase>0)horizontal(bodyX,bodyX+bodyW,top-15,measuredBase);
-          horizontal(boxX,bodyX,top-15,left);
-          horizontal(bodyX+bodyW,boxX+total*scale,top-15,right);
+          function horizontal(a,b,y,value,below=false,fontSize=53){if(value<=0)return;line(a,y,b,y);line(a,y-7,a,y+7);line(b,y-7,b,y+7);label((a+b)/2,below?y+67:y-12,value,"middle","",fontSize);}
+          function lateral(cut,outer,y,value,side){
+            if(value<=0)return;
+            line(cut,y,outer,y);
+            line(cut,y-7,cut,y+7);line(outer,y-7,outer,y+7);
+            label(side==="izquierda"?cut-14:cut+14,y-12,value,side==="izquierda"?"end":"start");
+          }
+          if(measuredBase>0)horizontal(bodyX,bodyX+bodyW,top-15,measuredBase,false,Math.min(53,bodyW/(String(Math.round(measuredBase)).length*.65)));
+          lateral(bodyX,boxX,top-15,left,"izquierda");
+          lateral(bodyX+bodyW,boxX+total*scale,top-15,right,"derecha");
           if(boxMeasure.value.trim())el("text",{x:boxX+total*scale/2,y:top+boxH/2+12,"text-anchor":"middle","font-size":Math.min(40,Math.max(16,(total*scale-20)/(boxMeasure.value.trim().length*.58))),"font-weight":800,"font-family":"Arial, sans-serif",fill:"#17202d"},boxMeasure.value.trim());
-          horizontal(bodyX,bodyX+bodyW,top+boxH+bodyH+30,width,true);
+          horizontal(bodyX,bodyX+bodyW,top+boxH+bodyH+30,width,true,60);
           const hx=recValue==="izquierda"?Math.max(55,bodyX-62):Math.max(55,bodyX-45),hy=top+boxH+bodyH/2;
           line(hx,top+boxH,hx,top+boxH+bodyH);
           line(hx-7,top+boxH,hx+7,top+boxH);
           line(hx-7,top+boxH+bodyH,hx+7,top+boxH+bodyH);
-          label(hx-12,hy,height,"middle",`rotate(-90 ${hx-12} ${hy})`);
+          label(hx-12,hy,height,"middle",`rotate(-90 ${hx-12} ${hy})`,60);
         }
         [$pa,$ph,$exactAncho,$exactAlto,extraL,extraR].forEach(e=>{if(e)e.addEventListener("input",drawSketch);});
         if($exact)$exact.addEventListener("change",drawSketch);
@@ -2985,9 +2993,10 @@ document.getElementById("cp_fileInput").addEventListener("change", function(e){
             const bounds=content.map(el=>{try{return el.getBBox();}catch{return null;}}).filter(Boolean);
             const minX=Math.min(...bounds.map(b=>b.x)),maxX=Math.max(...bounds.map(b=>b.x+b.width));
             const minY=Math.min(...bounds.map(b=>b.y)),maxY=Math.max(...bounds.map(b=>b.y+b.height));
-            const frameW=Math.max(maxX-minX+32,(maxY-minY+32)*9/7),frameH=frameW*7/9;
+            const frameW=Math.max(maxX-minX+12,(maxY-minY+12)*9/7),frameH=frameW*7/9;
             const frameX=(minX+maxX-frameW)/2,frameY=(minY+maxY-frameH)/2;
             source.setAttribute("viewBox",`${frameX} ${frameY} ${frameW} ${frameH}`);
+            source.setAttribute("width","1800");source.setAttribute("height","1400");
             const backdrop=source.firstElementChild;
             backdrop.setAttribute("x",frameX);backdrop.setAttribute("y",frameY);
             backdrop.setAttribute("width",frameW);backdrop.setAttribute("height",frameH);
