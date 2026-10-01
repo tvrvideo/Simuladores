@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.9</title>
+  <title>Documentos Rey v4.8.14</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4184,7 +4184,7 @@ body.sheet-open .brand-idb-pill{
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.9</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.14</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4797,7 +4797,12 @@ body.sheet-open .brand-idb-pill{
     return m ? { year:Number(m[1]), seq:Number(m[2]) } : null;
   }
   function uid(){ return formatBudgetNumber(currentBudgetYear(), 1); }
-  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+  function clone(obj){
+    if(typeof structuredClone === 'function'){
+      try{ return structuredClone(obj); }catch(_){ }
+    }
+    return JSON.parse(JSON.stringify(obj));
+  }
   function toast(msg){
     const el = $('toast');
     el.textContent = msg;
@@ -7248,14 +7253,30 @@ COLOCACIÓN INCLUIDA` }
   }
   let savedClients = [];
 
+  function sharedClientPostalCode(c){
+    if(!c || typeof c !== 'object') return '';
+    const fields = ['cp','CP','codigoPostal','codigo_postal','codPostal','postalCode','postal','zip','zipCode'];
+    for(const field of fields){
+      const value = String(c[field] == null ? '' : c[field]).trim();
+      if(value) return value;
+    }
+    // Algunos clientes antiguos tienen el CP escrito dentro de la dirección.
+    const address = String(c.direccion || c.dir || '');
+    const match = address.match(/(?:^|\D)(\d{5})(?=\D|$)/);
+    return match ? match[1] : '';
+  }
+
   function normalizeSharedClient(c){
     return {
       id: String(c && c.id != null ? c.id : ('cli_' + Date.now() + '_' + Math.random().toString(36).slice(2,7))),
       nombre: String(c && c.nombre != null ? c.nombre : ''),
       telefono: String(c && c.telefono != null ? c.telefono : ''),
       direccion: String(c && c.direccion != null ? c.direccion : ''),
+      cp: sharedClientPostalCode(c),
       poblacion: String(c && c.poblacion != null ? c.poblacion : (c && c.localidad != null ? c.localidad : '')),
+      municipio: String(c && c.municipio != null ? c.municipio : ''),
       provincia: String(c && c.provincia != null ? c.provincia : ''),
+      pais: String(c && c.pais != null ? c.pais : 'España'),
       nif: String(c && c.nif != null ? c.nif : '')
     };
   }
@@ -7270,6 +7291,19 @@ COLOCACIÓN INCLUIDA` }
 
     if(Array.isArray(rawShared) && rawShared.length){
       savedClients = rawShared.map(normalizeSharedClient);
+      // Versiones anteriores omitían CP, municipio y país del catálogo compartido.
+      // Recuperarlos del catálogo local por ID sin alterar los demás datos compartidos.
+      const previous = await storageGetJSON(CLIENT_STORAGE_KEY, []);
+      if(Array.isArray(previous)){
+        const byId = new Map(previous.filter(c => c && c.id).map(c => [String(c.id), c]));
+        savedClients.forEach((c, i) => {
+          const old = byId.get(c.id);
+          if(!old) return;
+          if(!sharedClientPostalCode(rawShared[i]) && sharedClientPostalCode(old)) c.cp = sharedClientPostalCode(old);
+          if(!rawShared[i].municipio && old.municipio) c.municipio = String(old.municipio);
+          if(!rawShared[i].pais && old.pais) c.pais = String(old.pais);
+        });
+      }
       return;
     }
 
@@ -7286,8 +7320,11 @@ COLOCACIÓN INCLUIDA` }
       nombre: String(c && c.nombre != null ? c.nombre : ''),
       nif: String(c && c.nif != null ? c.nif : ''),
       direccion: String(c && c.direccion != null ? c.direccion : ''),
+      cp: String(c && c.cp != null ? c.cp : ''),
       localidad: String(c && c.poblacion != null ? c.poblacion : ''),
+      municipio: String(c && c.municipio != null ? c.municipio : ''),
       provincia: String(c && c.provincia != null ? c.provincia : ''),
+      pais: String(c && c.pais != null ? c.pais : 'España'),
       telefono: String(c && c.telefono != null ? c.telefono : '')
     }));
     try{
@@ -7394,6 +7431,7 @@ COLOCACIÓN INCLUIDA` }
       });
     };
 
+    if(isDefaultRecogedorC20(p)) addAll(['img/recogedor.jpg']);
     addAll(productImageRawCandidates(p));
 
     // Si Facturación guarda la imagen en la carpeta con el nombre/ref/id del producto,
@@ -7407,6 +7445,11 @@ COLOCACIÓN INCLUIDA` }
     ]);
 
     return out;
+  }
+
+  function isDefaultRecogedorC20(p){
+    const name = String(p && p.nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    return /\brecogedor\b/.test(name) && /\bpersiana\b/.test(name) && /\bc\s*[-–]?\s*20\b/.test(name);
   }
 
   function bindCatalogImageFallbackV484(root){
@@ -7431,7 +7474,7 @@ COLOCACIÓN INCLUIDA` }
   }
 
   function normalizeSharedProduct(p){
-    const img = normalizeImagePath(firstProductImage(p));
+    const img = isDefaultRecogedorC20(p) ? 'img/recogedor.jpg' : normalizeImagePath(firstProductImage(p));
     return {
       id: String(p && p.id != null ? p.id : ('pro_' + Date.now() + '_' + Math.random().toString(36).slice(2,7))),
       nombre: String(p && (p.nombre != null ? p.nombre : (p.name != null ? p.name : ''))),
@@ -7627,6 +7670,7 @@ COLOCACIÓN INCLUIDA` }
     state.clientePoblacion = String(c.poblacion || '');
     state.clienteMunicipio = String(c.municipio || '');
     state.clienteProvincia = String(c.provincia || '');
+    state.clientePais = String(c.pais || 'España');
     state.clienteNif = String(c.nif || '');
   }
 
@@ -8076,8 +8120,6 @@ COLOCACIÓN INCLUIDA` }
     if(idx >= 0) list[idx] = payload; else list.unshift(payload);
     saveStoredBankInfo(); // v2.86.04 bank before save
     const okList = await storageSetJSON(SAVE_LIST_KEY, list);
-    const okCurrent = await persistCurrent();
-
     // 2) Después sincronizar con facturación sin romper el guardado propio
     let okFact = false;
     try{
@@ -8092,6 +8134,8 @@ COLOCACIÓN INCLUIDA` }
       localStorage.setItem(FACTURACION_BRIDGE_KEY, JSON.stringify(bridgePayload));
       try{ sessionStorage.setItem(FACTURACION_BRIDGE_KEY, JSON.stringify(bridgePayload)); }catch(_){}
     }catch(_){}
+
+    const okCurrent = await persistCurrent();
 
     if(launchedFromFacturacion){
       if($('btnReturnApp')) {
@@ -9275,9 +9319,8 @@ COLOCACIÓN INCLUIDA` }
       state.fabricacion.notas[key] = { texto: String(it.text || ''), obs: String(it.fabricacionObs || '') };
     });
 
-    await persistCurrent();
     await saveNamed();
-    try{ await render(); }catch(_){ }
+    try{ await render(true); }catch(_){ }
     return true;
   };
 
@@ -9794,13 +9837,13 @@ COLOCACIÓN INCLUIDA` }
     return pages;
   }
 
-  async function render(){
+  async function render(skipPersist){
     ensureAcceptanceText();
     updateDocumentStatusBadge();
     sincronizarEmpresaDesdeFacturacion();
     syncFacturaVencimientoDefault();
     state.items = getAllItems();
-    await persistCurrent();
+    if(!skipPersist) await persistCurrent();
     await renderDocument(svg, false);
     setTimeout(installPageDuplicateButtonsV478, 0);
   }
@@ -12227,7 +12270,7 @@ body.innerHTML = `
       });
     } else if(type === 'clientForm'){
       const idx = index == null ? -1 : Number(index);
-      const c = idx >= 0 ? (getClients()[idx] || currentClientData()) : currentClientData();
+      const c = idx >= 0 ? (getClients()[idx] || {}) : {};
       body.innerHTML = `
         <label>Nombre</label><input id="editSavedClientNombre" value="${esc(c.nombre || '')}">
         <label>Teléfono</label><input id="editSavedClientTelefono" value="${esc(c.telefono || '')}">
@@ -13819,28 +13862,29 @@ $('btnExport').addEventListener('click', async function(){
     let showOnlyProvisionales = false;
     let selectedEstadoFilter = '';
 
-      function openBudgetStateFilterSheet(){
-        const opts = statusOptionsForDocumentType('presupuesto');
-        if($('docStatusTitle')) $('docStatusTitle').textContent = 'Filtrar presupuestos por estado';
-        if($('docStatusInfo')) $('docStatusInfo').textContent = 'Elige un estado para ver solo los presupuestos que lo tienen.';
+      function openStateFilterSheet(){
+        const opts = statusOptionsForDocumentType(tipo);
+        const plural = documentTypeListTitle(tipo).toLowerCase();
+        if($('docStatusTitle')) $('docStatusTitle').textContent = 'Filtrar ' + plural + ' por estado';
+        if($('docStatusInfo')) $('docStatusInfo').textContent = 'Elige un estado para ver solo ' + plural + ' que lo tienen.';
         if($('docStatusContent')){
           $('docStatusContent').innerHTML = `
             <div style="font-size:13px;color:#64748b;font-weight:800;line-height:1.35;margin-bottom:10px">
               Estado seleccionado: <span class="saved-status-badge">${esc(selectedEstadoFilter ? documentStatusLabel(selectedEstadoFilter) : 'TODOS')}</span>
             </div>
             <div class="doc-status-actions-grid">
-              <button type="button" class="doc-status-action-btn" data-budget-filter-status="">TODOS</button>
+              <button type="button" class="doc-status-action-btn" data-list-filter-status="">TODOS</button>
               ${opts.map(function(o){
-                return `<button type="button" class="doc-status-action-btn ${o.cls}" data-budget-filter-status="${o.value}">${o.label}</button>`;
+                return `<button type="button" class="doc-status-action-btn ${o.cls}" data-list-filter-status="${o.value}">${o.label}</button>`;
               }).join('')}
             </div>
             <div class="sheet-actions" style="grid-template-columns:1fr;margin-top:14px">
               <button type="button" class="btn btn-light" id="btnCancelBudgetStateFilter">Cancelar</button>
             </div>`;
 
-          Array.from(document.querySelectorAll('[data-budget-filter-status]')).forEach(function(btn){
+          Array.from($('docStatusContent').querySelectorAll('[data-list-filter-status]')).forEach(function(btn){
             btn.addEventListener('click', function(){
-              selectedEstadoFilter = String(btn.getAttribute('data-budget-filter-status') || '').toLowerCase();
+              selectedEstadoFilter = String(btn.getAttribute('data-list-filter-status') || '').toLowerCase();
               showOnlyProvisionales = false;
               closeDocStatusSheet();
               renderFilteredList();
@@ -13865,7 +13909,7 @@ $('btnExport').addEventListener('click', async function(){
 
       let entries = indexedAll.filter(function(entry){
         if(tipo === 'presupuesto' && showOnlyProvisionales && !isPlaceholderDocumentNumber(entry.item && entry.item.numero)) return false;
-        if(tipo === 'presupuesto' && selectedEstadoFilter && String(entry.item && entry.item.estado || '').toLowerCase() !== selectedEstadoFilter) return false;
+        if(selectedEstadoFilter && String(entry.item && entry.item.estado || 'creado').toLowerCase() !== selectedEstadoFilter) return false;
         return documentMatchesSearch(entry.item, q);
       });
       entries = sortDocumentEntries(entries, order);
@@ -14095,21 +14139,15 @@ $('btnExport').addEventListener('click', async function(){
       <button type="button" class="btn btn-success" id="btnCreateDocFromList" style="margin-bottom:10px;">
         Crear ${documentTypeLabel(tipo).toLowerCase()}
       </button>`}
-      <div class="doc-list-tools ${isPresupuestoList ? 'provisional-tools' : ''}">
+      <div class="doc-list-tools provisional-tools">
         <input id="docListSearch" type="search" placeholder="Buscar por número, cliente, fecha, total...">
         ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000">Provisionales</button>
           <button type="button" class="btn btn-provisionales-0000" id="btnEstadosPresupuestos">Estados</button>
         </div>` : `
-        <select id="docListSort">
-          <option value="num_desc">Nº mayor primero</option>
-          <option value="num_asc">Nº menor primero</option>
-          <option value="fecha_desc">Fecha reciente</option>
-          <option value="fecha_asc">Fecha antigua</option>
-          <option value="cliente_asc">Cliente A-Z</option>
-        </select>`}
+        <button type="button" class="btn btn-provisionales-0000" id="btnEstadosDocumentos">Estados</button>`}
       </div>
-      ${isPresupuestoList ? `<div class="doc-list-tools" style="grid-template-columns:1fr; margin-top:-4px;">
+      <div class="doc-list-tools" style="grid-template-columns:1fr; margin-top:-4px;">
         <select id="docListSort">
           <option value="num_desc">Nº mayor primero</option>
           <option value="num_asc">Nº menor primero</option>
@@ -14117,7 +14155,7 @@ $('btnExport').addEventListener('click', async function(){
           <option value="fecha_asc">Fecha antigua</option>
           <option value="cliente_asc">Cliente A-Z</option>
         </select>
-      </div>` : ''}
+      </div>
       <div id="docSavedList"></div>
       <div class="sheet-actions" style="grid-template-columns:1fr;">
         <button type="button" class="btn btn-light" id="sheetCancel">Cerrar</button>
@@ -14154,8 +14192,11 @@ $('btnExport').addEventListener('click', async function(){
 
     if($('btnEstadosPresupuestos')){
       $('btnEstadosPresupuestos').onclick = function(){
-        openBudgetStateFilterSheet();
+        openStateFilterSheet();
       };
+    }
+    if($('btnEstadosDocumentos')){
+      $('btnEstadosDocumentos').onclick = openStateFilterSheet;
     }
 
     $('docListSearch').addEventListener('input', renderFilteredList, false);
