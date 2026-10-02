@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.26</title>
+  <title>Documentos Rey v4.8.32</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -799,7 +799,7 @@ body.editing-field .return-app-btn{
 
 .app{padding-bottom:calc(128px + env(safe-area-inset-bottom) + var(--vv-bottom)) !important;}
 
-/* v4.8.26 - botón flotante de duplicar sobre cada página */
+/* v4.8.32 - botón flotante de duplicar sobre cada página */
 .page-dup-overlay{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:30;}
 .page-dup-button{pointer-events:auto;position:absolute;right:10px;top:6px;border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;background:rgba(255,255,255,.96);color:#0f172a;box-shadow:0 5px 14px rgba(15,23,42,.16);font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation;}
 .page-dup-button:active{transform:scale(.97);}
@@ -4183,7 +4183,7 @@ body.sheet-open .brand-idb-pill{
   box-shadow:0 8px 18px rgba(15,23,42,.08);
 }
 
-/* Navegación principal v4.8.26 */
+/* Navegación principal v4.8.32 */
 .documents-home{position:fixed;inset:0;z-index:50;background:radial-gradient(circle at 88% 8%,#3e679e 0,transparent 34%),radial-gradient(circle at 8% 75%,#1c7775 0,transparent 38%),linear-gradient(160deg,#14233e 0%,#193453 58%,#153f4c 100%);overflow:auto;padding:calc(78px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom));display:none}
 .documents-home.show{display:block}
 .documents-home-inner{max-width:620px;margin:auto;padding:17px;border:1px solid #ffffff36;border-radius:24px;background:#ffffff12;box-shadow:0 20px 45px #06152645;backdrop-filter:blur(8px)}
@@ -4214,7 +4214,7 @@ body.sheet-open .brand-idb-pill{
 body.documents-home-open .floating-actions,body.documents-home-open .btn-back-documents{display:none!important}
 @media print{.documents-home,.btn-back-documents{display:none!important}}
 
-/* Pantallas de gestión v4.8.26 */
+/* Pantallas de gestión v4.8.32 */
 #settingsSheet,#editSheet.directory-theme{background:radial-gradient(circle at 92% 0%,#315d8c 0,transparent 33%),linear-gradient(160deg,#172942,#1a4050);border-color:#60809a;color:#eef5ff}
 #settingsSheet .sheet-head,#editSheet.directory-theme .sheet-head{background:#1b3854;color:#fff;border-bottom:1px solid #ffffff35}
 #settingsSheet .sheet-title,#editSheet.directory-theme .sheet-title{color:#fff}
@@ -4237,6 +4237,56 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
 #editSheet.directory-theme .btn-success{background:#159358;color:#fff;border-color:#67c991}
 #editSheet.directory-theme .btn-light{background:#315c84;color:#fff;border-color:#91afc9}
 #editSheet.directory-theme select,#editSheet.directory-theme input,#editSheet.directory-theme textarea{background:#fff;color:#172b43;border-color:#adc4d9}
+
+/* Buscador integrado en el catálogo v4.8.32 */
+#editSheet.directory-theme #sheetContent .catalog-search-box{background:linear-gradient(135deg,#225577,#1d6875);border:1px solid #72b4c3;border-radius:16px;padding:12px;box-shadow:0 5px 13px #071e3552;color:#fff}
+#editSheet.directory-theme #sheetContent .catalog-search-box input,#editSheet.directory-theme #sheetContent .catalog-search-box select{background:#173e5a!important;color:#fff!important;border:1px solid #75b7c8!important;border-radius:12px!important}
+#editSheet.directory-theme #sheetContent .catalog-search-box input::placeholder{color:#d5e6ef;opacity:1}
+#editSheet.directory-theme #sheetContent .catalog-search-box #catalogCountV33{background:#f5c451!important;color:#26334a!important;border-color:#e6b744!important}
+/* Catálogo: imagen, nombre y precio público v4.8.32 */
+#editSheet.directory-theme #sheetContent .catalog-card-compact.catalog-fact-card{background:linear-gradient(135deg,#225577,#1d6875)!important;border:1px solid #72b4c3!important;box-shadow:0 6px 15px #071e356b!important;min-height:88px!important}
+#editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-name{color:#fff!important;font-size:17px!important}
+#editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-sale-price{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;padding:5px 9px;border-radius:9px;background:#f5c451;color:#26334a;font-size:12px;font-weight:750;line-height:1.2}
+#editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-sale-price strong{font-size:16px;font-weight:950}
+#editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-thumb{background:#eaf4fa!important;border-color:#a9d1dd!important}
+#editSheet.directory-theme .catalog-product-action-head{background:#235976;border:1px solid #72b4c3;border-radius:15px;padding:12px}
+#editSheet.directory-theme .catalog-product-action-title,#editSheet.directory-theme .catalog-product-action-sub{color:#fff}
+
+/* Directorio de clientes v4.8.32 */
+#editSheet.directory-theme #sheetContent .client-list-card{margin:9px 0!important;padding:13px 14px!important;background:linear-gradient(135deg,#2c527f,#276a80)!important;border:1px solid #75b8ca!important;border-radius:16px!important;box-shadow:0 6px 15px #071e356b!important;color:#fff!important}
+#editSheet.directory-theme .client-list-name{font-size:18px;font-weight:900;line-height:1.2;color:#fff}
+#editSheet.directory-theme .client-list-phone{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:9px;background:#f5c451;color:#26334a;font-size:15px;font-weight:900}
+#editSheet.directory-theme .client-list-address{margin-top:8px;font-size:13px;font-weight:650;line-height:1.35;color:#e8f4fc;overflow-wrap:anywhere}
+#editSheet.directory-theme #sheetContent .client-search-panel{background:linear-gradient(135deg,#225577,#1d6875)!important;border:1px solid #72b4c3!important;border-radius:16px;box-shadow:0 5px 13px #071e3552;color:#fff}
+#editSheet.directory-theme #sheetContent .client-search-panel input,#editSheet.directory-theme #sheetContent .client-search-panel select{background:#173e5a!important;color:#fff!important;border:1px solid #75b7c8!important;border-radius:12px!important}
+#editSheet.directory-theme #sheetContent .client-search-panel input::placeholder{color:#d5e6ef;opacity:1}
+#editSheet.directory-theme #sheetContent .client-search-panel .client-search-help,#editSheet.directory-theme #sheetContent .client-search-panel .client-order-row span{color:#e8f4fc!important}
+
+/* Selección de documentos v4.8.32 */
+#editSheet.creation-theme{background:radial-gradient(circle at 90% 0%,#315d8c 0,transparent 40%),linear-gradient(160deg,#172942,#1a4050);border-color:#60809a;color:#eef5ff}
+#editSheet.creation-theme .sheet-head{background:#1b3854;border-bottom:1px solid #ffffff35}
+#editSheet.creation-theme .sheet-title{color:#fff}
+#editSheet.creation-theme #btnCloseSheet{background:#a74342!important;color:#fff!important;border-color:#dc8582!important}
+#editSheet.creation-theme .sheet-actions{background:linear-gradient(to top,#1a4050 75%,#1a4050ef 100%)}
+#editSheet.creation-theme .sheet-actions .btn-light{background:#a74342;color:#fff;border-color:#dc8582}
+#editSheet.creation-theme .budget-type-card,#editSheet.creation-theme .doc-type-card,#editSheet.creation-theme .number-mode-card-v304{box-shadow:0 7px 16px #071e3566;border-radius:16px;background:linear-gradient(135deg,#285e83,#217a88);border-color:#75b7c8;color:#fff}
+#editSheet.creation-theme .budget-type-card.simple,#editSheet.creation-theme .doc-type-card.presupuesto,#editSheet.creation-theme .number-mode-card-v304.provisional{background:linear-gradient(135deg,#235e91,#326bb6);border-color:#8dacf5}
+#editSheet.creation-theme .budget-type-card.image-mode,#editSheet.creation-theme .doc-type-card.factura,#editSheet.creation-theme .number-mode-card-v304.definitivo{background:linear-gradient(135deg,#187550,#249969);border-color:#67c991}
+#editSheet.creation-theme .doc-type-card.albaran{background:linear-gradient(135deg,#a66a17,#ca8d20);border-color:#e9b95f}
+#editSheet.creation-theme .budget-type-card strong,#editSheet.creation-theme .budget-type-card span,#editSheet.creation-theme .doc-type-card strong,#editSheet.creation-theme .doc-type-card span,#editSheet.creation-theme .number-mode-card-v304 strong,#editSheet.creation-theme .number-mode-card-v304 span{color:#fff}
+
+/* Listas de documentos v4.8.32: conservar las tarjetas */
+#editSheet.document-list-theme{background:radial-gradient(circle at 92% 0%,#315d8c 0,transparent 34%),linear-gradient(160deg,#172942,#1a4050);border-color:#60809a;color:#eef5ff}
+#editSheet.document-list-theme .sheet-head{background:#1b3854;border-bottom:1px solid #ffffff35}
+#editSheet.document-list-theme .sheet-title{color:#fff}
+#editSheet.document-list-theme #btnCloseSheet{background:#a74342!important;color:#fff!important;border-color:#dc8582!important}
+#editSheet.document-list-theme #sheetContent>label{color:#e8f4ff;font-size:14px;margin:7px 0 10px}
+#editSheet.document-list-theme .document-list-filter-panel{position:sticky;top:58px;z-index:15;background:linear-gradient(135deg,#225577,#1d6875);border:1px solid #72b4c3;border-radius:16px;padding:10px 12px 1px;margin-bottom:13px;box-shadow:0 5px 13px #071e3552}
+#editSheet.document-list-theme .doc-list-tools input,#editSheet.document-list-theme .doc-list-tools select{background:#173e5a!important;color:#fff!important;border:1px solid #75b7c8!important;border-radius:12px!important}
+#editSheet.document-list-theme .doc-list-tools input::placeholder{color:#d5e6ef;opacity:1}
+#editSheet.document-list-theme .sheet-actions{background:linear-gradient(to top,#1a4050 75%,#1a4050ef 100%)}
+#editSheet.document-list-theme #sheetCancel{background:#a74342;color:#fff;border-color:#dc8582}
+@media(max-width:560px){#editSheet.document-list-theme .document-list-filter-panel{top:54px}}
 </style>
 </head>
 <body>
@@ -4244,7 +4294,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.26</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.32</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4273,7 +4323,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.26</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.32</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5527,7 +5577,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.26', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.32', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5570,7 +5620,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.26',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.32',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -5811,6 +5861,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   async function createNewDocument(documentoTipo, tipoPresupuesto, numberMode){
+    homeCreationFlow = false;
     hideReturnAppButton();
     closeSettings();
     closeSheet();
@@ -5846,6 +5897,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   async function openNumberModeChooserV304(documentoTipo, tipoPresupuesto){
+    $('editSheet').classList.add('creation-theme');
     documentoTipo = documentoTipo || 'presupuesto';
 
     if(documentoTipo !== 'presupuesto'){
@@ -5881,6 +5933,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   function openDocumentTypeChooser(tipoPresupuesto){
+    $('editSheet').classList.add('creation-theme');
     $('sheetTitle').textContent = 'Nuevo documento';
     const body = $('sheetContent');
     body.innerHTML = `
@@ -5925,6 +5978,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   async function createNewBudgetByType(type){
+    homeCreationFlow = false;
     hideReturnAppButton();
     closeSettings();
     closeSheet();
@@ -5945,6 +5999,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   function openBudgetTypeChooser(){
+    $('editSheet').classList.add('creation-theme');
     closeSettings();
     $('sheetTitle').textContent = 'Crear presupuesto';
     const body = $('sheetContent');
@@ -5973,6 +6028,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
   }
 
   function openTemplateChooserForDocumentType(documentoTipo){
+    $('editSheet').classList.add('creation-theme');
     documentoTipo = ['presupuesto','factura','albaran'].includes(documentoTipo) ? documentoTipo : 'presupuesto';
     closeSettings();
     $('sheetTitle').textContent = 'Crear ' + documentTypeLabel(documentoTipo).toLowerCase();
@@ -5992,12 +6048,14 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
         <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
       </div>`;
     $('btnStartSimpleDoc').onclick = async function(){
+      const fromHome = homeCreationFlow;
       if(documentoTipo === 'presupuesto') await openNumberModeChooserV304(documentoTipo, 'sencillo'); else await createNewDocument(documentoTipo, 'sencillo', 'definitivo');
-      setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
+      if(!fromHome) setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
     };
     $('btnStartImageDoc').onclick = async function(){
+      const fromHome = homeCreationFlow;
       if(documentoTipo === 'presupuesto') await openNumberModeChooserV304(documentoTipo, 'visual'); else await createNewDocument(documentoTipo, 'visual', 'definitivo');
-      setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
+      if(!fromHome) setTimeout(function(){ openEdit('conceptText', 'Plantillas de conceptos', 0); }, 80);
     };
     $('sheetCancel').onclick = closeSheet;
     $('sheetBackdrop').classList.add('show');
@@ -6209,7 +6267,7 @@ body.documents-home-open .floating-actions,body.documents-home-open .btn-back-do
     const iva = base * ivaRate();
     return { base, iva, total: base + iva };
   }
-  // v4.8.26 - Cálculo de totales por página completamente aislado.
+  // v4.8.32 - Cálculo de totales por página completamente aislado.
   // Una página marcada como independiente NUNCA puede heredar importes de otra.
   // Para exportación trabajamos siempre con el índice original de la página,
   // evitando mezclar el índice PDF con el índice de state.items.
@@ -9765,7 +9823,7 @@ COLOCACIÓN INCLUIDA` }
     return true;
   };
 
-    // v4.8.26: exponer el motor PDF existente para la Hoja de materiales.
+    // v4.8.32: exponer el motor PDF existente para la Hoja de materiales.
     window.__reyExportSvgToEditablePdf = exportSvgToEditablePdf;
 
     async function exportPDF(){
@@ -9778,6 +9836,7 @@ COLOCACIÓN INCLUIDA` }
   }
   let returnToSettingsAfterSheet = false;
   let documentListSheetOpen = false;
+  let homeCreationFlow = false;
   let lastDocumentListType = null;
   let lastDocumentListView = null;
   function showDocumentsHome(){
@@ -9788,9 +9847,9 @@ COLOCACIÓN INCLUIDA` }
     $('documentsHome').classList.remove('show');
     document.body.classList.remove('documents-home-open');
   }
-  $('btnCreateBudgetHome').addEventListener('click', function(){ hideDocumentsHome(); openBudgetTypeChooser(); });
-  $('btnCreateDeliveryHome').addEventListener('click', function(){ hideDocumentsHome(); openTemplateChooserForDocumentType('albaran'); });
-  $('btnCreateInvoiceHome').addEventListener('click', function(){ hideDocumentsHome(); openTemplateChooserForDocumentType('factura'); });
+  $('btnCreateBudgetHome').addEventListener('click', function(){ homeCreationFlow = true; hideDocumentsHome(); openBudgetTypeChooser(); });
+  $('btnCreateDeliveryHome').addEventListener('click', function(){ homeCreationFlow = true; hideDocumentsHome(); openTemplateChooserForDocumentType('albaran'); });
+  $('btnCreateInvoiceHome').addEventListener('click', function(){ homeCreationFlow = true; hideDocumentsHome(); openTemplateChooserForDocumentType('factura'); });
   $('btnHomeClients').addEventListener('click', async function(){ await loadClients(); openEdit('clients', 'Lista de clientes'); });
   $('btnHomeProducts').addEventListener('click', async function(){ await loadProducts(); openEdit('catalog', 'Catálogo compartido'); });
   $('btnHomeContinue').addEventListener('click', hideDocumentsHome);
@@ -11543,6 +11602,7 @@ COLOCACIÓN INCLUIDA` }
 
     closeSettings();
     currentEdit = { type, index:index == null ? null : index };
+    $('editSheet').classList.remove('creation-theme', 'document-list-theme');
     $('editSheet').classList.toggle('directory-theme', ['clients','clientForm','catalog','catalogForm','catalogProductActions'].includes(type));
     $('sheetTitle').textContent = title;
     const body = $('sheetContent');
@@ -12087,7 +12147,7 @@ body.innerHTML = `
         return 100;
       }
       function catalogHayV33(p){
-        return searchNormV4416([p && p.nombre, p && p.descripcion, catalogRefV33(p), catalogProveedorV33(p), p && p.fecha, p && p.precio, p && p.precioCompra, p && p.stock, catalogGananciaV33(p)].join(' '));
+        return searchNormV4416([p && p.nombre, p && p.descripcion, catalogRefV33(p), catalogProveedorV33(p), p && p.fecha, p && p.precio, p && p.stock].join(' '));
       }
       function catalogSortedFilteredV33(){
         const q = searchNormV4416(($('catalogSearchV33') && $('catalogSearchV33').value) || '');
@@ -12112,24 +12172,13 @@ body.innerHTML = `
         let listHtml = '';
         rows.forEach(({p, idx}) => {
           const img = normalizeCatalogImageSrc(String(p.imgThumb || p.imgFull || p.img || ''));
-          const sub = [];
-          const ref = catalogRefV33(p);
-          const prov = catalogProveedorV33(p);
-          const fecha = catalogDateV33(p.fecha);
-          if(ref) sub.push('Ref: ' + ref);
-          if(prov) sub.push('Prov: ' + prov);
-          if(fecha) sub.push('Fecha: ' + fecha);
-          sub.push('Venta: ' + catalogMoneyV33(p.precio || 0));
-          if(Number(p.precioCompra || 0)) sub.push('Compra: ' + catalogMoneyV33(p.precioCompra || 0));
-          sub.push('Ganancia: ' + (Math.round(catalogGananciaV33(p)*100)/100).toString().replace('.',',') + '%');
-          sub.push('Stock: ' + String(p.stock || 0));
           listHtml += `
             <div class="saved-item template-card catalog-card-compact catalog-fact-card" data-catalog-action="${idx}" role="button" tabindex="0">
               <div class="catalog-card-media">
                 ${img ? `<img class="catalog-thumb" src="${esc(img)}" data-catalog-image="${esc(JSON.stringify(productImageCandidates(p)))}" alt="">` : `<div class="catalog-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px">?</div>`}
                 <div style="min-width:0;flex:1">
                   <div class="catalog-name">${esc(p.nombre || 'Sin nombre')}</div>
-                  <div class="catalog-meta">${esc(sub.join(' · '))}</div>
+                  <div class="catalog-sale-price">Precio de venta <strong>${esc(catalogMoneyV33(p.precio || 0))}</strong></div>
                 </div>
               </div>
             </div>`;
@@ -12588,9 +12637,10 @@ body.innerHTML = `
         const orderTown = searchNormV4416(c.poblacion || c.provincia || '');
         const orderAddress = searchNormV4416(c.direccion || '');
         listHtml += `
-          <div class="saved-item template-card" data-client-item="1" data-client-filter="${esc(searchable)}" data-client-name="${esc(orderName)}" data-client-town="${esc(orderTown)}" data-client-address="${esc(orderAddress)}" data-client-original="${idx}" style="margin-top:8px;padding:12px 14px">
-            <div style="font-weight:800;font-size:15px">${esc(c.nombre || 'Sin nombre')}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(clientSummary(c) || c.provincia || '')}</div>
+          <div class="saved-item template-card client-list-card" data-client-item="1" data-client-filter="${esc(searchable)}" data-client-name="${esc(orderName)}" data-client-town="${esc(orderTown)}" data-client-address="${esc(orderAddress)}" data-client-original="${idx}">
+            <div class="client-list-name">${esc(c.nombre || 'Sin nombre')}</div>
+            <div class="client-list-phone">${esc(String(c.telefono || '').trim() || 'Sin teléfono')}</div>
+            <div class="client-list-address">${esc([String(c.direccion || '').trim(), [String(c.cp || '').trim(), String(c.poblacion || c.municipio || '').trim(), String(c.provincia || '').trim()].filter(Boolean).join(' ')].filter(Boolean).join(' · ') || 'Sin dirección')}</div>
             <div class="client-actions-row">
               <button type="button" class="btn btn-danger client-delete-btn" data-client-delete="${idx}" aria-label="Eliminar cliente" title="Eliminar cliente">🗑</button>
               <div class="client-actions-right">
@@ -12608,7 +12658,7 @@ body.innerHTML = `
         </div>
         <div class="client-search-panel">
           <div class="client-search-row client-search-inline">
-            <input id="clientQuickSearch" type="search" inputmode="search" autocomplete="off" placeholder="Buscar cliente por nombre, teléfono, población o NIF…">
+            <input id="clientQuickSearch" type="search" inputmode="search" autocomplete="off" placeholder="Buscar por nombre, teléfono o dirección…">
             <button type="button" class="client-search-x" id="clientQuickClear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda">×</button>
           </div>
           <div class="client-search-help" id="clientSearchCount">${clients.length} cliente${clients.length === 1 ? '' : 's'} en la lista</div>
@@ -12844,10 +12894,19 @@ body.innerHTML = `
     editFieldFocusMode(false);
     $('editSheet').classList.remove('show');
     $('editSheet').classList.remove('directory-theme');
+    $('editSheet').classList.remove('creation-theme', 'document-list-theme');
     $('editSheet').setAttribute('aria-hidden','true');
     document.body.classList.remove('editing-field');
     $('editSheet').classList.remove('field-focus-mode');
 
+    if(homeCreationFlow){
+      homeCreationFlow = false;
+      returnToSettingsAfterSheet = false;
+      document.body.classList.remove('sheet-open');
+      $('sheetBackdrop').classList.remove('show');
+      showDocumentsHome();
+      return;
+    }
     if(documentListSheetOpen){
       documentListSheetOpen = false;
       document.body.classList.remove('sheet-open');
@@ -13415,7 +13474,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const nextItems = getAllItems().slice();
     for(let i=0;i<CONCEPTS_PER_PAGE;i++) nextItems.push(blankConcept(conceptCodeForIndex(nextItems.length)));
     state.items = ensureConceptList(nextItems);
-    // v4.8.26: la nueva página debe ocupar exactamente su índice real.
+    // v4.8.32: la nueva página debe ocupar exactamente su índice real.
     // No hacemos push después de ensurePageModes(), porque ensurePageModes()
     // ya puede haber creado la entrada para esa página al crecer state.items.
     ensurePageModes();
@@ -14316,7 +14375,8 @@ $('btnExport').addEventListener('click', async function(){
     e.target.value='';
   }, false);
     async function openSavedDocumentsByType(tipo, restoreView){
-    $('editSheet').classList.remove('directory-theme');
+    $('editSheet').classList.remove('directory-theme', 'creation-theme');
+    $('editSheet').classList.add('document-list-theme');
     hideReturnAppButton();
     hideDocumentsHome();
     lastDocumentListType = tipo;
@@ -14625,6 +14685,7 @@ $('btnExport').addEventListener('click', async function(){
       <button type="button" class="btn btn-success" id="btnCreateDocFromList" style="margin-bottom:10px;">
         Crear ${documentTypeLabel(tipo).toLowerCase()}
       </button>`}
+      <div class="document-list-filter-panel">
       <div class="doc-list-tools provisional-tools">
         <input id="docListSearch" type="search" placeholder="Buscar por número, cliente, fecha, total...">
         ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -14641,6 +14702,7 @@ $('btnExport').addEventListener('click', async function(){
           <option value="fecha_asc">Fecha antigua</option>
           <option value="cliente_asc">Cliente A-Z</option>
         </select>
+      </div>
       </div>
       ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-3px 0 10px">
         <button type="button" class="btn btn-primary" id="btnRestoreOneBudget" style="min-height:44px;font-size:13px">Restaurar uno</button>
@@ -19594,7 +19656,7 @@ const mo = new MutationObserver(function(){
        Evita depender de window.parent.abrir(), que puede fallar en iOS/WKWebView. */
     window.location.href='optimizar_barra.html';return false;
   };
-  // v4.8.26 - Puente de solo lectura para Materiales.
+  // v4.8.32 - Puente de solo lectura para Materiales.
   // Se define dentro del mismo ámbito de Fabricación para acceder a su selección real.
   window.__reyGetMaterialesFabricacion=function(){
     return fabricarSeleccionados.map(function(code){
@@ -19691,7 +19753,7 @@ const mo = new MutationObserver(function(){
     var panel=ov.querySelector('.fabricar-test-panel');
     if(!panel) throw new Error('No se encuentra el panel Fabricación');
 
-    // v4.8.26: construir TODO antes de modificar Fabricación. Así, si un dato
+    // v4.8.32: construir TODO antes de modificar Fabricación. Así, si un dato
     // inesperado falla, nunca dejamos el modal oculto/bloqueado.
     function sec(t){return '<div style="margin:18px 0 8px;padding:9px 10px;background:#e2e8f0;border-radius:9px;font-weight:900">'+fabEscXml(t)+'</div>';}
     function row(a,b,c,d){return '<div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:7px;padding:9px 5px;border-bottom:1px solid #e5e7eb;font-size:13px;align-items:center"><div style="font-weight:800">'+fabEscXml(a)+'</div><div>'+fabEscXml(b)+'</div><div>'+fabEscXml(c)+'</div><div style="text-align:right;font-weight:900">'+fabEscXml(d)+'</div></div>';}
@@ -20417,7 +20479,7 @@ body.template-picker-open-v456{overflow:hidden;}
 </script>
 
 <script>
-/* v4.8.31 — Materiales independiente y robusto: usa el puente v4.8.26 que ya funcionaba. */
+/* v4.8.32 — Materiales independiente y robusto: usa el puente v4.8.32 que ya funcionaba. */
 (function(){
   function esc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function euros(n){return (Number(n)||0).toFixed(2)+' €';}
