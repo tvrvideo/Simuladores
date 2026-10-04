@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.43</title>
+  <title>Documentos Rey v4.8.50</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4380,10 +4380,38 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .sheet
 #editSheet.directory-theme .client-action-name{font-size:19px;font-weight:900;line-height:1.2}
 #editSheet.directory-theme .client-action-detail{font-size:13px;line-height:1.3;margin-top:7px;overflow-wrap:anywhere}
 
-/* Apodo opcional del cliente v4.8.43 */
+/* Apodo opcional del cliente v4.8.50 */
 #editSheet.directory-theme .client-action-full-name{font-size:13px;color:#e7f2fb;font-weight:700;margin-top:5px}
 
-/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.43 */
+/* El buscador ocupa el espacio principal en las tres listas v4.8.50 */
+#editSheet.document-list-theme .doc-list-tools.document-search-tools{display:block;margin:5px 0 7px}
+#editSheet.document-list-theme .document-list-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin:0 0 5px;
+}
+#editSheet.document-list-theme .document-list-heading span{font-size:14px;font-weight:900;color:#e8f4ff}
+#editSheet.document-list-theme .document-list-heading #btnCreateDocFromList{
+  width:auto;min-height:36px;padding:0 11px;font-size:13px;line-height:1.1;
+}
+body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .document-list-heading span{color:var(--ui-text)}
+#editSheet.document-list-theme #docListSearch{width:100%;min-width:0;box-sizing:border-box;font-size:16px}
+#editSheet.document-list-theme .doc-list-tools.document-sort-tools{
+  grid-template-columns:minmax(0,1fr) max-content!important;
+  gap:7px;margin:0 0 10px;
+}
+#editSheet.document-list-theme #docListSort{width:100%;min-width:0;box-sizing:border-box;font-size:14px}
+#editSheet.document-list-theme .doc-list-filter-buttons{display:flex;justify-content:flex-end;gap:6px;min-width:0}
+#editSheet.document-list-theme .doc-list-filter-buttons .btn-provisionales-0000{
+  width:auto;min-width:0;min-height:42px!important;padding:0 8px!important;
+  border-radius:11px;font-size:12px!important;line-height:1.1;
+}
+@media(max-width:360px){
+  #editSheet.document-list-theme .doc-list-tools.document-sort-tools{grid-template-columns:1fr!important;gap:5px}
+  #editSheet.document-list-theme .doc-list-filter-buttons{gap:4px}
+  #editSheet.document-list-theme .doc-list-filter-buttons .btn-provisionales-0000{padding:0 6px!important;font-size:11px!important}
+}
+
+/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.50 */
 #editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-name,
 #editSheet.directory-theme #sheetContent .client-list-card .client-list-name,
 #editSheet.directory-theme .catalog-product-action-title,
@@ -4414,7 +4442,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.43</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.50</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4447,7 +4475,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.43</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.50</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4528,7 +4556,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-restore" id="btnRestoreAll">
-      <span>Restaurar copia<small>Detecta automáticamente ajustes, copia general ligera o presupuestos por rango.</small></span>
+      <span>Restaurar copia<small>También permite recuperar presupuestos archivados sin imágenes desde su copia.</small></span>
       <span>+</span>
     </button>
     <button type="button" class="settings-item menu-restore hidden" id="btnRestoreSettingsOnly" aria-hidden="true">
@@ -4831,6 +4859,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
   const STORAGE_KEY = 'presupuesto_directo_pdf_v2_05_current';
   const RETURN_APP_PENDING_KEY = 'presupuesto_directo_png_return_pending';
   const SAVE_LIST_KEY = 'presupuesto_directo_pdf_v2_05_list';
+  const SAVE_DELTA_INDEX_KEY = SAVE_LIST_KEY + '_changes_v1';
+  const SAVE_DELTA_DOC_PREFIX = SAVE_LIST_KEY + '_change_v1_';
   const BACKUP_KEY = 'presupuesto_directo_pdf_v2_28_last_backup';
   const FACTURACION_BRIDGE_KEY = 'rey_external_visual_budget_v1';
   const FACTURACION_APP_URL = 'factura.html';
@@ -5059,12 +5089,12 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     }
     return JSON.parse(JSON.stringify(obj));
   }
-  function toast(msg){
+  function toast(msg, duration){
     const el = $('toast');
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(toast._t);
-    toast._t = setTimeout(()=>el.classList.remove('show'), 1500);
+    toast._t = setTimeout(()=>el.classList.remove('show'), duration || 1500);
   }
 
   function isSimpleBudget(){
@@ -5710,7 +5740,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.43', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.50', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5753,7 +5783,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.43',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.50',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -7041,6 +7071,75 @@ function appendRedLineV447(html, inputId){
     });
   }
 
+  function parseSavedDeltaIndex(raw){
+    try{
+      const value = JSON.parse(raw || 'null');
+      if(value && Array.isArray(value.order) && Array.isArray(value.changed) &&
+          value.order.every(id => typeof id === 'string' && id) &&
+          value.changed.every(id => typeof id === 'string' && id)) return value;
+    }catch(_){ }
+    return null;
+  }
+
+  async function idbReadSavedDeltas(ids){
+    if(!ids.length) return new Map();
+    const db = await openDb();
+    return new Promise(function(resolve, reject){
+      const values = new Map();
+      const tx = db.transaction(DB_STORE, 'readonly');
+      const store = tx.objectStore(DB_STORE);
+      ids.forEach(function(id){
+        const req = store.get(SAVE_DELTA_DOC_PREFIX + id);
+        req.onsuccess = function(){ values.set(id, req.result); };
+      });
+      tx.oncomplete = function(){ db.close(); resolve(values); };
+      tx.onerror = function(){ db.close(); reject(tx.error || new Error('Error leyendo cambios')); };
+      tx.onabort = function(){ db.close(); reject(tx.error || new Error('Lectura cancelada')); };
+    });
+  }
+
+  async function idbSaveOneDocument(doc, orderedIds){
+    const id = String(doc.documentId || '');
+    if(!id) throw new Error('Documento sin identificador');
+    const rawDoc = JSON.stringify(doc);
+    const db = await openDb();
+    return new Promise(function(resolve, reject){
+      let nextIndex = null;
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      const store = tx.objectStore(DB_STORE);
+      const request = store.get(SAVE_DELTA_INDEX_KEY);
+      request.onsuccess = function(){
+        const previous = parseSavedDeltaIndex(request.result);
+        const changed = previous ? previous.changed.slice() : [];
+        if(!changed.includes(id)) changed.push(id);
+        nextIndex = {order:orderedIds, changed:changed};
+        store.put(rawDoc, SAVE_DELTA_DOC_PREFIX + id);
+        store.put(JSON.stringify(nextIndex), SAVE_DELTA_INDEX_KEY);
+      };
+      tx.oncomplete = function(){ db.close(); resolve(nextIndex); };
+      tx.onerror = function(){ db.close(); reject(tx.error || new Error('Error guardando documento')); };
+      tx.onabort = function(){ db.close(); reject(tx.error || new Error('Guardado cancelado')); };
+    });
+  }
+
+  async function idbReplaceSavedList(raw, removing){
+    const db = await openDb();
+    return new Promise(function(resolve, reject){
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      const store = tx.objectStore(DB_STORE);
+      const request = store.get(SAVE_DELTA_INDEX_KEY);
+      request.onsuccess = function(){
+        const previous = parseSavedDeltaIndex(request.result);
+        if(previous) previous.changed.forEach(id => store.delete(SAVE_DELTA_DOC_PREFIX + id));
+        if(removing){ store.delete(SAVE_LIST_KEY); store.delete(SAVE_DELTA_INDEX_KEY); }
+        else{ store.put(raw, SAVE_LIST_KEY); store.put(JSON.stringify({order:[],changed:[]}), SAVE_DELTA_INDEX_KEY); }
+      };
+      tx.oncomplete = function(){ db.close(); resolve(true); };
+      tx.onerror = function(){ db.close(); reject(tx.error || new Error('Error guardando lista')); };
+      tx.onabort = function(){ db.close(); reject(tx.error || new Error('Guardado cancelado')); };
+    });
+  }
+
   async function storageGetJSON(key, fallback){
     try{
       let raw = await idbGet(key);
@@ -7070,16 +7169,17 @@ function appendRedLineV447(html, inputId){
     let idbOk = false;
 
     try{
-      await idbSet(key, raw);
+      if(key === SAVE_LIST_KEY) await idbReplaceSavedList(raw, false);
+      else await idbSet(key, raw);
       idbOk = true;
     }catch(_){
       idbOk = false;
     }
 
-    if(key === SAVE_LIST_KEY && idbOk){
-      savedListCache = value;
-      // La lista completa ya está en IndexedDB. Evitar una segunda escritura
-      // síncrona en localStorage, especialmente costosa con imágenes.
+    if((key === SAVE_LIST_KEY || key === STORAGE_KEY) && idbOk){
+      if(key === SAVE_LIST_KEY) savedListCache = value;
+      // El documento actual y la lista ya están en IndexedDB. Evitar una
+      // segunda escritura síncrona con imágenes en el iPhone.
       lsRemove(key);
       return true;
     }
@@ -7139,7 +7239,10 @@ function appendRedLineV447(html, inputId){
   }
 
   async function storageRemove(key){
-    try{ await idbRemove(key); }catch(_){ }
+    try{
+      if(key === SAVE_LIST_KEY) await idbReplaceSavedList('', true);
+      else await idbRemove(key);
+    }catch(_){ }
     if(key === SAVE_LIST_KEY) savedListCache = null;
     lsRemove(key);
     try{ localStorage.removeItem(key + '_idb_only'); }catch(_){}
@@ -8376,7 +8479,30 @@ COLOCACIÓN INCLUIDA` }
   async function loadSavedList(){
     if(savedListCache) return savedListCache;
     const raw = await storageGetJSON(SAVE_LIST_KEY, []);
-    const list = Array.isArray(raw) ? raw : [];
+    let list = Array.isArray(raw) ? raw : [];
+    try{
+      const manifest = parseSavedDeltaIndex(await idbGet(SAVE_DELTA_INDEX_KEY));
+      if(manifest && manifest.order.length){
+        const changed = new Set(manifest.changed);
+        const deltas = await idbReadSavedDeltas(manifest.changed);
+        const base = new Map(list.filter(doc => doc && doc.documentId).map(doc => [String(doc.documentId), doc]));
+        const restored = [];
+        manifest.order.forEach(function(id){
+          let doc = base.get(id);
+          if(changed.has(id)){
+            const delta = deltas.get(id);
+            if(typeof delta !== 'string') throw new Error('Falta un documento guardado');
+            doc = JSON.parse(delta);
+          }
+          if(!doc) throw new Error('Falta un documento de la lista');
+          restored.push(doc);
+        });
+        list = restored;
+      }
+    }catch(err){
+      console.error('No se pudieron reconstruir todos los documentos', err);
+      // No compactar ni borrar cambios si una lectura temporal falla.
+    }
     let changed = false;
 
     list.forEach(function(doc){
@@ -8392,6 +8518,22 @@ COLOCACIÓN INCLUIDA` }
 
     savedListCache = list;
     return list;
+  }
+
+  async function persistOneSavedDocument(doc, list){
+    const ids = list.map(entry => String(entry && entry.documentId || ''));
+    if(ids.some(id => !id) || new Set(ids).size !== ids.length){
+      return storageSetJSON(SAVE_LIST_KEY, list);
+    }
+    try{
+      await idbSaveOneDocument(doc, ids);
+      savedListCache = list;
+      lsRemove(SAVE_LIST_KEY);
+      return true;
+    }catch(err){
+      console.error('Guardado individual no disponible; guardando lista completa', err);
+      return storageSetJSON(SAVE_LIST_KEY, list);
+    }
   }
 
   async function getNextBudgetNumber(year){
@@ -8633,9 +8775,9 @@ COLOCACIÓN INCLUIDA` }
     };
   }
 
-  function syncCurrentBudgetToFacturacionStorage(){
+  function syncCurrentBudgetToFacturacionStorage(preparedPayload){
     try{
-      const payload = buildFacturacionBridgePayload();
+      const payload = preparedPayload || buildFacturacionBridgePayload();
       let historial = JSON.parse(localStorage.getItem('rey_presu_history') || '[]');
       if(!Array.isArray(historial)) historial = [];
 
@@ -8714,7 +8856,16 @@ COLOCACIÓN INCLUIDA` }
     }
   }
 
+  let saveNamedPending = false;
   async function saveNamed(){
+    if(saveNamedPending) return;
+    saveNamedPending = true;
+    const saveButton = $('btnSave');
+    if(saveButton){ saveButton.disabled = true; saveButton.textContent = 'Guardando…'; }
+    // Mostrar la respuesta táctil antes de serializar los documentos grandes.
+    await new Promise(function(resolve){ requestAnimationFrame(function(){ setTimeout(resolve, 0); }); });
+    const saveStart = performance.now();
+    try{
     // 1) Guardar SIEMPRE primero en la lista propia del presupuesto (base robusta v2.86.04)
     const payload = clone(state);
     const list = await loadSavedList();
@@ -8754,23 +8905,30 @@ COLOCACIÓN INCLUIDA` }
     payload.savedAt = payload.savedAt || payload.updatedAt;
     if(idx >= 0) list[idx] = payload; else list.unshift(payload);
     saveStoredBankInfo(); // v2.86.04 bank before save
-    const okList = await storageSetJSON(SAVE_LIST_KEY, list);
+    const listStart = performance.now();
+    const okList = await persistOneSavedDocument(payload, list);
+    const listEnd = performance.now();
     // 2) Después sincronizar con facturación sin romper el guardado propio
     let okFact = false;
+    let bridgePayload = null;
     try{
-      okFact = !!syncCurrentBudgetToFacturacionStorage();
+      bridgePayload = buildFacturacionBridgePayload();
+      okFact = !!syncCurrentBudgetToFacturacionStorage(bridgePayload);
     }catch(_){}
 
     // 3) Y además dejar el bridge externo para el regreso a facturación
     try{
-      const bridgePayload = buildFacturacionBridgePayload();
+      if(!bridgePayload) bridgePayload = buildFacturacionBridgePayload();
       bridgePayload.facturacionId = String(state.facturacionId || '');
       bridgePayload.numero = String(state.numero || bridgePayload.numero || '');
-      localStorage.setItem(FACTURACION_BRIDGE_KEY, JSON.stringify(bridgePayload));
-      try{ sessionStorage.setItem(FACTURACION_BRIDGE_KEY, JSON.stringify(bridgePayload)); }catch(_){}
+      const bridgeJSON = JSON.stringify(bridgePayload);
+      localStorage.setItem(FACTURACION_BRIDGE_KEY, bridgeJSON);
+      try{ sessionStorage.setItem(FACTURACION_BRIDGE_KEY, bridgeJSON); }catch(_){}
     }catch(_){}
 
+    const currentStart = performance.now();
     const okCurrent = await persistCurrent();
+    const saveEnd = performance.now();
 
     if(launchedFromFacturacion){
       if($('btnReturnApp')) {
@@ -8779,7 +8937,22 @@ COLOCACIÓN INCLUIDA` }
       }
       if($('btnFactReturnTop')) $('btnFactReturnTop').classList.add('show');
     }
-    toast((okList || okCurrent) ? ((okFact ? 'Guardado y enviado a Facturación' : 'Guardado')) : 'Error al guardar');
+    const parts = [
+      'preparación ' + ((listStart - saveStart) / 1000).toFixed(1) + ' s',
+      'lista ' + ((listEnd - listStart) / 1000).toFixed(1) + ' s',
+      'conexión ' + ((currentStart - listEnd) / 1000).toFixed(1) + ' s',
+      'actual ' + ((saveEnd - currentStart) / 1000).toFixed(1) + ' s'
+    ];
+    toast(okList ?
+      (okFact ? 'Guardado y enviado' : 'Guardado') + ' en ' + ((saveEnd - saveStart) / 1000).toFixed(1) + ' s · ' + parts.join(' · ') :
+      'No se guardó en la lista; inténtalo de nuevo', 6500);
+    }catch(err){
+      console.error(err);
+      toast('Error al guardar; comprueba el presupuesto en la lista', 6500);
+    }finally{
+      saveNamedPending = false;
+      if(saveButton){ saveButton.disabled = false; saveButton.textContent = 'Guardar'; }
+    }
   }
 
   function svgEl(name, attrs){
@@ -10726,7 +10899,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.43',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.50',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -14181,6 +14354,80 @@ $('btnCloseSheet').addEventListener('click', function(){
     $('fileImportAllReplace').click();
   }, false);
 
+  function sameBudgetForArchiveRestore(a, b){
+    if(!a || !b || String(a.documentoTipo || 'presupuesto') !== 'presupuesto' ||
+        String(b.documentoTipo || 'presupuesto') !== 'presupuesto') return false;
+    const idA = String(a.documentId || '');
+    const idB = String(b.documentId || '');
+    if(idA && idB) return idA === idB;
+    return !!(a.numero && b.numero && String(a.numero) === String(b.numero) &&
+      String(a.fecha || '') === String(b.fecha || '') && String(a.clienteNombre || '') === String(b.clienteNombre || ''));
+  }
+
+  function archivedBudgetWithoutImages(source){
+    const archived = clone(source);
+    mapArchivedImages(archived, source, false, '');
+    if(!archived.archivadoImagenes){
+      archived.estadoAntesArchivo = String(source.estado || 'creado');
+      archived.estado = 'archivado';
+      archived.archivadoEn = new Date().toISOString();
+    }
+    archived.archivadoImagenes = true;
+    return archived;
+  }
+
+  function mergeArchivedBudgetBackup(localList, backupList, withImages){
+    const result = Array.isArray(localList) ? localList.slice() : [];
+    budgetDocumentsInBackup({all:backupList}).forEach(function(source){
+      const idx = result.findIndex(function(doc){ return sameBudgetForArchiveRestore(doc, source); });
+      const existing = idx >= 0 ? result[idx] : null;
+      let restored;
+      if(withImages){
+        if(existing && existing.archivadoImagenes){
+          restored = clone(existing);
+          mapArchivedImages(restored, source, true, '');
+          restored.archivadoImagenes = false;
+          restored.estado = String(existing.estado === 'archivado' ? (existing.estadoAntesArchivo || 'creado') : (existing.estado || 'creado'));
+          delete restored.estadoAntesArchivo;
+          delete restored.archivadoEn;
+        }else restored = existing || clone(source);
+      }else restored = existing && existing.archivadoImagenes ? existing : archivedBudgetWithoutImages(existing || source);
+      if(idx >= 0) result[idx] = restored;
+      else result.push(restored);
+    });
+    return result;
+  }
+
+  function chooseArchivedBackupMode(count){
+    return new Promise(function(resolve){
+      const overlay = document.createElement('div');
+      overlay.id = 'archiveConfirmOverlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      const card = document.createElement('div');
+      card.className = 'archive-confirm-card';
+      const heading = document.createElement('h2');
+      heading.textContent = 'Restaurar ' + count + ' presupuesto' + (count === 1 ? '' : 's') + ' archivado' + (count === 1 ? '' : 's');
+      const info = document.createElement('p');
+      info.textContent = 'Elige si quieres recuperar también las imágenes guardadas en la copia.';
+      const light = document.createElement('button');
+      light.type = 'button'; light.className = 'archive-retry';
+      light.textContent = 'Restaurar sin imágenes';
+      const lightDetail = document.createElement('p');
+      lightDetail.textContent = 'Los presupuestos quedan archivados y ligeros. Podrás restaurar sus imágenes más adelante desde esta copia.';
+      const full = document.createElement('button');
+      full.type = 'button'; full.textContent = 'Restaurar con imágenes';
+      const cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.className = 'archive-cancel'; cancel.textContent = 'Cancelar';
+      [heading,info,light,lightDetail,full,cancel].forEach(function(el){ card.appendChild(el); });
+      overlay.appendChild(card); document.body.appendChild(overlay);
+      function finish(mode){ overlay.remove(); resolve(mode); }
+      light.onclick = function(){ finish('light'); };
+      full.onclick = function(){ finish('full'); };
+      cancel.onclick = function(){ finish(null); };
+    });
+  }
+
   function mergeDocumentoListas(localList, backupList){
     localList = Array.isArray(localList) ? localList : [];
     backupList = Array.isArray(backupList) ? backupList : [];
@@ -14191,8 +14438,9 @@ $('btnCloseSheet').addEventListener('click', function(){
 
     function keyOf(doc, idx){
       doc = doc || {};
+      const id = cleanText(doc.documentId || doc.id || doc.uid);
+      if(id) return id + '|' + cleanText(doc.documentoTipo || doc.tipo || 'presupuesto');
       return [
-        cleanText(doc.documentId || doc.id || doc.uid),
         cleanText(doc.documentoTipo || doc.tipo || 'presupuesto'),
         cleanText(doc.numero || doc.num || ''),
         cleanText(doc.clienteNombre || doc.cliente || doc.nombreCliente || ''),
@@ -14219,6 +14467,8 @@ $('btnCloseSheet').addEventListener('click', function(){
       if(!doc || typeof doc !== 'object') return;
       const k = keyOf(doc, idx);
       const current = map.get(k);
+      // Una copia antigua no debe volver a cargar imágenes en un archivado local.
+      if(current && current.archivadoImagenes && String(current.documentoTipo || 'presupuesto') === 'presupuesto') return;
       if(!current){
         map.set(k, doc);
         return;
@@ -14245,8 +14495,13 @@ $('btnCloseSheet').addEventListener('click', function(){
       return restored;
     }
 
-    const hasSettings = !!normalizeSettingsPayload(parsed);
-    const hasDocuments = Array.isArray(parsed.all) || Array.isArray(parsed.saved) || !!parsed.current;
+    const archivedBackup = /^presupuestos?_archivados?_/.test(String(parsed.backupType || ''));
+    const archivedSources = archivedBackup ? budgetDocumentsInBackup(parsed) : [];
+    const archivedMode = archivedSources.length ? await chooseArchivedBackupMode(archivedSources.length) : null;
+    if(archivedSources.length && !archivedMode) return false;
+
+    const hasSettings = archivedBackup ? !!(parsed.settings || parsed.settingsOnly) : !!normalizeSettingsPayload(parsed);
+    const hasDocuments = Array.isArray(parsed.all) || Array.isArray(parsed.saved) || !!parsed.current || !!parsed.document;
 
     if(hasSettings){
       const cfg = normalizeSettingsPayload(parsed);
@@ -14276,15 +14531,21 @@ $('btnCloseSheet').addEventListener('click', function(){
     let importedList = [];
     if(Array.isArray(parsed.all)) importedList = parsed.all;
     else if(Array.isArray(parsed.saved)) importedList = parsed.saved;
+    else if(archivedBackup && parsed.document) importedList = [parsed.document];
 
     if(importedList.length){
-      finalList = mergeDocumentoListas(currentListBeforeRestore, importedList);
+      finalList = archivedBackup && archivedMode ?
+        mergeArchivedBudgetBackup(currentListBeforeRestore, importedList, archivedMode === 'full') :
+        mergeDocumentoListas(currentListBeforeRestore, importedList);
       await storageSetJSON(SAVE_LIST_KEY, finalList);
     }
 
     if(parsed.current && typeof parsed.current === 'object'){
       const normalizedCurrent = normalizeLoadedState(parsed.current);
       if(normalizedCurrent){
+        const existingArchived = currentListBeforeRestore.find(function(doc){
+          return doc && doc.archivadoImagenes && sameBudgetForArchiveRestore(doc, normalizedCurrent);
+        });
         const existsBefore = finalList.some(function(d){
           return mergeDocumentoListas([d], [normalizedCurrent]).length === 1;
         });
@@ -14292,7 +14553,7 @@ $('btnCloseSheet').addEventListener('click', function(){
           finalList.push(normalizedCurrent);
           await storageSetJSON(SAVE_LIST_KEY, finalList);
         }
-        state = normalizedCurrent;
+        state = existingArchived || normalizedCurrent;
         await persistCurrent();
       }
     }else if(hasSettings){
@@ -14302,7 +14563,9 @@ $('btnCloseSheet').addEventListener('click', function(){
     render();
 
     const bt = String(parsed.backupType || '').toLowerCase();
-    if(bt.indexOf('presupuestos_rango') >= 0){
+    if(archivedBackup){
+      toast('Restaurados ' + archivedSources.length + ' presupuestos ' + (archivedMode === 'light' ? 'sin imágenes' : 'con imágenes'));
+    }else if(bt.indexOf('presupuestos_rango') >= 0){
       toast('Presupuestos restaurados: ' + importedList.length);
     }else if(bt.indexOf('general_ligera') >= 0){
       toast('Copia general ligera restaurada: ' + importedList.length + ' documentos');
@@ -14493,7 +14756,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.43', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.50', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -14950,21 +15213,16 @@ $('btnExport').addEventListener('click', async function(){
     $('sheetTitle').textContent = documentTypeListTitle(tipo) + ' guardados';
     const isPresupuestoList = tipo === 'presupuesto';
     $('sheetContent').innerHTML = `
-      <label>${documentTypeListTitle(tipo)} guardados</label>
-      ${isPresupuestoList ? '' : `
-      <button type="button" class="btn btn-success" id="btnCreateDocFromList" style="margin-bottom:10px;">
-        Crear ${documentTypeLabel(tipo).toLowerCase()}
-      </button>`}
+      ${isPresupuestoList ? `<label>${documentTypeListTitle(tipo)} guardados</label>` : `
+      <div class="document-list-heading">
+        <span>${documentTypeListTitle(tipo)} guardados</span>
+        <button type="button" class="btn btn-success" id="btnCreateDocFromList">Crear ${documentTypeLabel(tipo).toLowerCase()}</button>
+      </div>`}
       <div class="document-list-filter-panel">
-      <div class="doc-list-tools provisional-tools">
-        <input id="docListSearch" type="search" placeholder="Buscar por número, cliente, fecha, total...">
-        ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000">Provisionales</button>
-          <button type="button" class="btn btn-provisionales-0000" id="btnEstadosPresupuestos">Estados</button>
-        </div>` : `
-        <button type="button" class="btn btn-provisionales-0000" id="btnEstadosDocumentos">Estados</button>`}
+      <div class="doc-list-tools document-search-tools">
+        <input id="docListSearch" type="search" placeholder="Buscar nº, cliente o fecha" aria-label="Buscar documento por número, cliente, fecha o total">
       </div>
-      <div class="doc-list-tools" style="grid-template-columns:1fr; margin-top:-4px;">
+      <div class="doc-list-tools document-sort-tools">
         <select id="docListSort">
           <option value="num_desc">Nº mayor primero</option>
           <option value="num_asc">Nº menor primero</option>
@@ -14972,6 +15230,11 @@ $('btnExport').addEventListener('click', async function(){
           <option value="fecha_asc">Fecha antigua</option>
           <option value="cliente_asc">Cliente A-Z</option>
         </select>
+        ${isPresupuestoList ? `<div class="doc-list-filter-buttons">
+          <button type="button" class="btn btn-provisionales-0000" id="btnProvisionales0000" title="Mostrar solo presupuestos provisionales 0000">Provisionales</button>
+          <button type="button" class="btn btn-provisionales-0000" id="btnEstadosPresupuestos">Estados</button>
+        </div>` : `
+        <div class="doc-list-filter-buttons"><button type="button" class="btn btn-provisionales-0000" id="btnEstadosDocumentos">Estados</button></div>`}
       </div>
       </div>
       ${isPresupuestoList ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-3px 0 10px">
