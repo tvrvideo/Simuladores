@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.50</title>
+  <title>Documentos Rey v4.8.51</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4380,10 +4380,10 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .sheet
 #editSheet.directory-theme .client-action-name{font-size:19px;font-weight:900;line-height:1.2}
 #editSheet.directory-theme .client-action-detail{font-size:13px;line-height:1.3;margin-top:7px;overflow-wrap:anywhere}
 
-/* Apodo opcional del cliente v4.8.50 */
+/* Apodo opcional del cliente v4.8.51 */
 #editSheet.directory-theme .client-action-full-name{font-size:13px;color:#e7f2fb;font-weight:700;margin-top:5px}
 
-/* El buscador ocupa el espacio principal en las tres listas v4.8.50 */
+/* El buscador ocupa el espacio principal en las tres listas v4.8.51 */
 #editSheet.document-list-theme .doc-list-tools.document-search-tools{display:block;margin:5px 0 7px}
 #editSheet.document-list-theme .document-list-heading{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -4394,6 +4394,9 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .sheet
   width:auto;min-height:36px;padding:0 11px;font-size:13px;line-height:1.1;
 }
 body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .document-list-heading span{color:var(--ui-text)}
+#editSheet.directory-theme .directory-export-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0 8px}
+#editSheet.directory-theme .directory-export-heading label{margin:0!important;min-width:0}
+#editSheet.directory-theme .directory-export-heading .btn{width:auto;min-height:38px;padding:0 11px;background:#0e7490;color:#fff;border-color:#67b8c9;font-size:13px;white-space:nowrap}
 #editSheet.document-list-theme #docListSearch{width:100%;min-width:0;box-sizing:border-box;font-size:16px}
 #editSheet.document-list-theme .doc-list-tools.document-sort-tools{
   grid-template-columns:minmax(0,1fr) max-content!important;
@@ -4411,7 +4414,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .docum
   #editSheet.document-list-theme .doc-list-filter-buttons .btn-provisionales-0000{padding:0 6px!important;font-size:11px!important}
 }
 
-/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.50 */
+/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.51 */
 #editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-name,
 #editSheet.directory-theme #sheetContent .client-list-card .client-list-name,
 #editSheet.directory-theme .catalog-product-action-title,
@@ -4442,7 +4445,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.50</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.51</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4475,7 +4478,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.50</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.51</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5740,7 +5743,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.50', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.51', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5783,7 +5786,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.50',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.51',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -10781,6 +10784,65 @@ COLOCACIÓN INCLUIDA` }
     });
   }
 
+  function chooseProductExportMode(){
+    return new Promise(function(resolve){
+      const overlay = document.createElement('div');
+      overlay.id = 'archiveConfirmOverlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      const card = document.createElement('div');
+      card.className = 'archive-confirm-card';
+      const heading = document.createElement('h2');
+      heading.textContent = 'Exportar lista de productos';
+      const info = document.createElement('p');
+      info.textContent = 'El archivo tendrá solo productos; elige si incluir los precios de compra privados.';
+      const share = document.createElement('button');
+      share.type = 'button'; share.className = 'archive-retry'; share.textContent = 'Compartir sin costes';
+      const full = document.createElement('button');
+      full.type = 'button'; full.textContent = 'Copia completa con costes';
+      const cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.className = 'archive-cancel'; cancel.textContent = 'Cancelar';
+      [heading,info,share,full,cancel].forEach(function(el){ card.appendChild(el); });
+      overlay.appendChild(card); document.body.appendChild(overlay);
+      function finish(value){ overlay.remove(); resolve(value); }
+      share.onclick = function(){ finish('share'); };
+      full.onclick = function(){ finish('full'); };
+      cancel.onclick = function(){ finish(null); };
+    });
+  }
+
+  async function exportStandaloneDirectory(kind, productMode){
+    const isClients = kind === 'clientes';
+    if(isClients) await loadClients(); else await loadProducts();
+    let rows = isClients ? getClients().map(normalizeSharedClient) : getSharedCatalogBackupSnapshot();
+    if(!rows.length){ toast('No hay ' + kind + ' para exportar'); return false; }
+    if(!isClients && productMode !== 'full'){
+      rows = rows.map(function(product){
+        const copy = Object.assign({}, product);
+        delete copy.precioCompra;
+        delete copy.gananciaPct;
+        return copy;
+      });
+    }
+    const payload = {
+      app:'Documentos Rey', version:'v4.8.51',
+      backupType:isClients ? 'clientes_solo' : 'productos_solo',
+      timestamp:new Date().toISOString(),
+      data:isClients ? {clientes:rows} : {catalogo:rows}
+    };
+    const filename = 'documentos_rey_' + kind + '_' + timestampForFilename() + '.json';
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    try{
+      const exported = await exportBudgetArchiveFile(filename, blob);
+      if(exported) toast('Exportados ' + rows.length + ' ' + kind);
+      return exported;
+    }catch(err){
+      console.error(err);
+      toast('No se pudo exportar la lista');
+      return false;
+    }
+  }
+
   async function restoreSharedClientsFromBackupPayload(parsed){
     let clients = null;
     if(parsed && Array.isArray(parsed.clientesCompartidos)) clients = parsed.clientesCompartidos;
@@ -10899,7 +10961,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.50',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.51',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -12618,7 +12680,10 @@ body.innerHTML = `
         });
       }
       body.innerHTML = `
-        <label>Catálogo compartido con facturación</label>
+        <div class="directory-export-heading">
+          <label>Catálogo compartido con facturación</label>
+          <button type="button" class="btn" id="btnExportProductsOnly">Exportar lista</button>
+        </div>
         <div class="catalog-search-box">
           <input id="catalogSearchV33" type="search" placeholder="Buscar por producto, referencia, proveedor, fecha, precio o stock...">
           <div class="template-tools-grid-v28901" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -12641,6 +12706,10 @@ body.innerHTML = `
         <div id="catalogListV33"></div>`;
       const sel = $('catalogSortV33');
       if(sel) sel.value = localStorage.getItem(catalogSortKey) || 'name_asc';
+      $('btnExportProductsOnly').onclick = async function(){
+        const mode = await chooseProductExportMode();
+        if(mode) await exportStandaloneDirectory('productos', mode);
+      };
       $('btnCatalogAdd').onclick = async function(){ productEditIndex = null; productImageDraft=''; await loadProducts(); openEdit('catalogForm', 'Nuevo producto'); };
       $('catalogSearchV33').addEventListener('input', renderCatalogListV33, false);
       $('catalogSortV33').addEventListener('change', renderCatalogListV33, false);
@@ -13067,7 +13136,10 @@ body.innerHTML = `
           </div>`;
       });
       body.innerHTML = `
-        <label>Clientes compartidos con facturación</label>
+        <div class="directory-export-heading">
+          <label>Clientes compartidos con facturación</label>
+          <button type="button" class="btn" id="btnExportClientsOnly">Exportar lista</button>
+        </div>
         <div class="sheet-actions client-top-actions" style="position:static;margin:0 0 12px 0;padding:0;background:transparent;border-top:none">
           <button type="button" class="btn btn-primary" id="btnClientAdd">Añadir cliente</button>
           <button type="button" class="btn btn-success" id="btnClientSaveCurrent">Guardar cliente actual</button>
@@ -13092,6 +13164,7 @@ body.innerHTML = `
         <div id="clientNoResults" class="client-no-results">No hay clientes que coincidan con la búsqueda.</div>
         ${listHtml || '<div class="saved-item template-card" style="padding:12px 14px">No hay clientes guardados</div>'}`;
       const clientSearchInput = $('clientQuickSearch');
+      $('btnExportClientsOnly').onclick = function(){ exportStandaloneDirectory('clientes'); };
       const clientClearBtn = $('clientQuickClear');
       const clientNoResults = $('clientNoResults');
       const clientSearchCount = $('clientSearchCount');
@@ -14489,6 +14562,17 @@ $('btnCloseSheet').addEventListener('click', function(){
       return false;
     }
 
+    if(parsed.backupType === 'clientes_solo' && parsed.data && Array.isArray(parsed.data.clientes)){
+      await restoreSharedClientsFromBackupPayload({clientesCompartidos:parsed.data.clientes});
+      toast('Clientes incorporados: ' + parsed.data.clientes.length);
+      return true;
+    }
+    if(parsed.backupType === 'productos_solo' && parsed.data && Array.isArray(parsed.data.catalogo)){
+      const restored = await restoreSharedCatalogFromBackupPayload({catalogoCompartido:parsed.data.catalogo}, false);
+      if(restored){ render(); toast('Productos incorporados: ' + parsed.data.catalogo.length); }
+      return restored;
+    }
+
     if(parsed.backupType === 'catalogo_productos'){
       const restored = await restoreSharedCatalogFromBackupPayload(parsed, false);
       if(restored){ render(); toast('Catálogo restaurado'); }
@@ -14756,7 +14840,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.50', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.51', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
