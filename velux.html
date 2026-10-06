@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.62</title>
+<title>Velux Tarifario v1.63</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
@@ -120,7 +120,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.62</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.63</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
  <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
@@ -479,6 +479,7 @@ const DATA=[
 const DEFAULTS={gain:0, gainEur:0, margins:{ventana:{pct:0,eur:0},cerco:{pct:0,eur:0},persiana:{pct:0,eur:0},cortina:{pct:0,eur:0},kit:{pct:0,eur:0}}, iva:21, disc:0, showCat:true, showGain:false, showIva:false, pref:'GPU', glass:'70', finish:'poly', opening:'proyectante', cercoType:'ondulado', curtainFrame:'S', curtainColor:'1085', curtainType:0};
 let settings=loadSettings();
 let currentTab='vent'; let state={d:null,s:null,cerco:null,persiana:null,cortina:null}; let oldAccState={persiana:0,cortina:0}; let plateCurtainMode='new';
+let recommendationOverride=false;
 const modelSel=document.getElementById('model'), sizeSel=document.getElementById('size'), finishSel=document.getElementById('finishSel'), openingSel=document.getElementById('openingSel'), glassSel=document.getElementById('glassSel'), modelGenerated=document.getElementById('modelGenerated'), res=document.getElementById('res'), q=document.getElementById('q'), measureQ=document.getElementById('measureQ'), matches=document.getElementById('matches');
 const QUICK_FINISH=[['poly','00 Poliuretano'],['painted','20 Pintada'],['varnish','30 Barniz']];
 const QUICK_OPENING=[['proyectante','Proyectante'],['giratoria','Giratoria']];
@@ -492,9 +493,10 @@ function renderQuickButtons(){
  fill('plateRoofButtons',QUICK_CERCO,settings.cercoType||'ondulado','chooseCerco','roofBtn');
  const txt=document.getElementById('modelGeneratedText'); if(txt) txt.textContent=targetBase()+' '+targetCode();
 }
-function chooseFinish(v){finishSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
-function chooseOpening(v){openingSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
-function chooseGlass(v){glassSel.value=v; saveQuickPrefs(); renderQuickButtons(); pickByControls(true); document.getElementById('productsCard').classList.add('hidden')}
+function applyRecommendChoice(){recommendationOverride=true;saveQuickPrefs();renderQuickButtons();if(q.value.trim()){updatePlate();res.innerHTML=renderVentanaSuministro();}else pickByControls(true);updateRecommendPreview();document.getElementById('productsCard').classList.add('hidden')}
+function chooseFinish(v){finishSel.value=v;applyRecommendChoice()}
+function chooseOpening(v){openingSel.value=v;applyRecommendChoice()}
+function chooseGlass(v){glassSel.value=v;applyRecommendChoice()}
 function chooseCerco(v){settings.cercoType=v; saveQuickPrefs(); renderQuickButtons(); state.cerco=0; if(state.d&&state.s){render(); if(!document.getElementById('productsCard').classList.contains('hidden')) drawProducts();} else {updatePlate();}}
 function loadSettings(){
  try{
@@ -663,6 +665,7 @@ function syncPlateToActiveModule(){
 }
 function handlePlateInput(){
  plateCurtainMode='new';
+ recommendationOverride=false;
  syncPlateToActiveModule();
  if(currentTab==='old'){ renderOld(); return; }
  if(currentTab==='glass'){ renderGlassModule(); return; }
@@ -800,9 +803,10 @@ function plateDataFromInput(){
  if(oldEq){
   const info=modelInfoFromBase(oldEq.model, oldEq.token);
   const actualCode=codeForBaseAndGlass(info.currentBase,'70',info.finish);
-  const recCode=codeForBaseAndGlass(info.recBase,'70','Poliuretano blanco');
+  const recBase=recommendationOverride?targetBase():info.recBase;
+  const recCode=recommendationOverride?targetCode():codeForBaseAndGlass(recBase,'70','Poliuretano blanco');
   const actualInfo=modelInfoFromBase(info.currentBase,actualCode);
-  const recInfo=modelInfoFromBase(info.recBase,recCode);
+  const recInfo=modelInfoFromBase(recBase,recCode);
   return {
    plateRef:`${oldEq.model} ${oldEq.token}`,
    plateMeta:(oldEq.model==='GGL'||oldEq.model==='GHL') && oldEq.token==='5'
@@ -810,23 +814,26 @@ function plateDataFromInput(){
     : `${info.opening} · ${info.finish}`,
    actualRef:`${info.currentBase} ${actualCode} ${oldEq.size}`,
    actualMeta:`${actualInfo.opening} · ${actualInfo.finish}`,
-   recRef:`${info.recBase} ${recCode} ${oldEq.size}`,
+   recRef:`${recBase} ${recCode} ${oldEq.size}`,
    recMeta:`${recInfo.opening} · ${recInfo.finish}`
   };
  }
  const base=d?baseOf(d.modelo):targetBase();
  const glass=d?glassOf(d.modelo):(glassSel.value||'70');
  const info=modelInfoFromBase(base, d?d.modelo.split(' ')[1]:'');
- const actualRef=d&&s ? `${displayRefForData(d)} ${s}` : `${base} ${codeForBaseAndGlass(base,glass,info.finish)}`;
- const recBase=info.recBase || (info.opening==='Giratoria'?'GGU':'GPU');
- const recRef=s ? `${recBase} ${codeForBaseAndGlass(recBase,'70','Poliuretano blanco')} ${s}` : `${recBase} ${codeForBaseAndGlass(recBase,'70','Poliuretano blanco')}`;
+ const variant=raw.match(/\b(?:GGL|GGU|GPL|GPU)\s*(\d{4})\b/);
+ const actualRef=d&&s ? `${base} ${variant?variant[1]:d.modelo.split(' ')[1]} ${s}` : `${base} ${codeForBaseAndGlass(base,glass,info.finish)}`;
+ const recBase=recommendationOverride?targetBase():(info.recBase || (info.opening==='Giratoria'?'GGU':'GPU'));
+ const recCode=recommendationOverride?targetCode():codeForBaseAndGlass(recBase,'70','Poliuretano blanco');
+ const recInfo=modelInfoFromBase(recBase,recCode);
+ const recRef=s ? `${recBase} ${recCode} ${s}` : `${recBase} ${recCode}`;
  return {
   plateRef:raw || actualRef,
   plateMeta:`${info.opening} · ${info.finish}`,
   actualRef,
   actualMeta:`${info.opening} · ${info.finish}`,
   recRef,
-  recMeta:`${info.opening} · Poliuretano blanco`
+  recMeta:`${recInfo.opening} · ${recInfo.finish}`
  };
 }
 function updatePlate(){
@@ -1018,20 +1025,20 @@ function copyText(t){navigator.clipboard?.writeText(t)}
 function copyLineProduct(ref,price){navigator.clipboard?.writeText(`${ref} · ${money(price)} catálogo sin IVA`)}
 function openRecommendModal(){
  const modal=document.getElementById('recommendModal');
- if(modal){ renderQuickButtons(); updateRecommendPreview(); modal.classList.add('show'); }
+ if(modal){
+  if(!recommendationOverride){const rec=parseProductRef(plateDataFromInput().recRef);if(rec){openingSel.value=(rec.base==='GPU'||rec.base==='GPL')?'proyectante':'giratoria';finishSel.value=(rec.base==='GPU'||rec.base==='GGU')?'poly':rec.code.startsWith('30')?'varnish':'painted';glassSel.value=rec.code.slice(-2)||'70';}}
+  renderQuickButtons(); updateRecommendPreview(); modal.classList.add('show');
+ }
 }
 function closeRecommendModal(){
  const modal=document.getElementById('recommendModal');
  if(modal) modal.classList.remove('show');
- render();
+ if(q.value.trim()){updatePlate();res.innerHTML=renderVentanaSuministro();}else render();
 }
 function updateRecommendPreview(){
  const el=document.getElementById('recommendPreview');
  if(!el) return;
- const base=targetBase();
- const code=codeForBaseAndGlass(base,glassSel.value);
- const s=state.s||sizeSel.value||'';
- el.textContent=(base+' '+code+(s?' '+s:'')).trim();
+ el.textContent=plateDataFromInput().recRef;
 }
 function openSettings(){
  const m=settings.margins||DEFAULTS.margins;
