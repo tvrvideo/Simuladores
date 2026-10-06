@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.59</title>
+<title>Velux Tarifario v1.62</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
@@ -120,7 +120,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.59</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.62</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
  <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
@@ -319,19 +319,19 @@ const sizeAliases={BK04:['B04'],CK01:['C01','101'],CK02:['C02','102'],CK04:['C04
 const OLD_MODEL_EQUIV={
  GGL:{
   // Números antiguos sueltos: ventana giratoria de madera barnizada.
-  '1':'MK04','2':'MK08','3':'PK06','4':'SK06','5':'UK04','6':'CK04','7':'UK08','8':'UK08','9':'PK08','10':'SK08',
-  '104':'CK04','206':'FK06','304':'MK04','306':'MK06','308':'MK08',
-  '406':'PK06','408':'PK08','606':'SK06','608':'SK08','804':'UK04','808':'UK08',
-  'C04':'CK04','F06':'FK06','M04':'MK04','M06':'MK06','M08':'MK08',
-  'P04':'PK04','P06':'PK06','P08':'PK08','S06':'SK06','S08':'SK08','U04':'UK04','U08':'UK08'
+  '1':'MK04','2':'MK08','3':'PK10','4':'SK06','5':'FK06','6':'CK04','7':'UK04','8':'UK08','9':'CK01','10':'SK08','14':'MK06','31':'PK04',
+  '101':'CK01','102':'CK02','104':'CK04','106':'CK06','206':'FK06','208':'FK08','304':'MK04','306':'MK06','308':'MK08',
+  '406':'PK06','408':'PK08','410':'PK10','425':'PK25','601':'SK01','606':'SK06','608':'SK08','610':'SK10','804':'UK04','808':'UK08',
+  'C01':'CK01','C02':'CK02','C04':'CK04','C06':'CK06','F06':'FK06','F08':'FK08','M04':'MK04','M06':'MK06','M08':'MK08',
+  'P04':'PK04','P06':'PK06','P08':'PK08','P10':'PK10','P25':'PK25','S01':'SK01','S06':'SK06','S08':'SK08','S10':'SK10','U04':'UK04','U08':'UK08'
  },
  GHL:{
   // GHL explícito: proyectante antigua de madera barnizada.
-  '1':'MK04','2':'MK08','3':'PK06','4':'SK06','5':'UK04','6':'CK04','7':'UK08','8':'UK08','9':'PK08','10':'SK08',
-  '104':'CK04','206':'FK06','304':'MK04','306':'MK06','308':'MK08',
-  '406':'PK06','408':'PK08','606':'SK06','608':'SK08','804':'UK04','808':'UK08',
-  'C04':'CK04','F06':'FK06','M04':'MK04','M06':'MK06','M08':'MK08',
-  'P04':'PK04','P06':'PK06','P08':'PK08','S06':'SK06','S08':'SK08','U04':'UK04','U08':'UK08'
+  '1':'MK04','2':'MK08','3':'PK10','4':'SK06','5':'FK06','6':'CK04','7':'UK04','8':'UK08','9':'CK01','10':'SK08','14':'MK06','31':'PK04',
+  '101':'CK01','102':'CK02','104':'CK04','106':'CK06','206':'FK06','208':'FK08','304':'MK04','306':'MK06','308':'MK08',
+  '406':'PK06','408':'PK08','410':'PK10','425':'PK25','601':'SK01','606':'SK06','608':'SK08','610':'SK10','804':'UK04','808':'UK08',
+  'C01':'CK01','C02':'CK02','C04':'CK04','C06':'CK06','F06':'FK06','F08':'FK08','M04':'MK04','M06':'MK06','M08':'MK08',
+  'P04':'PK04','P06':'PK06','P08':'PK08','P10':'PK10','P25':'PK25','S01':'SK01','S06':'SK06','S08':'SK08','S10':'SK10','U04':'UK04','U08':'UK08'
  }
 };
 function intermediateSizeFromCurrent(cur){
@@ -368,14 +368,14 @@ const OLD_CURTAIN_EQUIV={
  GGL:{
   'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
   'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
-  '1':'DKL M04','2':'DKL M08','3':'DKL P06','4':'DKL S06','5':'DKL U04','6':'DKL C04','7':'DKL U08','8':'DKL U08','9':'DKL P08','10':'DKL S08',
+  '1':'DKL M04','2':'DKL M08','3':'DKL P10','4':'DKL S06','6':'DKL C04','7':'DKL U04','8':'DKL U08','9':'DKL C01','10':'DKL S08','14':'DKL M06','31':'DKL P04',
   '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
   '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
  },
  GHL:{
   'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
   'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
-  '1':'DKL M04','2':'DKL M08','3':'DKL P06','4':'DKL S06','5':'DKL U04','6':'DKL C04','7':'DKL U08','8':'DKL U08','9':'DKL P08','10':'DKL S08',
+  '1':'DKL M04','2':'DKL M08','3':'DKL P10','4':'DKL S06','6':'DKL C04','7':'DKL U04','8':'DKL U08','9':'DKL C01','10':'DKL S08','14':'DKL M06','31':'DKL P04',
   '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
   '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
  }
@@ -451,12 +451,12 @@ const ACC=[
  {cat:'Cerco estándar PRO+', ref:'EDL 2000', desc:'Pizarra / cubierta plana · BDX + BFX', plazo:'9 días', p:obj([129,129,133,137,148,156,148,156,165,167,176,186,192,173,183,184,195,203,195,211])},
  {cat:'Cerco sustitución', ref:'EW 1000', desc:'Sustitución en teja, ventana anterior a abril 2001 · incluye BFX', plazo:'En stock', p:obj([111,111,114,null,127,null,127,134,142,144,152,160,165,null,null,158,168,174,168,181])},
  {cat:'Cerco sustitución', ref:'EL 1000', desc:'Sustitución en pizarra, ventana anterior a abril 2001 · incluye BFX', plazo:'9 días', p:obj([111,111,114,null,127,null,127,134,142,144,152,160,165,null,null,158,168,174,168,181])},
- {cat:'Persiana', ref:'SSL 0000', desc:'Persiana solar exterior', plazo:'En stock', p:obj([546,546,578,624,598,624,650,617,650,682,669,702,741,780,682,702,754,null,747,870])},
- {cat:'Persiana', ref:'SML 0000', desc:'Persiana eléctrica exterior', plazo:'En stock', p:obj([390,390,413,445,427,445,464,441,464,487,478,501,529,557,487,501,538,null,534,622])},
- {cat:'Persiana', ref:'SMG 0000', desc:'Persiana eléctrica para GIL/GIU inclinadas', plazo:'9 días', p:obj(['-','-','-','-','-',980,1021,970,1021,1072,1051,1102,1164,1225,'-','-',1184,null,1174,1368])},
- {cat:'Persiana', ref:'SMH 0000', desc:'Persiana eléctrica para GPU motorizada', plazo:'9 días', p:obj(['-','-','-','-','-',624,650,'-',650,682,'-',702,741,'-','-','-',754,null,'-','-'])},
- {cat:'Cortina', ref:'DKL estándar', desc:'Cortina de oscurecimiento manual', plazo:'En stock', p:obj([71,71,77,76,90,94,87,94,101,100,103,113,119,97,108,118,122,null,120,138])},
- {cat:'Cortina', ref:'DKL premium', desc:'Cortina de oscurecimiento manual colores premium', plazo:'11 días', p:obj([86,86,92,91,108,113,105,113,121,120,124,135,143,116,130,141,147,null,144,166])},
+ {cat:'Persiana', ref:'SSL 0000', desc:'Persiana solar exterior', plazo:'En stock', p:obj([546,546,578,598,624,650,617,650,682,669,702,741,780,682,702,754,806,null,747,870])},
+ {cat:'Persiana', ref:'SML 0000', desc:'Persiana eléctrica exterior', plazo:'En stock', p:obj([390,390,413,427,445,464,441,464,487,478,501,529,557,487,501,538,575,null,534,622])},
+ {cat:'Persiana', ref:'SMG 0000', desc:'Persiana eléctrica para GIL/GIU inclinadas', plazo:'9 días', p:obj([null,null,null,null,980,1021,970,1021,1072,1051,1102,1164,1225,null,null,1184,1266,null,1174,1368])},
+ {cat:'Persiana', ref:'SMH 0000', desc:'Persiana eléctrica para GPU motorizada', plazo:'9 días', p:obj([null,null,null,null,624,650,null,650,682,null,702,741,null,null,null,754,806,null,null,null])},
+ {cat:'Cortina', ref:'DKL estándar', desc:'Cortina de oscurecimiento manual', plazo:'En stock', p:obj([71,71,77,85,90,94,87,94,101,100,103,113,119,97,108,118,122,null,120,138])},
+ {cat:'Cortina', ref:'DKL premium', desc:'Cortina de oscurecimiento manual colores premium', plazo:'11 días', p:obj([86,86,92,102,108,113,105,113,121,120,124,135,143,116,130,141,147,null,144,166])},
  {cat:'Cortina', ref:'DFD estándar', desc:'Cortina de oscurecimiento dúo manual', plazo:'En stock', p:obj([93,93,100,110,117,122,114,122,131,130,134,147,155,126,141,153,159,null,156,180])},
  {cat:'Cortina', ref:'DOP manual', desc:'Pack toldo + cortina oscurecimiento', plazo:'En stock', p:obj([117,117,122,129,143,146,145,151,157,167,170,178,183,164,184,192,196,null,201,216])}
 ];
@@ -620,12 +620,8 @@ function closePlateCurtainModal(){
  updatePlate();
 }
 function selectedInstallKitForPlate(pd){
- const refs=[pd&&pd.plateRef,pd&&pd.actualRef,pd&&pd.recRef].filter(Boolean).join(' ').toUpperCase();
- // ZOZ 213: kit de montaje para instalar persiana/toldo solar en ventanas GGL/GGU.
- // Precio base sin IVA: 65,34 € IVA incluido / 1,21 = 54,00 €.
- if(/\b(GGL|GGU)\b/.test(refs)){
-  return {ref:'ZOZ 213', desc:'Placa de montaje para persiana/toldo solar en GGL/GGU', price:54};
- }
+ // Las ventanas ofertadas en esta placa son manuales. ZOZ 213 solo corresponde
+ // a ventanas GGL/GGU solares fabricadas antes de 2013, no a todas las GGL/GGU.
  return null;
 }
 function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
@@ -809,7 +805,9 @@ function plateDataFromInput(){
   const recInfo=modelInfoFromBase(info.recBase,recCode);
   return {
    plateRef:`${oldEq.model} ${oldEq.token}`,
-   plateMeta:`${info.opening} · ${info.finish}`,
+   plateMeta:(oldEq.model==='GGL'||oldEq.model==='GHL') && oldEq.token==='5'
+    ? `${info.opening} · ${info.finish} · Tamaño 5 antiguo: 70×118 cm; FK06 actual: 66×118 cm. Hay 4 cm menos de ancho: comprobar hueco y remates. La DKL estándar para la antigua 5 figura a 81 €; la DKL FK06 de la placa es para la ventana nueva.`
+    : `${info.opening} · ${info.finish}`,
    actualRef:`${info.currentBase} ${actualCode} ${oldEq.size}`,
    actualMeta:`${actualInfo.opening} · ${actualInfo.finish}`,
    recRef:`${info.recBase} ${recCode} ${oldEq.size}`,
@@ -902,7 +900,7 @@ function updatePlate(){
  }
 }
 function render(){const d=DATA[+modelSel.value], s=sizeSel.value, price=d.p[s]; const mp=mainPrice(price); state.d=d;state.s=s;res.onclick=null;modelGenerated.value=displayRefForData(d)+' '+s; renderQuickButtons();updatePlate();res.innerHTML=renderVentanaSuministro();renderMatches();}
-function renderMatches(){const term=q.value.trim().toUpperCase();const oldEq=detectOldModelEquiv(term);let arr=[];DATA.forEach((d,i)=>Object.entries(d.p).forEach(([s,p])=>{const txt=(d.modelo+' '+(d.aliases||[]).join(' ')+' '+d.familia+' '+sizeSearchText(s)).toUpperCase();if(oldEq ? s===oldEq.size : (!term||term.split(/\s+/).every(t=>txt.includes(t))))arr.push({i,d,s,p});}));arr.sort((a,b)=>scoreData(a.d)-scoreData(b.d));matches.innerHTML=arr.slice(0,40).map(x=>`<div class="row" onclick="pick(${x.i},'${x.s}',true)"><b>${x.d.modelo} ${x.s}</b><span>${money(x.p)}</span><div class="small">${x.d.familia} · ${sizesAll[x.s]||''} cm · ${x.d.plazo}${oldEq?' · equivalencia '+oldEq.model+' '+oldEq.token+' → '+oldEq.size:''}</div></div>`).join('')||'<div class="small">Sin resultados</div>';}
+function renderMatches(){const term=q.value.trim().toUpperCase();const oldEq=detectOldModelEquiv(term);let arr=[];DATA.forEach((d,i)=>Object.entries(d.p).forEach(([s,p])=>{const txt=(d.modelo+' '+(d.aliases||[]).join(' ')+' '+d.familia+' '+sizeSearchText(s)).toUpperCase();if(oldEq ? s===oldEq.size : (!term||term.split(/\s+/).every(t=>txt.includes(t))))arr.push({i,d,s,p});}));arr.sort((a,b)=>scoreData(a.d)-scoreData(b.d));matches.innerHTML=arr.slice(0,40).map(x=>`<div class="row" onclick="pick(${x.i},'${x.s}',true)"><b>${x.d.modelo} ${x.s}</b><span>${money(x.p)}</span><div class="small">${x.d.familia} · ${sizesAll[x.s]||''} cm · ${x.d.plazo}${oldEq?' · equivalencia '+oldEq.model+' '+oldEq.token+' → '+oldEq.size:''}${(oldEq?.model==='GGL'||oldEq?.model==='GHL')&&oldEq.token==='5'?' · original 70×118 cm; sustituta 66×118 cm':''}</div></div>`).join('')||'<div class="small">Sin resultados</div>';}
 
 function parseMeasureInput(v){
  v=(v||'').toLowerCase().replace(/,/g,'.').replace(/[×x*]/g,' ');
@@ -1116,7 +1114,7 @@ const CATALOG_ACCESSORIES=[
  {grupo:'Accesorios eléctricos',ref:'KLF 150',desc:'Interface para sistemas domóticos externos io-homecontrol',price:166,plazo:'En stock',source:'Catálogo p.86'},
  {grupo:'Accesorios eléctricos',ref:'KLF 050',desc:'Interface para conectar a cualquier pulsador de pared',price:50,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 157',desc:'Perfil para combinar dos mosquiteras ZIL',price:21,plazo:'9 días',source:'Catálogo p.86'},
- {grupo:'Kits de instalación',ref:'ZOZ 213',desc:'Placa de montaje para persiana/toldo solar en GGL/GGU',price:54,plazo:'9 días',source:'Catálogo p.86'},
+ {grupo:'Kits de instalación',ref:'ZOZ 213',desc:'Placa de montaje para persiana en GGL/GGU solares anteriores a 2013',price:54,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 229S',desc:'Kit para instalar persiana flexible o toldo en ventanas eléctricas GPU',price:69,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 230X25',desc:'Pack 25 kits para instalar cortina en ventana anterior a 1992',price:19,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 230',desc:'Kit individual para instalar cortina en ventana anterior a 1992',price:7,plazo:'—',source:'Catálogo p.87'},
@@ -1201,7 +1199,8 @@ function renderGlassModule(){
 }
 function glassCard(r,idx,compact=false){
  const measure=`${r.width} × ${r.height} mm`;
- return `<div class="row ${r.verified?'glassGood':'glassWarn'}"><b>${r.ref}</b><span>${measure}</span><div class="glassMeasure">${measure}</div><div class="small">Composición: <b>${r.composition||'—'}</b> · Estado: <b>${r.verified?'verificado':'pendiente'}</b>${r.source?' · '+r.source:''}</div>${r.notes?`<div class="small">${r.notes}</div>`:''}<div class="grid" style="margin-top:8px"><button class="light" onclick="copyGlassLine(${idx})">Copiar medida</button><button class="secondary" onclick="editGlassRecord(${idx})">Editar</button></div></div>`;
+ const conflict=normalizeGlassRef(r.ref)==='GGL 5' && (Number(r.width)>=700 || Number(r.height)>=1180);
+ return `<div class="row ${r.verified&&!conflict?'glassGood':'glassWarn'}"><b>${r.ref}</b><span>${measure}</span><div class="glassMeasure">${measure}</div><div class="small">Composición: <b>${r.composition||'—'}</b> · Estado: <b>${conflict?'medida en conflicto, revisar placa y vidrio':r.verified?'verificado':'pendiente'}</b>${r.source?' · '+r.source:''}</div>${conflict?'<div class="small">La medida guardada supera el marco exterior GGL 5 (700 × 1180 mm). No usar para pedir un vidrio hasta confirmar la referencia de la placa.</div>':''}${r.notes?`<div class="small">${r.notes}</div>`:''}<div class="grid" style="margin-top:8px"><button class="light" ${conflict?'disabled title="Revisar referencia y medida"':`onclick="copyGlassLine(${idx})"`}>Copiar medida</button><button class="secondary" onclick="editGlassRecord(${idx})">Editar</button></div></div>`;
 }
 function renderGlassSearch(){
  const q=document.getElementById('glassQ').value; const box=document.getElementById('glassRes');
