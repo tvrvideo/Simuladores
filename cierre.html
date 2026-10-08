@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.6.4</title>
+  <title>Cierre v3.7.7</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -66,6 +66,7 @@
         gap: 10px;
         text-align: center;
     }
+    #portalProfileGroup[hidden]{display:none;}
     
     label {
         font-size: 14px;
@@ -222,6 +223,7 @@
     }
 
     .action-button:disabled{ opacity:0.45; filter:grayscale(0.2); }
+    .action-button[hidden]{ display:none; }
 
     /* Estado activo (blanco con borde azul) */
     .action-button.active {
@@ -458,13 +460,13 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.6.4</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.7</span></h1>
 </div>
 
 <form id="form">
     <div class="dimensions-group">
         <div class="dimensions-labels-row">
-            <label>Ancho</label><label>Alto</label><label>Lama</label><label>Marco</label><label>Hueco</label>
+            <label>Ancho</label><label>Alto</label><label>Lama</label><label id="labelMarco">Marco</label><label>Hueco</label>
         </div>
         <div class="dimensions-inputs-row">
             <input type="number" id="ancho" value="2000">
@@ -475,6 +477,11 @@ body.dock-on #controls{
         </div>
     </div>
 
+    <div class="dimensions-group" id="portalProfileGroup" hidden>
+        <label for="perfilHoja">Hojas (mm)</label>
+        <input type="number" id="perfilHoja" min="1" value="50" inputmode="numeric">
+    </div>
+
     <div class="color-row">
         <div class="color-picker-button" id="btnMarcoWrapper">
             Color Marco <br>
@@ -483,6 +490,10 @@ body.dock-on #controls{
         <div class="color-picker-button" id="btnLamaWrapper">
             Color Lama <br>
             <input type="color" id="colorLamaPicker" value="#4b5563">
+        </div>
+        <div class="color-picker-button" id="btnAperturaWrapper">
+            Color Apertura <br>
+            <input type="color" id="colorAperturaPicker" value="#dc2626">
         </div>
     </div>
 
@@ -514,6 +525,13 @@ body.dock-on #controls{
         </div>
     </div>
 
+    <div class="button-row" id="portalControls">
+        <button type="button" class="action-button active" id="modeCierre">Cierre</button>
+        <button type="button" class="action-button" id="modePortal1">Portal 1 hoja</button>
+        <button type="button" class="action-button" id="modePortal2">Portal 2 hojas</button>
+        <button type="button" class="action-button" id="portalOpening" hidden>Bisagras: izquierda</button>
+        <button type="button" class="action-button" id="portalActiveLeaf" hidden>Abre primero: derecha</button>
+    </div>
     <div class="button-row">
         <button type="button" class="action-button" id="toggleDistrMode">Ajustar huecos</button>
         <button type="button" class="action-button" id="toggleWidthCota">Cota ancho</button>
@@ -558,6 +576,7 @@ body.dock-on #controls{
     // --- LÓGICA COMPLETA ---
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
     let showLarguero = false, posteCount = 0, fenceMode = false, fenceSides = true, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let portalLeaves = 0, portalHinge = 'left', portalFirst = 'right';
     // Guarda los valores anteriores al activar el modo alternativo de reparto.
     // Al volver a desactivarlo, la app recupera exactamente el estado inicial.
     let distrModeSnapshot = null;
@@ -807,6 +826,90 @@ body.dock-on #controls{
     }
 }
 
+    function distinctApertureColor(cMarco, cLama) {
+        const picker = document.getElementById('colorAperturaPicker');
+        const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+        const distance = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
+        const candidates = ['#dc2626', '#1d4ed8', '#15803d', '#7e22ce'];
+        const score = color => Math.min(distance(color, cMarco), distance(color, cLama));
+        let chosen = picker.value;
+        if (score(chosen) < 110) {
+            chosen = candidates.reduce((best, color) => score(color) > score(best) ? color : best, candidates[0]);
+            picker.value = chosen;
+            updateColorBtn('btnAperturaWrapper', chosen);
+        }
+        return chosen;
+    }
+
+    function drawPortal(g, ancho, alto, marco, perfilHoja, lamaSize, hueco, cMarco, cLama) {
+        // Ancho total, incluidos los dos marcos laterales; cada hoja ocupa el hueco restante.
+        const post = Math.max(1, Math.min(marco, ancho / 8));
+        const leafSpan = Math.max(0, ancho - 2 * post) / portalLeaves;
+        const profile = Math.max(1, Math.min(Number.isFinite(perfilHoja) && perfilHoja > 0 ? perfilHoja : 50, leafSpan / 5, alto / 5));
+        const leaves = [];
+        const openingColor = distinctApertureColor(cMarco, cLama);
+
+        g.appendChild(createRect(0, 0, post, alto, cMarco, '#111827', 1));
+        g.appendChild(createRect(ancho - post, 0, post, alto, cMarco, '#111827', 1));
+        for (let i = 0; i < portalLeaves; i++) {
+            const left = post + i * leafSpan, right = left + leafSpan;
+            const fillLeft = left + profile, fillRight = right - profile;
+            const fillTop = profile, fillBottom = alto - profile;
+            const span = isVertical ? fillRight - fillLeft : fillBottom - fillTop;
+            g.appendChild(createRect(left, 0, leafSpan, alto, '#fff', '#111827', 1));
+            let n = 0, actualGap = 0, actualLama = lamaSize;
+            if (span > 0 && lamaSize > 0 && hueco >= 0) {
+                if (isLamaMode) {
+                    n = Math.max(1, Math.round(span / (lamaSize + hueco)));
+                    actualGap = hueco;
+                    actualLama = Math.max(0, (span - (n + 1) * hueco) / n);
+                } else {
+                    n = Math.max(1, Math.floor(span / (lamaSize + hueco)));
+                    actualLama = Math.min(lamaSize, span);
+                    actualGap = Math.max(0, (span - n * actualLama) / (n + 1));
+                }
+                if (actualLama <= 0) n = 0;
+            }
+            for (let k = 0; k < n; k++) {
+                const pos = actualGap + k * (actualLama + actualGap);
+                if (isVertical) g.appendChild(createRect(fillLeft + pos, fillTop, actualLama, fillBottom - fillTop, cLama, '#111827', 0.5));
+                else g.appendChild(createRect(fillLeft, fillTop + pos, fillRight - fillLeft, actualLama, cLama, '#111827', 0.5));
+            }
+            // Marco completo de CADA hoja, separado de los soportes laterales del portal.
+            g.appendChild(createRect(left, 0, profile, alto, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(right - profile, 0, profile, alto, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(fillLeft, 0, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(fillLeft, fillBottom, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
+            const hingeLeft = portalLeaves === 2 ? i === 0 : portalHinge === 'left';
+            const hingeX = hingeLeft ? left : right;
+            for (const hingeY of [alto * 0.2, alto * 0.8]) {
+                g.appendChild(createRect(hingeX - profile * 0.18, hingeY - Math.min(alto * 0.035, post * 0.4),
+                    profile * 0.36, Math.min(alto * 0.07, post * 0.8), '#1f2937', '#fff', 0.7));
+            }
+            // Mismo símbolo de apertura en alzado que Ventana Pro: V desde las
+            // esquinas del lado de bisagras al centro del lado de cierre.
+            const hingeLineX = hingeLeft ? fillLeft : fillRight;
+            const closingLineX = hingeLeft ? fillRight : fillLeft;
+            const openingPoints = `${hingeLineX},${fillTop} ${closingLineX},${alto / 2} ${hingeLineX},${fillBottom} ${hingeLineX},${fillTop}`;
+            const symbol = createPoly(openingPoints, openingColor);
+            symbol.setAttribute('stroke-width', 1.5 / scale);
+            g.appendChild(symbol);
+            leaves.push({n, actualGap, actualLama, span});
+        }
+        if (showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + ' mm', false, 3);
+        if (showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + ' mm', true, 3, '#1d4ed8', false, true);
+        if (showRedCota && leaves.length)
+            drawDimLineSVG(post, alto, post + leafSpan, alto, Math.round(leafSpan) + ' mm', false, 4, '#ef4444', false, false, true);
+        const first = leaves[0] || {n:0, actualGap:0, actualLama:0, span:0};
+        lastComputedN = first.n;
+        lastComputedAL = first.actualLama;
+        lastComputedEsp = first.actualGap;
+        lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
+        const utilEl = document.getElementById('altoUtillamas');
+        if (document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
+        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}`;
+    }
+
     function drawCierre() {
         let ancho = +document.getElementById("ancho").value;
         let alto = +document.getElementById("alto").value;
@@ -841,6 +944,11 @@ body.dock-on #controls{
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform", `translate(${(canvasW - ancho * scale)/2}, ${(canvasH - alto * scale)/2}) scale(${scale})`);
         svg.appendChild(g);
+
+        if (portalLeaves && !fenceMode) {
+            drawPortal(g, ancho, alto, marco, +document.getElementById('perfilHoja').value, altoLamaInput, sep, cMarco, cLama);
+            return;
+        }
 
         // En modo cierre se mantiene el marco completo. En modo valla nunca hay marco superior/inferior.
         if(showMarco && !fenceMode) {
@@ -1129,6 +1237,10 @@ body.dock-on #controls{
         updateColorBtn("btnLamaWrapper", e.target.value);
         drawCierre();
     };
+    document.getElementById("colorAperturaPicker").oninput = (e) => {
+        updateColorBtn("btnAperturaWrapper", e.target.value);
+        drawCierre();
+    };
 
     // RAL Buttons logic
     document.querySelectorAll('.ral-button').forEach(btn => {
@@ -1233,6 +1345,44 @@ bindTap(btnPosteMinus, () => {
 
 updatePosteBtns();
 
+// --- PORTALES: se conserva el estado de las medidas al cambiar de modo ---
+function updatePortalControls(){
+    for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
+        document.getElementById(id).classList.toggle('active', portalLeaves === value && !fenceMode);
+    }
+    const opening = document.getElementById('portalOpening');
+    const first = document.getElementById('portalActiveLeaf');
+    opening.hidden = portalLeaves !== 1 || fenceMode;
+    first.hidden = portalLeaves !== 2 || fenceMode;
+    opening.textContent = `Bisagras: ${portalHinge === 'left' ? 'izquierda' : 'derecha'}`;
+    first.textContent = `Abre primero: ${portalFirst === 'right' ? 'derecha' : 'izquierda'}`;
+    document.getElementById('labelMarco').textContent = 'Marco';
+    document.getElementById('portalProfileGroup').hidden = portalLeaves === 0 || fenceMode;
+    const utilSection = document.getElementById('utilSection');
+    utilSection.hidden = portalLeaves > 0 && !fenceMode;
+    for (const id of ['toggleLarguero', 'toggleMarco', 'btnPostePlus', 'btnPosteMinus', 'togglePostMeasures']) {
+        document.getElementById(id).disabled = portalLeaves > 0 && !fenceMode;
+    }
+    if (!portalLeaves && !fenceMode) updatePosteBtns();
+}
+for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
+    document.getElementById(id).addEventListener('click', () => {
+        portalLeaves = value;
+        fenceMode = false;
+        updateFenceBtn();
+        updatePortalControls();
+        drawCierre();
+    });
+}
+document.getElementById('portalOpening').addEventListener('click', () => {
+    portalHinge = portalHinge === 'left' ? 'right' : 'left';
+    updatePortalControls(); drawCierre();
+});
+document.getElementById('portalActiveLeaf').addEventListener('click', () => {
+    portalFirst = portalFirst === 'right' ? 'left' : 'right';
+    updatePortalControls(); drawCierre();
+});
+
 // --- MODO VALLA REAL + LATERALES INDEPENDIENTES ---
 const btnFence = document.getElementById('btnFence');
 const btnFenceSides = document.getElementById('btnFenceSides');
@@ -1253,11 +1403,13 @@ function updateFenceBtn(){
         btnFenceSides.classList.toggle('active', fenceMode && fenceSides);
         btnFenceSides.textContent = `Laterales: ${fenceSides ? 'ON' : 'OFF'}`;
     }
-    if(btnMarco) btnMarco.disabled = fenceMode;
+    if(btnMarco) btnMarco.disabled = fenceMode || portalLeaves > 0;
 }
 bindTap(btnFence, () => {
     fenceMode = !fenceMode;
+    if(fenceMode) portalLeaves = 0;
     updateFenceBtn();
+    updatePortalControls();
     drawCierre();
 });
 bindTap(btnFenceSides, () => {
@@ -1267,9 +1419,11 @@ bindTap(btnFenceSides, () => {
     drawCierre();
 });
 updateFenceBtn();
+updatePortalControls();
 
     updateColorBtn("btnMarcoWrapper", document.getElementById("colorMarcoPicker").value);
     updateColorBtn("btnLamaWrapper", document.getElementById("colorLamaPicker").value);
+    updateColorBtn("btnAperturaWrapper", document.getElementById("colorAperturaPicker").value);
     drawCierre();
     // --- EXPORTAR PNG (como en poligono) ---
     function exportarPNG() {
@@ -1335,8 +1489,8 @@ function setDockCierre(on){
   if(btn) btn.classList.toggle('active', on);
 }
 
-// Por defecto: desactivado (gris)
-setDockCierre(false);
+// Por defecto: el dibujo queda fijado en la parte inferior.
+setDockCierre(true);
 
 const __btnFijar = document.getElementById('btnFijar');
 if(__btnFijar){
