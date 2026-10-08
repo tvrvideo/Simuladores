@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.51</title>
+  <title>Documentos Rey v4.8.54</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4380,10 +4380,10 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .sheet
 #editSheet.directory-theme .client-action-name{font-size:19px;font-weight:900;line-height:1.2}
 #editSheet.directory-theme .client-action-detail{font-size:13px;line-height:1.3;margin-top:7px;overflow-wrap:anywhere}
 
-/* Apodo opcional del cliente v4.8.51 */
+/* Apodo opcional del cliente v4.8.54 */
 #editSheet.directory-theme .client-action-full-name{font-size:13px;color:#e7f2fb;font-weight:700;margin-top:5px}
 
-/* El buscador ocupa el espacio principal en las tres listas v4.8.51 */
+/* El buscador ocupa el espacio principal en las tres listas v4.8.54 */
 #editSheet.document-list-theme .doc-list-tools.document-search-tools{display:block;margin:5px 0 7px}
 #editSheet.document-list-theme .document-list-heading{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -4414,7 +4414,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.document-list-theme .docum
   #editSheet.document-list-theme .doc-list-filter-buttons .btn-provisionales-0000{padding:0 6px!important;font-size:11px!important}
 }
 
-/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.51 */
+/* Tipografía más cálida en las fichas de catálogo y clientes v4.8.54 */
 #editSheet.directory-theme #sheetContent .catalog-card-compact .catalog-name,
 #editSheet.directory-theme #sheetContent .client-list-card .client-list-name,
 #editSheet.directory-theme .catalog-product-action-title,
@@ -4438,6 +4438,12 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
 body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetContent .client-search-panel select{color:var(--ui-text)!important}
 body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetContent .catalog-search-box input::placeholder,
 body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetContent .client-search-panel input::placeholder{color:var(--ui-muted)!important}
+/* Contraste del formulario de productos en los tres temas */
+#editSheet.catalog-form-theme #sheetContent label{color:#e8f4ff}
+#editSheet.catalog-form-theme #sheetContent .product-image-help{color:#c5d4d8}
+#editSheet.catalog-form-theme #sheetContent input::placeholder{color:#63788d;opacity:1}
+body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetContent label{color:var(--ui-text)}
+body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetContent .product-image-help{color:var(--ui-muted)}
 </style>
 </head>
 <body>
@@ -4445,7 +4451,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.51</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.54</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4478,7 +4484,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.51</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.54</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5743,7 +5749,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.51', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.54', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5786,7 +5792,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.directory-theme #sheetCont
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.51',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.54',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -10825,7 +10831,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.51',
+      app:'Documentos Rey', version:'v4.8.54',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -10961,7 +10967,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.51',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.54',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -12099,6 +12105,7 @@ COLOCACIÓN INCLUIDA` }
     currentEdit = { type, index:index == null ? null : index };
     $('editSheet').classList.remove('creation-theme', 'document-list-theme');
     $('editSheet').classList.toggle('directory-theme', ['clients','clientActions','clientForm','catalog','catalogForm','catalogProductActions','themeConfig'].includes(type));
+    $('editSheet').classList.toggle('catalog-form-theme', type === 'catalogForm');
     $('sheetTitle').textContent = title;
     const body = $('sheetContent');
     body.innerHTML = '';
@@ -12855,12 +12862,36 @@ body.innerHTML = `
           <button type="button" class="btn btn-neutral" id="btnProductImagePick">Seleccionar archivo</button>
           <button type="button" class="btn btn-light" id="btnProductImageRemove">Quitar</button>
         </div>
-        <div style="font-size:12px;color:var(--muted);font-weight:800;margin:5px 0 8px">Puedes escribir una ruta como <b>img/recogedor.jpg</b>, una URL o seleccionar una imagen.</div>
+        <div class="product-image-help" style="font-size:12px;font-weight:800;margin:5px 0 8px">Puedes escribir una ruta como <b>img/recogedor.jpg</b>, una URL o seleccionar una imagen.</div>
         <div id="productImagePreviewWrap">${productImageDraft ? `<img class="catalog-thumb" src="${esc(productImageDraft)}" alt="" style="width:88px;height:88px;object-fit:contain;background:#fff">` : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`}</div>
         <div class="sheet-actions">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
+      const productCompraInput = $('editProductCompra');
+      const productGananciaInput = $('editProductGanancia');
+      const productVentaInput = $('editProductPrice');
+      function updateProductSalePrice(){
+        const compraText = String(productCompraInput.value || '').trim().replace(',', '.');
+        const gananciaText = String(productGananciaInput.value || '').trim().replace(',', '.');
+        if(!compraText || !gananciaText) return;
+        const compra = Number(compraText);
+        const ganancia = Number(gananciaText);
+        if(!Number.isFinite(compra) || compra < 0 || !Number.isFinite(ganancia)) return;
+        productVentaInput.value = String(Math.max(0, Math.round((compra * (1 + ganancia / 100) + Number.EPSILON) * 100) / 100)).replace('.', ',');
+      }
+      function updateProductGainPercent(){
+        const compraText = String(productCompraInput.value || '').trim().replace(',', '.');
+        const ventaText = String(productVentaInput.value || '').trim().replace(',', '.');
+        if(!compraText || !ventaText) return;
+        const compra = Number(compraText);
+        const venta = Number(ventaText);
+        if(!Number.isFinite(compra) || compra <= 0 || !Number.isFinite(venta) || venta < 0) return;
+        productGananciaInput.value = String(Math.round(((venta / compra - 1) * 100 + Number.EPSILON) * 100) / 100).replace('.', ',');
+      }
+      productCompraInput.addEventListener('input', updateProductSalePrice, false);
+      productGananciaInput.addEventListener('input', updateProductSalePrice, false);
+      productVentaInput.addEventListener('input', updateProductGainPercent, false);
       $('btnProductImagePick').onclick = () => $('fileCatalogProduct').click();
       const imageLinkInputV484 = $('editProductImageLink');
       if(imageLinkInputV484){
@@ -14840,7 +14871,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.51', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.54', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
