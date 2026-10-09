@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.14</title>
+  <title>Cierre v3.7.16</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -460,7 +460,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.14</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.16</span></h1>
 </div>
 
 <form id="form">
@@ -543,13 +543,13 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="toggleRedCota">Cota roja</button>
         <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
         <button type="button" class="action-button" id="toggleMarco">Marco</button>
+        <button type="button" class="action-button active" id="btnClosureSides" hidden>Laterales cierre: ON</button>
         <button type="button" class="action-button" id="toggleOrientation">Horizontal / vertical</button>
         <button type="button" class="action-button" id="toggleLarguero">Postes: verticales</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
         <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
         <button type="button" class="action-button" id="toggleFloorExtension">+50 mm al suelo</button>
             <button type="button" class="action-button" id="btnFence">Modo valla</button>
-        <button type="button" class="action-button" id="btnFenceSides" hidden>Laterales valla: ON</button>
     </div>
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
@@ -580,7 +580,13 @@ body.dock-on #controls{
 <script>
     // --- LÓGICA COMPLETA ---
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
-    let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = true, showFloorExtension = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = false, closureSides = true, showFloorExtension = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    function updateClosureSidesButton(){
+        const btn = document.getElementById('btnClosureSides');
+        btn.hidden = fenceMode || portalLeaves > 0 || !isVertical;
+        btn.classList.toggle('active', closureSides);
+        btn.textContent = `Laterales cierre: ${closureSides ? 'ON' : 'OFF'}`;
+    }
     function postsAreVertical(){ return postDirectionOverride === null ? !isVertical : postDirectionOverride; }
     function updatePostDirectionButton(){
         document.getElementById('toggleLarguero').textContent = `Postes: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
@@ -624,7 +630,7 @@ body.dock-on #controls{
         const sep = +document.getElementById("sep").value;
 
         // Evitar divisiones raras
-        const areaUtil = Math.max(0, (isVertical ? (+document.getElementById("ancho").value - marco*2) : (alto - marco*2)));
+        const areaUtil = Math.max(0, (isVertical ? (+document.getElementById("ancho").value - (closureSides ? marco*2 : 0)) : (alto - marco*2)));
 
         // Mantener la misma lógica original para n/esp/nuevoAL
         let n, esp, nuevoAL = altoLama;
@@ -674,7 +680,7 @@ body.dock-on #controls{
         // Si cambia ALTO LAMAS (util), mantenemos nBase para que sea reversible.
         if(changedId !== "altoUtillamas") {
             // Calcular n "como siempre"
-            const areaUtil = Math.max(0, (isVertical ? (ancho - marco*2) : (alto - (showFloorExtension ? 50 : 0) - marco*2)));
+            const areaUtil = Math.max(0, (isVertical ? (ancho - (closureSides ? marco*2 : 0)) : (alto - (showFloorExtension ? 50 : 0) - marco*2)));
             if (isLamaMode) nBase = Math.max(0, Math.round(areaUtil / (altoLama + sep)));
             else nBase = Math.max(0, Math.floor(areaUtil / (altoLama + sep)));
         } else {
@@ -973,15 +979,20 @@ body.dock-on #controls{
             drawPortal(g, ancho, alto, marco, +document.getElementById('perfilHoja').value, altoLamaInput, sep, cMarco, cLama);
             return;
         }
+        const closureSideInset = !fenceMode && isVertical && !closureSides ? 0 : marco;
 
         // En modo cierre se mantiene el marco completo. En modo valla nunca hay marco superior/inferior.
         if(showMarco && !fenceMode) {
-            g.appendChild(createRect(0, 0, ancho, alto, cMarco, "#000", 1));
-            // El fondo interior se dibuja primero. Su contorno de contraste se añade
-            // después de las lamas para que estas no lo tapen.
-            g.appendChild(createRect(marco, marco, ancho - marco*2, alto - marco*2, "#fff", "none", 0));
+            if (closureSideInset === 0) {
+                g.appendChild(createRect(0, marco, ancho, alto - marco*2, '#fff', 'none', 0));
+                g.appendChild(createRect(0, 0, ancho, marco, cMarco, '#000', 0.5));
+                g.appendChild(createRect(0, alto - marco, ancho, marco, cMarco, '#000', 0.5));
+            } else {
+                g.appendChild(createRect(0, 0, ancho, alto, cMarco, "#000", 1));
+                g.appendChild(createRect(marco, marco, ancho - marco*2, alto - marco*2, "#fff", "none", 0));
+            }
         }
-        if (showFloorExtension && showMarco && !fenceMode) {
+        if (showFloorExtension && showMarco && !fenceMode && closureSideInset > 0) {
             g.appendChild(createRect(0, alto, marco, 50, cMarco, '#000', 0.5));
             g.appendChild(createRect(ancho - marco, alto, marco, 50, cMarco, '#000', 0.5));
         }
@@ -989,7 +1000,7 @@ body.dock-on #controls{
         // Zona de reparto. En valla se usa toda la altura/anchura: hueco inicial y lama final sin hueco exterior superior.
         const areaUtil = fenceMode
             ? (isVertical ? ancho : alto)
-            : (isVertical ? ancho - marco*2 : alto - marco*2);
+            : (isVertical ? ancho - closureSideInset*2 : alto - marco*2);
 
         let n = 0, esp = 0, nuevoAL = altoLamaInput;
         if(areaUtil > 0 && altoLamaInput > 0) {
@@ -1023,7 +1034,7 @@ body.dock-on #controls{
         const lamaW = fenceMode && fenceSides ? Math.max(0, ancho - marco*2) : (fenceMode ? ancho : ancho - marco*2);
         const lamaY = fenceMode && fenceSides && isVertical ? 0 : (fenceMode ? 0 : marco);
         const lamaH = fenceMode ? alto : alto - marco*2;
-        const startBase = fenceMode ? 0 : marco;
+        const startBase = fenceMode ? 0 : (isVertical ? closureSideInset : marco);
         const splitWithPosts = posteCount > 0 && !fenceMode;
         const parallelPosts = postsAreVertical() === isVertical;
         let firstBayStart = startBase;
@@ -1034,8 +1045,8 @@ body.dock-on #controls{
         const requestedPost = +document.getElementById('grosorPostes').value;
         let actualPost = Number.isFinite(requestedPost) && requestedPost > 0 ? requestedPost : 50;
         if (posteCount > 0) {
-            const axisStart = postVertical ? (fenceMode && !fenceSides ? 0 : marco) : (fenceMode ? 0 : marco);
-            const axisEnd = postVertical ? (fenceMode && !fenceSides ? ancho : ancho - marco) : (fenceMode ? alto : alto - marco);
+            const axisStart = postVertical ? (fenceMode ? (fenceSides ? marco : 0) : closureSideInset) : (fenceMode ? 0 : marco);
+            const axisEnd = postVertical ? (fenceMode ? (fenceSides ? ancho - marco : ancho) : ancho - closureSideInset) : (fenceMode ? alto : alto - marco);
             const available = Math.max(0, axisEnd - axisStart);
             actualPost = Math.min(actualPost, available / posteCount);
             const clearGap = (available - posteCount * actualPost) / (posteCount + 1);
@@ -1147,9 +1158,9 @@ body.dock-on #controls{
             // En cierre con marco también destacamos la unión entre lamas y marco.
             if(showMarco && !fenceMode) {
                 g.appendChild(createRect(
+                    isVertical ? closureSideInset : marco,
                     marco,
-                    marco,
-                    Math.max(0, ancho - marco * 2),
+                    Math.max(0, ancho - (isVertical ? closureSideInset : marco) * 2),
                     Math.max(0, alto - marco * 2),
                     "none",
                     separatorColor,
@@ -1162,7 +1173,7 @@ body.dock-on #controls{
         if(posteCount > 0) {
             for(const position of postPositions) {
                 if(!postVertical) {
-                    g.appendChild(createRect(fenceMode ? 0 : marco, position, fenceMode ? ancho : ancho-marco*2, actualPost, cMarco, "#000", 0.5));
+                    g.appendChild(createRect(fenceMode ? 0 : closureSideInset, position, fenceMode ? ancho : ancho-closureSideInset*2, actualPost, cMarco, "#000", 0.5));
                 } else {
                     // En cierre atraviesa también el perfil inferior antes de
                     // sobresalir los 50 mm por debajo del conjunto.
@@ -1209,7 +1220,7 @@ body.dock-on #controls{
 
         if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + " mm", false, 3);
         if(showHeightCota) drawDimLineSVG(0, 0, 0, visualHeight, visualHeight + " mm", true, 3, "#1d4ed8", false, true);
-        if(showFloorExtension && ((!fenceMode && showMarco) || (fenceMode && fenceSides) || (posteCount > 0 && postVertical)))
+        if(showFloorExtension && ((!fenceMode && showMarco && closureSideInset > 0) || (fenceMode && fenceSides) || (posteCount > 0 && postVertical)))
             drawFloorExtensionNote(g, ancho, alto);
         if(showRedCota && n > 0) {
             if(isVertical) drawDimLineSVG(fenceMode ? 0 : firstBayStart+esp, alto, (fenceMode ? 0 : firstBayStart+esp)+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
@@ -1241,8 +1252,8 @@ body.dock-on #controls{
             if (fenceInfoEl) fenceInfoEl.style.display = "none";
         }
 
-        const tipo = fenceMode ? `Valla | Laterales: ${fenceSides ? 'Sí' : 'No'}` : 'Cierre';
-        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)${showFloorExtension ? ' | Apoyos +50 mm' : ''}`;
+        const tipo = fenceMode ? 'Valla' : 'Cierre';
+        document.getElementById("stats").textContent = `${tipo}${!fenceMode && isVertical ? ' | Laterales: ' + (closureSides ? 'Sí' : 'No') : ''} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)${showFloorExtension ? ' | Apoyos +50 mm' : ''}`;
     }
 
     // --- EVENTOS ---
@@ -1384,13 +1395,19 @@ actionIds.forEach(id => {
         if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; }
         if(id === "toggleFloorExtension") showFloorExtension = !showFloorExtension;
         if(id === "toggleMarco") showMarco = !showMarco;
-        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); }
+        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); updateClosureSidesButton(); }
         if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
         if(id !== "toggleLarguero") e.target.classList.toggle("active");
         drawCierre();
     });
 });
 updatePostDirectionButton();
+updateClosureSidesButton();
+document.getElementById('btnClosureSides').addEventListener('click', () => {
+    closureSides = !closureSides;
+    updateClosureSidesButton();
+    drawCierre();
+});
 
 // --- TAP SEGURO (evita doble disparo touch/click en iOS) ---
 function bindTap(el, handler){
@@ -1452,6 +1469,7 @@ function updatePortalControls(){
         document.getElementById(id).disabled = portalLeaves > 0 && !fenceMode;
     }
     if (!portalLeaves && !fenceMode) updatePosteBtns();
+    updateClosureSidesButton();
 }
 for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
     document.getElementById(id).addEventListener('click', () => {
@@ -1471,9 +1489,8 @@ document.getElementById('portalActiveLeaf').addEventListener('click', () => {
     updatePortalControls(); drawCierre();
 });
 
-// --- MODO VALLA REAL + LATERALES INDEPENDIENTES ---
+// --- MODO VALLA SIN PERFILES LATERALES ---
 const btnFence = document.getElementById('btnFence');
-const btnFenceSides = document.getElementById('btnFenceSides');
 const btnMarco = document.getElementById('toggleMarco');
 function updateFenceBtn(){
     if(btnFence) {
@@ -1486,25 +1503,14 @@ function updateFenceBtn(){
             ? (isLamaMode ? 'Ajustar altura' : 'Ajustar huecos')
             : (isLamaMode ? 'Variar lamas' : 'Variar huecos');
     }
-    if(btnFenceSides) {
-        btnFenceSides.hidden = !fenceMode;
-        btnFenceSides.disabled = !fenceMode;
-        btnFenceSides.classList.toggle('active', fenceMode && fenceSides);
-        btnFenceSides.textContent = `Laterales valla: ${fenceSides ? 'ON' : 'OFF'}`;
-    }
     if(btnMarco) btnMarco.disabled = fenceMode || portalLeaves > 0;
+    updateClosureSidesButton();
 }
 bindTap(btnFence, () => {
     fenceMode = !fenceMode;
     if(fenceMode) portalLeaves = 0;
     updateFenceBtn();
     updatePortalControls();
-    drawCierre();
-});
-bindTap(btnFenceSides, () => {
-    if(!fenceMode) return;
-    fenceSides = !fenceSides;
-    updateFenceBtn();
     drawCierre();
 });
 updateFenceBtn();
