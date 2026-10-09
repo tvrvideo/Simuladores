@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.11</title>
+  <title>Cierre v3.7.14</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -460,13 +460,13 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.11</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.14</span></h1>
 </div>
 
 <form id="form">
     <div class="dimensions-group">
         <div class="dimensions-labels-row">
-            <label>Ancho</label><label>Alto</label><label>Lama</label><label id="labelMarco">Marco</label><label>Hueco</label>
+            <label>Ancho</label><label>Alto total</label><label>Lama</label><label id="labelMarco">Marco</label><label>Hueco</label>
         </div>
         <div class="dimensions-inputs-row">
             <input type="number" id="ancho" value="2000">
@@ -547,8 +547,9 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="toggleLarguero">Postes: verticales</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
         <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
+        <button type="button" class="action-button" id="toggleFloorExtension">+50 mm al suelo</button>
             <button type="button" class="action-button" id="btnFence">Modo valla</button>
-        <button type="button" class="action-button" id="btnFenceSides">Laterales: ON</button>
+        <button type="button" class="action-button" id="btnFenceSides" hidden>Laterales valla: ON</button>
     </div>
         <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
 
@@ -579,7 +580,7 @@ body.dock-on #controls{
 <script>
     // --- LÓGICA COMPLETA ---
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
-    let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = true, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = true, showFloorExtension = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
     function postsAreVertical(){ return postDirectionOverride === null ? !isVertical : postDirectionOverride; }
     function updatePostDirectionButton(){
         document.getElementById('toggleLarguero').textContent = `Postes: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
@@ -618,7 +619,7 @@ body.dock-on #controls{
     function computeFromCurrentDrawModel() {
         // Modelo coherente para actualizar inputs "derivados" cuando el usuario cambie algo.
         const marco = +document.getElementById("marco").value;
-        const alto = +document.getElementById("alto").value;
+        const alto = +document.getElementById("alto").value - (showFloorExtension ? 50 : 0);
         const altoLama = +document.getElementById("altoLama").value;
         const sep = +document.getElementById("sep").value;
 
@@ -673,7 +674,7 @@ body.dock-on #controls{
         // Si cambia ALTO LAMAS (util), mantenemos nBase para que sea reversible.
         if(changedId !== "altoUtillamas") {
             // Calcular n "como siempre"
-            const areaUtil = Math.max(0, (isVertical ? (ancho - marco*2) : (alto - marco*2)));
+            const areaUtil = Math.max(0, (isVertical ? (ancho - marco*2) : (alto - (showFloorExtension ? 50 : 0) - marco*2)));
             if (isLamaMode) nBase = Math.max(0, Math.round(areaUtil / (altoLama + sep)));
             else nBase = Math.max(0, Math.floor(areaUtil / (altoLama + sep)));
         } else {
@@ -705,7 +706,7 @@ body.dock-on #controls{
             // Actualizar alto total coherente (marco arriba+abajo + lamas + huecos (incl. exteriores))
             // Usamos el modelo de "Variar huecos": exteriores = sep; interiores = sep
             // Nota: es una aproximación al modelo del dibujo (el motor ya calcula hueco exterior real en modo variar huecos)
-            const altoTotal = 2*marco + nBase*altoLama + (nBase + 1)*sep;
+            const altoTotal = 2*marco + nBase*altoLama + (nBase + 1)*sep + (showFloorExtension ? 50 : 0);
             alto = Math.max(1, Math.round(altoTotal));
 
             // Escribir de vuelta (sin pisar el campo activo)
@@ -849,6 +850,17 @@ body.dock-on #controls{
         return chosen;
     }
 
+    function drawFloorExtensionNote(g, ancho, alto) {
+        const note = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        note.setAttribute('x', ancho + 12 / scale);
+        note.setAttribute('y', alto + 25);
+        note.setAttribute('fill', '#1d4ed8');
+        note.setAttribute('font-size', 17 / scale);
+        note.setAttribute('dominant-baseline', 'middle');
+        note.textContent = '+50 mm';
+        g.appendChild(note);
+    }
+
     function drawPortal(g, ancho, alto, marco, perfilHoja, lamaSize, hueco, cMarco, cLama) {
         // Ancho total, incluidos los dos marcos laterales; cada hoja ocupa el hueco restante.
         const post = Math.max(1, Math.min(marco, ancho / 8));
@@ -857,8 +869,9 @@ body.dock-on #controls{
         const leaves = [];
         const openingColor = distinctApertureColor(cMarco, cLama);
 
-        g.appendChild(createRect(0, 0, post, alto, cMarco, '#111827', 1));
-        g.appendChild(createRect(ancho - post, 0, post, alto, cMarco, '#111827', 1));
+        const supportHeight = alto + (showFloorExtension ? 50 : 0);
+        g.appendChild(createRect(0, 0, post, supportHeight, cMarco, '#111827', 1));
+        g.appendChild(createRect(ancho - post, 0, post, supportHeight, cMarco, '#111827', 1));
         for (let i = 0; i < portalLeaves; i++) {
             const left = post + i * leafSpan, right = left + leafSpan;
             const fillLeft = left + profile, fillRight = right - profile;
@@ -905,7 +918,8 @@ body.dock-on #controls{
             leaves.push({n, actualGap, actualLama, span});
         }
         if (showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + ' mm', false, 3);
-        if (showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + ' mm', true, 3, '#1d4ed8', false, true);
+        if (showHeightCota) drawDimLineSVG(0, 0, 0, supportHeight, supportHeight + ' mm', true, 3, '#1d4ed8', false, true);
+        if (showFloorExtension) drawFloorExtensionNote(g, ancho, alto);
         if (showRedCota && leaves.length)
             drawDimLineSVG(post, alto, post + leafSpan, alto, Math.round(leafSpan) + ' mm', false, 4, '#ef4444', false, false, true);
         const first = leaves[0] || {n:0, actualGap:0, actualLama:0, span:0};
@@ -915,12 +929,13 @@ body.dock-on #controls{
         lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
         const utilEl = document.getElementById('altoUtillamas');
         if (document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
-        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}`;
+        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}${showFloorExtension ? ' | Laterales +50 mm' : ''}`;
     }
 
     function drawCierre() {
         let ancho = +document.getElementById("ancho").value;
-        let alto = +document.getElementById("alto").value;
+        // Alto introducido = altura TOTAL, incluida la pata cuando está activa.
+        let alto = +document.getElementById("alto").value - (showFloorExtension ? 50 : 0);
         const marco = +document.getElementById("marco").value, altoLamaInput = +document.getElementById("altoLama").value;
         const sep = +document.getElementById("sep").value;
         const cMarco = document.getElementById("colorMarcoPicker").value;
@@ -940,17 +955,18 @@ body.dock-on #controls{
                 if(document.activeElement !== document.getElementById("ancho")) document.getElementById("ancho").value = Math.round(adjustedSpan);
             } else {
                 alto = adjustedSpan;
-                if(document.activeElement !== document.getElementById("alto")) document.getElementById("alto").value = Math.round(adjustedSpan);
+                if(document.activeElement !== document.getElementById("alto")) document.getElementById("alto").value = Math.round(adjustedSpan + (showFloorExtension ? 50 : 0));
             }
         }
 
         const svg = document.getElementById("canvas");
         svg.innerHTML = '';
         const canvasW = 900, canvasH = 800, padding = 140;
-        scale = Math.min((canvasW - 2 * padding) / ancho, (canvasH - 2 * padding) / alto);
+        const visualHeight = alto + (showFloorExtension ? 50 : 0);
+        scale = Math.min((canvasW - 2 * padding) / ancho, (canvasH - 2 * padding) / visualHeight);
 
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        g.setAttribute("transform", `translate(${(canvasW - ancho * scale)/2}, ${(canvasH - alto * scale)/2}) scale(${scale})`);
+        g.setAttribute("transform", `translate(${(canvasW - ancho * scale)/2}, ${(canvasH - visualHeight * scale)/2}) scale(${scale})`);
         svg.appendChild(g);
 
         if (portalLeaves && !fenceMode) {
@@ -964,6 +980,10 @@ body.dock-on #controls{
             // El fondo interior se dibuja primero. Su contorno de contraste se añade
             // después de las lamas para que estas no lo tapen.
             g.appendChild(createRect(marco, marco, ancho - marco*2, alto - marco*2, "#fff", "none", 0));
+        }
+        if (showFloorExtension && showMarco && !fenceMode) {
+            g.appendChild(createRect(0, alto, marco, 50, cMarco, '#000', 0.5));
+            g.appendChild(createRect(ancho - marco, alto, marco, 50, cMarco, '#000', 0.5));
         }
 
         // Zona de reparto. En valla se usa toda la altura/anchura: hueco inicial y lama final sin hueco exterior superior.
@@ -1144,15 +1164,19 @@ body.dock-on #controls{
                 if(!postVertical) {
                     g.appendChild(createRect(fenceMode ? 0 : marco, position, fenceMode ? ancho : ancho-marco*2, actualPost, cMarco, "#000", 0.5));
                 } else {
-                    g.appendChild(createRect(position, fenceMode ? 0 : marco, actualPost, fenceMode ? alto : alto-marco*2, cMarco, "#000", 0.5));
+                    // En cierre atraviesa también el perfil inferior antes de
+                    // sobresalir los 50 mm por debajo del conjunto.
+                    const postHeight = (fenceMode ? alto : alto - marco * 2)
+                        + (showFloorExtension ? (fenceMode ? 50 : marco + 50) : 0);
+                    g.appendChild(createRect(position, fenceMode ? 0 : marco, actualPost, postHeight, cMarco, "#000", 0.5));
                 }
             }
         }
 
         // Perfiles laterales independientes en modo valla.
         if(fenceMode && fenceSides) {
-            g.appendChild(createRect(0, 0, marco, alto, cMarco, "#000", 0.5));
-            g.appendChild(createRect(ancho - marco, 0, marco, alto, cMarco, "#000", 0.5));
+            g.appendChild(createRect(0, 0, marco, alto + (showFloorExtension ? 50 : 0), cMarco, "#000", 0.5));
+            g.appendChild(createRect(ancho - marco, 0, marco, alto + (showFloorExtension ? 50 : 0), cMarco, "#000", 0.5));
 
             // Línea interior de contraste entre las lamas y cada lateral.
             // Se dibuja al final para que no quede tapada por las lamas.
@@ -1184,7 +1208,9 @@ body.dock-on #controls{
         }
 
         if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + " mm", false, 3);
-        if(showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + " mm", true, 3, "#1d4ed8", false, true);
+        if(showHeightCota) drawDimLineSVG(0, 0, 0, visualHeight, visualHeight + " mm", true, 3, "#1d4ed8", false, true);
+        if(showFloorExtension && ((!fenceMode && showMarco) || (fenceMode && fenceSides) || (posteCount > 0 && postVertical)))
+            drawFloorExtensionNote(g, ancho, alto);
         if(showRedCota && n > 0) {
             if(isVertical) drawDimLineSVG(fenceMode ? 0 : firstBayStart+esp, alto, (fenceMode ? 0 : firstBayStart+esp)+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
             else drawDimLineSVG(ancho, fenceMode ? 0 : firstBayStart+esp, ancho, (fenceMode ? 0 : firstBayStart+esp)+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
@@ -1194,7 +1220,7 @@ body.dock-on #controls{
             const green = "#16a34a";
             const extra = 35 / scale;
             const [from, to] = postBays[0];
-            if (postVertical) drawDimLineSVG(from, alto + extra, to, alto + extra, Math.round(to-from) + ' mm', false, 1, green, false, false, true);
+            if (postVertical) drawDimLineSVG(from, visualHeight + extra, to, visualHeight + extra, Math.round(to-from) + ' mm', false, 1, green, false, false, true);
             else drawDimLineSVG(ancho + extra, from, ancho + extra, to, Math.round(to-from) + ' mm', true, 1, green, true, true, true);
         }
 
@@ -1216,7 +1242,7 @@ body.dock-on #controls{
         }
 
         const tipo = fenceMode ? `Valla | Laterales: ${fenceSides ? 'Sí' : 'No'}` : 'Cierre';
-        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)`;
+        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)${showFloorExtension ? ' | Apoyos +50 mm' : ''}`;
     }
 
     // --- EVENTOS ---
@@ -1265,7 +1291,7 @@ body.dock-on #controls{
             document.getElementById("sep").value = gap;
 
             const totalUtil = (n * al) + ((n + 1) * gap);  // dentro del marco, con hueco arriba y abajo
-            const total = totalUtil + 2 * m;
+            const total = totalUtil + 2 * m + (showFloorExtension && !isVertical ? 50 : 0);
 
             if(isVertical) document.getElementById("ancho").value = Math.round(total);
             else document.getElementById("alto").value = Math.round(total);
@@ -1318,7 +1344,7 @@ body.dock-on #controls{
     });
 
     // --- BOTONES DE ACCIÓN ---
-const actionIds = ["toggleDistrMode", "toggleWidthCota", "toggleHeightCota", "toggleRedCota", "togglePostMeasures", "toggleMarco", "toggleOrientation", "toggleLarguero"];
+const actionIds = ["toggleDistrMode", "toggleWidthCota", "toggleHeightCota", "toggleRedCota", "togglePostMeasures", "toggleMarco", "toggleOrientation", "toggleLarguero", "toggleFloorExtension"];
 actionIds.forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
@@ -1356,6 +1382,7 @@ actionIds.forEach(id => {
         if(id === "toggleHeightCota") showHeightCota = !showHeightCota;
         if(id === "toggleRedCota") showRedCota = !showRedCota;
         if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; }
+        if(id === "toggleFloorExtension") showFloorExtension = !showFloorExtension;
         if(id === "toggleMarco") showMarco = !showMarco;
         if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); }
         if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
@@ -1460,9 +1487,10 @@ function updateFenceBtn(){
             : (isLamaMode ? 'Variar lamas' : 'Variar huecos');
     }
     if(btnFenceSides) {
+        btnFenceSides.hidden = !fenceMode;
         btnFenceSides.disabled = !fenceMode;
         btnFenceSides.classList.toggle('active', fenceMode && fenceSides);
-        btnFenceSides.textContent = `Laterales: ${fenceSides ? 'ON' : 'OFF'}`;
+        btnFenceSides.textContent = `Laterales valla: ${fenceSides ? 'ON' : 'OFF'}`;
     }
     if(btnMarco) btnMarco.disabled = fenceMode || portalLeaves > 0;
 }
