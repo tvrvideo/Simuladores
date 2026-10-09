@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.7</title>
+  <title>Cierre v3.7.11</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -66,7 +66,7 @@
         gap: 10px;
         text-align: center;
     }
-    #portalProfileGroup[hidden]{display:none;}
+    #portalProfileGroup[hidden], #postThicknessGroup[hidden]{display:none;}
     
     label {
         font-size: 14px;
@@ -460,7 +460,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.7</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.11</span></h1>
 </div>
 
 <form id="form">
@@ -480,6 +480,10 @@ body.dock-on #controls{
     <div class="dimensions-group" id="portalProfileGroup" hidden>
         <label for="perfilHoja">Hojas (mm)</label>
         <input type="number" id="perfilHoja" min="1" value="50" inputmode="numeric">
+    </div>
+    <div class="dimensions-group" id="postThicknessGroup">
+        <label for="grosorPostes">Grosor postes (mm)</label>
+        <input type="number" id="grosorPostes" min="1" value="50" inputmode="numeric">
     </div>
 
     <div class="color-row">
@@ -540,7 +544,7 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
         <button type="button" class="action-button" id="toggleMarco">Marco</button>
         <button type="button" class="action-button" id="toggleOrientation">Horizontal / vertical</button>
-        <button type="button" class="action-button" id="toggleLarguero">Larguero</button>
+        <button type="button" class="action-button" id="toggleLarguero">Postes: verticales</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
         <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
             <button type="button" class="action-button" id="btnFence">Modo valla</button>
@@ -575,7 +579,11 @@ body.dock-on #controls{
 <script>
     // --- LÓGICA COMPLETA ---
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
-    let showLarguero = false, posteCount = 0, fenceMode = false, fenceSides = true, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = true, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
+    function postsAreVertical(){ return postDirectionOverride === null ? !isVertical : postDirectionOverride; }
+    function updatePostDirectionButton(){
+        document.getElementById('toggleLarguero').textContent = `Postes: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
+    }
     let portalLeaves = 0, portalHinge = 'left', portalFirst = 'right';
     // Guarda los valores anteriores al activar el modo alternativo de reparto.
     // Al volver a desactivarlo, la app recupera exactamente el estado inicial.
@@ -981,7 +989,8 @@ body.dock-on #controls{
             } else if (isLamaMode) {
                 n = Math.round(areaUtil / (altoLamaInput + sep));
                 if (n > 0) nuevoAL = (areaUtil - (n+1)*sep) / n;
-                if(!updatingFromDraw) document.getElementById("altoLama").value = Math.round(nuevoAL);
+                if(!updatingFromDraw && !(posteCount > 0 && !fenceMode && postsAreVertical() === isVertical))
+                    document.getElementById("altoLama").value = Math.round(nuevoAL);
                 esp = sep;
             } else {
                 n = Math.floor(areaUtil / (altoLamaInput + sep));
@@ -995,6 +1004,78 @@ body.dock-on #controls{
         const lamaY = fenceMode && fenceSides && isVertical ? 0 : (fenceMode ? 0 : marco);
         const lamaH = fenceMode ? alto : alto - marco*2;
         const startBase = fenceMode ? 0 : marco;
+        const splitWithPosts = posteCount > 0 && !fenceMode;
+        const parallelPosts = postsAreVertical() === isVertical;
+        let firstBayStart = startBase;
+        let firstBayUseful = 0;
+        const postBays = [];
+        const postPositions = [];
+        const postVertical = postsAreVertical();
+        const requestedPost = +document.getElementById('grosorPostes').value;
+        let actualPost = Number.isFinite(requestedPost) && requestedPost > 0 ? requestedPost : 50;
+        if (posteCount > 0) {
+            const axisStart = postVertical ? (fenceMode && !fenceSides ? 0 : marco) : (fenceMode ? 0 : marco);
+            const axisEnd = postVertical ? (fenceMode && !fenceSides ? ancho : ancho - marco) : (fenceMode ? alto : alto - marco);
+            const available = Math.max(0, axisEnd - axisStart);
+            actualPost = Math.min(actualPost, available / posteCount);
+            const clearGap = (available - posteCount * actualPost) / (posteCount + 1);
+            for (let k = 0; k <= posteCount; k++) {
+                const bayStart = axisStart + k * (clearGap + actualPost);
+                postBays.push([bayStart, bayStart + clearGap]);
+                if (k < posteCount) postPositions.push(bayStart + clearGap);
+            }
+        }
+        const wholeN = n, wholeEsp = esp, wholeAL = nuevoAL;
+
+        // Cada espacio libre entre postes recibe sus propias lamas. Así los
+        // postes paralelos reparten de nuevo el hueco y los perpendiculares
+        // cortan cada lama en piezas independientes.
+        if (splitWithPosts) {
+            const bays = postBays;
+            const separatorColor = getContrastColor(cLama);
+            let totalPieces = 0, firstResult = null;
+            for (const [bayStart, bayEnd] of bays) {
+                const length = bayEnd - bayStart;
+                let count = n, gap = esp, blade = nuevoAL;
+                if (parallelPosts) {
+                    if (isLamaMode) {
+                        count = Math.max(0, Math.round(length / (altoLamaInput + sep)));
+                        gap = sep;
+                        blade = count ? (length - (count + 1) * gap) / count : 0;
+                        if (blade <= 0) count = 0;
+                    } else {
+                        count = altoLamaInput > 0 ? Math.max(0, Math.floor(length / (altoLamaInput + sep))) : 0;
+                        if (!count && length >= altoLamaInput && altoLamaInput > 0) count = 1;
+                        blade = altoLamaInput;
+                        gap = count ? Math.max(0, (length - count * blade) / (count + 1)) : 0;
+                    }
+                }
+                if (!firstResult) firstResult = {count, gap, blade, start:bayStart};
+                totalPieces += count;
+                for (let i = 0; i < count; i++) {
+                    const position = (parallelPosts ? bayStart : startBase) + gap + i * (blade + gap);
+                    if (isVertical) {
+                        g.appendChild(createRect(position, parallelPosts ? marco : bayStart,
+                            blade, parallelPosts ? alto - 2 * marco : length, cLama, '#000', 0.5));
+                        if (i > 0 && Math.abs(gap) < 0.01)
+                            g.appendChild(createLine(position, parallelPosts ? marco : bayStart,
+                                position, parallelPosts ? alto - marco : bayEnd, separatorColor, 1.5));
+                    } else {
+                        g.appendChild(createRect(parallelPosts ? marco : bayStart, position,
+                            parallelPosts ? ancho - 2 * marco : length, blade, cLama, '#000', 0.5));
+                        if (i > 0 && Math.abs(gap) < 0.01)
+                            g.appendChild(createLine(parallelPosts ? marco : bayStart, position,
+                                parallelPosts ? ancho - marco : bayEnd, position, separatorColor, 1.5));
+                    }
+                }
+            }
+            n = totalPieces;
+            if (firstResult) {
+                esp = firstResult.gap; nuevoAL = firstResult.blade;
+                firstBayStart = firstResult.start;
+                firstBayUseful = firstResult.count * firstResult.blade + Math.max(0, firstResult.count - 1) * firstResult.gap;
+            }
+        } else {
 
         for(let i=0; i<n; i++) {
             let pos;
@@ -1010,10 +1091,11 @@ body.dock-on #controls{
             if(isVertical) g.appendChild(createRect(pos, lamaY, nuevoAL, lamaH, cLama, "#000", 0.5));
             else g.appendChild(createRect(lamaX, pos, lamaW, nuevoAL, cLama, "#000", 0.5));
         }
+        }
 
         // Cuando el hueco real es cero, dibujamos separadores de contraste
         // tanto en cierre con marco como en modo valla.
-        if(n > 1 && Math.abs(esp) < 0.01) {
+        if(!splitWithPosts && n > 1 && Math.abs(esp) < 0.01) {
             const separatorColor = getContrastColor(cLama);
             const separatorWidth = 1.5;
 
@@ -1056,27 +1138,13 @@ body.dock-on #controls{
             }
         }
 
-        if(showLarguero && ancho > 1000 && !fenceMode) {
-            g.appendChild(createRect(ancho/2 - marco, 0, marco, alto, cMarco, "#fff", 0.5));
-            g.appendChild(createRect(ancho/2 + 5, 0, marco, alto, cMarco, "#fff", 0.5));
-        }
-
         // Postes interiores: en valla recorren toda la altura, incluido el hueco inferior.
         if(posteCount > 0) {
-            const leftLimit = fenceMode && fenceSides ? marco : (fenceMode ? 0 : marco);
-            const rightLimit = fenceMode && fenceSides ? ancho - marco : (fenceMode ? ancho : ancho - marco);
-            const spanX = Math.max(0, rightLimit - leftLimit);
-            const spanY = Math.max(0, alto - (fenceMode ? 0 : marco*2));
-
-            for(let k = 1; k <= posteCount; k++) {
-                if(isVertical) {
-                    const y = fenceMode
-                        ? (k * alto / (posteCount + 1) - marco/2)
-                        : (marco + k * spanY / (posteCount + 1) - marco/2);
-                    g.appendChild(createRect(fenceMode ? 0 : marco, y, fenceMode ? ancho : ancho-marco*2, marco, cMarco, "#000", 0.5));
+            for(const position of postPositions) {
+                if(!postVertical) {
+                    g.appendChild(createRect(fenceMode ? 0 : marco, position, fenceMode ? ancho : ancho-marco*2, actualPost, cMarco, "#000", 0.5));
                 } else {
-                    const x = leftLimit + k * spanX / (posteCount + 1) - marco/2;
-                    g.appendChild(createRect(x, fenceMode ? 0 : marco, marco, fenceMode ? alto : alto-marco*2, cMarco, "#000", 0.5));
+                    g.appendChild(createRect(position, fenceMode ? 0 : marco, actualPost, fenceMode ? alto : alto-marco*2, cMarco, "#000", 0.5));
                 }
             }
         }
@@ -1102,7 +1170,9 @@ body.dock-on #controls{
             ));
         }
 
-        const cotaUtil = fenceMode ? areaUtil : (n * nuevoAL + Math.max(0, n-1)*esp);
+        const cotaUtil = fenceMode ? areaUtil : (splitWithPosts
+            ? (parallelPosts ? firstBayUseful : wholeN * wholeAL + Math.max(0, wholeN - 1) * wholeEsp)
+            : n * nuevoAL + Math.max(0, n-1)*esp);
         lastComputedN = n;
         lastComputedAL = nuevoAL;
         lastComputedEsp = esp;
@@ -1116,27 +1186,16 @@ body.dock-on #controls{
         if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + " mm", false, 3);
         if(showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + " mm", true, 3, "#1d4ed8", false, true);
         if(showRedCota && n > 0) {
-            if(isVertical) drawDimLineSVG(fenceMode ? 0 : marco+esp, alto, (fenceMode ? 0 : marco+esp)+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
-            else drawDimLineSVG(ancho, fenceMode ? 0 : marco+esp, ancho, (fenceMode ? 0 : marco+esp)+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
+            if(isVertical) drawDimLineSVG(fenceMode ? 0 : firstBayStart+esp, alto, (fenceMode ? 0 : firstBayStart+esp)+cotaUtil, alto, Math.round(cotaUtil)+" mm", false, 4, "#ef4444", false, false, true);
+            else drawDimLineSVG(ancho, fenceMode ? 0 : firstBayStart+esp, ancho, (fenceMode ? 0 : firstBayStart+esp)+cotaUtil, Math.round(cotaUtil)+" mm", true, 4, "#ef4444", true, true);
         }
 
-        if (showPostMeasures) {
+        if (showPostMeasures && posteCount > 0 && postBays.length) {
             const green = "#16a34a";
             const extra = 35 / scale;
-            const segments = Math.max(1, posteCount + 1);
-            if (!isVertical) {
-                const yBase = alto + extra;
-                for (let i = 0; i < segments; i++) {
-                    const x1 = (i * ancho) / segments, x2 = ((i + 1) * ancho) / segments;
-                    drawDimLineSVG(x1, yBase, x2, yBase, (i === 0 ? (Math.round(x2-x1) + " mm") : ""), false, 1, green, false, false, true);
-                }
-            } else {
-                const xBase = ancho + extra;
-                for (let i = 0; i < segments; i++) {
-                    const y1 = (i * alto) / segments, y2 = ((i + 1) * alto) / segments;
-                    drawDimLineSVG(xBase, y1, xBase, y2, (i === 0 ? (Math.round(y2-y1) + " mm") : ""), true, 1, green, true, true, true);
-                }
-            }
+            const [from, to] = postBays[0];
+            if (postVertical) drawDimLineSVG(from, alto + extra, to, alto + extra, Math.round(to-from) + ' mm', false, 1, green, false, false, true);
+            else drawDimLineSVG(ancho + extra, from, ancho + extra, to, Math.round(to-from) + ' mm', true, 1, green, true, true, true);
         }
 
         const utilInputEl = document.getElementById("altoUtillamas");
@@ -1157,7 +1216,7 @@ body.dock-on #controls{
         }
 
         const tipo = fenceMode ? `Valla | Laterales: ${fenceSides ? 'Sí' : 'No'}` : 'Cierre';
-        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount}`;
+        document.getElementById("stats").textContent = `${tipo} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)`;
     }
 
     // --- EVENTOS ---
@@ -1298,12 +1357,13 @@ actionIds.forEach(id => {
         if(id === "toggleRedCota") showRedCota = !showRedCota;
         if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; }
         if(id === "toggleMarco") showMarco = !showMarco;
-        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; }
-        if(id === "toggleLarguero") showLarguero = !showLarguero;
-        e.target.classList.toggle("active");
+        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); }
+        if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
+        if(id !== "toggleLarguero") e.target.classList.toggle("active");
         drawCierre();
     });
 });
+updatePostDirectionButton();
 
 // --- TAP SEGURO (evita doble disparo touch/click en iOS) ---
 function bindTap(el, handler){
@@ -1358,6 +1418,7 @@ function updatePortalControls(){
     first.textContent = `Abre primero: ${portalFirst === 'right' ? 'derecha' : 'izquierda'}`;
     document.getElementById('labelMarco').textContent = 'Marco';
     document.getElementById('portalProfileGroup').hidden = portalLeaves === 0 || fenceMode;
+    document.getElementById('postThicknessGroup').hidden = portalLeaves > 0 && !fenceMode;
     const utilSection = document.getElementById('utilSection');
     utilSection.hidden = portalLeaves > 0 && !fenceMode;
     for (const id of ['toggleLarguero', 'toggleMarco', 'btnPostePlus', 'btnPosteMinus', 'togglePostMeasures']) {
