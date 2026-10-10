@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.27</title>
+  <title>Cierre v3.7.28</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -478,7 +478,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.27</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.28</span></h1>
 </div>
 
 <form id="form">
@@ -561,7 +561,6 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="toggleRedCota">Cota roja</button>
         <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
         <button type="button" class="action-button" id="toggleMarco">Marco</button>
-        <button type="button" class="action-button active" id="btnClosureSides" hidden>Laterales cierre: ON</button>
         <button type="button" class="action-button" id="toggleOrientation">Horizontal / vertical</button>
         <button type="button" class="action-button" id="toggleLarguero">Postes: verticales</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
@@ -609,10 +608,13 @@ body.dock-on #controls{
     let showWidthCota = true, showHeightCota = true, showRedCota = false, showPostMeasures = false, showMarco = true, isVertical = false, isLamaMode = false;
     let postDirectionOverride = null, posteCount = 0, fenceMode = false, fenceSides = false, closureSides = true, showFloorExtension = false, originalAltoLama = 200, updatingFromDraw = false, scale = 1;
     function updateClosureSidesButton(){
-        const btn = document.getElementById('btnClosureSides');
-        btn.hidden = fenceMode || portalLeaves > 0 || !isVertical;
-        btn.classList.toggle('active', closureSides);
-        btn.textContent = `Laterales cierre: ${closureSides ? 'ON' : 'OFF'}`;
+        // El botón Marco controla los laterales en cierre vertical.
+        const marcoBtn = document.getElementById('toggleMarco');
+        if(!marcoBtn) return;
+        const verticalClosure = isVertical && !fenceMode && portalLeaves === 0;
+        if(verticalClosure) showMarco = true;
+        marcoBtn.textContent = verticalClosure ? `Laterales: ${closureSides ? 'ON' : 'OFF'}` : 'Marco';
+        marcoBtn.classList.toggle('active', verticalClosure ? closureSides : showMarco);
     }
     function postsAreVertical(){ return postDirectionOverride === null ? !isVertical : postDirectionOverride; }
     function updatePostDirectionButton(){
@@ -1428,20 +1430,19 @@ actionIds.forEach(id => {
         if(id === "toggleRedCota") showRedCota = !showRedCota;
         if(id === "togglePostMeasures") { showPostMeasures = !showPostMeasures; }
         if(id === "toggleFloorExtension") showFloorExtension = !showFloorExtension;
-        if(id === "toggleMarco") showMarco = !showMarco;
+        if(id === "toggleMarco") {
+            if(isVertical && !fenceMode && portalLeaves === 0) closureSides = !closureSides;
+            else showMarco = !showMarco;
+            updateClosureSidesButton();
+        }
         if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); updateClosureSidesButton(); }
         if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
-        if(id !== "toggleLarguero") e.target.classList.toggle("active");
+        if(id !== "toggleLarguero" && id !== "toggleMarco" && id !== "toggleOrientation") e.target.classList.toggle("active");
         drawCierre();
     });
 });
 updatePostDirectionButton();
 updateClosureSidesButton();
-document.getElementById('btnClosureSides').addEventListener('click', () => {
-    closureSides = !closureSides;
-    updateClosureSidesButton();
-    drawCierre();
-});
 
 // --- TAP SEGURO (evita doble disparo touch/click en iOS) ---
 function bindTap(el, handler){
