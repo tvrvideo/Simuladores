@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pasamanos v1.9</title>
+<title>Pasamanos v1.13</title>
 <style>
 :root{--bg:#eef2f5;--card:#fff;--ink:#111827;--muted:#667085;--red:#a40000;--gold:#ffe66b;--green:#009d38;--green2:#20ef29;--blue:#e8eef5;--line:#d9e2ec;--edit:#fff4a8;--edit2:#fff9cf}*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}header{position:sticky;top:0;z-index:10;background:#111;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:18px;margin:0}.ver{font-weight:950;background:#2b3842;border-radius:8px;padding:6px 10px}.wrap{width:100%;max-width:980px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.title{font-size:18px;font-weight:950;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;margin:6px 0}.hint{font-size:12px;color:#667085;font-weight:850;margin-top:8px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd5df;border-radius:12px;padding:11px;font-size:20px;font-weight:950;background:#fff;color:#111}.dato input,.dato select{background:var(--edit);border-color:#e0c94d;box-shadow:inset 0 0 0 1px #fff6}.dato input:focus,.dato select:focus{outline:3px solid #ffe16a;background:#fff7bd}.autoBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.autoBox .dato input{background:#fffbe2}button{border:0;border-radius:13px;padding:13px 14px;font-size:16px;font-weight:950;background:#1f2937;color:#fff}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns button{flex:1;min-width:135px}.ok{background:var(--green)}.warn{background:#ffca28;color:#111}.light{background:#e8eef5;color:#111}.danger{background:#b00020}.mini{font-size:13px;padding:8px 10px}.switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.switch button{background:#e8eef5;color:#111}.switch button.active{background:#111;color:white}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.checkrow{display:flex;align-items:center;gap:9px;background:#f3f6f9;border-radius:12px;padding:12px;font-weight:950}.checkrow input{width:24px;height:24px;accent-color:#111}.hidden{display:none}.canvasBox{overflow:hidden}.svgWrap{width:100%;max-width:900px;margin:auto;overflow:hidden;display:flex;justify-content:center;align-items:center;background:white;border:1px solid #dfe6ee;border-radius:14px}#svgWrap svg{width:100%;height:auto;display:block}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}@media(min-width:760px){.result{grid-template-columns:repeat(5,1fr)}}.kpi{background:#eef6ea;border:1px solid #d8ead2;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:12px;color:#4d5b68}.kpi span{font-size:22px;font-weight:950}.total{background:var(--green2)}.mid{background:#fff3bd}.bad{background:#ffd1d1}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tag{font-size:14px;font-weight:950;padding:9px 11px;border-radius:10px}.lg70{background:#bbb}.lg30{background:#8fb3e8}.lgova{background:#555;color:#fff}.lgpas{background:#ddd}.lganc{background:#f5d56a}
 .fabricacion{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.fabBox{border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;padding:10px}.fabBox b{display:block;color:#667085;font-size:12px}.fabBox span{display:block;font-size:22px;font-weight:950}.fabTitle{font-size:18px;font-weight:950;margin:10px 0 8px}.markNote{font-size:13px;color:#667085;font-weight:850;margin:6px 0 10px}.marktable th{font-size:13px}.marktable td{font-size:15px}.marktable .num{background:#eaf7ff}.marktable .cen{background:#fff3bd}.marktable .edge{background:#d8ffff}@media(min-width:760px){.fabricacion{grid-template-columns:repeat(6,1fr)}}
@@ -100,7 +100,7 @@ body.fromDocs{padding-bottom:72px;}
 </style>
 </head>
 <body>
-<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.12</span></div></header>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.13</span></div></header>
 <div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
 
 <div class="wrap">
@@ -158,13 +158,10 @@ body.fromDocs{padding-bottom:72px;}
       <div><label>Laterales (mm, solo texto)</label><input id="lateralesPresupuesto" type="number" inputmode="numeric" value="700"></div>
     </div>
     <label for="textoPlantilla" style="margin-top:10px">Plantilla editable</label>
-    <textarea id="textoPlantilla" style="min-height:175px">BALCÓN DE ALUMINIO CON TUBOS VERTICALES OVALADOS
+    <textarea id="textoPlantilla" style="min-height:120px">PASAMANOS DE ALUMINIO CON TUBOS OVALADOS
 COLOR: LACADO BLANCO
-FRONTAL: {frontal} mm
-LATERALES: {laterales} mm
-ALTURA: {altura} mm
-TORNILLERÍA DE ACERO INOXIDABLE</textarea>
-    <div class="hint">{frontal} y {altura} toman las medidas del diseño. {laterales} toma el valor de este ajuste.</div>
+ANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°</textarea>
+    <div class="hint">{ancho}, {alto} y {pendiente} toman las medidas del diseño. También puedes editar la plantilla.</div>
   </details>
   <div class="btns"><button class="ok" id="guardar">Guardar</button><button class="danger" id="reset">Reset</button></div>
 </section>
@@ -216,6 +213,8 @@ function save(){let data={tipo,autoOvalados,autoInter};ids.forEach(id=>{data[id]
   if(autoOvalados)data.ovaladosManual='0';
   if(autoInter)data.interManual='0';localStorage.setItem('pasamanos_v16',JSON.stringify(data))}
 function load(){try{let d=JSON.parse(localStorage.getItem('pasamanos_v16')||'{}');if(d.tipo)tipo=d.tipo;ids.forEach(id=>{if(id==='ovaladosManual'||id==='interManual')return;if(d[id]!=null && $(id))$(id).value=d[id]});
+  const oldDefault='BALCÓN DE ALUMINIO CON TUBOS VERTICALES OVALADOS\nCOLOR: LACADO BLANCO\nFRONTAL: {frontal} mm\nLATERALES: {laterales} mm\nALTURA: {altura} mm\nTORNILLERÍA DE ACERO INOXIDABLE';
+  if(String(d.textoPlantilla || '').trim() === oldDefault) $('textoPlantilla').value='PASAMANOS DE ALUMINIO CON TUBOS OVALADOS\nCOLOR: LACADO BLANCO\nANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°';
   // Al abrir una versión nueva siempre arranca en automático.
   // Así no arrastra ovalados/intermedios de pruebas anteriores.
   if($('ovaladosManual'))$('ovaladosManual').value='0';
@@ -460,9 +459,12 @@ function renderTexto(c){
   const medidas = {
     frontal: String(Math.round(c.largo)),
     laterales: String(Math.round(val('lateralesPresupuesto'))),
-    altura: String(Math.round(val('alto')))
+    altura: String(Math.round(val('alto'))),
+    ancho: String(Math.round(c.largo)),
+    alto: String(Math.round(c.alto70)),
+    pendiente: String(Math.round(c.grados * 10) / 10).replace('.', ',')
   };
-  $('texto').value = plantilla.replace(/\{(frontal|laterales|altura)\}/gi, function(_, key){ return medidas[key.toLowerCase()]; });
+  $('texto').value = plantilla.replace(/\{(frontal|laterales|altura|ancho|alto|pendiente)\}/gi, function(_, key){ return medidas[key.toLowerCase()]; });
 }
 
 function budgetGraphicMode(){

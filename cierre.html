@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.16</title>
+  <title>Cierre v3.7.27</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -325,6 +325,20 @@
       width: 100%;
       max-width: 600px;
     }
+    #dockActionRow{
+      display:flex;
+      gap:8px;
+      width:100%;
+      max-width:600px;
+      box-sizing:border-box;
+    }
+    #dockActionRow .action-button{
+      flex:1 1 0;
+      min-width:0;
+      min-height:42px;
+      font-size:12px;
+      padding:7px 8px;
+    }
 
 
 /* Versión en el título (más pequeña) */
@@ -384,15 +398,15 @@ body.dock-on #scrollArea{
 
 /* zona inferior (dibujo) */
 body.dock-on #dockArea{
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   height: var(--dock-height);
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 10px 15px 15px;
+  overflow: hidden;
+  padding: 8px 15px max(8px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   background: #FDFDFB;
   border-top: 1px solid rgba(0,0,0,0.12);
@@ -400,7 +414,11 @@ body.dock-on #dockArea{
   z-index: 5000; /* por debajo del menú */
 }
 body.dock-on #dockArea #preview{ width: 100%; }
-body.dock-on #dockArea #preview-inner{ max-width: 600px; margin: 0 auto; }
+body.dock-on #dockArea #preview{ flex:1; min-height:0; }
+body.dock-on #dockArea #preview-inner{ max-width:600px; height:100%; margin:0 auto; gap:6px; }
+body.dock-on #dockArea #preview svg{ flex:1 1 0; min-height:0; max-height:none; height:100%; }
+body.dock-on #dockArea #preview .stats{ flex:0 0 auto; padding:5px 8px; font-size:12px; line-height:1.15; }
+body.dock-on #dockActionRow{ flex:0 0 auto; }
 
 /* Export: overlay para que no haya que hacer scroll */
 #vista-exportar{
@@ -460,7 +478,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.16</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.27</span></h1>
 </div>
 
 <form id="form">
@@ -489,11 +507,11 @@ body.dock-on #controls{
     <div class="color-row">
         <div class="color-picker-button" id="btnMarcoWrapper">
             Color Marco <br>
-            <input type="color" id="colorMarcoPicker" value="#4b5563">
+            <input type="color" id="colorMarcoPicker" value="#44322d">
         </div>
         <div class="color-picker-button" id="btnLamaWrapper">
             Color Lama <br>
-            <input type="color" id="colorLamaPicker" value="#4b5563">
+            <input type="color" id="colorLamaPicker" value="#44322d">
         </div>
         <div class="color-picker-button" id="btnAperturaWrapper">
             Color Apertura <br>
@@ -551,7 +569,12 @@ body.dock-on #controls{
         <button type="button" class="action-button" id="toggleFloorExtension">+50 mm al suelo</button>
             <button type="button" class="action-button" id="btnFence">Modo valla</button>
     </div>
-        <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
+        <div id="cierreBudgetTextSection" hidden style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;box-sizing:border-box">
+          <label for="cierreBudgetTemplate" style="display:block;font-weight:800;margin-bottom:7px">Texto predeterminado del concepto</label>
+          <textarea id="cierreBudgetTemplate" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid #94a3b8;border-radius:7px"></textarea>
+          <small style="display:block;margin:6px 0">Puedes cambiar el texto. {ancho}, {alto}, {lama}, {separacion}, {color}, {orientacion}, {hojas} y {apertura} se rellenan con el diseño.</small>
+          <div id="cierreBudgetPreview" style="white-space:pre-wrap;font-size:13px;padding:8px;background:white;border-radius:6px"></div>
+        </div>
 
 </form>
 </div></div>
@@ -561,6 +584,10 @@ body.dock-on #controls{
 
 <svg id="canvas" viewBox="0 0 900 800"></svg>
 <div class="stats" id="stats"></div>
+<div id="dockActionRow">
+  <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
+  <button type="button" class="action-button" id="btnAddDocsCierre" hidden style="background:#2563eb;color:#fff;font-weight:900">Volver a Documentos</button>
+</div>
 </div></div>
 
 <div id="controls">
@@ -917,9 +944,16 @@ body.dock-on #controls{
             // esquinas del lado de bisagras al centro del lado de cierre.
             const hingeLineX = hingeLeft ? fillLeft : fillRight;
             const closingLineX = hingeLeft ? fillRight : fillLeft;
-            const openingPoints = `${hingeLineX},${fillTop} ${closingLineX},${alto / 2} ${hingeLineX},${fillBottom} ${hingeLineX},${fillTop}`;
+            const openingPoints = `${hingeLineX},${fillTop} ${closingLineX},${alto / 2} ${hingeLineX},${fillBottom}`;
+            const outline = createPoly(openingPoints, '#ffffff');
+            outline.setAttribute('stroke-width', 6 / scale);
+            outline.setAttribute('stroke-linecap', 'round');
+            outline.setAttribute('stroke-linejoin', 'round');
+            g.appendChild(outline);
             const symbol = createPoly(openingPoints, openingColor);
-            symbol.setAttribute('stroke-width', 1.5 / scale);
+            symbol.setAttribute('stroke-width', 3 / scale);
+            symbol.setAttribute('stroke-linecap', 'round');
+            symbol.setAttribute('stroke-linejoin', 'round');
             g.appendChild(symbol);
             leaves.push({n, actualGap, actualLama, span});
         }
@@ -1558,6 +1592,239 @@ updatePortalControls();
             alert('No se pudo generar la imagen.');
         };
         img.src = url;
+    }
+
+    function cierreBudgetMode(){
+        try{ return new URLSearchParams(location.search || '').get('from_budget') === '1'; }catch(_){ return false; }
+    }
+    function cierreCatalogMode(){
+        try{ return new URLSearchParams(location.search || '').get('from') === 'documentos'; }catch(_){ return false; }
+    }
+    function cierreTargetIndex(){
+        try{
+            const t = new URLSearchParams(location.search || '').get('target');
+            if(t !== null && /^\d+$/.test(t)) return Number(t);
+        }catch(_){}
+        try{
+            const t = sessionStorage.getItem('presupuesto_visual_design_target_index_v1') || localStorage.getItem('presupuesto_visual_design_target_index_v1');
+            if(t != null && /^\d+$/.test(t)) return Number(t);
+        }catch(_){}
+        return null;
+    }
+    function cierreReturnFile(){
+        try{
+            const file = new URLSearchParams(location.search || '').get('return_to');
+            if(file && /^documentos(?:_v[0-9.]+|\([0-9-]+\))?\.html$/i.test(file)) return file;
+        }catch(_){}
+        return 'documentos.html';
+    }
+    function cierrePngDataUrl(scale){
+        scale = scale || 2;
+        return new Promise(function(resolve, reject){
+            const svg = document.getElementById('canvas');
+            if(!svg) return reject(new Error('No se encontró el gráfico'));
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const url = URL.createObjectURL(new Blob([svgData], {type:'image/svg+xml;charset=utf-8'}));
+            const img = new Image();
+            img.onload = function(){
+                try{
+                    const full = document.createElement('canvas');
+                    full.width = 900;
+                    full.height = 800;
+                    const fullCtx = full.getContext('2d');
+                    fullCtx.fillStyle = '#ffffff';
+                    fullCtx.fillRect(0, 0, full.width, full.height);
+                    fullCtx.drawImage(img, 0, 0, full.width, full.height);
+                    let x0 = 0, y0 = 0, w = full.width, h = full.height;
+                    try{
+                        const pixels = fullCtx.getImageData(0, 0, w, h).data;
+                        let left = w, top = h, right = -1, bottom = -1;
+                        for(let y = 0; y < h; y++) for(let x = 0; x < w; x++){
+                            const p = (y * w + x) * 4;
+                            if(pixels[p] < 240 || pixels[p + 1] < 240 || pixels[p + 2] < 240){
+                                if(x < left) left = x;
+                                if(x > right) right = x;
+                                if(y < top) top = y;
+                                if(y > bottom) bottom = y;
+                            }
+                        }
+                        if(right >= left && bottom >= top){
+                            const margin = 16;
+                            x0 = Math.max(0, left - margin);
+                            y0 = Math.max(0, top - margin);
+                            w = Math.min(full.width, right + margin + 1) - x0;
+                            h = Math.min(full.height, bottom + margin + 1) - y0;
+                        }
+                    }catch(_){ /* Si no se puede leer el lienzo, conservar el gráfico completo. */ }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w * scale;
+                    canvas.height = h * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(full, x0, y0, w, h, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/png'));
+                }catch(e){ reject(e); }
+                finally{ URL.revokeObjectURL(url); }
+            };
+            img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('No se pudo generar la imagen')); };
+            img.src = url;
+        });
+    }
+    const CIERRE_TEXT_TEMPLATE_KEY = 'cierre_docs_text_template_v1';
+    const VALLA_TEXT_TEMPLATE_KEY = 'valla_docs_text_template_v1';
+    const PORTAL_1_TEXT_TEMPLATE_KEY = 'portal_1_docs_text_template_v1';
+    const PORTAL_2_TEXT_TEMPLATE_KEY = 'portal_2_docs_text_template_v1';
+    const CIERRE_RETURN_KEY = 'rey_docs_cierre_text_return_v2';
+    const CIERRE_DEFAULT_TEMPLATE = 'CIERRE DE ALUMINIO CON LAMAS {orientacion} DE {lama} mm\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} mm\nSEPARACIÓN ENTRE LAMAS {separacion} mm';
+    const VALLA_DEFAULT_TEMPLATE = CIERRE_DEFAULT_TEMPLATE.replace(/^CIERRE/, 'VALLA');
+    const PORTAL_OLD_DEFAULT_TEMPLATE = 'PORTAL DE ALUMINIO CON LAMAS {orientacion}\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} mm\n{hojas}\nSEPARACIÓN ENTRE LAMAS: {separacion} mm';
+    const PORTAL_DEFAULT_TEMPLATE = 'PORTAL DE ALUMINIO {hojas} CON LAMAS {orientacion} DE {lama} mm\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} - ENTRE LAMAS: {separacion} mm';
+    const PORTAL_1_DEFAULT_TEMPLATE = PORTAL_DEFAULT_TEMPLATE + '\nAPERTURA: {apertura}';
+    const cierreTemplateInput = document.getElementById('cierreBudgetTemplate');
+    let currentBudgetTemplateMode = null;
+    function budgetTemplateMode(){ return portalLeaves === 1 ? 'portal_1' : portalLeaves === 2 ? 'portal_2' : fenceMode ? 'valla' : 'cierre'; }
+    function budgetTemplateKey(mode){
+        return mode === 'valla' ? VALLA_TEXT_TEMPLATE_KEY : mode === 'portal_1' ? PORTAL_1_TEXT_TEMPLATE_KEY : mode === 'portal_2' ? PORTAL_2_TEXT_TEMPLATE_KEY : CIERRE_TEXT_TEMPLATE_KEY;
+    }
+    function loadBudgetTemplate(mode){
+        const fallback = mode === 'valla' ? VALLA_DEFAULT_TEMPLATE : mode === 'portal_1' ? PORTAL_1_DEFAULT_TEMPLATE : mode === 'portal_2' ? PORTAL_DEFAULT_TEMPLATE : CIERRE_DEFAULT_TEMPLATE;
+        try{
+            const saved = localStorage.getItem(budgetTemplateKey(mode));
+            cierreTemplateInput.value = mode.startsWith('portal_') && (saved === PORTAL_OLD_DEFAULT_TEMPLATE || (mode === 'portal_1' && saved === PORTAL_DEFAULT_TEMPLATE)) ? fallback : (saved || fallback);
+        }
+        catch(_){ cierreTemplateInput.value = fallback; }
+    }
+    function cierreNumber(value){
+        return Number.isFinite(Number(value)) ? String(Math.round(Number(value))) : '';
+    }
+    function cierreColorText(){
+        const marco = document.getElementById('colorMarcoPicker').value.toLowerCase();
+        const lama = document.getElementById('colorLamaPicker').value.toLowerCase();
+        if(marco !== lama) return 'MARCO ' + marco.toUpperCase() + ' / LAMAS ' + lama.toUpperCase();
+        if(lama === '#44322d') return 'MARRÓN TEXTURADO 8017';
+        const ral = Array.from(document.querySelectorAll('.ral-button')).find(b => b.dataset.color.toLowerCase() === lama);
+        return ral ? 'RAL ' + ral.dataset.ral : lama.toUpperCase();
+    }
+    function cierreBudgetText(){
+        const values = {
+            ancho: cierreNumber(document.getElementById('ancho').value),
+            alto: cierreNumber(document.getElementById('alto').value),
+            lama: cierreNumber(lastComputedAL),
+            separacion: cierreNumber(lastComputedEsp),
+            color: cierreColorText(),
+            orientacion: isVertical ? 'VERTICALES' : 'HORIZONTALES',
+            hojas: portalLeaves === 1 ? '1 HOJA' : portalLeaves === 2 ? '2 HOJAS' : '',
+            apertura: portalHinge === 'left' ? 'IZQUIERDA' : 'DERECHA'
+        };
+        let description = cierreTemplateInput.value.replace(/\{(ancho|alto|lama|separacion|color|orientacion|hojas|apertura)\}/gi,
+            (_, key) => values[key.toLowerCase()]).trim();
+        if(portalLeaves === 1 && !/\bAPERTURA\s*:/i.test(description)) description += '\nAPERTURA: ' + values.apertura;
+        return description;
+    }
+    function refreshCierreBudgetText(){
+        if(!cierreBudgetMode() && !cierreCatalogMode()) return;
+        const mode = budgetTemplateMode();
+        if(mode !== currentBudgetTemplateMode){
+            currentBudgetTemplateMode = mode;
+            if(mode) loadBudgetTemplate(mode);
+        }
+        document.getElementById('cierreBudgetTextSection').hidden = !cierreCatalogMode();
+        if(mode) document.getElementById('cierreBudgetPreview').textContent = cierreBudgetText();
+    }
+    cierreTemplateInput.addEventListener('input', function(){
+        const mode = budgetTemplateMode();
+        if(mode) try{ localStorage.setItem(budgetTemplateKey(mode), cierreTemplateInput.value); }catch(_){}
+        refreshCierreBudgetText();
+    });
+    document.querySelector('form').addEventListener('input', function(e){
+        if(e.target !== cierreTemplateInput) setTimeout(refreshCierreBudgetText, 0);
+    });
+    document.querySelector('form').addEventListener('click', function(){ setTimeout(refreshCierreBudgetText, 0); });
+    async function addCierreGraphicToBudget(){
+        const btn = document.getElementById('btnAddDocsCierre');
+        if(btn) btn.disabled = true;
+        try{
+            const index = cierreTargetIndex();
+            if(index === null) throw new Error('No se encontró el concepto del presupuesto');
+            drawCierre();
+            const metadata = JSON.stringify({source:'cierre', index:index,
+                mode:'graphic_only', text:'', timestamp:Date.now()});
+            let metadataStored = false;
+            try{ sessionStorage.setItem(CIERRE_RETURN_KEY, metadata); metadataStored = true; }catch(_){}
+            try{ localStorage.setItem(CIERRE_RETURN_KEY, metadata); metadataStored = true; }catch(_){}
+            if(!metadataStored) throw new Error('No se pudo guardar el texto para Documentos');
+            // El mismo puente de imagen que utilizan Pasamanos y Ventana.
+            const imageKey = 'presupuesto_visual_design_return_img_v1';
+            const indexKey = 'presupuesto_visual_design_target_index_v1';
+            let imageStored = false;
+            for(const scale of [2, 1]){
+                const image = await cierrePngDataUrl(scale);
+                try{
+                    sessionStorage.setItem(indexKey, String(index));
+                    sessionStorage.setItem(imageKey, image);
+                    imageStored = true;
+                }catch(_){}
+                if(!imageStored) try{
+                    localStorage.setItem(indexKey, String(index));
+                    localStorage.setItem(imageKey, image);
+                    imageStored = true;
+                }catch(_){}
+                if(imageStored) break;
+            }
+            if(!imageStored) throw new Error('No se pudo guardar el gráfico para Documentos');
+            const url = cierreReturnFile() + '?budget_return=1';
+            try{
+                if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+                    window.parent.abrir(url);
+                    return;
+                }
+            }catch(_){}
+            window.location.href = url;
+        }catch(e){ alert(e && e.message || 'No se pudo añadir el gráfico'); }
+        finally{ if(btn) btn.disabled = false; }
+    }
+    const addDocsBtn = document.getElementById('btnAddDocsCierre');
+    if(addDocsBtn && (cierreBudgetMode() || cierreCatalogMode())){
+        addDocsBtn.hidden = false;
+        addDocsBtn.textContent = cierreCatalogMode() ? 'Texto + gráfico → Presupuesto' : 'Gráfico → Presupuesto';
+        addDocsBtn.addEventListener('click', function(){
+            if(cierreCatalogMode()) addCierreCatalogToDocumentos();
+            else addCierreGraphicToBudget();
+        });
+        refreshCierreBudgetText();
+    }
+
+    async function addCierreCatalogToDocumentos(){
+        addDocsBtn.disabled = true;
+        try{
+            const index = cierreTargetIndex();
+            if(index === null) throw new Error('No se encontró el concepto del presupuesto');
+            drawCierre();
+            const description = cierreBudgetText();
+            if(!description) throw new Error('Escribe el texto del concepto');
+            const name = portalLeaves === 1 ? 'Portal 1 hoja' : portalLeaves === 2 ? 'Portal 2 hojas' : fenceMode ? 'Valla' : 'Cierre';
+            const reference = name.toUpperCase() + ' ' + cierreNumber(document.getElementById('ancho').value) + 'x' + cierreNumber(document.getElementById('alto').value);
+            let stored = false;
+            for(const scale of [2, 1]){
+                const image = await cierrePngDataUrl(scale);
+                const payload = JSON.stringify({proveedor:'Cierre', origen:'cierre', referencia:reference,
+                    descripcion:description, imagen:image, targetIndex:index, preserveConceptValues:true});
+                try{ sessionStorage.setItem('rey_docs_external_product_v1', payload); stored = true; }catch(_){}
+                if(!stored) try{ localStorage.setItem('rey_docs_external_product_v1', payload); stored = true; }catch(_){}
+                if(stored) break;
+            }
+            if(!stored) throw new Error('No se pudo guardar el concepto para Documentos');
+            const url = cierreReturnFile() + '?externalProduct=1&budget_return=1';
+            try{
+                if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+                    window.parent.abrir(url);
+                    return;
+                }
+            }catch(_){}
+            window.location.href = url;
+        }catch(e){ alert(e && e.message || 'No se pudo añadir el concepto'); }
+        finally{ addDocsBtn.disabled = false; }
     }
 
     document.getElementById('btnExportPng').addEventListener('click', exportarPNG, {passive:true});

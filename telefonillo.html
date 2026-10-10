@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V5.5</title>
+  <title>Puerta telefonillo / Nicho V5.6</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -677,16 +677,16 @@
   </style>
 </head>
 
-<body>
+<body class="fijar-on">
   <button class="btn-menu" type="button" onclick="return volverIndexSeguro()">← MENÚ</button>
-  <button id="btnFijar" class="btn-fijar off" type="button">FIJAR</button>
+  <button id="btnFijar" class="btn-fijar on" type="button">FIJAR</button>
   <button id="btnAjustesDocs" class="btn-ajustes" type="button">⚙ Ajustes</button>
 
   <div class="wrap">
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V5.5</div>
+        <div class="ver">V5.6</div>
       </div>
     </header>
 
@@ -838,7 +838,7 @@
       </div>
     </section>
   </div>
-  <footer>App V5.5</footer>
+  <footer>App V5.6</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -1312,7 +1312,7 @@ if(showCristalMed){
   function defaultDocsSettings(){
     return {
       telefonilloDesc: "PUERTA DE ALUMINIO PARA TELEFONILLO\nCOLOR: ANODIZADO PLATA\nANCHO: {ancho} - ALTO: {alto}\nVIDRIO LAMINADO DE SEGURIDAD\nCIERRE MAGNETICO Y BISAGRAS DE ACERO INOXIDABLE",
-      telefonilloPrice: 120,
+      telefonilloPrice: 199,
       nichoDesc: "PUERTA DE ALUMINIO PARA NICHO\nCOLOR: ANODIZADO INOX\nANCHO: {ancho} - ALTO: {alto}\nVIDRIO TRANSPARENTE 3 mm\nCERRADURA NICHO",
       nichoPrice: 240
     };
@@ -1338,7 +1338,9 @@ if(showCristalMed){
     }
     d.telefonilloDesc = upgradeDescription(d.telefonilloDesc, 'Puerta de aluminio para telefonillo', defaults.telefonilloDesc);
     d.nichoDesc = upgradeDescription(d.nichoDesc, 'Puerta de aluminio para nicho', defaults.nichoDesc);
-    d.telefonilloPrice = Number(String(d.telefonilloPrice).replace(',','.')) || 120;
+    // Actualizar el precio inicial anterior, conservando los precios personalizados.
+    if(Number(String(d.telefonilloPrice).replace(',','.')) === 120) d.telefonilloPrice = 199;
+    d.telefonilloPrice = Number(String(d.telefonilloPrice).replace(',','.')) || 199;
     d.nichoPrice = Number(String(d.nichoPrice).replace(',','.')) || 240;
     return d;
   }
@@ -1356,7 +1358,7 @@ if(showCristalMed){
   function closeSettingsModal(){ var m=$("settingsModal"); if(m){m.classList.remove("show");m.setAttribute("aria-hidden","true");} }
   function readSettingsModal(){
     docsSettings.telefonilloDesc = ($("setTelDesc") && $("setTelDesc").value.trim()) || defaultDocsSettings().telefonilloDesc;
-    docsSettings.telefonilloPrice = Number(String(($("setTelPrice") && $("setTelPrice").value) || '120').replace(',','.')) || 120;
+    docsSettings.telefonilloPrice = Number(String(($("setTelPrice") && $("setTelPrice").value) || '199').replace(',','.')) || 199;
     docsSettings.nichoDesc = ($("setNichoDesc") && $("setNichoDesc").value.trim()) || defaultDocsSettings().nichoDesc;
     docsSettings.nichoPrice = Number(String(($("setNichoPrice") && $("setNichoPrice").value) || '240').replace(',','.')) || 240;
     saveDocsSettings();
@@ -1677,8 +1679,8 @@ if(showCristalMed){
         }catch(e){}
       }
 
-      // Por defecto: OFF
-      setFijar(false);
+      // Gráfico fijado al abrir, también en Nicho.
+      setFijar(true);
 
       btn.addEventListener('click', function(){
         const on = !document.body.classList.contains('fijar-on');
