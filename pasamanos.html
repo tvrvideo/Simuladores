@@ -100,7 +100,7 @@ body.fromDocs{padding-bottom:72px;}
 </style>
 </head>
 <body>
-<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.9</span></div></header>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.12</span></div></header>
 <div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
 
 <div class="wrap">
@@ -153,6 +153,19 @@ body.fromDocs{padding-bottom:72px;}
     <div><label>Montaje €</label><input id="mont" type="number" step="0.01" value="200"></div><div><label>Margen %</label><input id="margen" type="number" value="40"></div>
     <div><label>IVA %</label><input id="iva" type="number" value="21"></div>
   </div></details>
+  <details class="fold"><summary>Texto para presupuesto</summary>
+    <div class="inputs" style="margin-top:10px">
+      <div><label>Laterales (mm, solo texto)</label><input id="lateralesPresupuesto" type="number" inputmode="numeric" value="700"></div>
+    </div>
+    <label for="textoPlantilla" style="margin-top:10px">Plantilla editable</label>
+    <textarea id="textoPlantilla" style="min-height:175px">BALCÓN DE ALUMINIO CON TUBOS VERTICALES OVALADOS
+COLOR: LACADO BLANCO
+FRONTAL: {frontal} mm
+LATERALES: {laterales} mm
+ALTURA: {altura} mm
+TORNILLERÍA DE ACERO INOXIDABLE</textarea>
+    <div class="hint">{frontal} y {altura} toman las medidas del diseño. {laterales} toma el valor de este ajuste.</div>
+  </details>
   <div class="btns"><button class="ok" id="guardar">Guardar</button><button class="danger" id="reset">Reset</button></div>
 </section>
 <section class="card"><details class="compactDetails"><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details></section>
@@ -160,7 +173,7 @@ body.fromDocs{padding-bottom:72px;}
 </div>
 <script>
 const $=id=>document.getElementById(id);const nf=(n,d=0)=>(Number(n)||0).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});const eu=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});const val=id=>parseFloat($(id).value)||0;const ints=id=>parseInt($(id).value)||0;let tipo='recto';let autoOvalados=true,autoInter=true;
-const ids=['largo','alto','grados','ovaladosManual','interManual','hOva','hPata','hAncInf','hAncSup','hPas','hBola','gOva','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer'];
+const ids=['largo','alto','grados','ovaladosManual','interManual','hOva','hPata','hAncInf','hAncSup','hPas','hBola','gOva','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer','lateralesPresupuesto','textoPlantilla'];
 
 function volverAlIndex(){
   try{
@@ -442,8 +455,67 @@ function renderTabla(c){
   </table><br><table><tr class="cost"><td>Coste material</td><td>${eu(c.coste)}</td></tr><tr class="cost"><td>Montaje</td><td>${eu(c.mont)}</td></tr><tr class="cost"><td>Margen</td><td>${eu(c.margen)}</td></tr><tr class="cost"><td>Bruto</td><td>${eu(c.bruto)}</td></tr><tr class="cost"><td>IVA</td><td>${eu(c.iva)}</td></tr><tr class="cost total"><td>PVP</td><td>${eu(c.pvp)}</td></tr></table>`;
   $('tabla').innerHTML=html
 }
-function renderTexto(c){$('texto').value=`Pasamanos ${tipo==='pendiente'?'con pendiente de '+nf(c.grados)+'°':'recto'} de ${nf(c.largo)} mm. Altura terminada ${nf(c.alto)} mm. Incluye ${c.postes70} poste(s) ${perfilLat()}, ${c.t30} intermedio(s) ${perfilInt()} y ${c.totalOva} ovalados de ${nf(ovaladoCorte())} mm. PVP IVA incluido: ${eu(c.pvp)}`}
+function renderTexto(c){
+  const plantilla = $('textoPlantilla').value;
+  const medidas = {
+    frontal: String(Math.round(c.largo)),
+    laterales: String(Math.round(val('lateralesPresupuesto'))),
+    altura: String(Math.round(val('alto')))
+  };
+  $('texto').value = plantilla.replace(/\{(frontal|laterales|altura)\}/gi, function(_, key){ return medidas[key.toLowerCase()]; });
+}
 
+function budgetGraphicMode(){
+  try{ return new URLSearchParams(location.search || '').get('from_budget') === '1'; }catch(e){ return false; }
+}
+function budgetGraphicTargetIndex(){
+  try{
+    const qs = new URLSearchParams(location.search || '');
+    const t = qs.get('target');
+    if(t !== null && /^\d+$/.test(t)) return Number(t);
+  }catch(e){}
+  try{
+    const t = sessionStorage.getItem('presupuesto_visual_design_target_index_v1') || localStorage.getItem('presupuesto_visual_design_target_index_v1');
+    if(t != null && /^\d+$/.test(t)) return Number(t);
+  }catch(e){}
+  return null;
+}
+function docsReturnFile(){
+  try{
+    const file = new URLSearchParams(location.search || '').get('return_to');
+    if(file && /^documentos(?:_v[0-9.]+|\([0-9-]+\))?\.html$/i.test(file)) return file;
+  }catch(e){}
+  return 'documentos.html';
+}
+function returnToBudget(){
+  const url=docsReturnFile() + '?budget_return=1';
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+      window.parent.abrir(url);
+      return;
+    }
+  }catch(e){}
+  window.location.href=url;
+}
+async function enviarGraficoAlPresupuesto(){
+  const btn=$('btnAddDocs');
+  if(btn) btn.disabled=true;
+  try{
+    render();
+    const index=budgetGraphicTargetIndex();
+    if(index == null) throw new Error('No se encontró el concepto del presupuesto');
+    const png=await svgToPng(2);
+    if(!png || !png.dataUrl) throw new Error('No se pudo generar el gráfico');
+    sessionStorage.setItem('presupuesto_visual_design_target_index_v1', String(index));
+    sessionStorage.setItem('presupuesto_visual_design_return_img_v1', png.dataUrl);
+    // El almacenamiento local cubre el retorno cuando el índice recrea el iframe.
+    try{ localStorage.setItem('presupuesto_visual_design_target_index_v1', String(index)); }catch(e){}
+    try{ localStorage.setItem('presupuesto_visual_design_return_img_v1', png.dataUrl); }catch(e){}
+    returnToBudget();
+  }catch(e){
+    alert((e && e.message) || 'No se pudo añadir el gráfico al presupuesto');
+  }finally{ if(btn) btn.disabled=false; }
+}
 function docsTargetIndex(){
   try{
     const qs = new URLSearchParams(location.search || '');
@@ -473,6 +545,7 @@ function volverADocumentos(){
   return false;
 }
 async function enviarADocumentos(){
+  if(budgetGraphicMode()) return enviarGraficoAlPresupuesto();
   try{ render(); }catch(e){}
   const c = calc();
   let img = '';
@@ -502,7 +575,7 @@ async function enviarADocumentos(){
   try{ localStorage.setItem('rey_docs_external_product_v1', JSON.stringify(producto)); }catch(e){}
   try{ sessionStorage.setItem('rey_docs_external_target_index_v1', String(producto.targetIndex)); }catch(e){}
   try{ localStorage.setItem('rey_docs_external_target_index_v1', String(producto.targetIndex)); }catch(e){}
-  const url='documentos.html?externalProduct=1';
+  const url=docsReturnFile() + '?externalProduct=1&budget_return=1';
   try{ if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){ window.parent.abrir(url); return; } }catch(e){}
   try{ window.location.href=url; }catch(e){}
 }
@@ -521,7 +594,7 @@ $('guardar').onclick=()=>{render();$('ajustesBox').classList.add('hidden');$('to
 ['ladoIzq','ladoDer'].forEach(id=>$(id).addEventListener('change',render));
 if($('btnVolverIndex'))$('btnVolverIndex').onclick=function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} return volverAlIndex();};
 if($('btnVolverIndex'))$('btnVolverIndex').addEventListener('touchend',function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} volverAlIndex();},{passive:false});
-if($('btnAddDocs'))$('btnAddDocs').onclick=enviarADocumentos;
+if($('btnAddDocs')){ $('btnAddDocs').onclick=enviarADocumentos; if(budgetGraphicMode()) $('btnAddDocs').textContent='Añadir gráfico'; }
 load();render();
 </script>
 </body>

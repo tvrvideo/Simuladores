@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.54</title>
+  <title>Documentos Rey v4.8.60</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4451,7 +4451,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.54</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.60</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4484,7 +4484,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.54</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.60</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4880,6 +4880,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
   let designReturnAppliedThisLaunch = false;
   const DESIGN_APP_URL = 'ventana.html'; // v2.86.04: Ventana Pro conectada con retorno de imagen
   const MODULES_APP_URL = 'modulos.html'; // v3.2: Módulos conectado con retorno de imagen
+  const PASAMANOS_APP_URL = 'pasamanos.html';
+  const TELEFONILLO_APP_URL = 'telefonillo.html';
   const DEFAULT_LOGO_PATH = 'cabecera.jpg';
   const DEFAULT_PROVIDER_LOGO_PATH = 'pie.png';
   const BUILTIN_PROVIDER_LOGO_1 = 'data:image/png;base64,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';
@@ -5749,7 +5751,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.54', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.60', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5792,7 +5794,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.54',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.60',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8269,6 +8271,14 @@ COLOCACIÓN INCLUIDA` }
   const EXTERNAL_PRODUCT_KEY_V42 = 'rey_docs_external_product_v1';
   const EXTERNAL_TARGET_KEY_V42 = 'rey_docs_external_target_index_v1';
 
+  function currentDocumentsFileV458(){
+    try{
+      const file = decodeURIComponent(location.pathname.split('/').pop() || '');
+      if(/^documentos(?:_v[0-9.]+|\([0-9-]+\))?\.html$/i.test(file)) return file;
+    }catch(_){}
+    return 'documentos.html';
+  }
+
   function externalCatalogUrlV42(name, index){
     const catalog = String(name || '').toLowerCase();
     const map = {
@@ -8276,12 +8286,12 @@ COLOCACIÓN INCLUIDA` }
       baicha: 'tarifa_baicha.html',
       climalit: 'climalit.html',
       cortizo: 'tarifa_accesorios.html',
-      telefonillo: 'telefonillo.html',
-      pasamanos: 'pasamanos.html'
+      telefonillo: TELEFONILLO_APP_URL,
+      pasamanos: PASAMANOS_APP_URL
     };
     const file = map[catalog] || (catalog + '.html');
     const sep = file.indexOf('?') >= 0 ? '&' : '?';
-    return file + sep + 'from=documentos&target=' + encodeURIComponent(String(index));
+    return file + sep + 'from=documentos&target=' + encodeURIComponent(String(index)) + '&return_to=' + encodeURIComponent(currentDocumentsFileV458());
   }
 
   async function openExternalCatalogV42(name, index){
@@ -10831,7 +10841,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.54',
+      app:'Documentos Rey', version:'v4.8.60',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -10967,7 +10977,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.54',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.60',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -11780,6 +11790,38 @@ COLOCACIÓN INCLUIDA` }
     window.location.href = targetUrl;
   }
 
+  async function openPasamanosForConcept(index){
+    const safeIndex = Number(index);
+    if(!Number.isFinite(safeIndex) || !state.items[safeIndex]) return;
+    try{ await persistCurrent(); }catch(_){}
+    try{ sessionStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
+    try{ localStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
+    const targetUrl = PASAMANOS_APP_URL + '?from_budget=1&target=' + encodeURIComponent(String(safeIndex)) + '&return_to=' + encodeURIComponent(currentDocumentsFileV458());
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir(targetUrl);
+        return;
+      }
+    }catch(_){}
+    window.location.href = targetUrl;
+  }
+
+  async function openTelefonilloForConcept(index){
+    const safeIndex = Number(index);
+    if(!Number.isFinite(safeIndex) || !state.items[safeIndex]) return;
+    try{ await persistCurrent(); }catch(_){}
+    try{ sessionStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
+    try{ localStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
+    const targetUrl = TELEFONILLO_APP_URL + '?from_budget=1&target=' + encodeURIComponent(String(safeIndex)) + '&return_to=' + encodeURIComponent(currentDocumentsFileV458());
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir(targetUrl);
+        return;
+      }
+    }catch(_){}
+    window.location.href = targetUrl;
+  }
+
   async function applyDesignImageToConcept(img, idxRaw){
     if(!img || idxRaw == null) return false;
     const idx = Number(idxRaw);
@@ -12510,6 +12552,11 @@ body.innerHTML = `
           <button type="button" id="btnUseTemplate" hidden>Reemplazar</button>
           <button type="button" id="btnAppendTemplate" hidden>Añadir</button>
         </div>
+        <div class="external-catalog-note-v42">Añadir gráfico directamente</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 14px">
+          <button type="button" class="btn btn-modulos" id="btnDirectPasamanosGraphic">Gráfico Pasamanos</button>
+          <button type="button" class="btn btn-modulos" id="btnDirectTelefonilloGraphic">Gráfico Telefonillo / Nicho</button>
+        </div>
         <div class="external-catalog-note-v42">Catálogos externos</div>
         <div class="external-catalog-grid-v42">
           <button type="button" class="external-catalog-btn-v42 velux" data-ext-catalog="velux">VELUX</button>
@@ -12531,6 +12578,8 @@ body.innerHTML = `
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
       $('sheetCatalogBtn').onclick = async () => { saveConceptTextDraftV4413(); currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
       $('sheetImageBtn').onclick = () => { saveConceptTextDraftV4413(); openConceptImage(it.code); };
+      $('btnDirectPasamanosGraphic').onclick = () => { saveConceptTextDraftV4413(); openPasamanosForConcept(index); };
+      $('btnDirectTelefonilloGraphic').onclick = () => { saveConceptTextDraftV4413(); openTelefonilloForConcept(index); };
     } else if(type === 'simpleLine'){
       const it = state.items[index] || blankConcept(conceptCodeForIndex(index));
       state.items[index] = it;
@@ -12917,12 +12966,15 @@ body.innerHTML = `
       body.innerHTML = `
         <label>Gráfico del concepto</label>
         <div id="conceptImagePreviewWrap">${currentImg ? `<img class="catalog-thumb" src="${esc(currentImg)}" alt="" style="width:140px;height:110px;object-fit:contain;background:#fff">` : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`}</div>
-        <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr; margin-top:12px;">
-          <button type="button" class="btn btn-primary" id="btnConceptImagePick">Seleccionar imagen</button>
+        <label style="display:block;margin-top:12px">Crear gráfico desde</label>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
           <button type="button" class="btn btn-success" id="btnConceptImageDesign">Ventana</button>
           <button type="button" class="btn btn-modulos" id="btnConceptImageModules">Módulos</button>
+          <button type="button" class="btn btn-modulos" id="btnConceptImagePasamanos">Pasamanos</button>
+          <button type="button" class="btn btn-modulos" id="btnConceptImageTelefonillo">Telefonillo / Nicho</button>
         </div>
-        <div class="sheet-actions" style="grid-template-columns:1fr 1fr; margin-top:8px;">
+        <div class="sheet-actions" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+          <button type="button" class="btn btn-primary" id="btnConceptImagePick">Seleccionar imagen</button>
           <button type="button" class="btn btn-danger" id="btnConceptImageRemove">Quitar imagen</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
@@ -12932,6 +12984,8 @@ body.innerHTML = `
       };
       $('btnConceptImageDesign').onclick = function(){ openDesignForConcept(idx); };
       $('btnConceptImageModules').onclick = function(){ openModulesForConcept(idx); };
+      $('btnConceptImagePasamanos').onclick = function(){ openPasamanosForConcept(idx); };
+      $('btnConceptImageTelefonillo').onclick = function(){ openTelefonilloForConcept(idx); };
       $('btnConceptImageRemove').onclick = async function(){
         if(state.items[idx]){
           state.items[idx].image = '';
@@ -14871,7 +14925,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.54', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.60', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -15507,14 +15561,17 @@ $('btnExport').addEventListener('click', async function(){
       }, { passive:true });
       window.visualViewport.addEventListener('scroll', setViewportVars, { passive:true });
     }
-    try{ await applyExternalProductReturnV42(); }catch(_){ }
+    let externalReturnAppliedV458 = false;
+    try{ externalReturnAppliedV458 = await applyExternalProductReturnV42(); }catch(_){ }
     render();
     setTimeout(function(){ try{ applyPVCPriceReturnV1(); }catch(_){ } }, 350);
     setTimeout(function(){ try{ applyALU600PriceReturnV1(); }catch(_){ } }, 350);
     updateDocumentStatusBadge();
     handleStartFromFacturacion();
-    if(designReturnAppliedThisLaunch || launchedFromFacturacion || $('editSheet').classList.contains('show')) hideDocumentsHome();
+    const budgetReturnV458 = new URLSearchParams(location.search || '').get('budget_return') === '1';
+    if(designReturnAppliedThisLaunch || externalReturnAppliedV458 || budgetReturnV458 || launchedFromFacturacion || $('editSheet').classList.contains('show')) hideDocumentsHome();
     else showDocumentsHome();
+    if(budgetReturnV458 && !designReturnAppliedThisLaunch && !externalReturnAppliedV458) toast('No se recibió el gráfico; prueba a añadirlo de nuevo');
 
   /* v2.86.04 - IVA conectado al motor principal */
   function updateDocIvaButton(){

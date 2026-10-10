@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V5.2</title>
+  <title>Puerta telefonillo / Nicho V5.5</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -667,7 +667,7 @@
     .settingsGroup{border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(255,255,255,.05);padding:12px}
     .settingsGroup h3{margin:0 0 10px;font-size:16px}
     .settingsGroup textarea{
-      width:100%;min-height:72px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
+      width:100%;min-height:145px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
       background:rgba(255,255,255,.08);color:#fff;padding:12px;font-weight:800;font-family:var(--sans);resize:vertical;
     }
     .settingsGroup .priceInput{margin-top:10px;color:#111827!important;-webkit-text-fill-color:#111827!important;background:linear-gradient(180deg,#fff3c9,#ffe7a0)!important}
@@ -686,7 +686,7 @@
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V5.2</div>
+        <div class="ver">V5.5</div>
       </div>
     </header>
 
@@ -793,15 +793,17 @@
               <div class="settingsGrid">
                 <div class="settingsGroup">
                   <h3>Telefonillo</h3>
-                  <label for="setTelDesc">Descripción</label>
+                  <label for="setTelDesc">Texto para presupuesto</label>
                   <textarea id="setTelDesc"></textarea>
+                  <div class="small">{ancho} y {alto} toman las medidas del marco.</div>
                   <label for="setTelPrice" style="margin-top:10px;">Precio interno sin IVA</label>
                   <input id="setTelPrice" class="priceInput" inputmode="decimal" />
                 </div>
                 <div class="settingsGroup">
                   <h3>Nicho</h3>
-                  <label for="setNichoDesc">Descripción</label>
+                  <label for="setNichoDesc">Texto para presupuesto</label>
                   <textarea id="setNichoDesc"></textarea>
+                  <div class="small">{ancho} y {alto} toman las medidas del marco.</div>
                   <label for="setNichoPrice" style="margin-top:10px;">Precio interno sin IVA</label>
                   <input id="setNichoPrice" class="priceInput" inputmode="decimal" />
                 </div>
@@ -836,7 +838,7 @@
       </div>
     </section>
   </div>
-  <footer>App V5.2</footer>
+  <footer>App V5.5</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -1309,9 +1311,9 @@ if(showCristalMed){
 
   function defaultDocsSettings(){
     return {
-      telefonilloDesc: "Puerta de aluminio para telefonillo",
+      telefonilloDesc: "PUERTA DE ALUMINIO PARA TELEFONILLO\nCOLOR: ANODIZADO PLATA\nANCHO: {ancho} - ALTO: {alto}\nVIDRIO LAMINADO DE SEGURIDAD\nCIERRE MAGNETICO Y BISAGRAS DE ACERO INOXIDABLE",
       telefonilloPrice: 120,
-      nichoDesc: "Puerta de aluminio para nicho",
+      nichoDesc: "PUERTA DE ALUMINIO PARA NICHO\nCOLOR: ANODIZADO INOX\nANCHO: {ancho} - ALTO: {alto}\nVIDRIO TRANSPARENTE 3 mm\nCERRADURA NICHO",
       nichoPrice: 240
     };
   }
@@ -1324,6 +1326,18 @@ if(showCristalMed){
         Object.keys(d).forEach(function(k){ if(v[k] !== undefined && v[k] !== null && v[k] !== '') d[k] = v[k]; });
       }
     }catch(e){}
+    // Las descripciones antiguas de una sola línea se amplían sin perder cambios propios.
+    var defaults = defaultDocsSettings();
+    function upgradeDescription(text, legacy, newDefault){
+      var value = String(text || '').trim();
+      if(!value || value === legacy) return newDefault;
+      if(value.indexOf('\n') < 0 && value.indexOf('{ancho}') < 0){
+        return value + '\n' + newDefault.split('\n').slice(1).join('\n');
+      }
+      return value;
+    }
+    d.telefonilloDesc = upgradeDescription(d.telefonilloDesc, 'Puerta de aluminio para telefonillo', defaults.telefonilloDesc);
+    d.nichoDesc = upgradeDescription(d.nichoDesc, 'Puerta de aluminio para nicho', defaults.nichoDesc);
     d.telefonilloPrice = Number(String(d.telefonilloPrice).replace(',','.')) || 120;
     d.nichoPrice = Number(String(d.nichoPrice).replace(',','.')) || 240;
     return d;
@@ -1341,9 +1355,9 @@ if(showCristalMed){
   }
   function closeSettingsModal(){ var m=$("settingsModal"); if(m){m.classList.remove("show");m.setAttribute("aria-hidden","true");} }
   function readSettingsModal(){
-    docsSettings.telefonilloDesc = ($("setTelDesc") && $("setTelDesc").value.trim()) || "Puerta de aluminio para telefonillo";
+    docsSettings.telefonilloDesc = ($("setTelDesc") && $("setTelDesc").value.trim()) || defaultDocsSettings().telefonilloDesc;
     docsSettings.telefonilloPrice = Number(String(($("setTelPrice") && $("setTelPrice").value) || '120').replace(',','.')) || 120;
-    docsSettings.nichoDesc = ($("setNichoDesc") && $("setNichoDesc").value.trim()) || "Puerta de aluminio para nicho";
+    docsSettings.nichoDesc = ($("setNichoDesc") && $("setNichoDesc").value.trim()) || defaultDocsSettings().nichoDesc;
     docsSettings.nichoPrice = Number(String(($("setNichoPrice") && $("setNichoPrice").value) || '240').replace(',','.')) || 240;
     saveDocsSettings();
     toast("Ajustes guardados");
@@ -1365,19 +1379,10 @@ if(showCristalMed){
   function currentDescription(){
     var Wm = Math.round(lastDraw.Wm || toNum($("w") && $("w").value, 0));
     var Hm = Math.round(lastDraw.Hm || toNum($("h") && $("h").value, 0));
-    var Wc = Math.round(lastDraw.Wc || 0);
-    var Hc = Math.round(lastDraw.Hc || 0);
-    if(mode === "nicho"){
-      return (docsSettings.nichoDesc || "Puerta de aluminio para nicho") + "\n" +
-        "Color: " + colorName() + "\n" +
-        "Medida: " + Wm + " × " + Hm + " mm\n" +
-        "Vidrio: " + Wc + " × " + Hc + " mm";
-    }
-    return (docsSettings.telefonilloDesc || "Puerta de aluminio para telefonillo") + "\n" +
-      "Color: " + colorName() + "\n" +
-      "Medidas: " + Wm + " × " + Hm + " mm\n" +
-      "Vidrio transparente: " + Wc + " × " + Hc + " mm\n" +
-      "Con cierre magnético";
+    var template = mode === "nicho" ? docsSettings.nichoDesc : docsSettings.telefonilloDesc;
+    return String(template || (mode === "nicho" ? defaultDocsSettings().nichoDesc : defaultDocsSettings().telefonilloDesc))
+      .replace(/\{ancho\}/gi, String(Wm))
+      .replace(/\{alto\}/gi, String(Hm));
   }
   function currentReference(){ return mode === "nicho" ? "NICHO" : "TELEFONILLO"; }
   function currentPrice(){ return mode === "nicho" ? docsSettings.nichoPrice : docsSettings.telefonilloPrice; }
@@ -1392,7 +1397,53 @@ if(showCristalMed){
     drawCanvas(lastDraw.modeName, lastDraw.Wm, lastDraw.Hm, lastDraw.Wc, lastDraw.Hc);
     return dataUrl;
   }
+  function budgetGraphicMode(){
+    try{ return new URLSearchParams(location.search || '').get('from_budget') === '1'; }catch(e){ return false; }
+  }
+  function budgetGraphicTargetIndex(){
+    try{
+      var t = new URLSearchParams(location.search || '').get('target');
+      if(t !== null && /^\d+$/.test(t)) return Number(t);
+    }catch(e){}
+    try{
+      var saved = sessionStorage.getItem('presupuesto_visual_design_target_index_v1') || localStorage.getItem('presupuesto_visual_design_target_index_v1');
+      if(saved != null && /^\d+$/.test(saved)) return Number(saved);
+    }catch(e){}
+    return null;
+  }
+  function docsReturnFile(){
+    try{
+      var file = new URLSearchParams(location.search || '').get('return_to');
+      if(file && /^documentos(?:_v[0-9.]+|\([0-9-]+\))?\.html$/i.test(file)) return file;
+    }catch(e){}
+    return 'documentos.html';
+  }
+  function returnToBudget(){
+    var url = docsReturnFile() + '?budget_return=1';
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+        window.parent.abrir(url);
+        return;
+      }
+    }catch(e){}
+    window.location.href = url;
+  }
+  function sendGraphicToBudget(){
+    var index = budgetGraphicTargetIndex();
+    if(index === null){ alert('No se encontró el concepto del presupuesto'); return; }
+    render('docs');
+    var image = currentCanvasImage();
+    if(!image){ alert('No se pudo generar el gráfico'); return; }
+    try{
+      sessionStorage.setItem('presupuesto_visual_design_target_index_v1', String(index));
+      sessionStorage.setItem('presupuesto_visual_design_return_img_v1', image);
+    }catch(e){ alert('No se pudo preparar el gráfico para el presupuesto'); return; }
+    try{ localStorage.setItem('presupuesto_visual_design_target_index_v1', String(index)); }catch(e){}
+    try{ localStorage.setItem('presupuesto_visual_design_return_img_v1', image); }catch(e){}
+    returnToBudget();
+  }
   function sendToDocumentos(){
+    if(budgetGraphicMode()) return sendGraphicToBudget();
     docsSettings = loadDocsSettings();
     render("docs");
     var payload = {
@@ -1405,18 +1456,20 @@ if(showCristalMed){
       categoria: mode,
       origen: "telefonillo.html",
       imagen: currentCanvasImage(),
-      image: currentCanvasImage()
+      image: ""
     };
+    payload.image = payload.imagen;
+    try{ var idx = new URLSearchParams(location.search || "").get("target"); if(idx !== null && /^\d+$/.test(idx)) payload.targetIndex = Number(idx); }catch(e){}
     try{ sessionStorage.setItem(DOCS_PRODUCT_KEY, JSON.stringify(payload)); }catch(e){}
     try{ localStorage.setItem(DOCS_PRODUCT_KEY, JSON.stringify(payload)); }catch(e){}
-    var url = "documentos.html?externalProduct=1";
+    var url = docsReturnFile() + "?externalProduct=1&budget_return=1";
     try{ if(window.parent && window.parent !== window && typeof window.parent.abrir === "function"){ window.parent.abrir(url); return; } }catch(e){}
     window.location.href = url;
   }
 
   function init(){
     var bSet = $("btnAjustesDocs"); if(bSet) bSet.addEventListener("click", openSettingsModal, {passive:true});
-    var bDoc = $("btnAddDocs"); if(bDoc) bDoc.addEventListener("click", sendToDocumentos, {passive:true});
+    var bDoc = $("btnAddDocs"); if(bDoc){ bDoc.addEventListener("click", sendToDocumentos, {passive:true}); if(budgetGraphicMode()) bDoc.textContent = "Añadir gráfico"; }
     var bCloseSet = $("btnCloseSettings"); if(bCloseSet) bCloseSet.addEventListener("click", closeSettingsModal, {passive:true});
     var bSaveSet = $("btnSaveSettings"); if(bSaveSet) bSaveSet.addEventListener("click", readSettingsModal, {passive:true});
     var bResetSet = $("btnResetSettings"); if(bResetSet) bResetSet.addEventListener("click", resetSettingsModal, {passive:true});
