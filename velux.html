@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.65</title>
+<title>Velux Tarifario v1.66</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
@@ -120,7 +120,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.65</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.66</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
  <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
@@ -1041,9 +1041,14 @@ const DOCS_TARGET_KEY_V156='rey_docs_external_target_index_v1';
 function docsParamV156(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return ''}}
 function docsTargetV156(){let v=docsParamV156('target');try{if(!v)v=sessionStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}try{if(!v)v=localStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}return v;}
 function docsImageV165(ref,cat){
- const code=String(ref||'').trim().toUpperCase().split(/\s+/)[0];
+ const parts=String(ref||'').trim().toUpperCase().split(/\s+/);
+ const code=parts[0], finish=parts[1]||'';
  const type=String(cat||'').toLowerCase();
  if(type==='ventana'){
+  if(finish.startsWith('20')){
+   if(code==='GGL') return 'img/ggu.jpg';
+   if(code==='GPL') return 'img/gpu.jpg';
+  }
   const files={GGL:'ggl.jpg',GGU:'ggu.jpg',GPL:'gpl.jpg',GPU:'gpu.jpg'};
   return files[code] ? 'img/'+files[code] : '';
  }
