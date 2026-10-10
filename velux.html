@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.67</title>
+<title>Velux Tarifario v1.68</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
@@ -120,7 +120,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.67</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.68</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
  <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
@@ -1076,7 +1076,9 @@ function docsWindowTextV167(ref){
 }
 function docsPayloadV156(ref,desc,price,cat){
  const windowText=cat==='ventana'?docsWindowTextV167(ref):'';
- const product={proveedor:'VELUX',referencia:String(ref||'').trim(),descripcion:windowText||String(desc||'').trim(),cantidad:1,unidad:'ud',precio:Number(price||0),categoria:String(cat||''),targetIndex:docsTargetV156(),origen:'velux.html'};
+ // Documentos anteriores anteponen referencia y agregan proveedor a los textos con saltos.
+ // El texto de ventana ya lleva la referencia completa, así que se envía sin esos metadatos.
+ const product={proveedor:windowText?'':'VELUX',referencia:windowText?'':String(ref||'').trim(),descripcion:windowText||String(desc||'').trim(),cantidad:1,unidad:'ud',precio:Number(price||0),categoria:String(cat||''),targetIndex:docsTargetV156(),origen:'velux.html'};
  const image=docsImageV165(ref,cat);
  if(image) product.imagen=image;
  return product;
