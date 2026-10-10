@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.63</title>
+<title>Velux Tarifario v1.65</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
@@ -120,7 +120,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.63</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.65</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
  <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
@@ -973,8 +973,25 @@ function productCard(cls,icon,title,ref,desc,price,selector,copy,cat){cat=cat||c
 
 function veluxParamV158(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return '';}}
 
+function veluxOpenedFromDocsV164(){return veluxParamV158('from') === 'documentos';}
+function veluxReturnFileV164(){
+ const file=veluxParamV158('return_to');
+ return file && /^documentos(?:_v[0-9.]+|\([0-9-]+\))?\.html$/i.test(file) ? file : 'documentos.html';
+}
+function veluxNavigateDocsV164(url){
+ try{if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
+   window.parent.abrir(url); return;
+ }}catch(_){}
+ window.location.href=url;
+}
+function veluxBackToDocsV164(){
+ veluxNavigateDocsV164(veluxReturnFileV164()+'?catalog_back=1');
+ return false;
+}
+
 // v1.59 - Retorno copiado del sistema de Documentos: botón + touchend.
 function solicitarVolverIndex(){
+ if(veluxOpenedFromDocsV164()) return veluxBackToDocsV164();
  try{
   if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
    window.parent.volverMenu();
@@ -1001,6 +1018,13 @@ function veluxBackV158(){ return solicitarVolverIndex(); }
 (function(){
  var btn = document.getElementById('btnVolverIndex');
  if(btn){
+  if(veluxOpenedFromDocsV164()){
+   btn.textContent='← Presupuesto';
+   btn.style.width='auto';
+   btn.style.padding='0 10px';
+   btn.style.fontSize='12px';
+   btn.style.whiteSpace='nowrap';
+  }
   btn.onclick = function(ev){
    try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
    return solicitarVolverIndex();
@@ -1016,10 +1040,36 @@ const DOCS_PRODUCT_KEY_V156='rey_docs_external_product_v1';
 const DOCS_TARGET_KEY_V156='rey_docs_external_target_index_v1';
 function docsParamV156(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return ''}}
 function docsTargetV156(){let v=docsParamV156('target');try{if(!v)v=sessionStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}try{if(!v)v=localStorage.getItem(DOCS_TARGET_KEY_V156)||'';}catch(_){}return v;}
-function docsPayloadV156(ref,desc,price,cat){return {proveedor:'VELUX',referencia:String(ref||'').trim(),descripcion:String(desc||'').trim(),cantidad:1,unidad:'ud',precio:Number(price||0),categoria:String(cat||''),targetIndex:docsTargetV156(),origen:'velux.html'};}
+function docsImageV165(ref,cat){
+ const code=String(ref||'').trim().toUpperCase().split(/\s+/)[0];
+ const type=String(cat||'').toLowerCase();
+ if(type==='ventana'){
+  const files={GGL:'ggl.jpg',GGU:'ggu.jpg',GPL:'gpl.jpg',GPU:'gpu.jpg'};
+  return files[code] ? 'img/'+files[code] : '';
+ }
+ if(type==='cerco') return 'img/cerco.jpg';
+ if(type==='persiana' && code==='SSL') return 'img/ssl.jpg';
+ if(type==='cortina' && code==='DKL') return 'img/dkl.jpg';
+ return '';
+}
+function docsPayloadV156(ref,desc,price,cat){
+ const product={proveedor:'VELUX',referencia:String(ref||'').trim(),descripcion:String(desc||'').trim(),cantidad:1,unidad:'ud',precio:Number(price||0),categoria:String(cat||''),targetIndex:docsTargetV156(),origen:'velux.html'};
+ const image=docsImageV165(ref,cat);
+ if(image) product.imagen=image;
+ return product;
+}
 function docsBtnV156(ref,desc,price,cat){const payload=encodeURIComponent(JSON.stringify(docsPayloadV156(ref,desc,price,cat)));return `<button class="secondary" onclick="sendProductToDocsV156('${payload}')">Añadir Doc.</button>`;}
 function docsMiniBtnV157(ref,desc,price,cat){const payload=encodeURIComponent(JSON.stringify(docsPayloadV156(ref,desc,price,cat)));return `<button onclick="event.stopPropagation();sendProductToDocsV156('${payload}')">Añadir a Documentos</button>`;}
-function sendProductToDocsV156(encoded){let payload=null;try{payload=JSON.parse(decodeURIComponent(encoded));}catch(_){payload=null;}if(!payload)return alert('No se pudo preparar el producto para Documentos');try{sessionStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));}catch(_){}try{localStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));}catch(_){}const url='documentos.html?externalProduct=1';try{if(window.parent&&window.parent!==window&&typeof window.parent.abrir==='function'){window.parent.abrir(url);return;}}catch(_){}location.href=url;}
+function sendProductToDocsV156(encoded){
+ let payload=null;
+ try{payload=JSON.parse(decodeURIComponent(encoded));}catch(_){}
+ if(!payload)return alert('No se pudo preparar el producto para Documentos');
+ let stored=false;
+ try{sessionStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));stored=true;}catch(_){}
+ try{localStorage.setItem(DOCS_PRODUCT_KEY_V156,JSON.stringify(payload));stored=true;}catch(_){}
+ if(!stored)return alert('No se pudo guardar el producto para Documentos');
+ veluxNavigateDocsV164(veluxReturnFileV164()+'?externalProduct=1&budget_return=1');
+}
 
 function copyText(t){navigator.clipboard?.writeText(t)}
 function copyLineProduct(ref,price){navigator.clipboard?.writeText(`${ref} · ${money(price)} catálogo sin IVA`)}
