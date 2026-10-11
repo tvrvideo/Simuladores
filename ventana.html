@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.1</title>
+    <title>Ventana Pro v96.2</title>
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
     <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
@@ -1234,7 +1234,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.1"><span class="title-main">Ventana Pro</span><span class="title-version">v96.1</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -10340,12 +10340,11 @@ function volverIndexSeguro(){
         return;
       }
 
-      // Forzar redibujado COMPLETO con cotas/medidas.
-      // Importante: NO llamar a dibujar() sin parámetro porque oculta las medidas.
+      // Capturar exactamente el estado visible: respetar el botón MEDIDAS.
+      // dibujar() necesita el estado explícito para no cambiar las cotas.
       try{
-        if(typeof mostrarMedidas !== 'undefined') mostrarMedidas = true;
         if(typeof actualizarVista === 'function') actualizarVista();
-        else if(typeof dibujar === 'function') dibujar(true);
+        else if(typeof dibujar === 'function') dibujar(typeof mostrarMedidas !== 'undefined' ? mostrarMedidas : true);
       }catch(e){}
 
       // Esperamos un frame para que el último redibujado termine antes de capturar.
