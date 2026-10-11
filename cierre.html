@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.28</title>
+  <title>Cierre v3.7.45</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -58,15 +58,19 @@
       box-sizing: border-box;
     }
 
-    /* GRID DE INPUTS (5 Columnas) */
+    /* Dos filas de tres medidas, con el campo propio de cada modo. */
     .dimensions-group { display: flex; flex-direction: column; gap: 5px; }
-    .dimensions-labels-row, .dimensions-inputs-row {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-        text-align: center;
-    }
+    #mainDimensions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;}
+    #mainDimensions .dimension-field{display:flex;flex-direction:column;gap:5px;min-width:0;}
+    #mainDimensions .dimension-field label{text-align:center;white-space:nowrap;}
     #portalProfileGroup[hidden], #postThicknessGroup[hidden]{display:none;}
+    #mainDimensions.sliding-portal #marcoField{display:none;}
+    #mixedSlatsGroup[hidden], #closedHeightField[hidden], #upperSlatField[hidden], #mixedOrientationControls[hidden], #toggleClosedCota[hidden], #toggleOrientation[hidden]{display:none;}
+    #mixedSlatsGroup{width:100%;display:flex;align-items:end;flex-wrap:wrap;gap:10px;box-sizing:border-box;}
+    #mixedSlatsGroup > button{flex:1 1 100%;min-width:0;}
+    #mixedOrientationControls{display:flex;gap:10px;width:100%;}
+    #mixedOrientationControls button{flex:1 1 0;}
+    #closedHeightField, #upperSlatField{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:5px;}
     
     label {
         font-size: 14px;
@@ -478,30 +482,28 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.28</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.45</span></h1>
 </div>
 
 <form id="form">
-    <div class="dimensions-group">
-        <div class="dimensions-labels-row">
-            <label>Ancho</label><label>Alto total</label><label>Lama</label><label id="labelMarco">Marco</label><label>Hueco</label>
-        </div>
-        <div class="dimensions-inputs-row">
-            <input type="number" id="ancho" value="2000">
-            <input type="number" id="alto" value="900">
-            <input type="number" id="altoLama" value="200">
-            <input type="number" id="marco" value="50">
-            <input type="number" id="sep" value="20" step="0.5">
-        </div>
+    <div class="dimensions-group" id="mainDimensions">
+        <div class="dimension-field"><label for="ancho">Ancho</label><input type="number" id="ancho" value="2000"></div>
+        <div class="dimension-field"><label for="alto">Alto</label><input type="number" id="alto" value="900"></div>
+        <div class="dimension-field"><label for="altoLama">Lama</label><input type="number" id="altoLama" value="200"></div>
+        <div class="dimension-field"><label for="sep">Hueco</label><input type="number" id="sep" value="20" step="0.5"></div>
+        <div class="dimension-field" id="portalProfileGroup" hidden><label for="perfilHoja">Hoja</label><input type="number" id="perfilHoja" min="1" value="50" inputmode="numeric"></div>
+        <div class="dimension-field" id="postThicknessGroup"><label for="grosorPostes">Poste</label><input type="number" id="grosorPostes" min="1" value="50" inputmode="numeric"></div>
+        <div class="dimension-field" id="marcoField"><label for="marco" id="labelMarco">Marco</label><input type="number" id="marco" value="50"></div>
     </div>
-
-    <div class="dimensions-group" id="portalProfileGroup" hidden>
-        <label for="perfilHoja">Hojas (mm)</label>
-        <input type="number" id="perfilHoja" min="1" value="50" inputmode="numeric">
-    </div>
-    <div class="dimensions-group" id="postThicknessGroup">
-        <label for="grosorPostes">Grosor postes (mm)</label>
-        <input type="number" id="grosorPostes" min="1" value="50" inputmode="numeric">
+    <div id="mixedSlatsGroup" hidden>
+        <button type="button" class="action-button" id="toggleMixedSlats">Lamas juntas abajo: OFF</button>
+        <div id="closedHeightField" hidden><label for="closedSlatsHeight">Hasta (mm)</label><input type="number" id="closedSlatsHeight" min="0" value="1000" inputmode="numeric"></div>
+        <div id="upperSlatField" hidden><label for="upperSlatSize">Lama arriba (mm)</label><input type="number" id="upperSlatSize" min="1" value="200" inputmode="numeric"></div>
+        <div id="mixedOrientationControls" hidden>
+            <button type="button" class="action-button" id="toggleBottomOrientation">Abajo: horizontales</button>
+            <button type="button" class="action-button" id="toggleUpperOrientation">Arriba: horizontales</button>
+        </div>
+        <button type="button" class="action-button active" id="toggleClosedCota" hidden>Cota verde: ON</button>
     </div>
 
     <div class="color-row">
@@ -551,6 +553,8 @@ body.dock-on #controls{
         <button type="button" class="action-button active" id="modeCierre">Cierre</button>
         <button type="button" class="action-button" id="modePortal1">Portal 1 hoja</button>
         <button type="button" class="action-button" id="modePortal2">Portal 2 hojas</button>
+        <button type="button" class="action-button" id="modeSliding1">Corredera 1 hoja</button>
+        <button type="button" class="action-button" id="modeSliding2">Corredera 2 hojas</button>
         <button type="button" class="action-button" id="portalOpening" hidden>Bisagras: izquierda</button>
         <button type="button" class="action-button" id="portalActiveLeaf" hidden>Abre primero: derecha</button>
     </div>
@@ -571,7 +575,7 @@ body.dock-on #controls{
         <div id="cierreBudgetTextSection" hidden style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;box-sizing:border-box">
           <label for="cierreBudgetTemplate" style="display:block;font-weight:800;margin-bottom:7px">Texto predeterminado del concepto</label>
           <textarea id="cierreBudgetTemplate" rows="5" style="width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid #94a3b8;border-radius:7px"></textarea>
-          <small style="display:block;margin:6px 0">Puedes cambiar el texto. {ancho}, {alto}, {lama}, {separacion}, {color}, {orientacion}, {hojas} y {apertura} se rellenan con el diseño.</small>
+          <small style="display:block;margin:6px 0">Puedes cambiar el texto. {ancho}, {alto}, {lama} (abajo), {lamasuperior}, {separacion}, {color}, {orientacion}, {orientacionsuperior}, {hojas}, {apertura} y {cerrada} se rellenan con el diseño.</small>
           <div id="cierreBudgetPreview" style="white-space:pre-wrap;font-size:13px;padding:8px;background:white;border-radius:6px"></div>
         </div>
 
@@ -618,9 +622,9 @@ body.dock-on #controls{
     }
     function postsAreVertical(){ return postDirectionOverride === null ? !isVertical : postDirectionOverride; }
     function updatePostDirectionButton(){
-        document.getElementById('toggleLarguero').textContent = `Postes: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
+        document.getElementById('toggleLarguero').textContent = `${slidingMode ? 'Refuerzos' : 'Postes'}: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
     }
-    let portalLeaves = 0, portalHinge = 'left', portalFirst = 'right';
+    let portalLeaves = 0, portalHinge = 'left', portalFirst = 'right', slidingMode = false, slidingDirection = 'both', slidingPostCount = 0, mixedSlatsEnabled = false, mixedUpperVertical = false, upperSlatCustomized = false, showClosedCota = true;
     // Guarda los valores anteriores al activar el modo alternativo de reparto.
     // Al volver a desactivarlo, la app recupera exactamente el estado inicial.
     let distrModeSnapshot = null;
@@ -896,6 +900,80 @@ body.dock-on #controls{
         g.appendChild(note);
     }
 
+    function portalClosedHeight(alto, profile) {
+        if(!mixedSlatsEnabled || !portalLeaves || fenceMode) return 0;
+        const requested = Math.max(0, Number(document.getElementById('closedSlatsHeight').value) || 0);
+        const extension = showFloorExtension && !slidingMode ? 50 : 0;
+        return Math.min(Math.max(0, requested - extension), Math.max(0, alto - profile));
+    }
+
+    function drawPortalLamas(g, fillLeft, fillTop, fillRight, fillBottom, alto, lamaSize, hueco, cLama) {
+        const requested = portalClosedHeight(alto, alto - fillBottom);
+        const mixed = requested > 0;
+        const upperInput = Number(document.getElementById('upperSlatSize').value);
+        const upperLamaSize = mixed && upperInput > 0 ? upperInput : lamaSize;
+        const upperVertical = mixed ? mixedUpperVertical : isVertical;
+        // La altura se mide desde la base total del portal, incluido el perfil inferior.
+        const upperEnd = mixed ? Math.max(fillTop, Math.min(fillBottom, alto - requested)) : fillBottom;
+        const span = upperVertical ? fillRight - fillLeft : upperEnd - fillTop;
+        let n = 0, actualGap = 0, actualLama = upperLamaSize;
+        if(span > 0 && upperLamaSize > 0 && hueco >= 0) {
+            if(isLamaMode) {
+                n = Math.max(1, Math.round(span / (upperLamaSize + hueco)));
+                actualGap = hueco;
+                actualLama = Math.max(0, (span - (n + 1) * hueco) / n);
+            } else {
+                n = Math.max(1, Math.floor(span / (upperLamaSize + hueco)));
+                actualLama = Math.min(upperLamaSize, span);
+                actualGap = Math.max(0, (span - n * actualLama) / (n + 1));
+            }
+            if(actualLama <= 0) n = 0;
+        }
+        for(let k = 0; k < n; k++) {
+            const pos = actualGap + k * (actualLama + actualGap);
+            if(upperVertical) g.appendChild(createRect(fillLeft + pos, fillTop, actualLama, upperEnd - fillTop, cLama, '#111827', 0.5));
+            else g.appendChild(createRect(fillLeft, fillTop + pos, fillRight - fillLeft, actualLama, cLama, '#111827', 0.5));
+        }
+        let closedN = 0, closedLama = 0;
+        const closedSpan = mixed ? Math.max(0, fillBottom - upperEnd) : 0;
+        if(closedSpan > 0 && lamaSize > 0) {
+            const closedAxis = isVertical ? fillRight - fillLeft : closedSpan;
+            closedN = Math.max(1, Math.ceil(closedAxis / lamaSize));
+            // Conservar la lama nominal; solo se corta la primera si la medida
+            // cerrada no es múltiplo exacto de la altura de lama.
+            closedLama = closedAxis - (closedN - 1) * lamaSize;
+            let cursor = isVertical ? fillLeft : upperEnd;
+            const joins = [];
+            for(let k = 0; k < closedN; k++) {
+                const blade = k === 0 ? closedLama : lamaSize;
+                if(isVertical) g.appendChild(createRect(cursor, upperEnd, blade, closedSpan, cLama, '#111827', 0.5));
+                else g.appendChild(createRect(fillLeft, cursor, fillRight - fillLeft, blade, cLama, '#111827', 0.5));
+                cursor += blade;
+                if(k < closedN - 1) joins.push(cursor);
+            }
+            // Uniones finas y semitransparentes: se reconocen como juntas,
+            // sin parecer los huecos blancos de la zona superior.
+            const seam = getContrastColor(cLama);
+            for(const join of joins) {
+                const line = isVertical
+                    ? createLine(join, upperEnd, join, fillBottom, seam, 1.2)
+                    : createLine(fillLeft, join, fillRight, join, seam, 1.2);
+                line.setAttribute('stroke-opacity', '0.6');
+                g.appendChild(line);
+            }
+        }
+        return {n:n + closedN, actualGap, actualLama, span, closedN, closedLama,
+            closedHeight: closedN ? alto - upperEnd : 0};
+    }
+
+    function drawClosedSlatBottom(g, fillLeft, fillRight, fillBottom, cLama) {
+        // El perfil inferior se pinta después de las lamas: remarcar su unión
+        // sobre el perfil para que la última lama no se funda con él.
+        const line = createLine(fillLeft, fillBottom, fillRight, fillBottom, getContrastColor(cLama), 1.4);
+        line.setAttribute('stroke-opacity', '0.75');
+        g.appendChild(line);
+    }
+
     function drawPortal(g, ancho, alto, marco, perfilHoja, lamaSize, hueco, cMarco, cLama) {
         // Ancho total, incluidos los dos marcos laterales; cada hoja ocupa el hueco restante.
         const post = Math.max(1, Math.min(marco, ancho / 8));
@@ -911,31 +989,14 @@ body.dock-on #controls{
             const left = post + i * leafSpan, right = left + leafSpan;
             const fillLeft = left + profile, fillRight = right - profile;
             const fillTop = profile, fillBottom = alto - profile;
-            const span = isVertical ? fillRight - fillLeft : fillBottom - fillTop;
             g.appendChild(createRect(left, 0, leafSpan, alto, '#fff', '#111827', 1));
-            let n = 0, actualGap = 0, actualLama = lamaSize;
-            if (span > 0 && lamaSize > 0 && hueco >= 0) {
-                if (isLamaMode) {
-                    n = Math.max(1, Math.round(span / (lamaSize + hueco)));
-                    actualGap = hueco;
-                    actualLama = Math.max(0, (span - (n + 1) * hueco) / n);
-                } else {
-                    n = Math.max(1, Math.floor(span / (lamaSize + hueco)));
-                    actualLama = Math.min(lamaSize, span);
-                    actualGap = Math.max(0, (span - n * actualLama) / (n + 1));
-                }
-                if (actualLama <= 0) n = 0;
-            }
-            for (let k = 0; k < n; k++) {
-                const pos = actualGap + k * (actualLama + actualGap);
-                if (isVertical) g.appendChild(createRect(fillLeft + pos, fillTop, actualLama, fillBottom - fillTop, cLama, '#111827', 0.5));
-                else g.appendChild(createRect(fillLeft, fillTop + pos, fillRight - fillLeft, actualLama, cLama, '#111827', 0.5));
-            }
+            const layout = drawPortalLamas(g, fillLeft, fillTop, fillRight, fillBottom, alto, lamaSize, hueco, cLama);
             // Marco completo de CADA hoja, separado de los soportes laterales del portal.
             g.appendChild(createRect(left, 0, profile, alto, cMarco, '#111827', 0.7));
             g.appendChild(createRect(right - profile, 0, profile, alto, cMarco, '#111827', 0.7));
             g.appendChild(createRect(fillLeft, 0, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
             g.appendChild(createRect(fillLeft, fillBottom, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
+            if(layout.closedN) drawClosedSlatBottom(g, fillLeft, fillRight, fillBottom, cLama);
             const hingeLeft = portalLeaves === 2 ? i === 0 : portalHinge === 'left';
             const hingeX = hingeLeft ? left : right;
             for (const hingeY of [alto * 0.2, alto * 0.8]) {
@@ -948,22 +1009,28 @@ body.dock-on #controls{
             const closingLineX = hingeLeft ? fillRight : fillLeft;
             const openingPoints = `${hingeLineX},${fillTop} ${closingLineX},${alto / 2} ${hingeLineX},${fillBottom}`;
             const outline = createPoly(openingPoints, '#ffffff');
-            outline.setAttribute('stroke-width', 6 / scale);
+            outline.setAttribute('stroke-width', 4 / scale);
             outline.setAttribute('stroke-linecap', 'round');
             outline.setAttribute('stroke-linejoin', 'round');
             g.appendChild(outline);
             const symbol = createPoly(openingPoints, openingColor);
-            symbol.setAttribute('stroke-width', 3 / scale);
+            symbol.setAttribute('stroke-width', 1.8 / scale);
             symbol.setAttribute('stroke-linecap', 'round');
             symbol.setAttribute('stroke-linejoin', 'round');
             g.appendChild(symbol);
-            leaves.push({n, actualGap, actualLama, span});
+            leaves.push(layout);
         }
         if (showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + ' mm', false, 3);
         if (showHeightCota) drawDimLineSVG(0, 0, 0, supportHeight, supportHeight + ' mm', true, 3, '#1d4ed8', false, true);
         if (showFloorExtension) drawFloorExtensionNote(g, ancho, alto);
         if (showRedCota && leaves.length)
             drawDimLineSVG(post, alto, post + leafSpan, alto, Math.round(leafSpan) + ' mm', false, 4, '#ef4444', false, false, true);
+        if(showClosedCota && leaves[0] && leaves[0].closedHeight) {
+            const closedHeight = leaves[0].closedHeight;
+            const extension = showFloorExtension ? 50 : 0;
+            drawDimLineSVG(ancho + 35 / scale, alto - closedHeight, ancho + 35 / scale, alto + extension,
+                Math.round(closedHeight + extension) + ' mm', true, 1, '#16a34a', true, true, true);
+        }
         const first = leaves[0] || {n:0, actualGap:0, actualLama:0, span:0};
         lastComputedN = first.n;
         lastComputedAL = first.actualLama;
@@ -971,7 +1038,126 @@ body.dock-on #controls{
         lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
         const utilEl = document.getElementById('altoUtillamas');
         if (document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
-        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}${showFloorExtension ? ' | Laterales +50 mm' : ''}`;
+        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight + (showFloorExtension ? 50 : 0)) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}${showFloorExtension ? ' | Laterales +50 mm' : ''}`;
+    }
+
+    function drawSlidingPortal(g, ancho, alto, perfilHoja, lamaSize, hueco, cMarco, cLama) {
+        const leafSpan = ancho / portalLeaves;
+        const profile = Math.max(1, Math.min(Number(perfilHoja) > 0 ? Number(perfilHoja) : 50, leafSpan / 5, alto / 5));
+        const openingColor = distinctApertureColor(cMarco, cLama);
+        const leaves = [];
+        let reinforcementGap = 0, reinforcementThickness = 0;
+        const reinforcementVertical = postsAreVertical();
+        for(let i = 0; i < portalLeaves; i++) {
+            const left = i * leafSpan, right = left + leafSpan;
+            const fillLeft = left + profile, fillRight = right - profile;
+            const fillTop = profile, fillBottom = alto - profile;
+            g.appendChild(createRect(left, 0, leafSpan, alto, '#fff', '#111827', 1));
+            const layout = drawPortalLamas(g, fillLeft, fillTop, fillRight, fillBottom, alto, lamaSize, hueco, cLama);
+            // Ruedas de 80 mm de diámetro. El perfil se dibuja después para
+            // ocultar su parte superior y dar la impresión de rueda embutida.
+            const wheelRadius = Math.min(40, leafSpan * 0.1, alto * 0.12);
+            for(const fraction of [0.22, 0.78]) {
+                const wheel = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                wheel.setAttribute('cx', left + leafSpan * fraction);
+                wheel.setAttribute('cy', alto + wheelRadius * 0.12);
+                wheel.setAttribute('r', wheelRadius);
+                wheel.setAttribute('fill', '#1f2937');
+                wheel.setAttribute('stroke', '#fff');
+                wheel.setAttribute('stroke-width', 1 / scale);
+                g.appendChild(wheel);
+            }
+            // Cada hoja tiene su propio marco, por delante de las ruedas.
+            g.appendChild(createRect(left, 0, profile, alto, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(right - profile, 0, profile, alto, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(fillLeft, 0, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
+            g.appendChild(createRect(fillLeft, fillBottom, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
+            if(layout.closedN) drawClosedSlatBottom(g, fillLeft, fillRight, fillBottom, cLama);
+            // Refuerzos repartidos dentro de cada hoja, sin crear apoyos al suelo.
+            if(slidingPostCount > 0) {
+                const vertical = reinforcementVertical;
+                const innerSpan = vertical ? fillRight - fillLeft : fillBottom - fillTop;
+                const requested = Number(document.getElementById('grosorPostes').value);
+                const thickness = Math.min(requested > 0 ? requested : 50, innerSpan / (2 * slidingPostCount + 1));
+                const freeBay = (innerSpan - slidingPostCount * thickness) / (slidingPostCount + 1);
+                reinforcementGap = freeBay;
+                reinforcementThickness = thickness;
+                for(let j = 0; j < slidingPostCount; j++) {
+                    const start = (vertical ? fillLeft : fillTop) + (j + 1) * freeBay + j * thickness;
+                    if(vertical) g.appendChild(createRect(start, fillTop, thickness, fillBottom - fillTop, cMarco, '#111827', 0.7));
+                    else g.appendChild(createRect(fillLeft, start, fillRight - fillLeft, thickness, cMarco, '#111827', 0.7));
+                }
+            }
+            // Flecha horizontal: indica desplazamiento, sin símbolo de bisagras.
+            const toLeft = portalLeaves === 2 ? i === 0 : slidingDirection === 'left';
+            const x1 = left + leafSpan * (toLeft ? 0.725 : 0.275);
+            const x2 = left + leafSpan * (toLeft ? 0.275 : 0.725);
+            const arrowY = slidingPostCount && !reinforcementVertical && slidingPostCount % 2 ? alto * 0.35 : alto / 2;
+            const arrowSize = Math.min(14 / scale, leafSpan * 0.07);
+            const halo = createLine(x1, arrowY, x2, arrowY, '#fff', 6);
+            halo.setAttribute('stroke-linecap', 'round');
+            g.appendChild(halo);
+            const shaft = createLine(x1, arrowY, x2, arrowY, openingColor, 2.5);
+            shaft.setAttribute('stroke-linecap', 'round');
+            g.appendChild(shaft);
+            for(const [tipX, pointsLeft] of [[x2, toLeft], ...(portalLeaves === 1 && slidingDirection === 'both' ? [[x1, !toLeft]] : [])]) {
+                const points = `${tipX + (pointsLeft ? arrowSize : -arrowSize)},${arrowY-arrowSize*0.55} ${tipX},${arrowY} ${tipX + (pointsLeft ? arrowSize : -arrowSize)},${arrowY+arrowSize*0.55}`;
+                for(const [color, width] of [['#fff', 6], [openingColor, 2.5]]) {
+                    const head = createPoly(points, color);
+                    head.setAttribute('stroke-width', width / scale);
+                    head.setAttribute('stroke-linecap', 'round');
+                    head.setAttribute('stroke-linejoin', 'round');
+                    g.appendChild(head);
+                }
+            }
+            leaves.push(layout);
+        }
+        if(showWidthCota) drawDimLineSVG(0, 0, ancho, 0, ancho + ' mm', false, 3);
+        if(showHeightCota) drawDimLineSVG(0, 0, 0, alto, alto + ' mm', true, 3, '#1d4ed8', false, true);
+        if(showRedCota && leaves.length) drawDimLineSVG(0, alto, leafSpan, alto, Math.round(leafSpan) + ' mm', false, 4, '#ef4444', false, false, true);
+        if(showClosedCota && leaves[0] && leaves[0].closedHeight) {
+            const closedHeight = leaves[0].closedHeight;
+            const offset = showPostMeasures && slidingPostCount && !reinforcementVertical ? 100 : 35;
+            drawDimLineSVG(ancho + offset / scale, alto - closedHeight, ancho + offset / scale, alto,
+                Math.round(closedHeight) + ' mm', true, 1, '#16a34a', true, true, true);
+        }
+        if(showPostMeasures && slidingPostCount && reinforcementGap > 0) {
+            const start = profile, end = profile + reinforcementGap;
+            const label = Math.round(reinforcementGap) + ' mm';
+            if(reinforcementVertical) drawDimLineSVG(start, alto + 85 / scale, end, alto + 85 / scale, label, false, 1, '#16a34a', false, false, true);
+            else drawDimLineSVG(ancho + 35 / scale, start, ancho + 35 / scale, end, label, true, 1, '#16a34a', true, true, true);
+        }
+        const first = leaves[0] || {n:0, actualGap:0, actualLama:0};
+        lastComputedN = first.n;
+        lastComputedAL = first.actualLama;
+        lastComputedEsp = first.actualGap;
+        lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
+        const utilEl = document.getElementById('altoUtillamas');
+        if(document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
+        document.getElementById('stats').textContent = `Portal corredera ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Grosor hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''} | Refuerzos: ${slidingPostCount} ${reinforcementVertical ? 'verticales' : 'horizontales'} por hoja${slidingPostCount ? ` (${Math.round(reinforcementThickness)} mm; huecos ${Math.round(reinforcementGap)} mm)` : ''} | 2 ruedas por hoja | Apertura: ${portalLeaves === 1 ? (slidingDirection === 'both' ? 'ambos lados' : slidingDirection === 'left' ? 'izquierda' : 'derecha') : 'ambos lados'}`;
+    }
+
+    function fitDesignPreview(svg, ancho, alto, offsetX, offsetY) {
+        // Encadre común para cierre, valla y portales; incluye las cotas visibles.
+        // No depende de getBBox(), que falla en algunos visores de iPhone.
+        const postCount = slidingMode ? slidingPostCount : posteCount;
+        const postMeasures = showPostMeasures && postCount > 0 && (portalLeaves === 0 || slidingMode);
+        const mixedCota = showClosedCota && portalClosedHeight(alto - (showFloorExtension && !slidingMode ? 50 : 0), Number(document.getElementById('perfilHoja').value) || 50) > 0;
+        const left = showHeightCota ? 92 : 10;
+        const right = Math.max(10, postMeasures && !postsAreVertical() ? 90 : 0,
+            showRedCota && !portalLeaves && !isVertical ? 115 : 0,
+            showFloorExtension ? 90 : 0,
+            mixedCota ? (postMeasures && !postsAreVertical() ? 175 : 105) : 0);
+        const top = showWidthCota ? 88 : 10;
+        const bottom = Math.max(25, postMeasures && postsAreVertical() ? (slidingMode ? 132 : 100) : 0,
+            showRedCota && (portalLeaves > 0 || isVertical) ? 110 : 0);
+        const margin = 14;
+        const x = offsetX - left - margin;
+        const y = offsetY - top - margin;
+        const width = ancho * scale + left + right + 2 * margin;
+        const height = alto * scale + top + bottom + 2 * margin;
+        svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
+        svg.setAttribute('height', String(Math.round(900 * height / width)));
     }
 
     function drawCierre() {
@@ -1003,16 +1189,23 @@ body.dock-on #controls{
 
         const svg = document.getElementById("canvas");
         svg.innerHTML = '';
+        svg.setAttribute('viewBox', '0 0 900 800');
+        svg.setAttribute('width', '900');
+        svg.setAttribute('height', '800');
         const canvasW = 900, canvasH = 800, padding = 140;
         const visualHeight = alto + (showFloorExtension ? 50 : 0);
         scale = Math.min((canvasW - 2 * padding) / ancho, (canvasH - 2 * padding) / visualHeight);
 
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        g.setAttribute("transform", `translate(${(canvasW - ancho * scale)/2}, ${(canvasH - visualHeight * scale)/2}) scale(${scale})`);
+        const offsetX = (canvasW - ancho * scale) / 2;
+        const offsetY = (canvasH - visualHeight * scale) / 2;
+        g.setAttribute("transform", `translate(${offsetX}, ${offsetY}) scale(${scale})`);
         svg.appendChild(g);
 
         if (portalLeaves && !fenceMode) {
-            drawPortal(g, ancho, alto, marco, +document.getElementById('perfilHoja').value, altoLamaInput, sep, cMarco, cLama);
+            if(slidingMode) drawSlidingPortal(g, ancho, alto, +document.getElementById('perfilHoja').value, altoLamaInput, sep, cMarco, cLama);
+            else drawPortal(g, ancho, alto, marco, +document.getElementById('perfilHoja').value, altoLamaInput, sep, cMarco, cLama);
+            fitDesignPreview(svg, ancho, visualHeight, offsetX, offsetY);
             return;
         }
         const closureSideInset = !fenceMode && isVertical && !closureSides ? 0 : marco;
@@ -1290,6 +1483,7 @@ body.dock-on #controls{
 
         const tipo = fenceMode ? 'Valla' : 'Cierre';
         document.getElementById("stats").textContent = `${tipo}${!fenceMode && isVertical ? ' | Laterales: ' + (closureSides ? 'Sí' : 'No') : ''} | Lamas: ${n} | Hueco: ${Math.round(esp)} mm | Lama: ${Math.round(nuevoAL)} mm | Postes: ${posteCount} ${postsAreVertical() ? 'verticales' : 'horizontales'} (${document.getElementById('grosorPostes').value || 50} mm)${showFloorExtension ? ' | Apoyos +50 mm' : ''}`;
+        fitDesignPreview(svg, ancho, visualHeight, offsetX, offsetY);
     }
 
     // --- EVENTOS ---
@@ -1435,7 +1629,7 @@ actionIds.forEach(id => {
             else showMarco = !showMarco;
             updateClosureSidesButton();
         }
-        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); updateClosureSidesButton(); }
+        if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); updatePortalControls(); updateClosureSidesButton(); }
         if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
         if(id !== "toggleLarguero" && id !== "toggleMarco" && id !== "toggleOrientation") e.target.classList.toggle("active");
         drawCierre();
@@ -1466,18 +1660,21 @@ const btnPostePlus = document.getElementById('btnPostePlus');
 const btnPosteMinus = document.getElementById('btnPosteMinus');
 
 function updatePosteBtns(){
-    if(btnPosteMinus) btnPosteMinus.disabled = (posteCount <= 0);
-    if(btnPostePlus) btnPostePlus.textContent = `Poste + (${posteCount})`;
+    const count = slidingMode ? slidingPostCount : posteCount;
+    if(btnPosteMinus) { btnPosteMinus.disabled = count <= 0 || (portalLeaves > 0 && !slidingMode && !fenceMode); btnPosteMinus.textContent = slidingMode ? 'Refuerzo -' : 'Poste -'; }
+    if(btnPostePlus) btnPostePlus.textContent = slidingMode ? `Refuerzo + (${count}/hoja)` : `Poste + (${count})`;
 }
 
 bindTap(btnPostePlus, () => {
-    posteCount = Math.min(posteCount + 1, 10); // límite de seguridad
+    if(slidingMode) slidingPostCount = Math.min(slidingPostCount + 1, 10);
+    else posteCount = Math.min(posteCount + 1, 10); // límite de seguridad
     updatePosteBtns();
     drawCierre();
 });
 
 bindTap(btnPosteMinus, () => {
-    posteCount = Math.max(posteCount - 1, 0);
+    if(slidingMode) slidingPostCount = Math.max(slidingPostCount - 1, 0);
+    else posteCount = Math.max(posteCount - 1, 0);
     updatePosteBtns();
     drawCierre();
 });
@@ -1487,41 +1684,110 @@ updatePosteBtns();
 // --- PORTALES: se conserva el estado de las medidas al cambiar de modo ---
 function updatePortalControls(){
     for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
-        document.getElementById(id).classList.toggle('active', portalLeaves === value && !fenceMode);
+        document.getElementById(id).classList.toggle('active', portalLeaves === value && !fenceMode && !slidingMode);
     }
+    for(const [id, value] of [['modeSliding1', 1], ['modeSliding2', 2]])
+        document.getElementById(id).classList.toggle('active', slidingMode && portalLeaves === value && !fenceMode);
     const opening = document.getElementById('portalOpening');
     const first = document.getElementById('portalActiveLeaf');
     opening.hidden = portalLeaves !== 1 || fenceMode;
-    first.hidden = portalLeaves !== 2 || fenceMode;
-    opening.textContent = `Bisagras: ${portalHinge === 'left' ? 'izquierda' : 'derecha'}`;
+    first.hidden = portalLeaves !== 2 || fenceMode || slidingMode;
+    opening.textContent = slidingMode ? `Desliza: ${slidingDirection === 'both' ? 'ambos lados' : slidingDirection === 'left' ? 'izquierda' : 'derecha'}` : `Bisagras: ${portalHinge === 'left' ? 'izquierda' : 'derecha'}`;
     first.textContent = `Abre primero: ${portalFirst === 'right' ? 'derecha' : 'izquierda'}`;
+    document.getElementById('mainDimensions').classList.toggle('sliding-portal', slidingMode && !fenceMode);
     document.getElementById('labelMarco').textContent = 'Marco';
     document.getElementById('portalProfileGroup').hidden = portalLeaves === 0 || fenceMode;
-    document.getElementById('postThicknessGroup').hidden = portalLeaves > 0 && !fenceMode;
+    document.getElementById('postThicknessGroup').hidden = portalLeaves > 0 && !fenceMode && !slidingMode;
+    document.querySelector('label[for="grosorPostes"]').textContent = slidingMode ? 'Refuerzo' : 'Poste';
+    const mixedAvailable = portalLeaves > 0 && !fenceMode;
+    const mixedActive = mixedAvailable && mixedSlatsEnabled;
+    document.getElementById('mixedSlatsGroup').hidden = !mixedAvailable;
+    document.getElementById('closedHeightField').hidden = !mixedActive;
+    document.getElementById('upperSlatField').hidden = !mixedActive;
+    document.querySelector('label[for="altoLama"]').textContent = mixedActive ? 'Lama abajo' : 'Lama';
+    document.getElementById('mixedOrientationControls').hidden = !mixedActive;
+    document.getElementById('toggleOrientation').hidden = mixedActive;
+    const closedCotaButton = document.getElementById('toggleClosedCota');
+    closedCotaButton.hidden = !mixedActive;
+    closedCotaButton.textContent = `Cota verde: ${showClosedCota ? 'ON' : 'OFF'}`;
+    closedCotaButton.classList.toggle('active', showClosedCota);
+    document.getElementById('toggleBottomOrientation').textContent = `Abajo: ${isVertical ? 'verticales' : 'horizontales'}`;
+    document.getElementById('toggleUpperOrientation').textContent = `Arriba: ${mixedUpperVertical ? 'verticales' : 'horizontales'}`;
+    const mixedButton = document.getElementById('toggleMixedSlats');
+    mixedButton.textContent = `Lamas juntas abajo: ${mixedSlatsEnabled ? 'ON' : 'OFF'}`;
+    mixedButton.classList.toggle('active', mixedAvailable && mixedSlatsEnabled);
     const utilSection = document.getElementById('utilSection');
     utilSection.hidden = portalLeaves > 0 && !fenceMode;
-    for (const id of ['toggleLarguero', 'toggleMarco', 'btnPostePlus', 'btnPosteMinus', 'togglePostMeasures']) {
-        document.getElementById(id).disabled = portalLeaves > 0 && !fenceMode;
-    }
-    if (!portalLeaves && !fenceMode) updatePosteBtns();
+    document.getElementById('toggleMarco').disabled = portalLeaves > 0 && !fenceMode;
+    const measureBtn = document.getElementById('togglePostMeasures');
+    measureBtn.disabled = portalLeaves > 0 && !fenceMode && !slidingMode;
+    measureBtn.textContent = slidingMode ? 'Medidas refuerzos' : 'Medidas postes';
+    document.getElementById('toggleLarguero').disabled = portalLeaves > 0 && !fenceMode && !slidingMode;
+    document.getElementById('btnPostePlus').disabled = portalLeaves > 0 && !fenceMode && !slidingMode;
+    const floorBtn = document.getElementById('toggleFloorExtension');
+    floorBtn.disabled = slidingMode && !fenceMode;
+    if(slidingMode){ showFloorExtension = false; floorBtn.classList.remove('active'); }
+    updatePostDirectionButton();
+    updatePosteBtns();
     updateClosureSidesButton();
 }
 for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
     document.getElementById(id).addEventListener('click', () => {
         portalLeaves = value;
         fenceMode = false;
+        slidingMode = false;
+        updateFenceBtn();
+        updatePortalControls();
+        drawCierre();
+    });
+}
+for(const [id, value] of [['modeSliding1', 1], ['modeSliding2', 2]]){
+    document.getElementById(id).addEventListener('click', () => {
+        portalLeaves = value;
+        slidingMode = true;
+        fenceMode = false;
+        showFloorExtension = false;
         updateFenceBtn();
         updatePortalControls();
         drawCierre();
     });
 }
 document.getElementById('portalOpening').addEventListener('click', () => {
-    portalHinge = portalHinge === 'left' ? 'right' : 'left';
+    if(slidingMode) slidingDirection = slidingDirection === 'both' ? 'right' : slidingDirection === 'right' ? 'left' : 'both';
+    else portalHinge = portalHinge === 'left' ? 'right' : 'left';
     updatePortalControls(); drawCierre();
 });
 document.getElementById('portalActiveLeaf').addEventListener('click', () => {
     portalFirst = portalFirst === 'right' ? 'left' : 'right';
     updatePortalControls(); drawCierre();
+});
+document.getElementById('toggleMixedSlats').addEventListener('click', () => {
+    mixedSlatsEnabled = !mixedSlatsEnabled;
+    if(mixedSlatsEnabled && !upperSlatCustomized)
+        document.getElementById('upperSlatSize').value = document.getElementById('altoLama').value;
+    updatePortalControls();
+    drawCierre();
+});
+document.getElementById('toggleClosedCota').addEventListener('click', () => {
+    showClosedCota = !showClosedCota;
+    updatePortalControls();
+    drawCierre();
+});
+document.getElementById('upperSlatSize').addEventListener('input', () => { upperSlatCustomized = true; });
+document.getElementById('altoLama').addEventListener('input', () => {
+    if(!upperSlatCustomized) document.getElementById('upperSlatSize').value = document.getElementById('altoLama').value;
+});
+document.getElementById('toggleBottomOrientation').addEventListener('click', () => {
+    isVertical = !isVertical;
+    document.getElementById('lblUtiles').textContent = isVertical ? 'Ancho lamas (mm)' : 'Alto lamas (mm)';
+    updatePostDirectionButton();
+    updatePortalControls();
+    drawCierre();
+});
+document.getElementById('toggleUpperOrientation').addEventListener('click', () => {
+    mixedUpperVertical = !mixedUpperVertical;
+    updatePortalControls();
+    drawCierre();
 });
 
 // --- MODO VALLA SIN PERFILES LATERALES ---
@@ -1543,7 +1809,7 @@ function updateFenceBtn(){
 }
 bindTap(btnFence, () => {
     fenceMode = !fenceMode;
-    if(fenceMode) portalLeaves = 0;
+    if(fenceMode){ portalLeaves = 0; slidingMode = false; }
     updateFenceBtn();
     updatePortalControls();
     drawCierre();
@@ -1566,8 +1832,9 @@ updatePortalControls();
         img.onload = function() {
             const ratio = 2; // calidad
             const canvas = document.createElement('canvas');
+            const view = svg.viewBox.baseVal;
             canvas.width = 900 * ratio;
-            canvas.height = 800 * ratio;
+            canvas.height = Math.round(900 * view.height / view.width * ratio);
             const ctx = canvas.getContext('2d');
 
             ctx.fillStyle = '#ffffff';
@@ -1630,8 +1897,9 @@ updatePortalControls();
             img.onload = function(){
                 try{
                     const full = document.createElement('canvas');
+                    const view = svg.viewBox.baseVal;
                     full.width = 900;
-                    full.height = 800;
+                    full.height = Math.round(900 * view.height / view.width);
                     const fullCtx = full.getContext('2d');
                     fullCtx.fillStyle = '#ffffff';
                     fullCtx.fillRect(0, 0, full.width, full.height);
@@ -1676,20 +1944,23 @@ updatePortalControls();
     const VALLA_TEXT_TEMPLATE_KEY = 'valla_docs_text_template_v1';
     const PORTAL_1_TEXT_TEMPLATE_KEY = 'portal_1_docs_text_template_v1';
     const PORTAL_2_TEXT_TEMPLATE_KEY = 'portal_2_docs_text_template_v1';
+    const PORTAL_SLIDE_1_TEXT_TEMPLATE_KEY = 'portal_slide_1_docs_text_template_v1';
+    const PORTAL_SLIDE_2_TEXT_TEMPLATE_KEY = 'portal_slide_2_docs_text_template_v1';
     const CIERRE_RETURN_KEY = 'rey_docs_cierre_text_return_v2';
     const CIERRE_DEFAULT_TEMPLATE = 'CIERRE DE ALUMINIO CON LAMAS {orientacion} DE {lama} mm\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} mm\nSEPARACIÓN ENTRE LAMAS {separacion} mm';
     const VALLA_DEFAULT_TEMPLATE = CIERRE_DEFAULT_TEMPLATE.replace(/^CIERRE/, 'VALLA');
     const PORTAL_OLD_DEFAULT_TEMPLATE = 'PORTAL DE ALUMINIO CON LAMAS {orientacion}\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} mm\n{hojas}\nSEPARACIÓN ENTRE LAMAS: {separacion} mm';
     const PORTAL_DEFAULT_TEMPLATE = 'PORTAL DE ALUMINIO {hojas} CON LAMAS {orientacion} DE {lama} mm\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} - ENTRE LAMAS: {separacion} mm';
     const PORTAL_1_DEFAULT_TEMPLATE = PORTAL_DEFAULT_TEMPLATE + '\nAPERTURA: {apertura}';
+    const PORTAL_SLIDE_DEFAULT_TEMPLATE = 'PORTAL CORREDERA DE ALUMINIO {hojas} CON LAMAS {orientacion} DE {lama} mm\nCOLOR: {color}\nANCHO: {ancho} - ALTO: {alto} - ENTRE LAMAS: {separacion} mm\nAPERTURA: {apertura}\n2 RUEDAS POR HOJA';
     const cierreTemplateInput = document.getElementById('cierreBudgetTemplate');
     let currentBudgetTemplateMode = null;
-    function budgetTemplateMode(){ return portalLeaves === 1 ? 'portal_1' : portalLeaves === 2 ? 'portal_2' : fenceMode ? 'valla' : 'cierre'; }
+    function budgetTemplateMode(){ return slidingMode && portalLeaves ? 'portal_slide_' + portalLeaves : portalLeaves === 1 ? 'portal_1' : portalLeaves === 2 ? 'portal_2' : fenceMode ? 'valla' : 'cierre'; }
     function budgetTemplateKey(mode){
-        return mode === 'valla' ? VALLA_TEXT_TEMPLATE_KEY : mode === 'portal_1' ? PORTAL_1_TEXT_TEMPLATE_KEY : mode === 'portal_2' ? PORTAL_2_TEXT_TEMPLATE_KEY : CIERRE_TEXT_TEMPLATE_KEY;
+        return mode === 'valla' ? VALLA_TEXT_TEMPLATE_KEY : mode === 'portal_1' ? PORTAL_1_TEXT_TEMPLATE_KEY : mode === 'portal_2' ? PORTAL_2_TEXT_TEMPLATE_KEY : mode === 'portal_slide_1' ? PORTAL_SLIDE_1_TEXT_TEMPLATE_KEY : mode === 'portal_slide_2' ? PORTAL_SLIDE_2_TEXT_TEMPLATE_KEY : CIERRE_TEXT_TEMPLATE_KEY;
     }
     function loadBudgetTemplate(mode){
-        const fallback = mode === 'valla' ? VALLA_DEFAULT_TEMPLATE : mode === 'portal_1' ? PORTAL_1_DEFAULT_TEMPLATE : mode === 'portal_2' ? PORTAL_DEFAULT_TEMPLATE : CIERRE_DEFAULT_TEMPLATE;
+        const fallback = mode === 'valla' ? VALLA_DEFAULT_TEMPLATE : mode === 'portal_1' ? PORTAL_1_DEFAULT_TEMPLATE : mode === 'portal_2' ? PORTAL_DEFAULT_TEMPLATE : mode.startsWith('portal_slide_') ? PORTAL_SLIDE_DEFAULT_TEMPLATE : CIERRE_DEFAULT_TEMPLATE;
         try{
             const saved = localStorage.getItem(budgetTemplateKey(mode));
             cierreTemplateInput.value = mode.startsWith('portal_') && (saved === PORTAL_OLD_DEFAULT_TEMPLATE || (mode === 'portal_1' && saved === PORTAL_DEFAULT_TEMPLATE)) ? fallback : (saved || fallback);
@@ -1708,19 +1979,35 @@ updatePortalControls();
         return ral ? 'RAL ' + ral.dataset.ral : lama.toUpperCase();
     }
     function cierreBudgetText(){
+        const totalHeight = Number(document.getElementById('alto').value) || 0;
+        const profile = Number(document.getElementById('perfilHoja').value) || 50;
+        const extension = showFloorExtension && !slidingMode ? 50 : 0;
+        const leafClosedHeight = portalClosedHeight(totalHeight - extension, profile);
+        const closedHeight = leafClosedHeight ? leafClosedHeight + extension : 0;
         const values = {
             ancho: cierreNumber(document.getElementById('ancho').value),
             alto: cierreNumber(document.getElementById('alto').value),
-            lama: cierreNumber(lastComputedAL),
+            lama: cierreNumber(leafClosedHeight > profile ? document.getElementById('altoLama').value : lastComputedAL),
+            lamasuperior: cierreNumber(lastComputedAL),
             separacion: cierreNumber(lastComputedEsp),
             color: cierreColorText(),
             orientacion: isVertical ? 'VERTICALES' : 'HORIZONTALES',
+            orientacionsuperior: mixedUpperVertical ? 'VERTICALES' : 'HORIZONTALES',
             hojas: portalLeaves === 1 ? '1 HOJA' : portalLeaves === 2 ? '2 HOJAS' : '',
-            apertura: portalHinge === 'left' ? 'IZQUIERDA' : 'DERECHA'
+            apertura: slidingMode ? (portalLeaves === 2 || slidingDirection === 'both' ? 'A AMBOS LADOS' : slidingDirection === 'left' ? 'IZQUIERDA' : 'DERECHA') : portalHinge === 'left' ? 'IZQUIERDA' : 'DERECHA',
+            cerrada: cierreNumber(closedHeight)
         };
-        let description = cierreTemplateInput.value.replace(/\{(ancho|alto|lama|separacion|color|orientacion|hojas|apertura)\}/gi,
+        const template = cierreTemplateInput.value;
+        let description = template.replace(/\{(ancho|alto|lama|lamasuperior|separacion|color|orientacion|orientacionsuperior|hojas|apertura|cerrada)\}/gi,
             (_, key) => values[key.toLowerCase()]).trim();
-        if(portalLeaves === 1 && !/\bAPERTURA\s*:/i.test(description)) description += '\nAPERTURA: ' + values.apertura;
+        if(leafClosedHeight > profile && !/ZONA INFERIOR|LAMAS JUNTAS/i.test(description)) {
+            if([PORTAL_DEFAULT_TEMPLATE, PORTAL_1_DEFAULT_TEMPLATE, PORTAL_SLIDE_DEFAULT_TEMPLATE].includes(template)) {
+                description = description.replace(/ - ENTRE LAMAS: [^\n]+ mm/, '');
+                description = description.replace(' CON LAMAS ' + values.orientacion + ' DE ' + values.lama + ' mm', ' CON LAMAS');
+            }
+            description += '\nZONA INFERIOR: LAMAS ' + values.orientacion + ' DE ' + values.lama + ' mm JUNTAS HASTA ' + values.cerrada + ' mm DESDE ABAJO\nZONA SUPERIOR: LAMAS ' + values.orientacionsuperior + ' DE ' + values.lamasuperior + ' mm SEPARADAS ' + values.separacion + ' mm';
+        }
+        if((portalLeaves === 1 || slidingMode) && !/\bAPERTURA\s*:/i.test(description)) description += '\nAPERTURA: ' + values.apertura;
         return description;
     }
     function refreshCierreBudgetText(){
@@ -1804,7 +2091,7 @@ updatePortalControls();
             drawCierre();
             const description = cierreBudgetText();
             if(!description) throw new Error('Escribe el texto del concepto');
-            const name = portalLeaves === 1 ? 'Portal 1 hoja' : portalLeaves === 2 ? 'Portal 2 hojas' : fenceMode ? 'Valla' : 'Cierre';
+            const name = slidingMode ? 'Portal corredera ' + portalLeaves + (portalLeaves === 1 ? ' hoja' : ' hojas') : portalLeaves === 1 ? 'Portal 1 hoja' : portalLeaves === 2 ? 'Portal 2 hojas' : fenceMode ? 'Valla' : 'Cierre';
             const reference = name.toUpperCase() + ' ' + cierreNumber(document.getElementById('ancho').value) + 'x' + cierreNumber(document.getElementById('alto').value);
             let stored = false;
             for(const scale of [2, 1]){
