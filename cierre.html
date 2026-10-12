@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.45</title>
+  <title>Cierre v3.7.53</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -67,7 +67,7 @@
     #mainDimensions.sliding-portal #marcoField{display:none;}
     #mixedSlatsGroup[hidden], #closedHeightField[hidden], #upperSlatField[hidden], #mixedOrientationControls[hidden], #toggleClosedCota[hidden], #toggleOrientation[hidden]{display:none;}
     #mixedSlatsGroup{width:100%;display:flex;align-items:end;flex-wrap:wrap;gap:10px;box-sizing:border-box;}
-    #mixedSlatsGroup > button{flex:1 1 100%;min-width:0;}
+    #mixedSlatsGroup > button{flex:0 0 calc((100% - 24px)/4);min-width:0;}
     #mixedOrientationControls{display:flex;gap:10px;width:100%;}
     #mixedOrientationControls button{flex:1 1 0;}
     #closedHeightField, #upperSlatField{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:5px;}
@@ -92,19 +92,24 @@
     }
 
     
-    /* SELECTORES DE COLOR (IGUALES AL ORIGINAL) */
-    .color-row { display: flex; gap: 12px; }
+    /* Selectores de color junto a las muestras RAL. */
+    .ral-section{display:flex;flex-direction:column;gap:8px;width:100%;}
+    .color-row { display: grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%; }
     .color-picker-button {
-        flex: 1;
-        padding: 12px 8px;
+        min-width:0;
+        min-height:43px;
+        padding:2px 3px;
         font-size: 16px;
-        font-weight: 500;
-        border: 1px solid #93a4bf;
-        border-radius: 8px;
+        font-weight: 600;
+        border: 2px solid #000;
+        border-radius: 7px;
         background: #4b5563;
         color: #ffffff;
         text-align: center;
-        box-shadow: 0 6px 8px rgba(0,0,0,0.32);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        box-shadow: 0 5px 7px rgba(0,0,0,0.42);
         position: relative;
         overflow: hidden;
         box-sizing: border-box;
@@ -194,6 +199,11 @@
       width: 100%;
       margin-top: 8px;
     }
+    #portalControls{margin-top:0;}
+    #portalControls .two-line{flex-direction:column;gap:2px;}
+    .control-heading{font-size:14px;font-weight:800;color:#334155;margin-bottom:-12px;}
+    #dimensionActions{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
+    #dimensionActions .action-button{font-size:11px;padding:6px 2px;}
 
     /* Botones compactos, con el aspecto de la versión antigua */
     .action-button {
@@ -231,6 +241,12 @@
 
     /* Estado activo (blanco con borde azul) */
     .action-button.active {
+      background-color: #e0eaff;
+      color: #374151;
+      border: 2px solid #1e3a8a;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .action-button.cota-off {
       background-color: #e0eaff;
       color: #374151;
       border: 2px solid #1e3a8a;
@@ -482,7 +498,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.45</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.53</span></h1>
 </div>
 
 <form id="form">
@@ -495,33 +511,50 @@ body.dock-on #controls{
         <div class="dimension-field" id="postThicknessGroup"><label for="grosorPostes">Poste</label><input type="number" id="grosorPostes" min="1" value="50" inputmode="numeric"></div>
         <div class="dimension-field" id="marcoField"><label for="marco" id="labelMarco">Marco</label><input type="number" id="marco" value="50"></div>
     </div>
+    <div class="button-row" id="portalControls">
+        <button type="button" class="action-button active" id="modeCierre">Cierre</button>
+        <button type="button" class="action-button two-line" id="modePortal1" aria-label="Portal 1 hoja"><span>Portal</span><span>1 hoja</span></button>
+        <button type="button" class="action-button two-line" id="modePortal2" aria-label="Portal 2 hojas"><span>Portal</span><span>2 hojas</span></button>
+        <button type="button" class="action-button two-line" id="modeSliding1" aria-label="Corredera 1 hoja"><span>Corredera</span><span>1 hoja</span></button>
+        <button type="button" class="action-button two-line" id="modeSliding2" aria-label="Corredera 2 hojas"><span>Corredera</span><span>2 hojas</span></button>
+        <button type="button" class="action-button" id="portalOpening" hidden>Bisagras: izquierda</button>
+    </div>
     <div id="mixedSlatsGroup" hidden>
-        <button type="button" class="action-button" id="toggleMixedSlats">Lamas juntas abajo: OFF</button>
-        <div id="closedHeightField" hidden><label for="closedSlatsHeight">Hasta (mm)</label><input type="number" id="closedSlatsHeight" min="0" value="1000" inputmode="numeric"></div>
-        <div id="upperSlatField" hidden><label for="upperSlatSize">Lama arriba (mm)</label><input type="number" id="upperSlatSize" min="1" value="200" inputmode="numeric"></div>
+        <button type="button" class="action-button" id="toggleMixedSlats">Lamas juntas</button>
+        <div id="closedHeightField" hidden><label for="closedSlatsHeight">Altura lamas</label><input type="number" id="closedSlatsHeight" min="0" value="1000" inputmode="numeric"></div>
+        <div id="upperSlatField" hidden><label for="upperSlatSize">Lamas arriba</label><input type="number" id="upperSlatSize" min="1" value="200" inputmode="numeric"></div>
         <div id="mixedOrientationControls" hidden>
             <button type="button" class="action-button" id="toggleBottomOrientation">Abajo: horizontales</button>
             <button type="button" class="action-button" id="toggleUpperOrientation">Arriba: horizontales</button>
         </div>
-        <button type="button" class="action-button active" id="toggleClosedCota" hidden>Cota verde: ON</button>
     </div>
 
+    <div id="utilSection" style="width:100%">
+        <label id="lblUtiles">Alto lamas (mm)</label>
+        <input type="number" id="altoUtillamas" step="1" inputmode="numeric">
+        <div id="fenceInfo" style="display:none; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;">
+            <div class="fence-info-box"><span>Lamas</span><strong id="fenceInfoLamas">0</strong></div>
+            <div class="fence-info-box"><span>Hueco real</span><strong id="fenceInfoHueco">0 mm</strong></div>
+        </div>
+    </div>
+
+    <div class="ral-section">
+    <div class="ral-title">Colores RAL · marco y lamas</div>
     <div class="color-row">
         <div class="color-picker-button" id="btnMarcoWrapper">
-            Color Marco <br>
+            Marco
             <input type="color" id="colorMarcoPicker" value="#44322d">
         </div>
         <div class="color-picker-button" id="btnLamaWrapper">
-            Color Lama <br>
+            Lamas
             <input type="color" id="colorLamaPicker" value="#44322d">
         </div>
         <div class="color-picker-button" id="btnAperturaWrapper">
-            Color Apertura <br>
+            Apertura
             <input type="color" id="colorAperturaPicker" value="#dc2626">
         </div>
     </div>
 
-    <div class="ral-title">Colores RAL</div>
     <div class="ral-buttons-container" id="ral-buttons">
         <div class="ral-button" data-color="#2b2c7c" data-ral="5010"><span>RAL</span><span>5010</span></div>
         <div class="ral-button" data-color="#1c1c1c" data-ral="9005"><span>RAL</span><span>9005</span></div>
@@ -539,38 +572,29 @@ body.dock-on #controls{
         <div class="ral-button" data-color="#8d1d2c" data-ral="3005"><span>RAL</span><span>3005</span></div>
         <div class="ral-button" data-color="#e86b16" data-ral="2004"><span>RAL</span><span>2004</span></div>
     </div>
-
-    <div id="utilSection" style="width:100%">
-        <label id="lblUtiles">Alto lamas (mm)</label>
-        <input type="number" id="altoUtillamas" step="1" inputmode="numeric">
-        <div id="fenceInfo" style="display:none; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;">
-            <div class="fence-info-box"><span>Lamas</span><strong id="fenceInfoLamas">0</strong></div>
-            <div class="fence-info-box"><span>Hueco real</span><strong id="fenceInfoHueco">0 mm</strong></div>
-        </div>
     </div>
 
-    <div class="button-row" id="portalControls">
-        <button type="button" class="action-button active" id="modeCierre">Cierre</button>
-        <button type="button" class="action-button" id="modePortal1">Portal 1 hoja</button>
-        <button type="button" class="action-button" id="modePortal2">Portal 2 hojas</button>
-        <button type="button" class="action-button" id="modeSliding1">Corredera 1 hoja</button>
-        <button type="button" class="action-button" id="modeSliding2">Corredera 2 hojas</button>
-        <button type="button" class="action-button" id="portalOpening" hidden>Bisagras: izquierda</button>
-        <button type="button" class="action-button" id="portalActiveLeaf" hidden>Abre primero: derecha</button>
-    </div>
-    <div class="button-row">
-        <button type="button" class="action-button" id="toggleDistrMode">Ajustar huecos</button>
-        <button type="button" class="action-button" id="toggleWidthCota">Cota ancho</button>
-        <button type="button" class="action-button" id="toggleHeightCota">Cota alto</button>
-        <button type="button" class="action-button" id="toggleRedCota">Cota roja</button>
-        <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
-        <button type="button" class="action-button" id="toggleMarco">Marco</button>
+    <div class="control-heading">Diseño</div>
+    <div class="button-row" id="designActions">
         <button type="button" class="action-button" id="toggleOrientation">Horizontal / vertical</button>
+        <button type="button" class="action-button" id="toggleMarco">Marco</button>
+        <button type="button" class="action-button" id="btnFence">Modo valla</button>
+        <button type="button" class="action-button" id="toggleFloorExtension">+50 mm al suelo</button>
+    </div>
+    <div class="control-heading">Reparto y refuerzos</div>
+    <div class="button-row" id="reinforcementActions">
+        <button type="button" class="action-button" id="toggleDistrMode">Ajustar huecos</button>
         <button type="button" class="action-button" id="toggleLarguero">Postes: verticales</button>
         <button type="button" class="action-button" id="btnPosteMinus">Poste -</button>
         <button type="button" class="action-button" id="btnPostePlus">Poste +</button>
-        <button type="button" class="action-button" id="toggleFloorExtension">+50 mm al suelo</button>
-            <button type="button" class="action-button" id="btnFence">Modo valla</button>
+    </div>
+    <div class="control-heading">Cotas</div>
+    <div class="button-row" id="dimensionActions">
+        <button type="button" class="action-button" id="toggleWidthCota">Ancho</button>
+        <button type="button" class="action-button" id="toggleHeightCota">Alto</button>
+        <button type="button" class="action-button" id="toggleRedCota">Roja</button>
+        <button type="button" class="action-button" id="toggleClosedCota" hidden>Verde</button>
+        <button type="button" class="action-button" id="togglePostMeasures">Medidas postes</button>
     </div>
         <div id="cierreBudgetTextSection" hidden style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;box-sizing:border-box">
           <label for="cierreBudgetTemplate" style="display:block;font-weight:800;margin-bottom:7px">Texto predeterminado del concepto</label>
@@ -624,7 +648,7 @@ body.dock-on #controls{
     function updatePostDirectionButton(){
         document.getElementById('toggleLarguero').textContent = `${slidingMode ? 'Refuerzos' : 'Postes'}: ${postsAreVertical() ? 'verticales' : 'horizontales'}`;
     }
-    let portalLeaves = 0, portalHinge = 'left', portalFirst = 'right', slidingMode = false, slidingDirection = 'both', slidingPostCount = 0, mixedSlatsEnabled = false, mixedUpperVertical = false, upperSlatCustomized = false, showClosedCota = true;
+    let portalLeaves = 0, portalHinge = 'left', slidingMode = false, slidingDirection = 'both', slidingPostCount = 0, mixedSlatsEnabled = false, mixedUpperVertical = false, upperSlatCustomized = false, showClosedCota = true;
     // Guarda los valores anteriores al activar el modo alternativo de reparto.
     // Al volver a desactivarlo, la app recupera exactamente el estado inicial.
     let distrModeSnapshot = null;
@@ -834,8 +858,9 @@ body.dock-on #controls{
     function drawDimLineSVG(x1, y1, x2, y2, text, vertical, level = 1, color = "#1d4ed8", alignRight = false, invertText = false, textBelowLine = false) {
         const g = document.getElementById("canvas").querySelector("g");
         const lineOffset = (-15 / scale) + (level - 1) * (20 / scale);
-        const textOffset = lineOffset + (28 / scale);
-        const fontSize = 50 / scale;
+        const greenDimension = color.toLowerCase() === '#16a34a';
+        const textOffset = lineOffset + ((greenDimension ? 22 : 28) / scale);
+        const fontSize = (greenDimension ? 38 : 50) / scale;
         const arrowSize = 5 / scale;
 
         let lx1, ly1, lx2, ly2, tx, ty;
@@ -851,7 +876,9 @@ body.dock-on #controls{
             ty = textBelowLine ? y1 + textOffset : y1 - textOffset;
         }
 
-        g.appendChild(createLine(lx1, ly1, lx2, ly2, color, 1.5));
+        const dimensionLine = createLine(lx1, ly1, lx2, ly2, color, 1.5);
+        dimensionLine.setAttribute('data-cota-stroke', '1.5');
+        g.appendChild(dimensionLine);
         
         let p1, p2;
         if(vertical) {
@@ -861,15 +888,20 @@ body.dock-on #controls{
             p1 = `${lx1+arrowSize},${ly1-arrowSize} ${lx1},${ly1} ${lx1+arrowSize},${ly1+arrowSize}`;
             p2 = `${lx2-arrowSize},${ly2-arrowSize} ${lx2},${ly2} ${lx2-arrowSize},${ly2+arrowSize}`;
         }
-        g.appendChild(createPoly(p1, color));
-        g.appendChild(createPoly(p2, color));
+        for(const [points, tipX, tipY, end] of [[p1, lx1, ly1, false], [p2, lx2, ly2, true]]) {
+            const arrow = createPoly(points, color);
+            arrow.setAttribute('data-cota-arrow', `${tipX},${tipY},${vertical ? 1 : 0},${end ? 1 : 0}`);
+            arrow.setAttribute('data-cota-stroke', '1');
+            g.appendChild(arrow);
+        }
 
         if (text !== "") {
         const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
         t.setAttribute("x", tx); t.setAttribute("y", ty); t.setAttribute("fill", color);
-        t.setAttribute("font-size", fontSize); t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "middle");
+        t.setAttribute("font-size", fontSize); t.setAttribute('data-cota-font', greenDimension ? '38' : '50');
+        t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "middle");
         if (vertical) t.setAttribute("transform", `rotate(${invertText ? -90 : 90} ${tx} ${ty})`);
-        t.textContent = text;
+        t.textContent = String(text).replace(/\s*mm$/i, '');
         g.appendChild(t);
     }
 }
@@ -895,8 +927,9 @@ body.dock-on #controls{
         note.setAttribute('y', alto + 25);
         note.setAttribute('fill', '#1d4ed8');
         note.setAttribute('font-size', 17 / scale);
+        note.setAttribute('data-cota-font', '17');
         note.setAttribute('dominant-baseline', 'middle');
-        note.textContent = '+50 mm';
+        note.textContent = '+50';
         g.appendChild(note);
     }
 
@@ -1038,7 +1071,7 @@ body.dock-on #controls{
         lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
         const utilEl = document.getElementById('altoUtillamas');
         if (document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
-        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight + (showFloorExtension ? 50 : 0)) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''} | ${portalLeaves === 1 ? 'Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : 'Abre primero: ' + (portalFirst === 'right' ? 'derecha' : 'izquierda')}${showFloorExtension ? ' | Laterales +50 mm' : ''}`;
+        document.getElementById('stats').textContent = `Portal ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Ancho hoja: ${Math.round(leafSpan)} mm | Interior hoja: ${Math.round(leafSpan - 2 * profile)} mm | Perfil hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight + (showFloorExtension ? 50 : 0)) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''}${portalLeaves === 1 ? ' | Bisagras: ' + (portalHinge === 'left' ? 'izquierda' : 'derecha') : ''}${showFloorExtension ? ' | Laterales +50 mm' : ''}`;
     }
 
     function drawSlidingPortal(g, ancho, alto, perfilHoja, lamaSize, hueco, cMarco, cLama) {
@@ -1158,6 +1191,21 @@ body.dock-on #controls{
         const height = alto * scale + top + bottom + 2 * margin;
         svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
         svg.setAttribute('height', String(Math.round(900 * height / width)));
+        // La escala interna del dibujo y el recorte del SVG se compensan:
+        // números, trazos y puntas mantienen el mismo tamaño visible.
+        const unit = width / (900 * scale);
+        svg.querySelectorAll('[data-cota-font]').forEach(el =>
+            el.setAttribute('font-size', Number(el.getAttribute('data-cota-font')) * unit));
+        svg.querySelectorAll('[data-cota-stroke]').forEach(el =>
+            el.setAttribute('stroke-width', Number(el.getAttribute('data-cota-stroke')) * unit));
+        svg.querySelectorAll('[data-cota-arrow]').forEach(el => {
+            const [ax, ay, verticalArrow, end] = el.getAttribute('data-cota-arrow').split(',').map(Number);
+            const arrowSize = 5 * unit;
+            const points = verticalArrow
+                ? `${ax-arrowSize},${ay+(end ? -arrowSize : arrowSize)} ${ax},${ay} ${ax+arrowSize},${ay+(end ? -arrowSize : arrowSize)}`
+                : `${ax+(end ? -arrowSize : arrowSize)},${ay-arrowSize} ${ax},${ay} ${ax+(end ? -arrowSize : arrowSize)},${ay+arrowSize}`;
+            el.setAttribute('points', points);
+        });
     }
 
     function drawCierre() {
@@ -1547,20 +1595,18 @@ body.dock-on #controls{
 // Control de Colores
     function updateColorBtn(wrapperId, color) {
         const wrapper = document.getElementById(wrapperId);
-        wrapper.style.borderColor = color;
-        // Para los botones grandes no cambiamos el fondo entero para no tapar el texto,
-        // pero podemos poner un borde grueso o un pequeño indicador.
-        // En este diseño tipo "Foto 1", el botón suele ser blanco con borde de color o fondo claro.
-        // Ajustamos ligeramente:
-        wrapper.style.borderLeft = `4px solid ${color}`;
+        wrapper.style.backgroundColor = color;
+        wrapper.style.color = getContrastColor(color);
     }
     
     document.getElementById("colorMarcoPicker").oninput = (e) => {
         updateColorBtn("btnMarcoWrapper", e.target.value);
+        document.querySelectorAll('.ral-button.selected').forEach(button => button.classList.remove('selected'));
         drawCierre();
     };
     document.getElementById("colorLamaPicker").oninput = (e) => {
         updateColorBtn("btnLamaWrapper", e.target.value);
+        document.querySelectorAll('.ral-button.selected').forEach(button => button.classList.remove('selected'));
         drawCierre();
     };
     document.getElementById("colorAperturaPicker").oninput = (e) => {
@@ -1585,6 +1631,15 @@ body.dock-on #controls{
     });
 
     // --- BOTONES DE ACCIÓN ---
+function updateCotaButtons() {
+    for(const [id, enabled] of [['toggleWidthCota', showWidthCota], ['toggleHeightCota', showHeightCota], ['toggleRedCota', showRedCota], ['toggleClosedCota', showClosedCota], ['togglePostMeasures', showPostMeasures]]) {
+        const button = document.getElementById(id);
+        button.classList.remove('active');
+        button.classList.toggle('cota-off', !enabled);
+        button.setAttribute('aria-pressed', String(enabled));
+    }
+}
+const cotaIds = ['toggleWidthCota', 'toggleHeightCota', 'toggleRedCota', 'togglePostMeasures'];
 const actionIds = ["toggleDistrMode", "toggleWidthCota", "toggleHeightCota", "toggleRedCota", "togglePostMeasures", "toggleMarco", "toggleOrientation", "toggleLarguero", "toggleFloorExtension"];
 actionIds.forEach(id => {
     const el = document.getElementById(id);
@@ -1631,10 +1686,12 @@ actionIds.forEach(id => {
         }
         if(id === "toggleOrientation") { isVertical = !isVertical; document.getElementById("lblUtiles").textContent = isVertical ? "Ancho lamas (mm)" : "Alto lamas (mm)"; updatePostDirectionButton(); updatePortalControls(); updateClosureSidesButton(); }
         if(id === "toggleLarguero") { postDirectionOverride = !postsAreVertical(); updatePostDirectionButton(); }
-        if(id !== "toggleLarguero" && id !== "toggleMarco" && id !== "toggleOrientation") e.target.classList.toggle("active");
+        if(cotaIds.includes(id)) updateCotaButtons();
+        else if(id !== "toggleLarguero" && id !== "toggleMarco" && id !== "toggleOrientation") e.target.classList.toggle("active");
         drawCierre();
     });
 });
+updateCotaButtons();
 updatePostDirectionButton();
 updateClosureSidesButton();
 
@@ -1689,11 +1746,16 @@ function updatePortalControls(){
     for(const [id, value] of [['modeSliding1', 1], ['modeSliding2', 2]])
         document.getElementById(id).classList.toggle('active', slidingMode && portalLeaves === value && !fenceMode);
     const opening = document.getElementById('portalOpening');
-    const first = document.getElementById('portalActiveLeaf');
     opening.hidden = portalLeaves !== 1 || fenceMode;
-    first.hidden = portalLeaves !== 2 || fenceMode || slidingMode;
-    opening.textContent = slidingMode ? `Desliza: ${slidingDirection === 'both' ? 'ambos lados' : slidingDirection === 'left' ? 'izquierda' : 'derecha'}` : `Bisagras: ${portalHinge === 'left' ? 'izquierda' : 'derecha'}`;
-    first.textContent = `Abre primero: ${portalFirst === 'right' ? 'derecha' : 'izquierda'}`;
+    opening.classList.toggle('two-line', slidingMode);
+    if(slidingMode) {
+        const direction = slidingDirection === 'both' ? 'ambas' : slidingDirection === 'left' ? 'izquierda' : 'derecha';
+        opening.innerHTML = `<span>Apertura</span><span>${direction}</span>`;
+        opening.setAttribute('aria-label', `Apertura ${direction}`);
+    } else {
+        opening.textContent = `Bisagras: ${portalHinge === 'left' ? 'izquierda' : 'derecha'}`;
+        opening.setAttribute('aria-label', opening.textContent);
+    }
     document.getElementById('mainDimensions').classList.toggle('sliding-portal', slidingMode && !fenceMode);
     document.getElementById('labelMarco').textContent = 'Marco';
     document.getElementById('portalProfileGroup').hidden = portalLeaves === 0 || fenceMode;
@@ -1709,13 +1771,14 @@ function updatePortalControls(){
     document.getElementById('toggleOrientation').hidden = mixedActive;
     const closedCotaButton = document.getElementById('toggleClosedCota');
     closedCotaButton.hidden = !mixedActive;
-    closedCotaButton.textContent = `Cota verde: ${showClosedCota ? 'ON' : 'OFF'}`;
-    closedCotaButton.classList.toggle('active', showClosedCota);
+    closedCotaButton.textContent = 'Verde';
+    updateCotaButtons();
     document.getElementById('toggleBottomOrientation').textContent = `Abajo: ${isVertical ? 'verticales' : 'horizontales'}`;
     document.getElementById('toggleUpperOrientation').textContent = `Arriba: ${mixedUpperVertical ? 'verticales' : 'horizontales'}`;
     const mixedButton = document.getElementById('toggleMixedSlats');
-    mixedButton.textContent = `Lamas juntas abajo: ${mixedSlatsEnabled ? 'ON' : 'OFF'}`;
+    mixedButton.textContent = 'Lamas juntas';
     mixedButton.classList.toggle('active', mixedAvailable && mixedSlatsEnabled);
+    mixedButton.setAttribute('aria-pressed', String(mixedSlatsEnabled));
     const utilSection = document.getElementById('utilSection');
     utilSection.hidden = portalLeaves > 0 && !fenceMode;
     document.getElementById('toggleMarco').disabled = portalLeaves > 0 && !fenceMode;
@@ -1755,10 +1818,6 @@ for(const [id, value] of [['modeSliding1', 1], ['modeSliding2', 2]]){
 document.getElementById('portalOpening').addEventListener('click', () => {
     if(slidingMode) slidingDirection = slidingDirection === 'both' ? 'right' : slidingDirection === 'right' ? 'left' : 'both';
     else portalHinge = portalHinge === 'left' ? 'right' : 'left';
-    updatePortalControls(); drawCierre();
-});
-document.getElementById('portalActiveLeaf').addEventListener('click', () => {
-    portalFirst = portalFirst === 'right' ? 'left' : 'right';
     updatePortalControls(); drawCierre();
 });
 document.getElementById('toggleMixedSlats').addEventListener('click', () => {
