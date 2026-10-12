@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.53</title>
+  <title>Cierre v3.7.54</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -498,7 +498,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.53</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.54</span></h1>
 </div>
 
 <form id="form">
@@ -860,7 +860,7 @@ body.dock-on #controls{
         const lineOffset = (-15 / scale) + (level - 1) * (20 / scale);
         const greenDimension = color.toLowerCase() === '#16a34a';
         const textOffset = lineOffset + ((greenDimension ? 22 : 28) / scale);
-        const fontSize = (greenDimension ? 38 : 50) / scale;
+        const fontSize = (greenDimension ? 52 : 62) / scale;
         const arrowSize = 5 / scale;
 
         let lx1, ly1, lx2, ly2, tx, ty;
@@ -898,7 +898,7 @@ body.dock-on #controls{
         if (text !== "") {
         const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
         t.setAttribute("x", tx); t.setAttribute("y", ty); t.setAttribute("fill", color);
-        t.setAttribute("font-size", fontSize); t.setAttribute('data-cota-font', greenDimension ? '38' : '50');
+        t.setAttribute("font-size", fontSize); t.setAttribute('data-cota-font', greenDimension ? '52' : '62');
         t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "middle");
         if (vertical) t.setAttribute("transform", `rotate(${invertText ? -90 : 90} ${tx} ${ty})`);
         t.textContent = String(text).replace(/\s*mm$/i, '');
@@ -1191,11 +1191,21 @@ body.dock-on #controls{
         const height = alto * scale + top + bottom + 2 * margin;
         svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
         svg.setAttribute('height', String(Math.round(900 * height / width)));
-        // La escala interna del dibujo y el recorte del SVG se compensan:
-        // números, trazos y puntas mantienen el mismo tamaño visible.
+        // Sacar los textos del grupo escalado. Su tamaño se fija respecto al
+        // ancho final del PNG (900 px), independientemente del ancho del cierre.
         const unit = width / (900 * scale);
-        svg.querySelectorAll('[data-cota-font]').forEach(el =>
-            el.setAttribute('font-size', Number(el.getAttribute('data-cota-font')) * unit));
+        svg.querySelectorAll('[data-cota-font]').forEach(el => {
+            const localX = Number(el.getAttribute('x'));
+            const localY = Number(el.getAttribute('y'));
+            const x = offsetX + localX * scale;
+            const y = offsetY + localY * scale;
+            const rotation = el.getAttribute('transform');
+            el.setAttribute('x', x);
+            el.setAttribute('y', y);
+            el.setAttribute('font-size', Number(el.getAttribute('data-cota-font')) * width / 900);
+            if(rotation) el.setAttribute('transform', `rotate(${rotation.includes('rotate(-90') ? -90 : 90} ${x} ${y})`);
+            svg.appendChild(el);
+        });
         svg.querySelectorAll('[data-cota-stroke]').forEach(el =>
             el.setAttribute('stroke-width', Number(el.getAttribute('data-cota-stroke')) * unit));
         svg.querySelectorAll('[data-cota-arrow]').forEach(el => {
