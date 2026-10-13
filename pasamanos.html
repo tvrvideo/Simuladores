@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pasamanos v1.13</title>
+<title>Pasamanos v1.15</title>
 <style>
 :root{--bg:#eef2f5;--card:#fff;--ink:#111827;--muted:#667085;--red:#a40000;--gold:#ffe66b;--green:#009d38;--green2:#20ef29;--blue:#e8eef5;--line:#d9e2ec;--edit:#fff4a8;--edit2:#fff9cf}*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}header{position:sticky;top:0;z-index:10;background:#111;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:18px;margin:0}.ver{font-weight:950;background:#2b3842;border-radius:8px;padding:6px 10px}.wrap{width:100%;max-width:980px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.title{font-size:18px;font-weight:950;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;margin:6px 0}.hint{font-size:12px;color:#667085;font-weight:850;margin-top:8px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd5df;border-radius:12px;padding:11px;font-size:20px;font-weight:950;background:#fff;color:#111}.dato input,.dato select{background:var(--edit);border-color:#e0c94d;box-shadow:inset 0 0 0 1px #fff6}.dato input:focus,.dato select:focus{outline:3px solid #ffe16a;background:#fff7bd}.autoBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.autoBox .dato input{background:#fffbe2}button{border:0;border-radius:13px;padding:13px 14px;font-size:16px;font-weight:950;background:#1f2937;color:#fff}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns button{flex:1;min-width:135px}.ok{background:var(--green)}.warn{background:#ffca28;color:#111}.light{background:#e8eef5;color:#111}.danger{background:#b00020}.mini{font-size:13px;padding:8px 10px}.switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.switch button{background:#e8eef5;color:#111}.switch button.active{background:#111;color:white}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.checkrow{display:flex;align-items:center;gap:9px;background:#f3f6f9;border-radius:12px;padding:12px;font-weight:950}.checkrow input{width:24px;height:24px;accent-color:#111}.hidden{display:none}.canvasBox{overflow:hidden}.svgWrap{width:100%;max-width:900px;margin:auto;overflow:hidden;display:flex;justify-content:center;align-items:center;background:white;border:1px solid #dfe6ee;border-radius:14px}#svgWrap svg{width:100%;height:auto;display:block}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}@media(min-width:760px){.result{grid-template-columns:repeat(5,1fr)}}.kpi{background:#eef6ea;border:1px solid #d8ead2;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:12px;color:#4d5b68}.kpi span{font-size:22px;font-weight:950}.total{background:var(--green2)}.mid{background:#fff3bd}.bad{background:#ffd1d1}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tag{font-size:14px;font-weight:950;padding:9px 11px;border-radius:10px}.lg70{background:#bbb}.lg30{background:#8fb3e8}.lgova{background:#555;color:#fff}.lgpas{background:#ddd}.lganc{background:#f5d56a}
 .fabricacion{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.fabBox{border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;padding:10px}.fabBox b{display:block;color:#667085;font-size:12px}.fabBox span{display:block;font-size:22px;font-weight:950}.fabTitle{font-size:18px;font-weight:950;margin:10px 0 8px}.markNote{font-size:13px;color:#667085;font-weight:850;margin:6px 0 10px}.marktable th{font-size:13px}.marktable td{font-size:15px}.marktable .num{background:#eaf7ff}.marktable .cen{background:#fff3bd}.marktable .edge{background:#d8ffff}@media(min-width:760px){.fabricacion{grid-template-columns:repeat(6,1fr)}}
@@ -100,7 +100,7 @@ body.fromDocs{padding-bottom:72px;}
 </style>
 </head>
 <body>
-<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.13</span></div></header>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.15</span></div></header>
 <div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
 
 <div class="wrap">
@@ -126,6 +126,8 @@ body.fromDocs{padding-bottom:72px;}
       <option value="angulo">Pared ángulo</option>
     </select></div>
   </div>
+  <div class="sideBox" style="margin-top:8px"><label for="rematePoste">Remate de los postes 70×70</label><select id="rematePoste" style="width:100%;height:44px;font-size:16px;padding:8px;border-radius:12px;background:var(--edit);border-color:#e0c94d;text-align:center;font-weight:950"><option value="bola">Bola</option><option value="ninguno">Sin remate</option><option value="piramide">Pirámide pequeña</option></select></div>
+  <div class="hint">El tubo del poste sobresale 30 mm por encima del pasamanos, sin contar el remate.</div>
 </section>
 <section class="card canvasBox">
   <p class="title">Gráfico</p>
@@ -138,7 +140,8 @@ body.fromDocs{padding-bottom:72px;}
   <details class="fold" open><summary>Fabricación</summary><div class="inputs" style="margin-top:10px">
     <div><label>Ovalado corte mm</label><input id="hOva" type="number" value="740"></div><div><label>Pata suelo mm</label><input id="hPata" type="number" value="50"></div>
     <div><label>Anclaje inferior alto mm</label><input id="hAncInf" type="number" value="25"></div><div><label>Anclaje superior alto mm</label><input id="hAncSup" type="number" value="25"></div>
-    <div><label>Pasamanos alto mm</label><input id="hPas" type="number" value="50"></div><div><label>Extra bola mm</label><input id="hBola" type="number" value="50"></div>
+    <div><label>Pasamanos alto mm</label><input id="hPas" type="number" value="50"></div><div><label>Alto bola mm</label><input id="hBola" type="number" value="50"></div>
+    <div><label>Alto pirámide mm</label><input id="hPiramide" type="number" value="20"></div>
     <div><label>Grosor ovalado mm</label><input id="gOva" type="number" value="17"></div><div><label>Hueco objetivo mm</label><input id="huecoObj" type="number" value="105"></div>
     <div><label>Intermedio cada máx. mm</label><input id="sep30" type="number" value="1300"></div><div><label>Separación mín/máx mm</label><input id="rangoHueco" type="text" value="100-110"></div>
   </div></details>
@@ -170,7 +173,7 @@ ANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°</textarea>
 </div>
 <script>
 const $=id=>document.getElementById(id);const nf=(n,d=0)=>(Number(n)||0).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});const eu=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});const val=id=>parseFloat($(id).value)||0;const ints=id=>parseInt($(id).value)||0;let tipo='recto';let autoOvalados=true,autoInter=true;
-const ids=['largo','alto','grados','ovaladosManual','interManual','hOva','hPata','hAncInf','hAncSup','hPas','hBola','gOva','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer','lateralesPresupuesto','textoPlantilla'];
+const ids=['largo','alto','grados','ovaladosManual','interManual','rematePoste','hOva','hPata','hAncInf','hAncSup','hPas','hBola','hPiramide','gOva','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer','lateralesPresupuesto','textoPlantilla'];
 
 function volverAlIndex(){
   try{
@@ -192,7 +195,8 @@ function volverAlIndex(){
 
 function perfilLat(){return `${nf(val('latW'))}×${nf(val('latF'))}`}
 function perfilInt(){return `${nf(val('intW'))}×${nf(val('intF'))}`}
-function altoTerminado(){return Math.max(0, val('alto') - val('hBola'))}
+function extraRemate(){const t=$('rematePoste').value;return t==='bola'?Math.max(0,val('hBola')):t==='piramide'?Math.max(0,val('hPiramide')):0}
+function altoTerminado(){return Math.max(0,val('alto'))}
 function ovaladoCorte(){return Math.max(0, altoTerminado() - val('hPata') - val('hAncInf') - val('hAncSup') - val('hPas'))}
 function lado(id){return $(id)?.value||'poste'}
 function esPoste(id){return lado(id)==='poste'}
@@ -257,7 +261,7 @@ function recOvalados(subUtilHorizontal){
 function estadoHueco(h){const r=rangoHuecos();return h>=r.min&&h<=r.max?'ok':(h<r.min?'cerrado':'abierto')}
 function recomendaciones(){const largo=val('largo'), grados=Math.max(0,val('grados')), cos=Math.cos(grados*Math.PI/180)||1;const descIzq=descuentaLado('ladoIzq'),descDer=descuentaLado('ladoDer');const lat=val('latW'),interW=val('intW');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=grados>0?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalPorSub=recOvalados(subH);let totalOva=ovalPorSub*(t30+1);return{t30,totalOva}}
 function syncAutoInputs(){const r=recomendaciones();if(autoInter){$('interManual').value=r.t30}if(autoOvalados){$('ovaladosManual').value=r.totalOva}}
-function calc(){const largo=val('largo'), grados=Math.max(0,val('grados'));tipo=grados>0?'pendiente':'recto';const cos=Math.cos(grados*Math.PI/180);const izq=esPoste('ladoIzq'), der=esPoste('ladoDer'), descIzq=descuentaLado('ladoIzq'), descDer=descuentaLado('ladoDer');const lat=val('latW'), interW=val('intW'), ovaW=val('gOva');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=tipo==='pendiente'?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalManual=autoOvalados?0:Math.max(0,ints('ovaladosManual'));let ovalPorSub=ovalManual>0?Math.max(0,Math.round(ovalManual/(t30+1))):recOvalados(subH);let totalOva=ovalPorSub*(t30+1);let huecoH=ovalPorSub>0?(subH-(ovalPorSub*ovaW))/(ovalPorSub+1):subH;let agujero=tipo==='pendiente'?huecoH/cos:huecoH;let alto=altoTerminado(), alto70=val('alto')||alto+val('hBola');let entradaIzq=entradaLado('ladoIzq'), entradaDer=entradaLado('ladoDer');let corteAnc=utilReal+entradaIzq+entradaDer;if(corteAnc<0)corteAnc=0;let postes70=(izq?1:0)+(der?1:0);let pasamanosCorte=utilReal;if(pasamanosCorte<0)pasamanosCorte=0;let mPas=pasamanosCorte/1000,mAnc=(corteAnc*2)/1000;let cPas=mPas*val('pPas'),cAnc=mAnc*val('pAnc'),c70=postes70*val('p70'),c30=t30*val('p30'),cOva=totalOva*val('pOva'),cAcc=val('acc'),coste=cPas+cAnc+c70+c30+cOva+cAcc,mont=val('mont'),margen=(coste+mont)*val('margen')/100,bruto=coste+mont+margen,iva=bruto*val('iva')/100,pvp=bruto+iva,gan=mont+margen;return{largo,grados,cos,izq,der,descIzq,descDer,utilReal,utilHorizontal,t30,subH,ovalPorSub,totalOva,huecoH,agujero,alto,alto70,entradaIzq,entradaDer,corteAnc,postes70,pasamanosCorte,cPas,cAnc,c70,c30,cOva,cAcc,coste,mont,margen,bruto,iva,pvp,gan}}
+function calc(){const largo=val('largo'), grados=Math.max(0,val('grados'));tipo=grados>0?'pendiente':'recto';const cos=Math.cos(grados*Math.PI/180);const izq=esPoste('ladoIzq'), der=esPoste('ladoDer'), descIzq=descuentaLado('ladoIzq'), descDer=descuentaLado('ladoDer');const lat=val('latW'), interW=val('intW'), ovaW=val('gOva');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=tipo==='pendiente'?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalManual=autoOvalados?0:Math.max(0,ints('ovaladosManual'));let ovalPorSub=ovalManual>0?Math.max(0,Math.round(ovalManual/(t30+1))):recOvalados(subH);let totalOva=ovalPorSub*(t30+1);let huecoH=ovalPorSub>0?(subH-(ovalPorSub*ovaW))/(ovalPorSub+1):subH;let agujero=tipo==='pendiente'?huecoH/cos:huecoH;let alto=altoTerminado(), alto70=alto+30;let entradaIzq=entradaLado('ladoIzq'), entradaDer=entradaLado('ladoDer');let corteAnc=utilReal+entradaIzq+entradaDer;if(corteAnc<0)corteAnc=0;let postes70=(izq?1:0)+(der?1:0);let pasamanosCorte=utilReal;if(pasamanosCorte<0)pasamanosCorte=0;let mPas=pasamanosCorte/1000,mAnc=(corteAnc*2)/1000;let cPas=mPas*val('pPas'),cAnc=mAnc*val('pAnc'),c70=postes70*val('p70'),c30=t30*val('p30'),cOva=totalOva*val('pOva'),cAcc=val('acc'),coste=cPas+cAnc+c70+c30+cOva+cAcc,mont=val('mont'),margen=(coste+mont)*val('margen')/100,bruto=coste+mont+margen,iva=bruto*val('iva')/100,pvp=bruto+iva,gan=mont+margen;return{largo,grados,cos,izq,der,descIzq,descDer,utilReal,utilHorizontal,t30,subH,ovalPorSub,totalOva,huecoH,agujero,alto,alto70,entradaIzq,entradaDer,corteAnc,postes70,pasamanosCorte,cPas,cAnc,c70,c30,cOva,cAcc,coste,mont,margen,bruto,iva,pvp,gan}}
 function syncAltura(){if($('hOva'))$('hOva').value=nf(ovaladoCorte())}
 function render(){syncAltura();syncAutoInputs();save();const c=calc();if($('leg70'))$('leg70').textContent=perfilLat();if($('leg30'))$('leg30').textContent=perfilInt();if($('legOva'))$('legOva').textContent=`Ovalado ${nf(ovaladoCorte())}`;$('kpis').innerHTML=`<div class="kpi"><b>Largo total</b><span>${nf(c.largo)} mm</span></div><div class="kpi"><b>Útil real</b><span>${nf(c.utilReal)} mm</span></div><div class="kpi"><b>Ovalados</b><span>${c.totalOva}</span></div><div class="kpi ${estadoHueco(c.huecoH)=='ok'?'':'bad'}"><b>Hueco visible</b><span>${nf(c.huecoH)} mm</span></div><div class="kpi total"><b>PVP IVA incl.</b><span>${eu(c.pvp)}</span></div><div class="kpi ${tipo==='pendiente'?'mid':''}"><b>Marcado agujeros</b><span>${nf(c.agujero)} mm</span></div><div class="kpi"><b>${perfilInt()}</b><span>${c.t30}</span></div><div class="kpi"><b>${perfilLat()}</b><span>${c.postes70}</span></div><div class="kpi"><b>Anclaje corte</b><span>${nf(c.corteAnc)} mm</span></div><div class="kpi"><b>Altura</b><span>${nf(c.alto)} mm</span></div>`;renderSvg(c);renderTabla(c);renderTexto(c)}
 function renderSvg(c){
@@ -267,8 +271,9 @@ const cos=Math.cos(ang)||1, sin=Math.sin(ang)||0;
 const largoHoriz=Math.max(1,tipo==='pendiente'?c.largo*cos:c.largo);
 const riseTotal=tipo==='pendiente'?c.largo*sin:0;
 const altoPoste=c.alto70;
+const altoConRemate=altoPoste+extraRemate();
 // Escala real, reservando espacio para las cotas. El conjunto final se centra después.
-let scale=Math.min((W-230)/Math.max(largoHoriz,500),(H-230)/Math.max(altoPoste+riseTotal,650));
+let scale=Math.min((W-230)/Math.max(largoHoriz,500),(H-230)/Math.max(altoConRemate+riseTotal,650));
 scale=Math.max(0.10,Math.min(scale,0.42));
 const horizPx=largoHoriz*scale, risePx=riseTotal*scale;
 let x0=120, x1=x0+horizPx;
@@ -338,8 +343,20 @@ function tramoInfo(a,b){
 }
 let body='';
 // Postes verticales.
-if(c.izq){body+=`<rect x="${x0}" y="${yBaseL-h70Px}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/><circle cx="${x0+latW/2}" cy="${yBaseL-h70Px-12}" r="12" fill="#aaa" stroke="#111" stroke-width="2"/>`}
-if(c.der){body+=`<rect x="${x1-latW}" y="${yBaseR-h70Px}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/><circle cx="${x1-latW/2}" cy="${yBaseR-h70Px-12}" r="12" fill="#aaa" stroke="#111" stroke-width="2"/>`}
+function dibujarPoste(x,yBase){
+  const remate=$('rematePoste').value;
+  const capH=Math.max(0,extraRemate()*scale);
+  const yCuerpo=yBase-h70Px;
+  let poste=`<rect x="${x}" y="${yCuerpo}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
+  if(capH>0&&remate==='bola'){
+    poste+=`<ellipse cx="${x+latW/2}" cy="${yCuerpo-capH/2}" rx="${latW/2}" ry="${capH/2}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
+  }else if(capH>0&&remate==='piramide'){
+    poste+=`<polygon points="${x},${yCuerpo} ${x+latW/2},${yCuerpo-capH} ${x+latW},${yCuerpo}" fill="#aaa" stroke="#111" stroke-width="2" stroke-linejoin="round"/>`;
+  }
+  return poste;
+}
+if(c.izq)body+=dibujarPoste(x0,yBaseL);
+if(c.der)body+=dibujarPoste(x1-latW,yBaseR);
 const yTop0=topAtX(railX0), yTop1=topAtX(railX1);
 const ySupAnc0=yTop0+pasH, ySupAnc1=yTop1+pasH;
 const yInfAnc0=ySupAnc0+ancSH+ovaH, yInfAnc1=ySupAnc1+ancSH+ovaH;
@@ -362,7 +379,7 @@ body+=vCutBar(railX0,ySupAnc0,railX1,ySupAnc1,ancSH,'#f5d56a');
 body+=vCutBar(railX0,yInfAnc0,railX1,yInfAnc1,ancIH,'#f5d56a');
 body+=infoHueco;
 // Cotas: sin mm. Largo paralelo al pasamanos si hay pendiente; alto a la derecha, centrado y separado.
-let bbox={minX:x0-25,maxX:x1+25,minY:Math.min(yBaseL-h70Px,yBaseR-h70Px)-25,maxY:Math.max(yBaseL,yBaseR)+125};
+let bbox={minX:x0-25,maxX:x1+25,minY:Math.min(yBaseL-h70Px,yBaseR-h70Px)-extraRemate()*scale-25,maxY:Math.max(yBaseL,yBaseR)+125};
 if(tipo==='pendiente'){
   const dx=railX1-railX0, dy=yTop1-yTop0, L=Math.hypot(dx,dy)||1;
   const ux=dx/L, uy=dy/L, nx=-uy, ny=ux;
