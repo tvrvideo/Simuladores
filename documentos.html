@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.70</title>
+  <title>Documentos Rey v4.8.71</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4460,7 +4460,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.70</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.71</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4493,7 +4493,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.70</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.71</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5770,7 +5770,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.70', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.71', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5813,7 +5813,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.70',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.71',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -9826,8 +9826,35 @@ COLOCACIÓN INCLUIDA` }
     // Los conceptos se guardan como HTML enriquecido; fabricación solo muestra texto.
     return richPlainText(String(text == null ? '' : text)).replace(/\r/g,'');
   }
+  function fabTrimSegments(segments){
+    var out=(segments || []).map(function(s){ return {text:String(s.text || ''),color:s.color || null,bold:!!s.bold}; });
+    if(out.length){ out[0].text=out[0].text.replace(/^\s+/,''); out[out.length-1].text=out[out.length-1].text.replace(/\s+$/,''); }
+    return out.filter(function(s){ return s.text; });
+  }
   function fabTextLines(text, maxLines){
-    return fabPlainText(text).split(/\n+/).map(function(x){ return fabNormTxt(x); }).filter(Boolean).slice(0, maxLines || 4);
+    var all=richSegmentsFromHtml(text).map(fabTrimSegments).filter(function(line){ return line.length; });
+    maxLines=maxLines || 4;
+    if(all.length <= maxLines) return all;
+    var visible=all.slice(0,maxLines);
+    // La línea roja final contiene a menudo la especificación del vidrio.
+    var lastRed=-1;
+    for(var i=maxLines;i<all.length;i++) if(all[i].some(function(s){return s.color==='#dc2626';})) lastRed=i;
+    if(lastRed>=0) visible[maxLines-1]=all[lastRed];
+    return visible;
+  }
+  function fabDrawRichLine(svg,x,y,segments,size,weight,color,maxChars){
+    var used=0;
+    (segments || []).forEach(function(seg){
+      if(used>=maxChars) return;
+      var remaining=maxChars-used;
+      var piece=seg.text.slice(0,remaining);
+      if(seg.text.length>remaining) piece=piece.slice(0,Math.max(0,remaining-1))+'…';
+      if(!piece) return;
+      var fw=seg.bold ? 900 : weight;
+      fabAddText(svg,x,y,piece,size,fw,seg.color || color);
+      x+=measureSvgTextWidth(piece,size,String(fw));
+      used+=piece.length;
+    });
   }
   function fabSlots(per){
     var W=794,H=1123, m=30, header=106, gap=16, top=header+18, usable=H-top-m;
@@ -9884,62 +9911,18 @@ COLOCACIÓN INCLUIDA` }
     return t;
   }
   function fabWrappedLineCount(text, maxW, size){
-    text = fabPlainText(text).trim();
-    if(!text) return 0;
-    size = size || 10;
-    var avgChar = size * 0.62;
-    var approx = Math.max(6, Math.floor((maxW - 3) / avgChar));
-    var count = 0;
-    text.split(/\n+/).forEach(function(par){
-      par = String(par || '').replace(/\s+/g,' ').trim();
-      if(!par){ count++; return; }
-      var words = par.split(/\s+/), line = '';
-      words.forEach(function(w){
-        while(w.length > approx){
-          if(line){ count++; line=''; }
-          count++;
-          w = w.slice(approx);
-        }
-        var test = line ? (line + ' ' + w) : w;
-        if(test.length > approx && line){ count++; line = w; }
-        else line = test;
-      });
-      if(line) count++;
-    });
-    return count;
+    if(!fabPlainText(text).trim()) return 0;
+    return richWrapLines(text,maxW-3,size || 10,'700').length;
   }
   function fabAddWrappedText(svg, x, y, text, maxW, lineH, size, weight, color, maxY){
-    text = fabPlainText(text).trim();
-    if(!text) return 0;
+    if(!fabPlainText(text).trim()) return 0;
     size = size || 10;
     lineH = lineH || Math.ceil(size * 1.25);
-    // v4.0 FIX: ajuste conservador para que el texto no invada la siguiente celda
-    // ni salga por el lateral en iPhone/PDF. Respeta saltos de línea manuales.
-    var avgChar = size * 0.62;
-    var approx = Math.max(6, Math.floor((maxW - 3) / avgChar));
-    var lines = [];
-    text.split(/\n+/).forEach(function(par){
-      par = String(par || '').replace(/\s+/g,' ').trim();
-      if(!par) { lines.push(''); return; }
-      var words = par.split(/\s+/), line = '';
-      words.forEach(function(w){
-        // trocea palabras largas para evitar que se salgan del recuadro
-        while(w.length > approx){
-          var piece = w.slice(0, approx);
-          if(line){ lines.push(line); line=''; }
-          lines.push(piece);
-          w = w.slice(approx);
-        }
-        var test = line ? (line + ' ' + w) : w;
-        if(test.length > approx && line){ lines.push(line); line = w; }
-        else line = test;
-      });
-      if(line) lines.push(line);
-    });
+    var lines=richWrapLines(text,maxW-3,size,String(weight || 700));
     var drawn = 0;
     for(var i=0;i<lines.length;i++){
       if(maxY && y + drawn*lineH > maxY) break;
-      if(lines[i]) fabAddText(svg, x, y + drawn*lineH, lines[i], size, weight || 700, color || '#111827');
+      fabDrawRichLine(svg,x,y+drawn*lineH,fabTrimSegments(lines[i]),size,weight || 700,color || '#111827',1000);
       drawn++;
     }
     return drawn;
@@ -10013,8 +9996,8 @@ COLOCACIÓN INCLUIDA` }
       }
       if(modoNotas && opts.notasTexto){
         var notaObj = opts.notasTexto[fabNormTxt(it._fabCode).toUpperCase()] || {};
-        var notaTxt = fabPlainText(notaObj.texto || notaObj.text || '').trim();
-        var obsTxt = fabPlainText(notaObj.obs || notaObj.observaciones || '').trim();
+        var notaTxt = String(notaObj.texto || notaObj.text || '').trim();
+        var obsTxt = String(notaObj.obs || notaObj.observaciones || '').trim();
         var noteX = imgX + imgW + (r.twoCols ? 8 : 14);
         var noteY = r.y + 38;
         var noteW = r.x + r.w - noteX - 10;
@@ -10045,11 +10028,10 @@ COLOCACIÓN INCLUIDA` }
       var lines = modoNotas ? [] : fabTextLines(it.text || it.concepto || it.descripcion || '', small?3:4);
       if(!modoNotas){
         var y = r.y + r.h - infoH + (small?16:20);
-        if(!lines.length) lines = [''];
+        if(!lines.length) lines = [[]];
         lines.forEach(function(line,k){
           var maxChars = small ? 34 : 72;
-          if(line.length > maxChars) line = line.slice(0,maxChars-1) + '…';
-          fabAddText(svg,r.x+10,y+k*(small?15:18),line,small?11:13,700,'#111827');
+          fabDrawRichLine(svg,r.x+10,y+k*(small?15:18),line,small?11:13,700,'#111827',maxChars);
         });
       }
     });
@@ -10858,7 +10840,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.70',
+      app:'Documentos Rey', version:'v4.8.71',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -10994,7 +10976,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.70',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.71',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -15006,7 +14988,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.70', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.71', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
