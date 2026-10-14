@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.71</title>
+  <title>Documentos Rey v4.8.73</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4225,6 +4225,9 @@ body.sheet-open .brand-idb-pill{
 .documents-home-actions .documents-home-settings{background:#a74342;border-color:#dc8582;color:#fff}
 .btn-back-documents{position:fixed;top:10px;right:10px;z-index:49;display:inline-flex;align-items:center;justify-content:center;width:auto!important;min-width:0!important;max-width:76px;min-height:34px!important;border:1px solid #71a6d5;background:#245b88;color:#fff;border-radius:12px;padding:7px 10px!important;font-size:12px!important;line-height:1!important;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px #102a4450}
 body:not(.documents-home-open) .topbar{padding-right:82px!important}
+.btn-return-list-documents{right:75px;display:none}
+.btn-return-list-documents.show{display:inline-flex}
+body.document-return-list:not(.documents-home-open) .topbar{padding-right:152px!important}
 body.documents-home-open .floating-actions,body.documents-home-open .btn-back-documents{display:none!important}
 @media print{.documents-home,.btn-back-documents{display:none!important}}
 
@@ -4460,7 +4463,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.71</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.73</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4486,6 +4489,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     </div>
   </div>
 </div>
+<button type="button" class="btn-back-documents btn-return-list-documents" id="btnReturnListDocuments" title="Volver a la lista" aria-label="Volver a la lista">← Lista</button>
 <button type="button" class="btn-back-documents" id="btnBackDocuments" title="Volver al inicio de Documentos Rey" aria-label="Volver al inicio de Documentos Rey">Inicio</button>
 <div class="app">
   <div class="shell">
@@ -4493,7 +4497,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.71</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.73</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5770,7 +5774,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.71', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.73', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5813,7 +5817,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.71',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.73',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6069,6 +6073,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     await importarEmpresaDesdeFacturacionSiVacia();
     state.documentId = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
     state.documentoTipo = documentoTipo || 'presupuesto';
+    documentReturnListType = null;
+    updateDocumentBackButton();
     state.tipoPresupuesto = (tipoPresupuesto === 'sencillo') ? 'sencillo' : 'visual';
     state.simpleExtraPages = 1;
     if(state.documentoTipo === 'presupuesto' && numberMode === 'provisional'){
@@ -10166,7 +10172,20 @@ COLOCACIÓN INCLUIDA` }
   let homeCreationFlow = false;
   let lastDocumentListType = null;
   let lastDocumentListView = null;
+  let documentReturnListType = null;
+  function updateDocumentBackButton(){
+    const btn = $('btnReturnListDocuments');
+    if(btn){
+      const label = documentReturnListType ? 'Volver a ' + documentTypeListTitle(documentReturnListType).toLowerCase() : 'Volver a la lista';
+      btn.title = label;
+      btn.setAttribute('aria-label', label);
+      btn.classList.toggle('show', !!documentReturnListType);
+    }
+    document.body.classList.toggle('document-return-list', !!documentReturnListType);
+  }
   function showDocumentsHome(){
+    documentReturnListType = null;
+    updateDocumentBackButton();
     $('documentsHome').classList.add('show');
     document.body.classList.add('documents-home-open');
   }
@@ -10181,6 +10200,11 @@ COLOCACIÓN INCLUIDA` }
   $('btnHomeProducts').addEventListener('click', async function(){ await loadProducts(); openEdit('catalog', 'Catálogo compartido'); });
   $('btnHomeContinue').addEventListener('click', hideDocumentsHome);
   $('btnHomeSettings').addEventListener('click', openSettings);
+  $('btnReturnListDocuments').addEventListener('click', function(){
+    if(documentReturnListType){
+      openSavedDocumentsByType(documentReturnListType, true);
+    }
+  });
   $('btnBackDocuments').addEventListener('click', showDocumentsHome);
 
 
@@ -10840,7 +10864,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.71',
+      app:'Documentos Rey', version:'v4.8.73',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -10976,7 +11000,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.71',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.73',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -14988,7 +15012,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.71', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.73', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -15271,6 +15295,8 @@ $('btnExport').addEventListener('click', async function(){
           const picked = current[Number(btn.getAttribute('data-load-index'))];
           if(!picked) return;
           rememberListView();
+          documentReturnListType = tipo;
+          updateDocumentBackButton();
           state = normalizeLoadedState(picked);
 
           // v2.87.49: si el documento venía de una versión antigua sin ID,
@@ -15337,6 +15363,9 @@ $('btnExport').addEventListener('click', async function(){
           await ensureUniqueDocumentNumber(copy, current);
           current.unshift(copy);
           await storageSetJSON(SAVE_LIST_KEY, current);
+          rememberListView();
+          documentReturnListType = tipo;
+          updateDocumentBackButton();
           state = copy;
           await persistCurrent();
           await render();
@@ -15379,6 +15408,8 @@ $('btnExport').addEventListener('click', async function(){
 
           current.unshift(converted);
           await storageSetJSON(SAVE_LIST_KEY, current);
+          documentReturnListType = targetType;
+          updateDocumentBackButton();
           state = converted;
           await persistCurrent();
           await render();
