@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>iNote Pro v1.13.1</title>
+    <style>
+        :root { --blue: #54a0d9; --bg: #f5f5f7; --green: #2ecc71; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        
+        body { background: var(--bg); color: #333; -webkit-tap-highlight-color: transparent; padding-top: env(safe-area-inset-top); }
+        
+        /* HEADER FIJO */
+        header { 
+            background: var(--blue); color: white; height: 54px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; position: sticky; top: 0; z-index: 1000;
+        }
+
+        .header-title { display: flex; align-items: baseline; gap: 5px; }
+        .version-text { font-size: 0.72em; opacity: .9; font-weight: bold; color: #fff; margin-left: 3px; }
+        .header-control { flex: 0 0 auto; width: auto; padding: 8px 5px; background: transparent; color: #fff; font-size: 15px; border-radius: 8px; }
+        .header-control:active { background: rgba(255,255,255,.2); }
+
+        /* BUSCADOR - Ahora empuja el contenido hacia abajo */
+        .search-bar-container {
+            display: none; background: #fff; padding: 12px;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            border-bottom: 2px solid var(--blue);
+            position: relative; /* Cambiado de fixed a relative para no tapar */
+            z-index: 999;
+        }
+        #searchInput {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 2px solid #ddd; font-size: 17px; outline: none;
+            -webkit-appearance: none;
+        }
+
+        /* MENÚ LATERAL - Máxima prioridad */
+        #side-menu {
+            position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+            background: white; z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+        }
+        #side-menu.active { left: 0; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1500; }
+        
+        .menu-header { background: var(--blue); color: white; padding: 50px 20px 20px; font-weight: bold; font-size: 1.2em; }
+        .menu-item { padding: 18px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; color: #444; font-size: 1.1em; }
+        .menu-item .menu-symbol { margin-right: 15px; width: 25px; color: var(--blue); font-size: 1.2em; text-align: center; }
+
+        /* CONTENIDO */
+        #main-content { padding: 0 0 90px; position: relative; z-index: 1; }
+        
+        .note-card {
+            padding: 18px 15px; margin: 0 12px 12px 12px;
+            border-radius: 14px; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .empty-notes { margin: 30px 18px; padding: 26px 18px; border-radius: 14px; background: #fff; color: #536174; text-align: center; line-height: 1.5; }
+        .list-tools { padding:6px 10px 8px; background:#fff; border-bottom:1px solid #e0e6ee; }
+        .list-options { display:flex; gap:8px; }
+        .list-options select { width:50%; min-width:0; padding:9px; font-size:14px; border:1px solid #ccd6e2; border-radius:9px; background:#fff; color:#22314b; }
+        .rows-list .note-card { margin:0; padding:8px 12px 7px 10px; border:0; border-left:5px solid #54a0d9; border-bottom:1px solid #30343b; border-radius:0; box-shadow:none; min-height:0; }
+        .view-controls { position:sticky; top:54px; z-index:900; background:#fff; }
+        .view-switch { display:flex; gap:6px; padding:7px 10px; background:#fff; border-bottom:1px solid #dfe6ed; }
+        .view-switch button { flex:1; padding:9px 5px; border-radius:9px; background:#edf2f6; color:#31516d; font-size:14px; font-weight:700; }
+        .view-switch button.active { background:#225f90; color:#fff; }
+        .rows-list .note-title { font-size:16px; font-weight:650; line-height:1.22; color:#17202a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rows-list .note-preview { margin-top:3px; font-size:14px; line-height:1.25; color:#24313b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rows-list .note-date { margin-top:5px; font-size:12px; color:#53616b; }
+        .rows-list .check-preview { padding-top:4px; font-size:13px; }
+        .rows-list .check-actions { margin-top:5px; }
+        .rows-list .check-actions button { padding:5px 8px; flex:0 0 auto; font-size:12px; background:rgba(255,255,255,.6); }
+        .rows-list .empty-notes { margin:20px 12px; }
+        .calendar-results { display:none; padding:12px 4px; border-top:1px solid #e3e9f1; }
+        .calendar-results h3 { font-size:17px; color:#213b55; margin:2px 0 10px; }
+        .calendar-result { border:1px solid #dde5ed; border-left:6px solid #54a0d9; border-radius:11px; background:#fff; padding:11px; margin-bottom:9px; cursor:pointer; }
+        .calendar-result-date { font-size:13px; font-weight:800; color:#386d99; margin-bottom:5px; }
+        .calendar-result-text { color:#172332; font-size:15px; line-height:1.35; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-word; }
+        .calendar-result button { width:auto; margin-top:8px; padding:7px 10px; font-size:13px; background:#e8f2fb; color:#276595; }
+        .calendar-more { width:100%; padding:12px; background:#e8f2fb; color:#276595; font-size:15px; }
+        .checklist-editor { display:none; flex:1; min-height:0; overflow-y:auto; padding:14px 16px calc(env(safe-area-inset-bottom) + 20px); }
+        .checklist-editor input[type="text"] { width:100%; min-width:0; border:1px solid #d7deeb; border-radius:10px; background:#fff; color:#111; padding:11px; font-size:18px; }
+        .checklist-title { margin-bottom:12px; font-weight:bold; }
+        .checklist-row { display:flex; gap:9px; align-items:center; margin-bottom:9px; }
+        .checklist-row input[type="checkbox"], .check-preview input { width:22px; height:22px; flex:0 0 22px; accent-color:#3984c0; }
+        .checklist-row .remove-item { flex:0 0 38px; padding:8px 0; color:#ba3838; background:#ffeaea; }
+        .add-check-item { width:100%; background:#e8f2fb; color:#286597; margin-top:6px; }
+        .check-preview { display:flex; align-items:flex-start; gap:8px; padding-top:8px; font-size:15px; word-break:break-word; }
+        .check-preview.done span { text-decoration:line-through; opacity:.65; }
+        .check-actions { display:flex; gap:6px; margin-top:12px; }
+        .check-actions button { padding:9px 4px; font-size:13px; background:#e5eef9; color:#205d90; }
+        .check-actions .check-delete { background:#ffe7e7; color:#ac3030; }
+        .check-summary { margin-top:7px; font-size:13px; color:#596475; }
+
+        /* CALENDARIO */
+        #calendar-view { display: none; background: white; padding: 15px; border-radius: 0 0 15px 15px; margin-bottom: 10px; touch-action: pan-y; overscroll-behavior-x: contain; }
+        .cal-header { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
+        .cal-header select { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; background: #fff; font-weight: bold; }
+
+        .btn-today { background: var(--blue); color: white; border: none; padding: 12px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .btn-today.different { background: var(--green) !important; }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            margin: 8px 0 8px;
+        }
+        .cal-weekdays div {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #8c98ab;
+            padding: 8px 0;
+            user-select: none;
+        }
+        .cal-weekdays div.weekend { color: #b5bccb; }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #eee;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            overflow: hidden;
+            touch-action: pan-y;
+            will-change: transform, opacity;
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .cal-swipe-hint { margin: 10px 0 14px; text-align: center; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: #8c98ab; user-select: none; }
+        .cal-day {
+            background: white;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 1px 4px;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.05em;
+            font-weight: 700;
+            transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
+        }
+        .cal-day:active { transform: scale(0.98); }
+        .cal-day.empty {
+            background: #fafbfc;
+            pointer-events: none;
+        }
+        .cal-day.is-weekend {
+            color: #98a1b3;
+            background: #fcfcfd;
+        }
+        .cal-day.has-note {
+            color: #172332;
+        }
+        .cal-day-number { line-height:1.2; }
+        .cal-dots { display:grid; grid-template-columns:repeat(4, 8px); gap:2px; justify-content:center; align-content:end; min-height:18px; }
+        .cal-dot { width:8px; height:8px; border-radius:50%; }
+        .cal-more { grid-column:span 2; font-size:8px; line-height:7px; color:#076aa8; font-weight:800; }
+        .cal-day.selected {
+            font-weight: 900;
+            border-radius: 12px;
+            transform: translateY(-1px);
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,0.95),
+                0 0 0 3px rgba(84,160,217,0.95),
+                0 10px 24px rgba(84,160,217,0.34),
+                0 2px 8px rgba(24,43,74,0.12);
+        }
+        .cal-day.is-today {
+            box-shadow: inset 0 0 0 2px rgba(84,160,217,0.45);
+        }
+        .cal-day.selected.is-today {
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,0.98),
+                0 0 0 3px rgba(84,160,217,1),
+                0 0 0 6px rgba(84,160,217,0.22),
+                0 10px 24px rgba(84,160,217,0.34),
+                0 2px 8px rgba(24,43,74,0.12);
+        }
+
+/* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        textarea { width: 100%; height: 160px; margin: 10px 0; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 18px; background: #f9f9f9; color: #000; }
+        
+        .color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 10px; }
+        .color-opt { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #eee; cursor: pointer; }
+        .color-opt.active { border-color: #333; transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 17px; cursor: pointer; }
+        .btn-save { background: var(--blue); color: white; }
+        .btn-del { background: #fff0f0; color: #e53935; }
+
+        .bottom-actions { position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; gap:8px; padding:7px 12px calc(env(safe-area-inset-bottom) + 7px); background:rgba(255,255,255,.97); border-top:1px solid #dfe6ed; }
+        .bottom-actions button { padding:10px 8px; border:1px solid #c7d7e6; border-radius:10px; background:#eff6fc; color:#225f90; font-size:14px; }
+    
+        /* v1.5 — Editor de nota refinado para iPhone */
+        .note-modal { background: #f4f6fb !important; padding: 0 !important; align-items: stretch !important; justify-content: stretch !important; }
+        .note-modal .note-editor {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--note-paper, #ffffff);
+        }
+        .note-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: calc(env(safe-area-inset-top) + 6px) 10px 8px;
+            background: #f8fafc;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(45, 74, 116, 0.08);
+            box-shadow: 0 8px 22px rgba(34, 52, 84, 0.05);
+        }
+        .date-row,
+        .action-row {
+            display: grid;
+            gap: 6px;
+        }
+        .date-row { grid-template-columns: minmax(0, 1fr); }
+        .action-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .control-btn {
+            min-width: 0;
+            border: none;
+            border-radius: 10px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            box-shadow: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+        }
+        .control-btn:active { transform: scale(0.985); }
+
+        .date-btn {
+            min-height: 32px;
+            padding: 5px 9px;
+            flex-direction: row;
+            justify-content: center;
+            gap: 8px;
+            background: #eef2ff;
+            color: #24324a;
+            border: 1px solid #d9e4ff;
+        }
+        .date-btn .btn-label {
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 800;
+            color: #6d7a94;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .date-btn .btn-value {
+            display: block;
+            width: auto;
+            font-size: 14px;
+            line-height: 1;
+            font-weight: 900;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-btn {
+            min-height: 39px;
+            padding: 0 4px;
+            font-size: clamp(12px, 3.4vw, 15px);
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .color-btn {
+            background: #f1f4f9;
+            color: #22314b;
+            border: 1px solid rgba(34,49,75,0.08);
+        }
+        .save-btn {
+            background: var(--green);
+            color: #fff;
+        }
+        .cancel-btn {
+            background: var(--blue);
+            color: #fff;
+        }
+        .delete-btn {
+            background: #ffd9d9;
+            color: #c92525;
+        }
+        .date-sheet-grid{
+            display:flex;
+            flex-direction:column;
+            gap:14px;
+        }
+        .date-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .date-field span { font-size: 13px; font-weight: 900; color: #333; }
+        .date-field input {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid #d9deea;
+            font-size: 16px;
+            background: #f8fbff;
+            color: #123;
+        }
+        #noteText {
+            flex: 1;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 18px;
+            line-height: 1.42;
+            padding: 16px 16px calc(env(safe-area-inset-bottom) + 28px);
+            background: transparent;
+            color: #101418;
+        }
+        #noteText::placeholder { color: #9aa5b5; }
+
+        /* Bottom sheet de colores */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            display: none;
+            z-index: 4001;
+        }
+        .sheet {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            background: #fff;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.18);
+            transform: translateY(110%);
+            transition: transform 180ms ease;
+            z-index: 4002;
+            max-height: 62vh;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+        }
+        .sheet.show { transform: translateY(0); }
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .sheet-title { font-weight: 900; font-size: 16px; }
+        .sheet-close {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 900;
+            font-size: 16px;
+            background: var(--blue);
+            color: #fff;
+        }
+        .sheet-body { padding: 12px 14px 8px; overflow: auto; -webkit-overflow-scrolling: touch; }
+
+
+        /* Regreso al índice REY sin interferir con el menú propio de Notas */
+        .btn-index-rey { flex:0 0 auto; width:auto; padding:9px 11px; font-size:14px;
+            background:#e74c3c; color:white; border:0; border-radius:11px;
+            font-weight:800; box-shadow:0 2px 5px #0002; white-space:nowrap; }
+        .btn-index-rey:active { transform:scale(.97); }
+        header { gap:6px; padding:0 8px; }
+        header .header-title { min-width:0; flex:1; justify-content:center; }
+        header #view-title-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        header .header-control { flex:0 0 auto; padding:8px 3px; font-size:14px; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<nav id="side-menu">
+    <div class="menu-header">iNote Pro <span class="version-text">v1.13.1</span></div>
+    <div class="menu-item" onclick="switchView('list')"><span class="menu-symbol">☷</span> Vista Lista</div>
+    <div class="menu-item" onclick="switchView('calendar')"><span class="menu-symbol">▦</span> Vista Calendario</div>
+    <div style="padding: 20px 20px 5px; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Ajustes</div>
+    <div class="menu-item" id="btnExportMenu"><span class="menu-symbol">↑</span> Exportar Notas</div>
+    <div class="menu-item" onclick="document.getElementById('fileIn').click()"><span class="menu-symbol">↓</span> Importar Notas</div>
+    <div class="menu-item" onclick="openClearDataSheet()"><span class="menu-symbol">×</span> Borrar datos</div>
+    <input type="file" id="fileIn" style="display:none" onchange="importBackup(event)">
+</nav>
+
+<header>
+    <button type="button" class="btn-index-rey" onclick="volverAlIndexRey()" aria-label="Volver al índice">← Menú</button>
+    <button type="button" class="header-control" onclick="openMenu()" aria-label="Menú de Notas">☰</button>
+    <div class="header-title">
+        <h2 id="view-title-text" style="font-size: 1.18em;">Notas</h2>
+        <span class="version-text">v1.13.1</span>
+    </div>
+    <button type="button" class="header-control" onclick="toggleSearch()" aria-label="Buscar notas">Buscar</button>
+</header>
+
+<div class="search-bar-container" id="searchBar">
+    <input type="text" id="searchInput" placeholder="Escribe para buscar..." oninput="filterNotes()">
+</div>
+
+<main id="main-content">
+    <div class="view-controls">
+        <div class="view-switch" aria-label="Vista de notas">
+            <button type="button" id="btnViewList" class="active" aria-pressed="true" onclick="switchView('list')">☷ Lista</button>
+            <button type="button" id="btnViewCalendar" aria-pressed="false" onclick="switchView('calendar')">▦ Calendario</button>
+        </div>
+        <div class="list-tools" id="listTools">
+            <div class="list-options">
+                <select id="colorFilter" aria-label="Filtrar por color" onchange="renderNotesList(getActiveFilter())">
+                    <option value="all">Todos los colores</option>
+                </select>
+                <select id="sortNotes" aria-label="Ordenar notas" onchange="renderNotesList(getActiveFilter())">
+                    <option value="date">Más recientes</option>
+                    <option value="title">Por título</option>
+                    <option value="color">Por color</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="list-view"></div>
+    <div id="calendar-view">
+        <div class="cal-header">
+            <button class="btn-today" id="btnToday" onclick="goToToday()">Hoy</button>
+            <select id="calM" onchange="calendarSelectionChanged()"></select>
+            <select id="calY" onchange="calendarSelectionChanged()"></select>
+        </div>
+        <div class="cal-weekdays">
+            <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div class="weekend">S</div><div class="weekend">D</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-swipe-hint">Desliza a izquierda o derecha para cambiar de mes</div>
+        <div class="calendar-results" id="calendarSearchResults"></div>
+        <div id="day-notes" style="padding: 15px;"></div>
+    </div>
+</main>
+
+<div class="bottom-actions" aria-label="Crear">
+    <button type="button" onclick="createNoteOfType('note')">+ Nota</button>
+    <button type="button" onclick="createNoteOfType('checklist')">+ Lista</button>
+</div>
+
+<div class="modal" id="confirmDeleteListModal">
+    <div class="modal-content" style="max-width:400px;">
+        <h3 style="margin-bottom:10px;">Eliminar lista</h3>
+        <p style="margin-bottom:15px;">¿Quieres eliminar esta lista y todos sus elementos?</p>
+        <div style="display:flex; gap:8px;">
+            <button type="button" style="background:#eee;" onclick="closeDeleteList()">Cancelar</button>
+            <button type="button" class="btn-del" onclick="deleteConfirmedList()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal note-modal" id="noteModal">
+    <div class="note-editor" role="dialog" aria-modal="true">
+        <div class="note-topbar">
+            <div class="date-row">
+                <button type="button" class="control-btn date-btn" onclick="openDateSheetFor()">
+                    <span class="btn-label">Fecha</span>
+                    <span id="startSummary" class="btn-value">--/--/----</span>
+                </button>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="control-btn action-btn cancel-btn" onclick="closeModal()">Volver</button>
+                <button type="button" id="colorButton" class="control-btn action-btn color-btn" onclick="toggleColorSheet(true)">Color</button>
+                <button type="button" class="control-btn action-btn save-btn" onclick="saveNote()">Guardar</button>
+                <button type="button" id="btnDelete" class="control-btn action-btn delete-btn" onclick="deleteNoteAction()">Eliminar</button>
+            </div>
+        </div>
+
+        <textarea id="noteText" placeholder="Escribe tu nota..."></textarea>
+        <div id="checklistEditor" class="checklist-editor">
+            <input id="checklistTitle" class="checklist-title" type="text" placeholder="Título de la lista">
+            <div id="checklistRows"></div>
+            <button type="button" class="add-check-item" onclick="addChecklistItem()">+ Añadir elemento</button>
+        </div>
+    </div>
+
+    <div id="colorBackdrop" class="sheet-backdrop" onclick="toggleColorSheet(false)"></div>
+    <div id="colorSheet" class="sheet" aria-label="Paleta de colores">
+        <div class="sheet-header">
+            <div class="sheet-title">Elegir color</div>
+            <button type="button" class="sheet-close" onclick="toggleColorSheet(false)">Listo</button>
+        </div>
+        <div class="sheet-body">
+            <div class="color-grid" id="colorPicker"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <div id="dateBackdrop" class="sheet-backdrop" onclick="toggleDateSheet(false)"></div>
+    <div id="dateSheet" class="sheet" aria-label="Fecha de la nota">
+        <div class="sheet-header">
+            <div class="sheet-title">Fecha de la nota</div>
+            <button type="button" class="sheet-close" onclick="toggleDateSheet(false)">Listo</button>
+        </div>
+        <div class="sheet-body">
+            <div class="date-sheet-grid">
+                <label class="date-field">
+                    <span>Fecha</span>
+                    <input type="date" id="dateStart" inputmode="none" onchange="updateDateSummary()">
+                </label>
+            </div>
+        </div>
+    </div>
+
+<div class="modal" id="confirmDeleteAllModal" style="display:none;">
+  <div class="modal-content" style="max-width: 420px; padding: 16px;">
+    <h3 style="color:#c0392b; margin-bottom: 8px;">Confirmar borrado total</h3>
+    <p style="color:#555; line-height:1.3em; margin-bottom:12px;">
+      Esto eliminará <b>TODAS</b> las notas de esta app guardadas en este dispositivo.
+      Esta acción no se puede deshacer.
+    </p>
+    <div style="display:flex; gap:10px;">
+      <button type="button" style="flex:1; background:#eee; padding:14px; border-radius:12px; border:none; font-weight:bold;" onclick="closeConfirmDeleteAll();">Cancelar</button>
+      <button type="button" class="btn-del" style="flex:1;" onclick="doConfirmDeleteAll();">Sí, borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="importModal" style="display:none;">
+  <div class="modal-content" style="max-width:420px; padding:18px;">
+    <h3 style="margin-bottom:10px;">Importar notas</h3>
+    <p id="importSummary" style="line-height:1.4; margin-bottom:14px;"></p>
+    <p style="line-height:1.4; margin-bottom:14px;">Mezclar conserva tus notas actuales. Si una nota ya existe, se conserva la versión actual.</p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button type="button" class="btn-save" onclick="completeImport('merge')">Mezclar notas</button>
+      <button type="button" class="btn-del" onclick="completeImport('replace')">Sustituir todas</button>
+      <button type="button" style="background:#eee;" onclick="closeImportModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'inote_pro_v1_0_final_stable';
+    let notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let pendingImport = null;
+    // Normaliza IDs a string para evitar fallos al eliminar tras importaciones
+    notes = notes.map(n => ({ ...n, id: String(n.id) }));
+    let editingId = null;
+    let pendingDeleteListId = null;
+    let currentNoteType = 'note';
+    let workingItems = [];
+    let selectedDateStr = null; 
+    let selectedColor = "#ffffff";
+    let currentView = 'list';
+    let calendarResultLimit = 80;
+    let lastCalendarQuery = '';
+
+    const vividColors = [
+        "#ffffff", "#fff176", "#ffd54f", "#ffb74d", "#ff8a65", "#e57373",
+        "#f06292", "#ba68c8", "#9575cd", "#7986cb", "#64b5f6", "#4fc3f7",
+        "#4dd0e1", "#4db6ac", "#81c784", "#aed581", "#dce775", "#cfd8dc"
+    ];
+    const colorFilter = document.getElementById('colorFilter');
+
+    function colorLabel(hex) {
+        const value = String(hex || '#ffffff').replace('#','');
+        const [r,g,b] = [0,2,4].map(i => parseInt(value.slice(i,i+2),16));
+        if (![r,g,b].every(Number.isFinite)) return 'Color';
+        const max = Math.max(r,g,b), min = Math.min(r,g,b), delta = max-min;
+        if (delta < 17) return max > 240 ? 'Blanco' : 'Gris';
+        let hue = max === r ? ((g-b)/delta+6)%6 : max === g ? (b-r)/delta+2 : (r-g)/delta+4;
+        hue *= 60;
+        if (hue < 15 || hue >= 345) return 'Rojo';
+        if (hue < 45) return 'Naranja';
+        if (hue < 75) return 'Amarillo';
+        if (hue < 165) return 'Verde';
+        if (hue < 195) return 'Turquesa';
+        if (hue < 255) return 'Azul';
+        if (hue < 285) return 'Violeta';
+        return 'Rosa';
+    }
+
+    function stripeColor(hex) {
+        const raw = String(hex || '').replace('#','');
+        if (!/^[0-9a-f]{6}$/i.test(raw)) return '#94a3b3';
+        return '#' + [0,2,4].map(i => Math.round(parseInt(raw.slice(i,i+2),16) * .72).toString(16).padStart(2,'0')).join('');
+    }
+
+    function calendarDotColor(hex) {
+        const raw = String(hex || '').replace('#','');
+        if (!/^[0-9a-f]{6}$/i.test(raw)) return '#d5d7db';
+        const [r,g,b] = [0,2,4].map(i => parseInt(raw.slice(i,i+2),16));
+        const max = Math.max(r,g,b), min = Math.min(r,g,b), delta = max-min;
+        if (delta < 17) return max > 240 ? '#24272e' : '#d5d7db';
+        let hue = max === r ? ((g-b)/delta+6)%6 : max === g ? (b-r)/delta+2 : (r-g)/delta+4;
+        hue *= 60;
+        if (hue < 15 || hue >= 345) return '#ff3b30';
+        if (hue < 40) return '#ff9500';
+        if (hue < 75) return '#ffcc00';
+        if (hue < 165) return '#32d74b';
+        if (hue < 205) return '#2face0';
+        if (hue < 230) return '#007aff';
+        if (hue < 285) return '#5856d6';
+        return '#ff2d75';
+    }
+
+    function refreshColorFilterOptions() {
+        const previous = colorFilter.value;
+        colorFilter.replaceChildren();
+        const all = document.createElement('option');
+        all.value = 'all'; all.textContent = 'Todos los colores';
+        colorFilter.appendChild(all);
+        const used = [...new Set(notes.map(n => String(n.color || '#ffffff').toLowerCase()))].sort();
+        const counts = {};
+        let hasGray = false;
+        used.forEach(color => {
+            const label = colorLabel(color);
+            if (label === 'Gris') {
+                if (hasGray) return;
+                hasGray = true;
+            }
+            counts[label] = (counts[label] || 0) + 1;
+            const option = document.createElement('option');
+            option.value = label === 'Gris' ? 'group:gray' : color;
+            option.textContent = '● ' + label + (label !== 'Gris' && counts[label] > 1 ? ' ' + counts[label] : '');
+            option.style.backgroundColor = label === 'Gris' ? '#e5e5e7' : color;
+            colorFilter.appendChild(option);
+        });
+        colorFilter.value = previous === 'group:gray' && hasGray ? previous : used.includes(previous) ? (colorLabel(previous) === 'Gris' ? 'group:gray' : previous) : 'all';
+    }
+
+    const selM = document.getElementById('calM');
+    const selY = document.getElementById('calY');
+    const months = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    
+    months.forEach((m, i) => selM.innerHTML += `<option value="${i}">${m}</option>`);
+    const cy = new Date().getFullYear();
+    for(let y=cy-5; y<=cy+10; y++) selY.innerHTML += `<option value="${y}">${y}</option>`;
+    selM.value = new Date().getMonth();
+    selY.value = cy;
+
+    const cp = document.getElementById('colorPicker');
+    vividColors.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'color-opt';
+        div.style.backgroundColor = c;
+        div.onclick = () => selectColor(c);
+        cp.appendChild(div);
+    });
+
+    function selectColor(c) {
+        selectedColor = c;
+        document.querySelectorAll('.color-opt').forEach(opt => {
+            opt.classList.toggle('active', opt.style.backgroundColor === c);
+        });
+        updateColorSwatch();
+        updateNotePaper();
+    }
+
+    function updateNotePaper() {
+        const raw = String(selectedColor || '#ffffff').replace('#', '');
+        const channels = /^[0-9a-f]{6}$/i.test(raw) ? [0,2,4].map(i => parseInt(raw.slice(i,i+2),16)) : [255,255,255];
+        const paper = '#' + channels.map(value => Math.round(255 * .6 + value * .4).toString(16).padStart(2,'0')).join('');
+        document.querySelector('.note-editor').style.setProperty('--note-paper', paper);
+    }
+
+
+    function updateColorSwatch() {
+        const btn = document.getElementById('colorButton');
+        if (!btn) return;
+        const color = selectedColor || "#f1f4f9";
+        btn.style.background = color;
+        btn.style.color = getContrastColor(color);
+        btn.style.boxShadow = '0 8px 18px rgba(35, 55, 88, 0.08), inset 0 1px 0 rgba(255,255,255,0.45)';
+    }
+
+    function toggleColorSheet(show) {
+        const sheet = document.getElementById('colorSheet');
+        const backdrop = document.getElementById('colorBackdrop');
+        if (!sheet || !backdrop) return;
+
+        const wantShow = (show === undefined) ? !sheet.classList.contains('show') : !!show;
+
+        if (wantShow) {
+            backdrop.style.display = 'block';
+            // Forzar reflow para que la transición funcione en iOS
+            void sheet.offsetHeight;
+            sheet.classList.add('show');
+        } else {
+            sheet.classList.remove('show');
+            backdrop.style.display = 'none';
+        }
+    }
+
+    
+
+    function formatDateShort(value) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return '--/--/----';
+        return `${Number(value.slice(8,10))}/${Number(value.slice(5,7))}/${value.slice(0,4)}`;
+    }
+
+    function updateDateSummary() {
+        const startEl = document.getElementById('startSummary');
+        const startValue = document.getElementById('dateStart')?.value || '';
+        if (startEl) startEl.textContent = formatDateShort(startValue);
+    }
+
+    function openDateSheetFor() {
+        toggleDateSheet(true);
+        setTimeout(() => {
+            const target = document.getElementById('dateStart');
+            if (target) {
+                try { target.focus(); } catch(e) {}
+                try { if (target.showPicker) target.showPicker(); } catch(e) {}
+            }
+        }, 60);
+    }
+
+    function toggleDateSheet(show) {
+        const sheet = document.getElementById('dateSheet');
+        const backdrop = document.getElementById('dateBackdrop');
+        if (!sheet || !backdrop) return;
+
+        const wantShow = (show === undefined) ? !sheet.classList.contains('show') : !!show;
+
+        if (wantShow) {
+            updateDateSummary();
+            backdrop.style.display = 'block';
+            void sheet.offsetHeight;
+            sheet.classList.add('show');
+        } else {
+            sheet.classList.remove('show');
+            backdrop.style.display = 'none';
+            updateDateSummary();
+        }
+    }
+
+    function getActiveFilter() {
+        const input = document.getElementById('searchInput');
+        return input ? input.value.toLowerCase() : '';
+    }
+
+    function noteMatches(n, filter) {
+        return !filter || String(n.text || '').toLowerCase().includes(filter) ||
+            (Array.isArray(n.items) && n.items.some(item => String(item.text || '').toLowerCase().includes(filter)));
+    }
+
+    function createNoteOfType(type) {
+        showModal(null, type);
+    }
+
+    function renderChecklistEditor() {
+        const container = document.getElementById('checklistRows');
+        container.replaceChildren();
+        workingItems.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'checklist-row';
+            const check = document.createElement('input');
+            check.type = 'checkbox';
+            check.checked = !!item.done;
+            check.onchange = () => { workingItems[index].done = check.checked; };
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Elemento ' + (index + 1);
+            input.value = item.text;
+            input.oninput = () => { workingItems[index].text = input.value; };
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'remove-item';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', 'Eliminar elemento');
+            remove.onclick = () => { workingItems.splice(index, 1); renderChecklistEditor(); };
+            row.append(check, input, remove);
+            container.appendChild(row);
+        });
+    }
+    function addChecklistItem() {
+        workingItems.push({ text:'', done:false });
+        renderChecklistEditor();
+        const inputs = document.querySelectorAll('#checklistRows input[type="text"]');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+    }
+
+    function appendChecklistPreview(card, note, limit = 5) {
+        const items = Array.isArray(note.items) ? note.items : [];
+        items.slice(0, limit).forEach((entry, index) => {
+            const row = document.createElement('div');
+            row.className = 'check-preview' + (entry.done ? ' done' : '');
+            const check = document.createElement('input');
+            check.type = 'checkbox';
+            check.checked = !!entry.done;
+            check.onclick = e => e.stopPropagation();
+            check.onchange = e => {
+                e.stopPropagation();
+                const original = notes.find(n => String(n.id) === String(note.id));
+                if (!original || !Array.isArray(original.items)) return;
+                original.items[index].done = check.checked;
+                refreshUI();
+            };
+            const label = document.createElement('span');
+            label.textContent = entry.text;
+            row.append(check, label);
+            card.appendChild(row);
+        });
+        if (items.length > limit) {
+            const remaining = document.createElement('div');
+            remaining.className = 'check-summary';
+            remaining.textContent = `+ ${items.length - limit} elementos más`;
+            card.appendChild(remaining);
+        }
+    }
+
+    function appendChecklistActions(card, note) {
+        const actions = document.createElement('div');
+        actions.className = 'check-actions';
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.textContent = 'Editar lista';
+        edit.onclick = e => { e.stopPropagation(); showModal(note.id); };
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'check-delete';
+        remove.textContent = 'Eliminar';
+        remove.onclick = e => { e.stopPropagation(); pendingDeleteListId = String(note.id); document.getElementById('confirmDeleteListModal').style.display = 'flex'; };
+        actions.append(edit, remove);
+        card.appendChild(actions);
+    }
+
+    function closeDeleteList() {
+        pendingDeleteListId = null;
+        document.getElementById('confirmDeleteListModal').style.display = 'none';
+    }
+
+    function deleteConfirmedList() {
+        if (pendingDeleteListId === null) return;
+        notes = notes.filter(n => String(n.id) !== pendingDeleteListId);
+        closeDeleteList();
+        refreshUI();
+    }
+
+    function getContrastColor(color) {
+        if (!color) return '#22314b';
+        const hex = String(color).trim();
+        if (!hex.startsWith('#')) return '#22314b';
+        let raw = hex.slice(1);
+        if (raw.length === 3) raw = raw.split('').map(ch => ch + ch).join('');
+        if (raw.length !== 6) return '#22314b';
+        const r = parseInt(raw.slice(0,2), 16);
+        const g = parseInt(raw.slice(2,4), 16);
+        const b = parseInt(raw.slice(4,6), 16);
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b);
+        return lum > 170 ? '#22314b' : '#ffffff';
+    }
+
+function toggleSearch() {
+        const bar = document.getElementById('searchBar');
+        const isVisible = bar.style.display === 'block';
+        bar.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            document.getElementById('searchInput').focus();
+        } else {
+            document.getElementById('searchInput').value = '';
+            filterNotes();
+        }
+    }
+
+    function filterNotes() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if (query !== lastCalendarQuery) calendarResultLimit = 80;
+        lastCalendarQuery = query;
+        if (currentView === 'list') {
+            renderNotesList(query);
+        } else {
+            renderCal(query);
+            if (selectedDateStr) updateDayDetail(selectedDateStr, query);
+        }
+    }
+
+    function openMenu() { document.getElementById('side-menu').classList.add('active'); document.getElementById('overlay').style.display='block'; }
+    function closeMenu() { document.getElementById('side-menu').classList.remove('active'); document.getElementById('overlay').style.display='none'; }
+
+    function switchView(v) {
+        currentView = v;
+        for (const [id, active] of [['btnViewList', v === 'list'], ['btnViewCalendar', v === 'calendar']]) {
+            const button = document.getElementById(id);
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
+        }
+        document.getElementById('listTools').style.display = v === 'list' ? 'block' : 'none';
+        document.getElementById('list-view').style.display = v === 'list' ? 'block' : 'none';
+        document.getElementById('calendar-view').style.display = v === 'calendar' ? 'block' : 'none';
+        document.getElementById('view-title-text').innerText = v === 'list' ? 'Notas' : 'Calendario';
+        if(v === 'calendar') {
+            if(!selectedDateStr) {
+                const d = new Date();
+                selectedDateStr = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+            }
+            renderCal();
+            updateDayDetail(selectedDateStr);
+        } else {
+            renderNotesList(getActiveFilter());
+        }
+        closeMenu();
+    }
+
+    function goToToday() {
+        const d = new Date();
+        selM.value = d.getMonth();
+        selY.value = d.getFullYear();
+        selectedDateStr = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+        renderCal();
+        updateDayDetail(selectedDateStr);
+    }
+
+    function calendarSelectionChanged() {
+        const y = Number(selY.value);
+        const m = Number(selM.value);
+        const previousDay = selectedDateStr ? Number(selectedDateStr.slice(8, 10)) : 1;
+        const day = Math.min(previousDay, new Date(y, m + 1, 0).getDate());
+        selectedDateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const filter = getActiveFilter();
+        renderCal(filter);
+        updateDayDetail(selectedDateStr, filter);
+    }
+
+    function shiftCalendarMonth(delta, slideFrom) {
+        let m = parseInt(selM.value, 10);
+        let y = parseInt(selY.value, 10);
+        m += delta;
+        if (m < 0) { m = 11; y -= 1; }
+        if (m > 11) { m = 0; y += 1; }
+        selM.value = m;
+        selY.value = y;
+
+        const currentDay = selectedDateStr ? parseInt(selectedDateStr.slice(8, 10), 10) : 1;
+        const totalDays = new Date(y, m + 1, 0).getDate();
+        const safeDay = String(Math.min(currentDay, totalDays)).padStart(2, '0');
+        selectedDateStr = `${y}-${String(m + 1).padStart(2, '0')}-${safeDay}`;
+
+        renderCal(getActiveFilter(), slideFrom || 0);
+        updateDayDetail(selectedDateStr, getActiveFilter());
+    }
+
+    function setupCalendarSwipe() {
+        const area = document.getElementById('calendar-view');
+        const grid = document.getElementById('cal-grid');
+        if (!area || !grid || area.dataset.swipeReady === '1') return;
+        area.dataset.swipeReady = '1';
+
+        const swipe = {
+            startX: 0,
+            startY: 0,
+            dx: 0,
+            tracking: false,
+            horizontal: false,
+            animating: false
+        };
+
+        function resetGridPosition(animated) {
+            const g = document.getElementById('cal-grid');
+            if (!g) return;
+            g.style.transition = animated ? 'transform 220ms ease, opacity 220ms ease' : 'none';
+            g.style.transform = 'translateX(0px)';
+            g.style.opacity = '1';
+        }
+
+        function animateMonthChange(delta) {
+            if (swipe.animating) return;
+            const g = document.getElementById('cal-grid');
+            if (!g) return;
+            swipe.animating = true;
+
+            const width = g.offsetWidth || area.offsetWidth || 320;
+            const exitDir = delta > 0 ? -1 : 1;   // next month exits to left
+            const enterFrom = delta > 0 ? 1 : -1; // next month enters from right
+
+            g.style.transition = 'transform 220ms ease, opacity 220ms ease';
+            g.style.transform = `translateX(${exitDir * width * 0.88}px)`;
+            g.style.opacity = '0.18';
+
+            window.setTimeout(function() {
+                shiftCalendarMonth(delta, enterFrom);
+                swipe.animating = false;
+            }, 230);
+        }
+
+        area.addEventListener('touchstart', function(e) {
+            if (swipe.animating) return;
+            if (!e.touches || e.touches.length !== 1) return;
+            if (e.target && (e.target.tagName === 'SELECT' || e.target.closest('select'))) return;
+            const t = e.touches[0];
+            swipe.startX = t.clientX;
+            swipe.startY = t.clientY;
+            swipe.dx = 0;
+            swipe.tracking = true;
+            swipe.horizontal = false;
+        }, { passive: true });
+
+        area.addEventListener('touchmove', function(e) {
+            if (!swipe.tracking || swipe.animating || !e.touches || !e.touches.length) return;
+            const t = e.touches[0];
+            const dx = t.clientX - swipe.startX;
+            const dy = t.clientY - swipe.startY;
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+
+            if (!swipe.horizontal) {
+                if (absX < 8) return;
+                if (absX <= absY) {
+                    swipe.tracking = false;
+                    return;
+                }
+                swipe.horizontal = true;
+            }
+
+            swipe.dx = dx;
+            const g = document.getElementById('cal-grid');
+            if (!g) return;
+            e.preventDefault();
+            g.style.transition = 'none';
+            g.style.transform = `translateX(${dx}px)`;
+            g.style.opacity = String(Math.max(0.5, 1 - Math.abs(dx) / 420));
+        }, { passive: false });
+
+        area.addEventListener('touchend', function() {
+            if (!swipe.tracking || swipe.animating) return;
+            const dx = swipe.dx;
+            swipe.tracking = false;
+
+            if (Math.abs(dx) > 56) {
+                animateMonthChange(dx < 0 ? 1 : -1);
+            } else {
+                resetGridPosition(true);
+            }
+        }, { passive: true });
+
+        area.addEventListener('touchcancel', function() {
+            swipe.tracking = false;
+            if (!swipe.animating) resetGridPosition(true);
+        }, { passive: true });
+    }
+
+    function refreshUI() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+        refreshColorFilterOptions();
+        const filter = getActiveFilter();
+        renderNotesList(filter);
+        renderCal(filter);
+        if (selectedDateStr) updateDayDetail(selectedDateStr, filter);
+    }
+
+    function renderNotesList(filter = '') {
+        const container = document.getElementById('list-view');
+        container.innerHTML = '';
+        container.classList.add('rows-list');
+        const selectedColor = colorFilter.value;
+        let filtered = notes.filter(n => noteMatches(n, filter) && (selectedColor === 'all' || (selectedColor === 'group:gray' ? colorLabel(n.color) === 'Gris' : String(n.color || '#ffffff').toLowerCase() === selectedColor)));
+        const order = document.getElementById('sortNotes').value;
+        if (order === 'title') filtered.sort((a,b) => a.text.localeCompare(b.text, 'es'));
+        else if (order === 'color') filtered.sort((a,b) => String(a.color).localeCompare(String(b.color)) || a.text.localeCompare(b.text, 'es'));
+        else filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
+        if (!filtered.length) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-notes';
+            empty.textContent = filter || selectedColor !== 'all' ? 'No hay notas con estos filtros.' : 'Aún no hay notas. Pulsa Nueva nota o Nueva lista para empezar.';
+            container.appendChild(empty);
+        }
+        filtered.forEach(n => {
+            const el = document.createElement('div');
+            el.className = 'note-card';
+            el.style.backgroundColor = n.color || '#ffffff';
+            el.onclick = () => showModal(n.id);
+            el.style.borderLeftColor = n.color && n.color !== '#ffffff' ? stripeColor(n.color) : '#b8c1cb';
+            const lines = String(n.text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const title = document.createElement('div');
+            title.className = 'note-title';
+            title.textContent = lines[0] || '(Nota sin texto)';
+            const preview = document.createElement('div');
+            preview.className = 'note-preview';
+            preview.textContent = lines.slice(1).join(' ').trim() || (n.type === 'checklist' && n.items?.length ? n.items[0].text : '');
+            const date = document.createElement('div');
+            date.className = 'note-date';
+            const [year,month,day] = String(n.start || '').slice(0,10).split('-');
+            date.textContent = day && month && year ? `${Number(day)}/${Number(month)}/${year}` : '';
+            el.append(title, preview, date);
+            if (!preview.textContent) preview.style.display = 'none';
+            if (n.type === 'checklist') {
+                appendChecklistPreview(el, n, 2);
+                appendChecklistActions(el, n);
+            }
+            container.appendChild(el);
+        });
+    }
+
+    function renderCal(filter = getActiveFilter(), slideFrom) {
+        const grid = document.getElementById('cal-grid');
+        if(!grid) return;
+        grid.innerHTML = '';
+
+        const m = parseInt(selM.value, 10);
+        const y = parseInt(selY.value, 10);
+        const totalDays = new Date(y, m + 1, 0).getDate();
+
+        let firstDay = new Date(y, m, 1).getDay();
+        firstDay = (firstDay + 6) % 7; // lunes = 0
+
+        const dReal = new Date();
+        const todayStr = `${dReal.getFullYear()}-${(dReal.getMonth()+1).toString().padStart(2,'0')}-${dReal.getDate().toString().padStart(2,'0')}`;
+
+        const btnToday = document.getElementById('btnToday');
+        if (btnToday) btnToday.classList.toggle('different', selectedDateStr !== todayStr);
+
+        for (let i = 0; i < firstDay; i++) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'cal-day empty';
+            emptyEl.setAttribute('aria-hidden', 'true');
+            grid.appendChild(emptyEl);
+        }
+
+        for (let d = 1; d <= totalDays; d++) {
+            const dateStr = `${y}-${String(m + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const dayNotes = notes.filter(n => n.start && n.start.startsWith(dateStr) && noteMatches(n, filter));
+            const hasNote = dayNotes.length > 0;
+            const weekdayCol = (firstDay + d - 1) % 7;
+            const isWeekend = weekdayCol >= 5;
+
+            const dayEl = document.createElement('div');
+            dayEl.className = `cal-day ${hasNote ? 'has-note' : ''} ${isWeekend ? 'is-weekend' : ''} ${selectedDateStr === dateStr ? 'selected' : ''} ${todayStr === dateStr ? 'is-today' : ''}`;
+            dayEl.setAttribute('aria-label', `${d} de ${months[m]}, ${dayNotes.length} ${dayNotes.length === 1 ? 'nota' : 'notas'}`);
+            const number = document.createElement('span');
+            number.className = 'cal-day-number';
+            number.textContent = d;
+            dayEl.appendChild(number);
+            if (hasNote) {
+                const dots = document.createElement('span');
+                dots.className = 'cal-dots';
+                dayNotes.slice(0, 6).forEach(n => {
+                    const dot = document.createElement('span');
+                    dot.className = 'cal-dot';
+                    dot.style.backgroundColor = calendarDotColor(n.color);
+                    dots.appendChild(dot);
+                });
+                if (dayNotes.length > 6) {
+                    const more = document.createElement('span');
+                    more.className = 'cal-more';
+                    more.textContent = `+${dayNotes.length - 6}`;
+                    dots.appendChild(more);
+                }
+                dayEl.appendChild(dots);
+            }
+
+            dayEl.onclick = function() {
+                selectedDateStr = dateStr;
+                renderCal(filter, 0);
+                updateDayDetail(dateStr, filter);
+            };
+            grid.appendChild(dayEl);
+        }
+
+        if (slideFrom) {
+            grid.style.transition = 'none';
+            grid.style.opacity = '0.18';
+            grid.style.transform = `translateX(${slideFrom > 0 ? 46 : -46}px)`;
+            void grid.offsetHeight;
+            requestAnimationFrame(function() {
+                grid.style.transition = 'transform 220ms ease, opacity 220ms ease';
+                grid.style.transform = 'translateX(0px)';
+                grid.style.opacity = '1';
+            });
+        } else {
+            grid.style.transition = 'none';
+            grid.style.transform = 'translateX(0px)';
+            grid.style.opacity = '1';
+        }
+        renderCalendarSearchResults(filter);
+    }
+
+    function selectCalendarResultDate(dateStr) {
+        if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+        const year = dateStr.slice(0, 4);
+        if (![...selY.options].some(option => option.value === year)) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            selY.appendChild(option);
+        }
+        selY.value = year;
+        selM.value = String(Number(dateStr.slice(5, 7)) - 1);
+        selectedDateStr = dateStr;
+        const filter = getActiveFilter();
+        renderCal(filter);
+        updateDayDetail(dateStr, filter);
+        document.getElementById('cal-grid').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function renderCalendarSearchResults(filter) {
+        const container = document.getElementById('calendarSearchResults');
+        const query = (filter || '').trim();
+        container.replaceChildren();
+        container.style.display = query ? 'block' : 'none';
+        if (!query) return;
+
+        const matches = notes.filter(n => noteMatches(n, query))
+            .sort((a,b) => String(b.start || '').localeCompare(String(a.start || '')));
+        const title = document.createElement('h3');
+        title.textContent = `${matches.length} resultado${matches.length === 1 ? '' : 's'} en todos los meses`;
+        container.appendChild(title);
+        if (!matches.length) {
+            const empty = document.createElement('p');
+            empty.textContent = 'No hay notas que coincidan con la búsqueda.';
+            container.appendChild(empty);
+            return;
+        }
+
+        matches.slice(0, calendarResultLimit).forEach(n => {
+            const card = document.createElement('div');
+            card.className = 'calendar-result';
+            card.style.borderLeftColor = n.color || '#54a0d9';
+            card.onclick = () => showModal(n.id);
+            const date = document.createElement('div');
+            date.className = 'calendar-result-date';
+            const dateStr = String(n.start || '').slice(0,10);
+            const [year, month, day] = dateStr.split('-');
+            date.textContent = month && months[Number(month)-1] ? `${Number(day)} de ${months[Number(month)-1]} de ${year}` : 'Sin fecha';
+            const excerpt = document.createElement('div');
+            excerpt.className = 'calendar-result-text';
+            const body = String(n.text || '').replace(/\s+/g, ' ');
+            const itemHit = Array.isArray(n.items) ? n.items.find(item => String(item.text || '').toLowerCase().includes(query)) : null;
+            const hit = body.toLowerCase().indexOf(query);
+            excerpt.textContent = hit > 45 ? '…' + body.slice(hit - 35, hit + 145) : body.slice(0, 180);
+            if (itemHit) excerpt.textContent += ' · ' + itemHit.text;
+            const go = document.createElement('button');
+            go.type = 'button';
+            go.textContent = 'Ir al día';
+            go.onclick = e => { e.stopPropagation(); selectCalendarResultDate(dateStr); };
+            card.append(date, excerpt, go);
+            container.appendChild(card);
+        });
+        if (calendarResultLimit < matches.length) {
+            const more = document.createElement('button');
+            more.type = 'button';
+            more.className = 'calendar-more';
+            more.textContent = `Mostrar más (${Math.min(matches.length - calendarResultLimit, 80)})`;
+            more.onclick = () => { calendarResultLimit += 80; renderCalendarSearchResults(query); };
+            container.appendChild(more);
+        }
+    }
+
+
+function updateDayDetail(dateStr, filter = getActiveFilter()) {
+        const res = document.getElementById('day-notes');
+        if(!res) return;
+        const dayNotes = notes.filter(n => n.start && n.start.startsWith(dateStr) && noteMatches(n, filter));
+        const [y, m, d] = dateStr.split('-');
+        res.innerHTML = `<h4 style="margin-bottom: 12px; color:#555; border-bottom: 1px solid #ddd; padding-bottom: 5px;">${parseInt(d)} de ${months[parseInt(m)-1]}</h4>`;
+        dayNotes.forEach(dn => {
+            const item = document.createElement('div');
+            item.style = `background:${dn.color}; padding:14px; border-radius:12px; margin-bottom:10px; cursor:pointer; border:1px solid rgba(0,0,0,0.1);`;
+            const textEl = document.createElement('div');
+            textEl.className = 'note-text-cal';
+            textEl.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;';
+            textEl.textContent = dn.text;
+            item.appendChild(textEl);
+            if (dn.type === 'checklist') {
+                appendChecklistPreview(item, dn);
+                appendChecklistActions(item, dn);
+            }
+            item.onclick = () => showModal(dn.id);
+            res.appendChild(item);
+        });
+    }
+
+    function showModal(id = null, requestedType = 'note') {
+        editingId = (id !== null && id !== undefined) ? String(id) : null;
+        document.getElementById('noteModal').style.display = 'flex';
+        document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
+        
+        if(id) {
+            const sid = String(id);
+            const n = notes.find(x => String(x.id) === sid);
+            if(!n) { alert('No se encontró la nota.'); closeModal(); return; }
+            currentNoteType = n.type === 'checklist' ? 'checklist' : 'note';
+            workingItems = Array.isArray(n.items) ? n.items.map(item => ({text:String(item.text || ''), done:!!item.done})) : [];
+            document.getElementById('noteText').value = n.text;
+            document.getElementById('checklistTitle').value = n.text;
+            document.getElementById('dateStart').value = String(n.start || '').slice(0,10);
+            selectColor(n.color || "#ffffff");
+        } else {
+            currentNoteType = requestedType === 'checklist' ? 'checklist' : 'note';
+            workingItems = currentNoteType === 'checklist' ? [{text:'',done:false}] : [];
+            document.getElementById('noteText').value = '';
+            document.getElementById('checklistTitle').value = '';
+            const today = new Date();
+            const localDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            document.getElementById('dateStart').value = currentView === 'calendar' && selectedDateStr ? selectedDateStr : localDate;
+            selectColor("#ffffff");
+        }
+        document.getElementById('noteText').style.display = currentNoteType === 'note' ? 'block' : 'none';
+        document.getElementById('checklistEditor').style.display = currentNoteType === 'checklist' ? 'block' : 'none';
+        if (currentNoteType === 'checklist') renderChecklistEditor();
+        updateDateSummary();
+
+    }
+
+    function closeModal() {
+        toggleColorSheet(false);
+        toggleDateSheet(false);
+        document.getElementById('noteModal').style.display = 'none';
+    }
+
+    function saveNote() {
+        const items = currentNoteType === 'checklist' ? workingItems.filter(item => item.text.trim()).map(item => ({text:item.text.trim(), done:!!item.done})) : [];
+        const text = currentNoteType === 'checklist' ? (document.getElementById('checklistTitle').value.trim() || 'Lista') : document.getElementById('noteText').value;
+        const date = document.getElementById('dateStart').value;
+        const existing = editingId ? notes.find(n => String(n.id) === editingId) : null;
+        const originalSuffix = existing && /^\d{4}-\d{2}-\d{2}T/.test(String(existing.start || '')) ? String(existing.start).slice(10) : null;
+        const start = date + (originalSuffix || 'T' + new Date().toLocaleTimeString('it-IT').slice(0,5));
+        const end = existing ? existing.end : start;
+        if (!date) { alert('Selecciona una fecha.'); return; }
+        if(!text.trim() || (currentNoteType === 'checklist' && !items.length)) {
+            alert(currentNoteType === 'checklist' ? 'Añade al menos un elemento a la lista.' : 'Escribe la nota antes de guardar.');
+            return;
+        }
+        if(editingId) {
+            const idx = notes.findIndex(x => x.id === editingId);
+            if (idx < 0) return;
+            notes[idx] = { ...notes[idx], text, start, end, color: selectedColor, type:currentNoteType, items };
+        } else {
+            const id = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 9);
+            notes.push({ id, text, start, end, color: selectedColor, type:currentNoteType, items });
+        }
+        refreshUI();
+        closeModal();
+    }
+
+    function deleteNoteAction() {
+        if(!editingId) return;
+        // Eliminado directo (más fiable en iPhone/local). Si quieres confirmación, la hacemos con un modal propio.
+        notes = notes.filter(x => String(x.id) !== String(editingId));
+        editingId = null;
+        refreshUI();
+        closeModal();
+    }
+
+    function generateBackupFilename() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        return `Notas_${y}-${m}-${d}_${hh}-${mm}.json`;
+    }
+
+    async function exportBackup() {
+        if(!notes.length) { closeMenu(); return; }
+
+        const dataStr = JSON.stringify(notes, null, 2);
+        const fileName = generateBackupFilename();
+        const mimeType = "application/json";
+
+        try {
+            // 1) iOS: Web Share API (permite "Guardar en Archivos", AirDrop, etc.)
+            const file = new File([dataStr], fileName, { type: mimeType });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Exportar Notas',
+                    text: 'Copia de seguridad de iNote Pro'
+                });
+                closeMenu();
+                return;
+            }
+
+            // 2) Fallback: data: URI (en iPhone puede abrir texto; en escritorio suele descargar)
+            const dataURI = `data:${mimeType};charset=utf-8,${encodeURIComponent(dataStr)}`;
+            const a = document.createElement('a');
+            a.href = dataURI;
+            a.download = fileName;
+            a.style.position = 'fixed';
+            a.style.top = '-100px';
+            a.style.left = '-100px';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            closeMenu();
+        } catch (err) {
+            console.error('Export error:', err);
+            // Si el usuario cancela el share, no mostramos error
+            if (err && err.name !== 'AbortError') alert("No se pudo exportar. Prueba de nuevo.");
+            closeMenu();
+        }
+    }
+
+    function normalizeImportedNote(raw, idx) {
+        if (!raw || typeof raw !== 'object') return null;
+
+        const text = (typeof raw.text === 'string') ? raw.text : '';
+        const color = (typeof raw.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(raw.color)) ? raw.color : '#ffffff';
+
+        const startRaw = (typeof raw.start === 'string') ? raw.start.trim() : '';
+        const endRaw = (typeof raw.end === 'string') ? raw.end.trim() : '';
+
+        const dtPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+        const todayLocal = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16);
+        const start = dtPattern.test(startRaw) ? startRaw : todayLocal;
+        const end = dtPattern.test(endRaw) ? endRaw : start;
+
+        return {
+            id: String(raw.id != null ? raw.id : (Date.now() + idx)),
+            text,
+            start,
+            end,
+            color,
+            type: raw.type === 'checklist' ? 'checklist' : 'note',
+            items: raw.type === 'checklist' && Array.isArray(raw.items) ? raw.items.filter(item => item && typeof item.text === 'string').map(item => ({text:item.text, done:!!item.done})) : []
+        };
+    }
+
+    function importBackup(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            let parsed;
+            try {
+                parsed = JSON.parse(ev.target.result);
+            } catch(err) {
+                console.error('Import JSON parse error:', err);
+                alert('Archivo no válido: el JSON no se pudo leer.');
+                e.target.value = '';
+                return;
+            }
+
+            if (!Array.isArray(parsed)) {
+                alert('Archivo no válido: no contiene una lista de notas.');
+                e.target.value = '';
+                return;
+            }
+
+            try {
+                if (parsed.some(raw => !raw || typeof raw !== 'object' || typeof raw.text !== 'string')) {
+                    throw new Error('La lista contiene notas no válidas.');
+                }
+                pendingImport = parsed.map(normalizeImportedNote);
+                document.getElementById('importSummary').textContent =
+                    `${pendingImport.length} notas en el archivo · ${notes.length} notas actuales.`;
+                document.getElementById('importModal').style.display = 'flex';
+            } catch(err) {
+                console.error('Import error:', err);
+                pendingImport = null;
+                alert('Archivo no válido: ' + err.message);
+            } finally {
+                e.target.value = '';
+            }
+        };
+        reader.onerror = () => { e.target.value = ''; alert('No se pudo leer el archivo.'); };
+        reader.readAsText(file);
+        closeMenu();
+    }
+
+    function closeImportModal() {
+        pendingImport = null;
+        document.getElementById('importModal').style.display = 'none';
+    }
+
+    function completeImport(mode) {
+        if (!pendingImport || !['merge', 'replace'].includes(mode)) return;
+        const original = notes;
+        const result = mode === 'merge' ? [...notes] : [];
+        const ids = new Set(result.map(n => String(n.id)));
+        let added = 0;
+        for (const note of pendingImport) {
+            if (ids.has(note.id)) continue;
+            ids.add(note.id);
+            result.push(note);
+            added++;
+        }
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+            notes = result;
+            const action = mode === 'merge' ? `Añadidas ${added} notas` : `Importadas ${added} notas`;
+            closeImportModal();
+            refreshUI();
+            alert(action + '.');
+        } catch(err) {
+            notes = original;
+            alert('No se pudieron guardar las notas. Los datos actuales se mantienen.');
+        }
+    }
+
+    function openClearDataSheet() {
+        closeMenu();
+        openConfirmDeleteAll();
+    }
+
+    function closeClearDataSheet() {
+        closeConfirmDeleteAll();
+    }
+
+    
+    function looksLikeNotesArray(val) {
+        if (!val) return false;
+        try {
+            const data = JSON.parse(val);
+            if (!Array.isArray(data)) return false;
+            return data.length === 0 || data.every(function(n) {
+                return n && typeof n === 'object' &&
+                    ('text' in n) && ('start' in n) && ('end' in n) && ('color' in n);
+            });
+        } catch(e) { return false; }
+    }
+
+        function clearAllDataNow() {
+        // Confirma la escritura antes de cambiar la pantalla o el estado en memoria.
+        try {
+            localStorage.setItem(STORAGE_KEY, '[]');
+        } catch(e) {
+            alert('No se pudieron borrar las notas del almacenamiento.');
+            return;
+        }
+        // Reset estado en memoria
+        notes = [];
+        editingId = null;
+        selectedDateStr = null;
+        selectedColor = '#ffffff';
+        currentView = 'list';
+
+        // Solo modifica el espacio de Notas; otras apps pueden compartir origen.
+
+        // Limpia UI
+        var lv = document.getElementById('list-view');
+        if (lv) lv.innerHTML = '';
+        var dn = document.getElementById('day-notes');
+        if (dn) dn.innerHTML = '';
+        var grid = document.getElementById('cal-grid');
+        if (grid) grid.innerHTML = '';
+        var si = document.getElementById('searchInput');
+        if (si) si.value = '';
+        colorFilter.value = 'all';
+        document.getElementById('sortNotes').value = 'date';
+        var sb = document.getElementById('searchBar');
+        if (sb) sb.style.display = 'none';
+
+        switchView('list');
+
+        refreshUI();
+        closeClearDataSheet();
+        closeConfirmDeleteAll();
+        closeMenu();
+
+        // Evita depender de confirm/alert del sistema para el flujo crítico,
+        // pero dejamos el aviso final porque suele funcionar bien.
+        alert('Datos eliminados. La app queda limpia.');
+    }
+
+
+        function openConfirmDeleteAll() {
+        const m = document.getElementById('confirmDeleteAllModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeConfirmDeleteAll() {
+        const m = document.getElementById('confirmDeleteAllModal');
+        if (m) m.style.display = 'none';
+    }
+    function doConfirmDeleteAll() {
+        // Cierra primero para evitar glitches visuales en iOS
+        closeConfirmDeleteAll();
+        setTimeout(function() {
+            clearAllDataNow();
+        }, 80);
+    }
+
+    function confirmDeleteAllData() {
+        openClearDataSheet();
+    }
+
+document.getElementById('btnExportMenu').addEventListener('click', exportBackup);
+    setupCalendarSwipe();
+    refreshColorFilterOptions();
+    renderNotesList();
+</script>
+<script>
+function volverAlIndexRey(){
+  // Si Notas está abierta dentro del visor del índice, cerrar únicamente el visor.
+  try {
+    if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
+      window.parent.volverMenu(); return;
+    }
+  } catch(e) {}
+  // Funcionamiento también al abrir notas.html directamente.
+  window.location.href='index.html';
+}
+</script>
+</body>
+</html>

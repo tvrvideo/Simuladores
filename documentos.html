@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.74</title>
+  <title>Documentos Rey v4.8.75</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4463,7 +4463,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.74</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.75</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4497,7 +4497,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.74</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.75</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5774,7 +5774,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.74', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.75', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5817,7 +5817,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.74',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.75',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8354,6 +8354,40 @@ COLOCACIÓN INCLUIDA` }
     return desc || ref || prov || 'Producto externo';
   }
 
+  // v4.8.75: normalizar solo imágenes de Pasamanos al recibirlas.
+  // La celda GRÁFICO utiliza "meet" (no recorta); si el PNG trae mucho
+  // fondo blanco, se ve pequeño o descentrado. Se quita ese fondo manteniendo
+  // un margen uniforme antes de guardar el concepto.
+  async function normalizarImagenPasamanosV4875(src){
+    if(typeof src !== 'string' || !src.startsWith('data:image/')) return src;
+    try{
+      const img=new Image();
+      await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=src;});
+      const max=1800, esc=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      const w=Math.max(1,Math.round(img.naturalWidth*esc));
+      const h=Math.max(1,Math.round(img.naturalHeight*esc));
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      const ctx=cv.getContext('2d',{willReadFrequently:true});
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+      const pix=ctx.getImageData(0,0,w,h).data;
+      let x0=w,y0=h,x1=-1,y1=-1;
+      for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+        const i=(y*w+x)*4;
+        if(pix[i+3]>20 && (pix[i]<239 || pix[i+1]<239 || pix[i+2]<239)){
+          if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+        }
+      }
+      if(x1<x0||y1<y0)return src;
+      const margin=Math.max(12,Math.round(Math.max(x1-x0+1,y1-y0+1)*0.045));
+      const cw=x1-x0+1,ch=y1-y0+1;
+      const out=document.createElement('canvas');
+      out.width=cw+2*margin;out.height=ch+2*margin;
+      const oc=out.getContext('2d');oc.fillStyle='#fff';oc.fillRect(0,0,out.width,out.height);
+      oc.drawImage(cv,x0,y0,cw,ch,margin,margin,cw,ch);
+      return out.toDataURL('image/png');
+    }catch(_){return src;}
+  }
+
   async function applyExternalProductReturnV42(){
     let raw = '';
     try{ raw = sessionStorage.getItem(EXTERNAL_PRODUCT_KEY_V42) || ''; }catch(_){ }
@@ -8390,7 +8424,8 @@ COLOCACIÓN INCLUIDA` }
     };
     const img = String(product.imagen || product.image || product.png || '').trim();
     if(isSimpleBudget()) item.image = '';
-    else if(img) item.image = img;
+    else if(img) item.image = String(product.origen || product.source || '').toLowerCase()==='pasamanos'
+      ? await normalizarImagenPasamanosV4875(img) : img;
     await persistCurrent();
     try{ sessionStorage.removeItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
     try{ localStorage.removeItem(EXTERNAL_TARGET_KEY_V42); }catch(_){ }
@@ -10869,7 +10904,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.74',
+      app:'Documentos Rey', version:'v4.8.75',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11005,7 +11040,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.74',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.75',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -15017,7 +15052,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.74', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.75', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){

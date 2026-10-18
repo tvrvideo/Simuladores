@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4</title>
+  <title>Cut Máster v1.3</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -90,7 +90,8 @@
     .result-panel{display:none}
     .result-panel.active{display:block}
     .diagram-card{margin-bottom:22px}
-    .diagram-title{font-size:30px;font-weight:800;line-height:1.05;margin-bottom:10px}
+    .diagram-title{font-size:27px;font-weight:800;line-height:1.15;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+    .bars-count{display:inline-flex;align-items:center;justify-content:center;background:#cfe0cb;color:#234029;border:1px solid #9fba99;border-radius:10px;padding:6px 10px;font-size:17px;font-weight:800;white-space:nowrap}
     .diagram-sub{font-size:15px;color:#5e5651;margin-bottom:16px;line-height:1.32}
     .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}
@@ -209,7 +210,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4</div>
+    <div id="topTitle" class="title">Cut Máster v1.3</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -429,7 +430,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.3');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1230,7 +1231,7 @@
           return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head"><span class="bar-head-title">Barra ${idx+1}</span><div class="bar-metrics"><span class="bar-chip">Barra ${formatLength(bar.length)} ${currentUnit()}</span><span class="bar-chip waste">Sobra ${formatLength(bar.remaining || 0)} ${currentUnit()}</span></div></div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
-      card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
+      card.innerHTML = `<div class="diagram-title"><span>${escapeHtml(mat.name)}</span><span class="bars-count">${mat.bars.length} ${mat.bars.length === 1 ? 'BARRA' : 'BARRAS'}</span></div>
         
         ${barsHtml}`;
       diagramPanel.appendChild(card);
@@ -2617,7 +2618,8 @@
         materials: materials
       };
 
-      state.projects = [project];
+      // Añadir el despiece importado sin borrar los proyectos previos.
+      state.projects.push(project);
       state.currentProjectId = project.id;
       state.currentScreen = 'resultsScreen';
       state.resultTab = external.resultTab === 'list' ? 'list' : 'diagram';
@@ -2665,8 +2667,12 @@
   function installReturnButton(){
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = '← Ventanas';
-    btn.setAttribute('aria-label', 'Volver a la app de ventanas');
+    const origen = new URLSearchParams(location.search).get('from');
+    const returnDestino = (function(){try{return sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || '';}catch(e){return '';}})();
+    const volverMotor = origen === 'motor' || /^motor_series\.html/i.test(returnDestino);
+    const volverPasamanos = origen === 'pasamanos' || /^pasamanos\.html/i.test(returnDestino);
+    btn.textContent = volverMotor ? '← Motor' : (volverPasamanos ? '← Pasamanos' : '← Ventanas');
+    btn.setAttribute('aria-label', 'Volver a la aplicación de origen');
     btn.style.position = 'fixed';
     btn.style.right = '14px';
     btn.style.top = 'auto';
@@ -2677,22 +2683,20 @@
     btn.style.padding = '10px 14px';
     btn.style.fontSize = '14px';
     btn.style.fontWeight = '700';
-    btn.style.background = '#1f78d1';
+    btn.style.background = volverMotor ? '#c62828' : '#1f78d1';
     btn.style.color = '#fff';
     btn.style.boxShadow = '0 6px 18px rgba(0,0,0,.18)';
     btn.style.touchAction = 'manipulation';
     btn.addEventListener('click', function(){
-      const target = 'ventana.html';
+      let returnUrl = volverMotor ? 'motor_series.html?from=pasamanos&cut_return=1' : (volverPasamanos ? 'pasamanos.html' : 'ventana.html');
+      try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
       try{
         if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
-          window.parent.abrir(target);
+          window.parent.abrir(returnUrl);
           return;
         }
       }catch(e){}
-      let returnUrl = target;
-      try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
-      try{ returnUrl = localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
-      location.href = returnUrl || target;
+      location.href = returnUrl;
     }, { passive:true });
     document.body.appendChild(btn);
   }

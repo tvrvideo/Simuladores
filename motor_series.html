@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo Precios - Ventanas Rey v1.7</title>
+  <title>Cálculo Precios - Ventanas Rey v1.8</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -125,10 +125,13 @@
   <button type="button" id="btnVolverDocumentosMotor" onclick="volverADocumentosDesdeMotor()" style="display:none;position:fixed;right:112px;bottom:64px;z-index:1200;border:0;border-radius:8px;padding:7px 10px;background:#16a34a;color:#fff;font-size:11px;line-height:1.15;font-weight:800;box-shadow:0 2px 5px rgba(0,0,0,.18);width:auto;min-width:0">✓ Documentos</button>
 
 
+  <!-- Retorno contextual: flotante, accesible en todas las pestañas de Motor. -->
+  <button type="button" id="pasBtnVolverConPrecio" onclick="devolverPrecioPasamanos()" title="Aplicar precios de materiales y volver a Pasamanos" aria-label="Aplicar precios y volver a Pasamanos" style="display:none;position:fixed;right:10px;bottom:calc(65px + env(safe-area-inset-bottom, 0px));z-index:1300;width:auto;max-width:45vw;margin:0;padding:9px 12px;background:#dc2626;color:#fff;font-weight:800;font-size:13px;line-height:1.2;border-radius:11px;border:1px solid #991b1b;box-shadow:0 3px 9px #7f1d1d55">↩ Pasamanos</button>
+
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.7</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.8</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -148,6 +151,18 @@
       <h2 id="totalPrecioMain">0.00 €</h2>
     </div>
 
+    <div id="pasamanosRecepcion" style="display:none;margin:10px 0;padding:12px;background:#ecfdf5;border:2px solid #0f766e;border-radius:9px">
+      <div style="font-weight:800;font-size:17px;color:#065f46;margin-bottom:5px">✓ Despiece de Pasamanos recibido</div>
+      <div id="pasamanosRecepcionResumen" style="font-size:13px;margin-bottom:8px"></div>
+      <div class="form-group" style="margin:8px 0"><b>Tarifa según RAL de Pasamanos: <span id="pasTarifaFija">Blanco</span></b><select id="pasColorTarifa" style="display:none" aria-hidden="true"></select></div>
+
+      <div style="overflow-x:auto;max-height:45vh;overflow-y:auto"><table style="margin:0"><thead><tr><th>Perfil</th><th>Cant.</th><th>Corte (mm)</th><th>€/m</th><th>Coste</th></tr></thead><tbody id="pasamanosRecepcionCortes"></tbody></table></div>
+      <div style="overflow-x:auto;margin-top:9px"><b style="font-size:13px">Accesorios calculados por perfil</b><table style="margin-top:5px"><thead><tr><th>Accesorio</th><th>Perfil</th><th>Uds.</th><th>€/ud</th><th>Coste</th></tr></thead><tbody id="pasAccesoriosCalculados"></tbody></table></div>
+      <div id="pasamanosPrecioResumen" style="margin-top:10px;padding:10px;border-radius:8px;background:#dcfce7;font-size:15px;font-weight:700"></div>
+      <div id="pasamanosAvisoTarifa" style="font-size:12px;color:#9a3412;margin-top:6px"></div>
+      <div style="margin-top:8px;font-size:12px;color:#475569">Motor envía el coste de perfiles y accesorios. Pasamanos aplica una sola vez la ganancia, el montaje y el IVA.</div>
+    </div>
+    <div id="pasamanosRecepcionError" style="display:none;margin:10px 0;padding:10px;color:#991b1b;background:#fee2e2;border-radius:8px"></div>
     <div class="row-medidas">
       <div class="form-group">
         <label>Ancho (mm)</label>
@@ -397,6 +412,25 @@
       <select id="selSerieConfig" onchange="cargarConfigSerie()"></select>
     </div>
 
+      <div id="editorPasamanos" class="box" style="display:none">
+        <h3>Pasamanos · Perfiles y accesorios</h3>
+        <p style="font-size:13px;line-height:1.5;margin:9px 0">Esta serie no utiliza hojas, vidrios, chapas ni fórmulas de ventanas. Las medidas de corte las determina Pasamanos. Aquí solo se preparan los precios de los perfiles y los accesorios.</p>
+        <h4 style="margin:14px 0 7px">Perfiles del almacén</h4>
+        <div id="pasPerfilesLista"></div>
+        <p style="font-size:12px;margin-top:8px">Tarifas €/m editables aquí por acabado. Los precios sin configurar permanecen vacíos; las longitudes siguen en Almacén.</p>
+        <h4 style="margin:18px 0 8px">Accesorios por perfil</h4>
+        <p style="font-size:12px;margin:6px 0">Indica los accesorios que lleva CADA pieza del perfil; Motor multiplicará la cantidad por las piezas recibidas de Pasamanos. Los precios son editables.</p>
+        <div id="pasAccesoriosLista"></div>
+        <div class="grid" style="margin-top:12px">
+          <div class="form-group"><label>Perfil al que se aplica</label><select id="pasAccPerfil"></select></div>
+          <div class="form-group"><label>Nombre accesorio</label><input id="pasAccNombre" placeholder="Ej.: Tornillo inoxidable"></div>
+          <div class="form-group"><label>Unidades por pieza de perfil</label><input id="pasAccCantidad" type="number" min="0" step="0.01" value="1"></div>
+          <div class="form-group"><label>Precio accesorio €/ud</label><input id="pasAccPrecio" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+        </div>
+        <button type="button" onclick="anadirAccesorioPasamanos()">Guardar accesorio</button>
+        <button type="button" class="secondary" onclick="limpiarAccesorioPasamanos()">Nuevo</button>
+        <p style="font-size:12px;margin-top:10px">Ejemplos iniciales: 4 tornillos por ovalado; 4 tornillos y 1 base por tubo 70×70. Precios sin asignar (0 €) hasta que los indiques. Guarda una copia JSON en Ajustes como respaldo.</p>
+      </div>
     <div id="editorSerie" style="display:none;">
       <div class="box">
         <label>Hojas Permitidas en esta Serie:</label>
@@ -584,7 +618,7 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.7";
+    const APP_VERSION = "v1.8";
 
     // La base de datos está integrada en este HTML: no necesita cargar un JSON externo.
     let db = {
@@ -603,7 +637,9 @@
     "Negro",
     "Plata aluminio",
     "Plata Aluminio",
-    "Anodizado"
+    "Anodizado",
+    "RAL estándar",
+    "Anodizado Natural"
   ],
   "almacenBarras": [
     {
@@ -615,7 +651,7 @@
         "Madera": 0,
         "Especial": 0
       },
-      "longitud": 660
+      "longitud": 6600
     },
     {
       "id": "b3",
@@ -1155,6 +1191,72 @@
         "Roble Dorado": 1.56
       },
       "longitud": 6500
+    },
+    {
+      "id": "pasamanos_2522",
+      "nombre": "Pasamanos 2522",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 13.62,
+        "Anodizado Natural": 15.55,
+        "RAL estándar": 14.59
+      },
+      "longitud": 6350
+    },
+    {
+      "id": "pasamanos_2304",
+      "nombre": "Anclaje 2304 (superior e inferior)",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 5.12,
+        "RAL estándar": 5.52,
+        "Anodizado Natural": 6.46
+      },
+      "longitud": 6350
+    },
+    {
+      "id": "pasamanos_2241",
+      "nombre": "Tapa pasamanos 2241",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 3.62,
+        "RAL estándar": 3.84,
+        "Anodizado Natural": 4.16
+      },
+      "longitud": 6350
+    },
+    {
+      "id": "pasamanos_oval17x30",
+      "nombre": "Tubo ovalado 17×30 Pasamanos",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 3.86,
+        "RAL estándar": 4.16,
+        "Anodizado Natural": 5.41
+      },
+      "longitud": 6000
+    },
+    {
+      "id": "pasamanos_int30x30",
+      "nombre": "Tubo intermedio 30×30 Pasamanos",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 6.96,
+        "RAL estándar": 7.49,
+        "Anodizado Natural": 8.88
+      },
+      "longitud": 6000
+    },
+    {
+      "id": "pasamanos_post70x70",
+      "nombre": "Poste 70×70 Pasamanos",
+      "material": "Aluminio",
+      "precios": {
+        "Blanco": 18.51,
+        "RAL estándar": 19.62,
+        "Anodizado Natural": 23.07
+      },
+      "longitud": 6600
     }
   ],
   "almacenVidrios": [
@@ -2836,9 +2938,62 @@
           "accesorios": []
         }
       }
+    },
+    {
+      "id": "s_pasamanos",
+      "nombre": "Pasamanos",
+      "hojasPermitidas": [
+        0
+      ],
+      "reglas": {
+        "0": {
+          "cortes": [],
+          "vidrios": [],
+          "accesorios": []
+        }
+      }
     }
-  ]
+  ],
+  "accesoriosPasamanos": [
+    {
+      "perfilId": "pasamanos_oval17x30",
+      "nombre": "Tornillo inoxidable",
+      "precio": 0.3,
+      "cantidad": 4
+    },
+    {
+      "perfilId": "pasamanos_post70x70",
+      "nombre": "Tornillo inoxidable",
+      "precio": 0.3,
+      "cantidad": 8
+    },
+    {
+      "perfilId": "pasamanos_post70x70",
+      "nombre": "Base",
+      "precio": 12,
+      "cantidad": 1
+    },
+    {
+      "perfilId": "pasamanos_post70x70",
+      "nombre": "Bola",
+      "precio": 9.8,
+      "cantidad": 1
+    },
+    {
+      "perfilId": "pasamanos_int30x30",
+      "nombre": "Tornillo inox",
+      "precio": 0.3,
+      "cantidad": 3
+    }
+  ],
+  "configPasamanosAccesoriosIniciada": true
 };;
+
+    // Nueva serie de catálogo, todavía sin fórmulas ni integración externa.
+    // Los cortes de Pasamanos se configurarán en una fase posterior.
+    if (!db.series.some(s => s.nombre.toLowerCase() === 'pasamanos')) {
+      db.series.push({id:'s_pasamanos',nombre:'Pasamanos',hojasPermitidas:[0],reglas:{'0':{cortes:[],vidrios:[],accesorios:[]}}});
+    }
 
     let almacenCatActual = 'barras';
     let hojasConfigActual = 2;
@@ -2857,9 +3012,105 @@
       catch (e) { window.top.location.href = 'index.html'; }
     }
 
+    // Canal de entrada independiente de Ventana Pro, sin tocar el cálculo de ventanas.
+    const REY_PAS_MOTOR_ENTRADA='REY_PASAMANOS_MOTOR_IN_V2';
+    let despiecePasamanosActivo=null;
+    let ultimoCostePasamanos=null;
+    const REY_PAS_MOTOR_SALIDA="REY_PASAMANOS_MOTOR_OUT_V1";
+    // Identificadores estables del almacén; un anclaje 2304 sirve para ambos extremos.
+    function idPerfilDeCortePasamanos(p){
+      const ref=String(p.referencia||'').toUpperCase();
+      if(ref==='2522')return 'pasamanos_2522';
+      if(ref==='2304')return 'pasamanos_2304';
+      if(ref==='2241')return 'pasamanos_2241';
+      if(ref==='30×30'||ref==='30X30')return 'pasamanos_int30x30';
+      if(ref==='70×70'||ref==='70X70')return 'pasamanos_post70x70';
+      if(ref==='VERT'||ref==='VERT-UNION')return 'pasamanos_oval17x30';
+      return null;
+    }
+    function calcularTarifaPasamanos(){
+      if(!despiecePasamanosActivo)return;
+      const esc=escaparPas;
+      const color=document.getElementById('pasColorTarifa').value;
+      const faltantes=[];let coste=0, costeAcc=0;
+      const piezasPorPerfil={};
+      const filas=despiecePasamanosActivo.resumen_cortes.filter(p=>Number(p.cantidad)>0&&Number(p.longitud_mm)>0).map(p=>{
+        const id=idPerfilDeCortePasamanos(p),perfil=db.almacenBarras.find(b=>b.id===id);
+        if(id)piezasPorPerfil[id]=(piezasPorPerfil[id]||0)+Number(p.cantidad);
+        const eur=perfil && Number(perfil.precios?.[color]);
+        const valido=!!perfil&&Number.isFinite(eur)&&eur>0;
+        if(!valido)faltantes.push(String(p.nombre||p.referencia));
+        const parcial=valido?Number(p.cantidad)*Number(p.longitud_mm)/1000*eur:0;
+        coste+=parcial;
+        return '<tr><td>'+esc(p.nombre||p.referencia)+'</td><td>'+esc(p.cantidad)+'</td><td>'+esc(p.longitud_mm)+'</td><td>'+(valido?eur.toFixed(2):'—')+'</td><td>'+(valido?parcial.toFixed(2)+' €':'—')+'</td></tr>';
+      });
+      document.getElementById('pasamanosRecepcionCortes').innerHTML=filas.join('');
+      const accesorios=(db.accesoriosPasamanos||[]).filter(a=>piezasPorPerfil[a.perfilId]>0).map(a=>{
+        const uds=piezasPorPerfil[a.perfilId]*Number(a.cantidad||0);
+        const importe=uds*Number(a.precio||0);costeAcc+=importe;
+        return '<tr><td>'+esc(a.nombre)+'</td><td>'+esc(db.almacenBarras.find(b=>b.id===a.perfilId)?.nombre||a.perfilId)+'</td><td>'+uds.toLocaleString('es-ES',{maximumFractionDigits:2})+'</td><td>'+Number(a.precio||0).toFixed(2)+' €</td><td>'+importe.toFixed(2)+' €</td></tr>';
+      });
+      document.getElementById('pasAccesoriosCalculados').innerHTML=accesorios.join('')||'<tr><td colspan="5">Sin accesorios aplicables</td></tr>';
+      ultimoCostePasamanos={perfiles:coste,accesorios:costeAcc,total:coste+costeAcc,color,faltantes};
+      const boton=document.getElementById('pasBtnVolverConPrecio');
+      if(boton){boton.disabled=!!faltantes.length;boton.style.opacity=faltantes.length?'.45':'1';}
+      const fmt=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('pasamanosPrecioResumen').textContent='Perfiles: '+(faltantes.length?'INCOMPLETO · ':'')+fmt(coste)+' € · Accesorios: '+fmt(costeAcc)+' € · Total materiales: '+(faltantes.length?'INCOMPLETO':fmt(coste+costeAcc)+' €');
+      document.getElementById('pasamanosAvisoTarifa').textContent=faltantes.length?'Sin tarifa '+color+' para: '+[...new Set(faltantes)].join(', ')+'. No se utilizarán precios de otro color.':'';
+    }
+    function devolverPrecioPasamanos(){
+      if(!despiecePasamanosActivo||!ultimoCostePasamanos){alert('No hay un despiece de Pasamanos válido.');return;}
+      if(ultimoCostePasamanos.faltantes.length){alert('Hay perfiles sin tarifa para este color.');return;}
+      const payload={formato:'pasamanos-motor-precio',version:1,origen_id:despiecePasamanosActivo.id_envio,
+        configuracion:despiecePasamanosActivo.configuracion,
+        firma_estable:despiecePasamanosActivo.firma_estable,
+        material_eur:ultimoCostePasamanos.total,perfiles_eur:ultimoCostePasamanos.perfiles,
+        accesorios_eur:ultimoCostePasamanos.accesorios,color:ultimoCostePasamanos.color};
+      const raw=JSON.stringify(payload);
+      try{sessionStorage.setItem(REY_PAS_MOTOR_SALIDA,raw);localStorage.setItem(REY_PAS_MOTOR_SALIDA,raw);}catch(e){alert('No se pudo almacenar el precio: '+e.message);return;}
+      let destino=String(despiecePasamanosActivo.return_to||'pasamanos.html');
+      if(!/^pasamanos(?:_v[0-9.]+)?\.html$/i.test(destino))destino='pasamanos.html';
+      let parametros='';
+      try{const p=new URLSearchParams(despiecePasamanosActivo.return_search||'');p.set('motor_return','1');parametros='?'+p.toString();}catch(e){parametros='?motor_return=1';}
+      location.href=destino+parametros;
+    }
+    function recibirDespiecePasamanos(){
+      const q=new URLSearchParams(location.search);
+      if(q.get('from')!=='pasamanos')return;
+      const panel=document.getElementById('pasamanosRecepcion');
+      const error=document.getElementById('pasamanosRecepcionError');
+      try{
+        const raw=sessionStorage.getItem(REY_PAS_MOTOR_ENTRADA)||localStorage.getItem(REY_PAS_MOTOR_ENTRADA)||(q.get('cut_return')==='1'?localStorage.getItem('REY_PASAMANOS_LAST_CUT_V1'):null);
+        if(!raw)throw new Error('No se ha recibido el despiece. Vuelve a Pasamanos y pulsa € Motor.');
+        const datos=JSON.parse(raw);
+        if(datos.formato!=='pasamanos-despiece'||!Array.isArray(datos.resumen_cortes)||!datos.resumen_cortes.length)throw new Error('El despiece recibido no tiene el formato esperado.');
+        const s=db.series.find(x=>esSeriePasamanos(x));
+        if(!s)throw new Error('Falta la serie Pasamanos en Motor.');
+        document.getElementById('selSerie').value=s.id;
+        alCambiarSerieInicio();
+        // NUNCA inferir G-90 si el remitente es Pasamanos.
+        const cortes=datos.resumen_cortes.filter(x=>Number(x.cantidad)>0&&Number(x.longitud_mm)>0);
+        despiecePasamanosActivo=datos;
+        try{localStorage.setItem('REY_PASAMANOS_LAST_CUT_V1',JSON.stringify(datos));}catch(e){}
+        const sel=document.getElementById('pasColorTarifa');
+        sel.innerHTML=['Blanco','RAL estándar','Anodizado Natural'].map(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;return o.outerHTML}).join('');
+        sel.value=['Blanco','RAL estándar','Anodizado Natural'].includes(datos.tarifa_motor)?datos.tarifa_motor:'Blanco';
+        document.getElementById('pasTarifaFija').textContent=sel.value;
+        document.getElementById('pasamanosRecepcionResumen').textContent=cortes.length+' grupos de cortes · '+cortes.reduce((n,x)=>n+Number(x.cantidad),0)+' piezas · '+(datos.tramos||[]).length+' tramos';
+        calcularTarifaPasamanos();
+        calcular();
+        panel.style.display='block';
+        document.getElementById('pasBtnVolverConPrecio').style.display='block';
+        error.style.display='none';
+        try{sessionStorage.removeItem(REY_PAS_MOTOR_ENTRADA);localStorage.removeItem(REY_PAS_MOTOR_ENTRADA);}catch(_){}
+      }catch(ex){
+        panel.style.display='none';document.getElementById('pasBtnVolverConPrecio').style.display='none';error.textContent='Pasamanos: '+ex.message;error.style.display='block';
+      }
+    }
     function init() {
       document.getElementById('appVersionHeader').innerText = APP_VERSION;
       actualizarSelectColoresInicio();
+      iniciarConfigPasamanos();
       renderSelectSeries();
       poblarSelectsRelleno();
       alCambiarSerieInicio();
@@ -2867,6 +3118,7 @@
       cargarConfigSerie();
       calcular();
       setTimeout(consumirVentanaExterna, 0);
+      recibirDespiecePasamanos();
     }
 
     function scrollToElement(elemId) {
@@ -2975,6 +3227,17 @@
       const serieId = document.getElementById('selSerie').value;
       const serie = db.series.find(s => s.id === serieId);
       
+      const pas=esSeriePasamanos(serie);
+      document.getElementById('groupHojasBotones').parentElement.style.display=pas?'none':'';
+      const opciones=document.getElementById('btnPulsadorVidrio').closest('.form-group');
+      opciones.style.display=pas?'none':'';
+      ['containerSelVidrio','containerSelChapa','containerSelPersiana'].forEach(id=>{
+        if(pas)document.getElementById(id).style.display='none';
+        else if(id==='containerSelVidrio') document.getElementById(id).style.display=document.getElementById('btnPulsadorVidrio').classList.contains('active')?'':'none';
+        else if(id==='containerSelChapa') document.getElementById(id).style.display=document.getElementById('btnPulsadorChapa').classList.contains('active')?'':'none';
+        else document.getElementById(id).style.display=document.getElementById('btnPulsadorPersiana').classList.contains('active')?'':'none';
+      });
+      if(pas){calcular();return;}
       if (serie && serie.hojasPermitidas) {
         document.querySelectorAll('#groupHojasBotones .btn-toggle').forEach(btn => {
           let val = parseInt(btn.getAttribute('data-val'));
@@ -3090,6 +3353,34 @@ document.addEventListener('input',function(e){
 
 function calcular() {
       const serieId = document.getElementById('selSerie').value;
+      const serieActual=db.series.find(s=>s.id===serieId);
+      if(esSeriePasamanos(serieActual)){
+        if(despiecePasamanosActivo){
+          calcularTarifaPasamanos();
+          const esc=escaparPas, color=document.getElementById('pasColorTarifa').value;
+          const tr=despiecePasamanosActivo.resumen_cortes.filter(p=>Number(p.cantidad)>0&&Number(p.longitud_mm)>0).map(p=>{
+            const perfil=db.almacenBarras.find(b=>b.id===idPerfilDeCortePasamanos(p));
+            const precio=Number(perfil?.precios?.[color]);
+            const válido=Number.isFinite(precio)&&precio>0;
+            const coste=válido?Number(p.cantidad)*Number(p.longitud_mm)*precio/1000:0;
+            return '<tr><td>'+esc(p.nombre||p.referencia)+' ('+esc(color)+')</td><td>'+esc(p.cantidad)+'</td><td>'+esc(p.longitud_mm)+' mm</td><td>Recibido</td><td>'+esc(p.longitud_mm)+'</td><td>'+(válido?coste.toFixed(2)+' €':'Sin tarifa')+'</td></tr>';
+          });
+          document.querySelector('#tblDespiecePerfiles tbody').innerHTML=tr.join('');
+          document.querySelector('#tblDespieceVidrios tbody').innerHTML='';
+          document.querySelector('#tblDespieceAccesorios tbody').innerHTML=(db.accesoriosPasamanos||[]).map(a=>{
+            const ref=despiecePasamanosActivo.resumen_cortes.filter(p=>idPerfilDeCortePasamanos(p)===a.perfilId);
+            const n=ref.reduce((v,p)=>v+Number(p.cantidad||0),0)*Number(a.cantidad||0);
+            return n?'<tr><td>'+esc(a.nombre)+'</td><td>'+n+'</td><td>'+Number(a.precio||0).toFixed(2)+' €</td><td>'+(n*Number(a.precio||0)).toFixed(2)+' €</td></tr>':'';
+          }).join('');
+          document.getElementById('totalPrecioMain').innerText=ultimoCostePasamanos?.faltantes?.length?'Tarifa incompleta':ultimoCostePasamanos?.total?.toLocaleString('es-ES',{style:'currency',currency:'EUR'})||'— €';
+        }else{
+          document.querySelector('#tblDespiecePerfiles tbody').innerHTML='<tr><td colspan="6">Envía las piezas desde Pasamanos con el botón € Motor.</td></tr>';
+          document.querySelector('#tblDespieceVidrios tbody').innerHTML='';
+          document.querySelector('#tblDespieceAccesorios tbody').innerHTML='';
+          document.getElementById('totalPrecioMain').innerText='— €';
+        }
+        return;
+      }
       const colorSel = document.getElementById('selColor').value;
       const ancho = parseFloat(document.getElementById('inpAncho').value) || 0;
       const alto = parseFloat(document.getElementById('inpAlto').value) || 0;
@@ -3521,13 +3812,87 @@ function calcular() {
       alCambiarSerieInicio();
     }
 
+    function esSeriePasamanos(serie){return !!serie && (serie.id==='s_pasamanos'||String(serie.nombre||'').trim().toLowerCase()==='pasamanos');}
+    const perfilesPasamanosIds=['pasamanos_2522','pasamanos_2304','pasamanos_2241','pasamanos_oval17x30','pasamanos_int30x30','pasamanos_post70x70'];
+    const PAS_CONFIG_KEY='rey_motor_pasamanos_config_v179';
+    function iniciarConfigPasamanos(){
+      if(!Array.isArray(db.accesoriosPasamanos))db.accesoriosPasamanos=[];
+      if(!db.configPasamanosAccesoriosIniciada){
+        if(!db.accesoriosPasamanos.length)db.accesoriosPasamanos=[
+          {perfilId:'pasamanos_oval17x30',nombre:'Tornillo inoxidable',cantidad:4,precio:0},
+          {perfilId:'pasamanos_post70x70',nombre:'Tornillo inoxidable',cantidad:4,precio:0},
+          {perfilId:'pasamanos_post70x70',nombre:'Base',cantidad:1,precio:0}
+        ];
+        db.configPasamanosAccesoriosIniciada=true;
+      }
+      if(!db.coloresDisponibles.includes('RAL estándar'))db.coloresDisponibles.push('RAL estándar');
+      if(!db.coloresDisponibles.includes('Anodizado Natural'))db.coloresDisponibles.push('Anodizado Natural');
+      try{
+        const guardado=JSON.parse(localStorage.getItem(PAS_CONFIG_KEY)||'null');
+        if(guardado&&guardado.version===1){
+          if(Array.isArray(guardado.accesorios))db.accesoriosPasamanos=guardado.accesorios;
+          if(guardado.tarifas)for(const [id,precios] of Object.entries(guardado.tarifas)){
+            const b=db.almacenBarras.find(x=>x.id===id);if(b&&precios&&typeof precios==='object')Object.assign(b.precios,precios);
+          }
+        }
+      }catch(e){}
+    }
+    function guardarConfigPasamanos(){
+      const tarifas={};for(const id of perfilesPasamanosIds){const p=db.almacenBarras.find(x=>x.id===id);if(p)tarifas[id]={...p.precios};}
+      try{localStorage.setItem(PAS_CONFIG_KEY,JSON.stringify({version:1,accesorios:db.accesoriosPasamanos,tarifas}));}catch(e){}
+    }
+    function escaparPas(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    const coloresTarifaPas=['Blanco','RAL estándar','Anodizado Natural'];
+    function editarPrecioPerfilPasamanos(id,color,valor){
+      const p=db.almacenBarras.find(x=>x.id===id);if(!p)return;
+      if(valor.trim()==='')delete p.precios[color];
+      else{const n=Number(valor.replace(',','.'));if(!Number.isFinite(n)||n<0){alert('Precio no válido');return;}p.precios[color]=n;}
+      guardarConfigPasamanos();if(despiecePasamanosActivo)calcularTarifaPasamanos();
+    }
+    function renderConfigPasamanos(){
+      const cont=document.getElementById('pasPerfilesLista');
+      const nf=n=>Number(n||0).toLocaleString('es-ES',{maximumFractionDigits:2});
+      cont.innerHTML=perfilesPasamanosIds.map(id=>{
+        const p=db.almacenBarras.find(b=>b.id===id);
+        if(!p)return '<div style="padding:9px;color:#b91c1c">Falta el perfil '+id+'</div>';
+        return '<div style="padding:10px 0;border-bottom:1px solid #cbd5e1"><strong>'+escaparPas(p.nombre)+'</strong> · <small>barra '+nf(p.longitud)+' mm</small>'+ 
+          '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px">'+coloresTarifaPas.map(color=>
+            '<label style="font-size:11px">'+escaparPas(color)+'<input type="number" inputmode="decimal" min="0" step="0.01" placeholder="Sin precio" value="'+(p.precios[color]??'')+'" onchange="editarPrecioPerfilPasamanos(\''+id+'\',\''+color+'\',this.value)" style="font-size:13px;padding:6px 3px;width:100%"></label>').join('')+'</div></div>';
+      }).join('');
+      const selector=document.getElementById('pasAccPerfil');
+      const anterior=selector.value;
+      selector.innerHTML=perfilesPasamanosIds.map(id=>{const p=db.almacenBarras.find(b=>b.id===id);return '<option value="'+id+'">'+escaparPas(p?.nombre||id)+'</option>';}).join('');
+      if(anterior)selector.value=anterior;
+      const accesorios=document.getElementById('pasAccesoriosLista');
+      accesorios.innerHTML=db.accesoriosPasamanos.length ? db.accesoriosPasamanos.map((a,i)=>{
+        const p=db.almacenBarras.find(b=>b.id===a.perfilId);
+        return '<div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #cbd5e1"><span style="flex:1;min-width:0"><b>'+escaparPas(a.nombre)+'</b><br><small>'+escaparPas(p?.nombre||'Sin perfil')+' · '+nf(a.cantidad)+' ud/pieza · '+nf(a.precio)+' €/ud</small></span><button type="button" style="width:auto;padding:7px" onclick="editarAccesorioPasamanos('+i+')">Editar</button><button type="button" style="width:auto;padding:7px;background:#b91c1c" onclick="borrarAccesorioPasamanos('+i+')">×</button></div>';
+      }).join(''):'<p style="font-size:13px">Sin accesorios configurados.</p>';
+    }
+    let indiceAccPas=-1;
+    function limpiarAccesorioPasamanos(){indiceAccPas=-1;document.getElementById('pasAccNombre').value='';document.getElementById('pasAccPrecio').value='';document.getElementById('pasAccCantidad').value='1';}
+    function anadirAccesorioPasamanos(){
+      const perfilId=document.getElementById('pasAccPerfil').value;
+      const nombre=document.getElementById('pasAccNombre').value.trim();
+      const precio=Number(document.getElementById('pasAccPrecio').value.replace(',','.'));
+      const cantidad=Number(document.getElementById('pasAccCantidad').value.replace(',','.'));
+      if(!perfilId||!nombre||!Number.isFinite(precio)||precio<0||!Number.isFinite(cantidad)||cantidad<0){alert('Introduce perfil, nombre, precio y unidades válidos.');return;}
+      const a={perfilId,nombre,precio,cantidad};
+      if(indiceAccPas>=0)db.accesoriosPasamanos[indiceAccPas]=a;else db.accesoriosPasamanos.push(a);
+      limpiarAccesorioPasamanos();guardarConfigPasamanos();renderConfigPasamanos();if(despiecePasamanosActivo)calcularTarifaPasamanos();
+    }
+    function editarAccesorioPasamanos(i){const a=db.accesoriosPasamanos[i];if(!a)return;indiceAccPas=i;
+      document.getElementById('pasAccPerfil').value=a.perfilId||perfilesPasamanosIds[0];document.getElementById('pasAccNombre').value=a.nombre;document.getElementById('pasAccPrecio').value=a.precio;document.getElementById('pasAccCantidad').value=a.cantidad;}
+    function borrarAccesorioPasamanos(i){db.accesoriosPasamanos.splice(i,1);limpiarAccesorioPasamanos();guardarConfigPasamanos();renderConfigPasamanos();if(despiecePasamanosActivo)calcularTarifaPasamanos();}
     function cargarConfigSerie() {
       const id = document.getElementById('selSerieConfig').value;
       const editor = document.getElementById('editorSerie');
-      if (!id) { editor.style.display = 'none'; return; }
-      editor.style.display = 'block';
-
+      if (!id) { editor.style.display = 'none'; document.getElementById('editorPasamanos').style.display='none'; return; }
       const serie = db.series.find(s => s.id === id);
+      const pas=esSeriePasamanos(serie);
+      editor.style.display = pas ? 'none' : 'block';
+      document.getElementById('editorPasamanos').style.display = pas ? 'block' : 'none';
+      if(pas){renderConfigPasamanos();return;}
       for (let i = 0; i <= 4; i++) {
         document.getElementById(`chkHojas${i}`).checked = serie.hojasPermitidas.includes(i);
       }
@@ -3887,13 +4252,44 @@ function calcular() {
     }
     window.volverADocumentosDesdeMotor=volverADocumentosDesdeMotor;
     function enviarMotorACutMaster(){
-      try{ calcular(); }catch(e){}
-      const dp=(window.__reyMotorLastResult&&window.__reyMotorLastResult.despiece)||{};
-      const project=construirProyectoCutMasterMotor(dp,'');
+      let project=null,desdePasamanos=false;
+      // Si el origen es Pasamanos, utilizar SUS cortes reales y no el cálculo
+      // de ventanas que podría estar todavía asociado a G-90.
+      if(despiecePasamanosActivo && Array.isArray(despiecePasamanosActivo.resumen_cortes)){
+        desdePasamanos=true;
+        const perfiles={
+          '2522':['Pasamanos 2522',6350,66],
+          '2304':['Anclaje 2304',6350,43],
+          '2241':['Tapa 2241',6350,43],
+          'VERT':['Tubo ovalado',6000,17],
+          'VERT-UNION':['Tubo ovalado',6000,17],
+          '30×30':['Tubo 30×30',6000,30],
+          '70×70':['Tubo 70×70',6600,70]
+        };
+        const grupos=new Map();
+        for(const p of despiecePasamanosActivo.resumen_cortes){
+          const ref=String(p.referencia||'').toUpperCase().replace(/X/g,'×');
+          const spec=perfiles[ref], len=Number(p.longitud_mm||p.corte), qty=Number(p.cantidad);
+          if(!spec||!(len>0&&qty>0))continue;
+          const key=ref==='VERT-UNION'?'VERT':ref;
+          if(!grupos.has(key))grupos.set(key,{name:spec[0],profileFace:spec[2],pieces:[],stock:[{label:'Barra '+spec[1]+' mm',length:spec[1],qty:999}]});
+          grupos.get(key).pieces.push({label:String(p.nombre||spec[0]),length:len,qty,cutType:'recto'});
+        }
+        project={name:'Pasamanos · Despiece desde Motor',settings:{unit:'mm',kerfMm:4,colorCuts:true},materials:[...grupos.values()],resultTab:'diagram'};
+      }else{
+        try{calcular();}catch(e){}
+        const dp=(window.__reyMotorLastResult&&window.__reyMotorLastResult.despiece)||{};
+        project=construirProyectoCutMasterMotor(dp,'');
+      }
       if(!project.materials.length){alert('No hay barras calculadas en el despiece.');return;}
       const raw=JSON.stringify({project:project});
-      try{sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);sessionStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html');localStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html');}catch(_){}
-      window.location.href='optimizar_barra.html';
+      try{
+        sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
+        localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
+        sessionStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':''));
+        localStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':''));
+      }catch(e){alert('No se pudo preparar el despiece: '+e.message);return;}
+      window.location.href='optimizar_barra.html?from=motor&t='+Date.now();
     }
     window.enviarMotorACutMaster=enviarMotorACutMaster;
     document.addEventListener('DOMContentLoaded',function(){
@@ -4029,6 +4425,7 @@ function calcular() {
           const importedDB = JSON.parse(e.target.result);
           if(importedDB && importedDB.series && importedDB.almacenBarras) {
              db = importedDB;
+             try{localStorage.removeItem(PAS_CONFIG_KEY);}catch(_){}
              init();
              alert("Base de datos cargada correctamente.");
           } else {
@@ -4051,6 +4448,7 @@ function calcular() {
         const importedDB = JSON.parse(txt);
         if(importedDB && importedDB.series && importedDB.almacenBarras) {
            db = importedDB;
+           try{localStorage.removeItem(PAS_CONFIG_KEY);}catch(_){}
            init();
            alert("Base de datos cargada correctamente desde el texto.");
            document.getElementById('txtJsonImport').value = '';

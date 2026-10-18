@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pasamanos v1.29</title>
+<title>Pasamanos v1.31</title>
 <style>
 :root{--bg:#eef2f5;--card:#fff;--ink:#111827;--muted:#667085;--red:#a40000;--gold:#ffe66b;--green:#009d38;--green2:#20ef29;--blue:#e8eef5;--line:#d9e2ec;--edit:#fff4a8;--edit2:#fff9cf}*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}header{position:sticky;top:0;z-index:10;background:#111;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:18px;margin:0}.ver{font-weight:950;background:#2b3842;border-radius:8px;padding:6px 10px}.wrap{width:100%;max-width:980px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.title{font-size:18px;font-weight:950;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;margin:6px 0}.hint{font-size:12px;color:#667085;font-weight:850;margin-top:8px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd5df;border-radius:12px;padding:11px;font-size:20px;font-weight:950;background:#fff;color:#111}.dato input,.dato select{background:var(--edit);border-color:#e0c94d;box-shadow:inset 0 0 0 1px #fff6}.dato input:focus,.dato select:focus{outline:3px solid #ffe16a;background:#fff7bd}.autoBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.autoBox .dato input{background:#fffbe2}button{border:0;border-radius:13px;padding:13px 14px;font-size:16px;font-weight:950;background:#1f2937;color:#fff}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns button{flex:1;min-width:135px}.ok{background:var(--green)}.warn{background:#ffca28;color:#111}.light{background:#e8eef5;color:#111}.danger{background:#b00020}.mini{font-size:13px;padding:8px 10px}.switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.switch button{background:#e8eef5;color:#111}.switch button.active{background:#111;color:white}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.checkrow{display:flex;align-items:center;gap:9px;background:#f3f6f9;border-radius:12px;padding:12px;font-weight:950}.checkrow input{width:24px;height:24px;accent-color:#111}.hidden{display:none}.canvasBox{overflow:hidden}.svgWrap{width:100%;max-width:900px;margin:auto;overflow:hidden;display:flex;justify-content:center;align-items:center;background:white;border:1px solid #dfe6ee;border-radius:14px}#svgWrap svg{width:100%;height:auto;display:block}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}@media(min-width:760px){.result{grid-template-columns:repeat(5,1fr)}}.kpi{background:#eef6ea;border:1px solid #d8ead2;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:12px;color:#4d5b68}.kpi span{font-size:22px;font-weight:950}.total{background:var(--green2)}.mid{background:#fff3bd}.bad{background:#ffd1d1}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tag{font-size:14px;font-weight:950;padding:9px 11px;border-radius:10px}.lg70{background:#bbb}.lg30{background:#8fb3e8}.lgova{background:#555;color:#fff}.lgpas{background:#ddd}.lganc{background:#f5d56a}
 .fabricacion{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.fabBox{border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;padding:10px}.fabBox b{display:block;color:#667085;font-size:12px}.fabBox span{display:block;font-size:22px;font-weight:950}.fabTitle{font-size:18px;font-weight:950;margin:10px 0 8px}.markNote{font-size:13px;color:#667085;font-weight:850;margin:6px 0 10px}.marktable th{font-size:13px}.marktable td{font-size:15px}.marktable .num{background:#eaf7ff}.marktable .cen{background:#fff3bd}.marktable .edge{background:#d8ffff}@media(min-width:760px){.fabricacion{grid-template-columns:repeat(6,1fr)}}
@@ -141,16 +141,105 @@ body.fromDocs.graphPinned{padding-bottom:calc(42vh + 145px + env(safe-area-inset
 .main4>div:nth-child(2) input{font-size:18px;padding:9px 8px}
 @media(max-width:390px){.selectorRow{gap:5px}.selectorRow .sideBox select{font-size:13px;padding:4px 2px}.main4>div:nth-child(2) input{font-size:16px;padding:8px 5px}}
 
+
+.canvasBox.hidden:not([hidden]){display:block!important;position:absolute!important;left:-10000px!important;top:0!important;width:900px!important;visibility:hidden!important;pointer-events:none!important}
+#navPasamanos{position:fixed;bottom:0;left:0;right:0;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:7px 6px calc(7px + env(safe-area-inset-bottom));background:#172532;box-shadow:0 -3px 12px #0003}
+#navPasamanos button{font-size:12px;padding:11px 1px;border-radius:9px;background:#354758;color:white}#navPasamanos button.active{background:#19a347;color:white}
+.priceBar{bottom:calc(53px + env(safe-area-inset-bottom))}.floatingGraph{bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height,44px))}body{padding-bottom:calc(130px + env(safe-area-inset-bottom))}
+body.fromDocs .priceBar{bottom:calc(125px + env(safe-area-inset-bottom))}body.fromDocs .floatingGraph{bottom:calc(125px + env(safe-area-inset-bottom) + var(--price-bar-height,44px))}
+body.graphPinned{padding-bottom:calc(43vh + 130px + env(safe-area-inset-bottom))}
+[data-vista][hidden]{display:none!important}#fijarGrafico[hidden]{display:none!important}#costesPanel{margin:12px auto;max-width:980px;width:calc(100% - 20px)}
+
+/* v1.30.9: colores en pantalla independiente */
+#coloresPasamanos{display:grid;gap:9px;margin-top:10px}.grupoColor{background:#eaf0f5;border:1px solid #c8d6e2;border-radius:12px;padding:10px}.grupoColor>b{display:block;font-size:15px;margin-bottom:7px}.swatches{display:flex;gap:6px;flex-wrap:wrap}.swatchColor{display:flex;align-items:center;gap:5px;padding:6px 8px;background:#f7fafc;color:#1f2937;border:2px solid #cbd5e1;border-radius:9px;font-size:12px;min-height:38px}.swatchColor.active{border-color:#028c3e;box-shadow:inset 0 0 0 1px #028c3e}.swatchColor i{display:inline-block;width:18px;height:18px;border:1px solid #64748b;border-radius:50%}.grupoColor label{margin:8px 0 0;display:flex;align-items:center;gap:7px;font-size:12px}.grupoColor .colorCustom{width:46px;height:35px;padding:2px;border-radius:7px;background:white}.grupoColor .usarConjunto{width:19px;height:19px;accent-color:#009d38}.grupoColor.igual .swatches,.grupoColor.igual label:has(.colorCustom){opacity:.4;pointer-events:none}
+/* Pantalla de colores: cómoda para selección táctil en móviles */
+.pantallaColores{background:#e3ebf2;border-color:#b9cbd9}
+.pantallaColores .title{margin-bottom:6px}
+.pantallaColores .hint{font-size:13px;line-height:1.5;margin-bottom:12px}
+.pantallaColores #coloresPasamanos{gap:12px}
+.pantallaColores .grupoColor{padding:14px;background:#f2f6fa;border:1px solid #bfceda}
+.pantallaColores .grupoColor>b{font-size:17px;margin-bottom:10px}
+.pantallaColores .swatches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pantallaColores .swatchColor{min-height:47px;justify-content:center;font-size:13px;padding:8px 3px}
+.pantallaColores .swatchColor i{width:21px;height:21px;flex-shrink:0}
+.pantallaColores .grupoColor label{font-size:13px;min-height:38px}
+.pantallaColores .grupoColor .colorCustom{width:57px;height:42px}
+@media(max-width:360px){#navPasamanos button{font-size:11px}.pantallaColores .swatchColor{font-size:11px}}
+/* v1.30.9: selección RAL al estilo de Cierre */
+.pantallaColores{padding:12px!important;background:#e9e0d2;border:1px solid #d1c6b5}
+.pantallaColores .title{margin:0 0 10px;text-align:center;font-size:18px}
+.coloresCompactos{display:block!important;margin:0!important}
+.selectorColorFila{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.piezaColor{position:relative;min-width:0;min-height:45px;display:flex;align-items:center;justify-content:center;padding:5px 23px 5px 4px;background:#4b5563;color:white;border:2px solid #111;border-radius:7px;font-size:13px;font-weight:850;box-shadow:0 4px 7px #0004}
+.piezaColor.activa{border:3px solid #0797ff;box-shadow:0 0 7px #0797ff88,0 4px 6px #0004}
+.piezaColor i{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:17px;height:24px;border:1px solid #eee;border-radius:4px;pointer-events:none}
+.paletaCompacta{margin-top:10px;padding:0;background:none;border:0}
+.paletaTitulo{text-align:center;font-size:17px;font-weight:900;margin:4px 0 9px}
+.paletaBotones{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.colorOpcion{min-width:0;min-height:45px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 1px;border:2px solid #111;border-radius:7px;box-shadow:0 4px 7px #0005;font-weight:900;line-height:1.0}
+.colorOpcion span:first-child{font-size:11px;font-weight:800}
+.colorOpcion span:last-child{font-size:15px;font-weight:750}
+.colorOpcion.activa{border:3px solid #0797ff;box-shadow:0 0 8px #0797ffbb,0 4px 6px #0004}
+.colorOpciones{display:flex;align-items:center;justify-content:space-between;margin-top:13px;gap:10px}
+.colorOpciones label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:850;margin:0;color:#252525}
+.colorOpciones label[hidden]{display:none}
+.colorOpciones input[type=checkbox]{width:20px;height:20px;accent-color:#16803b}
+.colorOpciones input[type=color]{width:47px;height:35px;padding:2px;border:1px solid #64748b;border-radius:7px;background:#fff}
+@media(max-width:375px){.selectorColorFila{gap:5px}.piezaColor{font-size:11px;padding-right:19px}.piezaColor i{right:3px;width:14px}.paletaBotones{gap:5px}.colorOpcion span:last-child{font-size:13px}}
+
+/* v1.30.9: Colores arriba y vista fija abajo, igual que el diseño. */
+body:has(.pantallaColores:not([hidden])) .pantallaColores{
+  display:flex!important;flex-direction:column;
+  height:calc(100dvh - 34vh - 210px - env(safe-area-inset-bottom));
+  min-height:265px;max-height:none;overflow-y:auto;
+  margin-bottom:0;justify-content:space-evenly;gap:8px;
+}
+body:has(.pantallaColores:not([hidden])) .pantallaColores .coloresCompactos{
+  display:flex!important;flex-direction:column;justify-content:space-evenly;
+  flex:1;min-height:min-content;gap:12px;
+}
+body:has(.pantallaColores:not([hidden])) .pantallaColores .paletaCompacta{margin-top:2px}
+body:has(.pantallaColores:not([hidden])) .floatingGraph{max-width:500px}
+@media(max-height:740px){
+ body:has(.pantallaColores:not([hidden])) .pantallaColores{height:auto;min-height:0;max-height:calc(100dvh - 350px - env(safe-area-inset-bottom));justify-content:flex-start}
+ body:has(.pantallaColores:not([hidden])) .pantallaColores .coloresCompactos{justify-content:flex-start}
+}
+.selectorDespiece{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 12px}
+.selectorDespiece button{min-width:0;font-size:12px;padding:10px 3px;border-radius:9px;background:#e6ebf2;color:#182331}
+.selectorDespiece button.active{background:#163b70;color:white}
+.tablaPiezas{font-size:12px}.tablaPiezas td{padding:7px 3px}.tablaPiezas th{padding:8px 3px}
+.costeTramo{padding:9px 10px;background:#e7f1df;font-weight:900;text-align:right;border-radius:8px;margin-top:5px}
+@media(max-width:390px){.selectorDespiece button{font-size:11px}}
+
+/* v1.31: acceso a Documentos justo encima del precio, a la derecha. */
+#volverConDatosDocs{display:none;position:fixed;right:9px;top:auto;bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height, 44px) + 5px);
+  z-index:41;width:auto;max-width:80px;min-height:34px;padding:7px 9px;border-radius:10px;
+  background:rgba(8,125,112,.88);color:#fff;box-shadow:0 2px 8px #0003;
+  font-size:12px;line-height:1.05;border:1px solid #ffffff7a;white-space:nowrap;text-align:center;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+body.fromBudget #volverConDatosDocs,body.fromConceptos #volverConDatosDocs{display:block}
+#cancelarDocs{display:none;position:fixed;right:100px;bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height, 44px) + 5px);z-index:41;min-height:34px;padding:7px 9px;border-radius:10px;background:#596574;color:#fff;font-size:12px;font-weight:700;border:1px solid #ffffff7a;box-shadow:0 2px 8px #0003;white-space:nowrap}
+body.fromBudget #cancelarDocs,body.fromConceptos #cancelarDocs{display:block}
+#volverConDatosDocs:disabled{opacity:.6}
+/* Aviso discreto dentro de la barra de precio; no tapa el dibujo. */
+#priceBar #avisoPrecioMotor{grid-column:1/-1;display:block;text-align:center;font-size:11px;line-height:1.1;font-weight:750;color:#ffdf84;padding:0 2px 2px;white-space:normal}
+#priceBar #avisoPrecioMotor.validado{color:#a3f3be}
+.colorOpciones:has(#botonNatural){flex-wrap:wrap}
+#botonNatural{width:auto;min-width:80px;font-size:12px;padding:7px 9px;min-height:34px;border-radius:8px;background:#c2c7c9;color:#111;border:2px solid #555}
+#botonNatural.activa{border:3px solid #0797ff;box-shadow:0 0 6px #0797ff80}
 </style>
 </head>
 <body>
-<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><button id="fijarGrafico" class="pinButton" type="button" aria-pressed="false">Fijar</button><button class="gearBtn" id="toggleAjustes">⚙️</button><span class="ver">v1.29</span></div></header>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><span class="ver">v1.31</span><button class="gearBtn" id="toggleAjustes" title="Ajustes" aria-label="Ajustes">⚙️</button><button id="fijarGrafico" class="pinButton" type="button" aria-pressed="true">Soltar</button></div></header>
 <div id="floatingGraph" class="floatingGraph" aria-label="Gráfico fijado"><div class="floatingGraphHead"><button id="vistaFijaPerspectiva" class="active" type="button">Perspectiva</button><button id="vistaFijaSuperior" type="button">Vista superior</button></div><div id="floatingGraphBody"></div></div>
-<div id="priceBar" class="priceBar" aria-label="Precio total del conjunto"><div>Sin IVA <strong id="precioSinIva">—</strong></div><div class="iva">Con IVA <strong id="precioConIva">—</strong></div></div>
+<button id="btnEnviarDespieceMotor" type="button" title="Enviar el despiece a Motor Series" style="position:fixed;left:9px;bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height,44px) + 5px);z-index:41;width:auto;max-width:85px;padding:7px 9px;border-radius:10px;background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;box-shadow:0 2px 8px #0003">€ Motor</button>
+<button id="cancelarDocs" type="button" title="Volver a Documentos sin modificar el presupuesto">✕ Cancelar</button>
+<button id="volverConDatosDocs" type="button" title="Guardar el gráfico y el texto en el concepto y volver a Documentos" aria-label="Volver a Documentos con gráfico y datos">↩ Docs</button>
+<div id="priceBar" class="priceBar" aria-label="Precio total del conjunto"><span id="avisoPrecioMotor" role="status">⚠ Precio orientativo · pasar por € Motor</span><div>Sin IVA <strong id="precioSinIva">—</strong></div><div class="iva">Con IVA <strong id="precioConIva">—</strong></div></div>
 <div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
 
 <div class="wrap">
-<section class="card dato">
+<section class="card dato" data-vista="diseno">
   <div class="main4">
     <div><label>Largo</label><input id="largo" inputmode="numeric" type="number" value="1500"></div>
     <div class="short"><label>Alto</label><input id="alto" inputmode="numeric" type="number" value="940"></div>
@@ -183,25 +272,25 @@ body.fromDocs.graphPinned{padding-bottom:calc(42vh + 145px + env(safe-area-inset
   </div>
   <div class="hint" id="notaPoste">El poste sobresale 30 mm por encima del pasamanos, sin contar el remate.</div>
 </section>
-<section class="card canvasBox">
+<section class="card canvasBox" data-vista="diseno">
   <p class="title">Gráfico</p>
   <div class="viewSwitch"><button id="vistaPerspectiva" class="active" type="button">Perspectiva</button><button id="vistaSuperior" type="button">Vista superior</button></div>
   <div id="svgWrap" class="svgWrap"></div>
   <div class="actionsRow actionsRow3"><button class="ok" id="pngHD">PNG HD</button><button class="light" id="pngNormal">PNG</button><button class="docsBtn" id="btnAddDocs">Añadir Docs</button></div>
 </section>
-<section class="card"><p class="title">Resultado</p><div id="kpis" class="result"></div></section>
+<section class="card" data-vista="diseno"><p class="title">Resultado</p><div id="kpis" class="result"></div></section>
 <section class="card hidden" id="ajustesBox">
   <p class="title">Ajustes</p>
   <details class="fold" open><summary>Fabricación</summary><div class="inputs" style="margin-top:10px">
     <div><label>Tubo vertical corte mm</label><input id="hOva" type="number" value="740"></div><div><label>Pata suelo mm</label><input id="hPata" type="number" value="50"></div>
-    <div><label>Anclaje inferior alto mm</label><input id="hAncInf" type="number" value="25"></div><div><label>Anclaje superior alto mm</label><input id="hAncSup" type="number" value="25"></div>
+    <div><label>Anclaje inferior alto mm</label><input id="hAncInf" type="number" value="24"></div><div><label>Anclaje superior alto mm</label><input id="hAncSup" type="number" value="24"></div>
     <div><label>Alto bola mm</label><input id="hBola" type="number" value="50"></div>
     <div><label>Alto pirámide mm</label><input id="hPiramide" type="number" value="20"></div>
     <div><label>Hueco objetivo mm</label><input id="huecoObj" type="number" value="105"></div>
     <div><label>Intermedio cada máx. mm</label><input id="sep30" type="number" value="1300"></div><div><label>Separación mín/máx mm</label><input id="rangoHueco" type="text" value="100-110"></div>
   </div></details>
   <details class="fold"><summary>Perfiles</summary><div class="inputs" style="margin-top:10px">
-    <div><label>Pasamanos ancho mm</label><input id="pasW" type="number" min="1" value="60"></div><div><label>Pasamanos alto mm</label><input id="hPas" type="number" min="1" value="30"></div>
+    <div><label>Pasamanos ancho mm</label><input id="pasW" type="number" min="1" value="66"></div><div><label>Pasamanos alto mm</label><input id="hPas" type="number" min="1" value="35"></div>
     <div class="wide"><label>Forma del tubo vertical</label><select id="tipoTubo"><option value="ovalado">Ovalado</option><option value="rectangular">Rectangular / cuadrado</option><option value="redondo">Redondo</option></select></div>
     <div id="medidaTuboFrontal"><label>Tubo vertical ancho frontal mm</label><input id="gOva" type="number" min="1" value="17"></div><div id="medidaTuboFondo"><label>Tubo vertical fondo mm</label><input id="fOva" type="number" min="1" value="30"></div>
     <div id="medidaTuboRedondo" class="wide hidden"><label>Diámetro tubo redondo mm</label><input id="diametroTubo" type="number" min="1" value="20"></div>
@@ -209,9 +298,10 @@ body.fromDocs.graphPinned{padding-bottom:calc(42vh + 145px + env(safe-area-inset
     <div><label>Intermedio ancho mm</label><input id="intW" type="number" value="30"></div><div><label>Intermedio fondo mm</label><input id="intF" type="number" value="30"></div>
   </div><div class="hint">El ancho frontal determina el reparto; el fondo identifica el perfil. Revisa su precio por unidad al cambiar de tubo.</div></details>
   <details class="fold"><summary>Precios</summary><div class="inputs" style="margin-top:10px">
-    <div><label>Pasamanos €/m</label><input id="pPas" type="number" step="0.01" value="13.52"></div><div><label>Anclajes €/m</label><input id="pAnc" type="number" step="0.01" value="5.12"></div>
+    <div><label>Pasamanos €/m</label><input id="pPas" type="number" step="0.01" value="13.62"></div><div><label>Anclajes €/m</label><input id="pAnc" type="number" step="0.01" value="5.12"></div>
     <div><label>Poste lateral €/m</label><input id="p70" type="number" step="0.01" value="18.51"></div><div><label>Intermedio €/m</label><input id="p30" type="number" step="0.01" value="6.96"></div>
-    <div><label>Tubo vertical €/m</label><input id="pOva" type="number" step="0.01" value="3.86"></div><div><label>Accesorios €</label><input id="acc" type="number" step="0.01" value="50"></div>
+    <div><label>Tubo vertical €/m</label><input id="pOva" type="number" step="0.01" value="3.86"></div><div><label>Tapa inferior 2241 €/m</label><input id="pTapa" type="number" step="0.01" value="3.62"></div>
+     <div><label>Accesorios € (otros)</label><input id="acc" type="number" step="0.01" value="50"></div>
     <div><label>Montaje €</label><input id="mont" type="number" step="0.01" value="200"></div><div><label>Ganancia materiales %</label><input id="margen" type="number" value="40"></div>
     <div><label>IVA %</label><input id="iva" type="number" value="21"></div>
   </div><div class="btns"><button class="light" type="button" id="exportarTarifa">Exportar tarifa</button><button class="light" type="button" id="importarTarifa">Importar tarifa</button></div>
@@ -224,18 +314,40 @@ body.fromDocs.graphPinned{padding-bottom:calc(42vh + 145px + env(safe-area-inset
     </div>
     <label for="textoPlantilla" style="margin-top:10px">Plantilla editable</label>
     <textarea id="textoPlantilla" style="min-height:120px">PASAMANOS DE ALUMINIO CON TUBOS {tubo}
-COLOR: LACADO BLANCO
+COLOR: {color}
 ANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°</textarea>
     <div class="hint">{ancho}, {alto}, {pendiente} y {tubo} toman los datos del diseño. También puedes editar la plantilla.</div>
   </details>
   <div class="btns"><button class="ok" id="guardar">Guardar</button><button class="danger" id="reset">Reset</button></div>
 </section>
-<section class="card"><details class="compactDetails"><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details></section>
-<section class="card"><details class="compactDetails"><summary>Texto para presupuesto</summary><textarea id="texto" readonly style="margin-top:10px"></textarea><div class="btns"><button class="ok" id="copiar">Copiar texto</button></div></details></section>
+<section class="card pantallaColores" data-vista="colores" hidden>
+  <h2 class="title">Colores</h2>
+  <div id="coloresPasamanos" class="coloresCompactos">
+    <div class="selectorColorFila" role="group" aria-label="Elegir pieza que se va a colorear">
+      <button type="button" class="piezaColor activa" data-pieza="conjunto"><span>Conjunto</span><i></i></button>
+      <button type="button" class="piezaColor" data-pieza="pasamanos"><span>Pasamanos</span><i></i></button>
+      <button type="button" class="piezaColor" data-pieza="remates"><span>Remates</span><i></i></button>
+    </div>
+    <div class="paletaCompacta">
+      <div class="paletaTitulo">Colores RAL</div>
+      <div id="paletaBotones" class="paletaBotones"></div>
+      <div class="colorOpciones">
+        <button type="button" id="botonNatural" title="Anodizado natural, tarifa de Motor">Natural</button>
+        <label class="igualGrupo" id="colorIgualGrupo"><input type="checkbox" id="igualConjunto"> Igual que conjunto</label>
+        <label class="colorLibre">Color personalizado <input type="color" id="colorLibre" aria-label="Elegir otro color" value="#91979e"></label>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="card" data-vista="despiece"><details class="compactDetails" open><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details><div class="btns"><button type="button" class="ok" id="exportarDespieceJson">Exportar despiece JSON</button><button type="button" class="docsBtn" id="enviarCutMaster" style="background:#196f4b;color:white">✂ Cut Máster</button></div><p class="hint">Envía directamente los cortes a Cut Máster para optimizar las barras. También puedes exportar el JSON.</p></section>
+<section class="card" data-vista="png"><p class="title">Exportar PNG</p><div class="btns"><button class="ok" id="exportPNGHD" type="button">PNG HD</button><button class="light" id="exportPNG" type="button">PNG</button><button class="docsBtn" id="exportDocs" type="button">Añadir a Documentos</button></div></section>
+<section class="card" id="textoPresupuestoOculto" hidden><textarea id="texto" readonly></textarea><button id="copiar" type="button" hidden>Copiar</button></section>
 </div>
+<nav id="navPasamanos" aria-label="Pantallas"><button type="button" data-nav="diseno" class="active">Diseño</button><button type="button" data-nav="colores">Colores</button><button type="button" data-nav="despiece">Despiece</button><button type="button" data-nav="costes">Costes</button><button type="button" data-nav="png">PNG</button></nav>
+<section class="card" id="costesPanel" data-vista="costes" hidden><h2 class="title">Costes del conjunto</h2><div id="costesDetalle"></div></section>
 <script>
 const $=id=>document.getElementById(id);const nf=(n,d=0)=>(Number(n)||0).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});const eu=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});const val=id=>parseFloat($(id).value)||0;const ints=id=>parseInt($(id).value)||0;let tipo='recto';let autoOvalados=true,autoInter=true;
-const ids=['largo','alto','grados','ovaladosManual','interManual','rematePoste','hOva','hPata','hAncInf','hAncSup','pasW','hPas','hBola','hPiramide','tipoTubo','gOva','fOva','diametroTubo','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer','forma','largoLateralIzq','largoLateralDer','lateralesPresupuesto','textoPlantilla'];
+const ids=['largo','alto','grados','ovaladosManual','interManual','rematePoste','hOva','hPata','hAncInf','hAncSup','pasW','hPas','hBola','hPiramide','tipoTubo','gOva','fOva','diametroTubo','huecoObj','sep30','latW','latF','intW','intF','pPas','pAnc','p70','p30','pOva','pTapa','acc','mont','margen','iva','rangoHueco','ladoIzq','ladoDer','forma','largoLateralIzq','largoLateralDer','lateralesPresupuesto','textoPlantilla'];
 
 function volverAlIndex(){
   try{
@@ -258,10 +370,11 @@ function volverAlIndex(){
 function perfilLat(){return `${nf(val('latW'))}×${nf(val('latF'))}`}
 function perfilInt(){return `${nf(val('intW'))}×${nf(val('intF'))}`}
 function anchoTubo(){return Math.max(1,val($('tipoTubo').value==='redondo'?'diametroTubo':'gOva'))}
-function perfilTubo(){const forma=$('tipoTubo').value;return forma==='redondo'?`REDONDOS Ø${nf(anchoTubo())} mm`:`${forma==='rectangular'?'RECTANGULARES':'OVALADOS'} ${nf(anchoTubo())}×${nf(Math.max(1,val('fOva')))} mm`}
+function perfilTubo(){const forma=$('tipoTubo').value;if(forma==='redondo')return `REDONDOS Ø${nf(Math.max(1,val('diametroTubo')))} mm`;if(forma==='rectangular')return `RECTANGULARES ${nf(Math.max(1,val('gOva')))}×${nf(Math.max(1,val('fOva')))} mm`;return `OVALADOS ${nf(Math.max(1,val('gOva')))}×${nf(Math.max(1,val('fOva')))} mm`;}
 function syncPerfilInputs(){const redondo=$('tipoTubo').value==='redondo';['medidaTuboFrontal','medidaTuboFondo'].forEach(id=>$(id).classList.toggle('hidden',redondo));$('medidaTuboRedondo').classList.toggle('hidden',!redondo)}
 function extraRemate(){const t=$('rematePoste').value;return t==='bola'?Math.max(0,val('hBola')):t==='piramide'?Math.max(0,val('hPiramide')):0}
 function altoTerminado(){return Math.max(0,val('alto'))}
+function corteIntermedio(){return Math.max(0,altoTerminado()-val('hPas')-val('hAncSup'))}
 function ovaladoCorte(){return Math.max(0, altoTerminado() - val('hPata') - val('hAncInf') - val('hAncSup') - val('hPas'))}
 function lateralActivo(l){const f=$('forma').value;return f==='ambos'||f===l}
 function lado(id){return $(id)?.value||'poste'}
@@ -279,12 +392,12 @@ function entradaLado(id){
   return (t==='poste'||t==='compartido')?30:(t==='empotrado'?100:0);
 }
 function nombreLado(id){const t=lado(id);return t==='poste'?'Poste 70×70':t==='union'?'Sin poste':t==='compartido'?'Compartido':t==='empotrado'?'Empotrado':'Ángulo'}
-function save(){let data={tipo,autoOvalados,autoInter,manualInterV123:true,cornerChoicesV19:true,pasProfileV126ae:true};ids.forEach(id=>{data[id]=$(id).value});
+function save(){let data={tipo,autoOvalados,autoInter,manualInterV123:true,cornerChoicesV19:true,pasProfileV126ae:true,extrugasa2304v1301:true,tarifaBlanca13014:true};ids.forEach(id=>{data[id]=$(id).value});
   if(autoOvalados)data.ovaladosManual='0';
   if(autoInter)data.interManual='0';try{localStorage.setItem('pasamanos_v16',JSON.stringify(data))}catch(e){/* El dibujo debe seguir funcionando si el almacenamiento está lleno. */}}
 function load(){try{let d=JSON.parse(localStorage.getItem('pasamanos_v16')||'{}');if(d.tipo)tipo=d.tipo;ids.forEach(id=>{if(id==='ovaladosManual'||id==='interManual')return;if(d[id]!=null && $(id))$(id).value=d[id]});
   // El 50 mm anterior era el valor de fábrica; adoptar 30 mm una sola vez.
-  if(!d.pasProfileV126ae && Number(d.hPas)===50)$('hPas').value='30';
+  if(!d.extrugasa2304v1301){if(d.hPas==null||Number(d.hPas)===30||Number(d.hPas)===50)$('hPas').value='35';if(d.pasW==null||Number(d.pasW)===60)$('pasW').value='66';if(d.hAncInf==null||Number(d.hAncInf)===25)$('hAncInf').value='24';if(d.hAncSup==null||Number(d.hAncSup)===25)$('hAncSup').value='24';}
   if(!d.cornerChoicesV19){if(lateralActivo('izq'))$('ladoIzq').value='poste';if(lateralActivo('der'))$('ladoDer').value='poste'}
   const oldDefault='BALCÓN DE ALUMINIO CON TUBOS VERTICALES OVALADOS\nCOLOR: LACADO BLANCO\nFRONTAL: {frontal} mm\nLATERALES: {laterales} mm\nALTURA: {altura} mm\nTORNILLERÍA DE ACERO INOXIDABLE';
   const stockAnterior='PASAMANOS DE ALUMINIO CON TUBOS OVALADOS\nCOLOR: LACADO BLANCO\nANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°';
@@ -301,7 +414,7 @@ function load(){try{let d=JSON.parse(localStorage.getItem('pasamanos_v16')||'{}'
   if($('interManual'))$('interManual').value='0';
   autoOvalados=true;autoInter=true;$('interAuto').checked=true;
 }}
-const camposTarifa=['pPas','pAnc','p70','p30','pOva','acc','mont','margen','iva'];
+const camposTarifa=['pPas','pAnc','p70','p30','pOva','pTapa','acc','mont','margen','iva'];
 function mensajeTarifa(mensaje,error=false){$('estadoTarifa').textContent=mensaje;$('estadoTarifa').style.color=error?'#b00020':'#176227'}
 async function exportarTarifa(){
   const precios=Object.fromEntries(camposTarifa.map(id=>[id,val(id)]));
@@ -323,10 +436,10 @@ async function importarTarifa(archivo){
     const texto=archivo.text?await archivo.text():await new Promise((ok,fail)=>{const lector=new FileReader();lector.onload=()=>ok(lector.result);lector.onerror=fail;lector.readAsText(archivo)});
     const tarifa=JSON.parse(texto),precios=tarifa?.precios;
     if(tarifa?.formato!=='pasamanos-tarifa'||tarifa.version!==1||!precios||
-      !camposTarifa.every(id=>Object.prototype.hasOwnProperty.call(precios,id)&&
+      !camposTarifa.filter(id=>id!=='pTapa').every(id=>Object.prototype.hasOwnProperty.call(precios,id)&&
         precios[id]!==''&&Number.isFinite(Number(precios[id]))&&Number(precios[id])>=0&&Number(precios[id])<=10000000))
       throw new Error('El archivo no contiene una tarifa de Pasamanos válida.');
-    camposTarifa.forEach(id=>$(id).value=String(Number(precios[id])));
+    camposTarifa.forEach(id=>{if(precios[id]!=null)$(id).value=String(Number(precios[id]))});
     render();mensajeTarifa('Tarifa importada y guardada. Comprueba que las medidas de los perfiles coinciden.');
   }catch(e){mensajeTarifa(e.message||'No se pudo leer el archivo de tarifa.',true)}
 }
@@ -361,7 +474,7 @@ function recOvalados(subUtilHorizontal){
 function estadoHueco(h){const r=rangoHuecos();return h>=r.min&&h<=r.max?'ok':(h<r.min?'cerrado':'abierto')}
 function recomendaciones(){const largo=val('largo'), grados=Math.max(0,val('grados')), cos=Math.cos(grados*Math.PI/180)||1;const descIzq=descuentaLado('ladoIzq'),descDer=descuentaLado('ladoDer');const lat=val('latW'),interW=val('intW');let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=grados>0?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalPorSub=recOvalados(subH);let totalOva=ovalPorSub*(t30+1);return{t30,totalOva}}
 function syncAutoInputs(){const r=recomendaciones();$('interAuto').checked=autoInter;$('interManual').readOnly=autoInter;if(autoInter){$('interManual').value=r.t30}if(autoOvalados){$('ovaladosManual').value=r.totalOva}}
-function calc(){const largo=val('largo'), grados=Math.max(0,val('grados'));tipo=grados>0?'pendiente':'recto';const cos=Math.cos(grados*Math.PI/180);const izq=esPoste('ladoIzq'), der=esPoste('ladoDer'), descIzq=descuentaLado('ladoIzq'), descDer=descuentaLado('ladoDer');const lat=val('latW'), interW=val('intW'), ovaW=anchoTubo();let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=tipo==='pendiente'?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalManual=autoOvalados?0:Math.max(0,ints('ovaladosManual'));let ovalPorSub=ovalManual>0?Math.max(0,Math.round(ovalManual/(t30+1))):recOvalados(subH);let totalOva=ovalPorSub*(t30+1);let huecoH=ovalPorSub>0?(subH-(ovalPorSub*ovaW))/(ovalPorSub+1):subH;let agujero=tipo==='pendiente'?huecoH/cos:huecoH;let alto=altoTerminado(), alto70=alto+30;let entradaIzq=entradaLado('ladoIzq'), entradaDer=entradaLado('ladoDer');let corteAnc=utilReal+entradaIzq+entradaDer;if(corteAnc<0)corteAnc=0;let postes70=(izq?1:0)+(der?1:0);let pasamanosCorte=utilReal;if(pasamanosCorte<0)pasamanosCorte=0;let mPas=pasamanosCorte/1000,mAnc=(corteAnc*2)/1000;let cPas=mPas*val('pPas'),cAnc=mAnc*val('pAnc'),c70=postes70*alto70/1000*val('p70'),c30=t30*alto/1000*val('p30'),cOva=totalOva*ovaladoCorte()/1000*val('pOva'),cAcc=val('acc'),coste=cPas+cAnc+c70+c30+cOva+cAcc,mont=val('mont'),margen=coste*val('margen')/100,bruto=coste+mont+margen,iva=bruto*val('iva')/100,pvp=bruto+iva,gan=mont+margen;return{largo,grados,cos,izq,der,descIzq,descDer,utilReal,utilHorizontal,t30,subH,ovalPorSub,totalOva,huecoH,agujero,alto,alto70,entradaIzq,entradaDer,corteAnc,postes70,pasamanosCorte,cPas,cAnc,c70,c30,cOva,cAcc,coste,mont,margen,bruto,iva,pvp,gan}}
+function calc(){const largo=val('largo'), grados=Math.max(0,val('grados'));tipo=grados>0?'pendiente':'recto';const cos=Math.cos(grados*Math.PI/180);const izq=esPoste('ladoIzq'), der=esPoste('ladoDer'), descIzq=descuentaLado('ladoIzq'), descDer=descuentaLado('ladoDer');const lat=val('latW'), interW=val('intW'), ovaW=anchoTubo();let utilReal=largo-(descIzq?lat:0)-(descDer?lat:0);if(utilReal<0)utilReal=0;let utilHorizontal=tipo==='pendiente'?utilReal*cos:utilReal;let t30=autoInter?rec30(utilHorizontal):Math.max(0,ints('interManual'));let subH=(utilHorizontal-(t30*interW))/(t30+1);if(subH<0)subH=0;let ovalManual=autoOvalados?0:Math.max(0,ints('ovaladosManual'));let ovalPorSub=ovalManual>0?Math.max(0,Math.round(ovalManual/(t30+1))):recOvalados(subH);let totalOva=ovalPorSub*(t30+1);let huecoH=ovalPorSub>0?(subH-(ovalPorSub*ovaW))/(ovalPorSub+1):subH;let agujero=tipo==='pendiente'?huecoH/cos:huecoH;let alto=altoTerminado(), alto70=alto+30;let entradaIzq=entradaLado('ladoIzq'), entradaDer=entradaLado('ladoDer');let corteAnc=utilReal+entradaIzq+entradaDer;if(corteAnc<0)corteAnc=0;let postes70=(izq?1:0)+(der?1:0);let pasamanosCorte=utilReal;if(pasamanosCorte<0)pasamanosCorte=0;let mPas=pasamanosCorte/1000,mAnc=(corteAnc*2)/1000;let cPas=mPas*val('pPas'),cAnc=mAnc*val('pAnc'),c70=postes70*alto70/1000*val('p70'),c30=t30*corteIntermedio()/1000*val('p30'),cOva=totalOva*ovaladoCorte()/1000*val('pOva'),cTapa=corteAnc/1000*val('pTapa'),cAcc=val('acc'),coste=cPas+cAnc+c70+c30+cOva+cTapa+cAcc,mont=val('mont'),margen=coste*val('margen')/100,bruto=coste+mont+margen,iva=bruto*val('iva')/100,pvp=bruto+iva,gan=margen;return{largo,grados,cos,izq,der,descIzq,descDer,utilReal,utilHorizontal,t30,subH,ovalPorSub,totalOva,huecoH,agujero,alto,alto70,entradaIzq,entradaDer,corteAnc,postes70,pasamanosCorte,cPas,cAnc,c70,c30,cOva,cTapa,cAcc,coste,mont,margen,bruto,iva,pvp,gan}}
 function laterales(c){
   return ['izq','der'].filter(lateralActivo).map(l=>{
     const largo=Math.max(0,val(l==='izq'?'largoLateralIzq':'largoLateralDer'));
@@ -371,20 +484,67 @@ function laterales(c){
     const t30=rec30(utilReal), subH=Math.max(0,(utilReal-t30*val('intW'))/(t30+1));
     const ovalPorSub=recOvalados(subH), totalOva=ovalPorSub*(t30+1);
     const corteAnc=utilReal+entradaLado(extremo);
-    const coste=utilReal/1000*val('pPas')+2*corteAnc/1000*val('pAnc')+t30*c.alto/1000*val('p30')+totalOva*ovaladoCorte()/1000*val('pOva');
-    return {lado:l,largo,utilReal,t30,subH,ovalPorSub,totalOva,corteAnc,coste,poste:esPoste(extremo),
+    const coste=utilReal/1000*val('pPas')+2*corteAnc/1000*val('pAnc')+corteAnc/1000*val('pTapa')+t30*corteIntermedio()/1000*val('p30')+totalOva*ovaladoCorte()/1000*val('pOva');
+    return {lado:l,largo,utilReal,pasamanosCorte:utilReal,entradaIzq:entradaLado(extremo),t30,subH,ovalPorSub,totalOva,corteAnc,coste,poste:esPoste(extremo),
       huecoH:ovalPorSub?(subH-ovalPorSub*anchoTubo())/(ovalPorSub+1):subH};
   });
 }
 function esquinaOvalada(l){return lateralActivo(l)&&lado(l==='izq'?'ladoIzq':'ladoDer')==='union'}
+// Precio validado por Motor Series. Se invalida al cambiar cualquier medida o configuración.
+let precioMotorAplicado=null;
+const REY_PAS_MOTOR_SALIDA='REY_PASAMANOS_MOTOR_OUT_V1';
+// La tarifa depende del RAL real del conjunto; no hay selector independiente.
+function tarifaActualMotor(){
+ const color=String(acabados.conjunto||'').toLowerCase();
+ const ral=paletaPasamanos.find(([,hex])=>hex.toLowerCase()===color)?.[0];
+ if(ral==='9010'||['#ffffff','#fff','#f5f5f5'].includes(color))return 'Blanco';
+ if(color==='#c2c7c9')return 'Anodizado Natural';
+ return 'RAL estándar';
+}
+function firmaCortesMotor(cortes){
+  return JSON.stringify((cortes||[]).map(p=>[String(p.referencia),Number(p.cantidad),Number(p.longitud_mm)]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))));
+}
+
+function configuracionActualMotor(){return JSON.stringify(Object.fromEntries(ids.map(id=>[id,$(id)?.value])));}
+function firmaConfiguracionEstableMotor(){
+  const omitir=new Set(['hOva','ovaladosManual','interManual','pPas','pAnc','p70','p30','pOva','pTapa','acc','mont','margen','iva','textoPlantilla']);
+  return JSON.stringify(ids.filter(id=>!omitir.has(id)).map(id=>[id,String($(id)?.value||'')]));
+}
+function precioMotorVigente(){return precioMotorAplicado && precioMotorAplicado.tarifa===tarifaActualMotor() && precioMotorAplicado.firma===firmaConfiguracionEstableMotor()?precioMotorAplicado:null;}
+function actualizarAvisoPrecioMotor(){
+ const aviso=$('avisoPrecioMotor');if(!aviso)return;
+ const validado=!!precioMotorVigente();
+ aviso.textContent=validado?'✓ Precio actualizado con Motor · '+tarifaActualMotor():'⚠ Precio orientativo · pasar por € Motor para actualizar tarifa';
+ aviso.classList.toggle('validado',validado);
+}
+function recibirPrecioMotor(){
+  let raw=null;
+  try{raw=sessionStorage.getItem(REY_PAS_MOTOR_SALIDA)||localStorage.getItem(REY_PAS_MOTOR_SALIDA);}catch(e){}
+  if(!raw)return;
+  try{
+    const d=JSON.parse(raw);
+    if(d.formato==='pasamanos-motor-precio'&&Number.isFinite(Number(d.material_eur))&&Number(d.material_eur)>=0){
+      const firma=String(d.firma_estable||'');
+      // El acabado del diseño manda: Motor no cambia la tarifa de Pasamanos.
+      if(firma && firma===firmaConfiguracionEstableMotor() && d.color===tarifaActualMotor()){ 
+        precioMotorAplicado={firma,tarifa:d.color,coste:Number(d.material_eur),color:d.color,perfiles:Number(d.perfiles_eur),accesorios:Number(d.accesorios_eur)};
+      }else alert('Motor devolvió el precio, pero la configuración ha cambiado. No se aplicó para evitar un importe incorrecto.');
+    }
+  }catch(e){console.error('Precio Motor',e)}
+  try{sessionStorage.removeItem(REY_PAS_MOTOR_SALIDA);localStorage.removeItem(REY_PAS_MOTOR_SALIDA);}catch(e){}
+}
 function totalConjunto(c){const lados=laterales(c), ovaladosEsquina=Number(esquinaOvalada('izq'))+Number(esquinaOvalada('der')),
   coste=c.coste+lados.reduce((s,l)=>s+l.coste,0)+ovaladosEsquina*ovaladoCorte()/1000*val('pOva'), mont=c.mont;
-  const margen=coste*val('margen')/100, bruto=coste+mont+margen, iva=bruto*val('iva')/100;
-  return {lados,ovaladosEsquina,coste,mont,margen,bruto,iva,pvp:bruto+iva,
+  const vigente=precioMotorVigente();
+  const costeFinal=vigente?vigente.coste:coste;
+  const margen=costeFinal*val('margen')/100, bruto=costeFinal+mont+margen, iva=bruto*val('iva')/100;
+  return {lados,ovaladosEsquina,coste:costeFinal,mont,margen,bruto,iva,pvp:bruto+iva,
     largo:c.largo+lados.reduce((s,l)=>s+l.largo,0),postes70:c.postes70,
     t30:c.t30+lados.reduce((s,l)=>s+l.t30,0),totalOva:c.totalOva+lados.reduce((s,l)=>s+l.totalOva,0)+ovaladosEsquina};
 }
 function syncForma(){
+  if(val('grados')>0 && $('forma').value!=='recto')$('forma').value='recto';
+  $('forma').disabled=val('grados')>0;
   const activa=$('forma').value!=='recto';
   $('medidasLaterales').classList.toggle('hidden',!activa);
   $('campoLateralIzq').classList.toggle('hidden',!lateralActivo('izq'));
@@ -396,13 +556,15 @@ function syncForma(){
 }
 function syncAltura(){if($('hOva'))$('hOva').value=nf(ovaladoCorte())}
 let vistaPasamanos='perspectiva';
-let graficoFijado=false;
+let graficoFijado=true;
 function visibilidadGraficoFijado(){
   const altoBarra=$('priceBar').getBoundingClientRect().height;
   if(altoBarra)document.documentElement.style.setProperty('--price-bar-height',`${altoBarra}px`);
-  $('floatingGraph').classList.toggle('show',graficoFijado);
-  document.body.classList.toggle('graphPinned',graficoFijado);
+  $('floatingGraph').classList.toggle('show',graficoFijado && (pantallaActual==='diseno'||pantallaActual==='colores'));
+  $('svgWrap').closest('.canvasBox').classList.toggle('hidden',graficoFijado);
+  document.body.classList.toggle('graphPinned',graficoFijado && (pantallaActual==='diseno'||pantallaActual==='colores'));
   $('fijarGrafico').classList.toggle('active',graficoFijado);
+  $('fijarGrafico').hidden=pantallaActual!=='diseno';
   $('fijarGrafico').textContent=graficoFijado?'Soltar':'Fijar';
   $('fijarGrafico').setAttribute('aria-pressed',String(graficoFijado));
 }
@@ -411,7 +573,103 @@ function actualizarGraficoFijado(){
   if(copia){copia.id='svgFijado';$('floatingGraphBody').replaceChildren(copia)}
   visibilidadGraficoFijado();
 }
-function render(){syncForma();syncPerfilInputs();syncAltura();syncAutoInputs();save();const c=calc(),total=totalConjunto(c);if($('leg70'))$('leg70').textContent=perfilLat();if($('leg30'))$('leg30').textContent=perfilInt();if($('legOva'))$('legOva').textContent=`Tubo ${perfilTubo()} · corte ${nf(ovaladoCorte())}`;$('kpis').innerHTML=`<div class="kpi"><b>Largo total</b><span>${nf(total.largo)} mm</span></div><div class="kpi"><b>Útil frontal</b><span>${nf(c.utilReal)} mm</span></div><div class="kpi"><b>Tubos total</b><span>${total.totalOva}</span></div><div class="kpi ${estadoHueco(c.huecoH)=='ok'?'':'bad'}"><b>Hueco frontal</b><span>${nf(c.huecoH)} mm</span></div><div class="kpi total"><b>PVP IVA incl.</b><span>${eu(total.pvp)}</span></div><div class="kpi ${tipo==='pendiente'?'mid':''}"><b>Marcado frontal</b><span>${nf(c.agujero)} mm</span></div><div class="kpi"><b>${perfilInt()} total</b><span>${total.t30}</span></div><div class="kpi"><b>${perfilLat()} total</b><span>${total.postes70}</span></div><div class="kpi"><b>Anclaje frontal</b><span>${nf(c.corteAnc)} mm</span></div><div class="kpi"><b>Altura</b><span>${nf(c.alto)} mm</span></div>`;if(vistaPasamanos==='superior')renderVistaSuperior(c,total.lados);else if(total.lados.length)renderPerspectiva(c,total.lados);else renderSvg(c);renderTabla(c);renderTexto(c);$('precioSinIva').textContent=eu(total.bruto);$('precioConIva').textContent=eu(total.pvp);actualizarGraficoFijado()}
+const COLOR_NATURAL_PASAMANOS='#c2c7c9';
+const paletaPasamanos=[['5010','#2b2c7c'],['9005','#1c1c1c'],['7016','#374447'],['7043','#6c7074'],['9010','#e4e6e7'],['8017','#44322d'],['8014','#543c2c'],['7034','#92886f'],['1001','#d0b084'],['1023','#f7b500'],['6009','#1b542c'],['6005','#28713e'],['6018','#48a43f'],['3005','#8d1d2c'],['2004','#e86b16']];
+const acabados={conjunto:'#91979e',pasamanos:null,remates:null};
+function hexRGB(hex){const s=String(hex||'').replace('#','');return [0,2,4].map(i=>parseInt(s.substring(i,i+2),16)||0)}
+function variarColor(hex,factor){const [r,g,b]=hexRGB(hex);const mix=x=>Math.max(0,Math.min(255,Math.round(factor>=0?x+(255-x)*factor:x*(1+factor))));return '#'+[r,g,b].map(mix).map(n=>n.toString(16).padStart(2,'0')).join('')}
+function acabado(grupo){return acabados[grupo]||acabados.conjunto}
+function guardarAcabados(){try{localStorage.setItem('pasamanos_acabados_v1',JSON.stringify(acabados))}catch(e){}}
+let piezaColorActiva='conjunto';
+// Elegir Conjunto aplica el nuevo acabado a todas las piezas,
+// eliminando colores independientes anteriores. Después pueden personalizarse.
+function aplicarColorSeleccionado(color){
+ if(piezaColorActiva==='conjunto'){acabados.conjunto=color;acabados.pasamanos=null;acabados.remates=null;}
+ else acabados[piezaColorActiva]=color;
+ guardarAcabados();actualizarSelectoresColor();actualizarColorSinDesencuadrar();
+}
+
+// Al elegir un color la pantalla Diseño está oculta (display:none).
+// En ese estado getBBox() devuelve 0 y se pierde el encuadre SVG.
+// Aplazamos el dibujo hasta que la pantalla vuelva a estar visible.
+function actualizarColorSinDesencuadrar(){
+  // Recolorear el SVG existente sin volver a medir un dibujo oculto.
+  // Así la vista fija en Colores se actualiza al instante y conserva su encuadre.
+  if(typeof pantallaActual!=='undefined' && pantallaActual==='diseno'){render();return;}
+  colorearDibujo();
+  const svg=$('pasamanosSvg');
+  if(svg){const copia=svg.cloneNode(true);copia.id='svgFijado';$('floatingGraphBody').replaceChildren(copia);}
+  actualizarAvisoPrecioMotor();
+  visibilidadGraficoFijado();
+}
+function iniciarColores(){
+ try{const d=JSON.parse(localStorage.getItem('pasamanos_acabados_v1')||'{}');for(const k of Object.keys(acabados))if(d[k]===null||/^#[0-9a-f]{6}$/i.test(d[k]||''))acabados[k]=d[k]??(k==='conjunto'?acabados.conjunto:null)}catch(e){}
+ const paleta=$('paletaBotones');
+ $('botonNatural').addEventListener('click',()=>aplicarColorSeleccionado(COLOR_NATURAL_PASAMANOS));
+ paletaPasamanos.forEach(([ral,color])=>{const b=document.createElement('button');b.type='button';b.className='colorOpcion';b.setAttribute('aria-label','RAL '+ral);b.title='RAL '+ral;b.style.background=color;b.style.color=(hexRGB(color).reduce((acc,n,i)=>acc+n*[.299,.587,.114][i],0)>140)?'#111':'#fff';b.innerHTML=`<span>RAL</span><span>${ral}</span>`;b.addEventListener('click',()=>{aplicarColorSeleccionado(color)});paleta.append(b)});
+
+ document.querySelectorAll('.piezaColor').forEach(b=>b.addEventListener('click',()=>{piezaColorActiva=b.dataset.pieza;actualizarSelectoresColor()}));
+ $('igualConjunto').addEventListener('change',e=>{if(piezaColorActiva==='conjunto')return;acabados[piezaColorActiva]=e.target.checked?null:$('colorLibre').value;guardarAcabados();actualizarSelectoresColor();actualizarColorSinDesencuadrar()});
+ $('colorLibre').addEventListener('input',e=>aplicarColorSeleccionado(e.target.value));
+ actualizarSelectoresColor();
+}
+function actualizarSelectoresColor(){
+ document.querySelectorAll('.piezaColor').forEach(b=>{const g=b.dataset.pieza;b.classList.toggle('activa',g===piezaColorActiva);b.querySelector('i').style.background=acabado(g)});
+ const igual=acabados[piezaColorActiva]===null;
+ $('colorIgualGrupo').hidden=piezaColorActiva==='conjunto';
+ $('igualConjunto').checked=igual;
+ $('colorLibre').value=acabado(piezaColorActiva);
+ document.querySelectorAll('.colorOpcion').forEach((b,i)=>b.classList.toggle('activa',!igual&&paletaPasamanos[i][1].toLowerCase()===acabado(piezaColorActiva).toLowerCase()));
+ $('botonNatural').classList.toggle('activa',!igual&&acabado(piezaColorActiva).toLowerCase()===COLOR_NATURAL_PASAMANOS);
+}
+function colorearDibujo(){
+ const svg=$('pasamanosSvg');if(!svg)return;
+ const base=acabado('conjunto'),pas=acabado('pasamanos'),rem=acabado('remates');
+ // La misma paleta se aplica a polígonos (alzado) y líneas (perspectiva).
+ // Separar los tonos permite distinguir el pasamanos de los anclajes
+ // incluso cuando todas las piezas tienen el mismo RAL.
+ const mapaRellenos={
+  '#aaa':variarColor(base,-.04),
+  '#8fb3e8':variarColor(base,.10),
+  '#555':variarColor(base,-.12),
+  '#888':variarColor(base,.13),
+  '#d9d9d9':variarColor(pas,.07),
+  '#d1d1d1':variarColor(pas,.23),
+  '#f5d56a':variarColor(base,-.17),
+  '#ffe17c':variarColor(base,-.06),
+  '#ffe27a':variarColor(base,-.06)
+ };
+ // Los tubos ovalados de la perspectiva se trazan con stroke,
+ // no con fill. Antes quedaban grises al cambiar Conjunto.
+ const mapaTrazos={
+  '#555':variarColor(base,-.12),
+  '#888':variarColor(base,.13)
+ };
+ for(const el of svg.querySelectorAll('[fill],[stroke]')){
+  const fillActual=el.getAttribute('fill');
+  const strokeActual=el.getAttribute('stroke');
+  if(fillActual!==null){
+   if(!el.hasAttribute('data-color-original-fill'))el.setAttribute('data-color-original-fill',fillActual);
+   const original=el.getAttribute('data-color-original-fill').toLowerCase();
+   if(el.closest('[data-remate]')&&original==='#aaa')el.setAttribute('fill',variarColor(rem,.04));
+   else if(mapaRellenos[original])el.setAttribute('fill',mapaRellenos[original]);
+  }
+  if(strokeActual!==null){
+   if(!el.hasAttribute('data-color-original-stroke'))el.setAttribute('data-color-original-stroke',strokeActual);
+   const original=el.getAttribute('data-color-original-stroke').toLowerCase();
+   if(mapaTrazos[original])el.setAttribute('stroke',mapaTrazos[original]);
+  }
+ }
+}
+function render(){syncForma();syncPerfilInputs();syncAltura();syncAutoInputs();save();const c=calc(),total=totalConjunto(c);if($('leg70'))$('leg70').textContent=perfilLat();if($('leg30'))$('leg30').textContent=perfilInt();if($('legOva'))$('legOva').textContent=`Tubo ${perfilTubo()} · corte ${nf(ovaladoCorte())}`;$('kpis').innerHTML=`<div class="kpi"><b>Largo total</b><span>${nf(total.largo)} mm</span></div><div class="kpi"><b>Útil frontal</b><span>${nf(c.utilReal)} mm</span></div><div class="kpi"><b>Tubos total</b><span>${total.totalOva}</span></div><div class="kpi ${estadoHueco(c.huecoH)=='ok'?'':'bad'}"><b>Hueco frontal</b><span>${nf(c.huecoH)} mm</span></div><div class="kpi total"><b>PVP IVA incl.</b><span>${eu(total.pvp)}</span></div><div class="kpi ${tipo==='pendiente'?'mid':''}"><b>Marcado frontal</b><span>${nf(c.agujero)} mm</span></div><div class="kpi"><b>${perfilInt()} total</b><span>${total.t30}</span></div><div class="kpi"><b>${perfilLat()} total</b><span>${total.postes70}</span></div><div class="kpi"><b>Anclaje frontal</b><span>${nf(c.corteAnc)} mm</span></div><div class="kpi"><b>Altura</b><span>${nf(c.alto)} mm</span></div>`;if(vistaPasamanos==='superior')renderVistaSuperior(c,total.lados);else if(total.lados.length)renderPerspectiva(c,total.lados);else renderSvg(c);colorearDibujo();renderTabla(c);renderTexto(c);$('costesDetalle').innerHTML=[{nombre:'Frontal',modelo:c,frontal:true},...total.lados.map(l=>({nombre:l.lado==='izq'?'Lateral izquierdo':'Lateral derecho',modelo:l,frontal:false}))].map(t=>`<div class="fabTitle">${t.nombre}</div>`+filasCortesTabla(piezasDeTramo(t.modelo,t.frontal),true)+`<div class="costeTramo">Subtotal: ${eu(t.modelo.coste-(t.frontal?val('acc'):0))}</div>`).join('')+
+  `<div class="fabTitle">Resumen económico</div><table><tr><th>Concepto</th><th>Importe</th></tr>`+
+  `<tr><td class="left">${precioMotorVigente()?'Accesorios Motor (incluidos en materiales)':'Otros accesorios (sin tapa 2241)'}</td><td>${eu(precioMotorVigente()?precioMotorVigente().accesorios:val('acc'))}</td></tr>`+
+  `${total.ovaladosEsquina?`<tr><td class="left">Tubos compartidos en uniones sin poste (${total.ovaladosEsquina})</td><td>${eu(total.ovaladosEsquina*ovaladoCorte()/1000*val('pOva'))}</td></tr>`:''}`+
+  `<tr><td class="left">Coste materiales total${precioMotorVigente()?' · Motor '+precioMotorVigente().color:''}</td><td>${eu(total.coste)}</td></tr>`+
+  `<tr><td class="left">Ganancia materiales (${nf(val('margen'))} %)</td><td>${eu(total.margen)}</td></tr>`+
+  `<tr><td class="left">Montaje (sin margen)</td><td>${eu(total.mont)}</td></tr>`+
+  `<tr><td class="left">Total sin IVA</td><td>${eu(total.bruto)}</td></tr><tr><td class="left">IVA</td><td>${eu(total.iva)}</td></tr>`+
+  `<tr class="cost total"><td>Total con IVA</td><td>${eu(total.pvp)}</td></tr></table>`;$('precioSinIva').textContent=eu(total.bruto);$('precioConIva').textContent=eu(total.pvp);actualizarAvisoPrecioMotor();actualizarGraficoFijado()}
 function encuadrarVista(){
   const dibujo=$('pasamanosSvg').querySelector('#dibujoVista');
   const caja=dibujo.getBBox();
@@ -620,19 +878,25 @@ function renderPerspectiva(c,lados){
     const t=top(p), extra=30*scale;
     const x=p.x-(lado==='der'&&right?postInsetDer:postW/2), y=t.y-extra;
     const rem=$('rematePoste').value;
+    const pata=Math.max(0,val('hPata'))*scale;
+    const altoTotal=height+extra+pata;
     let s;
     if(lado==='der'&&right){
       // El borde izquierdo del poste se interrumpe donde entra el frontal.
       // Una línea continua allí atravesaría las caras gris y amarilla.
+      // El poste, incluida la pata, debe leerse como una sola pieza sin
+      // línea horizontal de división en la base.
       const ancho=Math.max(1,val('pasW'));
       const cantoInterior=t.y-(b.y-a.y)/front*ancho-depth(right)*.7/Math.max(1,right.largo)*ancho;
       const encuentro=top(interpolate(a,b,1-postInsetDer/Math.max(1,span))).y+pasH+ancH;
       const inferior=interpolate(a,b,1-postInsetDer/Math.max(1,span)).y-bajoPerfil;
-      s=`<rect x="${x}" y="${y}" width="${postW}" height="${height+extra}" fill="#aaa"/>`+
-        `<path d="M ${x} ${y} H ${x+postW} V ${y+height+extra} H ${x} V ${inferior+ancInfH} M ${x} ${inferior} V ${encuentro} M ${x} ${cantoInterior} V ${y}" fill="none" stroke="#111" stroke-width="2"/>`;
-    }else s=`<rect x="${x}" y="${y}" width="${postW}" height="${height+extra}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
-    if(rem==='bola')s+=`<ellipse cx="${x+postW/2}" cy="${y-postW/3}" rx="${postW*12/21}" ry="${postW*10/21}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
-    if(rem==='piramide')s+=poly([{x,y},{x:x+postW/2,y:y-postW*10/21},{x:x+postW,y}],'#aaa');
+      s=`<rect x="${x}" y="${y}" width="${postW}" height="${altoTotal}" fill="#aaa"/>`+
+        `<path d="M ${x} ${y} H ${x+postW} V ${y+altoTotal} H ${x} V ${inferior+ancInfH} M ${x} ${inferior} V ${encuentro} M ${x} ${cantoInterior} V ${y}" fill="none" stroke="#111" stroke-width="2"/>`;
+    }else{
+      s=`<rect x="${x}" y="${y}" width="${postW}" height="${altoTotal}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
+    }
+    if(rem==='bola')s+=`<ellipse data-remate="1" cx="${x+postW/2}" cy="${y-postW/3}" rx="${postW*12/21}" ry="${postW*10/21}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
+    if(rem==='piramide')s+=`<g data-remate="1">${poly([{x,y},{x:x+postW/2,y:y-postW*10/21},{x:x+postW,y}],'#aaa')}</g>`;
     return s;
   }
   function dimension(p,q,label,offset){const v={x:q.x-p.x,y:q.y-p.y},l=Math.hypot(v.x,v.y)||1,
@@ -809,9 +1073,9 @@ function dibujarPoste(x,yBase){
   const yCuerpo=yBase-h70Px;
   let poste=`<rect x="${x}" y="${yCuerpo}" width="${latW}" height="${h70Px}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
   if(capH>0&&remate==='bola'){
-    poste+=`<ellipse cx="${x+latW/2}" cy="${yCuerpo-capH/2}" rx="${latW/2}" ry="${capH/2}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
+    poste+=`<ellipse data-remate="1" cx="${x+latW/2}" cy="${yCuerpo-capH/2}" rx="${latW/2}" ry="${capH/2}" fill="#aaa" stroke="#111" stroke-width="2"/>`;
   }else if(capH>0&&remate==='piramide'){
-    poste+=`<polygon points="${x},${yCuerpo} ${x+latW/2},${yCuerpo-capH} ${x+latW},${yCuerpo}" fill="#aaa" stroke="#111" stroke-width="2" stroke-linejoin="round"/>`;
+    poste+=`<polygon data-remate="1" points="${x},${yCuerpo} ${x+latW/2},${yCuerpo-capH} ${x+latW},${yCuerpo}" fill="#aaa" stroke="#111" stroke-width="2" stroke-linejoin="round"/>`;
   }
   return poste;
 }
@@ -867,17 +1131,18 @@ bbox.maxX=Math.max(bbox.maxX,hx+120);bbox.minY=Math.min(bbox.minY,hTop-25);bbox.
 const bw=bbox.maxX-bbox.minX, bh=bbox.maxY-bbox.minY;
 const tx=(W-bw)/2-bbox.minX;
 const ty=(H-bh)/2-bbox.minY;
-let out=`<svg id="pasamanosSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet"><rect width="900" height="700" fill="#fff"/><g transform="translate(${tx},${ty})">${body}</g></svg>`;
+let out=`<svg id="pasamanosSvg" xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet"><rect width="900" height="700" fill="#fff"/><g id="dibujoVista" transform="translate(${tx},${ty})">${body}</g></svg>`;
 $('svgWrap').innerHTML=out
 }
-function generarMarcas(c){
+function generarMarcas(c,forzarRecto=false){
   const ovaW=anchoTubo();
   const entrada=c.entradaIzq;
   const cos=c.cos||1;
-  const subReal=tipo==='pendiente' ? (c.subH/cos) : c.subH;
-  const ovaMarcado=tipo==='pendiente'?ovaW/cos:ovaW;
-  const huecoMarcado=tipo==='pendiente'?c.huecoH/cos:c.huecoH;
-  const interMarcado=tipo==='pendiente'?val('intW')/cos:val('intW');
+  const inclinada=!forzarRecto && c.grados>0;
+  const subReal=inclinada ? (c.subH/cos) : c.subH;
+  const ovaMarcado=inclinada?ovaW/cos:ovaW;
+  const huecoMarcado=inclinada?c.huecoH/cos:c.huecoH;
+  const interMarcado=inclinada?val('intW')/cos:val('intW');
   const paso=huecoMarcado+ovaMarcado;
   let filas=[], filasPorHueco=[];
   for(let i=1;i<=c.ovalPorSub;i++){
@@ -893,67 +1158,143 @@ function generarMarcas(c){
   }
   return {subReal,paso,filas,filasPorHueco};
 }
+// Despiece y coste utilizan una única lista de cortes por tramo.
+// Todos los cortes están en mm; el precio del perfil es €/metro.
+function piezasDeTramo(modelo, esFrontal=false){
+  const filas=[];
+  const meter=(referencia,nombre,cantidad,corte,precio)=>{
+    if(cantidad>0 && corte>0)filas.push({referencia,nombre,cantidad,corte,precio,
+      coste:cantidad*corte/1000*precio});
+  };
+  if(esFrontal)meter('70×70',`Poste ${perfilLat()}`,modelo.postes70,modelo.alto70,val('p70'));
+  meter('2522',`Pasamanos 2522 · ${nf(val('pasW'))} mm`,1,modelo.pasamanosCorte??modelo.utilReal,val('pPas'));
+  meter('2304',`Anclaje superior 2304 · 43×24`,1,modelo.corteAnc,val('pAnc'));
+  meter('2304',`Anclaje inferior 2304 · 43×24`,1,modelo.corteAnc,val('pAnc'));
+  meter('2241',`Tapa del anclaje inferior 2241`,1,modelo.corteAnc,val('pTapa'));
+  meter('30×30',`Intermedio ${perfilInt()}`,modelo.t30,corteIntermedio(),val('p30'));
+  meter('VERT',`Tubo ${perfilTubo()}`,modelo.totalOva,ovaladoCorte(),val('pOva'));
+  return filas;
+}
+function filasCortesTabla(filas,conCoste=false){
+  return `<table class="tablaPiezas"><thead><tr><th>Perfil</th><th>Cant.</th><th>Corte</th>${conCoste?'<th>€/m</th><th>Coste</th>':''}</tr></thead><tbody>`+
+    filas.map(r=>`<tr><td class="left">${r.nombre}</td><td>${r.cantidad}</td><td>${nf(r.corte)} mm</td>${conCoste?`<td>${eu(r.precio)}</td><td>${eu(r.coste)}</td>`:''}</tr>`).join('')+
+    `</tbody></table>`;
+}
+function tablaMarcas(modelo, esFrontal){
+  // Con pendiente solo existe un tramo frontal. Los retornos son rectos.
+  const m=generarMarcas(esFrontal?modelo:{...modelo,grados:0,cos:1,entradaIzq:modelo.entradaIzq||0},!esFrontal);
+  let h=`<div class="fabTitle">Marcas por hueco</div><p class="markNote">Inicio, centro y final del tubo ${perfilTubo()}.</p>`;
+  h+=`<table class="marktable"><tr><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
+  m.filasPorHueco.forEach(r=>h+=`<tr><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`);
+  h+=`</table><div class="fabTitle">Marcas acumuladas desde inicio del anclaje</div>`+
+    `<p class="markNote">Incluye ${nf(modelo.entradaIzq||0)} mm de entrada inicial y el ancho de los intermedios entre huecos. Las marcas son solo para los tubos verticales.</p>`+
+    `<table class="marktable"><tr><th>Hueco</th><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
+  m.filas.forEach(r=>h+=`<tr><td>${r.h}</td><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`);
+  return h+'</table>';
+}
+let tramoDespieceActual='frontal';
 function renderTabla(c){
-  let cls=estadoHueco(c.huecoH)==='ok'?'':' class="bad"';
-  const m=generarMarcas(c);
-  const subtitulo = tipo==='pendiente' ? `Marcado sobre anclaje inclinado. Hueco visible horizontal ${nf(c.huecoH)}.` : `Marcado sobre anclaje recto.`;
-  let html=`<div class="fabTitle">Fabricación</div>
-  <div class="fabricacion">
-    <div class="fabBox"><b>Largo</b><span>${nf(c.largo)}</span></div>
-    <div class="fabBox"><b>Tramo útil</b><span>${nf(c.utilReal)}</span></div>
-    <div class="fabBox"><b>Huecos</b><span>${c.t30+1}</span></div>
-    <div class="fabBox"><b>Tubos/hueco</b><span>${c.ovalPorSub}</span></div>
-    <div class="fabBox"><b>Tubos frontal</b><span>${c.totalOva}</span></div>
-    <div class="fabBox"><b>Hueco libre</b><span>${nf(tipo==='pendiente'?c.agujero:c.huecoH)}</span></div>
-  </div>
-  <table><tr><th>Dato</th><th>Resultado</th></tr>
-    <tr><td class="left">Tipo</td><td>${tipo==='pendiente'?'Pendiente '+nf(c.grados)+'°':'Recto'}</td></tr>
-    <tr><td class="left">Postes ${perfilLat()}</td><td>${c.postes70}</td></tr>
-    <tr><td class="left">Intermedios ${perfilInt()}</td><td>${c.t30}</td></tr>
-    <tr><td class="left">Tramo útil entre postes</td><td>${nf(c.utilReal)} mm</td></tr>
-    <tr><td class="left">Huecos entre intermedios</td><td>${c.t30+1} × ${nf(tipo==='pendiente'?m.subReal:c.subH)} mm</td></tr>
-    <tr><td class="left">Tubos por hueco</td><td>${c.ovalPorSub}</td></tr>
-    <tr${cls}><td class="left">Hueco visible horizontal</td><td>${nf(c.huecoH)} mm ${estadoHueco(c.huecoH)==='ok'?'':'('+estadoHueco(c.huecoH)+')'}</td></tr>
-    <tr><td class="left">Marcado entre centros ${tipo==='pendiente'?'en pendiente':'recto'}</td><td>${nf(c.agujero)} mm</td></tr>
-  </table>
-  <div class="fabTitle">Marcas por hueco</div>
-  <p class="markNote">${subtitulo} Inicio, centro y final del tubo ${perfilTubo()}.</p>
-  <table class="marktable"><tr><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
-  m.filasPorHueco.forEach(r=>{html+=`<tr><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`});
-  html+=`</table>`;
-  if(c.t30>0){
-    html+=`<div class="fabTitle">Marcas acumuladas desde inicio del anclaje</div><p class="markNote">Incluye entrada izquierda de ${nf(c.entradaIzq)} mm y los intermedios ${perfilInt()}.</p><table class="marktable"><tr><th>Hueco</th><th>Tubo</th><th>Inicio</th><th>Centro</th><th>Final</th></tr>`;
-    m.filas.forEach(r=>{html+=`<tr><td>${r.h}</td><td class="num">${r.n}</td><td class="edge">${nf(r.inicio)}</td><td class="cen">${nf(r.centro)}</td><td class="edge">${nf(r.final)}</td></tr>`});
-    html+=`</table>`;
+  const total=totalConjunto(c), lados=total.lados;
+  const disponibles=[{id:'frontal',nombre:'Frontal',m:c,frontal:true},
+    ...lados.map(l=>({id:l.lado,nombre:l.lado==='izq'?'Izquierda':'Derecha',m:l,frontal:false})),
+    {id:'resumen',nombre:'Resumen'}];
+  if(!disponibles.some(t=>t.id===tramoDespieceActual))tramoDespieceActual='frontal';
+  let html=`<div class="selectorDespiece" role="group" aria-label="Elegir tramo">`+
+    disponibles.map(t=>`<button type="button" data-tramo="${t.id}" class="${t.id===tramoDespieceActual?'active':''}">${t.nombre}</button>`).join('')+'</div>';
+  const elegido=disponibles.find(t=>t.id===tramoDespieceActual);
+  if(elegido.id==='resumen'){
+    const todos=[...piezasDeTramo(c,true),...lados.flatMap(l=>piezasDeTramo(l,false))];
+    if(total.ovaladosEsquina)todos.push({referencia:'VERT-UNION',nombre:`Tubo compartido en esquina · ${perfilTubo()}`,
+      cantidad:total.ovaladosEsquina,corte:ovaladoCorte(),precio:val('pOva'),
+      coste:total.ovaladosEsquina*ovaladoCorte()/1000*val('pOva')});
+    // Agrupar por referencia, nombre y longitud: no se mezclan cortes distintos.
+    const mapa=new Map();
+    todos.forEach(f=>{const k=[f.referencia,f.nombre,f.corte,f.precio].join('|');
+      if(mapa.has(k)){const r=mapa.get(k);r.cantidad+=f.cantidad;r.coste+=f.coste}
+      else mapa.set(k,{...f});});
+    const filas=[...mapa.values()];
+    html+='<div class="fabTitle">Todos los perfiles del conjunto</div>'+filasCortesTabla(filas,true);
+    if(total.ovaladosEsquina)html+=`<p class="markNote">Tubos de unión sin poste: ${total.ovaladosEsquina} × ${nf(ovaladoCorte())} mm · ${eu(total.ovaladosEsquina*ovaladoCorte()/1000*val('pOva'))} (incluidos en el coste general).</p>`;
+    html+=`<p class="markNote">La tapa 2241 se calcula por metro lineal sobre el corte del anclaje inferior de cada tramo, a 3,62 €/m de referencia (blanco). Otros acabados se valorarán en Motor Series.</p>`;
+    html+=`<div class="fabTitle">Coste de materiales del conjunto: ${eu(total.coste)}</div>`;
+  }else{
+    const m=elegido.m;
+    const filas=piezasDeTramo(m,elegido.frontal);
+    html+=`<div class="fabTitle">${elegido.nombre} · ${nf(m.largo)} mm</div>`+
+      `<div class="fabricacion"><div class="fabBox"><b>Tramo útil</b><span>${nf(m.utilReal)} mm</span></div>`+
+      `<div class="fabBox"><b>Huecos</b><span>${m.t30+1}</span></div>`+
+      `<div class="fabBox"><b>Tubos verticales</b><span>${m.totalOva}</span></div>`+
+      `<div class="fabBox"><b>Corte pasamanos</b><span>${nf(m.pasamanosCorte??m.utilReal)} mm</span></div></div>`+
+      filasCortesTabla(filas,false)+tablaMarcas(m,elegido.frontal)+
+      `<div class="fabTitle">Coste material tramo: ${eu(m.coste)}</div>`;
+    if(elegido.frontal)html+='<p class="markNote">Los postes 70×70 se cuentan en el frontal una sola vez, aunque haya laterales.</p>';
+    else html+='<p class="markNote">El poste de esquina, si existe, ya figura en el frontal. El marcado del lateral comienza en su propio anclaje.</p>';
   }
-  html+=`<br><table><tr><th>Pieza</th><th>Cantidad</th><th>Corte</th></tr>
-    <tr><td>${perfilLat()}</td><td>${c.postes70}</td><td>${nf(c.alto70)} mm</td></tr>
-    <tr><td>${perfilInt()}</td><td>${c.t30}</td><td>${nf(c.alto)} mm</td></tr>
-    <tr><td>Tubos ${perfilTubo()}</td><td>${c.totalOva}</td><td>${nf(ovaladoCorte())} mm</td></tr>
-    <tr><td>Anclaje superior</td><td>1</td><td>${nf(c.corteAnc)} mm</td></tr>
-    <tr><td>Anclaje inferior</td><td>1</td><td>${nf(c.corteAnc)} mm</td></tr>
-    <tr><td>Pasamanos ${nf(val('pasW'))}×${nf(val('hPas'))}</td><td>1</td><td>${nf(c.pasamanosCorte)} mm</td></tr>
-  </table><br><table><tr class="cost"><td>Coste material</td><td>${eu(c.coste)}</td></tr><tr class="cost"><td>Montaje</td><td>${eu(c.mont)}</td></tr><tr class="cost"><td>Ganancia materiales</td><td>${eu(c.margen)}</td></tr><tr class="cost"><td>Bruto</td><td>${eu(c.bruto)}</td></tr><tr class="cost"><td>IVA</td><td>${eu(c.iva)}</td></tr><tr class="cost total"><td>PVP</td><td>${eu(c.pvp)}</td></tr></table>`;
-  const total=totalConjunto(c);
-  if(total.lados.length){
-    html+=`<div class="fabTitle">Laterales y conjunto</div><p class="markNote">Los postes de esquina se cuentan una sola vez. En cada unión sin poste se añade un tubo vertical compartido, también una sola vez. Cada lateral termina en pared con ángulo.</p>`;
-    total.lados.forEach(l=>{html+=`<table><tr><th colspan="2">Lateral ${l.lado==='izq'?'izquierdo':'derecho'} · ${nf(l.largo)} mm</th></tr><tr><td>Tramo útil / pasamanos</td><td>${nf(l.utilReal)} mm</td></tr><tr><td>Anclajes superior e inferior</td><td>2 × ${nf(l.corteAnc)} mm</td></tr><tr><td>Intermedios ${perfilInt()}</td><td>${l.t30}</td></tr><tr><td>Tubos / hueco</td><td>${l.totalOva} / ${nf(l.huecoH)} mm</td></tr></table>`});
-    html+=`<br><table><tr><th>Conjunto</th><th>Total</th></tr><tr><td>Postes ${perfilLat()}</td><td>${total.postes70}</td></tr><tr><td>Intermedios</td><td>${total.t30}</td></tr><tr><td>Tubos en uniones sin poste · corte ${nf(ovaladoCorte())} mm</td><td>${total.ovaladosEsquina}</td></tr><tr><td>Tubos ${perfilTubo()} totales</td><td>${total.totalOva}</td></tr><tr><td>Coste material</td><td>${eu(total.coste)}</td></tr><tr><td>Montaje</td><td>${eu(total.mont)}</td></tr><tr><td>Ganancia materiales</td><td>${eu(total.margen)}</td></tr><tr><td>Bruto</td><td>${eu(total.bruto)}</td></tr><tr><td>IVA</td><td>${eu(total.iva)}</td></tr><tr class="cost total"><td>PVP</td><td>${eu(total.pvp)}</td></tr></table>`;
+  $('tabla').innerHTML=html;
+}
+$('tabla').addEventListener('click',e=>{
+  const boton=e.target.closest('[data-tramo]');if(!boton)return;
+  tramoDespieceActual=boton.dataset.tramo;renderTabla(calc());
+});
+// Formato de intercambio independiente: no presupone que Motor Series ya lo importe.
+function construirDespieceIntercambio(){
+  const frontal=calc(), total=totalConjunto(frontal);
+  const tramos=[{id:'frontal',nombre:'Frontal',modelo:frontal,esFrontal:true},
+    ...total.lados.map(l=>({id:l.lado,nombre:l.lado==='izq'?'Lateral izquierdo':'Lateral derecho',modelo:l,esFrontal:false}))];
+  const detalle=tramos.map(t=>{
+    const piezas=piezasDeTramo(t.modelo,t.esFrontal).map(p=>({...p,longitud_mm:p.corte,precio_eur_m:p.precio,cantidad:p.cantidad}));
+    const marcas=generarMarcas(t.esFrontal?t.modelo:{...t.modelo,grados:0,cos:1,entradaIzq:t.modelo.entradaIzq||0},!t.esFrontal);
+    return {id:t.id,nombre:t.nombre,largo_mm:t.modelo.largo,util_mm:t.modelo.utilReal,
+      piezas,marcas_por_hueco:marcas.filasPorHueco,marcas_acumuladas:marcas.filas,
+      coste_materiales_eur:t.modelo.coste};
+  });
+  if(total.ovaladosEsquina){
+    const p={referencia:'VERT-UNION',nombre:`Tubo de unión ${perfilTubo()}`,cantidad:total.ovaladosEsquina,
+      corte:ovaladoCorte(),longitud_mm:ovaladoCorte(),precio:val('pOva'),precio_eur_m:val('pOva'),
+      coste:total.ovaladosEsquina*ovaladoCorte()/1000*val('pOva')};
+    detalle.push({id:'uniones',nombre:'Uniones sin poste',piezas:[p],marcas_por_hueco:[],marcas_acumuladas:[],coste_materiales_eur:p.coste});
   }
-  $('tabla').innerHTML=html
+  const resumen=new Map();
+  for(const tramo of detalle)for(const pieza of tramo.piezas){
+    const clave=[pieza.referencia,pieza.nombre,pieza.longitud_mm,pieza.precio_eur_m].join('|');
+    if(!resumen.has(clave))resumen.set(clave,{...pieza});
+    else{const dato=resumen.get(clave);dato.cantidad+=pieza.cantidad;dato.coste+=pieza.coste;}
+  }
+  return {formato:'pasamanos-despiece',version_formato:1,origen:'Pasamanos v1.31',
+    fecha:new Date().toISOString(),unidad_longitud:'mm',moneda:'EUR',precios_referencia:'aluminio blanco',
+    configuracion:Object.fromEntries(ids.map(id=>[id,$(id)?.value])),
+    acabado:{...acabados},descripcion:$('texto').value,
+    tramos:detalle,resumen_cortes:[...resumen.values()],
+    costes:{materiales_eur:total.coste,montaje_eur:total.mont,margen_materiales_eur:total.margen,
+      base_sin_iva_eur:total.bruto,iva_eur:total.iva,total_iva_incluido_eur:total.pvp}};
+}
+async function exportarDespieceJson(){
+  const texto=JSON.stringify(construirDespieceIntercambio(),null,2), nombre='Pasamanos_despiece_'+new Date().toISOString().slice(0,10)+'.json';
+  const blob=new Blob([texto],{type:'application/json'});
+  try{
+    const archivo=new File([blob],nombre,{type:'application/json'});
+    if(navigator.canShare?.({files:[archivo]})){
+      await navigator.share({files:[archivo],title:'Despiece Pasamanos'});return;
+    }
+  }catch(e){if(e?.name==='AbortError')return;}
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=nombre;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 function renderTexto(c){
   const plantilla = $('textoPlantilla').value;
   const medidas = {
     frontal: String(Math.round(c.largo)),
-    laterales: totalConjunto(c).lados.length ? totalConjunto(c).lados.map(l=>`${l.lado==='izq'?'izquierdo':'derecho'} ${nf(l.largo)} mm`).join(', ') : String(Math.round(val('lateralesPresupuesto'))),
+    laterales: totalConjunto(c).lados.length ? totalConjunto(c).lados.map(l=>`${l.lado==='izq'?'IZQUIERDO':'DERECHO'} ${nf(l.largo)} mm`).join(', ') : String(Math.round(val('lateralesPresupuesto'))),
     altura: String(Math.round(val('alto'))),
     ancho: String(Math.round(c.largo)),
     alto: String(Math.round(c.alto70)),
     tubo: perfilTubo(),
-    pendiente: String(Math.round(c.grados * 10) / 10).replace('.', ',')
+    pendiente: String(Math.round(c.grados * 10) / 10).replace('.', ','),
+    color: acabados.conjunto.toLowerCase()===COLOR_NATURAL_PASAMANOS?'ANODIZADO NATURAL':paletaPasamanos.find(([,hex])=>hex.toLowerCase()===acabados.conjunto.toLowerCase())?.[0] ? ('RAL '+paletaPasamanos.find(([,hex])=>hex.toLowerCase()===acabados.conjunto.toLowerCase())[0]) : acabados.conjunto.toUpperCase()
   };
-  let texto=plantilla.replace(/\{(frontal|laterales|altura|ancho|alto|pendiente|tubo)\}/gi, function(_, key){ return medidas[key.toLowerCase()]; });
+  let texto=plantilla.replace(/\{(frontal|laterales|altura|ancho|alto|pendiente|tubo|color)\}/gi, function(_, key){ return medidas[key.toLowerCase()]; });
+  texto=texto.replace(/COLOR:\s*LACADO BLANCO/i,'COLOR: '+medidas.color);
   if(totalConjunto(c).lados.length && !/\{laterales\}/i.test(plantilla))texto+='\nLATERALES: '+medidas.laterales;
   $('texto').value=texto;
 }
@@ -990,6 +1331,9 @@ function returnToBudget(){
   }catch(e){}
   window.location.href=url;
 }
+// Al regresar desde el editor de conceptos se entregan juntos texto y gráfico.
+// Usamos el mismo puente de catálogo externo que ya admite Documentos,
+// conservando cantidad y precio del concepto existente.
 async function enviarGraficoAlPresupuesto(){
   const btn=$('btnAddDocs');
   if(btn) btn.disabled=true;
@@ -997,18 +1341,32 @@ async function enviarGraficoAlPresupuesto(){
     render();
     const index=budgetGraphicTargetIndex();
     if(index == null) throw new Error('No se encontró el concepto del presupuesto');
-    const png=await svgToPng(2);
+    const png=await svgToPng(2,true);
     if(!png || !png.dataUrl) throw new Error('No se pudo generar el gráfico');
-    sessionStorage.setItem('presupuesto_visual_design_target_index_v1', String(index));
-    sessionStorage.setItem('presupuesto_visual_design_return_img_v1', png.dataUrl);
-    // El almacenamiento local cubre el retorno cuando el índice recrea el iframe.
-    try{ localStorage.setItem('presupuesto_visual_design_target_index_v1', String(index)); }catch(e){}
-    try{ localStorage.setItem('presupuesto_visual_design_return_img_v1', png.dataUrl); }catch(e){}
+    const c=calc();
+    const descripcion=String($('texto')?.value||'').trim() || `Pasamanos de ${nf(c.largo)} mm`;
+    const producto={
+      origen:'pasamanos', proveedor:'Pasamanos', marca:'Pasamanos',
+      referencia:`PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
+      nombre:'Pasamanos', descripcion, texto:descripcion,
+      imagen:png.dataUrl, image:png.dataUrl,
+      targetIndex:index,
+      preserveConceptValues:true, // no alterar precio ni unidades ya editados
+      configuracionPasamanos:Object.fromEntries(ids.map(id=>[id,$(id)?.value]))
+    };
+    const datos=JSON.stringify(producto);
+    try{ sessionStorage.setItem('rey_docs_external_product_v1',datos); }catch(e){}
+    try{ localStorage.setItem('rey_docs_external_product_v1',datos); }catch(e){}
+    try{ sessionStorage.setItem('rey_docs_external_target_index_v1',String(index)); }catch(e){}
+    try{ localStorage.setItem('rey_docs_external_target_index_v1',String(index)); }catch(e){}
+    // No almacenar la imagen en el puente «solo gráfico»: Documentos
+    // aplicaría ese retorno antes del producto e ignoraría el texto.
     returnToBudget();
   }catch(e){
-    alert((e && e.message) || 'No se pudo añadir el gráfico al presupuesto');
+    alert((e && e.message) || 'No se pudo devolver el gráfico y el texto al presupuesto');
   }finally{ if(btn) btn.disabled=false; }
 }
+
 function docsTargetIndex(){
   try{
     const qs = new URLSearchParams(location.search || '');
@@ -1021,6 +1379,65 @@ function docsTargetIndex(){
   }catch(e){}
   return 0;
 }
+
+
+function normalizeCanvasForDocumentos(srcCanvas){
+  // La casilla GRÁFICO de Documentos es bastante más "cuadrada" que el PNG
+  // natural del pasamanos. Para que entre grande y centrado, generamos un
+  // lienzo con una proporción muy próxima a esa casilla.
+  const targetW=1630, targetH=1400; // misma idea que 163 × 140 aprox.
+  const out=document.createElement('canvas');
+  out.width=targetW; out.height=targetH;
+  const ctx=out.getContext('2d');
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,targetW,targetH);
+  // Más aire lateral y algo menos vertical para que el balcón aproveche mejor
+  // la altura disponible sin pegar las cotas a los bordes.
+  const padX=90, padY=95;
+  const fitW=targetW-padX*2, fitH=targetH-padY*2;
+  const scale=Math.min(fitW/srcCanvas.width, fitH/srcCanvas.height);
+  const w=Math.max(1,Math.round(srcCanvas.width*scale));
+  const h=Math.max(1,Math.round(srcCanvas.height*scale));
+  const x=Math.round((targetW-w)/2);
+  const y=Math.round((targetH-h)/2);
+  ctx.drawImage(srcCanvas,x,y,w,h);
+  return out;
+}
+
+function cropCanvasToContent(canvas,pad=24){
+  const ctx=canvas.getContext('2d');
+  if(!ctx) return canvas;
+  const w=canvas.width, h=canvas.height;
+  const img=ctx.getImageData(0,0,w,h).data;
+  let minX=w, minY=h, maxX=-1, maxY=-1;
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      const a=img[i+3], r=img[i], g=img[i+1], b=img[i+2];
+      // Ignorar fondo blanco; conservar líneas negras, grises y colores RAL.
+      if(a>10 && !(r>245 && g>245 && b>245)){
+        if(x<minX) minX=x;
+        if(y<minY) minY=y;
+        if(x>maxX) maxX=x;
+        if(y>maxY) maxY=y;
+      }
+    }
+  }
+  if(maxX<minX || maxY<minY) return canvas;
+  minX=Math.max(0,minX-pad);
+  minY=Math.max(0,minY-pad);
+  maxX=Math.min(w-1,maxX+pad);
+  maxY=Math.min(h-1,maxY+pad);
+  const out=document.createElement('canvas');
+  out.width=Math.max(1,maxX-minX+1);
+  out.height=Math.max(1,maxY-minY+1);
+  const octx=out.getContext('2d');
+  octx.fillStyle='#fff';
+  octx.fillRect(0,0,out.width,out.height);
+  octx.drawImage(canvas,minX,minY,out.width,out.height,0,0,out.width,out.height);
+  return out;
+}
+
 function openedFromDocumentos(){
   try{ const qs = new URLSearchParams(location.search || ''); if(String(qs.get('from')||'').toLowerCase()==='documentos') return true; }catch(e){}
   try{ return !!(sessionStorage.getItem('rey_docs_external_target_index_v1') || localStorage.getItem('rey_docs_external_target_index_v1')); }catch(e){}
@@ -1042,12 +1459,14 @@ async function enviarADocumentos(){
   try{ render(); }catch(e){}
   const c = calc(), total=totalConjunto(c);
   let img = '';
-  try{ const png = await svgToPng(2); img = png && png.dataUrl ? png.dataUrl : ''; }catch(e){ img=''; }
+  try{ const png = await svgToPng(2,true); img = png && png.dataUrl ? png.dataUrl : ''; }catch(e){ console.error('Exportación a Documentos:',e); alert('Error al preparar el gráfico: '+(e?.message||e)); return; }
+  if(!img){ alert('No se pudo generar la imagen. El presupuesto no se ha modificado.'); return; }
   const descripcion = ($('texto') ? $('texto').value : '').trim() || `Pasamanos de ${nf(c.largo)} mm`;
   const producto = {
     proveedor: 'Pasamanos',
     marca: 'Pasamanos',
     origen: 'pasamanos',
+    configuracionPasamanos: Object.fromEntries(ids.map(id=>[id,$(id)?.value])),
     referencia: `PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
     codigo: `PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
     nombre: 'Pasamanos',
@@ -1073,16 +1492,109 @@ async function enviarADocumentos(){
   try{ window.location.href=url; }catch(e){}
 }
 
-async function svgToPng(scale=2){let svg=$('pasamanosSvg');if(!svg)return null;let data=new XMLSerializer().serializeToString(svg);let blob=new Blob([data],{type:'image/svg+xml;charset=utf-8'});let url=URL.createObjectURL(blob);try{let img=new Image();await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});let canvas=document.createElement('canvas');canvas.width=svg.viewBox.baseVal.width*scale;canvas.height=svg.viewBox.baseVal.height*scale;let ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);return{blob:await new Promise(r=>canvas.toBlob(r,'image/png')),dataUrl:canvas.toDataURL('image/png')}}finally{URL.revokeObjectURL(url)}}
+// v1.31: exportación fiable también con Diseño oculto (pestaña PNG).
+// Medimos una copia temporal visible para el motor SVG; nunca se usa getBBox()
+// sobre el gráfico de la pestaña oculta. El recorte contiene todas las cotas.
+async function svgToPng(scale=2,recortar=false){
+  if(recortar) renderVistaConEncuadre();
+  const original=$('pasamanosSvg');
+  if(!original) throw new Error('No se encontró el gráfico de Pasamanos');
+  const svg=original.cloneNode(true);
+  let exportW=900, exportH=500;
+  let medidor=null;
+  try{
+    if(recortar){
+      medidor=document.createElement('div');
+      medidor.style.cssText='position:fixed!important;left:-15000px!important;top:0!important;width:900px!important;height:500px!important;overflow:visible!important;display:block!important;visibility:visible!important;pointer-events:none!important;z-index:-1!important';
+      svg.style.cssText='width:900px!important;height:500px!important;display:block!important;overflow:visible!important';
+      svg.setAttribute('width','900'); svg.setAttribute('height','500');
+      medidor.appendChild(svg);
+      document.body.appendChild(medidor);
+      const grupo=svg.querySelector('#dibujoVista');
+      if(!grupo) throw new Error('Falta el grupo del dibujo');
+      const caja=grupo.getBBox();
+      if(!Number.isFinite(caja.width)||!Number.isFinite(caja.height)||caja.width<=0||caja.height<=0){
+        throw new Error('No se pudo medir el dibujo para exportarlo');
+      }
+      const local=grupo.transform.baseVal.consolidate();
+      const m=local?local.matrix:{a:1,b:0,c:0,d:1,e:0,f:0};
+      const esquinas=[
+        [caja.x,caja.y],[caja.x+caja.width,caja.y],
+        [caja.x,caja.y+caja.height],[caja.x+caja.width,caja.y+caja.height]
+      ].map(([x,y])=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f}));
+      // A diferencia del viewBox de pantalla, no recortamos cotas en el borde.
+      const margenX=34,margenY=38;
+      const xmin=Math.floor(Math.min(...esquinas.map(p=>p.x))-margenX);
+      const xmax=Math.ceil(Math.max(...esquinas.map(p=>p.x))+margenX);
+      const ymin=Math.floor(Math.min(...esquinas.map(p=>p.y))-margenY);
+      const ymax=Math.ceil(Math.max(...esquinas.map(p=>p.y))+margenY);
+      exportW=Math.max(1,xmax-xmin);
+      exportH=Math.max(1,ymax-ymin);
+      svg.setAttribute('viewBox',`${xmin} ${ymin} ${exportW} ${exportH}`);
+      const fondo=svg.querySelector(':scope > rect');
+      if(fondo){
+        fondo.setAttribute('x',xmin);fondo.setAttribute('y',ymin);
+        fondo.setAttribute('width',exportW);fondo.setAttribute('height',exportH);
+      }
+    }else{
+      exportW=original.viewBox.baseVal.width||900;
+      exportH=original.viewBox.baseVal.height||500;
+    }
+    svg.removeAttribute('style');
+    svg.setAttribute('width',String(exportW));
+    svg.setAttribute('height',String(exportH));
+    const data=new XMLSerializer().serializeToString(svg);
+    const url=URL.createObjectURL(new Blob([data],{type:'image/svg+xml;charset=utf-8'}));
+    try{
+      const img=new Image();
+      await new Promise((ok,fail)=>{img.onload=ok;img.onerror=()=>fail(new Error('No se pudo convertir el SVG'));img.src=url});
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.ceil(exportW*scale));
+      canvas.height=Math.max(1,Math.ceil(exportH*scale));
+      const ctx=canvas.getContext('2d');
+      if(!ctx)throw new Error('No se pudo crear el lienzo PNG');
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const salida=recortar?normalizeCanvasForDocumentos(canvas):canvas;
+      const dataUrl=salida.toDataURL('image/png');
+      if(!dataUrl||dataUrl.length<1000)throw new Error('La imagen PNG está vacía');
+      const blob=await new Promise(ok=>salida.toBlob(ok,'image/png'));
+      return {blob,dataUrl};
+    }finally{URL.revokeObjectURL(url)}
+  }finally{if(medidor)medidor.remove()}
+}
+
 async function guardarPNG(scale=2){let r=await svgToPng(scale);if(!r)return;let filename='pasamanos_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+(scale>1?'_HD':'')+'.png';let file=new File([r.blob],filename,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Pasamanos'});return}catch(e){}}$('pngDownload').download=filename;$('pngDownload').href=r.dataUrl;$('pngPreview').src=r.dataUrl;$('pngModal').classList.add('show')}
 const calcBtn=$('calcular');if(calcBtn)calcBtn.onclick=render;
+// v1.31: las dos vistas deben encuadrarse con el SVG medible.
+// Cuando se selecciona una vista desde Colores el panel Diseño está oculto:
+// getBBox() no puede medirlo y el dibujo queda desplazado hacia abajo.
+function renderVistaConEncuadre(){
+  const panel=$('svgWrap').closest('.canvasBox');
+  const estabaOculto=panel.hidden;
+  const teniaClaseOculta=panel.classList.contains('hidden');
+  if(!estabaOculto && !teniaClaseOculta){render();return;}
+  const estiloPrevio=panel.getAttribute('style');
+  // Mostrarlo fuera de pantalla solo durante la medición, sin mover la interfaz.
+  panel.hidden=false;
+  panel.classList.remove('hidden');
+  panel.style.cssText='position:fixed!important;left:-20000px!important;top:0!important;display:block!important;visibility:hidden!important;width:900px!important;pointer-events:none!important;';
+  try{render();}
+  finally{
+    if(estiloPrevio===null)panel.removeAttribute('style');
+    else panel.setAttribute('style',estiloPrevio);
+    panel.hidden=estabaOculto;
+    panel.classList.toggle('hidden',teniaClaseOculta);
+  }
+  visibilidadGraficoFijado();
+}
 function cambiarVista(v){
   vistaPasamanos=v;
   $('vistaPerspectiva').classList.toggle('active',v==='perspectiva');
   $('vistaSuperior').classList.toggle('active',v==='superior');
   $('vistaFijaPerspectiva').classList.toggle('active',v==='perspectiva');
   $('vistaFijaSuperior').classList.toggle('active',v==='superior');
-  render();
+  renderVistaConEncuadre();
 }
 $('vistaPerspectiva').onclick=()=>cambiarVista('perspectiva');
 $('vistaSuperior').onclick=()=>cambiarVista('superior');
@@ -1094,6 +1606,7 @@ $('toggleAjustes').onclick=()=>{
   const open=box.classList.toggle('hidden')===false;
   $('toggleAjustes').classList.toggle('active',open);
   if(open){
+    cambiarPantalla('diseno');
     graficoFijado=false;
     localStorage.setItem('pasamanos_grafico_fijado','0');
     visibilidadGraficoFijado();
@@ -1101,7 +1614,7 @@ $('toggleAjustes').onclick=()=>{
   }
   $('fijarGrafico').disabled=open;
 };
-$('guardar').onclick=()=>{render();$('ajustesBox').classList.add('hidden');$('toggleAjustes').classList.remove('active');$('fijarGrafico').disabled=false;};$('reset').onclick=()=>{localStorage.removeItem('pasamanos_v16');location.reload()};$('pngHD').onclick=()=>guardarPNG(2);$('pngNormal').onclick=()=>guardarPNG(1);$('cerrarPng').onclick=()=>{$('pngModal').classList.remove('show');$('pngPreview').src=''};$('copiar').onclick=async()=>{try{await navigator.clipboard.writeText($('texto').value);$('copiar').textContent='Copiado';setTimeout(()=>$('copiar').textContent='Copiar texto',1200)}catch(e){$('texto').select();document.execCommand('copy')}};ids.forEach(id=>{let el=$(id);if(!el||id==='ovaladosManual'||id==='interManual')return;el.addEventListener('focus',()=>setTimeout(()=>{if(el.select)el.select()},0));el.addEventListener('change',render);el.addEventListener('keydown',e=>{if(e.key==='Enter')el.blur()})});
+$('guardar').onclick=()=>{render();$('ajustesBox').classList.add('hidden');$('toggleAjustes').classList.remove('active');$('fijarGrafico').disabled=false;graficoFijado=true;visibilidadGraficoFijado();};$('reset').onclick=()=>{localStorage.removeItem('pasamanos_v16');location.reload()};$('pngHD').onclick=()=>guardarPNG(2);$('pngNormal').onclick=()=>guardarPNG(1);$('cerrarPng').onclick=()=>{$('pngModal').classList.remove('show');$('pngPreview').src=''};$('copiar').onclick=async()=>{try{await navigator.clipboard.writeText($('texto').value);$('copiar').textContent='Copiado';setTimeout(()=>$('copiar').textContent='Copiar texto',1200)}catch(e){$('texto').select();document.execCommand('copy')}};ids.forEach(id=>{let el=$(id);if(!el||id==='ovaladosManual'||id==='interManual')return;el.addEventListener('focus',()=>setTimeout(()=>{if(el.select)el.select()},0));el.addEventListener('change',render);el.addEventListener('keydown',e=>{if(e.key==='Enter')el.blur()})});
 $('exportarTarifa').onclick=exportarTarifa;
 $('importarTarifa').onclick=()=>{$('archivoTarifa').value='';$('archivoTarifa').click()};
 $('archivoTarifa').addEventListener('change',e=>importarTarifa(e.target.files?.[0]));
@@ -1110,9 +1623,131 @@ $('interAuto').addEventListener('change',()=>{autoInter=$('interAuto').checked;r
 ['ladoIzq','ladoDer'].forEach(id=>$(id).addEventListener('change',render));
 if($('btnVolverIndex'))$('btnVolverIndex').onclick=function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} return volverAlIndex();};
 if($('btnVolverIndex'))$('btnVolverIndex').addEventListener('touchend',function(ev){try{ev.preventDefault();ev.stopPropagation();}catch(e){} volverAlIndex();},{passive:false});
-if($('btnAddDocs')){ $('btnAddDocs').onclick=enviarADocumentos; if(budgetGraphicMode()) $('btnAddDocs').textContent='Añadir gráfico'; }
+if($('btnAddDocs')){ $('btnAddDocs').onclick=enviarADocumentos; if(budgetGraphicMode()) $('btnAddDocs').textContent='Añadir gráfico y texto'; }
+// Documentos abre Pasamanos por dos caminos diferentes:
+// 1) Gráfico: ?from_budget=1&target=... (conserva el precio y las unidades).
+// 2) Conceptos: ?from=documentos&target=... (incluye gráfico, texto y precio).
+// Antes solo se detectaba el primero y el botón quedaba oculto en Conceptos.
+const pasDesdeGrafico=budgetGraphicMode();
+const pasDesdeConceptos=(()=>{
+  try{
+    const qs=new URLSearchParams(location.search||'');
+    return qs.get('from')==='documentos' && /^\d+$/.test(qs.get('target')||'');
+  }catch(e){return false}
+})();
+if(pasDesdeGrafico||pasDesdeConceptos){
+  document.body.classList.add(pasDesdeGrafico?'fromBudget':'fromConceptos');
+  // Cancelar no crea ni entrega ningún gráfico, texto ni precio.
+  // Descartar posibles retornos pendientes de pruebas anteriores.
+  $('cancelarDocs').onclick=()=>{
+    for(const storage of [sessionStorage,localStorage]){
+      try{
+        storage.removeItem('rey_docs_external_product_v1');
+        storage.removeItem('presupuesto_visual_design_return_img_v1');
+      }catch(e){}
+    }
+    returnToBudget();
+  };
+  const boton=$('volverConDatosDocs');
+  boton.onclick=async()=>{
+    boton.disabled=true;
+    const anterior=boton.textContent;
+    boton.textContent='Preparando datos…';
+    try{
+      // Ambas vías devuelven gráfico y texto, pero cada una conserva
+      // el comportamiento que espera su editor de origen en Documentos.
+      if(pasDesdeGrafico) await enviarGraficoAlPresupuesto();
+      else await enviarADocumentos();
+    }finally{boton.disabled=false;boton.textContent=anterior}
+  };
+}
+
+// Paso 1: envío comprobable del despiece. No cambia precios ni cálculos.
+const REY_PAS_MOTOR_ENTRADA='REY_PASAMANOS_MOTOR_IN_V2';
+function enviarDespieceAMotor(){
+  try{
+    render();
+    const d=construirDespieceIntercambio();
+    if(!Array.isArray(d.resumen_cortes)||!d.resumen_cortes.length)throw new Error('No se han calculado piezas');
+    d.return_to=(location.pathname.split('/').pop()||'pasamanos.html');
+    d.return_search=location.search||'';
+    d.id_envio=Date.now();
+    d.tarifa_motor=tarifaActualMotor();
+    d.firma_estable=firmaConfiguracionEstableMotor();
+    const raw=JSON.stringify(d);
+    sessionStorage.setItem(REY_PAS_MOTOR_ENTRADA,raw);
+    localStorage.setItem(REY_PAS_MOTOR_ENTRADA,raw);
+    location.href='motor_series.html?from=pasamanos&pas_payload=2&t='+d.id_envio;
+  }catch(err){ alert('No se pudo enviar el despiece a Motor: '+(err.message||err)); }
+}
+$('btnEnviarDespieceMotor').addEventListener('click',enviarDespieceAMotor);
+// Comunicación directa Pasamanos → Cut Máster. No interviene Motor Series.
+function enviarDespieceACutMaster(){
+  try{
+    render();
+    const despiece=construirDespieceIntercambio();
+    const nombres={
+      '2522':['Pasamanos 2522',6350,66],
+      '2304':['Anclaje 2304',6350,43],
+      '2241':['Tapa pasamanos 2241',6350,43],
+      'VERT':['Tubo vertical '+perfilTubo(),6000,Math.max(1,anchoTubo())],
+      'VERT-UNION':['Tubo vertical '+perfilTubo(),6000,Math.max(1,anchoTubo())],
+      '30×30':['Tubo 30×30',6000,30],
+      '70×70':['Tubo 70×70',6600,70]
+    };
+    const grupos=new Map();
+    for(const tramo of despiece.tramos){
+      for(const pieza of tramo.piezas||[]){
+        const ref=String(pieza.referencia||'').toUpperCase().replace('X','×');
+        const perfil=nombres[ref];
+        const longitud=Number(pieza.longitud_mm||pieza.corte);
+        const cantidad=Number(pieza.cantidad);
+        if(!perfil||!(longitud>0&&cantidad>0))continue;
+        const key=ref==='VERT-UNION'?'VERT':ref;
+        if(!grupos.has(key))grupos.set(key,{name:perfil[0],profileFace:perfil[2],pieces:[],stock:[{label:'Barra',length:perfil[1],qty:999}]});
+        grupos.get(key).pieces.push({label:tramo.nombre+' · '+(pieza.nombre||perfil[0]),length:longitud,qty:cantidad,cutType:'recto'});
+      }
+    }
+    if(!grupos.size)throw Error('No hay piezas válidas en el despiece');
+    const proyecto={name:'Pasamanos · '+nf(val('largo'))+'×'+nf(val('alto')),
+      settings:{unit:'mm',kerfMm:4,colorCuts:true},materials:[...grupos.values()],resultTab:'diagram'};
+    const raw=JSON.stringify({project:proyecto});
+    sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
+    localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
+    sessionStorage.setItem('CUT_MASTER_RETURN_URL','pasamanos.html');
+    localStorage.setItem('CUT_MASTER_RETURN_URL','pasamanos.html');
+    location.href='optimizar_barra.html?from=pasamanos&t='+Date.now();
+  }catch(err){alert('No se pudo enviar el despiece a Cut Máster: '+(err.message||err));}
+}
+$('enviarCutMaster').addEventListener('click',enviarDespieceACutMaster);
+
 window.addEventListener('resize',visibilidadGraficoFijado);
-load();try{graficoFijado=localStorage.getItem('pasamanos_grafico_fijado')==='1'}catch(e){graficoFijado=false}render();
+let pantallaActual='diseno';
+function cambiarPantalla(p){
+  const anterior=pantallaActual;
+  pantallaActual=p;
+  // Antes de pasar a PNG, asegurar que la imagen está encuadrada con
+  // el SVG visible, incluso si venimos directamente de Colores.
+  if(p==='png' && anterior==='colores'){
+    document.querySelectorAll('[data-vista]').forEach(el=>{el.hidden=el.dataset.vista!=='diseno'});
+    render();
+  }
+  document.querySelectorAll('[data-vista]').forEach(el=>{el.hidden=el.dataset.vista!==p});
+  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===p));
+  if(p!=='diseno'&&$('ajustesBox').classList.contains('hidden')===false){
+    $('ajustesBox').classList.add('hidden');
+    $('toggleAjustes').classList.remove('active');
+    $('fijarGrafico').disabled=false;
+  }
+  // Recalcular con el gráfico visible: getBBox ya puede medir sus elementos.
+  if(p==='diseno' && anterior!=='diseno')render();
+  visibilidadGraficoFijado();
+  window.scrollTo({top:0,behavior:'auto'});
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>cambiarPantalla(b.dataset.nav)));
+$('exportarDespieceJson').onclick=exportarDespieceJson;
+$('exportPNGHD').onclick=()=>guardarPNG(2);$('exportPNG').onclick=()=>guardarPNG(1);$('exportDocs').onclick=enviarADocumentos;
+load();iniciarColores();recibirPrecioMotor();graficoFijado=true;render();cambiarPantalla('diseno');
 </script>
 </body>
 </html>
