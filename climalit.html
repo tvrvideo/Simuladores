@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Unificada v1.9</title>
+  <title>Ramos Unificada v2.0</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -127,8 +127,8 @@
       <button class="btnMenuRojo" onclick="volverIndex()" type="button">← MENÚ</button>
       <button class="docsOuterBtn" id="btnAddDocsOuter" type="button">+ <span class="docFull">Añadir a Documentos</span><span class="docShort">Docs</span></button>
 <div class="brand">
-        <div class="title">Ramos <small>Unificada v1.8</small></div>
-        <div class="subtitle">Selector rápido entre Climalit RG E56 y Monolítico Corte 210,56 E · tarifas 21/4/26.</div>
+        <div class="title">Ramos <small>Unificada v2.0</small></div>
+        <div class="subtitle">Climalit RG E06 y Corte 210,06 E · tarifas octubre 2026.</div>
       </div>
     </header>
 
@@ -158,7 +158,7 @@
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="#0b1224" name="theme-color"/>
-<title>Ramos Climalit RG E56 · 21/4/26 · v4.3</title>
+<title>Ramos Climalit RG E06 · octubre 2026 · v4.4</title>
 <style>
     :root{
       --bg0:#060816;
@@ -1072,7 +1072,7 @@
 <main class="wrap">
 <header class="topbar">
 <div class="brand">
-<div class="title">Ramos <small>Climalit RG E56 · 21/4/26 · v4.3</small></div>
+<div class="title">Ramos <small>Climalit RG E06 · 21/4/26 · v4.3</small></div>
 </div>
 <button aria-label="Configuración" class="iconBtn" id="btnSettings" type="button">
 <svg aria-hidden="true" fill="none" height="18" viewbox="0 0 24 24" width="18">
@@ -1301,15 +1301,35 @@
   function qs(id){ return document.getElementById(id); }
 
   // ---- Tarifa (embebida) ----
-  var EMBED_TARIFF = {"min_m2":0.7,"glasses":[{"name":"Luna 4mm","eur_m2":15.38},{"name":"Luna 5mm","eur_m2":20.94},{"name":"Luna 6mm","eur_m2":24.98},{"name":"Luna 8mm","eur_m2":34.66},{"name":"Luna 10mm","eur_m2":50.05},{"name":"Parsol 4mm gris/bronce/verde","eur_m2":30.61},{"name":"Clarglas incoloro 4mm","eur_m2":28.36},{"name":"Clarglas new 4mm","eur_m2":39.48},{"name":"Clarglas incoloro 6mm","eur_m2":41.82},{"name":"Mate 4mm","eur_m2":24.21},{"name":"Mate 5mm","eur_m2":30.69},{"name":"Mate 6mm","eur_m2":37.37},{"name":"Planitherm XN 4mm","eur_m2":25.05},{"name":"Planitherm XN 6mm","eur_m2":34.98},{"name":"Planitherm 4S 4mm","eur_m2":26.78},{"name":"Planitherm 4S 6mm","eur_m2":36.97},{"name":"Planistar ONE 4mm","eur_m2":37.23},{"name":"Planistar ONE 6mm","eur_m2":51.38},{"name":"Cool-Lite Xtreme 6mm","eur_m2":63.21},{"name":"Cool-Lite ST150, ST120","eur_m2":52.5},{"name":"Cool-Lite STB120","eur_m2":66.53},{"name":"Stopsol 6mm","eur_m2":62.95},{"name":"Stadip 33,1","eur_m2":31.24},{"name":"Stadip 44,1","eur_m2":38.44},{"name":"Stadip 55,1","eur_m2":44.42},{"name":"Stadip 33,2","eur_m2":36.84},{"name":"Stadip 44,2","eur_m2":44.04},{"name":"Stadip 55,2","eur_m2":50.02},{"name":"Stadip 66,2","eur_m2":54.79},{"name":"Stadip 88,2","eur_m2":79.43},{"name":"Stadip 1010,2","eur_m2":100.87},{"name":"Stadip 33,1 Silence","eur_m2":39.64},{"name":"Stadip 44,1 Silence","eur_m2":46.84},{"name":"Stadip 55,1 Silence","eur_m2":52.82},{"name":"Stadip 66,2 Silence","eur_m2":65.99},{"name":"Stadip 88,2 Silence","eur_m2":90.63},{"name":"Planitherm XN 33,1","eur_m2":40.48},{"name":"Planitherm XN 44,1","eur_m2":46.63},{"name":"Planitherm XN 44,2","eur_m2":53.03},{"name":"Planitherm XN 66,2","eur_m2":70.35},{"name":"Planitherm 4S 44,1","eur_m2":51.98},{"name":"Planitherm 4S 44,2","eur_m2":58.98},{"name":"Planitherm 4S 66,2","eur_m2":78.16},{"name":"Planistar ONE 44,1","eur_m2":60.91},{"name":"Planistar ONE 44,2","eur_m2":68.81},{"name":"Planistar ONE 66,2","eur_m2":96.82},{"name":"Stadip 44,1 Cool-Lite Xtreme","eur_m2":77.68},{"name":"Stadip 66,2 Cool-Lite Xtreme","eur_m2":99.59},{"name":"Stadip 66,2 Cool-Lite ST150, ST120","eur_m2":80.49},{"name":"Stadip 66,2 Cool-Lite STB120","eur_m2":92.25},{"name":"Planistar ONE Silence 44,1","eur_m2":72.57},{"name":"Planistar ONE Silence 66,2","eur_m2":108.22},{"name":"Stopsol 55,1","eur_m2":82.59},{"name":"SP510 - P5A","eur_m2":100.8},{"name":"SP615 - P6B","eur_m2":152.14}],"cameras":[{"mm":6,"eur_m2":0},{"mm":8,"eur_m2":0},{"mm":10,"eur_m2":0},{"mm":12,"eur_m2":0},{"mm":14,"eur_m2":1.2},{"mm":16,"eur_m2":1.2},{"mm":18,"eur_m2":1.5},{"mm":20,"eur_m2":1.8},{"mm":22,"eur_m2":2.1},{"mm":24,"eur_m2":2.4}]};
+  var EMBED_TARIFF = {"min_m2":0.7,"glasses":[{"name":"Luna 4mm","eur_m2":16.08},{"name":"Luna 5mm","eur_m2":21.69},{"name":"Luna 6mm","eur_m2":25.88},{"name":"Luna 8mm","eur_m2":35.86},{"name":"Luna 10mm","eur_m2":51.55},{"name":"Parsol 4mm gris/bronce/verde","eur_m2":31.31},{"name":"Clarglas incoloro 4mm","eur_m2":29.06},{"name":"Clarglas new 4mm","eur_m2":40.18},{"name":"Clarglas incoloro 6mm","eur_m2":42.72},{"name":"Mate 4mm","eur_m2":24.91},{"name":"Mate 5mm","eur_m2":31.44},{"name":"Mate 6mm","eur_m2":38.27},{"name":"Planitherm XN 4mm","eur_m2":25.5},{"name":"Planitherm XN 6mm","eur_m2":35.58},{"name":"Planitherm 4S 4mm","eur_m2":27.38},{"name":"Planitherm 4S 6mm","eur_m2":37.77},{"name":"Planistar ONE 4mm","eur_m2":37.33},{"name":"Planistar ONE 6mm","eur_m2":51.58},{"name":"Cool-Lite Xtreme 6mm","eur_m2":63.41},{"name":"Cool-Lite ST150, ST120","eur_m2":52.6},{"name":"Cool-Lite STB120","eur_m2":66.63},{"name":"Stopsol 6mm","eur_m2":62.95},{"name":"Stadip 33,1","eur_m2":32.34},{"name":"Stadip 44,1","eur_m2":39.74},{"name":"Stadip 55,1","eur_m2":46.02},{"name":"Stadip 33,2","eur_m2":37.94},{"name":"Stadip 44,2","eur_m2":45.34},{"name":"Stadip 55,2","eur_m2":51.62},{"name":"Stadip 66,2","eur_m2":56.49},{"name":"Stadip 88,2","eur_m2":81.73},{"name":"Stadip 1010,2","eur_m2":103.97},{"name":"Stadip 33,1 Silence","eur_m2":40.74},{"name":"Stadip 44,1 Silence","eur_m2":48.14},{"name":"Stadip 55,1 Silence","eur_m2":54.42},{"name":"Stadip 66,2 Silence","eur_m2":65.99},{"name":"Stadip 88,2 Silence","eur_m2":90.63},{"name":"Planitherm XN 33,1","eur_m2":41.23},{"name":"Planitherm XN 44,1","eur_m2":47.48},{"name":"Planitherm XN 44,2","eur_m2":54.03},{"name":"Planitherm XN 66,2","eur_m2":71.55},{"name":"Planitherm 4S 44,1","eur_m2":53.03},{"name":"Planitherm 4S 44,2","eur_m2":60.03},{"name":"Planitherm 4S 66,2","eur_m2":79.56},{"name":"Planistar ONE 44,1","eur_m2":61.01},{"name":"Planistar ONE 44,2","eur_m2":68.91},{"name":"Planistar ONE 66,2","eur_m2":96.92},{"name":"Stadip 44,1 Cool-Lite Xtreme","eur_m2":77.78},{"name":"Stadip 66,2 Cool-Lite Xtreme","eur_m2":99.69},{"name":"Stadip 66,2 Cool-Lite ST150, ST120","eur_m2":80.59},{"name":"Stadip 66,2 Cool-Lite STB120","eur_m2":92.35},{"name":"Planistar ONE Silence 44,1","eur_m2":72.67},{"name":"Planistar ONE Silence 66,2","eur_m2":108.32},{"name":"Stopsol 55,1","eur_m2":87.6},{"name":"SP510 - P5A","eur_m2":101.0},{"name":"SP615 - P6B","eur_m2":152.34},{"name":"Planitherrm XN Silence 44,1","eur_m2":55.88},{"name":"Planitherrm XN Silence 66,2","eur_m2":83.45}],"cameras":[{"mm":6,"eur_m2":0},{"mm":8,"eur_m2":0},{"mm":10,"eur_m2":0},{"mm":12,"eur_m2":0},{"mm":14,"eur_m2":1.2},{"mm":16,"eur_m2":1.2},{"mm":18,"eur_m2":1.5},{"mm":20,"eur_m2":1.8},{"mm":22,"eur_m2":2.1},{"mm":24,"eur_m2":2.4}]};
 
   // ---- Storage ----
-  var LS_KEY = "ramos_climalit_tarifa_componentes_v42_rg_e56";
+  var LS_KEY = "ramos_climalit_tarifa_octubre_2026_rg_e06";
+  var OLD_LS_KEY = "ramos_climalit_tarifa_componentes_v42_rg_e56";
+  var OCT_2026_PRICES = {"Luna 4mm":16.08,"Luna 5mm":21.69,"Luna 6mm":25.88,"Luna 8mm":35.86,"Luna 10mm":51.55,"Parsol 4mm gris/bronce/verde":31.31,"Clarglas incoloro 4mm":29.06,"Clarglas new 4mm":40.18,"Clarglas incoloro 6mm":42.72,"Mate 4mm":24.91,"Mate 5mm":31.44,"Mate 6mm":38.27,"Planitherm XN 4mm":25.5,"Planitherm XN 6mm":35.58,"Planitherm 4S 4mm":27.38,"Planitherm 4S 6mm":37.77,"Planistar ONE 4mm":37.33,"Planistar ONE 6mm":51.58,"Cool-Lite Xtreme 6mm":63.41,"Cool-Lite ST150, ST120":52.6,"Cool-Lite STB120":66.63,"Stopsol 6mm":62.95,"Stadip 33,1":32.34,"Stadip 44,1":39.74,"Stadip 55,1":46.02,"Stadip 33,2":37.94,"Stadip 44,2":45.34,"Stadip 55,2":51.62,"Stadip 66,2":56.49,"Stadip 88,2":81.73,"Stadip 1010,2":103.97,"Stadip 33,1 Silence":40.74,"Stadip 44,1 Silence":48.14,"Stadip 55,1 Silence":54.42,"Stadip 66,2 Silence":65.99,"Stadip 88,2 Silence":90.63,"Planitherm XN 33,1":41.23,"Planitherm XN 44,1":47.48,"Planitherm XN 44,2":54.03,"Planitherm XN 66,2":71.55,"Planitherm 4S 44,1":53.03,"Planitherm 4S 44,2":60.03,"Planitherm 4S 66,2":79.56,"Planistar ONE 44,1":61.01,"Planistar ONE 44,2":68.91,"Planistar ONE 66,2":96.92,"Stadip 44,1 Cool-Lite Xtreme":77.78,"Stadip 66,2 Cool-Lite Xtreme":99.69,"Stadip 66,2 Cool-Lite ST150, ST120":80.59,"Stadip 66,2 Cool-Lite STB120":92.35,"Planistar ONE Silence 44,1":72.67,"Planistar ONE Silence 66,2":108.32,"Stopsol 55,1":87.6,"SP510 - P5A":101.0,"SP615 - P6B":152.34,"Planitherrm XN Silence 44,1":55.88,"Planitherrm XN Silence 66,2":83.45};
+  function applyOctoberPrices(t){
+    if(!Array.isArray(t.glasses)) t.glasses=[];
+    Object.keys(OCT_2026_PRICES).forEach(function(name){
+      var found=t.glasses.find(function(x){return x.name===name;});
+      if(found) found.eur_m2=OCT_2026_PRICES[name];
+      else t.glasses.push({name:name,eur_m2:OCT_2026_PRICES[name]});
+    });
+    (t.cameras||[]).forEach(function(cam){
+      var base={14:1.2,16:1.2,18:1.5,20:1.8,22:2.1,24:2.4};
+      if(Object.prototype.hasOwnProperty.call(base,+cam.mm))cam.eur_m2=base[+cam.mm];
+    });
+    t.version='Octubre 2026 RG E06';
+    return t;
+  }
   function safeClone(obj){ try{ return JSON.parse(JSON.stringify(obj)); }catch(e){ return obj; } }
   function loadTariff(){
     try {
       var raw = localStorage.getItem(LS_KEY);
-      if(!raw) return safeClone(EMBED_TARIFF);
+      if(!raw){
+        var prev=localStorage.getItem(OLD_LS_KEY);
+        if(prev){try{var migrated=JSON.parse(prev);if(Array.isArray(migrated.glasses)&&Array.isArray(migrated.cameras))return applyOctoberPrices(migrated);}catch(e){}}
+        return safeClone(EMBED_TARIFF);
+      }
       var obj = JSON.parse(raw);
       if(!obj || typeof obj !== "object") return safeClone(EMBED_TARIFF);
       if(!Array.isArray(obj.glasses) || !Array.isArray(obj.cameras)) return safeClone(EMBED_TARIFF);
@@ -1531,6 +1551,16 @@
     }
   }
 
+  // Actualización octubre 2026: los precios de la tarifa prevalecen sobre los antiguos,
+  // conservando componentes personalizados del usuario.
+  applyOctoberPrices(tariff);
+  if(tariff.extras && Array.isArray(tariff.extras.items)){
+    var octExtras={servicio_autocad:12,servicio_escanear:25,barrotillo_blanco:6.68,
+      barrotillo_madera:13.81,barrotillo_color:14.40,varilla_blanca:10.30,varilla_dorada:10.62,
+      barrotillo_limpio:12,barrotillo_aprovechar:18,servicio_chapas:25,gas_argon:2.80};
+    tariff.extras.items.forEach(function(e){if(Object.prototype.hasOwnProperty.call(octExtras,e.id))e.price=octExtras[e.id];});
+  }
+
   // Guarda la tarifa normalizada (incluye nuevos vidrios)
   saveTariff(tariff);
 
@@ -1611,7 +1641,7 @@
         items: [
           {id:"butiral_color", name:"Butiral color", unit:"m2", price:9.30, category:"Butiral", mode:"single"},
           {id:"butiral_translucido", name:"Butiral translúcido", unit:"m2", price:11.80, category:"Butiral", mode:"single"},
-          {id:"gas_argon", name:"Gas argón", unit:"m2", price:0.00, category:"Gas", mode:"multi"},
+          {id:"gas_argon", name:"Gas argón", unit:"m2", price:2.80, category:"Gas", mode:"multi"},
           {id:"barrotillo_blanco", name:"Barrotillo blanco 25mm", unit:"ml", price:6.68, category:"Barrotillo", mode:"single"},
           {id:"barrotillo_madera", name:"Barrotillo color madera", unit:"ml", price:13.81, category:"Barrotillo", mode:"single"},
           {id:"barrotillo_color", name:"Barrotillo color", unit:"ml", price:14.40, category:"Barrotillo", mode:"single"},
@@ -1636,8 +1666,8 @@
           {id:"forma_angulo", name:"Ángulo distinto de 90º", unit:"pct", price:15, category:"Forma", mode:"single"},
           {id:"forma_curvo", name:"Lado curvo", unit:"pct", price:55, category:"Forma", mode:"single"},
           {id:"forma_circulo", name:"Círculo", unit:"pct", price:115, category:"Forma", mode:"single"},
-          {id:"servicio_autocad", name:"Medir o presentar plantillas en Autocad", unit:"ud", price:8.00, category:"Otros servicios", mode:"multi"},
-          {id:"servicio_escanear", name:"Escanear plantillas", unit:"ud", price:22.00, category:"Otros servicios", mode:"multi"},
+          {id:"servicio_autocad", name:"Medir o presentar plantillas en Autocad", unit:"ud", price:12.00, category:"Otros servicios", mode:"multi"},
+          {id:"servicio_escanear", name:"Escanear plantillas", unit:"ud", price:25.00, category:"Otros servicios", mode:"multi"},
           {id:"servicio_chapas", name:"Incorporación de vidrios o chapas", unit:"ud", price:25.00, category:"Otros servicios", mode:"multi"}
         ],
         recargos_superficie: [
@@ -1715,6 +1745,9 @@
         if(it.id === "gas_argon"){
           factM2 = Math.max(m2_calc, Number((tariff.extras||{}).min_m2_argon || 0.70));
         }
+        // La tarifa de argón ya incluye la cámara: incremento 2,80 €/m² por cámara.
+        // En un triple acristalamiento se cobran dos cámaras con argón.
+        if(it.id === "gas_argon") price *= (selected.c2 && selected.v3 ? 2 : 1);
         baseM2 += factM2 * price;
       } else if(it.unit === "ml"){
         baseML += ml * price;
@@ -2447,7 +2480,7 @@ function sumEurM2(){
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1224" />
-  <title>Ramos Monolítico Corte 210,56 E · 21/4/26 · v4.3</title>
+  <title>Ramos Monolítico Corte 210,06 E · 21/4/26 · v4.3</title>
   <style>
     :root{
       --bg0:#060816; --bg1:#0b1224;
@@ -2913,7 +2946,7 @@ function sumEurM2(){
   <main class="wrap">
     <header class="topbar">
       <div class="brand">
-        <div class="title">Ramos <small>Monolítico Corte 210,56 E · 21/4/26 · v4.3</small></div>
+        <div class="title">Ramos <small>Monolítico Corte 210,06 E · 21/4/26 · v4.3</small></div>
         <div class="subtitle">Tarifa editable (Vidrios + Extras) · Exportar / Importar JSON</div>
       </div>
 
@@ -3007,7 +3040,7 @@ function sumEurM2(){
       </div>
       <div class="sheetBody">
         <div class="note" style="margin-top:2px;">
-          Tarifa editable 21/4/26: puedes ver precios, añadir vidrios/extras, guardar y Exportar/Importar JSON.
+          Tarifa editable octubre 2026: puedes ver precios, añadir vidrios/extras, guardar y Exportar/Importar JSON.
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(255,255,255,.04);">
@@ -3026,7 +3059,7 @@ function sumEurM2(){
         </div>
 
         <div class="note">
-          Consejo: exporta una copia de la tarifa 21/4/26 y guárdala en Archivos para volver a importarla cuando quieras.
+          Consejo: exporta una copia de la tarifa octubre 2026 y guárdala en Archivos para volver a importarla cuando quieras.
         </div>
       </div>
     </div>
@@ -3107,7 +3140,19 @@ function sumEurM2(){
 (function(){
   "use strict";
 
-  const LS_KEY = "RAMOS_MONOLITICO_TARIFA_V42_CORTE_210_56E";
+  const LS_KEY = "RAMOS_MONOLITICO_TARIFA_OCTUBRE_2026_CORTE_210_06E";
+  const PREVIOUS_LS_KEY = "RAMOS_MONOLITICO_TARIFA_V42_CORTE_210_56E";
+  const OCTOBER_MONO_PRICES = {"Luna 3mm":16.67,"Luna 4mm":18.45,"Luna 5mm":22.81,"Luna 6mm":27.22,"Luna 8mm":38.15,"Luna 10mm":49.61,"Parsol 4mm gris/bronce/verde":31.96,"Parsol 5mm gris/bronce/verde":43.47,"Parsol 6mm gris/bronce/verde":54.25,"Espejo plata 3mm":25.28,"Espejo plata 5mm":34.74,"Clarglas incoloro 4mm":29.37,"Clarglas new 4mm":30.52,"Clarglas incoloro 6mm":39.43,"Catedral 37 o punteado":39.43,"Cuadros pequeños":64.74,"Armado incoloro":54.08,"Picks 4mm":122.84,"Escarcha o espiga 4mm":122.84,"Gaudi 4mm":177.58,"Mate 3mm":32.81,"Mate 4mm":28.53,"Mate 5mm":35.49,"Mate 6mm":41.86,"Cool-Lite 6mm ST150 / ST120":46.46,"Cool-Lite 6mm STB120":61.0,"Stopsol 6mm":75.99,"4mm extraclaro blanco":78.44,"6mm extraclaro blanco":105.88,"Gris RAL 9006":78.44,"4mm blanco y colores estándar":58.24,"Stadip 33,1":34.3,"Stadip 44,1":41.93,"Stadip 55,1":48.57,"Stadip 33,2":39.9,"Stadip 44,2":47.53,"Stadip 55,2":54.17,"Stadip 66,2":60.61,"Stadip 88,2":93.81,"Stadip 1010,2":125.69,"Stadip 33,1 Silence":42.7,"Stadip 44,1 Silence":50.33,"Stadip 55,1 Silence":56.97,"Stadip 66,1 Silence":69.01,"Stadip 88,1 Silence":102.21,"Stadip 66,1 Cool-Lite ST150, ST120":83.66,"Stadip 66,1 Cool-Lite STB120":95.87,"Stopsol 55,1":90.46,"SP510 - P5A":103.1,"SP615 - P6B":155.51};
+  function applyMonoOctober(t){
+    if(!t || !Array.isArray(t.vidrios))return t;
+    t.vidrios.forEach(function(v){if(Object.prototype.hasOwnProperty.call(OCTOBER_MONO_PRICES,v.name))v.eur_m2=OCTOBER_MONO_PRICES[v.name];});
+    (t.extras||[]).forEach(function(e){
+      if(e.name==='Medir o presentar plantillas en Autocad')e.price=12;
+      if(e.name==='Escanear plantillas')e.price=25;
+    });
+    t.version='Octubre 2026 · Corte 210,06 E';
+    return t;
+  }
   const IVA_KEY = "RAMOS_MONOLITICO_IVA_V1";
   const qs = (id)=>document.getElementById(id);
 
@@ -3207,59 +3252,59 @@ function sumEurM2(){
   function defaultTariff(){
     const t = {
       app:"RAMOS_MONOLITICO",
-      version:"4.3 Corte 210,56 E · 21/4/26",
+      version:"Octubre 2026 · Corte 210,06 E",
       ts:new Date().toISOString(),
       vidrios:[
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 3mm", eur_m2:15.97, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 4mm", eur_m2:17.75, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 5mm", eur_m2:22.06, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 6mm", eur_m2:26.32, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 8mm", eur_m2:36.95, tipo:"mono", cp:2.40, cpi:1.50},
-        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 10mm", eur_m2:48.11, tipo:"mono", cp:2.40, cpi:1.50},
-        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 4mm gris/bronce/verde", eur_m2:31.26, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 5mm gris/bronce/verde", eur_m2:42.72, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 6mm gris/bronce/verde", eur_m2:53.35, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 3mm", eur_m2:24.58, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 5mm", eur_m2:33.99, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 4mm", eur_m2:28.67, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas new 4mm", eur_m2:29.82, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 6mm", eur_m2:38.53, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Catedral 37 o punteado", eur_m2:38.73, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Cuadros pequeños", eur_m2:64.04, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Armado incoloro", eur_m2:53.18, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Picks 4mm", eur_m2:121.64, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Escarcha o espiga 4mm", eur_m2:122.14, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Impresos", name:"Gaudi 4mm", eur_m2:176.88, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 3mm", eur_m2:32.11, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 4mm", eur_m2:27.83, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 5mm", eur_m2:34.74, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 6mm", eur_m2:40.96, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm ST150 / ST120", eur_m2:46.36, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm STB120", eur_m2:60.90, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 3mm", eur_m2:16.67, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 4mm", eur_m2:18.45, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 5mm", eur_m2:22.81, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 6mm", eur_m2:27.22, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 8mm", eur_m2:38.15, tipo:"mono", cp:2.40, cpi:1.50},
+        {id:uid("v"), group:"Monolítico · Luna", name:"Luna 10mm", eur_m2:49.61, tipo:"mono", cp:2.40, cpi:1.50},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 4mm gris/bronce/verde", eur_m2:31.96, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 5mm gris/bronce/verde", eur_m2:43.47, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Parsol", name:"Parsol 6mm gris/bronce/verde", eur_m2:54.25, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 3mm", eur_m2:25.28, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Espejo", name:"Espejo plata 5mm", eur_m2:34.74, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 4mm", eur_m2:29.37, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas new 4mm", eur_m2:30.52, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Clarglas incoloro 6mm", eur_m2:39.43, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Catedral 37 o punteado", eur_m2:39.43, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Cuadros pequeños", eur_m2:64.74, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Armado incoloro", eur_m2:54.08, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Picks 4mm", eur_m2:122.84, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Escarcha o espiga 4mm", eur_m2:122.84, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Impresos", name:"Gaudi 4mm", eur_m2:177.58, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 3mm", eur_m2:32.81, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 4mm", eur_m2:28.53, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 5mm", eur_m2:35.49, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Mate", name:"Mate 6mm", eur_m2:41.86, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm ST150 / ST120", eur_m2:46.46, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Monolítico · Cool-Lite", name:"Cool-Lite 6mm STB120", eur_m2:61.00, tipo:"mono", cp:1.20, cpi:1.00},
         {id:uid("v"), group:"Monolítico · Reflectante", name:"Stopsol 6mm", eur_m2:75.99, tipo:"mono", cp:1.20, cpi:1.00},
         {id:uid("v"), group:"Monolítico · Lacobel", name:"4mm extraclaro blanco", eur_m2:78.44, tipo:"mono", cp:1.20, cpi:1.00},
         {id:uid("v"), group:"Monolítico · Lacobel", name:"6mm extraclaro blanco", eur_m2:105.88, tipo:"mono", cp:1.20, cpi:1.00},
         {id:uid("v"), group:"Monolítico · Lacobel", name:"Gris RAL 9006", eur_m2:78.44, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Monolítico · Lacobel", name:"4mm blanco y colores estándar", eur_m2:55.24, tipo:"mono", cp:1.20, cpi:1.00},
-        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 33,1", eur_m2:33.20, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 44,1", eur_m2:40.63, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 55,1", eur_m2:46.97, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 33,2", eur_m2:38.80, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 44,2", eur_m2:46.23, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 55,2", eur_m2:52.57, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 66,2", eur_m2:58.91, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 88,2", eur_m2:91.51, tipo:"lam", cp:4.50, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 1010,2", eur_m2:122.59, tipo:"lam", cp:6.00, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 33,1 Silence", eur_m2:41.60, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 44,1 Silence", eur_m2:49.03, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 55,1 Silence", eur_m2:55.37, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 66,1 Silence", eur_m2:70.11, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 88,1 Silence", eur_m2:113.08, tipo:"lam", cp:4.50, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite ST150, ST120", eur_m2:83.56, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite STB120", eur_m2:95.77, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Reflectante", name:"Stopsol 55,1", eur_m2:83.20, tipo:"lam", cp:3.60, cpi:2.50},
-        {id:uid("v"), group:"Laminar · Seguridad", name:"SP510 - P5A", eur_m2:102.90, tipo:"lam", cp:2.50, cpi:1.80},
-        {id:uid("v"), group:"Laminar · Seguridad", name:"SP615 - P6B", eur_m2:155.31, tipo:"lam", cp:2.50, cpi:1.80}
+        {id:uid("v"), group:"Monolítico · Lacobel", name:"4mm blanco y colores estándar", eur_m2:58.24, tipo:"mono", cp:1.20, cpi:1.00},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 33,1", eur_m2:34.30, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 44,1", eur_m2:41.93, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip", name:"Stadip 55,1", eur_m2:48.57, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 33,2", eur_m2:39.90, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 44,2", eur_m2:47.53, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 55,2", eur_m2:54.17, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 66,2", eur_m2:60.61, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 88,2", eur_m2:93.81, tipo:"lam", cp:4.50, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip con 2 PVB", name:"Stadip 1010,2", eur_m2:125.69, tipo:"lam", cp:6.00, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 33,1 Silence", eur_m2:42.70, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 44,1 Silence", eur_m2:50.33, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 55,1 Silence", eur_m2:56.97, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 66,1 Silence", eur_m2:69.01, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Stadip Silence", name:"Stadip 88,1 Silence", eur_m2:102.21, tipo:"lam", cp:4.50, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite ST150, ST120", eur_m2:83.66, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Cool-Lite", name:"Stadip 66,1 Cool-Lite STB120", eur_m2:95.87, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Reflectante", name:"Stopsol 55,1", eur_m2:90.46, tipo:"lam", cp:3.60, cpi:2.50},
+        {id:uid("v"), group:"Laminar · Seguridad", name:"SP510 - P5A", eur_m2:103.10, tipo:"lam", cp:2.50, cpi:1.80},
+        {id:uid("v"), group:"Laminar · Seguridad", name:"SP615 - P6B", eur_m2:155.51, tipo:"lam", cp:2.50, cpi:1.80}
       ],
       extras:[
         {id:uid("e"), name:"Butiral color", unit:"m2", price:9.30, category:"Butiral", mode:"single"},
@@ -3268,8 +3313,8 @@ function sumEurM2(){
         {id:uid("e"), name:"Estría simple", unit:"ml", price:4.70, category:"Perímetro", mode:"single"},
         {id:uid("e"), name:"Estría doble", unit:"ml", price:6.80, category:"Perímetro", mode:"single"},
         {id:uid("e"), name:"Estría triple", unit:"ml", price:8.90, category:"Perímetro", mode:"single"},
-        {id:uid("e"), name:"Medir o presentar plantillas en Autocad", unit:"ud", price:8.00, category:"Otros servicios", mode:"multi"},
-        {id:uid("e"), name:"Escanear plantillas", unit:"ud", price:22.00, category:"Otros servicios", mode:"multi"},
+        {id:uid("e"), name:"Medir o presentar plantillas en Autocad", unit:"ud", price:12.00, category:"Otros servicios", mode:"multi"},
+        {id:uid("e"), name:"Escanear plantillas", unit:"ud", price:25.00, category:"Otros servicios", mode:"multi"},
         {id:uid("e"), name:"Recogida de caballetes con vidrio para reciclar", unit:"ud", price:50.00, category:"Otros servicios", mode:"multi"},
         {id:uid("e"), name:"Camión grúa", unit:"ud", price:75.00, category:"Otros servicios", mode:"multi"}
       ]
@@ -3302,7 +3347,11 @@ function sumEurM2(){
   function loadTariff(){
     try{
       const raw = localStorage.getItem(LS_KEY);
-      if(!raw) return null;
+      if(!raw){
+        var prior=localStorage.getItem(PREVIOUS_LS_KEY);
+        if(prior){try{return applyMonoOctober(normalizeTariff(JSON.parse(prior)));}catch(e){}}
+        return null;
+      }
       return normalizeTariff(JSON.parse(raw));
     }catch(e){ return null; }
   }
