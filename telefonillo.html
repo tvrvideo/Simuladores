@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Puerta telefonillo / Nicho V5.6</title>
+  <title>Puerta telefonillo / Nicho V5.7.1</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -686,7 +686,7 @@
     <header>
       <div>
         <h1>Puerta telefonillo / Nicho</h1>
-        <div class="ver">V5.6</div>
+        <div class="ver">V5.7.1</div>
       </div>
     </header>
 
@@ -752,9 +752,10 @@
 
         <div style="margin-top:20px; text-align:center;">
           <label>Apertura de la hoja</label>
-          <div class="seg" style="justify-content:center; margin-top:5px;">
+          <div class="seg" style="justify-content:center; flex-wrap:nowrap; margin-top:5px;">
             <button id="btnIzq" type="button" class="btnApertura" data-val="izq" aria-pressed="false">Izquierda</button>
             <button id="btnDer" type="button" class="btnApertura" data-val="der" aria-pressed="true">Derecha</button>
+            <button id="btnSup" type="button" class="btnApertura" data-val="sup" aria-pressed="false">Superior</button>
           </div>
         </div>
           
@@ -838,7 +839,7 @@
       </div>
     </section>
   </div>
-  <footer>App V5.6</footer>
+  <footer>App V5.7.1</footer>
   <div class="toast" id="toast"></div>
 
 <script>
@@ -1029,6 +1030,11 @@ ctx.fillStyle = glassGrad;
         ctx.moveTo(gx, gy); 
         ctx.lineTo(gx + gw, my);
         ctx.lineTo(gx, gy + gh);
+    } else if(apertura === "sup"){
+        // Bisagras arriba; el pico apunta hacia abajo
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(gx + gw / 2, gy + gh);
+        ctx.lineTo(gx + gw, gy);
     } else {
         // Bisagras a la derecha, el pico apunta a la izquierda
         ctx.moveTo(gx + gw, gy);
@@ -1038,6 +1044,27 @@ ctx.fillStyle = glassGrad;
     ctx.stroke();
     ctx.restore();
     // Fin lógica apertura
+
+    if(modeName === "telefonillo"){
+      // Pomo centrado dentro del perfil, opuesto a las bisagras.
+      var knobRadius = Math.min(10 * scale, hojaPx * 0.4);
+      var knobX = apertura === "izq" ? x0 + w0 - hojaPx / 2 :
+                  apertura === "der" ? x0 + hojaPx / 2 : x0 + w0 / 2;
+      var knobY = apertura === "sup" ? y0 + h0 - hojaPx / 2 : y0 + h0 / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(knobX, knobY, knobRadius, 0, Math.PI * 2);
+      ctx.shadowColor = "rgba(22,30,36,0.5)";
+      ctx.shadowBlur = Math.max(4, scale * 3);
+      ctx.shadowOffsetY = Math.max(1, scale);
+      ctx.fillStyle = "#9ca7ae";
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = Math.max(2, scale * 1.2);
+      ctx.strokeStyle = "#53616b";
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
