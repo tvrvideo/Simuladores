@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes de Barras v1.2</title>
+<title>Recortes de Barras v1.2.3</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -377,6 +377,14 @@ body{padding-bottom:92px}
 .secondary-action{background:#7d6b52;margin-top:12px}
 #export-csv-ios-btn{background:#28a745!important}
 #cancel-delete-btn{background:#e7dfcf;color:#333;border:1px solid #cbbda4}
+.use-one-btn{width:auto;background:#267b49;margin-left:6px;padding:6px 10px}
+.search-name-wrap{position:relative}
+.search-name-wrap #search-bar-name-input{padding-right:45px}
+.search-clear-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px;height:34px;margin:0;padding:0;border-radius:50%;background:#e3e5e5;color:#343b3d;font-size:25px;line-height:1}
+.search-clear-btn:hover{background:#ccd2d3}
+.search-clear-btn[hidden]{display:none}
+#stock-summary{font-weight:bold;text-align:center}
+#usage-history{font-size:14px;line-height:1.6;max-height:220px;overflow:auto}
 @media(min-width:700px){
  .bottom-nav{gap:8px;padding-left:10px;padding-right:10px}
  .bottom-nav button{font-size:15px;padding:11px 6px}
@@ -387,7 +395,7 @@ body{padding-bottom:92px}
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2</span></h1>
+<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.3</span></h1>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador de Recortes</h2>
 <div class="form-group">
@@ -418,7 +426,10 @@ body{padding-bottom:92px}
 </div>
 <div class="form-group">
 <label for="search-bar-name-input">Nombre de barra a buscar (parcial):</label>
+<div class="search-name-wrap">
 <input id="search-bar-name-input" placeholder="Ej: T-80 o 65x20" type="text"/>
+<button aria-label="Borrar texto de búsqueda" class="search-clear-btn" hidden id="search-clear-btn" type="button">×</button>
+</div>
 </div>
 <div class="compact-grid"><div class="compact-field" style="grid-column:1/-1;">
 <label for="search-min-long-input">Longitud mínima</label>
@@ -461,6 +472,10 @@ body{padding-bottom:92px}
 <label for="bar-name-input">Nombre barra:</label>
 <input id="bar-name-input" placeholder="Ej: T-80, Perfil 65x20" required="" type="text"/>
 </div>
+<div class="form-group">
+<label for="location-input">Ubicación (opcional):</label>
+<input id="location-input" placeholder="Ej: estante 2" type="text"/>
+</div>
 <div class="compact-grid"><div class="compact-field">
 <label for="longitud-input">Longitud (mm):</label>
 <input id="longitud-input" placeholder="Ej: 3000" required="" type="number"/>
@@ -481,12 +496,17 @@ body{padding-bottom:92px}
 <button id="export-json-ios-btn" style="background-color: #34A853;">Exportar JSON (iOS Share)</button>
 <button id="export-csv-ios-btn" style="background-color: #FBC02D;">Exportar CSV (iOS Share)</button>
 <input accept=".json, .csv" id="import-file" style="display: none;" type="file"/>
+<label for="import-mode">Al importar:</label>
+<select id="import-mode"><option value="merge">Mezclar y conservar los recortes actuales</option><option value="replace">Sustituir los datos actuales</option></select>
 <button id="import-btn" style="background-color: #4285F4;">Importar JSON/CSV</button>
 </div>
+<p class="settings-help">La copia JSON incluye recortes, acabados y movimientos. El CSV contiene los recortes.</p>
+<div class="settings-card"><h3>Últimos usos</h3><div id="usage-history">Todavía no hay salidas registradas.</div></div>
 </div>
 <hr/>
 <div class="section app-screen" data-screen="stock" id="screen-stock">
 <h2>Recortes Guardados</h2>
+<div id="stock-summary" class="settings-card" aria-live="polite"></div>
 <div class="sort-buttons">
 <button id="sort-longitud-btn">Ordenar por Longitud</button>
 <button id="sort-name-btn">Ordenar por Nombre</button>
@@ -523,6 +543,10 @@ body{padding-bottom:92px}
 <input id="modal-bar-name" required="" type="text"/>
 </div>
 <div class="form-group">
+<label for="modal-location">Ubicación:</label>
+<input id="modal-location" type="text"/>
+</div>
+<div class="form-group">
 <label for="modal-longitud">Longitud (mm):</label>
 <input id="modal-longitud" required="" type="number"/>
 </div>
@@ -547,6 +571,7 @@ body{padding-bottom:92px}
         const searchCutBtn = document.getElementById('search-cut-btn');
         const ralSelect = document.getElementById('ral-select');
         const barNameInput = document.getElementById('bar-name-input');
+        const locationInput = document.getElementById('location-input');
         const longitudInput = document.getElementById('longitud-input');
         const countInput = document.getElementById('count-input');
         const dateInput = document.getElementById('date-input');
@@ -582,6 +607,7 @@ body{padding-bottom:92px}
         const saveEditBtn = document.getElementById('save-edit-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
         const modalBarName = document.getElementById('modal-bar-name');
+        const modalLocation = document.getElementById('modal-location');
         const modalLongitud = document.getElementById('modal-longitud');
         const modalCount = document.getElementById('modal-count');
         const modalDate = document.getElementById('modal-date');
@@ -622,6 +648,8 @@ body{padding-bottom:92px}
             const b = parseInt(hex.substring(5, 7), 16) / 255;
             return 0.2126 * r + 0.7152 * g + 0.0722 * b;
         }
+        const escapeHTML = value => String(value).replace(/[&<>"']/g, ch =>
+            ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
         function loadCuts() {
             const savedData = localStorage.getItem('aluminiumBarCutsData');
@@ -646,7 +674,8 @@ body{padding-bottom:92px}
                     nextCutId = 0;
                 }
             }
-            dateInput.value = new Date().toISOString().substring(0, 10);
+            const today = new Date();
+            dateInput.value = [today.getFullYear(), String(today.getMonth()+1).padStart(2,'0'), String(today.getDate()).padStart(2,'0')].join('-');
         }
 
         function saveCuts() {
@@ -735,7 +764,7 @@ body{padding-bottom:92px}
                 const colorDiv = document.createElement('div');
                 colorDiv.className = 'color-section';
                 colorDiv.style.backgroundColor = colorHex;
-                colorDiv.innerHTML = `<h3 class="color-title" style="color: ${textColor};">${titleText}</h3><ul class="cut-list"></ul>`;
+                colorDiv.innerHTML = `<h3 class="color-title" style="color: ${textColor};">${escapeHTML(titleText)}</h3><ul class="cut-list"></ul>`;
                 
                 const cutList = colorDiv.querySelector('ul');
 
@@ -745,10 +774,11 @@ body{padding-bottom:92px}
                     
                     const formattedDate = new Date(cut.fecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     
-                    const cutTextHTML = `<strong>${cut.nombre_barra}</strong> | ${cut.longitud} mm | Cantidad: ${cut.cantidad} | Fecha: ${formattedDate}`;
+                    const cutTextHTML = `<strong>${escapeHTML(cut.nombre_barra)}</strong> | ${Number(cut.longitud)} mm | Cantidad: ${Number(cut.cantidad)} | Fecha: ${escapeHTML(formattedDate)}${cut.ubicacion ? ' | Ubicación: '+escapeHTML(cut.ubicacion) : ''}`;
 
                     listItem.innerHTML = `
                         <span class="cut-info" data-id="${cut.id}" data-ral="${ral}" style="color: ${textColor};">${cutTextHTML}</span>
+                        <button class="use-one-btn" type="button" data-id="${cut.id}" aria-label="Usar una unidad">Usar 1</button>
                         <button class="remove-btn" data-id="${cut.id}">Quitar</button>
                     `;
                     cutList.appendChild(listItem);
@@ -759,6 +789,31 @@ body{padding-bottom:92px}
 
             if (!hasCuts) {
                 resultsContainer.innerHTML = '<p style="text-align: center; color: #666;">Aún no hay recortes guardados.</p>';
+            }
+            const all = Object.values(cutsByRAL).flat();
+            const pieces = all.reduce((sum, cut) => sum + Number(cut.cantidad || 0), 0);
+            const metres = all.reduce((sum, cut) => sum + Number(cut.longitud || 0) * Number(cut.cantidad || 0), 0) / 1000;
+            const summary = document.getElementById('stock-summary');
+            summary.textContent = `${pieces} piezas · ${metres.toLocaleString('es-ES', {maximumFractionDigits:2})} m disponibles · ${all.length} tipos`;
+            if (all.length) {
+                const groups = new Map();
+                Object.entries(cutsByRAL).forEach(([ral, list]) => list.forEach(cut => {
+                    const key = `${ral} · ${cut.nombre_barra}`;
+                    const item = groups.get(key) || {pieces:0, mm:0};
+                    item.pieces += Number(cut.cantidad);
+                    item.mm += Number(cut.longitud) * Number(cut.cantidad);
+                    groups.set(key,item);
+                }));
+                const details = document.createElement('details');
+                const heading = document.createElement('summary');
+                heading.textContent = 'Ver por acabado y perfil';
+                details.appendChild(heading);
+                [...groups].sort((a,b)=>a[0].localeCompare(b[0],'es',{numeric:true})).forEach(([key,item]) => {
+                    const line = document.createElement('div');
+                    line.textContent = `${key}: ${item.pieces} piezas · ${(item.mm/1000).toLocaleString('es-ES',{maximumFractionDigits:2})} m`;
+                    details.appendChild(line);
+                });
+                summary.appendChild(details);
             }
         }
 
@@ -780,6 +835,7 @@ body{padding-bottom:92px}
         addCutBtn.addEventListener('click', () => {
             const ral = ralSelect.value;
             const nombreBarra = barNameInput.value.trim();
+            const ubicacion = locationInput.value.trim();
             const longitud = parseInt(longitudInput.value);
             const count = parseInt(countInput.value);
             const fecha = dateInput.value;
@@ -800,7 +856,9 @@ body{padding-bottom:92px}
                 }
 
                 let existingCut = cutsByRAL[ral].find(
-                    cut => cut.nombre_barra.toUpperCase() === nombreBarra.toUpperCase() && cut.longitud === longitud && (ral !== '0000' || cut.nombre_color === nombreColor)
+                    cut => cut.nombre_barra.toUpperCase() === nombreBarra.toUpperCase() && cut.longitud === longitud &&
+                        (cut.ubicacion || '').toUpperCase() === ubicacion.toUpperCase() &&
+                        (ral !== '0000' || cut.nombre_color === nombreColor)
                 );
 
                 const newCutData = {
@@ -808,7 +866,8 @@ body{padding-bottom:92px}
                     nombre_barra: nombreBarra,
                     longitud: longitud,
                     cantidad: count,
-                    fecha: fecha
+                    fecha: fecha,
+                    ubicacion: ubicacion
                 };
                 
                 // **IMPORTANTE:** Solo añadir nombre_color si es '0000'
@@ -837,9 +896,7 @@ body{padding-bottom:92px}
                 countInput.value = '1';
                 
                 // === AJUSTE DE REINICIO DE CAMPOS ===
-                ralSelect.value = '9010'; // Restablecer a un RAL por defecto (ej: Blanco Puro)
-                customColorInput.value = ''; // Limpiar el campo de texto
-                customColorGroup.style.display = 'none'; // Ocultar el campo de texto
+                // Mantener el acabado y la ubicación para registrar varios recortes seguidos.
                 // === FIN AJUSTE ===
 
                 showAddCutMessage(addMessageText, 'ok');
@@ -854,6 +911,29 @@ body{padding-bottom:92px}
 
         // 2. & 3. Manejar Clicks en Recortes (Eliminar y Editar) - DELEGACIÓN AL DOCUMENTO
         document.addEventListener('click', (event) => {
+            const useButton = event.target.closest('.use-one-btn');
+            if (useButton) {
+                const found = findCutById(useButton.dataset.id);
+                if (!found || Number(found.cut.cantidad) < 1) return;
+                if (!confirm(`¿Usar 1 unidad de ${found.cut.nombre_barra} de ${found.cut.longitud} mm?`)) return;
+                const trabajo = prompt('Trabajo o destino (opcional):', '') || '';
+                const history = JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
+                history.unshift({fecha:new Date().toISOString(), ral:found.ral,
+                    nombre_barra:found.cut.nombre_barra, longitud:found.cut.longitud,
+                    ubicacion:found.cut.ubicacion || '', trabajo:trabajo.trim(), cantidad:1});
+                localStorage.setItem('aluminiumBarUsageHistory', JSON.stringify(history.slice(0,500)));
+                found.cut.cantidad--;
+                if (found.cut.cantidad === 0) {
+                    cutsByRAL[found.ral].splice(found.index, 1);
+                    if (!cutsByRAL[found.ral].length) delete cutsByRAL[found.ral];
+                }
+                saveCuts();
+                renderCuts();
+                if (searchResultsContainer.style.display === 'block') document.getElementById('search-cut-btn').click();
+                window.renderBarUsageHistory?.();
+                event.preventDefault();
+                return;
+            }
             
             // --- Lógica para ELIMINAR (SIN CONFIRMACIÓN) ---
             const removeButton = event.target.closest('.remove-btn'); 
@@ -891,6 +971,7 @@ body{padding-bottom:92px}
                     const { cut } = cutInfo;
                     
                     modalBarName.value = cut.nombre_barra;
+                    modalLocation.value = cut.ubicacion || '';
                     modalLongitud.value = cut.longitud;
                     modalCount.value = cut.cantidad;
                     modalDate.value = cut.fecha;
@@ -991,6 +1072,7 @@ body{padding-bottom:92px}
 
 
             const newBarName = modalBarName.value.trim();
+            const newLocation = modalLocation.value.trim();
             const newLongitud = parseInt(modalLongitud.value);
             const newCount = parseInt(modalCount.value);
             const newDate = modalDate.value;
@@ -1003,7 +1085,8 @@ body{padding-bottom:92px}
                 
                 // Buscar si existe otro recorte con el mismo nombre y longitud (excluyendo el que estamos editando) Y el mismo nombre de color si es RAL 0000
                 for (let i = 0; i < cuts.length; i++) {
-                    const isSameNameAndLength = cuts[i].nombre_barra.toUpperCase() === newBarName.toUpperCase() && cuts[i].longitud === newLongitud;
+                    const isSameNameAndLength = cuts[i].nombre_barra.toUpperCase() === newBarName.toUpperCase() &&
+                        cuts[i].longitud === newLongitud && (cuts[i].ubicacion || '').toUpperCase() === newLocation.toUpperCase();
                     const isDifferentCut = Number(cuts[i].id) !== Number(id);
                     
                     if (isDifferentCut && isSameNameAndLength) {
@@ -1034,6 +1117,7 @@ body{padding-bottom:92px}
                     currentCutInfo.cut.longitud = newLongitud;
                     currentCutInfo.cut.cantidad = newCount;
                     currentCutInfo.cut.fecha = newDate;
+                    currentCutInfo.cut.ubicacion = newLocation;
                     // El nombre_color se mantiene
                 }
 
@@ -1083,7 +1167,16 @@ body{padding-bottom:92px}
 
         // Exportar JSON (actualizado para incluir nombre_color)
         exportJsonIosBtn.addEventListener('click', () => {
-            const dataToExport = { cutsByRAL: cutsByRAL, nextCutId: nextCutId };
+            const dataToExport = {
+                format:'recortes-barras', version:2,
+                cutsByRAL, nextCutId,
+                colors: {
+                    overrides:JSON.parse(localStorage.getItem('aluminiumBarColorSettings') || '{}'),
+                    custom:JSON.parse(localStorage.getItem('aluminiumBarCustomColors') || '{}'),
+                    deleted:JSON.parse(localStorage.getItem('aluminiumBarDeletedColors') || '[]')
+                },
+                usageHistory:JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]')
+            };
             const data = JSON.stringify(dataToExport, null, 2);
             const now = new Date();
             const fileName = `barras_db_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}.json`;
@@ -1092,14 +1185,15 @@ body{padding-bottom:92px}
 
         // Exportar CSV (actualizado para incluir nombre_color)
         exportCsvIosBtn.addEventListener('click', () => {
-            const header = 'RAL,Nombre Barra,Longitud,Cantidad,Fecha,Color Personalizado,ID\n';
+            const header = 'RAL,Nombre Barra,Longitud,Cantidad,Fecha,Color Personalizado,ID,Ubicación\n';
             let csv = header;
             for (const ral in cutsByRAL) {
                 cutsByRAL[ral].forEach(cut => {
                     const nombreBarraSanitizado = cut.nombre_barra.replace(/"/g, '""'); 
                     const nombreColorSanitizado = (cut.nombre_color || '').replace(/"/g, '""'); // Nuevo
+                    const ubicacionSanitizada = (cut.ubicacion || '').replace(/"/g, '""');
                     
-                    csv += `${ral},"${nombreBarraSanitizado}",${cut.longitud},${cut.cantidad},${cut.fecha},"${nombreColorSanitizado}",${cut.id}\n`; 
+                    csv += `${ral},"${nombreBarraSanitizado}",${cut.longitud},${cut.cantidad},${cut.fecha},"${nombreColorSanitizado}",${cut.id},"${ubicacionSanitizada}"\n`;
                 });
             }
             const now = new Date();
@@ -1107,117 +1201,148 @@ body{padding-bottom:92px}
             shareFile(csv, fileName, 'text/csv');
         });
 
-        // Importar datos
-        importBtn.addEventListener('click', () => {
-            importFile.click();
-        });
-
-        importFile.addEventListener('change', (event) => {
+        // Importación compatible con copias anteriores; validar antes de escribir nada.
+        function parseCsv(text) {
+            const rows = [], row = [];
+            let field = '', quoted = false;
+            text = text.replace(/^\uFEFF/, '');
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (quoted) {
+                    if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+                    else if (c === '"') quoted = false;
+                    else field += c;
+                } else if (c === '"') quoted = true;
+                else if (c === ',') { row.push(field); field = ''; }
+                else if (c === '\n') {
+                    row.push(field.replace(/\r$/, '')); field = '';
+                    if (row.some(v => v.trim())) rows.push(row.splice(0));
+                    else row.length = 0;
+                } else field += c;
+            }
+            if (quoted) throw new Error('El CSV contiene comillas sin cerrar.');
+            row.push(field.replace(/\r$/, ''));
+            if (row.some(v => v.trim())) rows.push(row);
+            return rows;
+        }
+        function validateCuts(groups) {
+            if (!groups || typeof groups !== 'object' || Array.isArray(groups)) throw new Error('Formato de recortes no válido.');
+            const result = Object.create(null);
+            Object.entries(groups).forEach(([ral, list]) => {
+                if (!/^[\p{L}\p{N}_ -]+$/u.test(ral) || ['__proto__','constructor'].includes(ral) || !Array.isArray(list))
+                    throw new Error('Código de acabado no válido.');
+                result[ral] = list.map(c => {
+                    if (!c || typeof c.nombre_barra !== 'string' || !c.nombre_barra.trim() ||
+                        !Number.isInteger(Number(c.longitud)) || Number(c.longitud) <= 0 ||
+                        !Number.isInteger(Number(c.cantidad)) || Number(c.cantidad) <= 0 ||
+                        !/^\d{4}-\d{2}-\d{2}$/.test(c.fecha || ''))
+                        throw new Error('Hay recortes con datos no válidos.');
+                    return { nombre_barra:c.nombre_barra.trim(), longitud:Number(c.longitud),
+                        cantidad:Number(c.cantidad), fecha:c.fecha,
+                        nombre_color:String(c.nombre_color || ''), ubicacion:String(c.ubicacion || '').trim() };
+                });
+            });
+            if (!Object.values(result).some(list => list.length)) throw new Error('La copia no contiene recortes.');
+            return result;
+        }
+        function validateColors(settings) {
+            if (!settings) return null;
+            const validMap = map => map && typeof map === 'object' && !Array.isArray(map) &&
+                Object.entries(map).every(([code, item]) =>
+                    /^[\p{L}\p{N}_ -]+$/u.test(code) && !['__proto__','constructor'].includes(code) &&
+                    ((typeof item === 'string' && /^#[0-9a-f]{6}$/i.test(item)) ||
+                    (item && typeof item.name === 'string' && !/[<>]/.test(item.name) && /^#[0-9a-f]{6}$/i.test(item.hex))));
+            if (!validMap(settings.overrides) || !validMap(settings.custom) || !Array.isArray(settings.deleted) ||
+                !settings.deleted.every(code => typeof code === 'string')) throw new Error('Acabados no válidos.');
+            return settings;
+        }
+        function importRows(rows) {
+            const groups = Object.create(null);
+            if (rows.length && /^RAL$/i.test(rows[0][0].trim())) rows.shift();
+            rows.forEach((parts, index) => {
+                if (![5,6,7,8].includes(parts.length)) throw new Error(`Columnas incorrectas en la fila ${index+1}.`);
+                const [ral, nombre_barra, longitud, cantidad, fecha] = parts;
+                const nombre_color = parts.length >= 7 ? parts[5] : '';
+                const ubicacion = parts.length === 8 ? parts[7] : '';
+                if (!groups[ral]) groups[ral] = [];
+                groups[ral].push({nombre_barra,longitud,cantidad,fecha,nombre_color,ubicacion});
+            });
+            return groups;
+        }
+        function renderUsageHistory() {
+            const holder = document.getElementById('usage-history');
+            const history = JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
+            holder.textContent = '';
+            if (!history.length) { holder.textContent = 'Todavía no hay salidas registradas.'; return; }
+            history.slice(0,20).forEach(item => {
+                const line = document.createElement('div');
+                line.textContent = `${new Date(item.fecha).toLocaleDateString('es-ES')} · ${item.nombre_barra} · ${item.longitud} mm · ${item.ral}${item.ubicacion ? ' · '+item.ubicacion : ''}${item.trabajo ? ' · '+item.trabajo : ''}`;
+                holder.appendChild(line);
+            });
+        }
+        window.renderBarUsageHistory = renderUsageHistory;
+        renderUsageHistory();
+        importBtn.addEventListener('click', () => importFile.click());
+        importFile.addEventListener('change', event => {
             const file = event.target.files[0];
             if (!file) return;
-
+            importFile.value = '';
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const fileContent = e.target.result;
-                let importedCutsByRAL = {};
-                let maxId = -1;
-
-                if (file.name.toLowerCase().endsWith('.json')) {
-                    try {
-                        const importedData = JSON.parse(fileContent);
-                        if (importedData.cutsByRAL) {
-                             importedCutsByRAL = importedData.cutsByRAL;
-                             maxId = importedData.nextCutId ? importedData.nextCutId - 1 : -1;
-                        } else {
-                            importedCutsByRAL = importedData;
+            reader.onerror = () => alert('No se pudo leer el archivo.');
+            reader.onload = () => {
+                try {
+                    let groups, settings = null, history = null;
+                    if (/\.json$/i.test(file.name)) {
+                        const parsed = JSON.parse(reader.result);
+                        if (parsed?.format === 'recortes-barras' && parsed.version !== 2)
+                            throw new Error('Versión de copia no reconocida.');
+                        groups = validateCuts(parsed.cutsByRAL || parsed);
+                        if (parsed.format === 'recortes-barras') {
+                            settings = validateColors(parsed.colors);
+                            if (!settings || !Array.isArray(parsed.usageHistory)) throw new Error('Copia incompleta.');
+                            history = parsed.usageHistory;
                         }
-                        
-                    } catch (error) {
-                        alert('Error al leer el archivo JSON. Asegúrate de que es un archivo JSON válido.');
-                        return;
-                    }
-                } else if (file.name.toLowerCase().endsWith('.csv')) {
-                    const lines = fileContent.split('\n');
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (line === '') continue;
-
-                        // Regex mejorado para manejar comas dentro de comillas
-                        const parts = line.match(/(?:[^,"]+|"(?:\\.|[^"])*")+/g); 
-                        
-                        // 7 columnas: RAL, Nombre, Long, Cant, Fecha, Color P., ID
-                        const hasNewFormat = parts && (parts.length >= 7); 
-                        // 6 columnas: RAL, Nombre, Long, Cant, Fecha, ID
-                        const hasLegacyId = parts && (parts.length === 6); 
-                        // 5 columnas: RAL, Nombre, Long, Cant, Fecha (legacy sin ID)
-                        const isVeryLegacy = parts && (parts.length === 5); 
-                        
-                        if (parts && (hasNewFormat || hasLegacyId || isVeryLegacy)) {
-                            let ral, nombreBarra, longitud, count, fecha, nombreColor, id;
-                            
-                            if (hasNewFormat) {
-                                // CSV nuevo con columna de Color Personalizado
-                                [ral, nombreBarra, longitud, count, fecha, nombreColor, id] = parts.map(p => p.trim().replace(/"/g, ''));
-                            } else if (hasLegacyId) {
-                                // CSV antiguo sin columna de Color Personalizado, pero con ID
-                                [ral, nombreBarra, longitud, count, fecha, id] = parts.map(p => p.trim().replace(/"/g, ''));
-                                nombreColor = ''; 
-                            } else {
-                                // CSV muy antiguo sin Color Personalizado ni ID
-                                [ral, nombreBarra, longitud, count, fecha] = parts.map(p => p.trim().replace(/"/g, ''));
-                                nombreColor = '';
-                                id = '';
-                            }
-                            
-                            const parsedLongitud = parseInt(longitud);
-                            const parsedCount = parseInt(count);
-                            const parsedId = id ? parseInt(id) : getUniqueId(); 
-                            
-                            if (parsedId > maxId) maxId = parsedId;
-
-                            if (ral && nombreBarra && !isNaN(parsedLongitud) && !isNaN(parsedCount) && fecha) {
-                                if (!importedCutsByRAL[ral]) {
-                                    importedCutsByRAL[ral] = [];
-                                }
-                                
-                                const cutData = {
-                                    id: parsedId,
-                                    nombre_barra: nombreBarra,
-                                    longitud: parsedLongitud,
-                                    cantidad: parsedCount,
-                                    fecha: fecha
-                                };
-                                
-                                // **NUEVO:** Asignar nombre_color si existe y el RAL es '0000'
-                                if (ral === '0000' && nombreColor) {
-                                    cutData.nombre_color = nombreColor;
-                                }
-
-                                importedCutsByRAL[ral].push(cutData);
-                            }
-                        }
-                    }
-                } else {
-                    alert('Formato de archivo no soportado. Por favor, selecciona un archivo .json o .csv.');
-                    return;
-                }
-                
-                // Asegurar que todos los recortes tengan un ID si faltaba
-                for (const ral in importedCutsByRAL) {
-                    importedCutsByRAL[ral] = importedCutsByRAL[ral].map(cut => {
-                        if (cut.id === undefined || cut.id === null) {
-                            cut.id = getUniqueId();
-                            if (cut.id > maxId) maxId = cut.id;
-                        }
-                        return cut;
+                    } else if (/\.csv$/i.test(file.name)) groups = validateCuts(importRows(parseCsv(reader.result)));
+                    else throw new Error('Selecciona un JSON o CSV.');
+                    const replace = document.getElementById('import-mode').value === 'replace';
+                    const message = replace ? '¿Sustituir todos los recortes actuales por los del archivo?' :
+                        '¿Mezclar la copia con los recortes actuales? Los repetidos conservarán la cantidad mayor.';
+                    if (!confirm(message)) return;
+                    const output = replace ? Object.create(null) : structuredClone(cutsByRAL);
+                    Object.entries(groups).forEach(([ral, list]) => {
+                        const dest = output[ral] || (output[ral] = []);
+                        list.forEach(c => {
+                            const same = dest.find(x => x.nombre_barra.toUpperCase() === c.nombre_barra.toUpperCase() &&
+                                Number(x.longitud) === c.longitud && (x.nombre_color||'') === c.nombre_color &&
+                                (x.ubicacion||'').toUpperCase() === c.ubicacion.toUpperCase());
+                            if (same) same.cantidad = Math.max(Number(same.cantidad), c.cantidad);
+                            else dest.push({...c});
+                        });
                     });
-                }
-                
-                cutsByRAL = importedCutsByRAL;
-                nextCutId = maxId + 1;
-                saveCuts();
-                renderCuts();
-                alert('Base de datos importada con éxito.');
+                    let id = 1;
+                    Object.values(output).forEach(list => list.forEach(c => c.id = id++));
+                    cutsByRAL = output; nextCutId = id;
+                    saveCuts();
+                    if (settings) {
+                        const keys = [['aluminiumBarColorSettings','overrides'],['aluminiumBarCustomColors','custom']];
+                        keys.forEach(([key, prop]) => localStorage.setItem(key, JSON.stringify(replace ? settings[prop] :
+                            {...settings[prop], ...JSON.parse(localStorage.getItem(key) || '{}')})));
+                        const deleted = replace ? settings.deleted : [...new Set([
+                            ...settings.deleted, ...JSON.parse(localStorage.getItem('aluminiumBarDeletedColors') || '[]')])];
+                        localStorage.setItem('aluminiumBarDeletedColors', JSON.stringify(deleted));
+                    }
+                    if (history) {
+                        const current = replace ? [] : JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
+                        const seen = new Set();
+                        const joined = [...current,...history].filter(x => {
+                            const key = JSON.stringify(x); if (seen.has(key)) return false; seen.add(key); return true;
+                        }).sort((a,b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0,500);
+                        localStorage.setItem('aluminiumBarUsageHistory', JSON.stringify(joined));
+                    }
+                    renderCuts(); renderUsageHistory();
+                    window.refreshBarSettings?.();
+                    alert('Importación completada.');
+                } catch (error) { alert('No se importó el archivo: ' + error.message); }
             };
             reader.readAsText(file);
         });
@@ -1225,6 +1350,7 @@ body{padding-bottom:92px}
         // --- Inicialización ---
         loadCuts();
         renderCuts();
+        window.refreshBarInventory = () => { loadCuts(); renderCuts(); };
     });
 </script>
 <script>
@@ -1322,15 +1448,41 @@ document.addEventListener('DOMContentLoaded',()=>{
  const oldSearch=document.getElementById('search-cut-btn');
  const newSearch=oldSearch.cloneNode(true);oldSearch.replaceWith(newSearch);
  const results=document.getElementById('search-results-container');
+ const nameInput=document.getElementById('search-bar-name-input');
+ const clearSearch=document.getElementById('search-clear-btn');
+ const updateClear=()=>{clearSearch.hidden=!nameInput.value};
+ nameInput.addEventListener('input',updateClear);
+ clearSearch.addEventListener('click',()=>{
+  nameInput.value='';
+  updateClear();
+  nameInput.focus();
+ });
+ window.addEventListener('pageshow',updateClear);
+ updateClear();
+ function searchWords(value){
+  const clean=String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .toLowerCase().replace(/[×＊*]/g,'x')
+   .replace(/(\d)\s*(?:x|por)\s*(\d)/g,'$1x$2')
+   .replace(/[^a-z0-9]+/g,' ').trim();
+  const words=clean.split(/\s+/).filter(w=>w && !['de','del','la','el','los','las','un','una','para'].includes(w));
+  return {words,compact:words.join('')};
+ }
+ function matchesBarName(query,name){
+  if(!query.trim())return true;
+  const wanted=searchWords(query), actual=searchWords(name);
+  if(!wanted.words.length)return false;
+  return wanted.words.every(word=>actual.words.some(piece=>piece.includes(word))) ||
+   actual.compact.includes(wanted.compact);
+ }
  function runSearch(){
   const data=readData(),ral=document.getElementById('search-ral-select').value;
-  const name=document.getElementById('search-bar-name-input').value.trim().toUpperCase();
+  const name=document.getElementById('search-bar-name-input').value.trim();
   const min=parseInt(document.getElementById('search-min-long-input').value)||0;
 const found=[];
   Object.keys(data.cutsByRAL).forEach(code=>{
    if(ral!=='all'&&code!==ral)return;
    (data.cutsByRAL[code]||[]).forEach(c=>{
-    if((!name||String(c.nombre_barra).toUpperCase().includes(name))&&Number(c.longitud)>=min)
+    if(matchesBarName(name,c.nombre_barra)&&Number(c.longitud)>=min)
       found.push({code,c,waste:Number(c.longitud)-min});
    });
   });
@@ -1340,7 +1492,11 @@ const found=[];
   if(!found.length){results.innerHTML='<p>No se encontraron recortes</p>';return}
   found.forEach(({code,c})=>{
    const row=document.createElement('div');row.className='search-result-row';
-   row.innerHTML=`<span class="search-result-text" data-id="${c.id}">${label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}</span><button class="remove-btn search-remove-btn" data-id="${c.id}">Quitar</button>`;
+   const info=document.createElement('span');info.className='search-result-text';info.dataset.id=c.id;
+   info.textContent=`${label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}${c.ubicacion?' | '+c.ubicacion:''}${min>0?' | Sobran '+(Number(c.longitud)-min)+' mm':''}`;
+   const use=document.createElement('button');use.className='use-one-btn';use.dataset.id=c.id;use.textContent='Usar 1';
+   const remove=document.createElement('button');remove.className='remove-btn search-remove-btn';remove.dataset.id=c.id;remove.textContent='Quitar';
+   row.append(info,use,remove);
    results.appendChild(row);
   });
  }
@@ -1411,6 +1567,10 @@ const found=[];
     if(!nc||!nn){show('Código y nombre obligatorios.','error');return}
     if(nc!==code&&colors[nc]){show('Ese código ya existe.','error');return}
     if(nc!==code){
+     if(baseColors[code]){
+      deletedColors.add(code);
+      localStorage.setItem(DELETED_KEY,JSON.stringify([...deletedColors]));
+     }
      const data=readData();
      if(data.cutsByRAL[code]){
       if(!data.cutsByRAL[nc])data.cutsByRAL[nc]=[];
@@ -1419,6 +1579,7 @@ const found=[];
      colors[nc]={name:nn,hex:pi.value};delete colors[code];
     }else colors[code]={name:nn,hex:pi.value};
     saveColors();
+    window.refreshBarInventory?.();
     refillSelects();
     renderSettings();
     if (typeof window.actualizarTarjetasBarras === 'function') {
@@ -1464,6 +1625,7 @@ const found=[];
 
   delete colors[code];
   saveColors();
+  window.refreshBarInventory?.();
   refillSelects();
   renderSettings();
 
@@ -1513,6 +1675,22 @@ const found=[];
  };
 
  // Aplicar colores personalizados a tarjetas, incluso tras redibujar
+ window.refreshBarSettings=()=>{
+  Object.keys(colors).forEach(code=>delete colors[code]);
+  Object.assign(colors,JSON.parse(JSON.stringify(baseColors)));
+  deletedColors.clear();
+  JSON.parse(localStorage.getItem(DELETED_KEY)||'[]').forEach(code=>{deletedColors.add(code);delete colors[code]});
+  Object.assign(colors,JSON.parse(localStorage.getItem(CUSTOM_KEY)||'{}'));
+  const overrides=JSON.parse(localStorage.getItem(COLOR_KEY)||'{}');
+  Object.entries(overrides).forEach(([code,item])=>{
+   if(!colors[code])return;
+   if(typeof item==='string')colors[code].hex=item;
+   else Object.assign(colors[code],item);
+  });
+  refillSelects();renderSettings();
+  window.refreshBarInventory?.();
+  if(typeof window.actualizarTarjetasBarras==='function')window.actualizarTarjetasBarras();
+ };
  function applyCardColors(){
   const data=readData();
   document.querySelectorAll('.color-section').forEach(card=>{
@@ -1648,10 +1826,12 @@ const found=[];
 
    header.style.background=headerBg;
    header.style.color=headerText;
-   header.innerHTML=`
-    <span class="ral-code">${code==='0000'?'':`RAL ${code}`}</span>
-    <span class="ral-name">${data.name || identity.name}</span>
-   `;
+   header.textContent='';
+   const codeSpan=document.createElement('span');codeSpan.className='ral-code';
+   codeSpan.textContent=code==='0000'?'':`RAL ${code}`;
+   const nameSpan=document.createElement('span');nameSpan.className='ral-name';
+   nameSpan.textContent=data.name || identity.name;
+   header.append(codeSpan,nameSpan);
 
    card.querySelectorAll('.cut-info').forEach(item=>item.style.color=bodyText);
   });

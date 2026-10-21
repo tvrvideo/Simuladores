@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes Chapa v2.6</title>
+<title>Recortes Chapa v2.6.1</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -787,7 +787,7 @@ body { padding-bottom: 92px; }
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v2.6</span></h1>
+<h1>Recortes de Chapa <span style="font-size:.55em;opacity:.75;">v2.6.1</span></h1>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador</h2>
 <div class="form-group">
@@ -2368,8 +2368,63 @@ body { padding-bottom: 92px; }
         });
 
         // Funciones de importación/exportación
+        function backupJson() {
+            return JSON.stringify({
+                format: 'recortes-chapa',
+                version: 2,
+                cutsByRAL,
+                ralCatalog: ralColors
+            }, null, 2);
+        }
+
+        function validCuts(data) {
+            return data && typeof data === 'object' && !Array.isArray(data) &&
+                Object.entries(data).every(([ral, list]) =>
+                    ral !== '__proto__' && ral !== 'constructor' &&
+                    /^[\p{L}\p{N}_ -]+$/u.test(ral) && Array.isArray(list) &&
+                    list.every(cut => cut && typeof cut === 'object' &&
+                        Number.isFinite(Number(cut.long)) && Number(cut.long) > 0 &&
+                        Number.isFinite(Number(cut.short)) && Number(cut.short) > 0 &&
+                        Number.isFinite(Number(cut.count)) && Number(cut.count) > 0 &&
+                        ['aluminio', 'sandwich'].includes(cut.type || 'aluminio') &&
+                        (cut.type !== 'sandwich' || (Number(cut.thickness) > 0 &&
+                            typeof cut.innerRal === 'string' && /^[\p{L}\p{N}_ -]*$/u.test(cut.innerRal) &&
+                            ['poliuretano', 'poliestireno', 'lana-roca', 'otro'].includes(cut.core)))));
+        }
+
+        function applyImportedCuts(data, catalog) {
+            if (!validCuts(data)) throw new Error('Los recortes no tienen un formato válido.');
+            if (catalog !== undefined && (!catalog || typeof catalog !== 'object' ||
+                Array.isArray(catalog) || !Object.entries(catalog).every(([code, item]) =>
+                    code !== '__proto__' && code !== 'constructor' &&
+                    /^[\p{L}\p{N}_ -]+$/u.test(code) && item &&
+                    typeof item.name === 'string' && !/[<>]/.test(item.name) &&
+                    /^#[0-9a-f]{6}$/i.test(item.hex)))) {
+                throw new Error('El catálogo de acabados no tiene un formato válido.');
+            }
+            if (!confirm('La importación sustituirá los recortes actuales. ¿Continuar?')) return false;
+            cutsByRAL = Object.fromEntries(Object.entries(data).map(([ral, list]) =>
+                [ral, list.map(cut => normalizeCut({
+                    type: cut.type || 'aluminio',
+                    long: Number(cut.long), short: Number(cut.short), count: Number(cut.count),
+                    faces: Number(cut.faces) || 1, innerRal: cut.innerRal || '',
+                    thickness: Number(cut.thickness) || undefined, core: cut.core || undefined
+                }))]));
+            if (catalog !== undefined) {
+                Object.keys(ralColors).forEach(code => delete ralColors[code]);
+                Object.entries(catalog).forEach(([code, item]) => { ralColors[code] = {...item}; });
+                saveRalSettings();
+                refreshRalSelects();
+                refreshSandwichRalSelects();
+                renderRalSettings();
+            }
+            saveCuts();
+            renderCuts();
+            return true;
+        }
+
         exportJsonBtn.addEventListener('click', () => {
-            const data = JSON.stringify(cutsByRAL, null, 2);
+            const data = backupJson();
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2418,7 +2473,7 @@ body { padding-bottom: 92px; }
         }
 
         exportJsonIosBtn.addEventListener('click', () => {
-            const data = JSON.stringify(cutsByRAL, null, 2);
+            const data = backupJson();
             const now = new Date();
             const fileName = `chapas_db_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}.json`;
             shareFile(data, fileName, 'application/json');
@@ -2453,21 +2508,20 @@ body { padding-bottom: 92px; }
                 if (file.name.endsWith('.json')) {
                     try {
                         const importedData = JSON.parse(fileContent);
-                        if (importedData && typeof importedData === 'object') {
-                            cutsByRAL = importedData;
-                            Object.keys(cutsByRAL).forEach(r => cutsByRAL[r] = (cutsByRAL[r] || []).map(normalizeCut));
-                            saveCuts();
-                            renderCuts();
+                        const isBackup = importedData?.format === 'recortes-chapa';
+                        if (isBackup && importedData.version !== 2) throw new Error('Versión de copia no reconocida.');
+                        if (isBackup && !importedData.ralCatalog) throw new Error('Falta el catálogo de acabados.');
+                        const data = isBackup ? importedData.cutsByRAL : importedData;
+                        if (applyImportedCuts(data, isBackup ? importedData.ralCatalog : undefined)) {
                             alert('Base de datos importada desde JSON con éxito.');
-                        } else {
-                            alert('Error: El archivo JSON no es un formato de base de datos válido.');
                         }
                     } catch (error) {
-                        alert('Error al leer el archivo JSON. Asegúrate de que es un archivo JSON válido.');
+                        alert('No se importó el JSON: ' + error.message);
                     }
                 } else if (file.name.endsWith('.csv')) {
-                    const lines = fileContent.split('\\n');
-                    const importedData = {};
+                    const lines = fileContent.replace(/^\uFEFF/, '').split(/\r?\n/);
+                    const importedData = Object.create(null);
+                    let invalidRows = 0;
                     lines.forEach((line, lineIndex) => {
                         if (!line.trim()) return;
                         const parts = line.trim().split(',');
@@ -2484,7 +2538,13 @@ body { padding-bottom: 92px; }
                             core = '';
                         }
 
-                        if (!ral || isNaN(long) || isNaN(short) || isNaN(count)) return;
+                        if (!ral || !Number.isInteger(Number(long)) || Number(long) <= 0 ||
+                            !Number.isInteger(Number(short)) || Number(short) <= 0 ||
+                            !Number.isInteger(Number(count)) || Number(count) <= 0 ||
+                            (type === 'sandwich' && (!Number.isInteger(Number(thickness)) || Number(thickness) <= 0))) {
+                            invalidRows++;
+                            return;
+                        }
                         if (!importedData[ral]) importedData[ral] = [];
                         importedData[ral].push(normalizeCut({
                             type: type || 'aluminio',
@@ -2497,15 +2557,18 @@ body { padding-bottom: 92px; }
                             core: core || undefined
                         }));
                     });
-                    cutsByRAL = importedData;
-                    saveCuts();
-                    renderCuts();
-                    alert('Base de datos importada desde CSV con éxito.');
+                    if (invalidRows || !Object.keys(importedData).length) {
+                        alert(`No se importó el CSV: ${invalidRows || 'ninguna'} fila(s) inválida(s) o archivo vacío.`);
+                    } else if (applyImportedCuts(importedData)) {
+                        alert('Base de datos importada desde CSV con éxito.');
+                    }
                 } else {
                     alert('Formato de archivo no soportado. Por favor, selecciona un archivo .json o .csv.');
                 }
             };
+            reader.onerror = () => alert('No se pudo leer el archivo.');
             reader.readAsText(file);
+            importFile.value = '';
         });
 
         renderCuts();
