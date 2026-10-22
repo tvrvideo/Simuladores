@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v1.3</title>
+  <title>Cut Máster v1.3.4</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -90,8 +90,7 @@
     .result-panel{display:none}
     .result-panel.active{display:block}
     .diagram-card{margin-bottom:22px}
-    .diagram-title{font-size:27px;font-weight:800;line-height:1.15;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-    .bars-count{display:inline-flex;align-items:center;justify-content:center;background:#cfe0cb;color:#234029;border:1px solid #9fba99;border-radius:10px;padding:6px 10px;font-size:17px;font-weight:800;white-space:nowrap}
+    .diagram-title{font-size:27px;font-weight:800;line-height:1.15;margin-bottom:10px;overflow-wrap:anywhere}
     .diagram-sub{font-size:15px;color:#5e5651;margin-bottom:16px;line-height:1.32}
     .bar-row{display:flex;align-items:center;gap:10px;margin:0 0 12px}
     .bar-label{width:52px;font-size:18px;font-weight:500;line-height:1;padding-top:0}
@@ -210,7 +209,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v1.3</div>
+    <div id="topTitle" class="title">Cut Máster v1.3.4</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -430,7 +429,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.3');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v1.3.4');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -728,11 +727,11 @@
     return map;
   }
 
-  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap){
+  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap, compact = false){
     const width = 900;
-    const height = 118;
-    const topY = 18;
-    const bottomY = 68;
+    const height = compact ? 59 : 118;
+    const topY = compact ? 5 : 18;
+    const bottomY = compact ? 37 : 68;
     const centerY = (topY + bottomY) / 2;
     const leftPad = 16;
     const usableWidth = width - 32;
@@ -860,8 +859,8 @@
 
         fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${useMeasureColors ? pieceColor : '#dfd7cf'}" style="--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}" />`);
         if(innerWidth >= 34){
-          const size = innerWidth < 95 ? 28 : 40;
-          labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+8}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
+          const size = innerWidth < 95 ? (compact ? 15 : 28) : (compact ? 21 : 40);
+          labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
         }
         hitZones.push({
           key,
@@ -943,7 +942,7 @@
       fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${Math.max(2, endX - wasteStart)}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
       const wasteWidth = endX - wasteStart;
       if(wasteWidth >= 90){
-        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+8}" text-anchor="middle" font-size="30" font-family="Arial, sans-serif" fill="#ffffff">${formatLength(waste)}</text>`);
+        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="${compact ? 18 : 30}" font-family="Arial, sans-serif" fill="#ffffff">${formatLength(waste)}</text>`);
       }
       cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     } else {
@@ -952,18 +951,18 @@
 
     const legendItems = Array.from(legendMap.values());
     const legendCols = 2;
-    const legendRowHeight = 46;
-    const legendTop = 104;
+    const legendRowHeight = compact ? 22 : 46;
+    const legendTop = compact ? 54 : 104;
     const legendColWidth = 430;
     legendItems.forEach((item, idx) => {
       const col = idx % legendCols;
       const row = Math.floor(idx / legendCols);
       const lx = leftPad + (col * legendColWidth);
       const ly = legendTop + (row * legendRowHeight);
-      legend.push(`<rect x="${lx}" y="${ly - 22}" width="34" height="34" rx="5" ry="5" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
-      legend.push(`<text x="${lx + 48}" y="${ly + 8}" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#2f241f">${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);
+      legend.push(`<rect x="${lx}" y="${ly - (compact ? 11 : 22)}" width="${compact ? 17 : 34}" height="${compact ? 17 : 34}" rx="${compact ? 2 : 5}" ry="${compact ? 2 : 5}" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
+      legend.push(`<text x="${lx + (compact ? 24 : 48)}" y="${ly + (compact ? 5 : 8)}" font-family="Arial, sans-serif" font-size="${compact ? 20 : 34}" font-weight="700" fill="#2f241f">${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);
     });
-    const totalHeight = 96 + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? 6 : 0);
+    const totalHeight = (compact ? 48 : 96) + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? (compact ? 2 : 6) : 0);
 
     return {
       width,
@@ -1228,10 +1227,10 @@
         barsHtml = mat.bars.map((bar, idx) => {
           const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);
           const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
-          return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head"><span class="bar-head-title">Barra ${idx+1}</span><div class="bar-metrics"><span class="bar-chip">Barra ${formatLength(bar.length)} ${currentUnit()}</span><span class="bar-chip waste">Sobra ${formatLength(bar.remaining || 0)} ${currentUnit()}</span></div></div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
+          return `<div class="bar-row"><div class="bar-label">1x</div><div class="bar-sketch-wrap"><div class="bar-head"><span class="bar-head-title">Barra ${idx+1} de ${mat.bars.length}</span><div class="bar-metrics"><span class="bar-chip">Barra ${formatLength(bar.length)} ${currentUnit()}</span><span class="bar-chip waste">Sobra ${formatLength(bar.remaining || 0)} ${currentUnit()}</span></div></div><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
-      card.innerHTML = `<div class="diagram-title"><span>${escapeHtml(mat.name)}</span><span class="bars-count">${mat.bars.length} ${mat.bars.length === 1 ? 'BARRA' : 'BARRAS'}</span></div>
+      card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
         
         ${barsHtml}`;
       diagramPanel.appendChild(card);
@@ -2296,7 +2295,7 @@
     await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Resultado PDF');
     return { blob: pdfBlob, filename };
   }
-  function buildExportDiagramSvg(){
+  function buildExportDiagramSvg(compact = false){
     const project = currentProject();
     if(!project) return null;
     const result = calculateProject(project);
@@ -2307,18 +2306,17 @@
     const contentX = 190;
     const labelX = 34;
 
-    const topPad = 18;
+    const topPad = compact ? 34 : 18;
     const pageBottomPad = 18;
     const projectTitleSize = 28;
-    const materialTitleSize = 40;
+    const materialTitleSize = compact ? 30 : 40;
     const materialGapBefore = 4;
-    const materialGapAfter = 12;
-    const barGapBefore = 6;
-    const barTitleSize = 24;
-    const barTitleOffset = 14;
-    const qtySize = 30;
-    const qtyYOffset = 30;
-    const afterBarGap = 8;
+    const materialGapAfter = compact ? 22 : 12;
+    const barGapBefore = compact ? 0 : 6;
+    const barTitleSize = compact ? 19 : 24;
+    const qtySize = compact ? 18 : 30;
+    const qtyYOffset = compact ? 18 : 30;
+    const afterBarGap = compact ? 13 : 8;
     const emptyMsgSize = 16;
     const PAGE_H_SVG = 1583.989;
 
@@ -2348,15 +2346,15 @@
     const measureColorMap = buildMeasureColorMap(result);
 
     parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + projectTitleSize + '" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
-    y += 20;
+    y += compact ? 34 : 20;
 
     result.materials.forEach((mat) => {
       const barSketches = (mat.bars || []).map((bar, idx) => {
-        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap);
+        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, compact);
         const sketchInner = sketchPack.svg
           .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
           .replace('</svg>', '');
-        return { bar, idx, sketchPack, sketchInner, blockHeight: barGapBefore + barTitleOffset + sketchPack.height + afterBarGap };
+        return { bar, idx, sketchPack, sketchInner, blockHeight: barGapBefore + (compact ? 18 : 30) + sketchPack.height + afterBarGap };
       });
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
       const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;
@@ -2380,13 +2378,17 @@
 
         const headY = y;
         const metricsY = headY + 20;
-        const sketchY = metricsY + 10;
+        const sketchY = compact ? headY + 18 : metricsY + 10;
         const qtyY = sketchY + qtyYOffset;
         const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
-        parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
-        parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
-        parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
+        if(compact){
+          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" fill="#3c312b">Barra ' + (idx + 1) + ' · ' + escapeHtml(String(bar.length)) + ' mm · Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text>');
+        } else {
+          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
+          parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
+          parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
+        }
         parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">1x</text>');
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
@@ -2446,7 +2448,7 @@
     await shareOrDownloadBlob(pngBlob, safeFileName(pack.projectName + '_resultado_corte', '.png'), 'Resultado PNG');
   }
   async function exportCurrentResultsToPdf(){
-    const pack = buildExportDiagramSvg();
+    const pack = buildExportDiagramSvg(true);
     if(!pack) throw new Error('No hay resultados para exportar');
     const host = document.createElement('div');
     host.style.position = 'fixed';
