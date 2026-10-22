@@ -3,124 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo Precios - Ventanas Rey v1.8</title>
-  <style>
-    :root {
-      --primary: #1e3a8a;
-      --secondary: #0284c7;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #cbd5e1;
-      --text: #0f172a;
-      --error: #ef4444;
-      --warning: #f59e0b;
-      --success: #10b981;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-top: 65px; padding-bottom: 75px; padding-left: 12px; padding-right: 12px; }
-    
-    header { position: fixed; top: 0; left: 0; right: 0; background: var(--primary); color: white; padding: 12px 15px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    
-    .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid var(--border); padding: 8px 12px; z-index: 1000; display: flex; gap: 6px; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
-    .tab-btn { padding: 10px 12px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; text-align: center; color: #475569; }
-    .tab-btn.active { background: var(--secondary); color: white; }
-    
-    .tab-content { display: none; background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; }
-    .tab-content.active { display: block; }
-    
-    .form-group { margin-bottom: 10px; }
-    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.85em; }
-    input, select, button, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
-    
-    .input-medida { background-color: #fef08a !important; font-weight: bold; font-size: 1.1em; text-align: center; }
-    .search-input { background-color: #ffffff; border: 2px solid var(--secondary); margin-bottom: 10px; font-size: 0.9em; }
-    
-    button { background: var(--secondary); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px; }
-    button.danger { background: #ef4444; }
-    button.warning { background: #f59e0b; }
-    button.secondary { background: #64748b; }
-    button.success { background: #10b981; }
-    
-    .btn-group { display: flex; gap: 6px; width: 100%; margin-top: 4px; }
-    .btn-toggle { flex: 1; padding: 10px 4px; background: #f1f5f9; color: #475569; border: 2px solid var(--border); border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; }
-    .btn-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
-    
-    .price-card { background: #e0f2fe; border: 2px solid #38bdf8; padding: 8px 12px; border-radius: 8px; text-align: center; margin-bottom: 12px; }
-    .price-card h2 { font-size: 2.1em; color: var(--primary); line-height: 1.1; margin: 0; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; }
-    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; font-size: 0.82em; }
-    th { background: #f1f5f9; }
-    
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-    .row-medidas { display: flex; gap: 10px; }
-    .row-medidas .form-group { flex: 1; }
-    
-    .box { border: 1px solid var(--border); padding: 12px; border-radius: 6px; margin-bottom: 12px; background: #fafafa; }
-    .sub-tab { display: flex; gap: 5px; margin: 10px 0; flex-wrap: wrap; }
-    .sub-tab-btn { padding: 6px 12px; background: #cbd5e1; border: none; border-radius: 4px; cursor: pointer; }
-    .sub-tab-btn.active { background: var(--primary); color: white; }
-    textarea { font-family: monospace; font-size: 12px; resize: vertical; }
-    
-    .selector-especifico { background: #e0f2fe; padding: 10px; border-radius: 6px; border: 1px solid #bae6fd; margin-top: 8px; }
-    .formula-error { color: var(--error); font-weight: bold; background-color: #fee2e2; border-color: var(--error); }
-    .tag-minimo { color: #d97706; font-size: 0.8em; font-weight: bold; display: block; }
-    .badge-mat { padding: 2px 5px; border-radius: 3px; font-size: 0.75em; font-weight: bold; color: white; }
-    .badge-alu { background-color: #0284c7; }
-    .badge-pvc { background-color: #16a34a; }
-
-    /* v1.5 - Botón Menú para volver al index de GitHub */
-    .btn-menu-index {
-      position: fixed;
-      top: 8px;
-      left: 10px;
-      z-index: 2000;
-      width: auto;
-      padding: 9px 13px;
-      margin: 0;
-      background: #dc2626 !important;
-      color: #ffffff !important;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-menu-index:active { transform: scale(0.97); }
-
-    /* Deja espacio para que el botón Menú no tape el título */
-    header h1 { margin-left: 88px; }
-    #appVersionHeader { flex: 0 0 auto; white-space: nowrap; }
-  </style>
-
-<style id="ganancia-v180-style">
-.gain-title{font-weight:700;margin-bottom:7px}
-.gain-row{display:flex;gap:7px;flex-wrap:wrap}
-.gain-row button{border:0;border-radius:9px;padding:8px 10px;font-weight:700;background:#f0c400;color:#111}
-.gain-fields{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-.gain-fields label{font-size:13px;font-weight:600}
-.gain-fields input{display:block;width:110px;margin-top:4px;padding:8px;border:1px solid #c8b45b;border-radius:8px;background:#fff}
-.gain-result{margin-top:8px;font-weight:700}
-</style>
-<style id="ajustes-v181-style">
-.tab-btn-settings{flex:0 0 48px;min-width:48px;font-size:20px;line-height:1;padding-left:6px;padding-right:6px}
+  <title>Cálculo Precios - Ventanas Rey v1.8.20</title>
+  <style id="motor-series-style">
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, -apple-system, sans-serif}body{background-color:var(--bg);padding-top:65px;padding-left:12px;padding-right:12px}header{position:fixed;top:0;left:0;right:0;color:white;z-index:1000;display:flex;justify-content:space-between;align-items:center}.nav-tabs{position:fixed;bottom:0;left:0;right:0;z-index:1000;display:flex}.tab-btn{cursor:pointer;font-weight:bold;flex:1;text-align:center}.tab-content{display:none}.tab-content.active{display:block}.form-group{margin-bottom:10px}label{display:block;font-weight:600;margin-bottom:4px;font-size:0.85em}input, select, button, textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:14px}.input-medida{background-color:#fef08a !important;font-weight:bold;font-size:1.1em;text-align:center}.search-input{background-color:#ffffff;border:2px solid var(--secondary);margin-bottom:10px;font-size:0.9em}button{border:none;font-weight:bold;cursor:pointer;margin-top:5px}.btn-group{display:flex;gap:6px;width:100%;margin-top:4px}.btn-toggle{flex:1;padding:10px 4px;font-weight:bold;cursor:pointer;text-align:center;transition:all 0.2s}.price-card{background:#e0f2fe;border:2px solid #38bdf8;padding:8px 12px;border-radius:8px;text-align:center;margin-bottom:12px}.price-card h2{font-size:2.1em;color:var(--primary);line-height:1.1;margin:0}table{width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:15px}th, td{border:1px solid var(--border);padding:8px;text-align:left;font-size:0.82em}th{background:#f1f5f9}.grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px}.row-medidas{display:flex;gap:10px}.row-medidas .form-group{flex:1}.box{margin-bottom:12px}.sub-tab{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}.sub-tab-btn{padding:6px 12px;background:#cbd5e1;border:none;border-radius:4px;cursor:pointer}.sub-tab-btn.active{background:var(--primary);color:white}textarea{font-family:monospace;font-size:12px;resize:vertical}.selector-especifico{background:#e0f2fe;padding:10px;border-radius:6px;border:1px solid #bae6fd;margin-top:8px}.formula-error{color:var(--error);font-weight:bold;background-color:#fee2e2;border-color:var(--error)}.tag-minimo{font-size:0.8em;font-weight:bold;display:block}.badge-mat{padding:2px 5px;border-radius:3px;font-size:0.75em;font-weight:bold;color:white}.badge-alu{background-color:#0284c7}.badge-pvc{background-color:#16a34a}.btn-menu-index{position:fixed;top:8px;left:10px;z-index:2000;width:auto;margin:0;color:#ffffff !important;border:none;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.25);touch-action:manipulation;-webkit-tap-highlight-color:transparent}.btn-menu-index:active{transform:scale(0.97)}#appVersionHeader{flex:0 0 auto;white-space:nowrap}#containerSelGanancia{margin:8px 0 0;padding:9px 11px}.gain-compact{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.gain-compact button{width:auto;min-width:108px;margin:0;padding:9px 10px;background:var(--primary);border-radius:7px;font-size:14px}.gain-compact label{margin:0;font-size:12px;white-space:nowrap}.gain-compact input{display:block;width:90px;margin-top:3px;padding:8px;font-size:16px;background:#fff}.gain-result{flex:1;min-width:105px;text-align:right;font-weight:700;font-size:15px;padding-bottom:7px}#almacen .sub-tab-btn{min-width:0;padding:8px 3px;line-height:1.2}@media(max-width:380px){.gain-result{text-align:left;min-width:100%}}.tab-content{border-color:#aebfd2}#inicio>.grid{border-color:#9bd4c8}#inicio>.form-group{border-color:#c9b9e9}#inicio .selector-especifico{border-color:#a8d6ef}#despiece h4{margin:15px 0 0}#despiece table{margin-top:0;background:#fff;border:1px solid #9ebce4}#despiece th{color:#17346d}#despiece tbody tr:nth-child(even){background:#f3f8fd}#almacen>.form-group{background:#e7f4ff;border:1px solid #a9cfec;padding:9px;border-radius:9px}#almacen .search-input{margin:0}#almacen #boxFormAlmacen h5{font-size:15px;margin-bottom:10px}#almacen #tblAlmacen{background:#fff}#series>.form-group{border-radius:9px;padding:11px}#series #editorSerie>.box:first-child{border-color:#a8c9ed;border-left:5px solid #3986c9}#series input[type="checkbox"]{width:auto;margin:0 5px 0 0;accent-color:#176fc2}#series #editorSerie>.box:first-child div>label{display:inline-flex;align-items:center;gap:3px;margin-right:8px}#series #editorSerie>h4{padding:9px 11px;margin:15px 0 6px}#series #boxFormCorte{border-color:#b8cbeb;border-left:5px solid #3268b5}#series #editorSerie .box h5{font-size:15px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid currentColor}#series #editorSerie .box table{background:#fff}#series #editorSerie .box th{background:#e5ebf2}input:not([type="checkbox"]),select,textarea{background-color:#fff}.tab-btn-settings{font-size:20px;line-height:1;padding-left:6px;padding-right:6px}.tab-content>h3{margin-bottom:14px}.tab-btn{border-color:#9eb5cf}#inicio .row-medidas{border:2px solid #6da4df}#inicio>.grid{background:#cef0e7;border:2px solid #51ad98}#inicio>.form-group{background:#e0d8f7;border:2px solid #9a7ccc}#inicio #containerSelGanancia{border:2px solid #d7a436}#despiece th{background:#cadcf5}#almacen .sub-tab-btn{background:#bdcfe4;color:#18365d;border:1px solid #8aa8cb}#almacen .sub-tab-btn.active{background:#214586;color:#fff;border-color:#214586}#almacen .almacen-filtros{display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,38%);align-items:end;margin:10px 0}#almacen .almacen-filtros label{margin:0}#almacen .almacen-filtros select,#almacen .almacen-filtros input{font-size:16px;margin:4px 0 0;min-width:0}#almacen #boxFormAlmacen{border-left-width:7px}#almacen #boxFormAlmacen h5{padding:9px;border-radius:5px;margin:-3px -3px 11px}#btnMostrarFormularioAlmacen{border-radius:9px;padding:11px;font-size:16px;text-align:center}#almacen #thAlmacen{background:#c9dbf2}#series>.box{border-left-width:7px}#series #editorSerie>.box:first-child{background:#d6e8ff;border:2px solid #70a6e0;border-left-width:7px}#series #boxFormCorte{background:#dce8fa;border:2px solid #7298d3;border-left-width:7px}#series #boxFormVidrio{border-left-width:7px}#series #boxFormAcc{border-left-width:7px}#series #boxFormCorte h5,#series #boxFormVidrio h5,#series #boxFormAcc h5{color:#fff;padding:9px;border:0;border-radius:5px;margin:-2px -2px 11px}#ajustes>.box{border-width:2px;border-left-width:7px}@media(max-width:360px){#almacen .almacen-filtros{grid-template-columns:1fr}}#almacen .sub-tab-btn{font-size:14px;min-height:42px}#containerSelPersiana .row-medidas{margin:9px 0 7px}#containerSelPersiana .row-medidas input{font-size:16px;background:#fff}#btnMedidasVentanaPersiana{width:auto;background:#17649b;padding:8px 11px;font-size:13px;margin:0}#estadoMedidasPersiana{font-size:12px;font-weight:700;margin-top:6px}:root{--primary:#173a5c;--secondary:#08749a;--bg:#dce6ef;--surface:#f2f6fa;--border:#9fb4c8;--text:#18324a;--success:#087767;--warning:#9a6008;--error:#b42332}body{padding:68px 10px 145px}header{min-height:60px;box-shadow:0 2px 10px #10283e33;padding:10px 14px}header h1{font-size:clamp(19px,5vw,26px);letter-spacing:-.025em;margin-left:76px;white-space:nowrap}#appVersionHeader{font-size:12px!important;opacity:.85!important}.btn-menu-index{background:#bd3030!important;padding:8px 10px;font-size:13px;border-radius:7px}.nav-tabs{box-shadow:0 -3px 12px #10283e30}.tab-btn{background:#e0eaf2;border:1px solid #a7bfd1;color:#173a5c;border-radius:8px;padding:10px 3px;font-size:clamp(12px,3.2vw,15px);min-width:0}.tab-btn.active{background:#08749a;border-color:#69c0d1;color:#fff}.tab-btn-settings{flex:0 0 44px;min-width:44px}.tab-content{padding:13px;margin-bottom:14px}.tab-content>h3{border-bottom:3px solid #0d8292;line-height:1.2}.box{background:#e6eef5;color:#18324a;border:1px solid #b6c8d8;border-left:4px solid #5287ad;border-radius:9px;padding:12px}input:not([type="checkbox"]),select,textarea{border:1px solid #9bafc2;border-radius:7px;min-height:39px}input::placeholder,textarea::placeholder{color:#667789;opacity:1}input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:3px solid #43aeca;outline-offset:2px}button{background:#08749a;color:#fff;border-radius:7px}button.secondary{background:#4b6076;color:#fff}.btn-toggle{background:#e4edf4;color:#18324a;border:1px solid #a3b9cb;border-radius:8px}.btn-toggle.active{background:#145b82;border-color:#145b82;color:#fff}#inicio .price-card{position:sticky;top:66px;z-index:900;border-radius:11px;padding:11px}#inicio .price-card h2{color:#fff;font-size:clamp(29px,8vw,39px)}#inicio .row-medidas,#inicio>.grid,#inicio>.form-group{background:#e6eef5;color:#18324a;border:1px solid #afc4d6;border-radius:10px;padding:11px;margin:10px 0}#inicio .row-medidas{background:#dceaf5;border-left:4px solid #2885b5}#inicio>.grid{border-left:4px solid #248c87}#inicio>.form-group{border-left:4px solid #5287ad}#inicio .row-medidas .form-group,#inicio>.grid .form-group{margin-bottom:0}#inicio .input-medida{font-size:20px}#inicio .selector-especifico{border-radius:9px;color:#18324a}#inicio #containerSelGanancia{border-left:4px solid #a36d17}#containerSelPersiana .row-medidas{background:transparent;border:0;padding:0}#despiece h4{border:1px solid #b2c8d9;border-radius:8px 8px 0 0;padding:9px 11px;font-size:16px}th,td{border-color:#b4c5d4}#almacen .sub-tab{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}#almacen .sub-tab-btn,#series .sub-tab-btn{border-radius:8px;font-size:13px;min-height:42px}#almacen .almacen-filtros{border-radius:10px;padding:10px;gap:8px}#almacen .search-input{background:#fff;color:#18324a;border-color:#91adc0}#btnMostrarFormularioAlmacen{margin:0 0 12px}#almacen #boxFormAlmacen{color:#18324a}#almacen #tblAlmacen{min-width:520px}#series #editorSerie>h4{border-radius:8px}#ajustes>.box{background:#e6eef5!important;border:1px solid #b6c8d8!important;border-left:4px solid #5287ad!important}#ajustes>.box:nth-of-type(2){border-left-color:#168474!important}#pasamanosRecepcion{color:#173a5c}#pasamanosPrecioResumen{color:#14532d}.context-actions{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 8px}.context-actions button{position:static!important;right:auto!important;bottom:auto!important;max-width:none!important;margin:0!important;box-shadow:none!important;padding:8px 11px!important;font-size:12px!important;border-radius:7px!important}#btnVolverVentanaPro,#pasBtnVolverConPrecio{background:#315b79!important}#btnVolverDocumentosMotor{background:#087767!important}@media(max-width:380px){.tab-content{padding:10px}.tab-btn{font-size:12px;padding:9px 2px}header h1{margin-left:72px}}body{padding-bottom:118px}.nav-tabs{background:#163b5a;border-top:1px solid #3c7292;gap:3px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}.nav-tabs .tab-btn,.nav-tabs .tab-btn-settings{display:flex;flex:1 1 0;min-width:0;min-height:54px;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0;padding:5px 2px;background:transparent;border:1px solid transparent;border-radius:10px;color:#d4e7f4;font-size:11px;font-weight:700;line-height:1.1;box-shadow:none}.nav-tabs .tab-btn svg{width:19px;height:19px;flex:none;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.nav-tabs .tab-btn span{pointer-events:none}.nav-tabs .tab-btn.active{background:#087fb7;border-color:#5bc0e0;color:#fff;box-shadow:0 2px 7px #071d31a8}.tab-content{border-radius:12px}.tab-content>h3{border:0;border-radius:8px;padding:10px 13px;margin:0 0 14px;font-size:20px}#inicio>.row-medidas,#inicio>.grid,#inicio>.panel-hojas,#inicio>.panel-componentes{padding:11px 12px;border:1px solid;border-radius:10px;overflow:hidden}#inicio>.row-medidas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#inicio .panel-heading,#inicio>.panel-hojas>label,#inicio>.panel-componentes>label{display:block;grid-column:1/-1;margin:-11px -12px 11px;padding:8px 12px;color:#fff!important;font-size:14px;font-weight:800;line-height:1.25}#inicio .row-medidas .form-group,#inicio>.grid .form-group{min-width:0}#inicio .btn-toggle{border:1px solid #87a5bb}#almacen .sub-tab-btn,#series .sub-tab-btn{border:1px solid #8caec5;font-weight:750}#almacen .almacen-filtros{border:1px solid #174566}#btnMostrarFormularioAlmacen{border:1px solid #076357;font-weight:800}#almacen #boxFormAlmacen{border:1px solid #c6a670;border-left:4px solid #a6741b}#almacen #tblAlmacen{border:1px solid #8eacc3}#series>.box{border:1px solid #9dbcd4;border-left:4px solid #287fae}#series>.form-group{border:1px solid #7dbbad;border-left:4px solid #168274}#series #editorSerie>.box:first-child,#series #boxFormCorte{border:1px solid #a3c1d5;border-left:4px solid #287fae}#series #boxFormVidrio{border:1px solid #97c6b8;border-left:4px solid #168274}#series #boxFormAcc{border:1px solid #dbc596;border-left:4px solid #a6751b}#ajustes>.box:first-of-type{border:1px solid #a3c1d5!important;border-left:4px solid #287fae!important}#ajustes>.box:nth-of-type(2){border:1px solid #97c6b8!important;border-left:4px solid #168274!important}#ajustes .box h5{padding:9px 11px;border-radius:6px}button.success{color:#fff}@media(max-width:380px){#inicio>.row-medidas,#inicio>.grid,#inicio>.panel-hojas,#inicio>.panel-componentes{padding:10px}#inicio .panel-heading,#inicio>.panel-hojas>label,#inicio>.panel-componentes>label{margin:-10px -10px 10px}}body{background:linear-gradient(155deg,#ded8c7,#f1e9d8 52%,#e4e5cd);color:#25302e}header{background:linear-gradient(110deg,#303936,#41453a);border-bottom:2px solid #f2c847}.tab-content{background:linear-gradient(155deg,#fffdf4,#f4f2e4);border:1px solid #abae87;box-shadow:0 7px 19px #323b2830;color:#25302e}.tab-content>h3{background:linear-gradient(100deg,#31433b,#136f4b);color:#fff;box-shadow:0 3px 8px #2f513630,inset 4px 0 0 #f4c44b}label{color:#25302e}input:not([type="checkbox"]),select,textarea{background:#fffefa;color:#25302e;border-color:#9da990}#inicio .price-card{background:linear-gradient(115deg,#264b3b,#0b8051 65%,#28a16a);border:2px solid #f0cb50;box-shadow:0 6px 14px #254d3750}#inicio>.row-medidas,#inicio>.grid,#inicio>.panel-hojas,#inicio>.panel-componentes{border-width:2px;box-shadow:0 5px 12px #36462a27,inset 0 1px 0 #ffffffa6}#inicio>.row-medidas{background:linear-gradient(125deg,#f4d977,#fff3c5);border-color:#c99822}#inicio>.panel-serie{background:linear-gradient(125deg,#9edcaf,#ebf8e9);border-color:#379b62}#inicio>.panel-hojas{background:linear-gradient(125deg,#dce6ca,#f6f8e9);border-color:#91a36f}#inicio>.panel-componentes{background:linear-gradient(125deg,#ffc89c,#fff0dc);border-color:#d67a37}#inicio>.row-medidas .panel-heading{background:linear-gradient(95deg,#e2b724,#f3d254);color:#25302e!important}#inicio>.panel-serie .panel-heading{background:linear-gradient(95deg,#086a42,#118153)}#inicio>.panel-hojas>label{background:linear-gradient(95deg,#485e3f,#607a4b)}#inicio>.panel-componentes>label{background:linear-gradient(95deg,#e96a27,#f39444);color:#25302e!important}#inicio .input-medida{background:#fffdf2!important;color:#25302e;border:2px solid #a9821b;box-shadow:0 2px 5px #715b2324}#inicio .btn-toggle{background:linear-gradient(#fffefa,#edf0df);color:#25302e;border-color:#91a281;box-shadow:0 3px 0 #36462a26}#inicio .btn-toggle.active{background:linear-gradient(115deg,#148958,#086b43);color:#fff;border-color:#075c38;box-shadow:0 3px 0 #075439}#inicio #btnPulsadorPersiana.active{background:linear-gradient(115deg,#ef7d33,#d6681e);color:#25302e;border-color:#b7501a}#inicio #btnPulsadorGanancia.active{background:linear-gradient(115deg,#eac347,#d9aa25);color:#25302e;border-color:#a77e1b}#inicio .selector-especifico{background:linear-gradient(125deg,#b7e6c7,#edf8e9);border:1px solid #64af78;border-left:4px solid #118153;box-shadow:0 3px 9px #285a3325}#inicio #containerSelGanancia{background:linear-gradient(125deg,#f1d164,#fff1be);border-color:#ba922e;border-left-color:#a87816}#inicio #containerSelGanancia button{background:#9c6b16;color:#fff}#inicio .selector-especifico label{color:#25302e!important}#inicio .selector-especifico [style*="color:#354466"]{color:#465141!important}#estadoMedidasPersiana{color:#176242}#despiece h4{background:linear-gradient(100deg,#f2d67b,#fff2ca);border-color:#d1b05a;border-left:4px solid #bb8e1c;color:#493a13}#despiece h4:nth-of-type(2){background:linear-gradient(100deg,#b4e4c1,#edfaeb);border-color:#7bbb8b;border-left-color:#118153;color:#17553b}#despiece h4:nth-of-type(3){background:linear-gradient(100deg,#fbc291,#fff0d6);border-color:#d9a16e;border-left-color:#dd6a20;color:#683610}table,#despiece table,#almacen #tblAlmacen,#series #editorSerie .box table{background:#fffefa;color:#25302e;border-color:#b4b9a7}th,#despiece th,#almacen #tblAlmacen thead th,#series #editorSerie .box th{background:linear-gradient(100deg,#465447,#303f38);color:#fff}#despiece #tblDespieceVidrios th{background:linear-gradient(100deg,#118153,#086b43);color:#fff}#despiece #tblDespieceAccesorios th{background:linear-gradient(100deg,#edc445,#dbac27);color:#25302e}#despiece tbody tr:nth-child(even),#almacen #tblAlmacen tbody tr:nth-child(even),#series #editorSerie .box tbody tr:nth-child(even){background:#f5f3e6}#almacen .sub-tab-btn,#series .sub-tab-btn{background:linear-gradient(#fffefa,#e9eddb);color:#25302e;border-color:#9cac83;box-shadow:0 3px 0 #36462a25}#almacen .sub-tab-btn.active,#series .sub-tab-btn.active{background:linear-gradient(110deg,#148958,#086b43);color:#fff;border-color:#075c38;box-shadow:0 3px 0 #075439}#almacen .almacen-filtros{background:linear-gradient(110deg,#30463a,#117148);border-color:#265b3d;color:#fff;box-shadow:0 6px 12px #2e57393d}#almacen .almacen-filtros label{color:#fff}#almacen .almacen-filtros input,#almacen .almacen-filtros select{background:#fffefa;color:#25302e}#btnMostrarFormularioAlmacen{background:linear-gradient(110deg,#f38b3b,#ee742a);color:#25302e;box-shadow:0 4px 0 #b95819;border-color:#c75b1c}#almacen #boxFormAlmacen{background:linear-gradient(130deg,#f6da88,#fff3cc);border-color:#cba13b;box-shadow:0 4px 11px #6b592127}#almacen #boxFormAlmacen h5{background:linear-gradient(100deg,#e7bd3e,#f2d166);color:#25302e}#almacen #tblAlmacen{border-color:#a6b098}#almacen #tblAlmacen thead th{background:linear-gradient(100deg,#435844,#31483a);color:#fff}#almacen #tblAlmacen td span:not(.badge-mat){color:#25302e!important}#series>.box{background:linear-gradient(130deg,#f4dc9d,#fff3d2);border-color:#cfa955;box-shadow:0 4px 10px #4c4a2723}#series>.form-group{background:linear-gradient(130deg,#aee1ba,#edf8e7);border-color:#71b383;box-shadow:0 4px 10px #285a3320}#series #editorSerie>.box:first-child,#series #boxFormCorte{background:linear-gradient(130deg,#f2d77e,#fff2cc);border-color:#d0ae57}#series #boxFormVidrio{background:linear-gradient(130deg,#b7e5c3,#edf9e9);border-color:#7fbc8f}#series #boxFormAcc{background:linear-gradient(130deg,#fbc799,#fff0d8);border-color:#d9a572}#series #editorSerie .box .form-group label{color:#25302e}#series #editorSerie>h4{background:linear-gradient(100deg,#354b3d,#166e4a);color:#fff}#series #boxFormCorte h5{background:linear-gradient(100deg,#e3b629,#f2ce4f);color:#25302e}#series #boxFormVidrio h5{background:linear-gradient(100deg,#086a42,#118153);color:#fff}#series #boxFormAcc h5{background:linear-gradient(100deg,#e86b27,#f39444);color:#25302e}#ajustes>.box:first-of-type{background:linear-gradient(130deg,#f2d77e,#fff2cc)!important;border-color:#d0ae57!important}#ajustes>.box:nth-of-type(2){background:linear-gradient(130deg,#b7e5c3,#edf9e9)!important;border-color:#7fbc8f!important}#ajustes .box h5{background:linear-gradient(100deg,#e3b629,#f2ce4f);color:#25302e!important}#ajustes>.box:nth-of-type(2) h5{background:linear-gradient(100deg,#086a42,#118153);color:#fff!important}#ajustes .box [style*="color:#475569"]{color:#435046!important}.badge-alu{background:#4c6351}.badge-pvc{background:#0b8051}.tag-minimo{color:#77530d}button:not(.tab-btn):not(.btn-toggle):not(.sub-tab-btn):not(.secondary):not(.warning):not(.danger):not(.success):not(.btn-menu-index){background:linear-gradient(115deg,#148958,#086b43)}button.success{background:linear-gradient(115deg,#148958,#086b43)}button.warning{background:linear-gradient(115deg,#f18c3e,#e77529);color:#25302e}button.danger{background:linear-gradient(115deg,#d84431,#bb3026);color:#fff}
 </style>
 
-<style id="v185-fixes-style">
-#gainBoxAjustes{margin:12px 0;padding:10px;border-radius:12px;background:#fff4bf;border:1px solid #e4cf69}
-#inicio .price-card{
-  position:sticky;
-  top:65px;
-  z-index:900;
-  box-shadow:0 2px 7px rgba(0,0,0,.14);
-}
-</style>
 </head>
 <body>
   <!-- v1.5 - Volver al menú principal de GitHub -->
   <button type="button" class="btn-menu-index" onclick="volverAlIndex()">Menú</button>
+  <!-- HEADER FIJO -->
+  <header>
+    <h1>Cálculo Precios</h1>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.8.20</span>
+  </header>
+
+  <!-- NAVEGACIÓN INFERIOR FIJA -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab(event, 'inicio')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></button>
+    <button class="tab-btn" onclick="switchTab(event, 'despiece')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14M5 10h14M5 15h14M5 20h9"/><path d="M3 5h.01M3 10h.01M3 15h.01M3 20h.01"/></svg><span>Despiece</span></button>
+    <button class="tab-btn" onclick="switchTab(event, 'almacen')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13zM3 10h18M8 21v-7h8v7"/></svg><span>Almacén</span></button>
+    <button class="tab-btn" onclick="switchTab(event, 'series')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg><span>Series</span></button>
+    <button class="tab-btn tab-btn-settings" aria-label="Ajustes" title="Ajustes" onclick="switchTab(event, 'ajustes')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><span>Ajustes</span></button>
+  </div>
+
+  <div class="context-actions">
   <button type="button" id="btnVolverVentanaPro" onclick="volverAVentanaProDesdeMotor()" style="display:none;position:fixed;right:10px;bottom:64px;z-index:1200;border:0;border-radius:8px;padding:6px 9px;background:#b91c1c;color:#fff;font-size:11px;line-height:1.15;font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.18);width:auto;min-width:0">← Ventana Pro</button>
   <button type="button" id="btnVolverDocumentosMotor" onclick="volverADocumentosDesdeMotor()" style="display:none;position:fixed;right:112px;bottom:64px;z-index:1200;border:0;border-radius:8px;padding:7px 10px;background:#16a34a;color:#fff;font-size:11px;line-height:1.15;font-weight:800;box-shadow:0 2px 5px rgba(0,0,0,.18);width:auto;min-width:0">✓ Documentos</button>
 
@@ -128,19 +35,6 @@
   <!-- Retorno contextual: flotante, accesible en todas las pestañas de Motor. -->
   <button type="button" id="pasBtnVolverConPrecio" onclick="devolverPrecioPasamanos()" title="Aplicar precios de materiales y volver a Pasamanos" aria-label="Aplicar precios y volver a Pasamanos" style="display:none;position:fixed;right:10px;bottom:calc(65px + env(safe-area-inset-bottom, 0px));z-index:1300;width:auto;max-width:45vw;margin:0;padding:9px 12px;background:#dc2626;color:#fff;font-weight:800;font-size:13px;line-height:1.2;border-radius:11px;border:1px solid #991b1b;box-shadow:0 3px 9px #7f1d1d55">↩ Pasamanos</button>
 
-  <!-- HEADER FIJO -->
-  <header>
-    <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.8</span>
-  </header>
-
-  <!-- NAVEGACIÓN INFERIOR FIJA -->
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab(event, 'inicio')">Inicio</button>
-    <button class="tab-btn" onclick="switchTab(event, 'despiece')">Despiece</button>
-    <button class="tab-btn" onclick="switchTab(event, 'almacen')">Almacén</button>
-    <button class="tab-btn" onclick="switchTab(event, 'series')">Series</button>
-    <button class="tab-btn tab-btn-settings" aria-label="Ajustes" title="Ajustes" onclick="switchTab(event, 'ajustes')">⚙️</button>
   </div>
 
   <!-- INICIO -->
@@ -163,7 +57,8 @@
       <div style="margin-top:8px;font-size:12px;color:#475569">Motor envía el coste de perfiles y accesorios. Pasamanos aplica una sola vez la ganancia, el montaje y el IVA.</div>
     </div>
     <div id="pasamanosRecepcionError" style="display:none;margin:10px 0;padding:10px;color:#991b1b;background:#fee2e2;border-radius:8px"></div>
-    <div class="row-medidas">
+    <div class="row-medidas panel-medidas">
+      <div class="panel-heading">Medidas de la ventana</div>
       <div class="form-group">
         <label>Ancho (mm)</label>
         <input type="number" id="inpAncho" class="input-medida" value="1000" oninput="calcular()">
@@ -174,7 +69,8 @@
       </div>
     </div>
 
-    <div class="grid" style="margin-top: 5px;">
+    <div class="grid panel-serie" style="margin-top: 5px;">
+      <div class="panel-heading">Serie y acabado</div>
       <div class="form-group">
         <label>Serie</label>
         <select id="selSerie" onchange="alCambiarSerieInicio()"></select>
@@ -185,7 +81,7 @@
       </div>
     </div>
 
-    <div class="form-group" style="margin-top: 10px;">
+    <div class="form-group panel-hojas" style="margin-top: 10px;">
       <label>Número de Hojas</label>
       <div class="btn-group" id="groupHojasBotones">
         <button type="button" class="btn-toggle" data-val="0" onclick="seleccionarHojasBtn(0)">0 (Fijo)</button>
@@ -197,7 +93,7 @@
     </div>
 
     <!-- BOTONES PULSADORES DE OPCIONES/COMPONENTES -->
-    <div class="form-group" style="margin-top: 15px;">
+    <div class="form-group panel-componentes" style="margin-top: 15px;">
       <label>Opciones y Componentes</label>
       <div class="btn-group">
         <button type="button" id="btnPulsadorVidrio" class="btn-toggle active" onclick="toggleOpcionPulsador(this, 'containerSelVidrio')">Vidrio</button>
@@ -205,6 +101,7 @@
         <button type="button" id="btnPulsadorPersiana" class="btn-toggle" onclick="toggleOpcionPulsador(this, 'containerSelPersiana')">Persiana</button>
         <button type="button" id="btnPulsadorGanancia" class="btn-toggle" onclick="toggleGananciaDesdeInicio()">Ganancia</button>
       </div>
+      <div style="font-size:12px;color:#354466;margin-top:7px;">Vidrio y chapa son alternativas: al elegir una se sustituye la otra.</div>
     </div>
 
     <!-- SELECTORES -->
@@ -221,24 +118,26 @@
     <div class="form-group selector-especifico" id="containerSelPersiana" style="display:none;">
       <label style="color: #0369a1;">Seleccionar Modelo de Persiana</label>
       <select id="selPersianaMaterial" onchange="calcular()"></select>
+      <div class="row-medidas">
+        <div class="form-group"><label for="inpPersianaAncho">Ancho persiana (mm)</label><input type="number" id="inpPersianaAncho" min="1" inputmode="decimal" oninput="editarMedidasPersiana()"></div>
+        <div class="form-group"><label for="inpPersianaAlto">Alto persiana (mm)</label><input type="number" id="inpPersianaAlto" min="1" inputmode="decimal" oninput="editarMedidasPersiana()"></div>
+      </div>
+      <button type="button" id="btnMedidasVentanaPersiana" onclick="usarMedidasVentanaPersiana()">Usar medidas de ventana</button>
+      <div id="estadoMedidasPersiana">Medidas de ventana</div>
+    </div>
+    <div id="containerSelGanancia" class="form-group selector-especifico" style="display:none;">
+      <div class="gain-compact">
+        <button type="button" id="btnGananciaModo" onclick="alternarModoGanancia()">Porcentaje</button>
+        <label id="lblGananciaPct">Porcentaje (%)
+          <input id="inpGananciaPct" type="number" inputmode="decimal" min="0" step="0.01" value="40">
+        </label>
+        <label id="lblGananciaFija" style="display:none">Importe (€)
+          <input id="inpGananciaFija" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+        </label>
+        <div id="gananciaResultado" class="gain-result">+0,00 €</div>
+      </div>
     </div>
   </div>
-
-    <div id="containerSelGanancia" class="form-group selector-especifico" style="display:none;">
-  <label style="color:#0369a1;">Configurar Ganancia</label>
-  <div class="gain-row">
-    <button type="button" id="btnGananciaModo" onclick="alternarModoGanancia()">Modo: PORCENTAJE</button>
-  </div>
-  <div class="gain-fields">
-    <label id="lblGananciaPct">Porcentaje
-      <input id="inpGananciaPct" type="number" inputmode="decimal" min="0" step="0.01" value="40">
-    </label>
-    <label id="lblGananciaFija" style="display:none">Importe fijo (€)
-      <input id="inpGananciaFija" type="number" inputmode="decimal" min="0" step="0.01" value="0">
-    </label>
-  </div>
-  <div id="gananciaResultado" class="gain-result">Ganancia: 0,00 €</div>
-</div>
 
   <!-- DESPIECE -->
   <div id="despiece" class="tab-content">
@@ -295,15 +194,27 @@
     <div class="sub-tab">
       <button class="sub-tab-btn active" onclick="switchAlmacenCat(event, 'barras')">Barras / Perfiles</button>
       <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'vidrios')">Vidrios y Chapas</button>
-      <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'accesorios')">Accesorios / Persianas</button>
+      <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'persianas')">Persianas</button>
+      <button class="sub-tab-btn" onclick="switchAlmacenCat(event, 'accesorios')">Accesorios</button>
     </div>
 
     <!-- BUSCADOR DE ALMACÉN -->
-    <div class="form-group">
-      <input type="text" id="busquedaAlmacen" class="search-input" placeholder="🔍 Buscar por nombre o referencia..." oninput="filtrarAlmacen()">
+    <div class="almacen-filtros">
+      <label>Buscar
+        <input type="text" id="busquedaAlmacen" class="search-input" placeholder="Nombre o referencia" oninput="filtrarAlmacen()">
+      </label>
+      <label>Ordenar lista
+        <select id="ordenAlmacen" onchange="renderAlmacen()">
+          <option value="nombre-asc">Nombre A-Z</option>
+          <option value="nombre-desc">Nombre Z-A</option>
+          <option value="reciente">Nuevos primero</option>
+          <option value="original">Orden original</option>
+        </select>
+      </label>
     </div>
 
-    <div class="box" id="boxFormAlmacen">
+    <button type="button" id="btnMostrarFormularioAlmacen" aria-expanded="false" onclick="abrirFormularioAlmacen()">+ Añadir material</button>
+    <div class="box" id="boxFormAlmacen" style="display:none;">
       <h5 id="albTituloForm">Añadir / Editar Elemento</h5>
       <input type="hidden" id="editItemIndex" value="-1">
       
@@ -358,8 +269,8 @@
       <!-- FORMULARIO ACCESORIOS -->
       <div id="formAccesoriosFields" class="grid" style="display:none;">
         <div class="form-group" style="grid-column: span 2;">
-          <label>Nombre Elemento / Persiana</label>
-          <input type="text" id="albAccNombre" placeholder="Ej: Ruleta G-90 o Persiana PVC">
+          <label>Nombre del accesorio</label>
+          <input type="text" id="albAccNombre" placeholder="Ej: Ruleta G-90 o motor">
         </div>
         <div class="form-group">
           <label>Tipo Cálculo</label>
@@ -371,6 +282,17 @@
         <div class="form-group">
           <label>Precio (€)</label>
           <input type="number" id="albAccPrecio" step="0.01" placeholder="45.00">
+        </div>
+      </div>
+
+      <div id="formPersianasFields" class="grid" style="display:none;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Nombre de la persiana</label>
+          <input type="text" id="albPersianaNombre" placeholder="Ej: Persiana aluminio o motorizada">
+        </div>
+        <div class="form-group">
+          <label>Precio por m² (€)</label>
+          <input type="number" id="albPersianaPrecio" min="0" step="0.01" inputmode="decimal" placeholder="60.00">
         </div>
       </div>
 
@@ -552,28 +474,6 @@
   <!-- AJUSTES -->
   <div id="ajustes" class="tab-content">
     <h3>Ajustes</h3>
-
-    <div class="gain-box" id="gainBoxAjustes">
-      <div class="gain-title">Ganancia</div>
-      <div class="gain-row">
-        <button type="button" id="btnGananciaToggleAjustes" onclick="toggleGananciaUnica()">Ganancia: ACTIVADA</button>
-        <button type="button" id="btnGananciaModoAjustes" onclick="alternarModoGanancia()">Modo: PORCENTAJE</button>
-      </div>
-      <div class="gain-fields">
-        <label id="lblGananciaPctAjustes">Porcentaje
-          <input id="inpGananciaPctAjustes" type="number" inputmode="decimal" min="0" step="0.01" value="40"
-                 oninput="sincronizarGananciaDesdeAjustes('porcentaje')">
-        </label>
-        <label id="lblGananciaFijaAjustes" style="display:none">Importe fijo (€)
-          <input id="inpGananciaFijaAjustes" type="number" inputmode="decimal" min="0" step="0.01" value="0"
-                 oninput="sincronizarGananciaDesdeAjustes('fijo')">
-        </label>
-      </div>
-      <div id="gananciaResultadoAjustes" class="gain-result">Ganancia: 0,00 €</div>
-    </div>
-
-
-
     <div class="box" style="background:#ecfeff; border-color:#67e8f9;">
       <h5 style="color:#0e7490; margin-bottom:8px;">🪟 Ventana actual</h5>
       <div class="grid">
@@ -618,7 +518,7 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.8";
+    const APP_VERSION = "v1.8.20";
 
     // La base de datos está integrada en este HTML: no necesita cargar un JSON externo.
     let db = {
@@ -2989,6 +2889,36 @@
   "configPasamanosAccesoriosIniciada": true
 };;
 
+    const MOTOR_DB_KEY = 'rey_motor_series_db_v1';
+    let datosMotorCargados = false;
+    function esBaseMotorValida(datos) {
+      return datos && typeof datos === 'object' &&
+        ['series', 'almacenBarras', 'almacenVidrios', 'almacenAccesorios', 'coloresDisponibles']
+          .every(clave => Array.isArray(datos[clave]));
+    }
+    function cargarDatosMotor() {
+      try {
+        const guardado = localStorage.getItem(MOTOR_DB_KEY);
+        if (!guardado) return;
+        const datos = JSON.parse(guardado);
+        if (!esBaseMotorValida(datos)) throw new Error('formato de datos incorrecto');
+        db = datos;
+        datosMotorCargados = true;
+      } catch (error) {
+        alert('No se pudieron cargar los datos guardados de Motor Series. Conserva tu copia JSON. Detalle: ' + error.message);
+      }
+    }
+    function guardarDatosMotor() {
+      try {
+        localStorage.setItem(MOTOR_DB_KEY, JSON.stringify(db));
+        return true;
+      } catch (error) {
+        alert('No se pudieron guardar los cambios. Exporta una copia JSON antes de cerrar la app. Detalle: ' + error.message);
+        return false;
+      }
+    }
+    cargarDatosMotor();
+
     // Nueva serie de catálogo, todavía sin fórmulas ni integración externa.
     // Los cortes de Pasamanos se configurarán en una fase posterior.
     if (!db.series.some(s => s.nombre.toLowerCase() === 'pasamanos')) {
@@ -3108,6 +3038,8 @@
       }
     }
     function init() {
+      persianaMedidasPropias = false;
+      ultimaSeriePersianaInicio = null;
       document.getElementById('appVersionHeader').innerText = APP_VERSION;
       actualizarSelectColoresInicio();
       iniciarConfigPasamanos();
@@ -3140,6 +3072,7 @@
       const selV = document.getElementById('selVidrioMaterial');
       const selC = document.getElementById('selChapaMaterial');
       const selP = document.getElementById('selPersianaMaterial');
+      const anteriores = [selV.value, selC.value, selP.value];
       
       selV.innerHTML = ''; selC.innerHTML = ''; selP.innerHTML = '';
 
@@ -3152,8 +3085,7 @@
       });
 
       db.almacenAccesorios.forEach(a => {
-        const esPersiana = a.tipo === 'm2' || a.nombre.toLowerCase().includes('persiana');
-        if (esPersiana) {
+        if (esPersianaAlmacen(a)) {
           selP.innerHTML += `<option value="${a.id}">${a.nombre} (${a.precio.toFixed(2)} €${a.tipo === 'm2' ? '/m²' : ' ud'})</option>`;
         }
       });
@@ -3161,10 +3093,50 @@
       if (selV.options.length === 0) selV.innerHTML = '<option value="">Sin vidrios registrados</option>';
       if (selC.options.length === 0) selC.innerHTML = '<option value="">Sin chapas registradas</option>';
       if (selP.options.length === 0) selP.innerHTML = '<option value="">Sin persianas registradas</option>';
+      [selV, selC, selP].forEach((sel, i) => {
+        if (Array.from(sel.options).some(o => o.value === anteriores[i])) sel.value = anteriores[i];
+      });
+    }
+
+    function esPersianaAlmacen(a) {
+      return !!a && (a.categoria === 'persiana' || (a.tipo === 'm2' && /persiana/i.test(a.nombre || '')));
+    }
+
+    let persianaMedidasPropias = false;
+    let ultimaSeriePersianaInicio = null;
+    function medidasPersiana() {
+      const ancho = Math.max(0, Number(document.getElementById('inpPersianaAncho').value) || 0);
+      const alto = Math.max(0, Number(document.getElementById('inpPersianaAlto').value) || 0);
+      return {ancho, alto};
+    }
+    function sincronizarMedidasPersiana() {
+      if (!persianaMedidasPropias) {
+        document.getElementById('inpPersianaAncho').value = document.getElementById('inpAncho').value;
+        document.getElementById('inpPersianaAlto').value = document.getElementById('inpAlto').value;
+      }
+      const m = medidasPersiana();
+      const estado = document.getElementById('estadoMedidasPersiana');
+      estado.textContent = m.ancho > 0 && m.alto > 0 ? (persianaMedidasPropias ? 'Medidas propias de persiana' : 'Medidas de ventana') : 'Introduce ancho y alto válidos';
+      estado.style.color = m.ancho > 0 && m.alto > 0 ? '#176242' : '#b42332';
+    }
+    function editarMedidasPersiana() {
+      persianaMedidasPropias = true;
+      calcular();
+    }
+    function usarMedidasVentanaPersiana() {
+      persianaMedidasPropias = false;
+      calcular();
     }
 
     function toggleOpcionPulsador(btn, containerId) {
       btn.classList.toggle('active');
+      if (btn.classList.contains('active')) {
+        const alternativo = btn.id === 'btnPulsadorVidrio' ? 'btnPulsadorChapa' : btn.id === 'btnPulsadorChapa' ? 'btnPulsadorVidrio' : null;
+        if (alternativo) {
+          document.getElementById(alternativo).classList.remove('active');
+          document.getElementById(alternativo === 'btnPulsadorVidrio' ? 'containerSelVidrio' : 'containerSelChapa').style.display = 'none';
+        }
+      }
       const container = document.getElementById(containerId);
       if (container) {
         container.style.display = btn.classList.contains('active') ? 'block' : 'none';
@@ -3201,7 +3173,7 @@
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
-      e.target.classList.add('active');
+      e.currentTarget.classList.add('active');
       window.scrollTo(0, 0);
     }
 
@@ -3220,12 +3192,42 @@
         if (parseInt(btn.getAttribute('data-val')) === cant) btn.classList.add('active');
         else btn.classList.remove('active');
       });
+      seleccionarRellenoConfigurado(true);
       calcular();
+    }
+
+    // El material guardado en Series es el valor inicial de cada tipo de relleno.
+    // El usuario puede sustituirlo después desde los selectores de Inicio.
+    function seleccionarRellenoConfigurado(actualizarOpciones = false) {
+      const serie = db.series.find(s => s.id === document.getElementById('selSerie').value);
+      const reglas = serie && serie.reglas && serie.reglas[hojasInicioSeleccionadas];
+      const configurados = Array.isArray(reglas?.vidrios) ? reglas.vidrios : [];
+      for (const [tipo, selectorId, botonId, contenedorId] of [
+        ['vidrio', 'selVidrioMaterial', 'btnPulsadorVidrio', 'containerSelVidrio'],
+        ['chapa', 'selChapaMaterial', 'btnPulsadorChapa', 'containerSelChapa']
+      ]) {
+        const selector = document.getElementById(selectorId);
+        const regla = configurados.find(r => db.almacenVidrios.some(m => m.id === r.vidrioId && esChapaMaterial(m) === (tipo === 'chapa')));
+        if (regla && Array.from(selector.options).some(o => o.value === regla.vidrioId)) selector.value = regla.vidrioId;
+        if (actualizarOpciones) {
+          const activo = !!regla;
+          document.getElementById(botonId).classList.toggle('active', activo);
+          document.getElementById(contenedorId).style.display = activo ? 'block' : 'none';
+        }
+      }
+    }
+
+    function esChapaMaterial(m) {
+      return m.tipo === 'chapa' || /chapa|panel|sandwich/i.test(m.nombre || '');
     }
 
     function alCambiarSerieInicio() {
       const serieId = document.getElementById('selSerie').value;
       const serie = db.series.find(s => s.id === serieId);
+      if (serieId !== ultimaSeriePersianaInicio) {
+        persianaMedidasPropias = false;
+        ultimaSeriePersianaInicio = serieId;
+      }
       
       const pas=esSeriePasamanos(serie);
       document.getElementById('groupHojasBotones').parentElement.style.display=pas?'none':'';
@@ -3238,6 +3240,7 @@
         else document.getElementById(id).style.display=document.getElementById('btnPulsadorPersiana').classList.contains('active')?'':'none';
       });
       if(pas){calcular();return;}
+      seleccionarRellenoConfigurado(true);
       if (serie && serie.hojasPermitidas) {
         document.querySelectorAll('#groupHojasBotones .btn-toggle').forEach(btn => {
           let val = parseInt(btn.getAttribute('data-val'));
@@ -3273,7 +3276,7 @@ function actualizarUIGanancia(){
   const p=document.getElementById('lblGananciaPct'),f=document.getElementById('lblGananciaFija');
   const ip=document.getElementById('inpGananciaPct'),iff=document.getElementById('inpGananciaFija');
   if(b1)b1.textContent='Ganancia: '+(configGanancia.activa?'ACTIVADA':'DESACTIVADA');
-  if(b2)b2.textContent='Modo: '+(configGanancia.modo==='fijo'?'IMPORTE FIJO':'PORCENTAJE');
+  if(b2)b2.textContent=configGanancia.modo==='fijo'?'Importe fijo':'Porcentaje';
   if(p)p.style.display=configGanancia.modo==='fijo'?'none':'';
   if(f)f.style.display=configGanancia.modo==='fijo'?'':'none';
   if(ip)ip.value=configGanancia.porcentaje;
@@ -3384,6 +3387,8 @@ function calcular() {
       const colorSel = document.getElementById('selColor').value;
       const ancho = parseFloat(document.getElementById('inpAncho').value) || 0;
       const alto = parseFloat(document.getElementById('inpAlto').value) || 0;
+      sincronizarMedidasPersiana();
+      const tamPersiana = medidasPersiana();
 
       const tieneVidrio = document.getElementById('btnPulsadorVidrio').classList.contains('active');
       const tieneChapa = document.getElementById('btnPulsadorChapa').classList.contains('active');
@@ -3492,14 +3497,23 @@ function calcular() {
         </tr>`;
       }
 
+      const reglasVidrio = (reglas.vidrios || []).filter(v => {
+        const original = db.almacenVidrios.find(m => m.id === v.vidrioId);
+        return original && !esChapaMaterial(original);
+      });
+      const reglasChapa = (reglas.vidrios || []).filter(v => {
+        const original = db.almacenVidrios.find(m => m.id === v.vidrioId);
+        return original && esChapaMaterial(original);
+      });
       if (tieneVidrio) {
-        let matVidrio = db.almacenVidrios.find(m => m.id === vidrioMaterialId) || db.almacenVidrios.find(m => m.tipo !== 'chapa') || db.almacenVidrios[0];
-        if (matVidrio) (reglas.vidrios || []).forEach(v => procesarRelleno(v, matVidrio));
+        const matVidrio = db.almacenVidrios.find(m => m.id === vidrioMaterialId && !esChapaMaterial(m)) || db.almacenVidrios.find(m => !esChapaMaterial(m));
+        const formulas = reglasVidrio.length ? reglasVidrio : (!tieneChapa ? reglasChapa : []);
+        if (matVidrio) formulas.forEach(v => procesarRelleno(v, matVidrio));
       }
-
       if (tieneChapa) {
-        let matChapa = db.almacenVidrios.find(m => m.id === chapaMaterialId) || db.almacenVidrios.find(m => m.tipo === 'chapa') || db.almacenVidrios[0];
-        if (matChapa) (reglas.vidrios || []).forEach(v => procesarRelleno(v, matChapa));
+        const matChapa = db.almacenVidrios.find(m => m.id === chapaMaterialId && esChapaMaterial(m)) || db.almacenVidrios.find(esChapaMaterial);
+        const formulas = reglasChapa.length ? reglasChapa : (!tieneVidrio ? reglasVidrio : []);
+        if (matChapa) formulas.forEach(v => procesarRelleno(v, matChapa));
       }
 
       if (numRellenosCalculados === 0) {
@@ -3509,36 +3523,38 @@ function calcular() {
       // 3. Accesorios
       (reglas.accesorios || []).forEach(a => {
         const acc = db.almacenAccesorios.find(x => x.id === a.accesorioId) || { nombre: 'Desconocido', precio: 0 };
-        let coste = a.cantidad * acc.precio;
+        const tamAcc = esPersianaAlmacen(acc) ? tamPersiana : {ancho, alto};
+        const cantidad = acc.tipo === 'm2' ? (tamAcc.ancho / 1000) * (tamAcc.alto / 1000) * a.cantidad : a.cantidad;
+        let coste = cantidad * acc.precio;
         total += coste;
-        despieceReal.accesorios.push({nombre:String(acc.nombre||'Accesorio'),tipo:String(acc.tipo||'fijo'),cantidad:Number(a.cantidad)||0,precioUnidad:Number(acc.precio)||0,unidadPrecio:acc.tipo==='m2'?'€/m²':'€/ud',coste:Number(coste)||0});
+        despieceReal.accesorios.push({nombre:String(acc.nombre||'Accesorio'),tipo:String(acc.tipo||'fijo'),cantidad:Number(cantidad)||0,ancho:esPersianaAlmacen(acc)?tamAcc.ancho:undefined,alto:esPersianaAlmacen(acc)?tamAcc.alto:undefined,precioUnidad:Number(acc.precio)||0,unidadPrecio:acc.tipo==='m2'?'€/m²':'€/ud',coste:Number(coste)||0});
 
         tbA.innerHTML += `<tr>
           <td>${acc.nombre}</td>
-          <td>${a.cantidad} ud</td>
-          <td>${acc.precio.toFixed(2)} €</td>
+          <td>${acc.tipo === 'm2' ? cantidad.toFixed(2) + ' m²' + (esPersianaAlmacen(acc) ? ` (${tamAcc.ancho}×${tamAcc.alto} mm)` : '') : a.cantidad + ' ud'}</td>
+          <td>${acc.precio.toFixed(2)} €${acc.tipo === 'm2' ? '/m²' : ''}</td>
           <td>${coste.toFixed(2)} €</td>
         </tr>`;
       });
 
       // 4. Persiana
-      if (tienePersiana) {
-        let matPersiana = db.almacenAccesorios.find(x => x.id === persianaMaterialId) || db.almacenAccesorios.find(x => x.tipo === 'm2' || x.nombre.toLowerCase().includes('persiana')) || db.almacenAccesorios[0];
+      if (tienePersiana && !(reglas.accesorios || []).some(a => a.accesorioId === persianaMaterialId)) {
+        let matPersiana = db.almacenAccesorios.find(x => x.id === persianaMaterialId && esPersianaAlmacen(x)) || db.almacenAccesorios.find(esPersianaAlmacen);
         if (matPersiana) {
           let costePersiana = 0;
           let cantStrPersiana = '';
 
           if (matPersiana.tipo === 'm2') {
-            const m2Persiana = (ancho / 1000) * (alto / 1000);
+            const m2Persiana = (tamPersiana.ancho / 1000) * (tamPersiana.alto / 1000);
             costePersiana = m2Persiana * matPersiana.precio;
-            cantStrPersiana = `${m2Persiana.toFixed(2)} m²`;
+            cantStrPersiana = `${m2Persiana.toFixed(2)} m² (${tamPersiana.ancho}×${tamPersiana.alto} mm)`;
           } else {
             costePersiana = matPersiana.precio;
             cantStrPersiana = `1 ud`;
           }
 
           total += costePersiana;
-          despieceReal.accesorios.push({nombre:String(matPersiana.nombre||'Persiana'),tipo:String(matPersiana.tipo||'fijo'),cantidad:matPersiana.tipo==='m2'?Number(((ancho/1000)*(alto/1000)).toFixed(4)):1,precioUnidad:Number(matPersiana.precio)||0,unidadPrecio:matPersiana.tipo==='m2'?'€/m²':'€/ud',coste:Number(costePersiana)||0});
+          despieceReal.accesorios.push({nombre:String(matPersiana.nombre||'Persiana'),tipo:String(matPersiana.tipo||'fijo'),cantidad:matPersiana.tipo==='m2'?Number(((tamPersiana.ancho/1000)*(tamPersiana.alto/1000)).toFixed(4)):1,ancho:tamPersiana.ancho,alto:tamPersiana.alto,precioUnidad:Number(matPersiana.precio)||0,unidadPrecio:matPersiana.tipo==='m2'?'€/m²':'€/ud',coste:Number(costePersiana)||0});
 
           tbA.innerHTML += `<tr>
             <td>${matPersiana.nombre}</td>
@@ -3560,12 +3576,32 @@ function calcular() {
   document.getElementById('totalPrecioMain').innerText=venta.toFixed(2)+' €';
   window.__reyMotorLastResult={coste:baseCalculada,ganancia:ganancia,venta:venta,despiece:despieceReal};
   const gr=document.getElementById('gananciaResultado');
-  if(gr)gr.textContent='Ganancia: '+ganancia.toFixed(2)+' €'+
-    (configGanancia.modo==='porcentaje'?' · '+(Number(configGanancia.porcentaje)||0).toFixed(2)+' %':'');
+  if(gr)gr.textContent='+'+ganancia.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
     }
 
     function filtrarAlmacen() {
       renderAlmacen();
+    }
+
+    function mostrarFormularioAlmacen(mostrar) {
+      document.getElementById('boxFormAlmacen').style.display = mostrar ? 'block' : 'none';
+      const boton = document.getElementById('btnMostrarFormularioAlmacen');
+      boton.style.display = mostrar ? 'none' : 'block';
+      boton.setAttribute('aria-expanded', mostrar ? 'true' : 'false');
+    }
+
+    function abrirFormularioAlmacen() {
+      limpiarFormAlmacen();
+      mostrarFormularioAlmacen(true);
+      scrollToElement('boxFormAlmacen');
+    }
+
+    function ordenarMaterialesAlmacen(lista) {
+      const orden = document.getElementById('ordenAlmacen').value;
+      if (orden === 'reciente') return lista.reverse();
+      if (orden === 'original') return lista;
+      const signo = orden === 'nombre-desc' ? -1 : 1;
+      return lista.sort((a, b) => signo * String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es', { numeric: true, sensitivity: 'base' }));
     }
 
     function renderAlmacen() {
@@ -3575,6 +3611,7 @@ function calcular() {
       
       document.getElementById('formBarrasFields').style.display = almacenCatActual === 'barras' ? 'grid' : 'none';
       document.getElementById('formVidriosFields').style.display = almacenCatActual === 'vidrios' ? 'grid' : 'none';
+      document.getElementById('formPersianasFields').style.display = almacenCatActual === 'persianas' ? 'grid' : 'none';
       document.getElementById('formAccesoriosFields').style.display = almacenCatActual === 'accesorios' ? 'grid' : 'none';
 
       tb.innerHTML = '';
@@ -3582,7 +3619,7 @@ function calcular() {
       if (almacenCatActual === 'barras') {
         th.innerHTML = `<th>Perfil / Ref.</th><th>Mat.</th><th>Precios por Color (€/m)</th><th>Acciones</th>`;
         
-        let datosFiltrados = db.almacenBarras.filter(b => b.nombre.toLowerCase().includes(filtro) || (b.material && b.material.toLowerCase().includes(filtro)));
+        let datosFiltrados = ordenarMaterialesAlmacen(db.almacenBarras.filter(b => b.nombre.toLowerCase().includes(filtro) || (b.material && b.material.toLowerCase().includes(filtro))));
 
         datosFiltrados.forEach((b) => {
           let idx = db.almacenBarras.indexOf(b);
@@ -3609,7 +3646,7 @@ function calcular() {
       } else if (almacenCatActual === 'vidrios') {
         th.innerHTML = `<th>Material</th><th>Tipo</th><th>Precio / m² (€)</th><th>Mínimo m²/ud</th><th>Acciones</th>`;
         
-        let datosFiltrados = db.almacenVidrios.filter(v => v.nombre.toLowerCase().includes(filtro));
+        let datosFiltrados = ordenarMaterialesAlmacen(db.almacenVidrios.filter(v => v.nombre.toLowerCase().includes(filtro)));
 
         datosFiltrados.forEach((v) => {
           let idx = db.almacenVidrios.indexOf(v);
@@ -3626,10 +3663,20 @@ function calcular() {
             </td>
           </tr>`;
         });
+      } else if (almacenCatActual === 'persianas') {
+        th.innerHTML = `<th>Persiana</th><th>Precio por m² (€)</th><th>Acciones</th>`;
+        let datosFiltrados = ordenarMaterialesAlmacen(db.almacenAccesorios.filter(a => esPersianaAlmacen(a) && a.nombre.toLowerCase().includes(filtro)));
+        datosFiltrados.forEach(a => {
+          const idx = db.almacenAccesorios.indexOf(a);
+          tb.innerHTML += `<tr><td><strong>${a.nombre}</strong></td><td>${Number(a.precio).toFixed(2)} €/m²</td><td>
+            <button class="warning" style="width:auto; padding:3px 8px;" onclick="cargarEdicionAlmacen(${idx})">Editar</button>
+            <button class="danger" style="width:auto; padding:3px 8px;" onclick="eliminarAlmacen(${idx})">X</button>
+          </td></tr>`;
+        });
       } else {
-        th.innerHTML = `<th>Accesorio / Persiana</th><th>Tipo Cálculo</th><th>Precio (€)</th><th>Acciones</th>`;
+        th.innerHTML = `<th>Accesorio</th><th>Tipo Cálculo</th><th>Precio (€)</th><th>Acciones</th>`;
         
-        let datosFiltrados = db.almacenAccesorios.filter(a => a.nombre.toLowerCase().includes(filtro));
+        let datosFiltrados = ordenarMaterialesAlmacen(db.almacenAccesorios.filter(a => !esPersianaAlmacen(a) && a.nombre.toLowerCase().includes(filtro)));
 
         datosFiltrados.forEach((a) => {
           let idx = db.almacenAccesorios.indexOf(a);
@@ -3703,6 +3750,14 @@ function calcular() {
         if (idx >= 0) db.almacenVidrios[idx] = { ...db.almacenVidrios[idx], ...objVidrio };
         else db.almacenVidrios.push({ id: 'v' + Date.now(), ...objVidrio });
         poblarSelectsRelleno();
+      } else if (almacenCatActual === 'persianas') {
+        const nom = document.getElementById('albPersianaNombre').value.trim();
+        const pre = Number(document.getElementById('albPersianaPrecio').value);
+        if (!nom || !document.getElementById('albPersianaPrecio').value.trim() || !Number.isFinite(pre) || pre < 0) return alert('Introduce nombre y precio por m² válidos');
+        const datos = {nombre:nom,precio:pre,tipo:'m2',categoria:'persiana'};
+        if (idx >= 0) db.almacenAccesorios[idx] = {...db.almacenAccesorios[idx],...datos};
+        else db.almacenAccesorios.push({id:'a'+Date.now(),...datos});
+        poblarSelectsRelleno();
       } else {
         const nom = document.getElementById('albAccNombre').value.trim();
         const tipo = document.getElementById('albAccTipo').value;
@@ -3714,9 +3769,11 @@ function calcular() {
         poblarSelectsRelleno();
       }
 
+      guardarDatosMotor();
       limpiarFormAlmacen();
       renderAlmacen();
       calcular();
+      scrollToElement('tblAlmacen');
     }
 
     function cargarEdicionAlmacen(idx) {
@@ -3744,6 +3801,10 @@ function calcular() {
         document.getElementById('albVidrioTipo').value = v.tipo || 'vidrio';
         document.getElementById('albVidrioPrecio').value = v.precio;
         document.getElementById('albVidrioMinimo').value = (v.minimoM2 !== undefined) ? v.minimoM2 : 0.70;
+      } else if (almacenCatActual === 'persianas') {
+        const a = db.almacenAccesorios[idx];
+        document.getElementById('albPersianaNombre').value = a.nombre;
+        document.getElementById('albPersianaPrecio').value = a.precio;
       } else {
         let a = db.almacenAccesorios[idx];
         document.getElementById('albAccNombre').value = a.nombre;
@@ -3751,13 +3812,14 @@ function calcular() {
         document.getElementById('albAccPrecio').value = a.precio;
       }
 
+      mostrarFormularioAlmacen(true);
       scrollToElement('boxFormAlmacen');
     }
 
     function limpiarFormAlmacen() {
       document.getElementById('editItemIndex').value = -1;
       document.getElementById('albTituloForm').innerText = 'Añadir / Editar Elemento';
-      document.querySelectorAll('#almacen input').forEach(i => i.value = '');
+      document.querySelectorAll('#boxFormAlmacen input').forEach(i => i.value = '');
       document.getElementById('albBarraLongitud').value = 6500;
       document.getElementById('albVidrioMinimo').value = 0.70;
       
@@ -3765,12 +3827,14 @@ function calcular() {
       container.innerHTML = '';
       agregarCampoColorAlmacen('Blanco', '');
       agregarCampoColorAlmacen('Gris Antracita', '');
+      mostrarFormularioAlmacen(false);
     }
 
     function eliminarAlmacen(idx) {
       if (almacenCatActual === 'barras') db.almacenBarras.splice(idx, 1);
       else if (almacenCatActual === 'vidrios') { db.almacenVidrios.splice(idx, 1); poblarSelectsRelleno(); }
       else { db.almacenAccesorios.splice(idx, 1); poblarSelectsRelleno(); }
+      guardarDatosMotor();
       renderAlmacen();
       calcular();
     }
@@ -3804,6 +3868,7 @@ function calcular() {
       if (!nom) return;
       const id = 's' + Date.now();
       db.series.push({ id, nombre: nom, hojasPermitidas: [0, 1, 2, 3, 4], reglas: {} });
+      if (!guardarDatosMotor()) { db.series.pop(); return; }
       publicarCatalogoSeriesMotor();
       document.getElementById('serNombre').value = '';
       renderSelectSeries();
@@ -3828,7 +3893,7 @@ function calcular() {
       if(!db.coloresDisponibles.includes('RAL estándar'))db.coloresDisponibles.push('RAL estándar');
       if(!db.coloresDisponibles.includes('Anodizado Natural'))db.coloresDisponibles.push('Anodizado Natural');
       try{
-        const guardado=JSON.parse(localStorage.getItem(PAS_CONFIG_KEY)||'null');
+        const guardado=datosMotorCargados ? null : JSON.parse(localStorage.getItem(PAS_CONFIG_KEY)||'null');
         if(guardado&&guardado.version===1){
           if(Array.isArray(guardado.accesorios))db.accesoriosPasamanos=guardado.accesorios;
           if(guardado.tarifas)for(const [id,precios] of Object.entries(guardado.tarifas)){
@@ -3840,6 +3905,7 @@ function calcular() {
     function guardarConfigPasamanos(){
       const tarifas={};for(const id of perfilesPasamanosIds){const p=db.almacenBarras.find(x=>x.id===id);if(p)tarifas[id]={...p.precios};}
       try{localStorage.setItem(PAS_CONFIG_KEY,JSON.stringify({version:1,accesorios:db.accesoriosPasamanos,tarifas}));}catch(e){}
+      guardarDatosMotor();
     }
     function escaparPas(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
     const coloresTarifaPas=['Blanco','RAL estándar','Anodizado Natural'];
@@ -3906,6 +3972,7 @@ function calcular() {
       for (let i = 0; i <= 4; i++) {
         if (document.getElementById(`chkHojas${i}`).checked) serie.hojasPermitidas.push(i);
       }
+      guardarDatosMotor();
       renderSubTabsHojas();
       alCambiarSerieInicio();
     }
@@ -4039,6 +4106,7 @@ function calcular() {
 
       if (idx >= 0) r.cortes[idx] = objetoRegla;
       else r.cortes.push(objetoRegla);
+      guardarDatosMotor();
 
       limpiarFormReglaCorte();
       renderReglasActuales();
@@ -4085,9 +4153,11 @@ function calcular() {
 
       if (idx >= 0) r.vidrios[idx] = objetoRegla;
       else r.vidrios.push(objetoRegla);
+      guardarDatosMotor();
 
       limpiarFormReglaVidrio();
       renderReglasActuales();
+      if (document.getElementById('selSerie').value === document.getElementById('selSerieConfig').value && hojasInicioSeleccionadas === hojasConfigActual) seleccionarRellenoConfigurado(true);
       calcular();
     }
 
@@ -4127,6 +4197,7 @@ function calcular() {
 
       if (idx >= 0) r.accesorios[idx] = objetoRegla;
       else r.accesorios.push(objetoRegla);
+      guardarDatosMotor();
 
       limpiarFormReglaAcc();
       renderReglasActuales();
@@ -4156,7 +4227,9 @@ function calcular() {
     function borrarRegla(tipo, idx) {
       const r = getReglasCurrentHojas();
       r[tipo].splice(idx, 1);
+      guardarDatosMotor();
       renderReglasActuales();
+      if (tipo === 'vidrios' && document.getElementById('selSerie').value === document.getElementById('selSerieConfig').value && hojasInicioSeleccionadas === hojasConfigActual) seleccionarRellenoConfigurado(true);
       calcular();
     }
 
@@ -4181,7 +4254,7 @@ function calcular() {
         opciones:{
           vidrio:{activo:document.getElementById('btnPulsadorVidrio').classList.contains('active'),id:document.getElementById('selVidrioMaterial').value||''},
           panel:{activo:document.getElementById('btnPulsadorChapa').classList.contains('active'),id:document.getElementById('selChapaMaterial').value||''},
-          persiana:{activo:document.getElementById('btnPulsadorPersiana').classList.contains('active'),id:document.getElementById('selPersianaMaterial').value||''}
+          persiana:{activo:document.getElementById('btnPulsadorPersiana').classList.contains('active'),id:document.getElementById('selPersianaMaterial').value||'',medidas:medidasPersiana(),medidasPropias:persianaMedidasPropias}
         }
       };
     }
@@ -4294,7 +4367,8 @@ function calcular() {
     window.enviarMotorACutMaster=enviarMotorACutMaster;
     document.addEventListener('DOMContentLoaded',function(){
       if(document.getElementById('btnMotorCutMaster'))return; const b=document.createElement('button');b.type='button';b.id='btnMotorCutMaster';b.textContent='Cut Máster';b.onclick=enviarMotorACutMaster;
-      b.style.cssText='position:fixed;right:14px;bottom:112px;z-index:1190;width:auto;min-width:92px;height:38px;border:0;border-radius:9px;padding:0 10px;background:#0f766e;color:#fff;font-weight:800;font-size:11px;line-height:38px;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.18)';document.body.appendChild(b);
+      b.style.cssText='width:auto;min-width:110px;padding:9px 14px;border:0;border-radius:8px;background:#0f766e;color:#fff;font-weight:800;font-size:14px;margin:8px 0 12px';
+      document.querySelector('#despiece h3').insertAdjacentElement('afterend',b);
     });
     function volverAVentanaProDesdeMotor(){
       let url='ventana.html';
@@ -4337,6 +4411,12 @@ function calcular() {
       if(op.vidrio&&op.vidrio.id && document.querySelector('#selVidrioMaterial option[value="'+CSS.escape(op.vidrio.id)+'"]')) document.getElementById('selVidrioMaterial').value=op.vidrio.id;
       if(op.panel&&op.panel.id && document.querySelector('#selChapaMaterial option[value="'+CSS.escape(op.panel.id)+'"]')) document.getElementById('selChapaMaterial').value=op.panel.id;
       if(op.persiana&&op.persiana.id && document.querySelector('#selPersianaMaterial option[value="'+CSS.escape(op.persiana.id)+'"]')) document.getElementById('selPersianaMaterial').value=op.persiana.id;
+      const mp=op.persiana&&op.persiana.medidas;
+      persianaMedidasPropias=!!(op.persiana&&op.persiana.medidasPropias&&mp&&Number(mp.ancho)>0&&Number(mp.alto)>0);
+      if(persianaMedidasPropias){
+        document.getElementById('inpPersianaAncho').value=Number(mp.ancho);
+        document.getElementById('inpPersianaAlto').value=Number(mp.alto);
+      }
       calcular(); return true;
     }
 
@@ -4423,8 +4503,10 @@ function calcular() {
       reader.onload = function(e) {
         try {
           const importedDB = JSON.parse(e.target.result);
-          if(importedDB && importedDB.series && importedDB.almacenBarras) {
+          if(esBaseMotorValida(importedDB)) {
+             const datosAnteriores = db;
              db = importedDB;
+             if (!guardarDatosMotor()) { db = datosAnteriores; return; }
              try{localStorage.removeItem(PAS_CONFIG_KEY);}catch(_){}
              init();
              alert("Base de datos cargada correctamente.");
@@ -4446,8 +4528,10 @@ function calcular() {
       }
       try {
         const importedDB = JSON.parse(txt);
-        if(importedDB && importedDB.series && importedDB.almacenBarras) {
+        if(esBaseMotorValida(importedDB)) {
+           const datosAnteriores = db;
            db = importedDB;
+           if (!guardarDatosMotor()) { db = datosAnteriores; return; }
            try{localStorage.removeItem(PAS_CONFIG_KEY);}catch(_){}
            init();
            alert("Base de datos cargada correctamente desde el texto.");
