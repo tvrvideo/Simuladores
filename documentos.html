@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.75</title>
+  <title>Documentos Rey v4.8.81</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -2511,6 +2511,10 @@ body.png-open #pngPreviewImage{
 .template-quick-sort-v455{width:100%;min-height:42px;margin-top:8px;border:1px solid #d4dde9;border-radius:13px;padding:0 11px;background:#fff;color:#0f172a;font-weight:850;font-size:14px}
 #conceptTemplateSelect{display:none!important}
 .template-quick-selected-v455{margin-top:8px;padding:8px 10px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:12px;font-weight:900;line-height:1.2}
+  .negative-price-value{color:#c62828 !important;font-weight:800 !important;}
+  .negative-units-row{display:flex;align-items:center;gap:8px}
+  .negative-units-row input{flex:1;min-width:0}
+  .negative-units-toggle{flex:0 0 52px;min-height:47px;border:1px solid #ea580c;border-radius:12px;background:linear-gradient(180deg,#fb923c,#ea580c);color:#fff;font-size:17px;font-weight:900;cursor:pointer;touch-action:manipulation}
 </style><style>
 .exportar-ligero,.exportar-imagenes{display:none!important;}
 </style>
@@ -4463,7 +4467,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.75</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.81</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4497,7 +4501,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.75</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.81</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5774,7 +5778,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.75', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.81', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5817,7 +5821,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.75',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.81',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6379,14 +6383,14 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     return Number(String(value == null ? '' : value).replace(',', '.')) || 0;
   }
   function calcPriceWithGain(basePrice, gainPercent){
-    const base = Math.max(0, parseDecimalInputValue(basePrice));
+    const base = parseDecimalInputValue(basePrice);
     const gain = Math.max(0, parseDecimalInputValue(gainPercent));
     return base * (1 + (gain / 100));
   }
   function calcPriceWithGainAmount(basePrice, gainAmount){
-    const base = Math.max(0, parseDecimalInputValue(basePrice));
+    const base = parseDecimalInputValue(basePrice);
     const gain = Math.max(0, parseDecimalInputValue(gainAmount));
-    return base + gain;
+    return base < 0 ? -(Math.abs(base) + gain) : base + gain;
   }
   function priceForGainEditor(item){
     if(item && item.costPrice != null && String(item.costPrice).trim() !== '') return String(item.costPrice);
@@ -6423,7 +6427,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     };
     const update = (mode) => {
       if(mode) gainMode = mode;
-      const base = normalize(priceEl.value);
+      const signedBase = parseDecimalInputValue(priceEl.value);
+      const base = Math.abs(signedBase);
       let pct = normalize(gainPctEl.value);
       let amount = normalize(gainAmountEl.value);
 
@@ -6435,10 +6440,10 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
         setVal(gainAmountEl, pct ? amount : '');
       }
 
-      const finalPrice = base + amount;
+      const finalPrice = signedBase < 0 ? -(base + amount) : base + amount;
       const hasGain = amount > 0 || pct > 0;
       previewEl.innerHTML = 'Precio en presupuesto: ' + money(finalPrice) +
-        '<small>Precio base ' + money(base) +
+        '<small>Precio base ' + money(signedBase) +
         (hasGain ? ' + ganancia ' + money(amount) + ' (' + String(Number(pct).toFixed(2)).replace('.', ',').replace(',00','') + '%)' : ' · sin ganancia') +
         '</small>';
     };
@@ -6448,6 +6453,43 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     priceEl.addEventListener('input', () => update(gainMode));
     update(gainMode);
   }
+  function toggleNegativeUnits(id){
+    const input = document.getElementById(id);
+    if(!input) return;
+    const value = String(input.value == null ? '' : input.value).trim();
+    // Conservar decimales y coma; cambiar solo el signo, sin perder el importe.
+    input.value = value.startsWith('-') ? value.slice(1) : '-' + (value || '0');
+    input.classList.toggle('negative-price-value', parseDecimalInputValue(input.value) < 0);
+    input.dispatchEvent(new Event('input', {bubbles:true}));
+    input.dispatchEvent(new Event('change', {bubbles:true}));
+    const button = input.parentElement && input.parentElement.querySelector('.negative-units-toggle');
+    if(button){ button.textContent = input.value.startsWith('-') ? '＋' : '−'; button.setAttribute('aria-label', input.value.startsWith('-') ? 'Poner precio positivo' : 'Poner precio negativo'); }
+  }
+  // Color del precio negativo también al abrir conceptos existentes y al escribir.
+  document.addEventListener('input', function(ev){
+    const el = ev.target;
+    if(el && (el.id === 'editPrice' || el.id === 'editSimplePrice'))
+      el.classList.toggle('negative-price-value', parseDecimalInputValue(el.value) < 0);
+  });
+  const negativePriceObserver = new MutationObserver(function(){
+    for(const id of ['editPrice','editSimplePrice']){
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle('negative-price-value', parseDecimalInputValue(el.value) < 0);
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    const content = document.getElementById('sheetContent');
+    if(content) negativePriceObserver.observe(content,{childList:true,subtree:true});
+  });
+  // v4.8.81: Delegación táctil compatible con Safari/WKWebView en iPhone.
+  // Los handlers inline no accedían a la función encerrada en este módulo.
+  document.addEventListener('click', function(ev){
+    const btn = ev.target.closest && ev.target.closest('[data-negative-price]');
+    if(!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    toggleNegativeUnits(btn.getAttribute('data-negative-price'));
+  });
   function calcItem(item){
     const uds = Number(item.units || 0);
     const price = Number(item.price || 0);
@@ -8354,7 +8396,7 @@ COLOCACIÓN INCLUIDA` }
     return desc || ref || prov || 'Producto externo';
   }
 
-  // v4.8.75: normalizar solo imágenes de Pasamanos al recibirlas.
+  // v4.8.81: normalizar solo imágenes de Pasamanos al recibirlas.
   // La celda GRÁFICO utiliza "meet" (no recorta); si el PNG trae mucho
   // fondo blanco, se ve pequeño o descentrado. Se quita ese fondo manteniendo
   // un margen uniforme antes de guardar el concepto.
@@ -10640,11 +10682,11 @@ COLOCACIÓN INCLUIDA` }
         });
 
         addText(root, colUds + ((colBaseUds-colUds)/2), cy+14, units ? String(it.units) : '', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
-        addText(root, (showDto ? colDto : colBaseTotal)-6, cy+14, price ? money(price) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
+        addText(root, (showDto ? colDto : colBaseTotal)-6, cy+14, price ? money(price) : '', { fs:10.4, fw:'400', anchor:'end', fill:price<0?'#c62828':(s.textColor || '#111827') });
         if(showDto) addText(root, colBaseTotal-6, cy+14, dto ? (dto + '%') : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
-        addText(root, colIvaPct-6, cy+14, calc.base ? money(calc.base) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
+        addText(root, colIvaPct-6, cy+14, calc.base ? money(calc.base) : '', { fs:10.4, fw:'400', anchor:'end', fill:calc.base<0?'#c62828':(s.textColor || '#111827') });
         if(ivaEnabled()) addText(root, colIvaPct + ((colIva-colIvaPct)/2), cy+14, '21%', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
-        if(ivaEnabled()) addText(root, x+w-8, cy+14, calc.iva ? money(calc.iva) : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
+        if(ivaEnabled()) addText(root, x+w-8, cy+14, calc.iva ? money(calc.iva) : '', { fs:10.4, fw:'400', anchor:'end', fill:calc.iva<0?'#c62828':(s.textColor || '#111827') });
       }
 
       if(!forExport) hit(root, x, cy, w, rowH, () => openEdit('simpleLine', isEmpty ? 'Nueva línea' : ('Línea ' + (globalIndex+1)), globalIndex), isEmpty ? 'Añadir línea' : ('Editar línea ' + (globalIndex+1)));
@@ -10904,7 +10946,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.75',
+      app:'Documentos Rey', version:'v4.8.81',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11040,7 +11082,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.75',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.81',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -11420,13 +11462,13 @@ COLOCACIÓN INCLUIDA` }
     }
 
     addText(root, subX+(subCol1/2), subY+33, safe(item.units), { fs:numStyle('conceptMetaValueSize'), anchor:'middle' });
-    addText(root, subX+subCol1+subCol2-4, subY+33, money(item.price), { fs:numStyle('conceptMetaValueSize'), anchor:'end' });
+    addText(root, subX+subCol1+subCol2-4, subY+33, money(item.price), { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(item.price)<0?'#c62828':undefined });
 
     if(showDiscountColumn){
       addText(root, subX+subCol1+subCol2+subCol3-4, subY+33, String(itemDiscount).replace('.', ',') + '%', { fs:numStyle('conceptMetaValueSize'), anchor:'end' });
     }
 
-    addText(root, subX+subW-6, subY+33, money(itemCalc.base), { fs:numStyle('conceptMetaValueSize'), anchor:'end' });
+    addText(root, subX+subW-6, subY+33, money(itemCalc.base), { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(itemCalc.base)<0?'#c62828':undefined });
 
     if(!isSimpleBudget()) hit(root, graphicX, graphicY, graphicW, graphicH, () => openConceptImage(item.code), 'Cambiar gráfico ' + item.code);
     hit(root, isSimpleBudget() ? x+8 : x+171, y+24, isSimpleBudget() ? 520 : 350, 98, () => openEdit('conceptText', 'Texto ' + item.code, Number(item.code.slice(1))-1), 'Editar texto ' + item.code);
@@ -12736,7 +12778,7 @@ body.innerHTML = `
         </div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
-        <label class="import-field-label">Precio base</label><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
+        <label class="import-field-label">Precio base</label><span class="negative-units-row"><input id="editSimplePrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editSimplePrice" aria-label="Cambiar signo del precio">−</button></span>
         <div class="import-gain-grid">
           <div>
             <label class="import-field-label">Ganancia (€)</label><input id="editSimpleGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€">
@@ -12762,7 +12804,7 @@ body.innerHTML = `
       const it = state.items[index];
       body.innerHTML = `
         <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
-        <label class="import-field-label">Precio base ${it.code}</label><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}">
+        <label class="import-field-label">Precio base ${it.code}</label><span class="negative-units-row"><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editPrice" aria-label="Cambiar signo del precio">−</button></span>
         <div class="import-gain-grid">
           <div>
             <label class="import-field-label">Ganancia (€) ${it.code}</label><input id="editGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€">
@@ -13783,8 +13825,8 @@ body.innerHTML = `
         const baseNum = parseDecimalInputValue(simpleBasePrice);
         let amountNum = parseDecimalInputValue(simpleGainAmount);
         let pctNum = parseDecimalInputValue(simpleGain);
-        if(!amountNum && pctNum) amountNum = baseNum * pctNum / 100;
-        if(amountNum && !pctNum && baseNum) pctNum = amountNum / baseNum * 100;
+        if(!amountNum && pctNum) amountNum = Math.abs(baseNum) * pctNum / 100;
+        if(amountNum && !pctNum && baseNum) pctNum = amountNum / Math.abs(baseNum) * 100;
         it.gain = String(Number(pctNum || 0).toFixed(2));
         it.gainAmount = String(Number(amountNum || 0).toFixed(2));
         it.price = String(calcPriceWithGainAmount(simpleBasePrice, amountNum));
@@ -13809,8 +13851,8 @@ body.innerHTML = `
         const baseNum = parseDecimalInputValue(basePrice);
         let amountNum = parseDecimalInputValue(gainAmount);
         let pctNum = parseDecimalInputValue(gain);
-        if(!amountNum && pctNum) amountNum = baseNum * pctNum / 100;
-        if(amountNum && !pctNum && baseNum) pctNum = amountNum / baseNum * 100;
+        if(!amountNum && pctNum) amountNum = Math.abs(baseNum) * pctNum / 100;
+        if(amountNum && !pctNum && baseNum) pctNum = amountNum / Math.abs(baseNum) * 100;
         state.items[currentEdit.index].gain = String(Number(pctNum || 0).toFixed(2));
         state.items[currentEdit.index].gainAmount = String(Number(amountNum || 0).toFixed(2));
         state.items[currentEdit.index].price = String(calcPriceWithGainAmount(basePrice, amountNum));
@@ -15052,7 +15094,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.75', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.81', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
