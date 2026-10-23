@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.3</title>
+  <title>Cut Máster v2.4.4</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -207,7 +207,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.3</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.4</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -436,7 +436,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.3');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.4');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -2364,7 +2364,12 @@
         const sketchInner = sketchPack.svg
           .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
           .replace('</svg>', '');
-        return { bar, idx, sketchPack, sketchInner, blockHeight: barGapBefore + (compact ? 24 : 30) + sketchPack.height + afterBarGap };
+        // Solo exportación: sobrante gris muy claro y cifra oscura para imprimir con menos tinta.
+        const printSketchInner = sketchInner
+          .replace(/class="waste-fill"/g, 'class="waste-fill"')
+          .replace(/fill="#9a9a9a"/g, 'fill="#F2F2F2"')
+          .replace(/(text-anchor="middle" font-size="(?:18|30)" font-family="Arial, sans-serif" )fill="#ffffff"/g, '$1fill="#2f241f"');
+        return { bar, idx, sketchPack, sketchInner: printSketchInner, blockHeight: barGapBefore + (compact ? 24 : 30) + sketchPack.height + afterBarGap };
       });
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
       const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;
@@ -2421,7 +2426,7 @@
     const height = Math.max(700, Math.ceil(y + 16));
     const exportStyle = '<style>' +
       '.cut-fill{stroke:none;}' +
-      '.waste-fill{fill:#8f8f8f;stroke:none;}' +
+      '.waste-fill{fill:#F2F2F2;stroke:none;}' +
       '.cut-text{fill:#2f241f;font-family:Arial,sans-serif;}' +
       '.bar-outline{fill:none;stroke:#433630;stroke-width:2.2;}' +
       '.cut-line{stroke:#433630;stroke-width:2.2;}' +
