@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes de Barras v1.2.3</title>
+<title>Recortes de Barras v1.2.4</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -395,7 +395,7 @@ body{padding-bottom:92px}
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.3</span></h1>
+<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.4</span></h1>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador de Recortes</h2>
 <div class="form-group">
@@ -890,6 +890,7 @@ body{padding-bottom:92px}
 
                 saveCuts();
                 renderCuts();
+                window.refreshBarSettings?.();
 
                 barNameInput.value = '';
                 longitudInput.value = '';
@@ -1431,6 +1432,11 @@ document.addEventListener('DOMContentLoaded',()=>{
    Object.keys(colors).sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).forEach(c=>{
     const o=document.createElement('option');o.value=c;o.textContent=label(c);s.appendChild(o);
    });
+   if(all){
+    const cuts=readData().cutsByRAL['0000']||[];
+    const names=[...new Set(cuts.map(c=>(c.nombre_color||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+    names.forEach(name=>{const o=document.createElement('option');o.value='custom:'+name;o.textContent='Otros / '+name;s.appendChild(o)});
+   }
    if([...s.options].some(o=>o.value===current))s.value=current;
   });
  }
@@ -1480,9 +1486,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   const min=parseInt(document.getElementById('search-min-long-input').value)||0;
 const found=[];
   Object.keys(data.cutsByRAL).forEach(code=>{
-   if(ral!=='all'&&code!==ral)return;
+   if(ral!=='all'&&code!==ral&&!(ral.startsWith('custom:')&&code==='0000'))return;
    (data.cutsByRAL[code]||[]).forEach(c=>{
-    if(matchesBarName(name,c.nombre_barra)&&Number(c.longitud)>=min)
+    if((!ral.startsWith('custom:')||(c.nombre_color||'').trim()===ral.slice(7))&&matchesBarName(name,c.nombre_barra)&&Number(c.longitud)>=min)
       found.push({code,c,waste:Number(c.longitud)-min});
    });
   });
@@ -1493,7 +1499,7 @@ const found=[];
   found.forEach(({code,c})=>{
    const row=document.createElement('div');row.className='search-result-row';
    const info=document.createElement('span');info.className='search-result-text';info.dataset.id=c.id;
-   info.textContent=`${label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}${c.ubicacion?' | '+c.ubicacion:''}${min>0?' | Sobran '+(Number(c.longitud)-min)+' mm':''}`;
+   info.textContent=`${code==='0000'?'Otros / '+(c.nombre_color||'Varios'):label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}${c.ubicacion?' | '+c.ubicacion:''}${min>0?' | Sobran '+(Number(c.longitud)-min)+' mm':''}`;
    const use=document.createElement('button');use.className='use-one-btn';use.dataset.id=c.id;use.textContent='Usar 1';
    const remove=document.createElement('button');remove.className='remove-btn search-remove-btn';remove.dataset.id=c.id;remove.textContent='Quitar';
    row.append(info,use,remove);
