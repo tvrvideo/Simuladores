@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes de Barras v1.2.6</title>
+<title>Recortes de Barras v1.2.7</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -395,7 +395,7 @@ body{padding-bottom:92px}
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.6</span></h1>
+<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.7</span></h1>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador de Recortes</h2>
 <div class="form-group">
@@ -1097,14 +1097,20 @@ body{padding-bottom:92px}
             const entered = document.getElementById('modal-custom-color').value.trim();
             if (!entered) { alert('Selecciona o escribe un acabado.'); return; }
             const storedCustom = (() => { try { return JSON.parse(localStorage.getItem('aluminiumBarCustomColors') || '{}'); } catch(e) { return {}; } })();
+            const deleted = (() => { try { return new Set(JSON.parse(localStorage.getItem('aluminiumBarDeletedColors') || '[]')); } catch(e) { return new Set(); } })();
             const available = {...ralColors, ...storedCustom};
-            const match = entered.match(/^RAL\s+(\S+)(?:\s*-.*)?$/i);
+            deleted.forEach(code => { if (!storedCustom[code]) delete available[code]; });
+            const normalize = v => String(v || '').trim().toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+            const input = normalize(entered);
             let targetRal = '0000';
+            const match = entered.match(/^RAL\s+(\S+)(?:\s*-.*)?$/i);
             if (match && available[match[1]]) targetRal = match[1];
             else {
-                const byName = Object.keys(available).find(code => code !== '0000' &&
-                    (available[code].name || '').trim().toLocaleLowerCase('es') === entered.toLocaleLowerCase('es'));
-                if (byName) targetRal = byName;
+                const codes = Object.keys(available).filter(code => code !== '0000');
+                const exact = codes.filter(code => normalize(available[code].name) === input || normalize(code) === input);
+                const starts = codes.filter(code => normalize(available[code].name).startsWith(input + ' '));
+                if (exact.length === 1) targetRal = exact[0];
+                else if (exact.length === 0 && starts.length === 1) targetRal = starts[0];
             }
             const newColorName = targetRal === '0000' ? entered : (available[targetRal].name || entered);
             const newBarName = modalBarName.value.trim();
