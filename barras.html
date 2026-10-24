@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes de Barras v1.2.8</title>
+<title>Recortes de Barras v1.3.2</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -319,6 +319,7 @@
     }
 }
 
+
 </style>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
@@ -378,6 +379,24 @@ body{padding-bottom:92px}
 #export-csv-ios-btn{background:#28a745!important}
 #cancel-delete-btn{background:#e7dfcf;color:#333;border:1px solid #cbbda4}
 .use-one-btn{width:auto;background:#267b49;margin-left:6px;padding:6px 10px}
+/* Campo principal destacado en Añadir y Buscar, sin aumentar altura */
+#screen-add label[for="bar-name-input"],#screen-search label[for="search-bar-name-input"]{color:#8c3e09;font-weight:800}
+#bar-name-input,#search-bar-name-input{background:#ffcf49;border:2px solid #d96a00;border-radius:8px;font-size:17px;font-weight:650;color:#302617;box-shadow:0 1px 5px rgba(190,111,17,.16);padding-top:7px;padding-bottom:7px}
+#bar-name-input:focus,#search-bar-name-input:focus{outline:2px solid #e8a12d;outline-offset:1px;background:#ffe17d;border-color:#b84e00}
+#bar-name-input::placeholder,#search-bar-name-input::placeholder{color:#695022;font-weight:500;opacity:1}
+/* v1.3.2: prioridad real sobre estilos de inputs y apariencia iOS */
+#screen-add input[type="text"]#bar-name-input,
+#screen-search input[type="text"]#search-bar-name-input{
+ -webkit-appearance:none!important;appearance:none!important;
+ background-color:#ffb900!important;background-image:none!important;
+ border:3px solid #d35400!important;color:#241900!important;
+ box-shadow:inset 0 0 0 1px #ffed7a,0 0 0 2px rgba(211,84,0,.18)!important;
+ font-weight:750!important;border-radius:7px!important;
+}
+#screen-add input[type="text"]#bar-name-input:focus,
+#screen-search input[type="text"]#search-bar-name-input:focus{
+ background-color:#ffd13b!important;border-color:#a84200!important;
+}
 .search-name-wrap{position:relative}
 .search-name-wrap #search-bar-name-input{padding-right:45px}
 .search-clear-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px;height:34px;margin:0;padding:0;border-radius:50%;background:#e3e5e5;color:#343b3d;font-size:25px;line-height:1}
@@ -391,17 +410,136 @@ body{padding-bottom:92px}
  .ral-setting-row{grid-template-columns:92px minmax(0,1fr) 58px 82px 82px}
  .ral-setting-save,.ral-setting-delete{grid-column:auto}
 }
-</style></head>
+<style>
+/* v1.3.2: recortes compactos, sin alterar los colores originales */
+#results-container .cut-item{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px 8px}
+#results-container .cut-info{padding:3px 2px;font-size:13px;line-height:1.3;min-width:0}
+#results-container .cut-info strong{font-size:14px;text-decoration:none}
+#results-container .cut-actions{display:flex;gap:5px;justify-content:flex-end;align-items:center}
+#results-container .cut-actions button{width:auto!important;min-width:36px;margin:0!important;padding:5px 8px!important;font-size:13px!important;line-height:1.15;border-radius:7px;font-weight:bold}
+#results-container .edit-cut-btn{background:#2563a6}
+#results-container .add-one-btn{background:#21834b}
+#results-container .use-one-btn{background:#c66b14}
+#results-container .remove-btn{background:#e33232;color:white}
+#results-container .remove-btn:active,#results-container .remove-btn:focus{background:#a30000;box-shadow:0 0 0 2px #fff inset}
+@media(max-width:699px){#results-container .bar-color-body{padding:5px 7px!important}#results-container .bar-color-header{padding:8px 10px!important}#results-container .bar-color-header .ral-name{font-size:17px!important}#results-container .bar-color-header .ral-code{font-size:13px!important}}
+</style><style>
+/* v1.3.2: controles de tamaño constante, independientes de la longitud del nombre */
+#results-container .cut-item{display:block!important;padding:5px 8px!important}
+#results-container .cut-info{display:block!important;padding:3px 0!important;line-height:1.25!important;overflow-wrap:anywhere}
+#results-container .cut-actions{display:flex!important;flex-wrap:nowrap!important;justify-content:flex-end!important;gap:5px!important;padding:3px 0 1px}
+#results-container .cut-actions button{flex:0 0 auto!important;min-width:32px!important;max-width:none!important;padding:5px 8px!important;white-space:nowrap!important;font-size:13px!important;line-height:1.2!important}
+#results-container .cut-actions .edit-cut-btn{min-width:52px!important}
+#results-container .cut-actions .remove-btn{background:#e22!important}
+.search-result-row{flex-wrap:wrap;gap:5px!important}
+.search-result-row .search-result-text{flex-basis:100%;min-width:0}
+.search-result-row button{width:auto!important;flex:0 0 auto!important;min-width:32px!important;padding:5px 8px!important;margin:0!important;font-size:13px!important}
+.search-result-row .edit-cut-btn{background:#2563a6}
+.search-result-row .add-one-btn{background:#21834b}
+.search-result-row .use-one-btn{background:#c66b14}
+</style><style>.classification-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 10px}.classification-grid label{font-size:12px;text-align:left;margin:0}.classification-grid .wide{grid-column:1/-1}.classification-grid select,.classification-grid input{width:100%;padding:7px!important;font-size:14px!important;min-width:0;box-sizing:border-box}.classification-grid label{min-width:0}</style><style>
+/* v1.3.2: ajustes compactos para iPhone; sin desbordamientos horizontales */
+#screen-settings,#screen-settings *{box-sizing:border-box}
+#screen-settings{min-width:0;max-width:100%;overflow-x:hidden;padding:9px!important}
+#screen-settings .settings-card{padding:10px!important;margin-bottom:10px!important;min-width:0;max-width:100%}
+#screen-settings h2{margin:4px 0 12px;font-size:22px}
+#screen-settings h3{margin:2px 0 9px;font-size:17px}
+#screen-settings .class-settings-grid{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:7px;align-items:end}
+#screen-settings .class-settings-grid .compact-field{min-width:0;gap:3px}
+#screen-settings .class-settings-grid .compact-field:nth-of-type(2){grid-column:1}
+#screen-settings .class-settings-grid .compact-field:nth-of-type(3){grid-column:1}
+#screen-settings .class-settings-grid button{width:100%!important;min-width:0!important;max-width:100%;margin:0!important;padding:8px 3px!important;font-size:12px!important;line-height:1.15;min-height:37px}
+#screen-settings .class-settings-grid input,#screen-settings .class-settings-grid select{width:100%!important;min-width:0!important;max-width:100%;padding:7px!important;font-size:15px!important;height:37px}
+#screen-settings .class-settings-grid label{font-size:13px!important;text-align:left}
+#screen-settings .settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#screen-settings .settings-grid .compact-field{min-width:0}
+#screen-settings .settings-grid input[type=text]{width:100%;min-width:0;padding:7px;font-size:15px}
+#screen-settings .settings-color-field{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;gap:10px}
+#screen-settings .settings-color-field label{margin:0}
+#screen-settings .settings-color-field input[type=color]{width:44px!important;height:34px!important}
+#screen-settings .settings-card>button{max-width:100%;padding:9px;font-size:14px}
+#screen-settings .ral-settings-list{min-width:0}
+#screen-settings .ral-setting-row{min-width:0;max-width:100%}
+@media(max-width:699px){#screen-settings .ral-setting-row{grid-template-columns:62px minmax(0,1fr) 45px;gap:5px;padding:6px}#screen-settings .ral-setting-row input{min-width:0}#screen-settings .ral-setting-row input[type=color]{width:42px}#screen-settings .ral-setting-save,#screen-settings .ral-setting-delete{font-size:12px;padding:7px 2px}}
+
+/* v1.3.2: ajustes en tres filas, sin desbordamiento en iPhone */
+#classification-settings{padding:9px!important}
+#classification-settings h3{font-size:16px;margin:0 0 9px!important}
+.compact-class-rows{display:grid;gap:7px;min-width:0}
+.compact-class-row{display:grid;grid-template-columns:65px minmax(0,1fr) 36px 36px;align-items:center;gap:5px;min-width:0}
+.compact-class-row label{font-size:13px;font-weight:700;margin:0;white-space:nowrap}
+.compact-class-row select{min-width:0;width:100%;height:35px;padding:4px 5px;font-size:14px;background:#fff7cf;border:1px solid #d8ca93;border-radius:7px}
+.compact-class-row button{width:36px!important;min-width:0!important;height:35px!important;padding:0!important;margin:0!important;border-radius:7px;font-size:19px!important;font-weight:700;line-height:1}
+.compact-class-row .class-plus{background:#168447}
+.compact-class-row .class-delete{background:#e62e36}
+#classification-message{font-size:12px!important;margin:6px 0 0!important;min-height:0!important}
+
+.app-title-line{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:18px 5px 16px;padding-left:90px;white-space:nowrap}
+.app-title-line strong{font-size:clamp(20px,5vw,29px);line-height:1.2}
+.app-title-line span{font-size:13px;color:#666;font-weight:bold}
+#screen-settings .ral-main-row{margin-bottom:7px}
+#screen-settings .ral-setting-row{grid-template-columns:64px minmax(0,1fr) 42px 62px!important;gap:5px!important}
+#screen-settings .ral-setting-row .ral-setting-save{grid-column:4!important;font-size:11px!important;padding:5px 1px!important}
+#screen-settings .ral-setting-row .ral-setting-delete{display:none!important}
+#screen-settings .ral-setting-row input[type=text]{font-size:13px!important;padding:5px 3px!important}
+#screen-settings .ral-setting-row input[type=color]{width:39px!important;height:33px!important}
+#ral-hidden-form{display:none!important}
+@media(max-width:699px){.app-title-line{margin-top:15px;margin-bottom:14px}}
+</style><style id="v1318-compact">
+#screen-add{padding:10px!important}
+#screen-add h2{font-size:20px;margin:3px 0 12px}
+#screen-add .form-group{margin-bottom:9px}
+#screen-add label{font-size:13px;margin-bottom:4px}
+#screen-add .classification-grid{gap:6px 8px;margin:0 0 10px}
+#screen-add .classification-grid label{font-size:13px}
+#screen-add input,#screen-add select{padding:8px!important;min-height:38px;font-size:16px!important}
+#screen-add .compact-grid{gap:7px;margin-bottom:9px}
+#screen-add .add-meta-row{margin-top:2px}
+#screen-add #add-cut-btn{margin-top:7px;padding:10px;background:#229c45}
+#editModal .modal-content{margin:7vh auto;padding:12px;width:calc(100% - 24px);max-width:420px;box-sizing:border-box}
+#editModal .form-group{margin-bottom:9px}
+#editModal .form-group label{font-size:13px;margin-bottom:3px}
+#editModal .form-group input,#editModal .form-group select{padding:8px;font-size:16px}
+#editModal .classification-grid{gap:6px}
+#legacy-color-fields,#modal-custom-color-group{display:none!important}
+</style><style id="v1327-search-layout">
+/* Cabecera centrada de verdad, independiente del botón Menú y la versión */
+.app-title-line{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:18px 4px 16px!important;min-height:42px;text-align:center}
+.app-title-line strong{font-size:clamp(21px,5.5vw,29px)!important}
+.app-title-line span{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:13px}
+/* Filtros en una sola fila: RAL, Material, Tipo y Acabado */
+#screen-search .search-filter-row{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.05fr);gap:5px;align-items:end;margin:0 0 10px}
+#screen-search .search-filter-row .search-ral-field{min-width:0;margin:0}
+#screen-search .search-filter-row .classification-grid{display:contents}
+#screen-search .search-filter-row label{display:block;min-width:0;margin:0;font-size:12px!important;line-height:1.2;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#screen-search .search-filter-row .classification-grid label.wide{grid-column:auto}
+#screen-search .search-filter-row select,#screen-search .search-filter-row input{display:block;width:100%;min-width:0;height:37px;min-height:37px;box-sizing:border-box;padding:5px 3px!important;font-size:13px!important;margin-top:4px;border-radius:7px}
+#screen-search .search-filter-row select{padding-left:2px!important}
+#screen-search .search-filter-row #acabado-search::placeholder{font-size:12px}
+@media(max-width:390px){#screen-search .search-filter-row{gap:4px}#screen-search .search-filter-row label{font-size:11px!important}#screen-search .search-filter-row select,#screen-search .search-filter-row input{font-size:12px!important;padding-left:2px!important;padding-right:1px!important}}
+</style><style id="compact-recortes-1330">
+/* Recorte entero pulsable para editar; botones de cantidad y borrado independientes. */
+#results-container .cut-item{border-bottom:2px solid rgba(0,0,0,.32)!important;}
+#results-container .cut-item:last-child{border-bottom:0!important;}
+#results-container .cut-info{cursor:pointer!important;min-height:25px;}
+#results-container .cut-info:active{opacity:.7;}
+#results-container .cut-list{padding:0 6px!important;}
+#results-container .cut-actions{gap:6px!important;}
+.search-result-row{border-bottom:2px solid rgba(0,0,0,.3)!important;}
+.search-result-row:last-child{border-bottom:0!important;}
+.search-result-text{cursor:pointer!important;}
+</style>
+</head>
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.8</span></h1>
+<div class="app-title-line"><strong>Recortes</strong><span>v1.3.2</span></div>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador de Recortes</h2>
-<div class="form-group">
-<label for="search-ral-select">Color RAL a buscar:</label>
+<div class="search-filter-row"><div class="form-group search-ral-field">
+<label for="search-ral-select">RAL</label>
 <select id="search-ral-select">
-<option value="all">Buscar Todo</option>
+<option value="all">Todos</option>
 <option value="1015">RAL 1015 - Ivory</option>
 <option value="1036">RAL 1036 - Oro</option>
 <option value="2004">RAL 2004 - Naranja</option>
@@ -424,7 +562,7 @@ body{padding-bottom:92px}
 <option value="0000">0000 - Otros / Varios</option>
 </select>
 </div>
-<div class="form-group">
+<div class="classification-grid"><label>Material<select id="mat-search"><option value="all">Todos</option><option>Aluminio</option><option>Acero inoxidable</option><option>Hierro</option><option>PVC</option><option>Otro</option></select></label><label>Tipo<select id="tipo-search"><option value="all">Todos</option><option>Lacado</option><option>Anodizado</option><option>Sin tratamiento</option><option>AISI 304</option><option>AISI 316</option><option>Galvanizado</option><option>Pintado</option><option>Color</option><option>Imitación madera</option><option>Otro</option></select></label><label class="wide">Acabado<input id="acabado-search" placeholder="Todos"></label></div></div><div class="form-group">
 <label for="search-bar-name-input">Nombre de barra a buscar (parcial):</label>
 <div class="search-name-wrap">
 <input id="search-bar-name-input" placeholder="Ej: T-80 o 65x20" type="text"/>
@@ -439,9 +577,9 @@ body{padding-bottom:92px}
 </div>
 <hr/>
 <div class="section app-screen" data-screen="add" id="screen-add">
-<h2>Añadir Recorte de Barra</h2>
-<div class="form-group">
-<label for="ral-select">Color:</label>
+<h2>Añadir recorte</h2>
+<div class="form-group" id="legacy-color-fields" hidden style="display:none!important">
+<label for="ral-select">Grupo de color (compatibilidad):</label>
 <select id="ral-select">
 <option value="1015">RAL 1015 - Ivory</option>
 <option value="1036">RAL 1036 - Oro</option>
@@ -469,12 +607,8 @@ body{padding-bottom:92px}
 <input id="custom-color-input" placeholder="Ej: Acero, Cobre Brillante, RAL 5021" type="text"/>
 </div>
 <div class="form-group">
-<label for="bar-name-input">Nombre barra:</label>
+<div class="classification-grid"><label>Material<select id="mat-add"><option>Aluminio</option><option>Acero inoxidable</option><option>Hierro</option><option>PVC</option><option>Otro</option></select></label><label>Tipo de acabado<select id="tipo-add"></select></label><label class="wide">Acabado<input id="acabado-add" placeholder="Elegir RAL o acabado" list="acabado-sugerencias" autocomplete="off"></label></div><datalist id="acabado-sugerencias"></datalist><label for="bar-name-input">Nombre del perfil:</label>
 <input id="bar-name-input" placeholder="Ej: T-80, Perfil 65x20" required="" type="text"/>
-</div>
-<div class="form-group">
-<label for="location-input">Ubicación (opcional):</label>
-<input id="location-input" placeholder="Ej: estante 2" type="text"/>
 </div>
 <div class="compact-grid"><div class="compact-field">
 <label for="longitud-input">Longitud (mm):</label>
@@ -482,10 +616,7 @@ body{padding-bottom:92px}
 </div><div class="compact-field">
 <label for="count-input">Cantidad:</label>
 <input id="count-input" min="1" required="" type="number" value="1"/>
-</div></div><div class="form-group">
-<label for="date-input">Fecha:</label>
-<input id="date-input" required="" type="date" value=""/>
-</div>
+</div></div><div class="compact-grid add-meta-row"><div class="compact-field"><label for="location-input">Ubicación (opcional)</label><input id="location-input" placeholder="Estante" type="text"/></div><div class="compact-field"><label for="date-input">Fecha</label><input id="date-input" required="" type="date" value=""/></div></div>
 <button id="add-cut-btn">Añadir Recorte</button>
 <p class="add-cut-message" id="add-cut-message"></p>
 </div>
@@ -499,9 +630,10 @@ body{padding-bottom:92px}
 <label for="import-mode">Al importar:</label>
 <select id="import-mode"><option value="merge">Mezclar y conservar los recortes actuales</option><option value="replace">Sustituir los datos actuales</option></select>
 <button id="import-btn" style="background-color: #4285F4;">Importar JSON/CSV</button>
+<p id="import-status" role="status" aria-live="polite" style="grid-column:1/-1;display:none;padding:10px;border-radius:8px;background:#fff7cf;color:#243126;font-weight:bold;text-align:center;margin:3px 0;"></p>
 </div>
 <p class="settings-help">La copia JSON incluye recortes, acabados y movimientos. El CSV contiene los recortes.</p>
-<div class="settings-card"><h3>Últimos usos</h3><div id="usage-history">Todavía no hay salidas registradas.</div></div>
+<div class="settings-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px"><h3 style="margin:0">Últimos usos</h3><button type="button" id="clear-usage-btn" style="background:#c73535;color:white;padding:6px 10px;font-size:12px;width:auto;min-width:0;flex:0 0 auto">Vaciar lista</button></div><div id="usage-history">Todavía no hay salidas registradas.</div></div>
 </div>
 <hr/>
 <div class="section app-screen" data-screen="stock" id="screen-stock">
@@ -517,36 +649,38 @@ body{padding-bottom:92px}
 </div>
 <section class="section app-screen" data-screen="settings" id="screen-settings">
 <h2>Ajustes</h2>
-<div class="settings-card" style="background:#EAF4FF;border:1px solid #BFD8F5;">
-<h3>Añadir acabado nuevo</h3>
-<div class="settings-grid">
-<div class="compact-field"><label for="new-ral-code">Código</label><input id="new-ral-code" placeholder="Ej. 9007 o ANOD" type="text"/></div>
-<div class="compact-field"><label for="new-ral-name">Nombre</label><input id="new-ral-name" placeholder="Ej. Anodizado plata" type="text"/></div>
-<div class="compact-field settings-color-field"><label for="new-ral-color">Color</label><input id="new-ral-color" type="color" value="#c9c9c9" style="width:60px;height:42px;padding:3px;border:1px solid #d8ca93;border-radius:9px;background:#fff7cf;"></div>
+<div class="settings-card" id="classification-settings" style="padding:10px">
+<h3 style="margin:3px 0 9px">Material → Tipo → Acabado</h3>
+<div class="compact-class-rows">
+<div class="compact-class-row"><label for="settings-material">Material</label><select id="settings-material"></select><button id="create-material" type="button" class="class-plus" aria-label="Añadir material">+</button><button id="delete-material" type="button" class="class-delete" aria-label="Eliminar material">X</button></div>
+<div class="compact-class-row"><label for="settings-finish-type">Tipo</label><select id="settings-finish-type"></select><button id="create-finish-type" type="button" class="class-plus" aria-label="Añadir tipo">+</button><button id="delete-finish-type" type="button" class="class-delete" aria-label="Eliminar tipo">X</button></div>
+<div class="compact-class-row"><label for="settings-finish">Acabado</label><select id="settings-finish"></select><button id="create-class-finish" type="button" class="class-plus" aria-label="Añadir acabado">+</button><button id="delete-class-finish" type="button" class="class-delete" aria-label="Eliminar acabado">X</button></div>
 </div>
-<button id="add-ral-color-btn">Añadir acabado</button>
-<p class="settings-message" id="settings-message"></p>
+<p id="classification-message" class="settings-message" aria-live="polite" style="margin:5px 0 0"></p>
 </div>
-<div class="settings-card">
-<h3>Colores y acabados</h3>
-<p class="settings-help">Edita código, nombre y color. Los recortes se mantienen al cambiar el código.</p>
+<div class="settings-card" id="legacy-ral-settings" style="padding:10px">
+<h3 style="margin:2px 0 8px">Colores RAL</h3>
+<div class="compact-class-row ral-main-row"><label for="ral-current-select">RAL</label><select id="ral-current-select"></select><button type="button" id="ral-quick-add" class="class-plus" aria-label="Añadir RAL">+</button><button type="button" id="ral-quick-delete" class="class-delete" aria-label="Eliminar RAL">X</button></div>
+<p class="settings-message" id="settings-message" aria-live="polite" style="margin:4px 0"></p>
 <div class="ral-settings-list" id="ral-settings-list"></div>
 <button class="secondary-action" id="reset-ral-colors-btn">Restaurar colores originales</button>
+<div id="ral-hidden-form" hidden><input id="new-ral-code" type="text"><input id="new-ral-name" type="text"><input id="new-ral-color" type="color" value="#c9c9c9"><button id="add-ral-color-btn" type="button">Añadir RAL</button></div>
 </div>
 </section></div>
+<div class="modal" id="ralCreateModal" style="z-index:10050"><div class="modal-content" style="margin:20vh auto;padding:14px;max-width:330px;box-sizing:border-box"><h3 style="margin:0 0 12px">Añadir RAL</h3><div class="compact-grid" style="gap:8px"><label>Código<input id="ral-modal-code" type="text" inputmode="numeric" placeholder="Ej. 9007"></label><label>Nombre<input id="ral-modal-name" type="text" placeholder="Ej. Gris"></label></div><label style="display:flex;align-items:center;gap:10px">Color <input id="ral-modal-color" type="color" value="#c9c9c9" style="width:55px;height:38px"></label><div class="modal-buttons" style="margin-top:12px"><button id="ral-modal-cancel" type="button" style="background:#6c757d">Cancelar</button><button id="ral-modal-save" type="button" style="background:#168447">Añadir</button></div></div></div>
 <div class="modal" id="editModal">
 <div class="modal-content">
 <span class="close-btn">×</span>
 <h2>Editar Recorte</h2>
 <div class="form-group">
-<label for="modal-bar-name">Nombre barra:</label>
+<div class="classification-grid"><label>Material<select id="mat-edit"><option>Aluminio</option><option>Acero inoxidable</option><option>Hierro</option><option>PVC</option><option>Otro</option></select></label><label>Tipo de acabado<select id="tipo-edit"></select></label><label class="wide">Acabado<input id="acabado-edit" list="acabado-sugerencias" placeholder="Ej. Natural, Pulido"></label></div><label for="modal-bar-name">Nombre barra:</label>
 <input id="modal-bar-name" required="" type="text"/>
 </div>
 <div class="form-group">
 <label for="modal-location">Ubicación:</label>
 <input id="modal-location" type="text"/>
 </div>
-<div class="form-group" id="modal-custom-color-group">
+<div class="form-group" id="modal-custom-color-group" hidden style="display:none!important">
 <label for="modal-custom-color">Acabado / color:</label>
 <input id="modal-custom-color" type="text" list="modal-color-options" placeholder="Selecciona o escribe un acabado" autocomplete="off"/><datalist id="modal-color-options"></datalist>
 </div>
@@ -622,6 +756,221 @@ body{padding-bottom:92px}
         const importBtn = document.getElementById('import-btn');
         const importFile = document.getElementById('import-file');
 
+        // Clasificación adicional: no se modifican los códigos RAL existentes.
+        const tiposMaterial = {
+          'Aluminio':['Lacado','Anodizado','Sin tratamiento','Otro'],
+          'Acero inoxidable':['AISI 304','AISI 316','Otro'],
+          'Hierro':['Galvanizado','Pintado','Sin tratamiento','Otro'],
+          'PVC':['Color','Imitación madera','Otro'], 'Otro':['Otro']
+        };
+        // Catálogo editable, separado de los recortes; no se reescriben registros existentes.
+        const CLASS_KEY='aluminiumBarClassificationCatalog';
+        try {
+          const custom=JSON.parse(localStorage.getItem(CLASS_KEY)||'{}');
+          if(custom && typeof custom==='object' && !Array.isArray(custom)) {
+            Object.entries(custom).forEach(([mat,types])=>{
+              if(typeof mat==='string' && mat.trim() && Array.isArray(types)) {
+                const current=tiposMaterial[mat]||[];
+                tiposMaterial[mat]=[...new Set([...current,...types.filter(t=>typeof t==='string'&&t.trim())])];
+              }
+            });
+          }
+        } catch(e) { console.warn('Catálogo de clasificación no disponible',e); }
+        const REMOVED_MATERIALS_KEY='aluminiumBarRemovedMaterials';
+        let removedMaterials=new Set();
+        try {const a=JSON.parse(localStorage.getItem(REMOVED_MATERIALS_KEY)||'[]');if(Array.isArray(a))removedMaterials=new Set(a)}catch(e){}
+        removedMaterials.forEach(mat=>delete tiposMaterial[mat]);
+        const storeClass=()=>localStorage.setItem(CLASS_KEY,JSON.stringify(tiposMaterial));
+        const markMaterialRemoved=mat=>{removedMaterials.add(mat);localStorage.setItem(REMOVED_MATERIALS_KEY,JSON.stringify([...removedMaterials]))};
+        const FINISH_KEY='aluminiumBarClassificationFinishes';
+        let acabadosCatalogo={};
+        try {const raw=JSON.parse(localStorage.getItem(FINISH_KEY)||'{}');if(raw&&typeof raw==='object'&&!Array.isArray(raw)) acabadosCatalogo=raw;}catch(e){}
+        const storeFinishes=()=>localStorage.setItem(FINISH_KEY,JSON.stringify(acabadosCatalogo));
+        const REMOVED_TYPES_KEY='aluminiumBarRemovedTypes';
+        const REMOVED_FINISHES_KEY='aluminiumBarRemovedFinishes';
+        const readRemoved=key=>{try{const v=JSON.parse(localStorage.getItem(key)||'[]');return new Set(Array.isArray(v)?v:[])}catch(e){return new Set()}};
+        const removedTypes=readRemoved(REMOVED_TYPES_KEY),removedFinishes=readRemoved(REMOVED_FINISHES_KEY);
+        Object.keys(tiposMaterial).forEach(mat=>{tiposMaterial[mat]=tiposMaterial[mat].filter(t=>!removedTypes.has(mat+'|'+t))});
+        const saveRemoved=()=>{localStorage.setItem(REMOVED_TYPES_KEY,JSON.stringify([...removedTypes]));localStorage.setItem(REMOVED_FINISHES_KEY,JSON.stringify([...removedFinishes]))};
+
+        function refreshSettingTypes(){
+          const mat=document.getElementById('settings-material').value;
+          const sel=document.getElementById('settings-finish-type');const old=sel.value;
+          sel.replaceChildren();(tiposMaterial[mat]||[]).forEach(t=>sel.add(new Option(t,t)));
+          if([...sel.options].some(o=>o.value===old))sel.value=old;
+          refreshFinishPreview();
+        }
+        function refreshFinishPreview(){
+          const mat=document.getElementById('settings-material').value;
+          const typ=document.getElementById('settings-finish-type').value;
+          const key=mat+'|'+typ;
+          const sel=document.getElementById('settings-finish');const previous=sel.value;
+          const list=[...new Set([...(sugeridos[key]||[]),...(acabadosCatalogo[key]||[])])].filter(v=>!removedFinishes.has(key+'|'+v));
+          sel.replaceChildren();list.forEach(v=>sel.add(new Option(v,v)));
+          if([...sel.options].some(o=>o.value===previous))sel.value=previous;
+        }
+
+        function refreshMaterials(){
+          const sels=['mat-add','mat-edit','mat-search','settings-material'];
+          sels.forEach(id=>{
+            const sel=document.getElementById(id); if(!sel)return;
+            const selected=sel.value;
+            const all=id==='mat-search';
+            sel.replaceChildren();
+            if(all)sel.add(new Option('Todos','all'));
+            Object.keys(tiposMaterial).forEach(mat=>sel.add(new Option(mat,mat)));
+            if([...sel.options].some(o=>o.value===selected))sel.value=selected;
+          });
+          ['add','edit'].forEach(suffix=>actualizarTipos(suffix,document.getElementById('tipo-'+suffix).value));
+          refreshSettingTypes();
+        }
+        // Confirmación propia: algunos visores HTML de iPhone bloquean window.confirm.
+        function confirmDeleteMaterial(name){
+          return new Promise(resolve=>{
+            const layer=document.createElement('div');
+            layer.style.cssText='position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
+            const box=document.createElement('div');
+            box.style.cssText='background:#fffaf0;color:#222;border-radius:12px;padding:16px;max-width:350px;width:100%;box-sizing:border-box;box-shadow:0 5px 24px #0005';
+            const label=document.createElement('div');
+            label.style.cssText='font-size:16px;font-weight:bold;margin-bottom:14px;line-height:1.4';
+            label.textContent='¿Eliminar «'+name+'» y sus tipos y acabados?';
+            const row=document.createElement('div');row.style.cssText='display:flex;gap:8px';
+            const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';cancel.style.cssText='flex:1;width:0;margin:0;background:#e8e2d8;color:#222;padding:11px 3px;font-size:15px';
+            const accept=document.createElement('button');accept.type='button';accept.textContent='Eliminar';accept.style.cssText='flex:1;width:0;margin:0;background:#d92e32;color:white;padding:11px 3px;font-size:15px';
+            let done=false;function close(answer){if(done)return;done=true;layer.remove();resolve(answer)}
+            cancel.addEventListener('click',()=>close(false));accept.addEventListener('click',()=>close(true));
+            row.append(cancel,accept);box.append(label,row);layer.append(box);document.body.append(layer);
+          });
+        }
+        function classDialog(title,initial='',isDelete=false){
+          return new Promise(resolve=>{
+            const layer=document.createElement('div');layer.style.cssText='position:fixed;inset:0;z-index:24000;background:#0009;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box';
+            const box=document.createElement('div');box.style.cssText='width:100%;max-width:350px;background:#fffaf0;border-radius:12px;padding:14px;box-sizing:border-box;color:#222';
+            const label=document.createElement('div');label.textContent=title;label.style.cssText='font-weight:bold;font-size:16px;margin-bottom:12px';box.append(label);
+            let input;if(!isDelete){input=document.createElement('input');input.type='text';input.value=initial;input.style.cssText='width:100%;font-size:16px;padding:10px;box-sizing:border-box;background:#fff7cf;border:1px solid #d8ca93;border-radius:7px;margin-bottom:12px';box.append(input)}
+            const row=document.createElement('div');row.style.cssText='display:flex;gap:8px';
+            const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';cancel.style.cssText='flex:1;width:0;margin:0;padding:10px 3px;background:#e7e0d2;color:#222';
+            const ok=document.createElement('button');ok.type='button';ok.textContent=isDelete?'Eliminar':'Guardar';ok.style.cssText='flex:1;width:0;margin:0;padding:10px 3px;background:'+(isDelete?'#dc3545':'#168447');
+            function close(v){layer.remove();resolve(v)}cancel.onclick=()=>close(null);ok.onclick=()=>close(isDelete?true:input.value.trim());
+            row.append(cancel,ok);box.append(row);layer.append(box);document.body.append(layer);
+            if(input)setTimeout(()=>input.focus(),50);
+          });
+        }
+        function setupClassificationSettings(){
+          const msg=document.getElementById('classification-message');
+          const show=(t,ok)=>{msg.textContent=t;msg.className='settings-message '+(ok?'ok':'error')};
+          const selected=()=>({mat:document.getElementById('settings-material').value,typ:document.getElementById('settings-finish-type').value,fin:document.getElementById('settings-finish').value});
+          const hasCuts=predicate=>Object.values(cutsByRAL).some(list=>Array.isArray(list)&&list.some(predicate));
+          document.getElementById('create-material').onclick=async()=>{
+            const name=await classDialog('Nombre del material nuevo');if(name===null)return;
+            if(!name)return show('Introduce un material.',false);
+            if(Object.keys(tiposMaterial).some(k=>k.toLocaleLowerCase('es')===name.toLocaleLowerCase('es')))return show('Ese material ya existe.',false);
+            tiposMaterial[name]=['Sin tratamiento','Otro'];removedMaterials.delete(name);localStorage.setItem(REMOVED_MATERIALS_KEY,JSON.stringify([...removedMaterials]));storeClass();refreshMaterials();
+            document.getElementById('settings-material').value=name;refreshSettingTypes();show('Material «'+name+'» añadido.',true);
+          };
+          document.getElementById('delete-material').onclick=async()=>{
+            const {mat}=selected();if(!mat)return show('Selecciona un material.',false);
+            const linked=Object.values(cutsByRAL).flatMap(a=>Array.isArray(a)?a:[]).filter(c=>c.material===mat);
+            if(linked.length){
+              const units=linked.reduce((sum,c)=>sum+(Number(c.cantidad)||0),0);
+              const layer=document.createElement('div');layer.style.cssText='position:fixed;inset:0;z-index:23000;background:#0009;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box';
+              const box=document.createElement('div');box.style.cssText='background:#fffaf0;color:#222;width:100%;max-width:390px;max-height:85vh;overflow:auto;border-radius:12px;padding:14px;box-sizing:border-box';
+              const heading=document.createElement('div');heading.style.cssText='font-size:17px;font-weight:bold;margin-bottom:8px';heading.textContent='«'+mat+'»: '+linked.length+' recortes · '+units+' unidades';box.append(heading);
+              const detail=document.createElement('div');detail.style.cssText='max-height:29vh;overflow:auto;border:1px solid #ddd0ac;border-radius:7px;background:#fff;padding:6px;font-size:14px';
+              linked.forEach(c=>{const row=document.createElement('div');row.style.cssText='padding:5px 2px;border-bottom:1px solid #eee';row.textContent=(c.nombre_barra||'Recorte')+' · '+(c.longitud||0)+' mm · '+(c.cantidad||0)+' uds. · '+(c.tipo_acabado||'Sin tipo')+' / '+(c.acabado||'Sin acabado');detail.append(row)});box.append(detail);
+              const hint=document.createElement('p');hint.style.cssText='font-size:14px;margin:10px 0 6px';hint.textContent='Para eliminar este material, traslada primero sus recortes. Se conservarán nombres, medidas, cantidades y acabados.';box.append(hint);
+              const dest=document.createElement('select');dest.style.cssText='width:100%;box-sizing:border-box;margin:4px 0 8px;padding:8px;font-size:16px';
+              Object.keys(tiposMaterial).filter(k=>k!==mat).forEach(k=>dest.add(new Option(k,k)));box.append(dest);
+              const type=document.createElement('select');type.style.cssText='width:100%;box-sizing:border-box;margin:4px 0 10px;padding:8px;font-size:16px';box.append(type);
+              const updateTypes=()=>{type.replaceChildren();(tiposMaterial[dest.value]||[]).forEach(t=>type.add(new Option(t,t)))};dest.onchange=updateTypes;updateTypes();
+              const buttons=document.createElement('div');buttons.style.cssText='display:flex;gap:8px';
+              const cancel=document.createElement('button');cancel.textContent='Cancelar';cancel.style.cssText='flex:1;min-width:0;background:#e6dfd3;color:#222;padding:10px 4px;font-size:15px';
+              const move=document.createElement('button');move.textContent='Trasladar y eliminar';move.style.cssText='flex:1.4;min-width:0;background:#167c45;color:white;padding:10px 4px;font-size:14px';
+              buttons.append(cancel,move);box.append(buttons);layer.append(box);document.body.append(layer);
+              cancel.onclick=()=>layer.remove();
+              move.onclick=async()=>{
+                if(!dest.value||!type.value)return;
+                const destMat=dest.value,destType=type.value;
+                // La confirmación no depende de window.confirm (iPhone).
+                if(!(await classDialog('¿Trasladar '+linked.length+' recortes ('+units+' unidades) a «'+destMat+' / '+destType+'» y eliminar «'+mat+'»?', '',true)))return;
+                try{
+                  // Preservar los acabados originales y registrarlos en el catálogo de destino.
+                  const key=destMat+'|'+destType;
+                  const target=acabadosCatalogo[key]||(acabadosCatalogo[key]=[]);
+                  linked.forEach(c=>{if(c.acabado&&!target.includes(c.acabado))target.push(c.acabado);c.material=destMat;c.tipo_acabado=destType});
+                  saveCuts();storeFinishes();
+                  delete tiposMaterial[mat];markMaterialRemoved(mat);Object.keys(acabadosCatalogo).filter(k=>k.startsWith(mat+'|')).forEach(k=>delete acabadosCatalogo[k]);
+                  storeClass();storeFinishes();refreshMaterials();renderCuts();layer.remove();show('Trasladados '+linked.length+' recortes ('+units+' uds.) a «'+destMat+'». Material «'+mat+'» eliminado.',true);
+                }catch(e){show('No se pudo completar el traslado: '+e.message,false)}
+              };
+              return;
+            }
+            if(!(await classDialog('¿Eliminar el material «'+mat+'» y sus tipos y acabados? No tiene recortes asociados.', '',true)))return;
+            delete tiposMaterial[mat];markMaterialRemoved(mat);Object.keys(acabadosCatalogo).filter(k=>k.startsWith(mat+'|')).forEach(k=>delete acabadosCatalogo[k]);
+            storeClass();storeFinishes();refreshMaterials();show('Material «'+mat+'» eliminado.',true);
+          };
+          document.getElementById('create-finish-type').onclick=async()=>{
+            const {mat}=selected();if(!mat)return show('Selecciona material.',false);
+            const name=await classDialog('Tipo nuevo para '+mat);if(name===null)return;
+            if(!name)return show('Introduce un tipo.',false);
+            if((tiposMaterial[mat]||[]).some(t=>t.toLocaleLowerCase('es')===name.toLocaleLowerCase('es')))return show('Ese tipo ya existe.',false);
+            tiposMaterial[mat].push(name);removedTypes.delete(mat+'|'+name);saveRemoved();storeClass();refreshSettingTypes();
+            document.getElementById('settings-finish-type').value=name;refreshFinishPreview();refreshMaterials();show('Tipo «'+name+'» añadido.',true);
+          };
+          document.getElementById('delete-finish-type').onclick=async()=>{
+            const {mat,typ}=selected();if(!mat||!typ)return show('Selecciona un tipo.',false);
+            if(hasCuts(c=>c.material===mat&&c.tipo_acabado===typ))return show('Este tipo tiene recortes. Cámbialos antes de eliminar.',false);
+            if(!(await classDialog('¿Eliminar «'+typ+'» de '+mat+' y sus acabados?', '',true)))return;
+            tiposMaterial[mat]=tiposMaterial[mat].filter(t=>t!==typ);removedTypes.add(mat+'|'+typ);saveRemoved();
+            delete acabadosCatalogo[mat+'|'+typ];storeClass();storeFinishes();refreshSettingTypes();refreshMaterials();show('Tipo «'+typ+'» eliminado.',true);
+          };
+          document.getElementById('create-class-finish').onclick=async()=>{
+            const {mat,typ}=selected();if(!mat||!typ)return show('Selecciona material y tipo.',false);
+            const name=await classDialog('Acabado nuevo para '+mat+' / '+typ);if(name===null)return;
+            if(!name)return show('Introduce un acabado.',false);
+            const key=mat+'|'+typ;
+            if([...(sugeridos[key]||[]),...(acabadosCatalogo[key]||[])].some(v=>v.toLocaleLowerCase('es')===name.toLocaleLowerCase('es')&&!removedFinishes.has(key+'|'+v)))return show('Ese acabado ya existe.',false);
+            (acabadosCatalogo[key]||(acabadosCatalogo[key]=[])).push(name);removedFinishes.delete(key+'|'+name);saveRemoved();storeFinishes();refreshFinishPreview();
+            document.getElementById('settings-finish').value=name;actualizarSugerencias('add');show('Acabado «'+name+'» añadido.',true);
+          };
+          document.getElementById('delete-class-finish').onclick=async()=>{
+            const {mat,typ,fin}=selected();if(!fin)return show('Selecciona un acabado.',false);
+            if(hasCuts(c=>c.material===mat&&c.tipo_acabado===typ&&c.acabado===fin))return show('Este acabado tiene recortes. Cámbialos antes de eliminar.',false);
+            if(!(await classDialog('¿Eliminar el acabado «'+fin+'»?', '',true)))return;
+            const key=mat+'|'+typ;
+            acabadosCatalogo[key]=(acabadosCatalogo[key]||[]).filter(v=>v!==fin);removedFinishes.add(key+'|'+fin);saveRemoved();storeFinishes();refreshFinishPreview();show('Acabado «'+fin+'» eliminado.',true);
+          };
+          document.getElementById('settings-material').addEventListener('change',refreshSettingTypes);
+          document.getElementById('settings-finish-type').addEventListener('change',refreshFinishPreview);
+        }
+
+        const sugeridos = {'Aluminio|Anodizado' :['Natural','Negro','Bronce','Plata'],
+          'Acero inoxidable|AISI 304':['Pulido','Satinado'], 'Acero inoxidable|AISI 316':['Pulido','Satinado'],
+          'Hierro|Galvanizado':['Galvanizado'], 'PVC|Color':['Blanco','Gris']};
+        function actualizarTipos(suffix, desired) {
+          const mat=document.getElementById('mat-'+suffix).value;
+          const tipo=document.getElementById('tipo-'+suffix);
+          tipo.replaceChildren();
+          (tiposMaterial[mat]||['Otro']).forEach(v=>tipo.add(new Option(v,v)));
+          if(desired && [...tipo.options].some(o=>o.value===desired))tipo.value=desired;
+          actualizarSugerencias(suffix);
+        }
+        function actualizarSugerencias(suffix){
+          const mat=document.getElementById('mat-'+suffix).value, tipo=document.getElementById('tipo-'+suffix).value;
+          const list=document.getElementById('acabado-sugerencias');
+          const values=new Set([...(sugeridos[mat+'|'+tipo]||[]),...(acabadosCatalogo[mat+'|'+tipo]||[])]);
+          if(tipo==='Lacado')Object.keys(ralColors).filter(k=>/^\d{4}$/.test(k)).forEach(k=>values.add('RAL '+k));
+          list.replaceChildren();values.forEach(v=>list.appendChild(new Option(v)));
+        }
+        ['add','edit'].forEach(suffix=>{
+          document.getElementById('mat-'+suffix).addEventListener('change',()=>actualizarTipos(suffix));
+          document.getElementById('tipo-'+suffix).addEventListener('change',()=>actualizarSugerencias(suffix));
+        });
+        function clasificacion(suffix){return {material:document.getElementById('mat-'+suffix).value,
+          tipo_acabado:document.getElementById('tipo-'+suffix).value,
+          acabado:document.getElementById('acabado-'+suffix).value.trim()};}
+        function clasificacionIgual(a,b){return (a.material||'Aluminio')===b.material &&
+          (a.tipo_acabado||'Lacado')===b.tipo_acabado && (a.acabado||'')===b.acabado;}
         let cutsByRAL = {};
         let currentEditInfo = {};
         let currentSortOrder = 'longitud'; // 'longitud' o 'nombre'
@@ -638,6 +987,34 @@ body{padding-bottom:92px}
             '1733': { hex: '#a9a9a9', name: 'Inox' },
             '0000': { hex: '#cccccc', name: 'Otros / Varios' } // Código para colores personalizados
         };
+
+        // Inicializar selectores después de declarar ralColors; antes se detenía toda la app.
+        refreshMaterials();
+        setupClassificationSettings();
+        // Al elegir un RAL se propone su acabado, sin obligar a escribirlo de nuevo.
+        function sugerirAcabadoRal() {
+          const code=ralSelect.value;
+          const input=document.getElementById('acabado-add');
+          if (/^\d{4}$/.test(code)) {
+            document.getElementById('mat-add').value='Aluminio';
+            actualizarTipos('add','Lacado');
+            input.value='RAL '+code;
+          } else if (code==='1733') {
+            document.getElementById('mat-add').value='Acero inoxidable';
+            actualizarTipos('add','AISI 304');
+            input.value='Satinado';
+          } else if (code==='0000') input.value='';
+        }
+        // Al entrar en Acabado, vaciar el RAL preseleccionado para
+        // permitir elegir inmediatamente otra sugerencia sin borrar a mano.
+        const acabadoAdd=document.getElementById('acabado-add');
+        acabadoAdd.addEventListener('focus',()=>{
+          if(acabadoAdd.value.trim().toUpperCase()==='RAL 9010'){
+            acabadoAdd.value='';
+            acabadoAdd.dispatchEvent(new Event('input',{bubbles:true}));
+          }
+        });
+        sugerirAcabadoRal();
 
         // --- Funciones de Utilidad ---
         
@@ -778,12 +1155,15 @@ body{padding-bottom:92px}
                     
                     const formattedDate = new Date(cut.fecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     
-                    const cutTextHTML = `<strong>${escapeHTML(cut.nombre_barra)}</strong> | ${Number(cut.longitud)} mm | Cantidad: ${Number(cut.cantidad)} | Fecha: ${escapeHTML(formattedDate)}${cut.ubicacion ? ' | Ubicación: '+escapeHTML(cut.ubicacion) : ''}`;
+                    const cutTextHTML = `<strong>${escapeHTML(cut.nombre_barra)}</strong> · ${Number(cut.longitud)} mm · ${Number(cut.cantidad)} uds.`;
 
                     listItem.innerHTML = `
                         <span class="cut-info" data-id="${cut.id}" data-ral="${ral}" style="color: ${textColor};">${cutTextHTML}</span>
-                        <button class="use-one-btn" type="button" data-id="${cut.id}" aria-label="Usar una unidad">Usar 1</button>
-                        <button class="remove-btn" data-id="${cut.id}">Quitar</button>
+                        <span class="cut-actions">
+                          <button class="add-one-btn" type="button" data-id="${cut.id}" aria-label="Añadir una unidad">+</button>
+                          <button class="use-one-btn" type="button" data-id="${cut.id}" aria-label="Restar una unidad">−</button>
+                          <button class="remove-btn" type="button" data-id="${cut.id}" aria-label="Eliminar recorte">X</button>
+                        </span>
                     `;
                     cutList.appendChild(listItem);
                 });
@@ -819,6 +1199,8 @@ body{padding-bottom:92px}
                 });
                 summary.appendChild(details);
             }
+            // Aplicar la misma cabecera y colores en cada redibujado (+, −, editar, eliminar).
+            window.actualizarTarjetasBarras?.();
         }
 
         // --- Eventos de Funcionalidad ---
@@ -826,8 +1208,8 @@ body{padding-bottom:92px}
         // NEW: Toggle Custom Color Input
         ralSelect.addEventListener('change', () => {
             if (ralSelect.value === '0000') {
-                customColorGroup.style.display = 'block';
-                customColorInput.setAttribute('required', '');
+                customColorGroup.style.display = 'none';
+                customColorInput.removeAttribute('required');
             } else {
                 customColorGroup.style.display = 'none';
                 customColorInput.removeAttribute('required');
@@ -835,9 +1217,34 @@ body{padding-bottom:92px}
             }
         });
         
+        // Traduce la clasificación visible a la clave histórica sin mostrar un segundo selector.
+        // Los acabados no lacados nunca se confunden con un código RAL.
+        function legacyCodeFromClassification(cls) {
+          if(cls.material === 'Aluminio' && cls.tipo_acabado === 'Lacado') {
+            const m = cls.acabado.match(/^RAL\s*(\d{4})\b/i);
+            if(m && ralColors[m[1]]) return m[1];
+          }
+          return '0000';
+        }
+        function syncLegacyFromClassification(){
+          const cls=clasificacion('add');
+          const code=legacyCodeFromClassification(cls);
+          ralSelect.value=code;
+          if(code==='0000'){
+            customColorInput.value=cls.acabado;
+            customColorGroup.style.display='none';
+            customColorInput.removeAttribute('required');
+          }
+        }
+        ['mat-add','tipo-add','acabado-add'].forEach(id=>
+          document.getElementById(id).addEventListener('change',syncLegacyFromClassification));
+        document.getElementById('acabado-add').addEventListener('input',syncLegacyFromClassification);
         // 1. Añadir Recorte
         addCutBtn.addEventListener('click', () => {
-            const ral = ralSelect.value;
+            const cls = clasificacion('add');
+            const ral = legacyCodeFromClassification(cls);
+            ralSelect.value = ral;
+            if (!cls.acabado) { showAddCutMessage('Indica el acabado.', 'error'); return; }
             const nombreBarra = barNameInput.value.trim();
             const ubicacion = locationInput.value.trim();
             const longitud = parseInt(longitudInput.value);
@@ -845,7 +1252,7 @@ body{padding-bottom:92px}
             const fecha = dateInput.value;
             
             // **NUEVO:** Obtener nombre de color/material si RAL es '0000'
-            const nombreColor = ral === '0000' ? customColorInput.value.trim() : (ralColors[ral] ? ralColors[ral].name : '');
+            const nombreColor = ral === '0000' ? cls.acabado : (ralColors[ral] ? ralColors[ral].name : '');
             
             if (ral === '0000' && nombreColor === '') {
                 showAddCutMessage('Introduce un nombre de color o material.', 'error');
@@ -862,7 +1269,7 @@ body{padding-bottom:92px}
                 let existingCut = cutsByRAL[ral].find(
                     cut => cut.nombre_barra.toUpperCase() === nombreBarra.toUpperCase() && cut.longitud === longitud &&
                         (cut.ubicacion || '').toUpperCase() === ubicacion.toUpperCase() &&
-                        (ral !== '0000' || cut.nombre_color === nombreColor)
+                        (ral !== '0000' || cut.nombre_color === nombreColor) && clasificacionIgual(cut,cls)
                 );
 
                 const newCutData = {
@@ -871,7 +1278,7 @@ body{padding-bottom:92px}
                     longitud: longitud,
                     cantidad: count,
                     fecha: fecha,
-                    ubicacion: ubicacion
+                    ubicacion: ubicacion, ...cls
                 };
                 
                 // **IMPORTANTE:** Solo añadir nombre_color si es '0000'
@@ -914,14 +1321,37 @@ body{padding-bottom:92px}
             }
         });
 
+        // Pulsar en el área libre del recorte también abre su editor.
+        document.addEventListener('click', (event) => {
+            const item = event.target.closest('#results-container .cut-item');
+            if (!item || event.target.closest('button, .cut-info')) return;
+            const info = item.querySelector('.cut-info');
+            if (info) info.click();
+        });
+
         // 2. & 3. Manejar Clicks en Recortes (Eliminar y Editar) - DELEGACIÓN AL DOCUMENTO
         document.addEventListener('click', (event) => {
+            const editButton = event.target.closest('.edit-cut-btn');
+            if (editButton) {
+                const info = document.querySelector(`.cut-info[data-id="${editButton.dataset.id}"]`);
+                if (info) info.click();
+                event.preventDefault(); return;
+            }
+            const addOneButton = event.target.closest('.add-one-btn');
+            if (addOneButton) {
+                const found = findCutById(addOneButton.dataset.id);
+                if (!found) return;
+                found.cut.cantidad = Number(found.cut.cantidad) + 1;
+                saveCuts(); renderCuts();
+                if (searchResultsContainer.style.display === 'block') searchCutBtn.click();
+                event.preventDefault(); return;
+            }
             const useButton = event.target.closest('.use-one-btn');
             if (useButton) {
                 const found = findCutById(useButton.dataset.id);
                 if (!found || Number(found.cut.cantidad) < 1) return;
-                if (!confirm(`¿Usar 1 unidad de ${found.cut.nombre_barra} de ${found.cut.longitud} mm?`)) return;
-                const trabajo = prompt('Trabajo o destino (opcional):', '') || '';
+                if (Number(found.cut.cantidad) === 1 && !confirm(`Es la última unidad de ${found.cut.nombre_barra} (${found.cut.longitud} mm). ¿Quieres retirarla y eliminar el recorte?`)) return;
+                const trabajo = '';
                 const history = JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
                 history.unshift({fecha:new Date().toISOString(), ral:found.ral,
                     nombre_barra:found.cut.nombre_barra, longitud:found.cut.longitud,
@@ -948,6 +1378,7 @@ body{padding-bottom:92px}
                 const cutId = parseInt(removeButton.dataset.id);
 
                 const cutInfo = findCutById(cutId);
+                if (cutInfo && !confirm(`¿Eliminar definitivamente ${cutInfo.cut.nombre_barra} · ${cutInfo.cut.longitud} mm · ${cutInfo.cut.cantidad} uds.?`)) return;
 
                 if (cutInfo) {
                     const { ral, index } = cutInfo;
@@ -964,7 +1395,7 @@ body{padding-bottom:92px}
             }
 
             // --- Lógica para EDITAR ---
-            const cutInfoSpan = event.target.closest('.cut-info'); 
+            const cutInfoSpan = event.target.closest('.cut-info, .edit-cut-btn'); 
             if (cutInfoSpan) {
                 event.preventDefault();
                 event.stopImmediatePropagation(); // Detiene cualquier otro manejador de evento
@@ -975,13 +1406,16 @@ body{padding-bottom:92px}
                 if (cutInfo) {
                     const { cut } = cutInfo;
                     
+                    document.getElementById('mat-edit').value=cut.material||'Aluminio';
+                    actualizarTipos('edit',cut.tipo_acabado||'Lacado');
+                    document.getElementById('acabado-edit').value=cut.acabado||(cutInfo.ral==='0000'?(cut.nombre_color||''):(/^\d{4}$/.test(cutInfo.ral)?'RAL '+cutInfo.ral:''));
                     modalBarName.value = cut.nombre_barra;
                     modalLocation.value = cut.ubicacion || '';
                     modalLongitud.value = cut.longitud;
                     modalCount.value = cut.cantidad;
                     modalDate.value = cut.fecha;
                     
-                    document.getElementById("modal-custom-color-group").style.display = "block";
+                    document.getElementById("modal-custom-color-group").style.display = "none";
                     const colorOptions = document.getElementById('modal-color-options');
                     colorOptions.innerHTML = '';
                     Object.keys(ralColors).filter(code => code !== '0000').forEach(code => {
@@ -1029,7 +1463,13 @@ body{padding-bottom:92px}
                         const matchesName = searchBarName === '' || cut.nombre_barra.toUpperCase().includes(searchBarName);
                         const matchesLength = cut.longitud >= searchMinLong;
 
-                        if (matchesName && matchesLength) {
+                        const matFilter=document.getElementById('mat-search').value;
+                        const tipoFilter=document.getElementById('tipo-search').value;
+                        const acabFilter=document.getElementById('acabado-search').value.trim().toLowerCase();
+                        const matchesClass=(matFilter==='all'||(cut.material||'Aluminio')===matFilter) &&
+                          (tipoFilter==='all'||(cut.tipo_acabado||'Lacado')===tipoFilter) &&
+                          (!acabFilter||(cut.acabado||'').toLowerCase().includes(acabFilter));
+                        if (matchesName && matchesLength && matchesClass) {
                             // **LÓGICA MEJORADA PARA MOSTRAR COLOR/MATERIAL**
                             let colorDisplay = '';
                             if (ral === '0000') {
@@ -1038,7 +1478,7 @@ body{padding-bottom:92px}
                                 colorDisplay = ralColors[ral] ? ralColors[ral].name : '';
                             }
                             
-                            const searchText = `RAL ${ral} - ${colorDisplay} | ${cut.nombre_barra} | ${cut.longitud} mm | Cantidad: ${cut.cantidad}`;
+                            const searchText = `${cut.material||'Aluminio'} · ${cut.tipo_acabado||'Lacado'} · ${cut.acabado||colorDisplay} | ${cut.nombre_barra} | ${cut.longitud} mm | ${cut.cantidad} uds.`;
                             
                             foundCuts.push(searchText);
                         }
@@ -1094,7 +1534,9 @@ body{padding-bottom:92px}
                  return;
             }
             
-            const entered = document.getElementById('modal-custom-color').value.trim();
+            const clsEdit=clasificacion('edit');
+            if (!clsEdit.acabado) { alert('Indica el acabado.'); return; }
+            const entered = clsEdit.acabado.trim();
             if (!entered) { alert('Selecciona o escribe un acabado.'); return; }
             const storedCustom = (() => { try { return JSON.parse(localStorage.getItem('aluminiumBarCustomColors') || '{}'); } catch(e) { return {}; } })();
             const deleted = (() => { try { return new Set(JSON.parse(localStorage.getItem('aluminiumBarDeletedColors') || '[]')); } catch(e) { return new Set(); } })();
@@ -1111,14 +1553,14 @@ body{padding-bottom:92px}
             const byName = codes.filter(code => normalize(available[code].name) === input ||
                 normalize(`RAL ${code} - ${available[code].name}`) === input ||
                 normalize(`${code} - ${available[code].name}`) === input);
-            if (byCode) targetRal = byCode;
-            else if (byName.length === 1) targetRal = byName[0];
+            if (clsEdit.material === 'Aluminio' && clsEdit.tipo_acabado === 'Lacado' && byCode) targetRal = byCode;
+            else if (clsEdit.material === 'Aluminio' && clsEdit.tipo_acabado === 'Lacado' && byName.length === 1) targetRal = byName[0];
             else {
                 const starts = codes.filter(code => normalize(available[code].name).startsWith(input + ' '));
-                if (starts.length === 1) targetRal = starts[0];
+                if (clsEdit.material === 'Aluminio' && clsEdit.tipo_acabado === 'Lacado' && starts.length === 1) targetRal = starts[0];
             }
             // Evitar crear otro acabado con el nombre de uno existente.
-            if (targetRal === '0000' && codes.some(code => normalize(available[code].name) === input)) {
+            if (targetRal === '0000' && clsEdit.tipo_acabado === 'Lacado' && codes.some(code => normalize(available[code].name) === input)) {
                 alert('Selecciona el acabado existente de la lista.'); return;
             }
             const newColorName = targetRal === '0000' ? entered : (available[targetRal].name || entered);
@@ -1135,11 +1577,11 @@ body{padding-bottom:92px}
                     c.nombre_barra.toUpperCase() === newBarName.toUpperCase() &&
                     Number(c.longitud) === newLongitud &&
                     (c.ubicacion || '').toUpperCase() === newLocation.toUpperCase() &&
-                    (targetRal !== '0000' || (c.nombre_color || '').trim().toLocaleLowerCase('es') === newColorName.toLocaleLowerCase('es')));
+                    (targetRal !== '0000' || (c.nombre_color || '').trim().toLocaleLowerCase('es') === newColorName.toLocaleLowerCase('es')) && clasificacionIgual(c,clsEdit));
                 if (newCount > 0 && same) same.cantidad = Number(same.cantidad) + newCount;
                 else if (newCount > 0) {
                     const updated = {...currentCutInfo.cut, nombre_barra:newBarName, ubicacion:newLocation,
-                        longitud:newLongitud, cantidad:newCount, fecha:newDate, nombre_color:newColorName};
+                        longitud:newLongitud, cantidad:newCount, fecha:newDate, nombre_color:newColorName, ...clsEdit};
                     destination.push(updated);
                 }
                 // Quitar el registro original por ID, incluso si origen y destino son el mismo grupo.
@@ -1199,6 +1641,8 @@ body{padding-bottom:92px}
                     custom:JSON.parse(localStorage.getItem('aluminiumBarCustomColors') || '{}'),
                     deleted:JSON.parse(localStorage.getItem('aluminiumBarDeletedColors') || '[]')
                 },
+                classificationCatalog:tiposMaterial, classificationFinishes:acabadosCatalogo,
+                removedMaterials:[...removedMaterials], removedTypes:[...removedTypes], removedFinishes:[...removedFinishes],
                 usageHistory:JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]')
             };
             const data = JSON.stringify(dataToExport, null, 2);
@@ -1209,15 +1653,18 @@ body{padding-bottom:92px}
 
         // Exportar CSV (actualizado para incluir nombre_color)
         exportCsvIosBtn.addEventListener('click', () => {
-            const header = 'RAL,Nombre Barra,Longitud,Cantidad,Fecha,Color Personalizado,ID,Ubicación\n';
+            const header = 'RAL,Nombre Barra,Longitud,Cantidad,Fecha,Color Personalizado,ID,Ubicación,Material,Tipo de acabado,Acabado\n';
             let csv = header;
             for (const ral in cutsByRAL) {
                 cutsByRAL[ral].forEach(cut => {
                     const nombreBarraSanitizado = cut.nombre_barra.replace(/"/g, '""'); 
                     const nombreColorSanitizado = (cut.nombre_color || '').replace(/"/g, '""'); // Nuevo
                     const ubicacionSanitizada = (cut.ubicacion || '').replace(/"/g, '""');
+                    const matCsv = (cut.material || 'Aluminio').replace(/"/g, '""');
+                    const tipoCsv = (cut.tipo_acabado || 'Lacado').replace(/"/g, '""');
+                    const acabadoCsv = (cut.acabado || '').replace(/"/g, '""');
                     
-                    csv += `${ral},"${nombreBarraSanitizado}",${cut.longitud},${cut.cantidad},${cut.fecha},"${nombreColorSanitizado}",${cut.id},"${ubicacionSanitizada}"\n`;
+                    csv += `${ral},"${nombreBarraSanitizado}",${cut.longitud},${cut.cantidad},${cut.fecha},"${nombreColorSanitizado}",${cut.id},"${ubicacionSanitizada}","${matCsv}","${tipoCsv}","${acabadoCsv}"\n`;
                 });
             }
             const now = new Date();
@@ -1263,7 +1710,8 @@ body{padding-bottom:92px}
                         throw new Error('Hay recortes con datos no válidos.');
                     return { nombre_barra:c.nombre_barra.trim(), longitud:Number(c.longitud),
                         cantidad:Number(c.cantidad), fecha:c.fecha,
-                        nombre_color:String(c.nombre_color || ''), ubicacion:String(c.ubicacion || '').trim() };
+                        nombre_color:String(c.nombre_color || ''), ubicacion:String(c.ubicacion || '').trim(),
+                        material:String(c.material||'Aluminio'), tipo_acabado:String(c.tipo_acabado||'Lacado'), acabado:String(c.acabado||'') };
                 });
             });
             if (!Object.values(result).some(list => list.length)) throw new Error('La copia no contiene recortes.');
@@ -1284,12 +1732,15 @@ body{padding-bottom:92px}
             const groups = Object.create(null);
             if (rows.length && /^RAL$/i.test(rows[0][0].trim())) rows.shift();
             rows.forEach((parts, index) => {
-                if (![5,6,7,8].includes(parts.length)) throw new Error(`Columnas incorrectas en la fila ${index+1}.`);
+                if (![5,6,7,8,11].includes(parts.length)) throw new Error(`Columnas incorrectas en la fila ${index+1}.`);
                 const [ral, nombre_barra, longitud, cantidad, fecha] = parts;
                 const nombre_color = parts.length >= 7 ? parts[5] : '';
-                const ubicacion = parts.length === 8 ? parts[7] : '';
+                const ubicacion = parts.length >= 8 ? parts[7] : '';
+                const material=parts.length===11?parts[8]:undefined;
+                const tipo_acabado=parts.length===11?parts[9]:undefined;
+                const acabado=parts.length===11?parts[10]:undefined;
                 if (!groups[ral]) groups[ral] = [];
-                groups[ral].push({nombre_barra,longitud,cantidad,fecha,nombre_color,ubicacion});
+                groups[ral].push({nombre_barra,longitud,cantidad,fecha,nombre_color,ubicacion,material,tipo_acabado,acabado});
             });
             return groups;
         }
@@ -1297,6 +1748,7 @@ body{padding-bottom:92px}
             const holder = document.getElementById('usage-history');
             const history = JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
             holder.textContent = '';
+            document.getElementById('clear-usage-btn').disabled = !history.length;
             if (!history.length) { holder.textContent = 'Todavía no hay salidas registradas.'; return; }
             history.slice(0,20).forEach(item => {
                 const line = document.createElement('div');
@@ -1306,16 +1758,65 @@ body{padding-bottom:92px}
         }
         window.renderBarUsageHistory = renderUsageHistory;
         renderUsageHistory();
-        importBtn.addEventListener('click', () => importFile.click());
+        document.getElementById('clear-usage-btn').addEventListener('click', () => {
+            const history = JSON.parse(localStorage.getItem('aluminiumBarUsageHistory') || '[]');
+            if (!history.length) return;
+            document.getElementById('clearUsageCount').textContent = `¿Vaciar los ${history.length} movimientos de Últimos usos? Los recortes del almacén no se modificarán.`;
+            document.getElementById('clearUsageModal').style.display = 'block';
+        });
+        document.getElementById('clearUsageCancel').addEventListener('click', () => { document.getElementById('clearUsageModal').style.display = 'none'; });
+        document.getElementById('clearUsageYes').addEventListener('click', () => {
+            localStorage.setItem('aluminiumBarUsageHistory', '[]');
+            document.getElementById('clearUsageModal').style.display = 'none';
+            renderUsageHistory();
+        });
+        const importStatus = document.getElementById('import-status');
+        function showImportStatus(message, ok = true) {
+            importStatus.textContent = message;
+            importStatus.style.display = 'block';
+            importStatus.style.background = ok ? '#d4edda' : '#ffe0dc';
+            importStatus.style.color = ok ? '#155724' : '#842029';
+        }
+        function askImportConfirmation(message) {
+            return new Promise(resolve => {
+                const modal = document.getElementById('importConfirmModal');
+                const msg = document.getElementById('importConfirmText');
+                const yes = document.getElementById('importConfirmYes');
+                const no = document.getElementById('importConfirmNo');
+                msg.textContent = message;
+                modal.style.display = 'block';
+                let done = false;
+                function finish(value) {
+                    if (done) return;
+                    done = true;
+                    modal.style.display = 'none';
+                    yes.removeEventListener('click', accept);
+                    no.removeEventListener('click', cancel);
+                    modal.removeEventListener('click', backdrop);
+                    resolve(value);
+                }
+                function accept() { finish(true); }
+                function cancel() { finish(false); }
+                function backdrop(e) { if (e.target === modal) finish(false); }
+                yes.addEventListener('click', accept);
+                no.addEventListener('click', cancel);
+                modal.addEventListener('click', backdrop);
+            });
+        }
+        importBtn.addEventListener('click', () => {
+            showImportStatus('Selecciona la copia JSON o CSV en Archivos.');
+            importFile.click();
+        });
         importFile.addEventListener('change', event => {
             const file = event.target.files[0];
             if (!file) return;
+            showImportStatus('Leyendo copia: ' + file.name + '…');
             importFile.value = '';
             const reader = new FileReader();
-            reader.onerror = () => alert('No se pudo leer el archivo.');
-            reader.onload = () => {
+            reader.onerror = () => { showImportStatus('No se pudo leer el archivo.', false); alert('No se pudo leer el archivo.'); };
+            reader.onload = async () => {
                 try {
-                    let groups, settings = null, history = null;
+                    let groups, settings = null, history = null, classification = null;
                     if (/\.json$/i.test(file.name)) {
                         const parsed = JSON.parse(reader.result);
                         if (parsed?.format === 'recortes-barras' && parsed.version !== 2)
@@ -1325,28 +1826,53 @@ body{padding-bottom:92px}
                             settings = validateColors(parsed.colors);
                             if (!settings || !Array.isArray(parsed.usageHistory)) throw new Error('Copia incompleta.');
                             history = parsed.usageHistory;
+                            // Las copias antiguas sin clasificación siguen siendo compatibles.
+                            if (parsed.classificationCatalog !== undefined) {
+                                const validCatalog = obj => obj && typeof obj === 'object' && !Array.isArray(obj) &&
+                                    Object.entries(obj).every(([name,types]) => typeof name === 'string' && name.trim() &&
+                                    !['__proto__','constructor','prototype'].includes(name) && Array.isArray(types) &&
+                                    types.every(t => typeof t === 'string' && t.trim()));
+                                const validFinishes = obj => obj && typeof obj === 'object' && !Array.isArray(obj) &&
+                                    Object.entries(obj).every(([key,values]) => typeof key === 'string' &&
+                                    !['__proto__','constructor','prototype'].includes(key) && Array.isArray(values) &&
+                                    values.every(v => typeof v === 'string'));
+                                const validRemoved = a => a === undefined || (Array.isArray(a) && a.every(v => typeof v === 'string'));
+                                if (!validCatalog(parsed.classificationCatalog) || !validFinishes(parsed.classificationFinishes || {}) ||
+                                    !validRemoved(parsed.removedMaterials) || !validRemoved(parsed.removedTypes) || !validRemoved(parsed.removedFinishes))
+                                    throw new Error('La clasificación de la copia no es válida.');
+                                classification = parsed;
+                            }
                         }
                     } else if (/\.csv$/i.test(file.name)) groups = validateCuts(importRows(parseCsv(reader.result)));
                     else throw new Error('Selecciona un JSON o CSV.');
                     const replace = document.getElementById('import-mode').value === 'replace';
-                    const message = replace ? '¿Sustituir todos los recortes actuales por los del archivo?' :
+                    const message = replace ? '¿Sustituir todos los recortes actuales por los del archivo? (Haz antes una copia de seguridad)' :
                         '¿Mezclar la copia con los recortes actuales? Los repetidos conservarán la cantidad mayor.';
-                    if (!confirm(message)) return;
-                    const output = replace ? Object.create(null) : structuredClone(cutsByRAL);
+                    // Confirmación propia: algunos visores iOS bloquean window.confirm y devuelven false.
+                    const approved = await askImportConfirmation(message);
+                    if (!approved) { showImportStatus('Restauración cancelada. No se modificaron los datos.', false); return; }
+                    const output = replace ? Object.create(null) : JSON.parse(JSON.stringify(cutsByRAL));
                     Object.entries(groups).forEach(([ral, list]) => {
                         const dest = output[ral] || (output[ral] = []);
                         list.forEach(c => {
                             const same = dest.find(x => x.nombre_barra.toUpperCase() === c.nombre_barra.toUpperCase() &&
                                 Number(x.longitud) === c.longitud && (x.nombre_color||'') === c.nombre_color &&
-                                (x.ubicacion||'').toUpperCase() === c.ubicacion.toUpperCase());
+                                (x.ubicacion||'').toUpperCase() === c.ubicacion.toUpperCase() && clasificacionIgual(x,c));
                             if (same) same.cantidad = Math.max(Number(same.cantidad), c.cantidad);
                             else dest.push({...c});
                         });
                     });
                     let id = 1;
                     Object.values(output).forEach(list => list.forEach(c => c.id = id++));
+                    const importedRecords = Object.values(groups).reduce((n, list) => n + list.length, 0);
+                    const importedPieces = Object.values(groups).flat().reduce((n, c) => n + Number(c.cantidad), 0);
                     cutsByRAL = output; nextCutId = id;
                     saveCuts();
+                    // Verificar que Safari realmente guardó los datos antes de anunciar éxito.
+                    const check = JSON.parse(localStorage.getItem('aluminiumBarCutsData') || '{}');
+                    const savedPieces = Object.values(check.cutsByRAL || {}).flat().reduce((n,c) => n + Number(c.cantidad || 0), 0);
+                    const expectedPieces = Object.values(output).flat().reduce((n,c) => n + Number(c.cantidad || 0), 0);
+                    if (savedPieces !== expectedPieces) throw new Error('El navegador no ha guardado todas las piezas.');
                     if (settings) {
                         const keys = [['aluminiumBarColorSettings','overrides'],['aluminiumBarCustomColors','custom']];
                         keys.forEach(([key, prop]) => localStorage.setItem(key, JSON.stringify(replace ? settings[prop] :
@@ -1363,10 +1889,36 @@ body{padding-bottom:92px}
                         }).sort((a,b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0,500);
                         localStorage.setItem('aluminiumBarUsageHistory', JSON.stringify(joined));
                     }
+                    if (classification) {
+                        // Restaurar también materiales, tipos y acabados, no solo los recortes.
+                        // En modo Mezclar, mantener los catálogos actuales y añadir los de la copia.
+                        const incoming = classification.classificationCatalog;
+                        if (replace) {
+                            Object.keys(tiposMaterial).forEach(k => delete tiposMaterial[k]);
+                            Object.entries(incoming).forEach(([k,v]) => tiposMaterial[k]=[...v]);
+                            acabadosCatalogo = JSON.parse(JSON.stringify(classification.classificationFinishes || {}));
+                            removedMaterials.clear();removedTypes.clear();removedFinishes.clear();
+                            (classification.removedMaterials || []).forEach(v=>removedMaterials.add(v));
+                            (classification.removedTypes || []).forEach(v=>removedTypes.add(v));
+                            (classification.removedFinishes || []).forEach(v=>removedFinishes.add(v));
+                        } else {
+                            Object.entries(incoming).forEach(([k,v]) => {
+                                tiposMaterial[k]=[...new Set([...(tiposMaterial[k]||[]),...v])];
+                                removedMaterials.delete(k);
+                            });
+                            Object.entries(classification.classificationFinishes || {}).forEach(([k,v]) => {
+                                acabadosCatalogo[k]=[...new Set([...(acabadosCatalogo[k]||[]),...v])];
+                            });
+                        }
+                        storeClass();storeFinishes();saveRemoved();
+                        localStorage.setItem(REMOVED_MATERIALS_KEY,JSON.stringify([...removedMaterials]));
+                    }
                     renderCuts(); renderUsageHistory();
                     window.refreshBarSettings?.();
-                    alert('Importación completada.');
-                } catch (error) { alert('No se importó el archivo: ' + error.message); }
+                    const resultMessage = `✓ Copia restaurada: ${importedRecords} recortes y ${importedPieces} piezas. Guardadas en este móvil: ${savedPieces} piezas. (${replace ? 'Sustituir' : 'Mezclar'})`;
+                    showImportStatus(resultMessage);
+                    alert(resultMessage);
+                } catch (error) { showImportStatus('No se restauró la copia: ' + error.message, false); alert('No se importó el archivo: ' + error.message); }
             };
             reader.readAsText(file);
         });
@@ -1395,6 +1947,16 @@ function volverIndexSeguro(){
  return false;
 }
 </script>
+<div class="modal" id="clearUsageModal" style="z-index:10060">
+<div class="modal-content" style="margin:22vh auto;max-width:360px;box-sizing:border-box">
+<h3>Vaciar últimos usos</h3><p id="clearUsageCount"></p>
+<div class="modal-buttons"><button type="button" id="clearUsageCancel" style="background:#777">Cancelar</button><button type="button" id="clearUsageYes" style="background:#c73535">Vaciar lista</button></div>
+</div></div>
+<div class="modal" id="importConfirmModal" style="z-index:10050;">
+<div class="modal-content" style="margin:22vh auto;max-width:360px;box-sizing:border-box;">
+<h3>Restaurar copia</h3><p id="importConfirmText"></p>
+<div class="modal-buttons"><button type="button" id="importConfirmNo" style="background:#777;">Cancelar</button><button type="button" id="importConfirmYes" style="background:#238a45;">Continuar</button></div>
+</div></div>
 <div class="modal" id="deleteConfirmModal">
 <div class="modal-content">
 <h3>Eliminar recorte</h3>
@@ -1451,14 +2013,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['ral-select','search-ral-select'].forEach(id=>{
    const s=document.getElementById(id), current=s.value;
    const all=id==='search-ral-select';
-   s.innerHTML=all?'<option value="all">Buscar Todo</option>':'';
+   s.innerHTML=all?'<option value="all">Todos</option>':'';
    Object.keys(colors).sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).forEach(c=>{
     const o=document.createElement('option');o.value=c;o.textContent=label(c);s.appendChild(o);
    });
+   // Los nombres históricos de «Otros» no son colores RAL.
+   // Tras reclasificarlos por material/tipo/acabado no deben seguir
+   // apareciendo como supuestos colores en el filtro RAL.
    if(all){
-    const cuts=readData().cutsByRAL['0000']||[];
-    const names=[...new Set(cuts.map(c=>(c.nombre_color||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-    names.forEach(name=>{const o=document.createElement('option');o.value='custom:'+name;o.textContent='Otros / '+name;s.appendChild(o)});
+    [...s.options].forEach(o=>{if(o.value==='0000')o.remove()});
    }
    if([...s.options].some(o=>o.value===current))s.value=current;
   });
@@ -1508,11 +2071,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   const data=readData(),ral=document.getElementById('search-ral-select').value;
   const name=document.getElementById('search-bar-name-input').value.trim();
   const min=parseInt(document.getElementById('search-min-long-input').value)||0;
-const found=[];
+  const material=document.getElementById('mat-search').value;
+  const tipo=document.getElementById('tipo-search').value;
+  const acabado=document.getElementById('acabado-search').value.trim().toLocaleLowerCase('es');
+  const found=[];
   Object.keys(data.cutsByRAL).forEach(code=>{
    if(ral!=='all'&&code!==ral&&!(ral.startsWith('custom:')&&code==='0000'))return;
    (data.cutsByRAL[code]||[]).forEach(c=>{
-    if((!ral.startsWith('custom:')||(c.nombre_color||'').trim()===ral.slice(7))&&matchesBarName(name,c.nombre_barra)&&Number(c.longitud)>=min)
+    // Los registros antiguos no tienen clasificación: se muestran con su grupo original.
+    const mat=c.material|| (code==='1733'?'Acero inoxidable':code==='0000'?'Otro':'Aluminio');
+    const typ=c.tipo_acabado|| (code==='1733'?'AISI 304':code==='0000'?'Otro':'Lacado');
+    const finish=c.acabado|| (code==='0000'?(c.nombre_color||''):('RAL '+code));
+    if((!ral.startsWith('custom:')||(c.nombre_color||'').trim()===ral.slice(7))
+       &&matchesBarName(name,c.nombre_barra)&&Number(c.longitud)>=min
+       &&(material==='all'||mat===material)
+       &&(tipo==='all'||typ===tipo)
+       &&(!acabado||finish.toLocaleLowerCase('es').includes(acabado)))
       found.push({code,c,waste:Number(c.longitud)-min});
    });
   });
@@ -1524,12 +2098,34 @@ const found=[];
    const row=document.createElement('div');row.className='search-result-row';
    const info=document.createElement('span');info.className='search-result-text';info.dataset.id=c.id;
    info.textContent=`${code==='0000'?'Otros / '+(c.nombre_color||'Varios'):label(code)} | ${c.nombre_barra} | ${c.longitud} mm | Cantidad: ${c.cantidad}${c.ubicacion?' | '+c.ubicacion:''}${min>0?' | Sobran '+(Number(c.longitud)-min)+' mm':''}`;
-   const use=document.createElement('button');use.className='use-one-btn';use.dataset.id=c.id;use.textContent='Usar 1';
-   const remove=document.createElement('button');remove.className='remove-btn search-remove-btn';remove.dataset.id=c.id;remove.textContent='Quitar';
-   row.append(info,use,remove);
+   const use=document.createElement('button');use.className='use-one-btn';use.dataset.id=c.id;use.textContent='−';use.setAttribute('aria-label','Restar una unidad');
+   const remove=document.createElement('button');remove.className='remove-btn search-remove-btn';remove.dataset.id=c.id;remove.textContent='X';remove.setAttribute('aria-label','Eliminar recorte');
+   const add=document.createElement('button');add.className='add-one-btn';add.dataset.id=c.id;add.textContent='+';
+   row.append(info,add,use,remove);
    results.appendChild(row);
   });
  }
+ const tiposPorMaterial={
+  'Aluminio':['Lacado','Anodizado','Sin tratamiento','Otro'],
+  'Acero inoxidable':['AISI 304','AISI 316','Otro'],
+  'Hierro':['Galvanizado','Pintado','Sin tratamiento','Otro'],
+  'PVC':['Color','Imitación madera','Otro'], 'Otro':['Otro']
+ };
+ try {
+   const catalog=JSON.parse(localStorage.getItem('aluminiumBarClassificationCatalog')||'{}');
+   Object.entries(catalog).forEach(([mat,types])=>{if(Array.isArray(types))tiposPorMaterial[mat]=[...new Set([...(tiposPorMaterial[mat]||[]),...types])];});
+ } catch(e){}
+ const matSearch=document.getElementById('mat-search');
+ const tipoSearch=document.getElementById('tipo-search');
+ function actualizarFiltroTipos(){
+   const current=tipoSearch.value;
+   const types=matSearch.value==='all'?[...new Set(Object.values(tiposPorMaterial).flat())]:tiposPorMaterial[matSearch.value]||[];
+   tipoSearch.replaceChildren(new Option('Todos','all'));
+   types.forEach(t=>tipoSearch.add(new Option(t,t)));
+   tipoSearch.value=types.includes(current)?current:'all';
+ }
+ matSearch.addEventListener('change',actualizarFiltroTipos);
+ actualizarFiltroTipos();
  newSearch.addEventListener('click',runSearch);
 
  // Editar desde búsqueda: abre el editor existente a través del recorte real
@@ -1618,11 +2214,12 @@ const found=[];
     show('Acabado actualizado.','ok');
    };
    borrar.onclick=()=>{
+    if(baseColors[code]){show('Los RAL originales están protegidos y no se pueden eliminar.','error');return;}
     const data=readData();
     const count=Array.isArray(data.cutsByRAL[code]) ? data.cutsByRAL[code].length : 0;
     pendingColorDelete=code;
     deleteColorText.textContent=count
-      ? `¿Seguro que quieres borrar ${code} - ${colors[code].name}? También se borrarán ${count} recorte${count===1?'':'s'} asociado${count===1?'':'s'}.`
+      ? `El RAL ${code} tiene ${count} recorte${count===1?'':'s'} asociado${count===1?'':'s'}. Cambia su acabado antes de eliminarlo.`
       : `¿Seguro que quieres borrar ${code} - ${colors[code].name}?`;
     deleteColorModal.style.display='block';
    };
@@ -1643,9 +2240,11 @@ const found=[];
   }
 
   const data=readData();
-  if(data.cutsByRAL[code]){
-    delete data.cutsByRAL[code];
-    writeData(data);
+  if((data.cutsByRAL[code]||[]).length){
+    deleteColorModal.style.display='none';
+    pendingColorDelete=null;
+    show('Este acabado tiene recortes. Cámbialos de acabado antes de borrarlo.','error');
+    return;
   }
 
   if(baseColors[code]){
@@ -1690,6 +2289,46 @@ const found=[];
   }
   show('Acabado añadido.','ok');
  };
+ // RAL: misma interacción compacta que Material/Tipo/Acabado.
+ const ralCurrent=document.getElementById('ral-current-select');
+ const ralModal=document.getElementById('ralCreateModal');
+ function refreshRalPicker(keep){
+   const selected=keep || ralCurrent.value;
+   ralCurrent.innerHTML='';
+   Object.keys(colors).sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).forEach(code=>{
+     const o=document.createElement('option');o.value=code;o.textContent=`${code} · ${colors[code].name}`;ralCurrent.appendChild(o);
+   });
+   if(colors[selected])ralCurrent.value=selected;
+ }
+ document.getElementById('ral-quick-add').onclick=()=>{
+   document.getElementById('ral-modal-code').value='';
+   document.getElementById('ral-modal-name').value='';
+   ralModal.style.display='block';
+ };
+ document.getElementById('ral-modal-cancel').onclick=()=>{ralModal.style.display='none'};
+ document.getElementById('ral-modal-save').onclick=()=>{
+   const c=document.getElementById('ral-modal-code').value.trim().toUpperCase().replace(/\s+/g,'-');
+   const n=document.getElementById('ral-modal-name').value.trim();
+   if(!c||!n){alert('Introduce código y nombre.');return}
+   if(colors[c]){alert('Ese código ya existe.');return}
+   document.getElementById('new-ral-code').value=c;
+   document.getElementById('new-ral-name').value=n;
+   document.getElementById('new-ral-color').value=document.getElementById('ral-modal-color').value;
+   document.getElementById('add-ral-color-btn').click();
+   ralModal.style.display='none';refreshRalPicker(c);
+ };
+ document.getElementById('ral-quick-delete').onclick=()=>{
+   const code=ralCurrent.value;
+   if(!code)return;
+   if(baseColors[code]){show('Los RAL originales están protegidos y no se pueden eliminar. Puedes modificar su nombre y color.', 'error');return;}
+   const rows=[...list.querySelectorAll('.ral-setting-row')];
+   const row=rows.find(r=>r.querySelector('input[type=text]')?.value===code);
+   if(row)row.querySelector('.ral-setting-delete')?.click();
+ };
+ // Sincronizar el selector cada vez que se actualizan las cajas RAL.
+ const originalRenderSettings=renderSettings;
+ renderSettings=function(){originalRenderSettings();refreshRalPicker()};
+ refreshRalPicker();
  document.getElementById('reset-ral-colors-btn').onclick=()=>{
   Object.keys(baseColors).forEach(c=>{colors[c]=JSON.parse(JSON.stringify(baseColors[c]))});
   deletedColors.clear();
@@ -1860,7 +2499,7 @@ const found=[];
    const codeSpan=document.createElement('span');codeSpan.className='ral-code';
    codeSpan.textContent=code==='0000'?'':`RAL ${code}`;
    const nameSpan=document.createElement('span');nameSpan.className='ral-name';
-   nameSpan.textContent=data.name || identity.name;
+   nameSpan.textContent=code==='0000' ? identity.name : (data.name || identity.name);
    header.append(codeSpan,nameSpan);
 
    card.querySelectorAll('.cut-info').forEach(item=>item.style.color=bodyText);
