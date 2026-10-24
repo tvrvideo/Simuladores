@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Recortes de Barras v1.2.7</title>
+<title>Recortes de Barras v1.2.8</title>
 <style>:root { 
             --primary: #e74c3c; 
             --background-paper: #DEDDCE; 
@@ -395,7 +395,7 @@ body{padding-bottom:92px}
 <body>
 <button class="btn-menu" onclick="return volverIndexSeguro()" type="button">← MENÚ</button>
 <div class="container">
-<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.7</span></h1>
+<h1>Recortes de Barras <span style="font-size:.55em;opacity:.75;">v1.2.8</span></h1>
 <div class="section app-screen active-screen" data-screen="search" id="screen-search">
 <h2>Buscador de Recortes</h2>
 <div class="form-group">
@@ -1103,14 +1103,23 @@ body{padding-bottom:92px}
             const normalize = v => String(v || '').trim().toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
             const input = normalize(entered);
             let targetRal = '0000';
-            const match = entered.match(/^RAL\s+(\S+)(?:\s*-.*)?$/i);
-            if (match && available[match[1]]) targetRal = match[1];
+            // Resolver el acabado por código O por nombre registrado, incluidos los creados por el usuario.
+            const codes = Object.keys(available).filter(code => code !== '0000');
+            const candidate = entered.replace(/^RAL\s+/i, '').trim();
+            const prefixCode = candidate.split(/\s+-\s+/)[0].trim();
+            const byCode = codes.find(code => normalize(code) === normalize(prefixCode));
+            const byName = codes.filter(code => normalize(available[code].name) === input ||
+                normalize(`RAL ${code} - ${available[code].name}`) === input ||
+                normalize(`${code} - ${available[code].name}`) === input);
+            if (byCode) targetRal = byCode;
+            else if (byName.length === 1) targetRal = byName[0];
             else {
-                const codes = Object.keys(available).filter(code => code !== '0000');
-                const exact = codes.filter(code => normalize(available[code].name) === input || normalize(code) === input);
                 const starts = codes.filter(code => normalize(available[code].name).startsWith(input + ' '));
-                if (exact.length === 1) targetRal = exact[0];
-                else if (exact.length === 0 && starts.length === 1) targetRal = starts[0];
+                if (starts.length === 1) targetRal = starts[0];
+            }
+            // Evitar crear otro acabado con el nombre de uno existente.
+            if (targetRal === '0000' && codes.some(code => normalize(available[code].name) === input)) {
+                alert('Selecciona el acabado existente de la lista.'); return;
             }
             const newColorName = targetRal === '0000' ? entered : (available[targetRal].name || entered);
             const newBarName = modalBarName.value.trim();
@@ -1133,7 +1142,9 @@ body{padding-bottom:92px}
                         longitud:newLongitud, cantidad:newCount, fecha:newDate, nombre_color:newColorName};
                     destination.push(updated);
                 }
-                source.splice(currentCutInfo.index, 1);
+                // Quitar el registro original por ID, incluso si origen y destino son el mismo grupo.
+                const originalPosition = source.findIndex(c => Number(c.id) === Number(id));
+                if (originalPosition >= 0) source.splice(originalPosition, 1);
                 if (!source.length) delete cutsByRAL[currentCutInfo.ral];
                 if (cutsByRAL[targetRal] && !cutsByRAL[targetRal].length) delete cutsByRAL[targetRal];
 
