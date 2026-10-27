@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Velux Tarifario v1.71</title>
+<title>Velux Tarifario v1.72.26</title>
 <style>
 :root{--bg:#f7f7f8;--card:#fff;--txt:#1f2933;--muted:#697386;--blue:#e30613;--blue2:#fff0f1;--line:#d9e2ec;--ok:#0f8f5f;--warn:#b7791f;--cerco:#fff4f4;--cortina:#fff2cc;--persiana:#efe7ff;--dark:#243b53;}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#e30613,#9f0010);color:white;padding:12px 12px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#ba1230,#870018);color:white;padding:12px 12px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
 .head{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px} header h1{font-size:20px;margin:0;font-weight:900;letter-spacing:.2px} header .ver{font-size:12px;opacity:.9;margin-top:3px}.titleVer{font-size:15px;opacity:.95;margin-left:4px} .grow{flex:1} .gear{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);font-size:22px;padding:0}.backIndexBtn{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);font-size:20px;padding:0;color:white;display:inline-flex;align-items:center;justify-content:center}.backIndexBtn:active{transform:scale(.96)}
 main{max-width:780px;margin:0 auto;padding:14px 12px 112px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
 label{display:block;font-size:12px;text-transform:uppercase;font-weight:900;color:var(--muted);margin:10px 0 6px;letter-spacing:.4px}
@@ -117,23 +117,70 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
   box-shadow:0 5px 14px rgba(96,60,0,.14)!important;
 }
 
+/* v1.72: buscador universal y tres pantallas independientes */
+.universalWrap{position:relative;flex:1;min-width:0}.universalWrap .plateInput{padding-right:43px!important;width:100%}.clearUniversal{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:rgba(40,40,40,.13);color:#313131;border:0;border-radius:8px;font-size:25px;line-height:1;width:34px;height:35px;padding:0;display:none}.universalNotice{font-size:12px;font-weight:850;color:#594619;background:#fff4ce;border-radius:9px;padding:7px 9px;margin-top:8px}
+#plateCard.screenOnlyOther{padding:10px 12px;background:transparent;border:0;box-shadow:none;margin-bottom:6px}#plateCard.screenOnlyOther>.plateMeta,#plateCard.screenOnlyOther>.plateInfo,#plateCard.screenOnlyOther>.plateRoof,#plateCard.screenOnlyOther>.plateExtras,#plateCard.screenOnlyOther>.extraCard,#plateCard.screenOnlyOther>.totalBlock{display:none!important}#plateCard.screenOnlyOther .veluxLogo{font-size:16px;padding:8px}
+
+/* v1.72.26: precios de catálogo y PVP visibles, sin alterar cálculos ni Documentos */
+.oldDklPrices{margin-left:auto;flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right;white-space:nowrap}
+.oldDklPrices .oldDklPrice{font-size:25px;line-height:1.05;font-weight:950;color:#e30613}
+.oldDklPrices .oldDklPrice.pvp{color:#e67e00}
+.oldDklPrices .oldDklLabel{font-size:10px;line-height:1.2;font-weight:950;color:#596575;letter-spacing:.2px}
+@media(max-width:380px){.oldDklPrices .oldDklPrice{font-size:22px}.oldDklPrices .oldDklLabel{font-size:9px}}
+
+/* v1.72.26: importes visibles según los tres controles de Ajustes */
+.priceStack{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-left:auto;text-align:right;min-width:92px;max-width:47%}
+.priceStack .priceEntry{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+.priceStack .priceValue{font-size:22px;font-weight:950;white-space:nowrap;color:#e30613}
+.priceStack .priceEntry.sale .priceValue{color:#dc7600}
+.priceStack .priceEntry.vat .priceValue{color:#1664bd}
+.priceStack .priceLabel{font-size:9px;font-weight:950;color:#5a6471;letter-spacing:.15px;margin-top:2px;white-space:nowrap}
+.priceStack.plateStack{max-width:100%;margin:7px 0 0;align-items:flex-start;text-align:left}
+.priceStack.plateStack .priceEntry{align-items:flex-start}
+.priceStack.plateStack .priceValue{font-size:20px}
+.priceStack.extraStack{margin:7px 0 0;align-items:flex-start;text-align:left;max-width:100%}
+.priceStack.extraStack .priceEntry{align-items:flex-start}
+.priceStack.extraStack .priceValue{font-size:20px}
+.priceStack .priceEntry:only-child .priceValue{font-size:26px}
+@media(max-width:380px){.priceStack .priceValue{font-size:19px}.priceStack .priceLabel{font-size:8px}}
+
+/* v1.72.26: cabecera y ficha compactas para iPhone */
+header{padding:7px 9px}.head{gap:7px}.headTitles{min-width:0}.headTitles h1{font-size:17px;white-space:nowrap}.headTitles .titleVer{font-size:12px;margin-left:2px}.headTitles .ver{font-size:10px;margin-top:1px;white-space:nowrap}.headLogo{font-size:16px;padding:6px 8px;letter-spacing:.3px;box-shadow:none;white-space:nowrap}.backIndexBtn,.gear{width:36px;height:36px;min-width:36px;border-radius:11px;padding:0;font-size:19px}
+main{padding-top:8px}#plateCard{padding:10px;margin-bottom:8px}.plateTop{grid-template-columns:minmax(0,1fr);gap:0;margin-bottom:4px}.plateInput{min-height:46px!important;padding:7px 11px!important;font-size:23px!important}.plateMeta{margin-top:5px;margin-bottom:4px}.plateInfo{gap:7px;margin-top:7px}.plateBox{padding:8px}.plateBox.recClick:after{position:static;display:block;content:'Personalizar ›';text-align:right;margin:-1px 0 4px;font-size:10px;line-height:1.2}.plateBox .small{font-size:12px}.plateBox b{font-size:16px;line-height:1.12}.plateBox .metaLine{margin-top:2px}.priceStack.plateStack{margin-top:5px;gap:3px}.priceStack.plateStack .priceValue{font-size:19px}.priceStack .priceLabel{margin-top:1px}.plateDocBtn{margin-top:5px}.plateDocBtn button{min-height:30px;padding:6px 7px;font-size:11px;border-radius:9px}.plateBox .plateDocBtn button{min-height:30px}.plateRoof{margin-top:7px;padding:8px}.roofBtns.compact{margin-top:6px}.roofBtn{padding:7px 5px}
+@media(max-width:375px){.headLogo{font-size:13px;padding:6px}.headTitles h1{font-size:16px}.headTitles .titleVer{font-size:11px}.head{gap:5px}.backIndexBtn,.gear{width:34px;height:34px;min-width:34px}}
+
+/* v1.72.26: mayor contraste sin nuevas etiquetas */
+.plateBox>.small:first-child{color:#263d55!important;font-weight:900!important}
+.plateRoof.cercoTap{cursor:pointer;position:relative;padding-bottom:21px}.plateRoof.cercoTap:after{content:"PERSONALIZAR ›";position:absolute;right:10px;bottom:5px;font-size:10px;font-weight:950;color:#8b5cf6;letter-spacing:.2px}
+#plateRoofPackButtons{margin-top:6px}
+ .cercoChoice{font-size:12px;font-weight:850;color:#334e68;margin:3px 0 4px;line-height:1.15}
+/* v1.72.26: selección del cerco en la cabecera y tarjetas con contorno más definido */
+.roofLabel{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;color:#4b4f57;font-size:10px;letter-spacing:.1px}
+.roofLabel .cercoChoice{display:inline;margin:0;font-size:10px;font-weight:950;color:#264b70;line-height:inherit;text-transform:none}
+.plateBox{border:1.5px solid #c8cbd0!important;box-shadow:0 1px 4px rgba(31,41,55,.07)}
+.plateRoof{border:1.5px solid #c9bfae!important;box-shadow:0 1px 5px rgba(31,41,55,.07)}
+/* v1.72.26: separar y destacar la cabecera del cerco */
+.plateRoof .roofLabel{font-size:12px;line-height:1.3;margin-bottom:9px;gap:5px}
+.plateRoof .roofLabel .cercoChoice{font-size:12px;line-height:1.3}
+.plateRoof .cercoRef{line-height:1.2}
+
 </style>
 </head>
 <body>
-<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div><h1>Velux Tarifario <span class="titleVer">v1.71</span></h1><div class="ver">Catálogo Julio 2026 · cristales</div></div><div class="grow"></div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
+<header><div class="head"><button class="backIndexBtn" type="button" id="btnVolverIndex" onclick="return solicitarVolverIndex()">←</button><div class="headTitles"><h1>Tarifario <span class="titleVer">v1.72.26</span></h1><div class="ver">Catálogo Julio 2026</div></div><div class="grow"></div><div class="veluxLogo headLogo">VELUX</div><button class="gear" onclick="openSettings()">⚙️</button></div></header>
 <main>
  <div class="tabs"><button id="tabVent" class="active" onclick="setTab('vent')">Ventanas</button><button id="tabOld" onclick="setTab('old')">Accesorios</button><button id="tabGlass" onclick="setTab('glass')">Cristales</button></div>
- <div id="catalogAccDock" class="catalogAccDock hidden"><div class="dockLabel">Buscar accesorio</div><input id="catalogAccQ" placeholder="Ejemplo: ZOZ 213, KLI 310, motor, varilla"></div>
- <section class="plateCard">
-  <div class="plateTop"><input id="q" class="plateInput" placeholder="GHL 306"><div class="veluxLogo">VELUX</div></div>
+ <input id="catalogAccQ" type="hidden" value="">
+ <section class="plateCard" id="plateCard">
+  <div class="plateTop"><div class="universalWrap"><input id="q" class="plateInput" placeholder="GHL S08, DKLS08, SSL, ZOZ 213" autocomplete="off" spellcheck="false"><button type="button" id="clearUniversal" class="clearUniversal" onclick="clearUniversalSearch()" aria-label="Borrar búsqueda">×</button></div></div><div id="universalNotice" class="universalNotice hidden"></div>
   <div id="plateMeta" class="plateMeta">Proyectante · Poliuretano blanco</div>
   <div class="plateInfo">
    <div class="plateBox"><div class="small">Actual</div><b id="plateOriginal">—</b><div id="plateActualMeta" class="metaLine">—</div><div id="plateActualPrice" class="platePrice">—</div><div id="plateActualDoc" class="plateDocBtn"></div></div>
    <div class="plateBox recClick" onclick="openRecommendModal()"><div class="small">Recomendada</div><b id="plateCurrent">GPU 0070</b><div id="plateRecMeta" class="metaLine">Proyectante · Poliuretano blanco</div><div id="plateRecPrice" class="platePrice">—</div><div id="plateRecDoc" class="plateDocBtn"></div></div>
   </div>
-  <div class="plateRoof cercoInline">
-   <div class="roofLine"><div><div class="roofLabel">Cerco de estanqueidad</div><div id="plateCercoRef" class="cercoRef">EDW 2000</div></div><div id="plateCercoPrice" class="cercoPrice">—</div></div><div id="plateCercoDoc" class="plateDocBtn"></div>
-   <div id="plateRoofButtons" class="roofBtns compact"></div>
+  <div class="plateRoof cercoInline cercoTap" onclick="openCercoModal(event)" role="button" aria-label="Personalizar cerco de estanqueidad">
+   <div class="roofLine"><div><div class="roofLabel">Cerco de estanqueidad <span id="plateCercoChoice" class="cercoChoice">· Ondulado</span></div><div id="plateCercoRef" class="cercoRef">EDW 2000</div></div><div id="plateCercoPrice" class="cercoPrice">—</div></div><div id="plateCercoDoc" class="plateDocBtn"></div>
+
   </div>
   <div class="plateExtras">
    <div class="extraCard persianaMini" id="platePersianaCard">
@@ -214,8 +261,8 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
    <div class="grid">
     <div><label>Referencia ventana</label><input id="glassRef" placeholder="GGL 5"></div>
     <div><label>Composición</label><input id="glassComp" placeholder="4/6/4"></div>
-    <div><label>Ancho vidrio mm</label><input id="glassW" type="number" inputmode="numeric" placeholder="788"></div>
-    <div><label>Alto vidrio mm</label><input id="glassH" type="number" inputmode="numeric" placeholder="1414"></div>
+    <div><label>Ancho vidrio mm</label><input id="glassW" type="number" inputmode="numeric" placeholder="Ancho en mm"></div>
+    <div><label>Alto vidrio mm</label><input id="glassH" type="number" inputmode="numeric" placeholder="Alto en mm"></div>
    </div>
    <label>Notas</label><textarea id="glassNotes" class="noteArea" placeholder="Ejemplo: Medida exacta verificada por sustitución real."></textarea>
    <div class="grid" style="margin-top:10px"><button onclick="saveGlassRecord()">Guardar cristal</button><button class="light" onclick="clearGlassForm()">Limpiar</button></div>
@@ -247,6 +294,15 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
 </div></div>
 
 
+<div class="modal" id="cercoModal"><div class="panel">
+ <h2>Personalizar cerco</h2>
+ <div class="small">Elige el tipo de cubierta y la variante. La referencia y el precio se actualizan automáticamente.</div>
+ <div class="settingsHero"><b id="cercoPreview">—</b><div class="small" id="cercoPreviewPrice">—</div></div>
+ <div class="quickBlock"><label>Cubierta</label><div id="plateRoofButtons" class="roofBtns"></div></div>
+ <div class="quickBlock"><label>Variante</label><div id="plateRoofPackButtons" class="roofBtns"></div></div>
+ <div class="grid" style="margin-top:14px"><button onclick="closeCercoModal()">Aplicar</button><button class="secondary" onclick="closeCercoModal()">Cerrar</button></div>
+</div></div>
+
 <div class="modal" id="plateCurtainModal"><div class="panel">
  <h2>🌙 Cortina</h2>
  <div class="small">Cambia tipo, color y marco de la cortina que aparece en la ficha.</div>
@@ -261,7 +317,7 @@ button{font-size:16px;font-weight:900;border:0;border-radius:12px;padding:12px;b
   <div><label>Color DKL</label><select id="plateCurtainColorSel" onchange="updatePlateCurtainModalPreview()"></select></div>
   <div><label>Marco DKL</label><select id="plateCurtainFrameSel" onchange="updatePlateCurtainModalPreview()"><option value="S">Aluminio S</option><option value="SWL">Blanco SWL</option></select></div>
  </div>
- <div class="small" style="margin-top:8px">El color y el marco se aplican a DKL estándar / premium. Dúo y pack usan su referencia propia de tarifa.</div>
+ <div class="small" style="margin-top:8px">DKL estándar: beige, blanco, gris y azul. Otros colores: tarifa premium. Confirmar disponibilidad de color y tamaño con VELUX antes del pedido. Dúo y pack tienen tarifa propia.</div>
  <div class="grid" style="margin-top:14px"><button onclick="closePlateCurtainModal()">Aplicar</button><button class="secondary" onclick="closePlateCurtainModal()">Cerrar</button></div>
 </div></div>
 
@@ -339,7 +395,7 @@ function intermediateSizeFromCurrent(cur){
  return a.find(x=>/^[A-Z]\d\d$/.test(x))||cur;
 }
 function detectOldModelEquiv(term){
- term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+ term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  for(const [model,map] of Object.entries(OLD_MODEL_EQUIV)){
   const re=new RegExp('(?:^|\\s)'+model+'\\s*([A-Z]?\\d{1,3})(?:\\s|$)');
   const m=term.match(re);
@@ -369,19 +425,21 @@ const OLD_CURTAIN_EQUIV={
   'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
   'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
   '1':'DKL M04','2':'DKL M08','3':'DKL P10','4':'DKL S06','6':'DKL C04','7':'DKL U04','8':'DKL U08','9':'DKL C01','10':'DKL S08','14':'DKL M06','31':'DKL P04',
-  '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
-  '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
+  '101':'DKL 101','102':'DKL 102','104':'DKL 104','206':'DKL 206','5':'DKL 5',
+  '304':'DKL M04','306':'DKL M06','308':'DKL M08','406':'DKL P06','408':'DKL P08',
+  '606':'DKL S06','608':'DKL S08','804':'DKL U04','808':'DKL U08'
  },
  GHL:{
   'C04':'DKL C04','F06':'DKL F06','M04':'DKL M04','M06':'DKL M06','M08':'DKL M08',
   'P04':'DKL P04','P06':'DKL P06','P08':'DKL P08','S06':'DKL S06','S08':'DKL S08','U04':'DKL U04','U08':'DKL U08',
   '1':'DKL M04','2':'DKL M08','3':'DKL P10','4':'DKL S06','6':'DKL C04','7':'DKL U04','8':'DKL U08','9':'DKL C01','10':'DKL S08','14':'DKL M06','31':'DKL P04',
-  '104':'DKL 104','206':'DKL 206','304':'DKL 304','306':'DKL 306','308':'DKL 308','406':'DKL 406','408':'DKL 408',
-  '606':'DKL 606','608':'DKL 608','804':'DKL 804','808':'DKL 808'
+  '101':'DKL 101','102':'DKL 102','104':'DKL 104','206':'DKL 206','5':'DKL 5',
+  '304':'DKL M04','306':'DKL M06','308':'DKL M08','406':'DKL P06','408':'DKL P08',
+  '606':'DKL S06','608':'DKL S08','804':'DKL U04','808':'DKL U08'
  }
 };
 function detectOldCurtainEquiv(term){
- term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+ term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  for(const [model,map] of Object.entries(OLD_CURTAIN_EQUIV)){
   const re=new RegExp('(?:^|\\s)'+model+'\\s*([A-Z]?\\d{1,3})(?:\\s|$)');
   const m=term.match(re);
@@ -404,10 +462,10 @@ function detectOldCurtainEquiv(term){
 
 const CURTAIN_COLORS=[
  {code:'1085',name:'Beige',hex:'#c8b08b',fav:true},{code:'1025',name:'Blanco',hex:'#f4f1e8',fav:true},{code:'1100',name:'Azul',hex:'#1d3d63',fav:true},
- {code:'4564',name:'Naranja',hex:'#bf6a2a'},{code:'0705',name:'Gris',hex:'#9a9a94'},{code:'4574',name:'Gris cálido',hex:'#92877d'},{code:'4902',name:'Marsh',hex:'#7f8a69'},
- {code:'4578',name:'Rosa pálido',hex:'#d6b1ad'},{code:'4580',name:'Marrón claro',hex:'#9b7a5d'},{code:'4903',name:'Lake',hex:'#3d6f78'},{code:'4559',name:'Marrón oscuro',hex:'#4a3027'},
+ {code:'4564',name:'Naranja',hex:'#bf6a2a'},{code:'0705',name:'Gris',hex:'#9a9a94'},{code:'4574',name:'Gris cálido',hex:'#92877d'},
+ {code:'4578',name:'Rosa pálido',hex:'#d6b1ad'},{code:'4580',name:'Marrón claro',hex:'#9b7a5d'},{code:'4559',name:'Marrón oscuro',hex:'#4a3027'},
  {code:'4575',name:'Verde claro',hex:'#93a974'},{code:'4577',name:'Gris topo',hex:'#7a7168'},{code:'4581',name:'Petróleo oscuro',hex:'#244b55'},{code:'4501',name:'Forest',hex:'#2f4d3a'},
- {code:'4904',name:'Cave',hex:'#57534f'},{code:'3009',name:'Negro',hex:'#1e1e1c'},{code:'4576',name:'Azul claro',hex:'#8da8bd'},{code:'4579',name:'Natural',hex:'#d2c7b1'},{code:'4556',name:'Beige oscuro',hex:'#9f8566'}
+ {code:'3009',name:'Negro',hex:'#1e1e1c'},{code:'4576',name:'Azul claro',hex:'#8da8bd'},{code:'4579',name:'Natural',hex:'#d2c7b1'},{code:'4556',name:'Beige oscuro',hex:'#9f8566'}
 ];
 
 // Tabla oficial de conversión de tamaños antiguos/intermedios para persianas exteriores.
@@ -435,6 +493,20 @@ function oldVisibleSizeFromToken(token){
  return token;
 }
 
+// Colores 4902/4903/4904 pertenecen a DKY, no a DKL (catálogo julio 2026).
+const DKL_STANDARD_COLORS=new Set(['1085','1025','1100','0705']);
+function dklPremiumColor(){return !DKL_STANDARD_COLORS.has(settings.curtainColor)}
+function compatibleDklOption(opts){
+ const premium=dklPremiumColor();
+ return opts.findIndex(o=>o.ref=== (premium?'DKL premium':'DKL estándar'));
+}
+function syncDklType(opts){
+ const current=opts[Number(settings.curtainType||0)];
+ if(current && current.ref.startsWith('DKL ')){
+  const idx=compatibleDklOption(opts);
+  if(idx>=0)settings.curtainType=idx;
+ }
+}
 function curtainColor(code){return CURTAIN_COLORS.find(c=>c.code===code)||CURTAIN_COLORS[0]}
 function curtainRef(size){return `DKL ${size} ${settings.curtainColor}${settings.curtainFrame}`}
 function curtainDesc(){const c=curtainColor(settings.curtainColor);return `<span class="colorDot" style="background:${c.hex}"></span>${c.name} ${c.code} · marco ${settings.curtainFrame}`}
@@ -476,7 +548,7 @@ const DATA=[
 {modelo:'GPU 0067',familia:'Proyectante manual poliuretano blanco',uw:'0,83',plazo:'14 días',p:{CK04:1102,CK06:1198,FK06:1241,FK08:1337,MK04:1219,MK06:1305,MK08:1380,PK06:1487,PK08:1572,PK10:1679,SK06:1551,SK08:1701,SK10:1861,UK08:1872}}
 ];
 
-const DEFAULTS={gain:0, gainEur:0, margins:{ventana:{pct:0,eur:0},cerco:{pct:0,eur:0},persiana:{pct:0,eur:0},cortina:{pct:0,eur:0},kit:{pct:0,eur:0}}, iva:21, disc:0, showCat:true, showGain:false, showIva:false, pref:'GPU', glass:'70', finish:'poly', opening:'proyectante', cercoType:'ondulado', curtainFrame:'S', curtainColor:'1085', curtainType:0};
+const DEFAULTS={gain:0, gainEur:0, margins:{ventana:{pct:0,eur:0},cerco:{pct:0,eur:0},persiana:{pct:0,eur:0},cortina:{pct:0,eur:0},kit:{pct:0,eur:0}}, iva:21, disc:0, showCat:true, showGain:true, showIva:false, pref:'GPU', glass:'70', finish:'poly', opening:'proyectante', cercoType:'ondulado', cercoPack:'2000', curtainFrame:'S', curtainColor:'1085', curtainType:0};
 let settings=loadSettings();
 let currentTab='vent'; let state={d:null,s:null,cerco:null,persiana:null,cortina:null}; let oldAccState={persiana:0,cortina:0}; let plateCurtainMode='new';
 let recommendationOverride=false;
@@ -485,23 +557,39 @@ const QUICK_FINISH=[['poly','00 Poliuretano'],['painted','20 Pintada'],['varnish
 const QUICK_OPENING=[['proyectante','Proyectante'],['giratoria','Giratoria']];
 const QUICK_GLASS=[['70','70'],['68','68'],['67','67']];
 const QUICK_CERCO=[['ondulado','Ondulado'],['plano','Plano']];
+const QUICK_CERCO_PACK=[['1000','1000'],['2000','2000']];
 function renderQuickButtons(){
  const fill=(id,items,current,fn,cls='quickBtn')=>{const el=document.getElementById(id); if(!el)return; el.innerHTML=items.map(([v,t])=>`<button type="button" class="${cls} ${v===current?'active':''}" onclick="${fn}('${v}')">${t}</button>`).join('');};
  fill('finishButtons',QUICK_FINISH,finishSel.value,'chooseFinish');
  fill('openingButtons',QUICK_OPENING,openingSel.value,'chooseOpening');
  fill('glassButtons',QUICK_GLASS,glassSel.value,'chooseGlass');
  fill('plateRoofButtons',QUICK_CERCO,settings.cercoType||'ondulado','chooseCerco','roofBtn');
+ fill('plateRoofPackButtons',QUICK_CERCO_PACK,settings.cercoPack||'2000','chooseCercoPack','roofBtn');
  const txt=document.getElementById('modelGeneratedText'); if(txt) txt.textContent=targetBase()+' '+targetCode();
 }
 function applyRecommendChoice(){recommendationOverride=true;saveQuickPrefs();renderQuickButtons();if(q.value.trim()){updatePlate();res.innerHTML=renderVentanaSuministro();}else pickByControls(true);updateRecommendPreview();document.getElementById('productsCard').classList.add('hidden')}
 function chooseFinish(v){finishSel.value=v;applyRecommendChoice()}
 function chooseOpening(v){openingSel.value=v;applyRecommendChoice()}
 function chooseGlass(v){glassSel.value=v;applyRecommendChoice()}
-function chooseCerco(v){settings.cercoType=v; saveQuickPrefs(); renderQuickButtons(); state.cerco=0; if(state.d&&state.s){render(); if(!document.getElementById('productsCard').classList.contains('hidden')) drawProducts();} else {updatePlate();}}
+function openCercoModal(event){
+ if(event && event.target.closest('button,a,input,select'))return;
+ renderQuickButtons();updateCercoPreview();document.getElementById('cercoModal').classList.add('show');
+}
+function closeCercoModal(){document.getElementById('cercoModal').classList.remove('show');}
+function updateCercoPreview(){
+ const ref=document.getElementById('plateCercoRef');const price=document.getElementById('plateCercoPrice');
+ const preview=document.getElementById('cercoPreview');const previewPrice=document.getElementById('cercoPreviewPrice');
+ if(preview)preview.textContent=ref?.textContent||'—';
+ if(previewPrice)previewPrice.innerHTML=price?.innerHTML||'—';
+}
+function chooseCercoPack(v){settings.cercoPack=v;saveQuickPrefs();renderQuickButtons();if(state.d&&state.s){render();if(!document.getElementById('productsCard').classList.contains('hidden'))drawProducts();}else updatePlate();updateCercoPreview();}
+function chooseCerco(v){settings.cercoType=v; saveQuickPrefs(); renderQuickButtons(); state.cerco=0; if(state.d&&state.s){render(); if(!document.getElementById('productsCard').classList.contains('hidden')) drawProducts();} else {updatePlate();}updateCercoPreview();}
 function loadSettings(){
  try{
   const saved=JSON.parse(localStorage.getItem('veluxSettingsV134')||localStorage.getItem('veluxSettingsV110')||'{}');
   const st={...DEFAULTS,...saved};
+  // v1.72.26: restablecer una sola vez la preferencia inicial de cerco.
+  if(!localStorage.getItem('veluxCercoDefaultV17215')){st.cercoType='ondulado';st.cercoPack='2000';localStorage.setItem('veluxCercoDefaultV17215','1');localStorage.setItem('veluxSettingsV134',JSON.stringify({...saved,cercoType:'ondulado',cercoPack:'2000'}));}
   st.margins={...DEFAULTS.margins,...(saved.margins||{})};
   for(const k of ['ventana','cerco','persiana','cortina','kit']){st.margins[k]={...DEFAULTS.margins[k],...(st.margins[k]||{})};}
   // compatibilidad con versiones anteriores de ganancia general
@@ -514,6 +602,16 @@ function money(n){return (n!==undefined&&n!==null&&n!==''&&n!=='-')? Number(n).t
 function marginFor(cat){if(cat==='kit')return {pct:0,eur:0}; return (settings.margins&&settings.margins[cat])||{pct:Number(settings.gain)||0,eur:Number(settings.gainEur)||0}}
 function calc(n,cat='ventana'){n=Number(n)||0; const desc=n*(1-(Number(settings.disc)||0)/100); const m=marginFor(cat); const gain=desc*(1+(Number(m.pct)||0)/100)+(Number(m.eur)||0); const iva=gain*(1+(Number(settings.iva)||0)/100); return {cat:n, gain, iva}}
 function priceBox(n,cat='ventana'){const c=calc(n,cat); let html='<div class="breakdown">'; if(settings.showCat)html+=`<div class="mini"><b>Catálogo sin IVA</b><span>${money(c.cat)}</span></div>`; if(settings.showGain)html+=`<div class="mini"><b>Venta sin IVA</b><span>${money(c.gain)}</span></div>`; if(settings.showIva)html+=`<div class="mini"><b>Venta con IVA</b><span>${money(c.iva)}</span></div>`; if(!settings.showCat&&!settings.showGain&&!settings.showIva)html+=`<div class="mini"><b>Catálogo sin IVA</b><span>${money(c.cat)}</span></div>`; html+='</div>'; return html;}
+function visiblePrices(n,cat='ventana',extraClass=''){
+ if(n==null||n==='')return '—';
+ const c=calc(n,cat), parts=[];
+ if(settings.showCat)parts.push(['catalog','CATÁLOGO SIN IVA',c.cat]);
+ if(settings.showGain)parts.push(['sale','PVP SIN IVA',c.gain]);
+ if(settings.showIva)parts.push(['vat','PVP CON IVA',c.iva]);
+ if(!parts.length)return '—';
+ return `<div class="priceStack ${extraClass}">${parts.map(([cls,label,value])=>`<div class="priceEntry ${cls}"><span class="priceValue">${money(value)}</span><span class="priceLabel">${label}</span></div>`).join('')}</div>`;
+}
+function sellingPrice(n,cat='ventana'){return calc(n,cat).gain;}
 function mainPrice(n,cat='ventana'){const c=calc(n,cat); if(settings.showIva)return {label:'Venta con IVA',value:c.iva}; if(settings.showGain)return {label:'Venta sin IVA',value:c.gain}; return {label:'Catálogo sin IVA',value:c.cat};}
 function categoryFromRef(ref,title=''){const t=(ref+' '+title).toUpperCase(); if(/\b(KUX|KSX|KMG|KLI|KLF|ZOZ|ZCT|ZCZ|ZZZ|P\/S22)\b/.test(t)||t.includes('KIT INSTAL')||t.includes('ACCESORIO'))return 'kit'; if(t.includes('EDW')||t.includes('EDL')||t.includes('CERCO'))return 'cerco'; if(t.includes('SSL')||t.includes('SML')||t.includes('PERSIANA'))return 'persiana'; if(t.includes('DKL')||t.includes('DFD')||t.includes('DOP')||t.includes('CORTINA'))return 'cortina'; return 'ventana';}
 function parseProductRef(ref){
@@ -535,11 +633,16 @@ function priceForWindowRef(ref){
  return {price:d.p[p.size], data:d, size:p.size, model};
 }
 function selectedCercoForSize(size){
- const preferred=(settings.cercoType||'ondulado')==='plano'?'EDL 2000':'EDW 2000';
+ const preferred=((settings.cercoType||'ondulado')==='plano'?'EDL ':'EDW ')+(settings.cercoPack||'2000');
  let a=ACC.find(x=>x.ref===preferred && x.p[size]);
+ // Si no existe la variante elegida, priorizar 2000 para la misma cubierta.
+ if(!a){
+  const roof=(settings.cercoType||'ondulado')==='plano'?'EDL ':'EDW ';
+  a=ACC.find(x=>x.ref===roof+'2000' && x.p[size]) || ACC.find(x=>x.ref===roof+'1000' && x.p[size]);
+ }
  if(!a) a=accOptions(size,'Cerco')[0];
  if(!a)return null;
- return {ref:`${a.ref} ${size}`, desc:`${(settings.cercoType||'ondulado')==='plano'?'Cubierta plana':'Cubierta ondulada'} · imprescindible para montaje`, price:a.p[size], raw:a};
+ return {ref:`${a.ref} ${size}`, desc:`${a.ref.startsWith('EDL')?'Cubierta plana':'Cubierta ondulada'} · imprescindible para montaje`, price:a.p[size], raw:a};
 }
 function selectedPersianaForSize(size){
  const opts=accOptions(size,'Persiana');
@@ -548,7 +651,7 @@ function selectedPersianaForSize(size){
  return {ref:`${a.ref.replace(' 0000','')} ${size}`, desc:a.desc||'Persiana solar exterior', price:a.p[size], raw:a};
 }
 function curtainBaseForMode(size,mode){
- const raw=(q.value||'').trim().toUpperCase();
+ const raw=(q.value||'').trim().toUpperCase().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  const old=detectOldCurtainEquiv(raw);
  if(mode==='existing' && old) return {base:old.ref, label:'Ventana existente'};
  return {base:`DKL ${size}`, label:'Ventana nueva'};
@@ -561,6 +664,7 @@ function curtainRefForOption(size,opt,mode){
 }
 function curtainRefForCurrentPlate(size,mode){
  const opts=accOptions(size,'Cortina');
+ syncDklType(opts);
  const idx=Math.min(Number(settings.curtainType||0), Math.max(opts.length-1,0));
  return curtainRefForOption(size,opts[idx],mode);
 }
@@ -574,15 +678,21 @@ function curtainLabelForOption(opt){
 function selectedCortinaForSize(size,mode){
  const opts=accOptions(size,'Cortina');
  if(!opts.length)return null;
+ syncDklType(opts);
  let idx=Math.min(Number(settings.curtainType||0), opts.length-1);
  const a=opts[idx];
  const cb=curtainBaseForMode(size,mode||plateCurtainMode);
  const ref=curtainRefForOption(size,a,mode||plateCurtainMode);
  const colorTxt=a.ref.includes('DKL') ? ` · ${curtainColor(settings.curtainColor).name} · marco ${settings.curtainFrame}` : '';
- return {ref, desc:`${cb.label} · ${curtainLabelForOption(a)}${colorTxt}`, price:a.p[size], raw:a, mode:(mode||plateCurtainMode), modeLabel:cb.label};
+ const existingDkl=(mode||plateCurtainMode)==='existing' && a.ref.startsWith('DKL ');
+ const oldSize=existingDkl ? cb.base.replace(/^DKL /,'') : '';
+ const oldPrices=a.ref==='DKL premium' ? OLD_DKL_PREMIUM_PRICES : OLD_DKL_PRICES;
+ const price=existingDkl ? (oldPrices[oldSize] ?? null) : a.p[size];
+ const unavailable=existingDkl && price===null ? ' · Solo disponible en colores estándar o sin tarifa para esta referencia' : '';
+ return {ref, desc:`${cb.label} · ${curtainLabelForOption(a)}${colorTxt}${unavailable}`, price, raw:a, mode:(mode||plateCurtainMode), modeLabel:cb.label};
 }
 function togglePlateCurtainMode(){
- const raw=(q.value||'').trim().toUpperCase();
+ const raw=(q.value||'').trim().toUpperCase().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  if(!detectOldCurtainEquiv(raw)) return;
  plateCurtainMode = plateCurtainMode==='existing' ? 'new' : 'existing';
  updatePlate();
@@ -591,6 +701,7 @@ function openPlateCurtainModal(){
  const pd=plateDataFromInput();
  const size=(parseProductRef(pd.recRef)||parseProductRef(pd.actualRef)||{}).size || state.s;
  const opts=accOptions(size,'Cortina');
+ syncDklType(opts);
  const typeSel=document.getElementById('plateCurtainTypeSel');
  if(typeSel) typeSel.innerHTML=opts.map((o,i)=>`<option value="${i}" ${Number(settings.curtainType||0)===i?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[size])}</option>`).join('') || '<option>Sin cortinas cargadas</option>';
  const modeBox=document.getElementById('plateCurtainModeBox');
@@ -611,6 +722,10 @@ function updatePlateCurtainModalPreview(size){
  if(typeSel) settings.curtainType=Number(typeSel.value||0);
  if(colorSel) settings.curtainColor=colorSel.value;
  if(frameSel) settings.curtainFrame=frameSel.value;
+ const sizeNow=size || ((parseProductRef(plateDataFromInput().recRef)||{}).size);
+ const optsNow=accOptions(sizeNow,'Cortina');
+ syncDklType(optsNow);
+ if(typeSel && Number(typeSel.value)!==settings.curtainType)typeSel.value=String(settings.curtainType);
  const cor=selectedCortinaForSize(size || ((parseProductRef(plateDataFromInput().recRef)||{}).size));
  const prev=document.getElementById('plateCurtainPreview');
  if(prev) prev.innerHTML=cor?`<b>${cor.ref}</b><div class="small">${cor.desc} · ${money(mainPrice(cor.price,'cortina').value)}</div>`:'—';
@@ -640,7 +755,7 @@ function refWithMeasure(ref,size){
 function supplyCard(cls,title,ref,desc,price,cat){
  cat=cat||categoryFromRef(ref,title);
  const mp=price!=null?mainPrice(price,cat):null;
- return `<div class="supplyCard ${cls||''}"><div class="supplyTop"><div><div class="supplyTitle">${title}</div><div class="supplyRef">${ref||'—'}</div><div class="supplyDesc">${desc||''}</div></div><div class="supplyPrice">${mp?money(mp.value):'—'}</div></div>${price!=null?priceBox(price,cat):''}</div>`;
+ return `<div class="supplyCard ${cls||''}"><div class="supplyTop"><div><div class="supplyTitle">${title}</div><div class="supplyRef">${ref||'—'}</div><div class="supplyDesc">${desc||''}</div></div><div class="supplyPrice">${mp?visiblePrices(price,cat):'—'}</div></div>${price!=null?priceBox(price,cat):''}</div>`;
 }
 function renderVentanaSuministro(){
  const pd=plateDataFromInput();
@@ -657,21 +772,77 @@ function renderVentanaSuministro(){
   `</div><div class="totalBox"><b>Total suministro recomendado</b><span>${money(total.value)}</span></div><div class="small" style="margin-top:8px">Total calculado con la ventana recomendada y el cerco seleccionado. Cristales queda solo como información técnica.</div>`;
 }
 
-function setTab(t){currentTab=t;document.getElementById('tabVent').classList.toggle('active',t==='vent');document.getElementById('tabOld').classList.toggle('active',t==='old');document.getElementById('tabGlass').classList.toggle('active',t==='glass');document.getElementById('ventModule').classList.toggle('hidden',t!=='vent');document.getElementById('oldModule').classList.toggle('hidden',t!=='old');document.getElementById('glassModule').classList.toggle('hidden',t!=='glass');const accDock=document.getElementById('catalogAccDock');if(accDock)accDock.classList.toggle('hidden',t!=='old'); syncPlateToActiveModule(); if(t==='glass') renderGlassModule(); if(t==='old'){renderOld(); setTimeout(()=>{const i=document.getElementById('catalogAccQ'); if(i)i.focus();},80);}}
+const tabScrollPositions={vent:0,old:0,glass:0};
+function setTab(t,options={}){
+ if(!['vent','old','glass'].includes(t))return;
+ if(currentTab!==t)tabScrollPositions[currentTab]=window.scrollY;
+ currentTab=t;
+ q.placeholder={vent:'GHL S08, DKLS08, SSL, ZOZ 213',old:'Buscar accesorio: DKL, SSL, KUX',glass:'Buscar vidrio: GGL 5, 550 994'}[t];
+ document.getElementById('tabVent').classList.toggle('active',t==='vent');
+ document.getElementById('tabOld').classList.toggle('active',t==='old');
+ document.getElementById('tabGlass').classList.toggle('active',t==='glass');
+ document.getElementById('ventModule').classList.toggle('hidden',t!=='vent');
+ document.getElementById('oldModule').classList.toggle('hidden',t!=='old');
+ document.getElementById('glassModule').classList.toggle('hidden',t!=='glass');
+ // La placa de ventana es exclusiva de Ventanas; el buscador permanece arriba.
+ document.getElementById('plateCard').classList.toggle('screenOnlyOther',t!=='vent');
+ const accDock=document.getElementById('catalogAccDock');
+ if(accDock)accDock.classList.add('hidden');
+ syncPlateToActiveModule();
+ if(t==='glass')renderGlassModule();
+ if(t==='old'){const accSearch=document.getElementById('catalogAccQ');if(accSearch)accSearch.value=(q&&q.value)||'';renderOld();}
+ if(!options.keepScroll)requestAnimationFrame(()=>window.scrollTo(0,options.fromSearch?0:(tabScrollPositions[t]||0)));
+}
 function syncPlateToActiveModule(){
  const val=(q&&q.value)||'';
- const old=document.getElementById('oldQ'); if(old) old.value=val;
- const glass=document.getElementById('glassQ'); if(glass) glass.value=val;
+ const old=document.getElementById('oldQ');if(old)old.value=val;
+ const glass=document.getElementById('glassQ');if(glass)glass.value=val;
 }
+function compactVelux(s){return (s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');}
+function clearUniversalSearch(){q.value='';handlePlateInput();q.focus();}
+function detectUniversalType(value){
+ const raw=(value||'').trim().toUpperCase(),key=compactVelux(raw);
+ if(!key)return null;
+ // Cristales: búsqueda explícita de vidrio/cristal; las referencias de ventanas siguen en Ventanas.
+ if(/^(CRISTAL|VIDRIO)/.test(key))return 'glass';
+ // Accesorios y kits independientes (no confundimos EDW, DKL o SSL con ventanas).
+ if(/^(ZOZ|KLI|KUX|KMG|KSX|ZZZ|ZCT|ZCZ|ZIL|ZTL|ZTM|ZXT|ZOV|ZOL|ZOH|ZOB|ZOP|ZOC|ZOF|ZOS|ZSC|ZST|ZWP|ZWC|ZWA|ZWB|ZWS|ZWT|ZWH|ZWN|ZWD|ZWR|ZWI|ZWL|ZWS|ZWM)/.test(key))return 'old';
+ if(typeof CATALOG_ACCESSORIES!=='undefined' && CATALOG_ACCESSORIES.some(a=>compactVelux(a.ref)===key))return 'old';
+ if(/^(DKL|DML|DSL|RFL|RML|RSL|FHL|FML|FSL|PAL|MHL|MML|MML|SSL|SML|SMG|SMH|EDW|EDL|EDT|EW|EL|BDX|BFX)/.test(key))return 'old';
+ if(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)/.test(key))return 'vent';
+ // Texto libre: primero accesorios, luego ventanas.
+ if(typeof CATALOG_ACCESSORIES!=='undefined' && CATALOG_ACCESSORIES.some(a=>compactVelux([a.ref,a.desc,a.grupo].join(' ')).includes(key)))return 'old';
+ return 'vent';
+}
+function showUniversalNotice(message){const el=document.getElementById('universalNotice');el.textContent=message||'';el.classList.toggle('hidden',!message);}
 function handlePlateInput(){
- plateCurtainMode='new';
- recommendationOverride=false;
- syncPlateToActiveModule();
- if(currentTab==='old'){ renderOld(); return; }
- if(currentTab==='glass'){ renderGlassModule(); return; }
+ const raw=q.value.trim();
+ document.getElementById('clearUniversal').style.display=raw?'block':'none';
+ if(currentTab==='glass'){
+  const inp=document.getElementById('glassQ');if(inp)inp.value=raw.replace(/^(cristal|vidrio)\s*/i,'');
+  renderGlassSearch();showUniversalNotice('');return;
+ }
+ if(currentTab==='old'){
+  const inp=document.getElementById('catalogAccQ');if(inp)inp.value=raw;
+  renderCatalogAcc();showUniversalNotice('');return;
+ }
+ plateCurtainMode='new';recommendationOverride=false;
+ const type=detectUniversalType(raw);
+ if(type&&type!==currentTab)setTab(type,{fromSearch:true});
+ if(type==='old'){
+  const inp=document.getElementById('catalogAccQ');if(inp)inp.value=raw;
+  renderCatalogAcc();showUniversalNotice('Resultados de accesorios · '+raw);return;
+ }
+ if(type==='glass'){
+  const inp=document.getElementById('glassQ');if(inp)inp.value=raw.replace(/^(cristal|vidrio)\s*/i,'');
+  renderGlassSearch();showUniversalNotice('Resultados de cristales');return;
+ }
+ showUniversalNotice('');syncPlateToActiveModule();
+ if(currentTab==='old'&&!raw){const inp=document.getElementById('catalogAccQ');if(inp)inp.value='';renderCatalogAcc();return;}
+ if(currentTab==='glass'&&!raw){renderGlassModule();return;}
+ if(type==='vent'&&currentTab!=='vent')setTab('vent',{fromSearch:true});
  pickRecommended();
 }
-
 function glassOf(model){return (model.match(/(70|68|67|76)/)||['',''])[1]}
 function baseOf(model){return model.split(' ')[0]}
 function targetBase(){
@@ -733,7 +904,7 @@ function selectSizeFromTable(s){
  if(opts.includes(s)){sizeSel.value=s;render();showProducts(state.d,state.s,false);return;}
  q.value=s;pickRecommended();
 }
-function init(){if(document.getElementById('setCurtainColor'))document.getElementById('setCurtainColor').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');if(document.getElementById('plateCurtainColorSel'))document.getElementById('plateCurtainColorSel').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');DATA.sort((a,b)=>scoreData(a)-scoreData(b));modelSel.innerHTML=DATA.map((d,i)=>`<option value="${i}">${d.aliases?d.aliases.join('/')+' antiguo → ':''}${d.modelo} · ${d.familia}</option>`).join('');finishSel.value=settings.finish||'poly';openingSel.value=settings.opening||'proyectante';glassSel.value=settings.glass||'70';renderQuickButtons();refreshSizes();renderSizeTable(); if(q.value.trim()) pickRecommended(); else pickByControls(false); bindOld();renderGlassModule();}
+function init(){if(!CURTAIN_COLORS.some(c=>c.code===settings.curtainColor))settings.curtainColor='1085';if(document.getElementById('setCurtainColor'))document.getElementById('setCurtainColor').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');if(document.getElementById('plateCurtainColorSel'))document.getElementById('plateCurtainColorSel').innerHTML=CURTAIN_COLORS.map(c=>`<option value="${c.code}">${c.fav?'⭐ ':''}${c.code} · ${c.name}</option>`).join('');DATA.sort((a,b)=>scoreData(a)-scoreData(b));modelSel.innerHTML=DATA.map((d,i)=>`<option value="${i}">${d.aliases?d.aliases.join('/')+' antiguo → ':''}${d.modelo} · ${d.familia}</option>`).join('');finishSel.value=settings.finish||'poly';openingSel.value=settings.opening||'proyectante';glassSel.value=settings.glass||'70';renderQuickButtons();refreshSizes();renderSizeTable(); if(q.value.trim()) pickRecommended(); else pickByControls(false); bindOld();renderGlassModule();}
 function isBareNumericUnknown(term){
  term=(term||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
  if(!/^\d{1,3}$/.test(term)) return false;
@@ -755,7 +926,7 @@ function renderUnknownPlate(term){
  const pc=document.getElementById('productsCard'); if(pc)pc.classList.add('hidden');
 }
 function pickRecommended(){
- let term=q.value.trim().toUpperCase();
+ let term=q.value.trim().toUpperCase().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  if(!term){pickByControls(true);return;}
  const oldEq=detectOldModelEquiv(term);
  if(isBareNumericUnknown(term)) return renderUnknownPlate(term);
@@ -797,7 +968,7 @@ function codeForBaseAndGlass(base, glass, finish){
  return '20'+glass;
 }
 function plateDataFromInput(){
- const raw=(q.value||'').trim().toUpperCase();
+ const raw=(q.value||'').trim().toUpperCase().replace(/^(GGL|GHL|GGU|GPU|GPL|GHU|GFL)(?=[A-Z]\d{2}\b)/,'$1 ');
  const d=DATA[+modelSel.value], s=sizeSel.value;
  const oldEq=detectOldModelEquiv(raw);
  if(oldEq){
@@ -856,36 +1027,38 @@ function updatePlate(){
  if(recMeta) recMeta.textContent=pd.recMeta || '—';
  const ap=priceForWindowRef(pd.actualRef);
  const rp=priceForWindowRef(pd.recRef);
- if(actualPrice) actualPrice.textContent=ap&&ap.price!=null ? money(mainPrice(ap.price,'ventana').value) : '—';
- if(recPrice) recPrice.textContent=rp&&rp.price!=null ? money(mainPrice(rp.price,'ventana').value) : '—';
- setHtml('plateActualDoc', ap&&ap.price!=null ? docsMiniBtnV157(pd.actualRef,pd.actualMeta,mainPrice(ap.price,'ventana').value,'ventana') : '');
- setHtml('plateRecDoc', rp&&rp.price!=null ? docsMiniBtnV157(pd.recRef,pd.recMeta,mainPrice(rp.price,'ventana').value,'ventana') : '');
+ if(actualPrice) actualPrice.innerHTML=ap&&ap.price!=null ? visiblePrices(ap.price,'ventana','plateStack') : '—';
+ if(recPrice) recPrice.innerHTML=rp&&rp.price!=null ? visiblePrices(rp.price,'ventana','plateStack') : '—';
+ setHtml('plateActualDoc', ap&&ap.price!=null ? docsMiniBtnV157(pd.actualRef,pd.actualMeta,sellingPrice(ap.price,'ventana'),'ventana') : '');
+ setHtml('plateRecDoc', rp&&rp.price!=null ? docsMiniBtnV157(pd.recRef,pd.recMeta,sellingPrice(rp.price,'ventana'),'ventana') : '');
  const cercoRefEl=document.getElementById('plateCercoRef');
  const cercoPriceEl=document.getElementById('plateCercoPrice');
  const cerSize=displaySize;
  const cer=selectedCercoForSize(cerSize);
  if(cercoRefEl) cercoRefEl.textContent=cer ? refWithMeasure(cer.ref, cerSize) : '—';
- if(cercoPriceEl) cercoPriceEl.textContent=cer&&cer.price!=null ? money(mainPrice(cer.price,'cerco').value) : '—';
- setHtml('plateCercoDoc', cer&&cer.price!=null ? docsMiniBtnV157(refWithMeasure(cer.ref, cerSize), cer.desc, mainPrice(cer.price,'cerco').value, 'cerco') : '');
+ const cerChoice=document.getElementById('plateCercoChoice');
+ if(cerChoice){const r=cer?.ref||'';cerChoice.textContent=r ? '· '+(r.startsWith('EDL')?'Plano':'Ondulado') : '· No disponible';}
+ if(cercoPriceEl) cercoPriceEl.innerHTML=cer&&cer.price!=null ? visiblePrices(cer.price,'cerco') : '—';
+ setHtml('plateCercoDoc', cer&&cer.price!=null ? docsMiniBtnV157(refWithMeasure(cer.ref, cerSize), cer.desc, sellingPrice(cer.price,'cerco'), 'cerco') : '');
  const per=selectedPersianaForSize(cerSize);
  setText('platePersianaRef', per ? refWithMeasure(per.ref, cerSize) : 'SSL —');
  setText('platePersianaDesc', per ? per.desc : 'Solar');
- setText('platePersianaPrice', per&&per.price!=null ? money(mainPrice(per.price,'persiana').value) : '—');
- setHtml('platePersianaDoc', per&&per.price!=null ? docsMiniBtnV157(refWithMeasure(per.ref, cerSize), per.desc, mainPrice(per.price,'persiana').value, 'persiana') : '');
+ setHtml('platePersianaPrice', per&&per.price!=null ? visiblePrices(per.price,'persiana','extraStack') : '—');
+ setHtml('platePersianaDoc', per&&per.price!=null ? docsMiniBtnV157(refWithMeasure(per.ref, cerSize), per.desc, sellingPrice(per.price,'persiana'), 'persiana') : '');
  const kit=selectedInstallKitForPlate(pd);
  const kitCard=document.getElementById('plateKitCard');
  if(kitCard) kitCard.classList.toggle('hidden', !kit);
  setText('plateKitRef', kit ? kit.ref : 'ZOZ 213');
  setText('plateKitDesc', kit ? kit.desc : 'Placa de montaje para GGL/GGU');
- setText('plateKitPrice', kit&&kit.price!=null ? money(mainPrice(kit.price,'kit').value) : '—');
- setHtml('plateKitDoc', kit&&kit.price!=null ? docsMiniBtnV157(kit.ref, kit.desc, mainPrice(kit.price,'kit').value, 'kit') : '');
+ setHtml('plateKitPrice', kit&&kit.price!=null ? visiblePrices(kit.price,'kit','extraStack') : '—');
+ setHtml('plateKitDoc', kit&&kit.price!=null ? docsMiniBtnV157(kit.ref, kit.desc, sellingPrice(kit.price,'kit'), 'kit') : '');
  const hasOldCurtain=!!detectOldCurtainEquiv((q.value||'').trim().toUpperCase());
  if(!hasOldCurtain) plateCurtainMode='new';
  const cor=selectedCortinaForSize(cerSize, hasOldCurtain ? plateCurtainMode : 'new');
- setText('plateCortinaRef', cor ? refWithMeasure(cor.ref, cerSize) : 'DKL —');
+ setText('plateCortinaRef', cor ? (cor.mode==='existing' && /^DKL 5\s/.test(cor.ref) ? cor.ref+' · 70×118 cm' : refWithMeasure(cor.ref, cerSize)) : 'DKL —');
  setText('plateCortinaDesc', cor ? cor.desc : 'Oscurecimiento · Beige');
- setText('plateCortinaPrice', cor&&cor.price!=null ? money(mainPrice(cor.price,'cortina').value) : '—');
- setHtml('plateCortinaDoc', cor&&cor.price!=null ? docsMiniBtnV157(refWithMeasure(cor.ref, cerSize), cor.desc, mainPrice(cor.price,'cortina').value, 'cortina') : '');
+ setHtml('plateCortinaPrice', cor&&cor.price!=null ? visiblePrices(cor.price,'cortina','extraStack') : '—');
+ setHtml('plateCortinaDoc', cor&&cor.price!=null ? docsMiniBtnV157(cor.mode==='existing' && /^DKL 5\s/.test(cor.ref) ? cor.ref+' · 70×118 cm' : refWithMeasure(cor.ref, cerSize), cor.desc, sellingPrice(cor.price,'cortina'), 'cortina') : '');
  const cortCard=document.getElementById('plateCortinaCard');
  if(cortCard){
   cortCard.classList.toggle('existing', !!cor && cor.mode==='existing');
@@ -956,7 +1129,7 @@ function pick(i,s,open){modelSel.value=i;syncControlsFromData(DATA[i]);refreshSi
 function accTipo(cat){ if(cat.includes('Cerco'))return 'Cerco'; if(cat.includes('Persiana'))return 'Persiana'; if(cat.includes('Cortina'))return 'Cortina'; return 'Otros'; }
 function accClass(t){return t==='Cerco'?'cerco':t==='Persiana'?'persiana':t==='Cortina'?'cortina':''}
 function accOptions(s,tipo){return ACC.filter(a=>accTipo(a.cat)===tipo && a.p[s]).sort((a,b)=>{
- const ar=a.ref, br=b.ref; const cercoPref=(settings.cercoType||'ondulado')==='plano'?'EDL 2000':'EDW 2000'; const fav=(r)=> tipo==='Persiana'?(r.includes('SSL')?0:1): tipo==='Cortina'?(r.includes('DKL estándar')?0:1): tipo==='Cerco'?(r.includes(cercoPref)?0:(r.includes('EDW 2000')||r.includes('EDL 2000')?1:2)):1; return fav(ar)-fav(br)||ar.localeCompare(br);
+ const ar=a.ref, br=b.ref; const cercoPref=((settings.cercoType||'ondulado')==='plano'?'EDL ':'EDW ')+(settings.cercoPack||'2000'); const fav=(r)=> tipo==='Persiana'?(r.includes('SSL')?0:1): tipo==='Cortina'?(r.includes('DKL estándar')?0:1): tipo==='Cerco'?(r.includes(cercoPref)?0:(r.includes('EDW 2000')||r.includes('EDL 2000')?1:2)):1; return fav(ar)-fav(br)||ar.localeCompare(br);
 })}
 function showProducts(d,s,scroll=false){state.d=d;state.s=s;state.cerco=state.cerco||0;state.persiana=state.persiana||0;state.cortina=state.cortina||0;drawProducts();document.getElementById('productsCard').classList.remove('hidden');if(scroll)document.getElementById('productsCard').scrollIntoView({behavior:'smooth',block:'start'});}
 function accessorySummary(s){
@@ -968,8 +1141,8 @@ function accessorySummary(s){
 }
 function drawProducts(){const d=state.d,s=state.s; if(!d||!s)return; document.getElementById('prodTitle').innerHTML=`Para <b>${displayRefForData(d)} ${s}</b> · cada producto queda independiente para exportar a Documentos de uno en uno.`; let html=accessorySummary(s); html+=productCard('ventana','🪟','Ventana',`${displayRefForData(d)} ${s}`,`${displayFamilyForData(d)} · ${sizesAll[s]||''} cm · Vidrio ${glassOf(displayRefForData(d))||glassOf(d.modelo)}`,d.p[s],null,null,'ventana');
  html+=accProduct('Cerco','cerco','🧩',s,state.cerco,'cerco'); html+=accProduct('Persiana','persiana','☀️',s,state.persiana,'persiana'); html+=accProduct('Cortina','cortina','🌙',s,state.cortina,'cortina'); document.getElementById('products').innerHTML=html;}
-function accProduct(tipo,cls,icon,s,idx,key){const opts=accOptions(s,tipo); if(!opts.length)return productCard(cls,icon,tipo,'Sin tarifa cargada',`No hay precio cargado para ${s}`,null,null,null); idx=Math.min(idx||0,opts.length-1); const a=opts[idx]; const selector=`<div class="selectorLine"><select onchange="state.${key}=this.selectedIndex;drawProducts()">${opts.map((o,i)=>`<option ${i===idx?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[s])}</option>`).join('')}</select></div>`; if(tipo==='Cortina'){return productCard(cls,icon,tipo,curtainRef(s),`${curtainDesc()} · oscurecimiento · ${a.plazo}`,a.p[s],selector,null,'cortina');} return productCard(cls,icon,tipo,`${a.ref} ${s}`,`${a.desc} · ${a.plazo}`,a.p[s],selector,`copyText('${(a.ref+' '+s).replace(/'/g,'')}')`,tipo==='Cerco'?'cerco':(tipo==='Persiana'?'persiana':'ventana'));}
-function productCard(cls,icon,title,ref,desc,price,selector,copy,cat){cat=cat||categoryFromRef(ref,title); const mp=price!=null?mainPrice(price,cat):null; const shownPrice=mp?mp.value:price; const docBtn=price?docsBtnV156(ref,desc,shownPrice,cat):''; return `<div class="product ${cls}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${desc||''}</div></div><div class="prodPrice">${mp?money(mp.value):money(price)}</div></div>${price?priceBox(price,cat):''}${selector||''}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${String(ref).replace(/'/g,'')}',${Number(price)||0})">Copiar línea</button>${docBtn}</div></div>`}
+function accProduct(tipo,cls,icon,s,idx,key){const opts=accOptions(s,tipo);if(tipo==='Cortina'){syncDklType(opts);idx=settings.curtainType;} if(!opts.length)return productCard(cls,icon,tipo,'Sin tarifa cargada',`No hay precio cargado para ${s}`,null,null,null); idx=Math.min(idx||0,opts.length-1); const a=opts[idx]; const selector=`<div class="selectorLine"><select onchange="state.${key}=this.selectedIndex;drawProducts()">${opts.map((o,i)=>`<option ${i===idx?'selected':''}>${o.ref} · ${o.desc} · ${money(o.p[s])}</option>`).join('')}</select></div>`; if(tipo==='Cortina'){return productCard(cls,icon,tipo,curtainRef(s),`${curtainDesc()} · oscurecimiento · ${a.plazo}`,a.p[s],selector,null,'cortina');} return productCard(cls,icon,tipo,`${a.ref} ${s}`,`${a.desc} · ${a.plazo}`,a.p[s],selector,`copyText('${(a.ref+' '+s).replace(/'/g,'')}')`,tipo==='Cerco'?'cerco':(tipo==='Persiana'?'persiana':'ventana'));}
+function productCard(cls,icon,title,ref,desc,price,selector,copy,cat){cat=cat||categoryFromRef(ref,title); const mp=price!=null?mainPrice(price,cat):null; const shownPrice=mp?mp.value:price; const docBtn=price?docsBtnV156(ref,desc,sellingPrice(price,cat),cat):''; return `<div class="product ${cls}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${desc||''}</div></div><div class="prodPrice">${mp?visiblePrices(price,cat):money(price)}</div></div>${price?priceBox(price,cat):''}${selector||''}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${String(ref).replace(/'/g,'')}',${Number(price)||0})">Copiar línea</button>${docBtn}</div></div>`}
 
 function veluxParamV158(name){try{return new URLSearchParams(location.search).get(name)||'';}catch(_){return '';}}
 
@@ -1162,7 +1335,7 @@ function saveSettings(){settings={
   persiana:{pct:setGainPersiana.value===''?0:Number(setGainPersiana.value),eur:setGainPersianaEur.value===''?0:Number(setGainPersianaEur.value)},
   cortina:{pct:setGainCortina.value===''?0:Number(setGainCortina.value),eur:setGainCortinaEur.value===''?0:Number(setGainCortinaEur.value)}
  },
- iva:setIva.value===''?21:Number(setIva.value),disc:setDisc.value===''?0:Number(setDisc.value),showCat:setShowCat.checked,showGain:setShowGain.checked,showIva:setShowIva.checked,pref:setPref.value,glass:setGlass.value,finish:finishSel.value,opening:openingSel.value,cercoType:settings.cercoType||'ondulado',curtainFrame:setCurtainFrame.value,curtainColor:setCurtainColor.value,curtainType:settings.curtainType||0};
+ iva:setIva.value===''?21:Number(setIva.value),disc:setDisc.value===''?0:Number(setDisc.value),showCat:setShowCat.checked,showGain:setShowGain.checked,showIva:setShowIva.checked,pref:setPref.value,glass:setGlass.value,finish:finishSel.value,opening:openingSel.value,cercoType:settings.cercoType||'ondulado',cercoPack:settings.cercoPack||'2000',curtainFrame:setCurtainFrame.value,curtainColor:setCurtainColor.value,curtainType:settings.curtainType||0};
  localStorage.setItem('veluxSettingsV134',JSON.stringify(settings));closeSettings();init();showProducts(state.d,state.s,false);}
 function normalizeOldSize(token){token=(token||'').toUpperCase(); for(const [cur,als] of Object.entries(sizeAliases)){if(cur===token||als.includes(token)){let old=(als.find(a=>/^[A-Z]\d\d$/.test(a))||token); return {current:cur,old};}} return null;}
 function bindOld(){const input=document.getElementById('oldQ');input.oninput=renderOld;}
@@ -1210,12 +1383,10 @@ function oldCurtainDesc(opt){
 }
 function oldAccessoryCard(icon,title,ref,price,extra='Accesorio para ventana antigua',selector=''){
  const cat=categoryFromRef(ref,title); const mp=price!=null?mainPrice(price,cat):null;
- return `<div class="product ${cat}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${extra}</div></div><div class="prodPrice">${mp?money(mp.value):money(price)}</div></div>${price?priceBox(price,cat):''}${selector}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${ref}',${Number(price)||0})">Copiar línea</button>${docsBtnV156(ref,extra,mp?mp.value:price,cat)}</div></div>`
+ return `<div class="product ${cat}"><div class="prodHead"><div class="prodIcon">${icon}</div><div><div class="prodTitle">${title}</div><div class="prodRef">${ref}</div><div class="small">${extra}</div></div><div class="prodPrice">${mp?visiblePrices(price,cat):money(price)}</div></div>${price?priceBox(price,cat):''}${selector}<div class="grid" style="margin-top:10px"><button class="light" onclick="copyLineProduct('${ref}',${Number(price)||0})">Copiar línea</button>${docsBtnV156(ref,extra,sellingPrice(price,cat),cat)}</div></div>`
 }
 
 const CATALOG_ACCESSORIES=[
- {grupo:'Validado propio',ref:'P/S22',desc:'Kit motor + placa solar',price:156,plazo:'—',source:'Dato propio'},
- {grupo:'Validado propio',ref:'KLI-310-WW',desc:'Pulsador inalámbrico blanco',price:27,plazo:'—',source:'Dato propio'},
  {grupo:'Accesorios eléctricos',ref:'KUX 110',desc:'Unidad de control para motor KMG, cortina, persiana o toldo eléctrico',price:121,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Accesorios eléctricos',ref:'KSX 100',desc:'Kit de conversión solar para ventanas anteriores a 2014',price:470,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Accesorios eléctricos',ref:'KSX 100K',desc:'Kit de conversión solar para ventana giratoria manual con K en el código',price:470,plazo:'9 días',source:'Catálogo p.86'},
@@ -1231,6 +1402,7 @@ const CATALOG_ACCESSORIES=[
  {grupo:'Kits de instalación',ref:'ZOZ 229S',desc:'Kit para instalar persiana flexible o toldo en ventanas eléctricas GPU',price:69,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 230X25',desc:'Pack 25 kits para instalar cortina en ventana anterior a 1992',price:19,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 230',desc:'Kit individual para instalar cortina en ventana anterior a 1992',price:7,plazo:'—',source:'Catálogo p.87'},
+ {grupo:'Kits de instalación',ref:'ZOZ 238',desc:'Placa de montaje para persiana flexible o toldo en ventana anterior a 2000',price:29,plazo:'Consultar',source:'Referencia en catálogo p.86; precio facilitado por usuario (no figura en tabla de tarifas)'},
  {grupo:'Kits de instalación',ref:'ZOZ 240',desc:'Placa para persiana flexible/toldo en ventana acabado cobre · desde 94 hasta 204 €',price:94,range:'desde 94 €',plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 241',desc:'Kit para añadir cortina eléctrica a ventana manual',price:14,plazo:'9 días',source:'Catálogo p.86'},
  {grupo:'Kits de instalación',ref:'ZOZ 242',desc:'Kit para añadir cortina eléctrica a ventana manual',price:16,plazo:'9 días',source:'Catálogo p.86'},
@@ -1255,7 +1427,7 @@ function normCatalogAcc(s){return (s||'').toUpperCase().normalize('NFD').replace
 function catalogAccMatches(a,q){
  if(!q)return true;
  const hay=normCatalogAcc([a.ref,a.desc,a.grupo,a.plazo,a.source].join(' '));
- return q.split(' ').filter(Boolean).every(p=>hay.includes(p));
+ return q.split(' ').filter(Boolean).every(p=>hay.includes(p)||compactVelux(hay).includes(compactVelux(p)));
 }
 function bindCatalogAcc(){
  const input=document.getElementById('catalogAccQ');
@@ -1264,10 +1436,72 @@ function bindCatalogAcc(){
 function toggleCatalogAcc(ref){catalogAccSelected[ref]=!catalogAccSelected[ref];renderCatalogAcc();}
 function catalogAccCard(a){
  const checked=!!catalogAccSelected[a.ref];
- const shown=a.range||money(mainPrice(a.price,'kit').value);
+ const shown=a.range||money(sellingPrice(a.price,'kit'));
  const plazo=a.plazo&&a.plazo!=='—'?` · ${a.plazo}`:'';
  const source=a.source?` · ${a.source.replace('Catálogo ','')}`:'';
- return `<div class="row catalogAccCard ${checked?'glassGood':''}"><div class="catalogAccTop"><div><div class="catalogAccRef">${a.ref}${checked?'<span class="catalogAccSelectedTag">Añadido</span>':''}</div><div class="catalogAccDesc">${a.desc}</div><div class="catalogAccMeta">${a.grupo}${plazo}${source}</div></div><div class="catalogAccPrice">${shown}</div></div><div class="catalogAccActions"><button class="${checked?'secondary':'light'}" onclick="toggleCatalogAcc('${a.ref.replace(/'/g,'')}')">${checked?'Quitar':'Añadir'}</button><button class="light" onclick="copyLineProduct('${a.ref.replace(/'/g,'')}',${Number(a.price)||0})">Copiar</button>${docsBtnV156(a.ref,a.desc,a.price,'accesorio')}</div></div>`;
+ return `<div class="row catalogAccCard ${checked?'glassGood':''}"><div class="catalogAccTop"><div><div class="catalogAccRef">${a.ref}${checked?'<span class="catalogAccSelectedTag">Añadido</span>':''}</div><div class="catalogAccDesc">${a.desc}</div><div class="catalogAccMeta">${a.grupo}${plazo}${source}</div></div><div class="catalogAccPrice">${a.range?shown:visiblePrices(a.price,'kit')}</div></div><div class="catalogAccActions"><button class="${checked?'secondary':'light'}" onclick="toggleCatalogAcc('${a.ref.replace(/'/g,'')}')">${checked?'Quitar':'Añadir'}</button>${a.range?'<span class="small" style="font-weight:800;color:#a34800">Precio según tamaño · consultar antes de presupuestar</span>':`<button class="light" onclick="copyLineProduct('${a.ref.replace(/'/g,'')}',${Number(a.price)||0})">Copiar</button>${docsBtnV156(a.ref,a.desc,sellingPrice(a.price,'kit'),'accesorio')}`}</div></div>`;
+}
+// v1.72.26: Precios de presupuesto VELUX 26/10/2026, PVP sin IVA.
+// Cuatro colores al mismo precio: beige 1085, blanco 1025, gris 0705 y azul 1100.
+const OLD_DKL_PRICES={C01:64,C02:64,C04:69,C06:76,F06:81,F08:85,M04:79,M06:85,M08:91,P04:90,P06:93,P08:102,P10:107,S06:106,S08:110,U04:108,U08:124,'101':64,'102':64,'104':69,'206':81,'5':81};
+// Catálogo VELUX julio 2026, p. 64-65. 101, 102, 104, 206 y 5: solo estándar.
+const OLD_DKL_PREMIUM_PRICES={C01:77,C02:77,C04:83,C06:91,F06:97,F08:102,M04:94,M06:102,M08:109,P04:108,P06:112,P08:122,P10:129,S06:127,S08:132,U04:130,U08:149};
+const OLD_DKL_UNAVAILABLE=new Set(['304','306','308','406','408','606','608','804','808']);
+const OLD_DKL_COLORS=[{code:'1085',name:'Beige'},{code:'1025',name:'Blanco'},{code:'0705',name:'Gris'},{code:'1100',name:'Azul'}];
+let oldDklColor='1085';
+function oldCurtainDirectMatch(query){
+ const key=compactVelux(query);
+ const m=key.match(/^(DKL|DML|DSL|RFL|RML|RSL|FHL|FML|FSL)([A-Z]\d{2}|\d{1,3})(?:(1085|1025|0705|1100)(?:S|SWL)?)?$/);
+ if(!m)return null;
+ const prefix=m[1],token=m[2];
+ if(Object.prototype.hasOwnProperty.call(sizesAll,token))return null;
+ if(prefix==='DKL'&&(Object.prototype.hasOwnProperty.call(OLD_DKL_PRICES,token)||OLD_DKL_UNAVAILABLE.has(token)))return {prefix,token,price:OLD_DKL_PRICES[token],unavailable:OLD_DKL_UNAVAILABLE.has(token),color:m[3]||null};
+ const size=Object.keys(sizeAliases).find(s=>(sizeAliases[s]||[]).includes(token));
+ if(!size)return null;
+ return {prefix,token,size};
+}
+function setOldDklColor(code){
+ if(OLD_DKL_COLORS.some(c=>c.code===code))oldDklColor=code;
+ renderCatalogAcc();
+}
+function oldCurtainDirectCard(o){
+ const base=o.prefix+' '+o.token;
+ if(o.unavailable)return `<div class="row catalogAccCard glassWarn"><div class="catalogAccTop"><div><div class="catalogAccRef">${base}</div><div class="catalogAccDesc">Referencia antigua no disponible.</div><div class="catalogAccMeta">Sin disponibilidad · no pedir</div></div></div></div>`;
+ if(o.prefix==='DKL'&&Number.isFinite(o.price)){
+  const code=o.color||oldDklColor;
+  const color=OLD_DKL_COLORS.find(c=>c.code===code)||OLD_DKL_COLORS[0];
+  const ref=base+' '+color.code+'S';
+  const amount={value:sellingPrice(o.price,'cortina')};
+  const adjusted=Math.abs(amount.value-o.price)>0.005;
+  const desc='Cortina de oscurecimiento manual · ventana antigua · '+color.name+' · tamaño '+o.token+'. Referencia específica; no sustituir por una cortina de tamaño K.';
+  const colorSelect=o.color?'':`<div class="selectorLine"><select aria-label="Color cortina antigua" onchange="setOldDklColor(this.value)">${OLD_DKL_COLORS.map(c=>`<option value="${c.code}" ${c.code===code?'selected':''}>${c.name} · ${c.code}</option>`).join('')}</select></div>`;
+  return `<div class="row catalogAccCard glassGood"><div class="catalogAccTop"><div><div class="catalogAccRef">${ref}</div><div class="catalogAccDesc">${desc}</div><div class="catalogAccMeta">DKL antigua · catálogo julio 2026 · sin IVA</div></div>${visiblePrices(o.price,'cortina')}</div>${colorSelect}<div class="catalogAccActions"><button class="light" onclick="copyLineProduct('${ref}',${Number(amount.value)||0})">Copiar</button>${docsBtnV156(ref,desc,amount.value,'cortina')}</div></div>`;
+ }
+ const ref=base;
+ return `<div class="row catalogAccCard glassWarn"><div class="catalogAccTop"><div><div class="catalogAccRef">${ref}</div><div class="catalogAccDesc">No tenemos un precio verificado para esta referencia.</div></div><div class="catalogAccPrice" style="font-size:14px">Sin precio</div></div></div>`;
+}
+function sizedCatalogMatches(query){
+ const key=compactVelux(query);
+ if(!key)return [];
+ const out=[];
+ for(const a of ACC){
+  const prefix=a.ref.split(' ')[0];
+  const normalized=compactVelux(prefix);
+  if(!key.startsWith(normalized))continue;
+  const tail=key.slice(normalized.length);
+  if(!tail)continue;
+  let size=Object.keys(a.p).find(x=>compactVelux(x)===tail || (sizeAliases[x]||[]).some(alias=>compactVelux(alias)===tail));
+  if(!size || a.p[size]==null)continue;
+  out.push({a,size});
+ }
+ return out;
+}
+function sizedCatalogCard({a,size}){
+ const category=accTipo(a.cat).toLowerCase();
+ const ref=a.ref.startsWith('DKL')?'DKL '+size+' '+settings.curtainColor+settings.curtainFrame:a.ref.replace('0000','').replace(/\s+$/,'')+' '+size;
+ const price=sellingPrice(a.p[size],category);
+ const desc=a.desc+' · '+(sizesAll[size]||size)+' cm · '+a.plazo;
+ return `<div class="row catalogAccCard"><div class="catalogAccTop"><div><div class="catalogAccRef">${ref}</div><div class="catalogAccDesc">${desc}</div><div class="catalogAccMeta">${a.cat} · ${mainPrice(a.p[size],category).label}</div></div><div class="catalogAccPrice">${visiblePrices(a.p[size],category)}</div></div><div class="catalogAccActions"><button class="light" onclick="copyLineProduct('${ref}',${Number(price)||0})">Copiar</button>${docsBtnV156(ref,desc,price,category)}</div></div>`;
 }
 function renderCatalogAcc(){
  const input=document.getElementById('catalogAccQ');
@@ -1276,7 +1510,9 @@ function renderCatalogAcc(){
  if(!list)return;
  const q=normCatalogAcc(input&&input.value);
  const arr=CATALOG_ACCESSORIES.filter(a=>catalogAccMatches(a,q));
- list.innerHTML=arr.length?arr.map(catalogAccCard).join(''):'<div class="small">Sin coincidencias en accesorios.</div>';
+ const oldCurtain=oldCurtainDirectMatch(input&&input.value);
+ const sized=oldCurtain?[]:sizedCatalogMatches(input&&input.value);
+ list.innerHTML=((oldCurtain?oldCurtainDirectCard(oldCurtain):'')+sized.map(sizedCatalogCard).join('')+arr.map(catalogAccCard).join(''))||'<div class="small">Sin coincidencias en accesorios.</div>';
  const selected=CATALOG_ACCESSORIES.filter(a=>catalogAccSelected[a.ref]);
  const sum=selected.reduce((t,a)=>t+mainPrice(a.price,'kit').value,0);
  if(total) total.innerHTML=`<b>Total seleccionados</b><span>${money(sum)}</span>`;
@@ -1289,12 +1525,30 @@ function renderOld(){
 }
 
 const GLASS_DEFAULTS=[
- {ref:'GGL 5', width:788, height:1414, composition:'4/6/4', verified:true, source:'Verificado por Tino', notes:'Medida exacta del vidrio desmontado, ya sustituido una vez.'}
+ {ref:'GPL U08', width:1280, height:1210, composition:'3+3-14-3+3 (26 mm)', verified:true, source:'Medida facilitada por Tino', notes:'Vidrio laminado 3+3 / cámara 14 / vidrio laminado 3+3.'},
+ {ref:'GGL 1', width:628, height:794, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 2', width:628, height:1214, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 3', width:790, height:1416, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 4', width:988, height:994, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 5', width:550, height:994, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 6', width:398, height:794, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 7', width:1188, height:794, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 8', width:1188, height:1214, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 9', width:398, height:514, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 102', width:412, height:625, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 104', width:412, height:825, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 206', width:522, height:1025, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 304', width:628, height:794, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 308', width:628, height:1214, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 410', width:790, height:1416, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 606', width:988, height:994, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 804', width:1188, height:794, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'},
+ {ref:'GGL 808', width:1188, height:1214, composition:'4/8/4 (16 mm)', verified:false, source:'Loft Solutions / YARD Direct', notes:'Medida del panel para generación anterior a 2001. Confirmar placa, espesor y composición antes de pedir.'}
 ];
 let glassDB=loadGlassDB();
 function normalizeGlassRef(v){return (v||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
 function loadGlassDB(){
- try{const saved=JSON.parse(localStorage.getItem('veluxGlassDB')||'null'); if(Array.isArray(saved)) return saved;}catch(e){}
+ try{const saved=JSON.parse(localStorage.getItem('veluxGlassDB')||'null'); if(Array.isArray(saved)){const clean=saved.filter(r=>!(normalizeGlassRef(r.ref)==='GGL 5' && Number(r.width)===788 && Number(r.height)===1414)); GLASS_DEFAULTS.forEach(d=>{if(!clean.some(r=>normalizeGlassRef(r.ref)===normalizeGlassRef(d.ref)))clean.push({...d});}); return clean;}}catch(e){}
  return GLASS_DEFAULTS.map(x=>({...x}));
 }
 function saveGlassDB(){localStorage.setItem('veluxGlassDB',JSON.stringify(glassDB));}
@@ -1302,8 +1556,10 @@ function glassSearchText(r){return normalizeGlassRef([r.ref,r.composition,r.widt
 function findGlassMatches(q){
  q=normalizeGlassRef(q);
  if(!q) return glassDB;
+ const exact=glassDB.filter(r=>compactVelux(r.ref)===compactVelux(q));
+ if(exact.length)return exact;
  const parts=q.split(' ').filter(Boolean);
- return glassDB.filter(r=>parts.every(p=>glassSearchText(r).includes(p)));
+ return glassDB.filter(r=>{const txt=glassSearchText(r), compact=compactVelux(txt); return parts.every(p=>txt.includes(p)||compact.includes(compactVelux(p)));});
 }
 function renderGlassModule(){
  const qEl=document.getElementById('glassQ'); if(!qEl)return;
@@ -1313,7 +1569,7 @@ function renderGlassModule(){
 function glassCard(r,idx,compact=false){
  const measure=`${r.width} × ${r.height} mm`;
  const conflict=normalizeGlassRef(r.ref)==='GGL 5' && (Number(r.width)>=700 || Number(r.height)>=1180);
- return `<div class="row ${r.verified&&!conflict?'glassGood':'glassWarn'}"><b>${r.ref}</b><span>${measure}</span><div class="glassMeasure">${measure}</div><div class="small">Composición: <b>${r.composition||'—'}</b> · Estado: <b>${conflict?'medida en conflicto, revisar placa y vidrio':r.verified?'verificado':'pendiente'}</b>${r.source?' · '+r.source:''}</div>${conflict?'<div class="small">La medida guardada supera el marco exterior GGL 5 (700 × 1180 mm). No usar para pedir un vidrio hasta confirmar la referencia de la placa.</div>':''}${r.notes?`<div class="small">${r.notes}</div>`:''}<div class="grid" style="margin-top:8px"><button class="light" ${conflict?'disabled title="Revisar referencia y medida"':`onclick="copyGlassLine(${idx})"`}>Copiar medida</button><button class="secondary" onclick="editGlassRecord(${idx})">Editar</button></div></div>`;
+ return `<div class="row ${r.verified&&!conflict?'glassGood':'glassWarn'}"><b>${r.ref}</b><span>${measure}</span><div class="glassMeasure">${measure}</div><div class="small">Composición: <b>${r.composition||'—'}</b> · Estado: <b>${conflict?'medida en conflicto, revisar placa y vidrio':r.verified?'verificado':'pendiente'}</b>${r.source?' · '+r.source:''}</div>${conflict?'<div class="small">La medida guardada supera el marco exterior GGL 5 (700 × 1180 mm). No usar para pedir un vidrio hasta confirmar la referencia de la placa.</div>':''}${r.notes?`<div class="small">${r.notes}</div>`:''}<div class="grid" style="margin-top:8px"><button class="light" ${conflict||!r.verified?'disabled title="Confirmar placa, espesor y composición antes de copiar"':`onclick="copyGlassLine(${idx})"`}>Copiar medida</button><button class="secondary" onclick="editGlassRecord(${idx})">Editar</button></div></div>`;
 }
 function renderGlassSearch(){
  const q=document.getElementById('glassQ').value; const box=document.getElementById('glassRes');
@@ -1345,7 +1601,7 @@ async function exportGlassJson(){
  try{if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Cristales VELUX'});return;}}catch(e){}
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='velux_cristales.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
-function importGlassJson(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const arr=j.cristales||j; if(!Array.isArray(arr))throw new Error('Formato'); arr.forEach(x=>{if(!x.ref||!x.width||!x.height)return; const ref=normalizeGlassRef(x.ref); const rec={...x,ref,width:Number(x.width),height:Number(x.height),verified:x.verified!==false}; const i=glassDB.findIndex(g=>normalizeGlassRef(g.ref)===ref); if(i>=0)glassDB[i]=rec; else glassDB.push(rec);}); glassDB.sort((a,b)=>a.ref.localeCompare(b.ref)); saveGlassDB(); renderGlassModule(); alert('Cristales importados correctamente.');}catch(e){alert('No se pudo importar el JSON de cristales.')}};r.readAsText(f);ev.target.value='';}
+function importGlassJson(ev){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const arr=j.cristales||j; if(!Array.isArray(arr))throw new Error('Formato'); arr.forEach(x=>{if(!x.ref||!x.width||!x.height)return; const ref=normalizeGlassRef(x.ref); const rec={...x,ref,width:Number(x.width),height:Number(x.height),verified:x.verified!==false}; if(ref==='GGL 5' && rec.width===788 && rec.height===1414)return; const i=glassDB.findIndex(g=>normalizeGlassRef(g.ref)===ref); if(i>=0)glassDB[i]=rec; else glassDB.push(rec);}); glassDB.sort((a,b)=>a.ref.localeCompare(b.ref)); saveGlassDB(); renderGlassModule(); alert('Cristales importados correctamente.');}catch(e){alert('No se pudo importar el JSON de cristales.')}};r.readAsText(f);ev.target.value='';}
 
 function collectPricesJson(){return {version:'VELUX precios v1.56',fecha:new Date().toISOString(),ventanas:DATA.map(d=>({modelo:d.modelo,precios:d.p})),accesorios:ACC.map(a=>({ref:a.ref,precios:a.p}))};}
 const EXPORT_FILENAME='velux_precios_tarifa.json';
