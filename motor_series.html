@@ -61,7 +61,7 @@
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10.8</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10.9</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -648,7 +648,7 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.10.8";
+    const APP_VERSION = "v1.10.9";
 
     // El HTML contiene solo el motor. Los datos se importan desde el JSON y se conservan localmente.
     let db = {coloresDisponibles:[],almacenBarras:[],almacenVidrios:[],almacenAccesorios:[],series:[],accesoriosPasamanos:[]};;
@@ -1277,7 +1277,7 @@ function calcular(opciones) {
       const serie = db.series.find(s => s.id === serieId);
       const reglasOriginales = (serie && serie.reglas && serie.reglas[hojasInicioSeleccionadas]) ? serie.reglas[hojasInicioSeleccionadas] : { cortes: [], vidrios: [], accesorios: [] };
       actualizarPosicionZanca800();
-      const reglas = aplicarAngulosVentana600(serie, aplicarAngulosPuerta800(serie, aplicarComponentesPuerta800(serie,reglasConMarco800(serie, reglasOriginales))));
+      const reglas = aplicarAngulosPuerta800(serie, aplicarComponentesPuerta800(serie,reglasConMarco800(serie, reglasOriginales)));
 
       contextoMedidasMotor = crearContextoMedidasMotor(reglas,ancho,alto);
       let total = 0;
@@ -2373,16 +2373,6 @@ function calcular(opciones) {
       // Si las fórmulas superior/inferior son distintas, conservar ambos cortes.
       if(inferior&&v.inferior!==sup.formula){sup.cantidad=1;r.cortes.splice(1,0,{perfilId:marcoId,cantidad:1,base:'ANCHO',formula:v.inferior});}
       return r;
-    }
-    // Los marcos y las hojas 600 se ingletan a ambos lados, también al
-    // recalcular presupuestos creados con reglas antiguas sin tipo de corte.
-    function aplicarAngulosVentana600(serie, reglas){
-      if(String(serie && serie.nombre || '').trim().toLowerCase()!=='ventana 600')return reglas;
-      const copia={...reglas,cortes:(reglas.cortes||[]).map(c=>({...c}))};
-      copia.cortes.forEach(c=>{
-        if(['b1786195094886','b1786195238854'].includes(c.perfilId))c.tipoCorte='45-45';
-      });
-      return copia;
     }
     // v1.9.5.3: ángulos reales de fabricación enviados a Cut Máster.
     // Se aplican sobre una copia de las reglas, sin alterar las guardadas por el usuario.
