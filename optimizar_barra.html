@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.4</title>
+  <title>Cut Máster v2.4.18</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -143,6 +143,15 @@
     .export-btn.secondary{background:#d7e6f8}
     .export-status{display:none;background:#eff6ff;border:1px solid #d7e8ff;color:#1e3a8a;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13px;line-height:1.35;word-break:break-word}
     .export-status.show{display:block}
+    .cut-options{display:grid;gap:8px;margin:7px 0 13px;padding:10px;border:1px solid #d9d1ca;border-radius:12px;background:#fff}
+    .cut-options-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .cut-options-label{font-size:13px;font-weight:800;min-width:86px}
+    .cut-option-btn{border:0;border-radius:9px;padding:8px 12px;min-height:38px;font-size:13px;font-weight:800;color:#fff;background:#176b9a;line-height:1.15}
+    .cut-option-btn.waste-btn{background:#a34a18}
+    .cut-option-btn:active{filter:brightness(.85)}
+    .cut-limit{width:84px;min-height:38px;padding:5px 8px;border:1px solid #aaa3a0;border-radius:8px;background:#fff;font-size:16px}
+    .cut-waste-total{font-size:13px;font-weight:800;color:#703a17;margin-left:auto}
+    @media(max-width:480px){.cut-waste-total{width:100%;margin-left:0}.cut-options-label{min-width:80px}}
     .manual-download-link{display:none;font-size:14px;font-weight:700;margin:0 0 12px;color:#1f5fbf;text-decoration:none}
     .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
     .setting-card{background:#fff;border-radius:10px;padding:12px;border:1px solid #ece7e7}
@@ -207,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.4</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.18</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -257,6 +266,10 @@
     </div>
     <div id="exportStatus" class="export-status"></div>
     <a id="manualDownloadLink" class="manual-download-link" href="#" download>Descarga manual</a>
+    <div class="cut-options">
+      <div class="cut-options-row"><span class="cut-options-label">Junquillos</span><button id="junquilloModeBtn" type="button" class="cut-option-btn">Pares · 2 a 2</button></div>
+      <div class="cut-options-row"><label class="cut-options-label" for="wasteLimitInput">Desperdicio</label><span>Auto ≤</span><input id="wasteLimitInput" class="cut-limit" type="number" min="0" step="1" inputmode="numeric" value="1000"><span>mm</span><button id="markAllWasteBtn" type="button" class="cut-option-btn waste-btn">Marcar todas</button><strong id="wasteSummary" class="cut-waste-total"></strong></div>
+    </div>
     <div id="diagramPanel" class="result-panel active"></div>
     <div id="listPanel" class="result-panel"></div>
     <div class="footer-space"></div>
@@ -436,7 +449,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.4');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.18');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -793,10 +806,10 @@
         return `<path class="cut-line" d="M ${x - facePx} ${topY} L ${x} ${bottomY} L ${x + facePx} ${topY}" fill="none" stroke="#3e342e" stroke-width="2.5" stroke-linejoin="round" />`;
       }
       if(prevRight === '45' && nextLeft === 'recto'){
-        return `<line class="cut-line" x1="${x - facePx}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`;
+        return `<line class="cut-line" x1="${x - facePx}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" /><line class="cut-line" x1="${x}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`;
       }
       if(prevRight === 'recto' && nextLeft === '45'){
-        return `<line class="cut-line" x1="${x}" y1="${bottomY}" x2="${x + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`;
+        return `<line class="cut-line" x1="${x}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" /><line class="cut-line" x1="${x}" y1="${bottomY}" x2="${x + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`;
       }
       return `<line class="cut-line" x1="${x}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`;
     }
@@ -809,6 +822,7 @@
     const totalRunWidth = runs.reduce((sum, run) => sum + run.rawWidth, 0);
     const hitZones = [];
     const legendMap = new Map();
+    const labelCtx = compact ? document.createElement('canvas').getContext('2d') : null;
     const useMeasureColors = colorsByMeasureEnabled();
     const measureColorMap = sharedMeasureColorMap instanceof Map ? sharedMeasureColorMap : new Map();
 
@@ -862,11 +876,22 @@
           };
           legendMap.set(legendKey, legendEntry);
         }
-        legendEntry.qty += 1;
+        legendEntry.qty += bar.multiplicity || 1;
 
         fills.push(`<rect class="cut-fill" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${xStart}" y="${topY}" width="${innerWidth}" height="${bottomY-topY}" rx="1" ry="1" fill="${useMeasureColors ? pieceColor : '#dfd7cf'}" style="--piece-fill:${useMeasureColors ? pieceColor : '#dfd7cf'}" />`);
         if(innerWidth >= 34){
-          const size = innerWidth < 95 ? (compact ? 15 : 28) : (compact ? 21 : 40);
+          let size = innerWidth < 95 ? 28 : 40;
+          if(compact){
+            // El número aprovecha la altura de la barra, limitado por el ancho de su tramo.
+            size = 30;
+            const numberText = formatLength(len);
+            while(size > 12){
+              if(labelCtx) labelCtx.font = `700 ${size}px Arial`;
+              const textWidth = labelCtx ? labelCtx.measureText(numberText).width : numberText.length * size * .65;
+              if(textWidth <= innerWidth - 8) break;
+              size--;
+            }
+          }
           labels.push(`<text class="cut-text" data-piece-id="${escapeHtml(pieceId)}" data-piece-key="${escapeHtml(key)}" data-piece-scope="${escapeHtml(String(materialId || ''))}" x="${(xStart+xEnd)/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="${size}" font-family="Arial, sans-serif" fill="#3e342e">${formatLength(len)}</text>`);
         }
         hitZones.push({
@@ -899,7 +924,7 @@
             };
             legendMap.set(legendKey, legendEntry);
           }
-          legendEntry.qty += 1;
+          legendEntry.qty += bar.multiplicity || 1;
 
           const pieceWidth = pieceIdx === run.pieces.length - 1
             ? Math.max(8, (xStart + innerWidth) - pieceCursor)
@@ -949,7 +974,7 @@
       fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${Math.max(2, endX - wasteStart)}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
       const wasteWidth = endX - wasteStart;
       if(wasteWidth >= 90){
-        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="${compact ? 18 : 30}" font-family="Arial, sans-serif" fill="#ffffff">${formatLength(waste)}</text>`);
+        labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="30" font-family="Arial, sans-serif" font-weight="${compact ? 700 : 400}" fill="#ffffff">${formatLength(waste)}</text>`);
       }
       cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     } else {
@@ -957,19 +982,26 @@
     }
 
     const legendItems = Array.from(legendMap.values());
-    const legendCols = 2;
     const legendRowHeight = compact ? 22 : 46;
     const legendTop = compact ? 54 : 104;
     const legendColWidth = 430;
+    const legendCtx = compact ? document.createElement('canvas').getContext('2d') : null;
+    if(legendCtx) legendCtx.font = '700 20px Arial';
+    let legendRow = 0;
+    let legendX = leftPad;
     legendItems.forEach((item, idx) => {
-      const col = idx % legendCols;
-      const row = Math.floor(idx / legendCols);
-      const lx = leftPad + (col * legendColWidth);
+      const text = `${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${cutTypeLabel(item.cutType)}`;
+      const itemWidth = compact ? 23 + (legendCtx ? legendCtx.measureText(text).width : text.length * 10) + 18 : legendColWidth;
+      if(compact && legendX > leftPad && legendX + itemWidth > width){ legendRow++; legendX = leftPad; }
+      const row = compact ? legendRow : Math.floor(idx / 2);
+      const lx = compact ? legendX : leftPad + ((idx % 2) * legendColWidth);
       const ly = legendTop + (row * legendRowHeight);
       legend.push(`<rect x="${lx}" y="${ly - (compact ? 11 : 22)}" width="${compact ? 17 : 34}" height="${compact ? 17 : 34}" rx="${compact ? 2 : 5}" ry="${compact ? 2 : 5}" fill="${item.color}" stroke="#433630" stroke-width="1.8" />`);
-      legend.push(`<text x="${lx + (compact ? 24 : 48)}" y="${ly + (compact ? 5 : 8)}" font-family="Arial, sans-serif" font-size="${compact ? 20 : 34}" font-weight="700" fill="#2f241f">${item.qty} x ${formatLength(item.length)} ${currentUnit()} · ${escapeHtml(cutTypeLabel(item.cutType))}</text>`);
+      legend.push(`<text x="${lx + (compact ? 23 : 48)}" y="${ly + (compact ? 5 : 8)}" font-family="Arial, sans-serif" font-size="${compact ? 20 : 34}" font-weight="700" fill="#2f241f">${escapeHtml(text)}</text>`);
+      if(compact) legendX += itemWidth;
     });
-    const totalHeight = (compact ? 48 : 96) + (Math.ceil(legendItems.length / legendCols) * legendRowHeight) + (legendItems.length ? (compact ? 2 : 6) : 0);
+    const legendRows = compact ? (legendItems.length ? legendRow + 1 : 0) : Math.ceil(legendItems.length / 2);
+    const totalHeight = (compact ? 48 : 96) + (legendRows * legendRowHeight) + (legendItems.length ? (compact ? 2 : 6) : 0);
 
     return {
       width,
@@ -992,7 +1024,7 @@
     return (result.materials || []).reduce((total, mat) => {
       if(materialId && String(mat.id || '') !== String(materialId)) return total;
       return total + (mat.bars || []).reduce((sum, bar) => {
-        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key).length;
+        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key).length * (bar.multiplicity || 1);
       }, 0);
     }, 0);
   }
@@ -1004,7 +1036,7 @@
     return (result.materials || []).reduce((total, mat) => {
       if(materialId && String(mat.id || '') !== String(materialId)) return total;
       return total + (mat.bars || []).reduce((sum, bar) => {
-        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key && isPieceDone(piece.uid)).length;
+        return sum + (bar.pieces || []).filter(piece => String(Number(piece.length) || 0) === key && isPieceDone(piece.uid)).length * (bar.multiplicity || 1);
       }, 0);
     }, 0);
   }
@@ -1203,6 +1235,14 @@
     applyPieceHighlight(state.highlightPieceKey || '', state.highlightMaterialId || '');
   }
 
+  function physicalBarLabel(bars, patternIndex){
+    const count = bar => Math.max(1, Math.round(Number(bar.multiplicity) || 1));
+    const first = 1 + bars.slice(0, patternIndex).reduce((total, bar) => total + count(bar), 0);
+    const last = first + count(bars[patternIndex]) - 1;
+    const total = bars.reduce((sum, bar) => sum + count(bar), 0);
+    return first === last ? `Barra ${first} de ${total}` : `Barras ${first}–${last} de ${total}`;
+  }
+
   function renderResults(){
     const project = currentProject();
     if(!project) return showScreen('homeScreen');
@@ -1210,6 +1250,8 @@
     const diagramPanel = $('diagramPanel');
     const listPanel = $('listPanel');
     const result = calculateProject(project);
+    $('junquilloModeBtn').textContent = project.junquilloMode === 'normal' ? 'Normal · 1 a 1' : 'Pares · 2 a 2';
+    $('wasteLimitInput').value = project.wasteLimitMm == null ? 1000 : Math.max(0, Number(project.wasteLimitMm) || 0);
     const measureColorMap = buildMeasureColorMap(result);
     updateColorCutsToggle();
 
@@ -1223,7 +1265,10 @@
     diagramPanel.innerHTML = '';
     listPanel.innerHTML = '';
 
+    let chargedLength = 0, chargedCost = 0, missingPrices = 0, selectableBars = 0, selectedBars = 0;
     result.materials.forEach(mat => {
+      const sourceMaterial = project.materials.find(m => m.id === mat.id);
+      const price = Math.max(0, Number(sourceMaterial && sourceMaterial.pricePerMeter) || 0);
       const card = document.createElement('div');
       card.className = 'diagram-card';
       let barsHtml = '';
@@ -1231,15 +1276,26 @@
         barsHtml = '<div class="empty">No hay combinación posible con el stock indicado.</div>';
       } else {
         barsHtml = mat.bars.map((bar, idx) => {
+          const waste = Math.max(0, Number(bar.remaining) || 0);
+          const wasteKey = `${project.junquilloMode === 'normal' ? 'normal' : 'pares'}|${mat.id}|${idx}|${bar.length}|${bar.pieces.map(p => p.length + ':' + p.cutType).join(',')}`;
+          const manual = project.wasteSelections && project.wasteSelections[wasteKey];
+          const limit = project.wasteLimitMm == null ? 1000 : Number(project.wasteLimitMm);
+          const selected = waste > 0 && (manual === 'yes' || (manual !== 'no' && limit > 0 && waste <= limit));
+          if(waste > 0) selectableBars++;
+          if(selected){ selectedBars++; chargedLength += waste; if(price) chargedCost += waste * price / 1000; else missingPrices++; }
           const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, false, true);
           const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
-          return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">1x</span><span class="bar-chip">Barra ${idx+1} de ${mat.bars.length}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(bar.remaining || 0))} ${escapeHtml(currentUnit())}</span></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
+          return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(mat.bars, idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
       card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
         
         ${barsHtml}`;
       diagramPanel.appendChild(card);
+      const priceRow=document.createElement('div');
+      priceRow.style.cssText='display:flex;gap:7px;align-items:center;margin:5px 0 12px;font-size:12px';
+      priceRow.innerHTML=`<label style="font-weight:700">Precio perfil €/m <input data-material-price="${escapeHtml(mat.id)}" type="number" min="0" step="0.01" inputmode="decimal" value="${price || ''}" style="width:90px;min-height:34px;padding:4px" placeholder="0,00"></label>`;
+      diagramPanel.appendChild(priceRow);
 
       const listCard = document.createElement('div');
       listCard.className = 'card';
@@ -1256,16 +1312,78 @@
       listPanel.appendChild(listCard);
     });
 
+    $('wasteSummary').textContent = chargedLength ? `Desperdicio: ${(chargedLength/1000).toFixed(3)} m · ${chargedCost.toFixed(2)} €${missingPrices?' (faltan precios)':''}` : 'Desperdicio: 0 €';
+    $('markAllWasteBtn').textContent = selectableBars > 0 && selectedBars === selectableBars ? 'Desmarcar todas' : 'Marcar todas';
+    project.wasteCalculatedCost = Number(chargedCost.toFixed(2));
+    project.wasteMissingPrices = missingPrices;
+
     switchResultTab(state.resultTab);
     bindPieceHighlighting();
   }
 
   function calculateProject(project){
-    const materials = project.materials.map(material => calculateMaterial(material)).filter(Boolean);
+    const normal = project.junquilloMode === 'normal';
+    const materials = project.materials.map(material => calculateMaterial(material, normal)).filter(Boolean);
     return { materials };
   }
 
-  function calculateMaterial(material){
+  function calculateMaterial(material, singlePass = false){
+    if(!singlePass && /junquill/i.test(String(material.name || ''))){
+      const pairedPieces = [], oddPieces = [];
+      const groups = new Map();
+      (material.pieces || []).forEach(piece => {
+        const key = Number(piece.length) + '|' + normalizeCutType(piece.cutType);
+        if(!groups.has(key)) groups.set(key, { ...piece, qty: 0 });
+        groups.get(key).qty += Math.max(0, Math.floor(Number(piece.qty) || 0));
+      });
+      groups.forEach(piece => {
+        const qty = piece.qty;
+        if(qty >= 2) pairedPieces.push({ ...piece, qty: Math.floor(qty / 2) });
+        if(qty % 2) oddPieces.push({ ...piece, id: String(piece.id) + '_suelto', qty: 1 });
+      });
+      if(pairedPieces.length){
+        const pairStock = (material.stock || []).map(s => ({ ...s, qty: Math.floor((Number(s.qty) || 0) / 2) })).filter(s => s.qty > 0);
+        const pairPlan = calculateMaterial({ ...material, pieces: pairedPieces, stock: pairStock }, true);
+        const expectedPairs = pairedPieces.reduce((n,p) => n + p.qty, 0);
+        const actualPairs = pairPlan ? pairPlan.bars.reduce((n,b) => n + b.pieces.length, 0) : 0;
+        if(actualPairs === expectedPairs){
+          const used = new Map((pairPlan.stockUsage || []).map(s => [Number(s.length), 2 * s.qty]));
+          const spareStock = (material.stock || []).map(s => ({ ...s, qty: Math.max(0, Number(s.qty) - (used.get(Number(s.length)) || 0)) })).filter(s => s.qty > 0);
+          const oddPlan = oddPieces.length ? calculateMaterial({ ...material, pieces: oddPieces, stock: spareStock }, true) : null;
+          const expectedOdd = oddPieces.length;
+          const actualOdd = oddPlan ? oddPlan.bars.reduce((n,b) => n + b.pieces.length, 0) : 0;
+          if(actualOdd === expectedOdd){
+            const usage = new Map(used);
+            if(oddPlan) oddPlan.stockUsage.forEach(s => usage.set(Number(s.length), (usage.get(Number(s.length)) || 0) + s.qty));
+            const summary = new Map();
+            (material.pieces || []).forEach(p => summary.set(normalizeCutType(p.cutType), (summary.get(normalizeCutType(p.cutType)) || 0) + Number(p.qty || 0)));
+            // Cada patrón de junquillo se corta en dos barras iguales. Mostrarlas
+            // por separado facilita seguir el corte y marcar cada pieza físicamente.
+            const originalUids = new Map();
+            (material.pieces || []).forEach(p => {
+              const key = Number(p.length) + '|' + normalizeCutType(p.cutType);
+              if(!originalUids.has(key)) originalUids.set(key, []);
+              for(let i=1;i<=Math.max(0, Math.floor(Number(p.qty)||0));i++)
+                originalUids.get(key).push(`${p.id}__${i}`);
+            });
+            const separateBar = bar => ({ ...bar, multiplicity: 1,
+              pieces: bar.pieces.map(p => {
+                const key = Number(p.length) + '|' + normalizeCutType(p.cutType);
+                const pool = originalUids.get(key) || [];
+                return { ...p, uid: pool.shift() || p.uid };
+              })
+            });
+            const bars = [];
+            pairPlan.bars.forEach(bar => { bars.push(separateBar(bar), separateBar(bar)); });
+            if(oddPlan) oddPlan.bars.forEach(bar => bars.push(separateBar(bar)));
+            return { id: material.id, name: material.name, profileFace: Number(material.profileFace || 40),
+              bars,
+              stockUsage: Array.from(usage, ([length, qty]) => ({ length, qty })).sort((a,b) => a.length-b.length),
+              cutSummary: Array.from(summary, ([cutType, qty]) => ({ cutType, qty })) };
+          }
+        }
+      }
+    }
     const pieces = [];
     const cutSummaryMap = new Map();
     (material.pieces || []).forEach(p => {
@@ -1774,10 +1892,16 @@
       name: project && project.name ? String(project.name) : 'Proyecto',
       createdAt: project && project.createdAt ? String(project.createdAt) : new Date().toISOString(),
       cutProgress: project && project.cutProgress && typeof project.cutProgress === 'object' ? project.cutProgress : {},
+      junquilloMode: project && project.junquilloMode === 'normal' ? 'normal' : 'pares',
+      wasteLimitMm: project && project.wasteLimitMm != null ? Math.max(0, Number(project.wasteLimitMm) || 0) : 1000,
+      wasteSelections: project && project.wasteSelections && typeof project.wasteSelections === 'object' ? project.wasteSelections : {},
+      documentId: project && project.documentId ? String(project.documentId) : '',
+      sourceKey: project && project.sourceKey ? String(project.sourceKey) : '',
       materials: Array.isArray(project && project.materials) && project.materials.length ? project.materials.map(material => ({
         id: material && material.id ? String(material.id) : uid(),
         name: material && material.name ? String(material.name) : 'Material 1',
         profileFace: Math.max(1, Number(material && material.profileFace) || 40),
+        pricePerMeter: Math.max(0, Number(material && material.pricePerMeter) || 0),
         collapsed: !!(material && material.collapsed),
         pieces: Array.isArray(material && material.pieces) && material.pieces.length ? material.pieces.map(piece => ({
           id: piece && piece.id ? String(piece.id) : uid(),
@@ -2318,14 +2442,14 @@
     const topPad = compact ? 34 : 18;
     const pageBottomPad = 18;
     const projectTitleSize = 28;
-    const materialTitleSize = compact ? 28 : 40;
+    const materialTitleSize = compact ? 25 : 40;
     const materialGapBefore = 4;
     const materialGapAfter = compact ? 27 : 12;
     const barGapBefore = compact ? 0 : 6;
     const barTitleSize = compact ? 21 : 24;
     const qtySize = compact ? 18 : 30;
     const qtyYOffset = compact ? 18 : 30;
-    const afterBarGap = compact ? 13 : 8;
+    const afterBarGap = compact ? 10 : 8;
     const emptyMsgSize = 16;
     const PAGE_H_SVG = 1583.989;
 
@@ -2353,7 +2477,13 @@
     let y = topPad;
     const parts = [];
     const measureColorMap = buildMeasureColorMap(result);
-    const compactTextCtx = compact ? document.createElement('canvas').getContext('2d') : null;
+    // Los colores del PDF/PNG se aclaran sin modificar los colores interactivos de pantalla.
+    if(compact) measureColorMap.forEach((color, key) => {
+      const hex = /^#([0-9a-f]{6})$/i.exec(color);
+      if(!hex) return;
+      const rgb = [0, 2, 4].map(i => parseInt(hex[1].slice(i, i + 2), 16));
+      measureColorMap.set(key, '#' + rgb.map(v => Math.round(v * .56 + 255 * .44).toString(16).padStart(2, '0')).join(''));
+    });
 
     parts.push('<text x="' + (width / 2) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + projectTitleSize + '" font-weight="700" text-anchor="middle" fill="#000000">' + escapeHtml(project.name) + '</text>');
     y += compact ? 34 : 20;
@@ -2368,15 +2498,16 @@
         const printSketchInner = sketchInner
           .replace(/class="waste-fill"/g, 'class="waste-fill"')
           .replace(/fill="#9a9a9a"/g, 'fill="#F2F2F2"')
-          .replace(/(text-anchor="middle" font-size="(?:18|30)" font-family="Arial, sans-serif" )fill="#ffffff"/g, '$1fill="#2f241f"');
-        return { bar, idx, sketchPack, sketchInner: printSketchInner, blockHeight: barGapBefore + (compact ? 24 : 30) + sketchPack.height + afterBarGap };
+          .replace(/(text-anchor="middle" font-size="(?:26|30)" font-family="Arial, sans-serif" font-weight="(?:700|400)" )fill="#ffffff"/g, '$1fill="#171717"')
+          .replace(/(class="cut-text"[^>]*?)fill="#3e342e"/g, '$1fill="#171717" font-weight="700" font-style="normal"');
+        return { bar, idx, sketchPack, sketchInner: printSketchInner, blockHeight: barGapBefore + (compact ? 12 : 30) + sketchPack.height + afterBarGap };
       });
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
       const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;
       y = ensureBlockFits(y, materialBlockHeight);
 
       y += materialGapBefore;
-      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="#2f241f">' + escapeHtml(mat.name) + '</text>');
+      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#075ea8' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
       y += materialGapAfter;
 
       if(!mat.bars.length){
@@ -2393,28 +2524,19 @@
 
         const headY = y;
         const metricsY = headY + (compact ? 0 : 20);
-        const sketchY = metricsY + (compact ? 24 : 10);
+        const sketchY = metricsY + (compact ? 12 : 10);
         const qtyY = sketchY + qtyYOffset;
         const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
         if(compact){
-          const barLabel = 'Barra ' + (idx + 1) + ' de ' + mat.bars.length;
-          if(compactTextCtx) compactTextCtx.font = '700 ' + barTitleSize + 'px Arial';
-          const textWidth = (value) => compactTextCtx ? compactTextCtx.measureText(value).width : value.length * barTitleSize * 0.65;
-          const qtyBoxWidth = Math.ceil(textWidth('1x')) + 24;
-          const barLabelWidth = Math.ceil(textWidth(barLabel)) + 24;
-          const barLabelX = pagePadX + qtyBoxWidth + 10;
-          const metricsX = barLabelX + barLabelWidth + 10;
-          parts.push('<g transform="translate(' + pagePadX + ',' + metricsY + ')"><rect x="0" y="-19" rx="7" ry="7" width="' + qtyBoxWidth + '" height="30" fill="#ffffff" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="2" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" fill="#3c312b">1x</text></g>');
-          parts.push('<g transform="translate(' + barLabelX + ',' + metricsY + ')"><rect x="0" y="-19" rx="7" ry="7" width="' + barLabelWidth + '" height="30" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="2" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" fill="#3c312b">' + barLabel + '</text></g>');
-          parts.push('<g transform="translate(' + metricsX + ',' + metricsY + ')"><rect x="0" y="-18" rx="8" ry="8" width="174" height="28" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="2" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
-          parts.push('<g transform="translate(' + (metricsX + 186) + ',' + metricsY + ')"><rect x="0" y="-18" rx="8" ry="8" width="180" height="28" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="2" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
+          const barInfo = (bar.multiplicity || 1) + 'x · ' + physicalBarLabel(mat.bars, idx) + ' · ' + formatLength(bar.length) + ' ' + currentUnit() + ' · Sobra ' + formatLength(wasteValue) + ' ' + currentUnit();
+          parts.push('<text x="' + pagePadX + '" y="' + metricsY + '" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">' + escapeHtml(barInfo) + '</text>');
         } else {
-          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">Barra ' + (idx + 1) + '</text>');
+          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">' + physicalBarLabel(mat.bars, idx) + '</text>');
           parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
           parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
         }
-        if(!compact) parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">1x</text>');
+        if(!compact) parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">' + (bar.multiplicity || 1) + 'x</text>');
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
         y = sketchY + sketchPack.height + afterBarGap;
@@ -2427,7 +2549,7 @@
     const exportStyle = '<style>' +
       '.cut-fill{stroke:none;}' +
       '.waste-fill{fill:#F2F2F2;stroke:none;}' +
-      '.cut-text{fill:#2f241f;font-family:Arial,sans-serif;}' +
+      '.cut-text{fill:#171717;font-weight:700;font-style:normal;letter-spacing:0;font-family:Arial,sans-serif;}' +
       '.bar-outline{fill:none;stroke:#433630;stroke-width:2.2;}' +
       '.cut-line{stroke:#433630;stroke-width:2.2;}' +
       '</style>';
@@ -2540,6 +2662,19 @@
       else updateColorCutsToggle();
       return;
     }
+    if(t.id === 'junquilloModeBtn'){
+      const project = currentProject(); if(!project) return;
+      project.junquilloMode = project.junquilloMode === 'normal' ? 'pares' : 'normal';
+      saveProjects(); renderResults(); return;
+    }
+    if(t.id === 'markAllWasteBtn'){
+      const project=currentProject(); if(!project)return;
+      if(!project.wasteSelections)project.wasteSelections={};
+      const boxes=[...document.querySelectorAll('#diagramPanel input[data-waste-key]:not(:disabled)')];
+      const markAll=boxes.some(el=>!el.checked);
+      boxes.forEach(el=>{project.wasteSelections[el.dataset.wasteKey]=markAll?'yes':'no';});
+      saveProjects(); renderResults(); return;
+    }
 
     if(t.dataset.screen){ showScreen(t.dataset.screen); return; }
     if(t.dataset.resultTab){ switchResultTab(t.dataset.resultTab); return; }
@@ -2564,6 +2699,14 @@
 
   document.addEventListener('input', function(e){
     const el = e.target;
+    const project = currentProject();
+    if(project && el.dataset.materialPrice){
+      const mat=project.materials.find(m=>m.id===el.dataset.materialPrice);
+      if(mat){ mat.pricePerMeter=Math.max(0, Number(el.value)||0); saveProjects();
+        // El resumen se actualiza al terminar de introducir el precio.
+      }
+      return;
+    }
     if(el.dataset.editPiece){
       const [m,eid,field] = el.dataset.editPiece.split(':');
       updateEntry(m,eid,field,el.value,'piece');
@@ -2575,6 +2718,18 @@
       return;
     }
   }, { passive:true });
+
+  document.addEventListener('change', function(e){
+    const el=e.target, project=currentProject(); if(!project)return;
+    if(el.id === 'wasteLimitInput'){
+      project.wasteLimitMm=Math.max(0, Number(el.value)||0);
+      saveProjects(); renderResults();
+    }else if(el.dataset.wasteKey){
+      if(!project.wasteSelections)project.wasteSelections={};
+      project.wasteSelections[el.dataset.wasteKey]=el.checked?'yes':'no';
+      saveProjects(); renderResults();
+    }else if(el.dataset.materialPrice){ renderResults(); }
+  });
 
   $('saveSettingsBtn').addEventListener('click', function(){
     state.settings.unit = $('unitSelect').value === 'cm' ? 'cm' : 'mm';
@@ -2618,6 +2773,7 @@
       const materials = (Array.isArray(external.materials) ? external.materials : []).map((mat, idx) => ({
         id: uid(),
         name: String(mat.name || ('Barra ' + (idx + 1))),
+        pricePerMeter: Math.max(0, Number(mat.pricePerMeter) || 0),
         profileFace: Number(mat.profileFace) > 0 ? Number(mat.profileFace) : 40,
         pieces: (Array.isArray(mat.pieces) ? mat.pieces : []).map((p, pidx) => ({
           id: uid(),
@@ -2640,6 +2796,9 @@
       const project = {
         id: uid(),
         name: String(external.name || 'Ventana CE'),
+        documentId: String(external.documentId || ''),
+        sourceKey: String(external.sourceKey || ''),
+        wasteLimitMm: 1000,
         createdAt: new Date().toISOString(),
         cutProgress: {},
         materials: materials
@@ -2660,9 +2819,11 @@
       updateColorCutsToggle();
       updateTopbar();
       showScreen('resultsScreen');
+      return true;
     }catch(err){
       console.error(err);
-      alert('Error al cargar datos externos en Cut Máster.');
+      setExportStatus('No se pudo cargar el despiece recibido: ' + (err && err.message ? err.message : err));
+      return false;
     }
   }
 
@@ -2680,7 +2841,7 @@
     try{
       const raw = JSON.parse(payload);
       const project = raw && raw.project ? raw.project : raw;
-      importExternalProjectFromHost(project || {});
+      if(!importExternalProjectFromHost(project || {})) return false;
       try{ sessionStorage.removeItem('CUT_MASTER_EXTERNAL_PROJECT'); }catch(e){}
       try{ localStorage.removeItem('CUT_MASTER_EXTERNAL_PROJECT'); }catch(e){}
       try{ if(typeof window.name === 'string' && window.name.indexOf('CUT_MASTER_EXTERNAL_PROJECT::') === 0) window.name = ''; }catch(e){}
@@ -2716,6 +2877,14 @@
     btn.style.boxShadow = '0 6px 18px rgba(0,0,0,.18)';
     btn.style.touchAction = 'manipulation';
     btn.addEventListener('click', function(){
+      const project=currentProject();
+      if(project && project.documentId){
+        renderResults();
+        if(project.wasteMissingPrices){setExportStatus('Falta el precio de algún perfil marcado. Completa los precios antes de volver a Documentos.');return;}
+        const payload={documentId:project.documentId,projectId:project.id,sourceKey:project.sourceKey||project.id,
+          cost:Number(project.wasteCalculatedCost)||0,fecha:Date.now()};
+        try{const raw=JSON.stringify(payload);sessionStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);localStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);}catch(e){setExportStatus('No se pudo guardar el desperdicio para Documentos.');return;}
+      }
       let returnUrl = volverMotor ? 'motor_series.html?from=pasamanos&cut_return=1' : (volverPasamanos ? 'pasamanos.html' : 'ventana.html');
       try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
       try{

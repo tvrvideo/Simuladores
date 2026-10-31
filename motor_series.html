@@ -61,7 +61,7 @@
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10.8</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -648,7 +648,7 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.10";
+    const APP_VERSION = "v1.10.8";
 
     // El HTML contiene solo el motor. Los datos se importan desde el JSON y se conservan localmente.
     let db = {coloresDisponibles:[],almacenBarras:[],almacenVidrios:[],almacenAccesorios:[],series:[],accesoriosPasamanos:[]};;
@@ -1230,7 +1230,7 @@ document.addEventListener('input',function(e){
   if(e.target&&(e.target.id==='inpGananciaPct'||e.target.id==='inpGananciaFija'))guardarYCalcularGanancia();
 });
 
-function calcular() {
+function calcular(opciones) {
       const serieId = document.getElementById('selSerie').value;
       const serieActual=db.series.find(s=>s.id===serieId);
       if(esSeriePasamanos(serieActual)){
@@ -1277,7 +1277,7 @@ function calcular() {
       const serie = db.series.find(s => s.id === serieId);
       const reglasOriginales = (serie && serie.reglas && serie.reglas[hojasInicioSeleccionadas]) ? serie.reglas[hojasInicioSeleccionadas] : { cortes: [], vidrios: [], accesorios: [] };
       actualizarPosicionZanca800();
-      const reglas = aplicarAngulosPuerta800(serie, aplicarComponentesPuerta800(serie,reglasConMarco800(serie, reglasOriginales)));
+      const reglas = aplicarAngulosVentana600(serie, aplicarAngulosPuerta800(serie, aplicarComponentesPuerta800(serie,reglasConMarco800(serie, reglasOriginales))));
 
       contextoMedidasMotor = crearContextoMedidasMotor(reglas,ancho,alto);
       let total = 0;
@@ -1294,6 +1294,10 @@ function calcular() {
       const cortesAgrupados = new Map();
       (reglas.cortes || []).forEach(c => {
         const perf = db.almacenBarras.find(b => b.id === c.perfilId) || { nombre: 'Desconocido', precios: {} };
+        // Los perfiles que van solo en el módulo inferior se indican en el JSON
+        // de la serie. Una ventana aislada sigue utilizando todas sus reglas.
+        if(opciones && Array.isArray(opciones.perfilesExcluidos)
+          && opciones.perfilesExcluidos.includes(c.perfilId)) return;
         const precioMetro = precioPerfilPorColor(perf,colorSel);
         
         const resCorte = evaluarFormula(c.formula, ancho, alto, contextoMedidasMotor);
@@ -2370,6 +2374,16 @@ function calcular() {
       if(inferior&&v.inferior!==sup.formula){sup.cantidad=1;r.cortes.splice(1,0,{perfilId:marcoId,cantidad:1,base:'ANCHO',formula:v.inferior});}
       return r;
     }
+    // Los marcos y las hojas 600 se ingletan a ambos lados, también al
+    // recalcular presupuestos creados con reglas antiguas sin tipo de corte.
+    function aplicarAngulosVentana600(serie, reglas){
+      if(String(serie && serie.nombre || '').trim().toLowerCase()!=='ventana 600')return reglas;
+      const copia={...reglas,cortes:(reglas.cortes||[]).map(c=>({...c}))};
+      copia.cortes.forEach(c=>{
+        if(['b1786195094886','b1786195238854'].includes(c.perfilId))c.tipoCorte='45-45';
+      });
+      return copia;
+    }
     // v1.9.5.3: ángulos reales de fabricación enviados a Cut Máster.
     // Se aplican sobre una copia de las reglas, sin alterar las guardadas por el usuario.
     function aplicarAngulosPuerta800(serie, reglas){
@@ -2751,6 +2765,88 @@ function calcular() {
     const MOTOR_WINDOW_IN_KEY = 'REY_MOTOR_WINDOW_IN_V1';
     const MOTOR_WINDOW_OUT_KEY = 'REY_MOTOR_WINDOW_OUT_V1';
     const MOTOR_RETURN_KEY = 'REY_MOTOR_RETURN_URL_V1';
+    let modulosVentanaRecibidos = null;
+    function calcularConjuntoVentana(){
+      if(!Array.isArray(modulosVentanaRecibidos)||modulosVentanaRecibidos.length<2){calcular();return true;}
+      const original={ancho:document.getElementById('inpAncho').value,alto:document.getElementById('inpAlto').value,hojas:hojasInicioSeleccionadas,
+        vidrio:document.getElementById('btnPulsadorVidrio').classList.contains('active'),
+        chapa:document.getElementById('btnPulsadorChapa').classList.contains('active')};
+      const serie=db.series.find(s=>s.id===document.getElementById('selSerie').value);
+      const resultados=[],errores=[];
+      try{
+        modulosVentanaRecibidos.forEach(function(m, indiceModulo){
+          const tipo=document.querySelector('[data-relleno-modulo="'+m.id+'"]');
+          const relleno=tipo?tipo.value:m.relleno;
+          if(m.irregular||Number(m.travesanos)>0){errores.push(m.nombre+': requiere configuración individual de travesaños o forma');return;}
+          if(!(Number(m.ancho)>0&&Number(m.alto)>0) || !serie || !serie.reglas || !serie.reglas[m.hojas] || !serie.reglas[m.hojas].cortes.length){
+            errores.push(m.nombre+': faltan medidas o reglas para '+m.hojas+' hojas');return;
+          }
+          document.getElementById('inpAncho').value=m.ancho;
+          document.getElementById('inpAlto').value=m.alto;
+          hojasInicioSeleccionadas=Number(m.hojas)||0;
+          setToggleMotor('btnPulsadorVidrio',relleno==='vidrio');
+          setToggleMotor('btnPulsadorChapa',relleno==='chapa');
+          const soloInferior=serie && serie.reglasConjunto && Array.isArray(serie.reglasConjunto.perfilesSoloModuloInferior)
+            ? serie.reglasConjunto.perfilesSoloModuloInferior : [];
+          calcular({perfilesExcluidos: indiceModulo < modulosVentanaRecibidos.length - 1 ? soloInferior : []});
+          const r=window.__reyMotorLastResult;
+          if(!r||!r.despiece||!r.despiece.barras.length||!Array.isArray(r.despiece.vidrios)||!r.despiece.vidrios.length){
+            errores.push(m.nombre+': faltan perfiles o relleno configurado en Motor');return;
+          }
+          resultados.push({m:m,r:JSON.parse(JSON.stringify(r)),tablas:{
+            barras:document.querySelector('#tblDespiecePerfiles tbody').innerHTML,
+            vidrios:document.querySelector('#tblDespieceVidrios tbody').innerHTML,
+            accesorios:document.querySelector('#tblDespieceAccesorios tbody').innerHTML
+          }});
+        });
+      }finally{
+        document.getElementById('inpAncho').value=original.ancho;
+        document.getElementById('inpAlto').value=original.alto;
+        hojasInicioSeleccionadas=original.hojas;
+        setToggleMotor('btnPulsadorVidrio',original.vidrio);
+        setToggleMotor('btnPulsadorChapa',original.chapa);
+        calcular();
+      }
+      let aviso=document.getElementById('avisoModulosMotor');
+      if(!aviso){aviso=document.createElement('div');aviso.id='avisoModulosMotor';aviso.style.cssText='padding:9px;margin:8px 0;background:#fff3c5;border:2px solid #b88219;border-radius:8px;font-weight:bold';document.getElementById('totalPrecioMain').insertAdjacentElement('afterend',aviso);}
+      if(errores.length){aviso.textContent='Conjunto sin despiece completo: '+errores.join('; ');window.__reyMotorLastResult=null;return false;}
+      const coste=resultados.reduce((s,x)=>s+Number(x.r.coste||0),0);
+      const ganancia=configGanancia.activa?(configGanancia.modo==='fijo'?Math.max(0,Number(configGanancia.fijo)||0):coste*Math.max(0,Number(configGanancia.porcentaje)||0)/100):0;
+      const barras=[],vidrios=[],accesorios=[];
+      resultados.forEach(({m,r})=>{
+        r.despiece.barras.forEach(p=>barras.push({...p,modulo:m.nombre}));
+        r.despiece.vidrios.forEach(p=>vidrios.push({...p,modulo:m.nombre}));
+        r.despiece.accesorios.forEach(p=>accesorios.push({...p,modulo:m.nombre}));
+      });
+      window.__reyMotorLastResult={coste,ganancia,venta:coste+ganancia,despiece:{serie:serie.nombre,acabado:document.getElementById('selColor').value,modulos:resultados.map(x=>x.m),barras,vidrios,accesorios},referenciasSinPrecio:[...new Set(resultados.flatMap(x=>x.r.referenciasSinPrecio||[]))]};
+      [['barras','#tblDespiecePerfiles'],['vidrios','#tblDespieceVidrios'],['accesorios','#tblDespieceAccesorios']].forEach(function(par){
+        const table=document.querySelector(par[1]),body=table&&table.querySelector('tbody');
+        if(!body)return;
+        body.innerHTML='';
+        resultados.forEach(function(x){
+          const frag=document.createElement('tbody');
+          frag.innerHTML=x.tablas[par[0]];
+          if(!frag.rows.length)return;
+          const title=document.createElement('tr'),cell=document.createElement('td');
+          cell.colSpan=(table.querySelectorAll('thead th').length||frag.rows[0].cells.length);
+          cell.textContent=x.m.nombre+' · '+x.m.ancho+' × '+x.m.alto+' mm';
+          cell.style.cssText='background:#c9e9d3;color:#17442b;font-weight:800;padding:7px';
+          title.appendChild(cell);body.appendChild(title);
+          while(frag.firstChild)body.appendChild(frag.firstChild);
+        });
+      });
+      document.getElementById('totalPrecioMain').innerText=(coste+ganancia).toFixed(2)+' €';
+      aviso.textContent='Conjunto: '+resultados.map(x=>x.m.nombre+' '+x.m.ancho+'×'+x.m.alto).join(' · ');
+      return true;
+    }
+    document.addEventListener('change',function(e){
+      if(e.target&&e.target.matches('[data-relleno-modulo]'))calcularConjuntoVentana();
+    });
+    document.addEventListener('click',function(e){
+      if(e.target&&e.target.closest&&e.target.closest('button[onclick*="despiece"]')){
+        setTimeout(function(){if(modulosVentanaRecibidos)calcularConjuntoVentana();},0);
+      }
+    });
 
     function normalizarTextoMotor(v){
       return String(v == null ? '' : v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
@@ -2783,6 +2879,8 @@ function calcular() {
     }
 
     const MOTOR_FROM_DOCUMENTOS_KEY='REY_MOTOR_FROM_DOCUMENTOS_V1';
+    let resultadoRestauradoCut=false;
+    ['input','change'].forEach(tipo=>document.addEventListener(tipo,function(e){if(e.isTrusted)resultadoRestauradoCut=false;},true));
     const MOTOR_DESIGN_IMG_KEY='REY_MOTOR_DESIGN_IMG_V1';
     const DESIGN_RETURN_IMG_KEY='presupuesto_visual_design_return_img_v1';
     const DESIGN_RETURN_INDEX_KEY='presupuesto_visual_design_target_index_v1';
@@ -2801,8 +2899,8 @@ function calcular() {
         const len=Number(c.longitud)||0,qty=Math.max(0,Number(c.cantidad)||0); if(!(len>0&&qty>0))return;
         const refUtil=(c.referencia && !/^b\d{8,}$/i.test(String(c.referencia)))?String(c.referencia):'';
         const key=String(refUtil||c.nombre||'Perfil')+'|'+String(c.acabado||dp.acabado||'');
-        if(!mats[key])mats[key]={name:(refUtil?refUtil+' · ':'')+(c.nombre||'Perfil')+(c.acabado?' · '+c.acabado:''),profileFace:Number(c.profileFace)||40,pieces:[],stock:[{label:'Barra',length:Number(c.largoBarra)||6500,qty:999}]};
-        mats[key].pieces.push({label:(prefijo?prefijo+' · ':'')+(c.nombre||'Pieza'),length:len,qty:qty,cutType:String(c.corte||'recto')});
+        if(!mats[key])mats[key]={name:(refUtil?refUtil+' · ':'')+(c.nombre||'Perfil')+(c.acabado?' · '+c.acabado:''),profileFace:Number(c.profileFace)||40,pricePerMeter:Number(c.precioUnidad)||0,pieces:[],stock:[{label:'Barra',length:Number(c.largoBarra)||6500,qty:999}]};
+        mats[key].pieces.push({label:(prefijo?prefijo+' · ':'')+(c.modulo?c.modulo+' · ':'')+(c.nombre||'Pieza'),length:len,qty:qty,cutType:String(c.corte||'recto')});
       });
       return {name:'Motor · '+String(dp.serie||'Ventana'),settings:{unit:'mm',kerfMm:0,colorCuts:true},materials:Object.keys(mats).map(k=>mats[k]),resultTab:'diagram'};
     }
@@ -2815,7 +2913,7 @@ function calcular() {
       const raw=JSON.stringify(map); localStorage.setItem('REY_CUTMASTER_POR_V_V1',raw); try{sessionStorage.setItem('REY_CUTMASTER_POR_V_V1',raw);}catch(_){}
     }
     function volverADocumentosDesdeMotor(){
-      try{ calcular(); }catch(e){}
+      if(!resultadoRestauradoCut && !calcularConjuntoVentana())return;
       let idx=null,img='';
       try{
         idx=sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY); if(idx===null)idx=localStorage.getItem(DESIGN_RETURN_INDEX_KEY);
@@ -2866,17 +2964,38 @@ function calcular() {
         }
         project={name:'Pasamanos · Despiece desde Motor',settings:{unit:'mm',kerfMm:4,colorCuts:true},materials:[...grupos.values()],resultTab:'diagram'};
       }else{
-        try{calcular();}catch(e){}
+        if(!calcularConjuntoVentana())return;
         const dp=(window.__reyMotorLastResult&&window.__reyMotorLastResult.despiece)||{};
         project=construirProyectoCutMasterMotor(dp,'');
+        try{
+          const desdeDocs=(sessionStorage.getItem(MOTOR_FROM_DOCUMENTOS_KEY)||localStorage.getItem(MOTOR_FROM_DOCUMENTOS_KEY))==='1';
+          const rawCtx=sessionStorage.getItem('REY_BUDGET_CUT_CONTEXT_V1')||localStorage.getItem('REY_BUDGET_CUT_CONTEXT_V1');
+          const ctx=rawCtx?JSON.parse(rawCtx):null;
+          let idx=sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+          if(idx===null)idx=localStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+          if(desdeDocs && ctx && ctx.documentId && idx!==null && Number(ctx.index)===Number(idx)){
+            project.documentId=String(ctx.documentId);
+            project.sourceKey=String(ctx.sourceKey||('V'+(Number(idx)+1)));
+          }
+        }catch(e){console.error('Contexto presupuesto Cut Máster',e);}
       }
       if(!project.materials.length){alert('No hay barras calculadas en el despiece.');return;}
       const raw=JSON.stringify({project:project});
       try{
         sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
         localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);
-        sessionStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':''));
-        localStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':''));
+        if(!desdePasamanos){
+          const w=obtenerVentanaActual();
+          if(modulosVentanaRecibidos)w.modulos=modulosVentanaRecibidos.map(function(m){
+            const sel=document.querySelector('[data-relleno-modulo="'+m.id+'"]');
+            return {...m,relleno:sel?sel.value:m.relleno};
+          });
+          const snapshot={ventana:w,resultado:window.__reyMotorLastResult,
+            tablas:['tblDespiecePerfiles','tblDespieceVidrios','tblDespieceAccesorios'].map(id=>document.querySelector('#'+id+' tbody')?.innerHTML||'')};
+          sessionStorage.setItem('REY_MOTOR_CUT_RETURN_SNAPSHOT_V1',JSON.stringify(snapshot));
+        }
+        sessionStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':'?cut_return=1'));
+        localStorage.setItem('CUT_MASTER_RETURN_URL','motor_series.html'+(desdePasamanos?'?from=pasamanos&cut_return=1':'?cut_return=1'));
       }catch(e){alert('No se pudo preparar el despiece: '+e.message);return;}
       window.location.href='optimizar_barra.html?from=motor&t='+Date.now();
     }
@@ -2890,6 +3009,7 @@ function calcular() {
       let url='ventana.html';
       try{url=sessionStorage.getItem(MOTOR_RETURN_KEY)||localStorage.getItem(MOTOR_RETURN_KEY)||url;}catch(e){}
       try{
+        if(!calcularConjuntoVentana())return;
         const out=obtenerVentanaActual(), rr=window.__reyMotorLastResult||{};
         out.resultadoMotor={coste:Number(rr.coste)||0,ganancia:Number(rr.ganancia)||0,venta:Number(rr.venta)||0,despiece:rr.despiece||null};
         const raw=JSON.stringify(out);sessionStorage.setItem(MOTOR_WINDOW_OUT_KEY,raw);localStorage.setItem(MOTOR_WINDOW_OUT_KEY,raw);
@@ -2906,6 +3026,13 @@ function calcular() {
 
     function aplicarVentanaExterna(w){
       if(!w || (w.schema && w.schema!=='rey-window-v1')) return false;
+      modulosVentanaRecibidos=Array.isArray(w.modulos)&&w.modulos.length>1?w.modulos:null;
+      const old=document.getElementById('modulosMotorRecibidos');if(old)old.remove();
+      if(modulosVentanaRecibidos){
+        const panel=document.createElement('div');panel.id='modulosMotorRecibidos';panel.className='selector-especifico';
+        panel.innerHTML='<b>Módulos del conjunto</b>'+modulosVentanaRecibidos.map(m=>'<label style="display:flex;align-items:center;gap:8px">'+m.nombre+' · '+m.ancho+'×'+m.alto+' · '+m.hojas+' hojas <select data-relleno-modulo="'+m.id+'" style="width:auto"><option value="vidrio" '+(m.relleno==='vidrio'?'selected':'')+'>Vidrio</option><option value="chapa" '+(m.relleno==='chapa'?'selected':'')+'>Chapa</option></select></label>').join('')+'<small>Selecciona el relleno de cada módulo antes de volver o enviar a Cut Máster.</small>';
+        document.getElementById('inicio').appendChild(panel);
+      }
       const medidas=w.medidas||{};
       if(Number(medidas.ancho)>0) document.getElementById('inpAncho').value=Number(medidas.ancho);
       if(Number(medidas.alto)>0) document.getElementById('inpAlto').value=Number(medidas.alto);
@@ -2934,12 +3061,33 @@ function calcular() {
         document.getElementById('inpPersianaAncho').value=Number(mp.ancho);
         document.getElementById('inpPersianaAlto').value=Number(mp.alto);
       }
-      actualizarRellenosZonas800();calcular(); return true;
+      actualizarRellenosZonas800();calcularConjuntoVentana(); return true;
     }
 
     function consumirVentanaExterna(){
       actualizarRetornoMotor();
-      let raw=null; try{raw=sessionStorage.getItem(MOTOR_WINDOW_IN_KEY)||localStorage.getItem(MOTOR_WINDOW_IN_KEY);}catch(e){}
+      let raw=null; try{
+        raw=sessionStorage.getItem(MOTOR_WINDOW_IN_KEY)||localStorage.getItem(MOTOR_WINDOW_IN_KEY);
+        if(new URLSearchParams(location.search).get('cut_return')==='1'){
+          const snapRaw=sessionStorage.getItem('REY_MOTOR_CUT_RETURN_SNAPSHOT_V1');
+          if(snapRaw){
+            const snap=JSON.parse(snapRaw);
+            if(snap.ventana){
+              aplicarVentanaExterna(snap.ventana);
+              if(snap.resultado){
+                window.__reyMotorLastResult=snap.resultado;
+                resultadoRestauradoCut=true;
+                document.getElementById('totalPrecioMain').innerText=Number(snap.resultado.venta||0).toFixed(2)+' €';
+                ['tblDespiecePerfiles','tblDespieceVidrios','tblDespieceAccesorios'].forEach((id,i)=>{
+                  const tbody=document.querySelector('#'+id+' tbody');if(tbody&&snap.tablas)tbody.innerHTML=snap.tablas[i]||'';
+                });
+              }
+              sessionStorage.removeItem('REY_MOTOR_CUT_RETURN_SNAPSHOT_V1');
+              return;
+            }
+          }
+        }
+      }catch(e){}
       if(!raw) return;
       try{ const w=JSON.parse(raw); aplicarVentanaExterna(w); }catch(e){ console.error(e); }
       try{sessionStorage.removeItem(MOTOR_WINDOW_IN_KEY);localStorage.removeItem(MOTOR_WINDOW_IN_KEY);}catch(e){}

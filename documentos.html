@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.81</title>
+  <title>Documentos Rey v4.8.90</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4467,7 +4467,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.81</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.90</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4501,7 +4501,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.81</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.90</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4894,6 +4894,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
   const PRESUPUESTO_VISUAL_BRIDGE_KEY = 'rey_presupuesto_visual_bridge_v1';
   const DESIGN_RETURN_IMG_KEY = 'presupuesto_visual_design_return_img_v1';
   const DESIGN_RETURN_INDEX_KEY = 'presupuesto_visual_design_target_index_v1';
+  const DESIGN_OPEN_STATE_KEY = 'REY_VENTANA_DESIGN_OPEN_V1';
+  const DESIGN_RETURN_STATE_KEY = 'REY_VENTANA_DESIGN_RETURN_V1';
   let designReturnAppliedThisLaunch = false;
   const DESIGN_APP_URL = 'ventana.html'; // v2.86.04: Ventana Pro conectada con retorno de imagen
   const MODULES_APP_URL = 'modulos.html'; // v3.2: Módulos conectado con retorno de imagen
@@ -5778,7 +5780,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.81', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.90', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5821,7 +5823,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.81',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.90',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6481,7 +6483,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const content = document.getElementById('sheetContent');
     if(content) negativePriceObserver.observe(content,{childList:true,subtree:true});
   });
-  // v4.8.81: Delegación táctil compatible con Safari/WKWebView en iPhone.
+  // v4.8.90: Delegación táctil compatible con Safari/WKWebView en iPhone.
   // Los handlers inline no accedían a la función encerrada en este módulo.
   document.addEventListener('click', function(ev){
     const btn = ev.target.closest && ev.target.closest('[data-negative-price]');
@@ -8396,7 +8398,7 @@ COLOCACIÓN INCLUIDA` }
     return desc || ref || prov || 'Producto externo';
   }
 
-  // v4.8.81: normalizar solo imágenes de Pasamanos al recibirlas.
+  // v4.8.90: normalizar solo imágenes de Pasamanos al recibirlas.
   // La celda GRÁFICO utiliza "meet" (no recorta); si el PNG trae mucho
   // fondo blanco, se ve pequeño o descentrado. Se quita ese fondo manteniendo
   // un margen uniforme antes de guardar el concepto.
@@ -8594,6 +8596,9 @@ COLOCACIÓN INCLUIDA` }
     }
     return doc;
   }
+  // Puente explícito para el panel de Fabricación, que vive en otro script.
+  window.__reyFabricacionContext = function(){ return state; };
+  window.__reyFabricacionGuardar = function(){ return persistCurrent(); };
 
   let savedListCache = null;
   document.addEventListener('visibilitychange', function(){
@@ -10946,7 +10951,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.81',
+      app:'Documentos Rey', version:'v4.8.90',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11082,7 +11087,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.81',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.90',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -11853,12 +11858,29 @@ COLOCACIÓN INCLUIDA` }
     const safeIndex = Number(index);
     if(!Number.isFinite(safeIndex) || !state.items[safeIndex]) return;
 
+    ensureStableDocumentId(state);
     try{ await persistCurrent(); }catch(_){}
+    const budgetContext=JSON.stringify({documentId:state.documentId,index:safeIndex,sourceKey:'V'+(safeIndex+1)});
+    try{sessionStorage.setItem('REY_BUDGET_CUT_CONTEXT_V1',budgetContext);}catch(_){}
+    try{localStorage.setItem('REY_BUDGET_CUT_CONTEXT_V1',budgetContext);}catch(_){}
 
     // v2.86.04: guardamos el concepto destino por duplicado.
     // sessionStorage funciona en local; localStorage ayuda si Safari/iPhone recrea el iframe.
     try{ sessionStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
     try{ localStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
+
+    // Cada concepto recupera su propio diseño, incluidos fijos y opciones de hoja.
+    try{
+      const design = state.items[safeIndex].ventanaProDesign;
+      if(design && design.version === 1){
+        const payload = JSON.stringify({index:safeIndex, design:design});
+        sessionStorage.setItem(DESIGN_OPEN_STATE_KEY, payload);
+        localStorage.setItem(DESIGN_OPEN_STATE_KEY, payload);
+      }else{
+        sessionStorage.removeItem(DESIGN_OPEN_STATE_KEY);
+        localStorage.removeItem(DESIGN_OPEN_STATE_KEY);
+      }
+    }catch(_){}
 
     const targetUrl = DESIGN_APP_URL + '?from_budget=1';
 
@@ -11992,6 +12014,17 @@ COLOCACIÓN INCLUIDA` }
     try{
       if(Number.isFinite(idx) && state.items[idx]){
         state.items[idx].image = String(img);
+        try{
+          const rawState = sessionStorage.getItem(DESIGN_RETURN_STATE_KEY) ||
+            localStorage.getItem(DESIGN_RETURN_STATE_KEY) || '';
+          const payload = rawState ? JSON.parse(rawState) : null;
+          if(payload && Number(payload.index) === idx && payload.design &&
+            payload.design.version === 1){
+            state.items[idx].ventanaProDesign = payload.design;
+            sessionStorage.removeItem(DESIGN_RETURN_STATE_KEY);
+            localStorage.removeItem(DESIGN_RETURN_STATE_KEY);
+          }
+        }catch(_){}
         try{
           let _pvcRaw = '';
           try{ _pvcRaw = sessionStorage.getItem('PVC_AUTODATA_V1') || ''; }catch(_){}
@@ -12221,6 +12254,42 @@ COLOCACIÓN INCLUIDA` }
     return true;
   }
   window.applyMotorDespieceReturnV1=applyMotorDespieceReturnV1;
+
+  async function applyCutWasteReturnV1(){
+    let pack=null;
+    try{const raw=sessionStorage.getItem('REY_CUTMASTER_WASTE_RETURN_V1')||localStorage.getItem('REY_CUTMASTER_WASTE_RETURN_V1');if(raw)pack=JSON.parse(raw);}catch(_){}
+    if(!pack || !pack.documentId || !pack.projectId || !state || String(state.documentId||'')!==String(pack.documentId))return false;
+    if(!Array.isArray(state.items))state.items=[];
+    const cost=Number(pack.cost);
+    if(!Number.isFinite(cost)||cost<0)return false;
+    const source=pack.sourceKey||pack.projectId;
+    const match=String(source).match(/^V(\d+)$/i);
+    const sourceIndex=match?Number(match[1])-1:-1;
+    let it=state.items.find((x,i)=>x&&x.cutWasteSourceKey===source&&i!==sourceIndex);
+    // Reparar presupuestos afectados por la versión anterior: el desperdicio
+    // ocupó el concepto de la propia ventana antes de regresar el precio Motor.
+    if(sourceIndex>=0 && state.items[sourceIndex] && state.items[sourceIndex].cutWasteSourceKey===source){
+      const original=state.items[sourceIndex];
+      if(String(original.text||'').trim()==='Desperdicio de perfiles')original.text='';
+      delete original.cutWasteSourceKey;delete original.cutWasteProjectId;
+    }
+    if(!it && cost>0){
+      const emptyIndex=state.items.findIndex((x,i)=>i!==sourceIndex && i>sourceIndex && x && !conceptHasContent(x) && !x.ventanaProDesign && !x.configuracionVentana && !x.despieceFabricacion);
+      if(emptyIndex>=0){it=blankConcept(state.items[emptyIndex].code||conceptCodeForIndex(emptyIndex));state.items[emptyIndex]=it;}
+      else{it=blankConcept(conceptCodeForIndex(state.items.length));state.items.push(it);}
+    }
+    if(it){
+      it.text='Desperdicio de perfiles';it.units='1';it.price=cost.toFixed(2);
+      it.basePrice=cost;it.costPrice=cost;it.gain='';it.gainAmount=0;it.margin='';
+      it.cutWasteProjectId=pack.projectId;
+      it.cutWasteSourceKey=source;
+    }
+    await persistCurrent();render();
+    try{sessionStorage.removeItem('REY_CUTMASTER_WASTE_RETURN_V1');localStorage.removeItem('REY_CUTMASTER_WASTE_RETURN_V1');}catch(_){}
+    toast('Desperdicio incorporado al presupuesto: '+cost.toFixed(2)+' €');
+    return true;
+  }
+  window.applyCutWasteReturnV1=applyCutWasteReturnV1;
 
   async function applyALU600PriceReturnV1(){
     let payload = null;
@@ -15094,7 +15163,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.81', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.90', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -15717,6 +15786,7 @@ $('btnExport').addEventListener('click', async function(){
     await applyFacturacionBridge();
     await importarEmpresaDesdeFacturacionSiVacia(); // v2.86.04 tras bridge
     try{ await applyMotorDespieceReturnV1(); }catch(_){ }
+    try{ await applyCutWasteReturnV1(); }catch(_){ }
     await applyReturnedDesignImage();
     let cierreReturnAppliedV462 = false;
     try{ cierreReturnAppliedV462 = await applyCierreReturnV1(); }catch(_){ }
@@ -20186,7 +20256,7 @@ const mo = new MutationObserver(function(){
     <div id="fabricarTestResultado" class="fabricar-test-result"></div>
     <div class="fabricar-test-actions" style="grid-template-columns:1fr 1fr 1fr 1fr">
       <button type="button" class="all" onclick="seleccionarTodosFabricacionTest()">Todos</button>
-      <button type="button" style="background:#0f766e" onclick="enviarFabricacionACutMaster()">Cut Máster</button>
+      <button type="button" data-cut-master-fabricacion="1" style="background:#0f766e">Cut Máster</button>
       <button type="button" style="background:#7c3aed" onclick="return window.mostrarMaterialesDirecto();">Materiales</button>
       <button type="button" class="ok" onclick="confirmarFabricacionTest()">Aceptar</button>
     </div>
@@ -20217,6 +20287,9 @@ const mo = new MutationObserver(function(){
 </div>
 <script>
 (function(){
+  var state=null;
+  function fabSyncState(){state=typeof window.__reyFabricacionContext==='function' ? window.__reyFabricacionContext() : null;return state;}
+  function fabNormTxt(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
   var fabricarPorHojaTest = 3;
   var fabricarSeleccionados = [];
   var fabricarCodigos = [];
@@ -20431,6 +20504,14 @@ const mo = new MutationObserver(function(){
   }
   function detectarCodigosV(){
     var found = [];
+    fabSyncState();
+    if(state && Array.isArray(state.items))state.items.forEach(function(it,i){
+      if(it && (fabNormTxt(it.text||it.concepto||it.descripcion) || fabNormTxt(it.image||it.img||it.imagen))){
+        var code=fabNormTxt(it.code||('V'+(i+1))).toUpperCase();
+        if(/^V\d+$/.test(code)&&found.indexOf(code)<0)found.push(code);
+      }
+    });
+    if(found.length)return found.sort(function(a,b){return parseInt(a.slice(1),10)-parseInt(b.slice(1),10);});
     try{
       document.querySelectorAll('svg text, svg tspan').forEach(function(n){
         var t=(n.textContent||'').trim().toUpperCase();
@@ -20469,6 +20550,7 @@ const mo = new MutationObserver(function(){
   };
   window.abrirFabricacionTest = function(ev){
     if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+    fabSyncState();
     pintarBotonFabricarActivo(document.getElementById('btnFabricarPdf'));
     fabricarCodigos = detectarCodigosV();
     fabricarSeleccionados = fabricarCodigos.slice();
@@ -20499,6 +20581,7 @@ const mo = new MutationObserver(function(){
     return generarFabricacionDesdeSeleccion(null);
   };
   function fabFindItemByCode(code){
+    fabSyncState();
     code = String(code || '').toUpperCase();
     try{
       // IMPORTANTE v4.0.14:
@@ -20520,6 +20603,23 @@ const mo = new MutationObserver(function(){
   function fabEntradaMotorDe(code){
     code=String(code||'').toUpperCase();
     try{
+      // El despiece del concepto pertenece al documento actual. El mapa global
+      // V1/V2 puede corresponder a otro presupuesto y no debe sustituirlo.
+      var item=fabFindItemByCode(code), d=item&&item.despieceFabricacion;
+      if(d&&Array.isArray(d.barras)&&d.barras.length){
+        var grupos={};
+        d.barras.forEach(function(c){
+          var len=Number(c.longitud)||0, qty=Number(c.cantidad)||0;
+          if(!(len>0&&qty>0))return;
+          var ref=(c.referencia&&!/^b\d{8,}$/i.test(String(c.referencia)))?String(c.referencia):'';
+          var key=[ref||c.nombre||'Perfil',c.acabado||d.acabado||''].join('|');
+          if(!grupos[key])grupos[key]={name:(ref?ref+' · ':'')+(c.nombre||'Perfil')+(c.acabado?' · '+c.acabado:''),profileFace:Number(c.profileFace)||40,pricePerMeter:Number(c.precioUnidad)||0,pieces:[],stock:[{label:'Barra',length:Number(c.largoBarra)||6500,qty:999}]};
+          grupos[key].pieces.push({label:code+' · '+(c.modulo?c.modulo+' · ':'')+(c.nombre||'Pieza'),length:len,qty:qty,cutType:String(c.corte||'recto')});
+        });
+        var materials=Object.keys(grupos).map(function(k){return grupos[k]});
+        if(materials.length)return {despiece:d,project:{name:'Fabricación · '+code,materials:materials}};
+      }
+      if(item)return null;
       var raw=''; try{raw=sessionStorage.getItem('REY_CUTMASTER_POR_V_V1')||'';}catch(_){}
       if(!raw){try{raw=localStorage.getItem('REY_CUTMASTER_POR_V_V1')||'';}catch(_){}}
       if(!raw)return null;
@@ -20539,23 +20639,31 @@ const mo = new MutationObserver(function(){
     if(falta.length){el.textContent='⚠ Sin despiece Motor: '+falta.join(', ');el.style.color='#b45309';}
     else{el.textContent='✓ Con despiece Motor: '+ok.join(', ');el.style.color='#166534';}
   }
-  window.enviarFabricacionACutMaster=function(){
-    if(!fabricarSeleccionados.length){alert('Selecciona al menos una ventana.');return false;}
+  window.enviarFabricacionACutMaster=async function(){
+    fabSyncState();
+    var estado=document.getElementById('fabricarDespieceEstado');
+    function aviso(mensaje){if(estado){estado.textContent=mensaje;estado.style.color='#991b1b';estado.style.background='#fff1f2';estado.scrollIntoView({block:'nearest'});}else if(typeof toast==='function')toast(mensaje);}
+    if(!fabricarSeleccionados.length){aviso('Selecciona al menos un diseño para Cut Máster.');return false;}
     var mats={},falta=[];
     fabricarSeleccionados.forEach(function(code){
       var project=fabProyectoCutMasterDe(code); if(!project){falta.push(code);return;}
       var it=fabFindItemByCode(code), uds=Math.max(1,Number(it&&(it.units||it.uds)||1)||1);
       project.materials.forEach(function(mat){
         var key=String(mat.name||'Perfil');
-        if(!mats[key])mats[key]={name:mat.name||'Perfil',profileFace:Number(mat.profileFace)||40,pieces:[],stock:Array.isArray(mat.stock)?JSON.parse(JSON.stringify(mat.stock)):[{label:'Barra',length:6500,qty:999}]};
+        if(!mats[key])mats[key]={name:mat.name||'Perfil',profileFace:Number(mat.profileFace)||40,pricePerMeter:Number(mat.pricePerMeter)||0,pieces:[],stock:Array.isArray(mat.stock)?JSON.parse(JSON.stringify(mat.stock)):[{label:'Barra',length:6500,qty:999}]};
         (mat.pieces||[]).forEach(function(pc){mats[key].pieces.push({label:String(pc.label||code+' · Pieza'),length:Number(pc.length)||0,qty:(Number(pc.qty)||0)*uds,cutType:String(pc.cutType||'recto')});});
       });
     });
-    if(falta.length){alert('Sin despiece Motor: '+falta.join(', ')+'. Calcula esas ventanas con Motor una vez.');return false;}
+    if(falta.length){aviso('Sin despiece Motor: '+falta.join(', ')+'. Abre cada diseño en Motor, vuelve a Documentos y repite Fabricar.');return false;}
     var materials=Object.keys(mats).map(function(k){return mats[k];}).filter(function(x){return x.pieces.length;});
-    if(!materials.length){alert('No hay barras para enviar a Cut Máster.');return false;}
-    var raw=JSON.stringify({project:{name:'Fabricación · '+fabricarSeleccionados.join(', '),settings:{unit:'mm',kerfMm:0,colorCuts:true},materials:materials,resultTab:'diagram'}});
-    try{sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);sessionStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');localStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');}catch(_){}
+    if(!materials.length){aviso('No hay cortes de perfiles para enviar a Cut Máster.');return false;}
+    if(!state){aviso('Documentos todavía está cargando. Vuelve a pulsar Cut Máster.');return false;}
+    if(!state.documentId)state.documentId='doc_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    var raw=JSON.stringify({project:{name:'Fabricación · '+fabricarSeleccionados.join(', '),documentId:state.documentId,sourceKey:fabricarSeleccionados.join(','),settings:{unit:'mm',kerfMm:0,colorCuts:true},materials:materials,resultTab:'diagram'}});
+    try{sessionStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);localStorage.setItem('CUT_MASTER_EXTERNAL_PROJECT',raw);sessionStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');localStorage.setItem('CUT_MASTER_RETURN_URL','documentos.html');}
+    catch(e){aviso('No se pudo preparar Cut Máster: almacenamiento no disponible.');return false;}
+    try{if(typeof window.__reyFabricacionGuardar==='function')await window.__reyFabricacionGuardar();}
+    catch(e){aviso('No se pudo guardar el presupuesto antes de abrir Cut Máster.');return false;}
     /* v4.8.6: navegación directa dentro del visor del Index.
        Evita depender de window.parent.abrir(), que puede fallar en iOS/WKWebView. */
     window.location.href='optimizar_barra.html';return false;
@@ -20608,7 +20716,7 @@ const mo = new MutationObserver(function(){
           var len=Number(pc.length)||0, qty=(Number(pc.qty)||0)*uds;
           if(len>0&&qty>0)perfiles[key].piezas.push({longitud:len,cantidad:qty});
         });
-        if(muestra) perfiles[key].coste+=(Number(muestra.coste)||0)*uds;
+        // muestra.coste es solo el importe de una línea, no de todos los cortes.
       });
 
       // VIDRIOS/CHAPA Y ACCESORIOS: información adicional guardada por Motor.
@@ -20625,7 +20733,7 @@ const mo = new MutationObserver(function(){
         });
       }
     });
-    return {perfiles:Object.keys(perfiles).map(function(k){return perfiles[k];}).filter(function(p){return p.piezas.length;}),vidrios:Object.keys(vidrios).map(function(k){return vidrios[k];}),accesorios:Object.keys(accesorios).map(function(k){return accesorios[k];}),falta:falta};
+    return {perfiles:Object.keys(perfiles).map(function(k){var p=perfiles[k];p.coste=p.piezas.reduce(function(s,x){return s+(Number(x.longitud)||0)*(Number(x.cantidad)||0);},0)/1000*p.precioUnidad;return p;}).filter(function(p){return p.piezas.length;}),vidrios:Object.keys(vidrios).map(function(k){return vidrios[k];}),accesorios:Object.keys(accesorios).map(function(k){return accesorios[k];}),falta:falta};
   }
   function fabCrearPaginasMateriales(datos){
     var rows=[];
@@ -20858,6 +20966,12 @@ const mo = new MutationObserver(function(){
     b.onclick=window.abrirFabricacionTest;
     b.addEventListener('click', window.abrirFabricacionTest, {capture:true});
   }
+  document.addEventListener('click',function(ev){
+    var btn=ev.target&&ev.target.closest&&ev.target.closest('#fabricarTestOverlay button[data-cut-master-fabricacion]');
+    if(!btn)return;
+    ev.preventDefault();ev.stopPropagation();
+    window.enviarFabricacionACutMaster();
+  },true);
   document.addEventListener('click', function(ev){
     var opt=ev.target && ev.target.closest ? ev.target.closest('[data-fab-hojas]') : null;
     if(opt){
@@ -21371,11 +21485,11 @@ body.template-picker-open-v456{overflow:hidden;}
   }
   window.apply600PriceReturnV47=apply600Return;
 
-  function bootReturn(){ setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},250); }
+  function bootReturn(){ setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} try{if(typeof window.applyCutWasteReturnV1==='function')window.applyCutWasteReturnV1();}catch(_){} apply600Return();},250); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bootReturn,{once:true});
   else bootReturn();
-  window.addEventListener('pageshow',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},200)});
-  window.addEventListener('focus',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} apply600Return();},200)});
+  window.addEventListener('pageshow',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} try{if(typeof window.applyCutWasteReturnV1==='function')window.applyCutWasteReturnV1();}catch(_){} apply600Return();},200)});
+  window.addEventListener('focus',function(){setTimeout(function(){try{if(typeof window.applyMotorDespieceReturnV1==='function')window.applyMotorDespieceReturnV1();}catch(_){} try{if(typeof window.applyCutWasteReturnV1==='function')window.applyCutWasteReturnV1();}catch(_){} apply600Return();},200)});
 })();
 </script>
 
@@ -21410,7 +21524,7 @@ body.template-picker-open-v456{overflow:hidden;}
         var ac=muestra?String(muestra.acabado||''):''; var key=(ref||nom)+'|'+ac+'|'+largo;
         if(!perfiles[key])perfiles[key]={ref:ref,nom:nom,ac:ac,largo:largo,piezas:[],precio:muestra?Number(muestra.precioUnidad)||0:0,coste:0};
         (m.pieces||[]).forEach(function(pc){var len=Number(pc.length)||0,q=(Number(pc.qty)||0)*uds;if(len>0&&q>0)perfiles[key].piezas.push({len:len,qty:q});});
-        if(muestra)perfiles[key].coste+=(Number(muestra.coste)||0)*uds;
+        // El coste total se obtiene de todos los cortes agrupados, con su precio por metro.
       });
       if(d){
         (d.vidrios||[]).forEach(function(v){var k=[v.nombre,v.tipo,v.ancho,v.alto].join('|');if(!vidrios[k])vidrios[k]={nom:v.nombre||'Relleno',tipo:v.tipo||'',ancho:Number(v.ancho)||0,alto:Number(v.alto)||0,qty:0,precio:Number(v.precioUnidad)||0,coste:0};vidrios[k].qty+=(Number(v.cantidad)||0)*uds;vidrios[k].coste+=(Number(v.coste)||0)*uds;});
@@ -21418,13 +21532,16 @@ body.template-picker-open-v456{overflow:hidden;}
       }
     });
     if(falta.length)throw new Error('Sin datos de Motor: '+falta.join(', ')+'.');
+    Object.values(perfiles).forEach(function(p){
+      p.coste=p.piezas.reduce(function(s,x){return s+(Number(x.len)||0)*(Number(x.qty)||0);},0)/1000*p.precio;
+    });
     return {codes:ctx.map(function(x){return x.code}),perfiles:Object.values(perfiles),vidrios:Object.values(vidrios),acc:Object.values(acc)};
   }
   function crearSvg(datos){
     var rows=[{s:'PERFILES / BARRAS'}];
     datos.perfiles.forEach(function(p){var mt=0,c=0;p.piezas.forEach(function(x){mt+=x.len*x.qty;c+=x.qty});rows.push({a:(p.ref?p.ref+' · ':'')+p.nom,b:p.ac||'-',c:c+' cortes · '+(mt/1000).toFixed(2)+' m',d:(p.precio?euros(p.precio)+'/m · ':'')+euros(p.coste),e:barrasNecesarias(p.piezas,p.largo)+' barras × '+p.largo+' mm'});});
     rows.push({s:'VIDRIOS / CHAPA'});datos.vidrios.forEach(function(v){rows.push({a:v.nom,b:v.tipo,c:v.ancho+' × '+v.alto+' mm',d:(v.precio?euros(v.precio)+'/m² · ':'')+euros(v.coste),e:v.qty+' ud'});});
-    rows.push({s:'ACCESORIOS / PERSIANAS'});datos.acc.forEach(function(a){rows.push({a:a.nom,b:a.tipo,c:a.precio?euros(a.precio)+' '+a.unidad:'',d:euros(a.coste),e:(a.tipo==='m2'?a.qty.toFixed(2)+' m²':a.qty+' ud')});});
+    rows.push({s:'ACCESORIOS / PERSIANAS'});datos.acc.forEach(function(a){rows.push({a:a.nom,b:a.tipo,c:a.precio?Number(a.precio).toFixed(2)+' '+(a.unidad||'€/ud'):'',d:euros(a.coste),e:(a.tipo==='m2'?a.qty.toFixed(2)+' m²':a.qty+' ud')});});
     var pages=[],per=29;for(var z=0;z<rows.length;z+=per)pages.push(rows.slice(z,z+per));
     return pages.map(function(pg,pi){var y=150,body='';pg.forEach(function(r){if(r.s){body+='<rect x="38" y="'+(y-18)+'" width="718" height="28" rx="5" fill="#e2e8f0"/><text x="50" y="'+y+'" font-size="14" font-weight="700">'+esc(r.s)+'</text>';y+=38;}else{body+='<line x1="38" y1="'+(y+9)+'" x2="756" y2="'+(y+9)+'" stroke="#d7dee8"/><text x="44" y="'+y+'" font-size="10">'+esc(r.a)+'</text><text x="280" y="'+y+'" font-size="10">'+esc(r.b)+'</text><text x="390" y="'+y+'" font-size="10">'+esc(r.c)+'</text><text x="525" y="'+y+'" font-size="10">'+esc(r.d)+'</text><text x="650" y="'+y+'" font-size="10" font-weight="700">'+esc(r.e)+'</text>';y+=27;}});var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123"><rect width="794" height="1123" fill="white"/><text x="38" y="52" font-size="25" font-weight="800">HOJA DE MATERIALES</text><text x="38" y="79" font-size="13">'+esc(datos.codes.join(', '))+'</text><text x="756" y="52" text-anchor="end" font-size="12">Página '+(pi+1)+' / '+pages.length+'</text><line x1="38" y1="98" x2="756" y2="98" stroke="#0f172a" stroke-width="2"/><text x="44" y="125" font-size="9" font-weight="700">MATERIAL / REFERENCIA</text><text x="280" y="125" font-size="9" font-weight="700">ACABADO</text><text x="390" y="125" font-size="9" font-weight="700">MEDIDA / CORTES</text><text x="525" y="125" font-size="9" font-weight="700">PRECIO / COSTE</text><text x="650" y="125" font-size="9" font-weight="700">PEDIDO</text>'+body+'</svg>';var w=document.createElement('div');w.innerHTML=svg;return w.firstElementChild;});
   }
