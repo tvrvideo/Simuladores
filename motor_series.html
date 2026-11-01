@@ -61,7 +61,7 @@
   <!-- HEADER FIJO -->
   <header>
     <h1>Cálculo Precios</h1>
-    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10.9</span>
+    <span id="appVersionHeader" style="font-size: 1.05em; font-weight: bold; opacity: 0.9;">v1.10.10</span>
   </header>
 
   <!-- NAVEGACIÓN INFERIOR FIJA -->
@@ -648,7 +648,7 @@
   </datalist>
 
   <script>
-    const APP_VERSION = "v1.10.9";
+    const APP_VERSION = "v1.10.10";
 
     // El HTML contiene solo el motor. Los datos se importan desde el JSON y se conservan localmente.
     let db = {coloresDisponibles:[],almacenBarras:[],almacenVidrios:[],almacenAccesorios:[],series:[],accesoriosPasamanos:[]};;
@@ -2776,8 +2776,15 @@ function calcular(opciones) {
           hojasInicioSeleccionadas=Number(m.hojas)||0;
           setToggleMotor('btnPulsadorVidrio',relleno==='vidrio');
           setToggleMotor('btnPulsadorChapa',relleno==='chapa');
-          const soloInferior=serie && serie.reglasConjunto && Array.isArray(serie.reglasConjunto.perfilesSoloModuloInferior)
+          // En cualquier serie, condensación y alargadera pertenecen solo al
+          // módulo inferior del conjunto. Respetar también IDs configurados.
+          const perfilesInferioresConfigurados=serie && serie.reglasConjunto && Array.isArray(serie.reglasConjunto.perfilesSoloModuloInferior)
             ? serie.reglasConjunto.perfilesSoloModuloInferior : [];
+          const perfilesInferioresComunes=(serie.reglas[m.hojas].cortes||[]).filter(c=>{
+            const perfil=db.almacenBarras.find(b=>b.id===c.perfilId);
+            return perfil && /condensaci[oó]n|alargadera/i.test(String(perfil.nombre||''));
+          }).map(c=>c.perfilId);
+          const soloInferior=[...new Set([...perfilesInferioresConfigurados,...perfilesInferioresComunes])];
           calcular({perfilesExcluidos: indiceModulo < modulosVentanaRecibidos.length - 1 ? soloInferior : []});
           const r=window.__reyMotorLastResult;
           if(!r||!r.despiece||!r.despiece.barras.length||!Array.isArray(r.despiece.vidrios)||!r.despiece.vidrios.length){

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.18</title>
+  <title>Cut Máster v2.4.20</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.18</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.20</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -287,9 +287,19 @@
         <div class="setting-line">Por defecto en mm, con opción de cambiar a cm.</div>
       </div>
       <div class="setting-card">
-        <h4>Ancho de corte</h4>
+        <h4>Disco por corte</h4>
         <input id="kerfInput" class="setting-input" type="number" min="0" step="0.1" inputmode="decimal" />
-        <div class="setting-line">Valor editable. Se aplica en la optimización.</div>
+        <div class="setting-line">mm por cada pieza cortada. Por defecto: 4 mm.</div>
+      </div>
+      <div class="setting-card">
+        <h4>Margen al inicio</h4>
+        <input id="startMarginInput" class="setting-input" type="number" min="0" step="0.1" inputmode="decimal" />
+        <div class="setting-line">Longitud reservada en cada barra. Por defecto: 50 mm.</div>
+      </div>
+      <div class="setting-card">
+        <h4>Margen al final</h4>
+        <input id="endMarginInput" class="setting-input" type="number" min="0" step="0.1" inputmode="decimal" />
+        <div class="setting-line">Longitud reservada en cada barra. Por defecto: 50 mm.</div>
       </div>
       <div class="setting-card">
         <h4>Stock por defecto</h4>
@@ -377,15 +387,19 @@
       return {
         unit: data.unit === 'cm' ? 'cm' : 'mm',
         kerfMm: Number(data.kerfMm) >= 0 ? Number(data.kerfMm) : 4,
+        startMarginMm: Number.isFinite(Number(data.startMarginMm)) && Number(data.startMarginMm) >= 0 ? Number(data.startMarginMm) : 50,
+        endMarginMm: Number.isFinite(Number(data.endMarginMm)) && Number(data.endMarginMm) >= 0 ? Number(data.endMarginMm) : 50,
         colorCuts: !!data.colorCuts
       };
     } catch(e){
-      return { unit:'mm', kerfMm:4, colorCuts:false };
+      return { unit:'mm', kerfMm:4, startMarginMm:50, endMarginMm:50, colorCuts:false };
     }
   }
   function saveSettings(){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); }
   function currentUnit(){ return state.settings.unit || 'mm'; }
   function currentKerfMm(){ return Number(state.settings.kerfMm) >= 0 ? Number(state.settings.kerfMm) : 4; }
+  function currentStartMarginMm(){ return Number.isFinite(Number(state.settings.startMarginMm)) && Number(state.settings.startMarginMm) >= 0 ? Number(state.settings.startMarginMm) : 50; }
+  function currentEndMarginMm(){ return Number.isFinite(Number(state.settings.endMarginMm)) && Number(state.settings.endMarginMm) >= 0 ? Number(state.settings.endMarginMm) : 50; }
   function colorsByMeasureEnabled(){ return !!(state.settings && state.settings.colorCuts); }
   function toDisplayLength(mm){
     const n = Number(mm) || 0;
@@ -449,7 +463,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.18');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.20');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -457,6 +471,8 @@
   function renderSettings(){
     if($('unitSelect')) $('unitSelect').value = currentUnit();
     if($('kerfInput')) $('kerfInput').value = formatLength(currentKerfMm());
+    if($('startMarginInput')) $('startMarginInput').value = formatLength(currentStartMarginMm());
+    if($('endMarginInput')) $('endMarginInput').value = formatLength(currentEndMarginMm());
   }
 
   function createProject(name){
@@ -759,9 +775,13 @@
     const barLength = Math.max(1, Number(bar.length) || 1);
     const faceMm = Math.max(1, Number(profileFace) || 40);
     const facePx = Math.max(9, (faceMm / barLength) * usableWidth);
-    const totalUsed = bar.pieces.reduce((a,b)=>a+(Number(b.length)||0),0) + Math.max(0, (bar.pieces.length-1)*currentKerfMm());
-    const waste = Math.max(0, barLength - totalUsed);
-    const pieceAreaWidth = usableWidth - ((waste / barLength) * usableWidth);
+    const startMargin = currentStartMarginMm();
+    const endMargin = currentEndMarginMm();
+    const kerf = currentKerfMm();
+    const totalUsed = bar.pieces.reduce((a,b)=>a+(Number(b.length)||0)+kerf,0);
+    const waste = Math.max(0, Number(bar.remaining) || 0);
+    const pieceAreaWidth = (totalUsed / barLength) * usableWidth;
+    const pieceStartX = leftPad + (startMargin / barLength) * usableWidth;
 
     function pieceKey(piece){
       return `${Number(piece.length)||0}`;
@@ -819,7 +839,6 @@
     const cuts = [];
     const labels = [];
     const legend = [];
-    const totalRunWidth = runs.reduce((sum, run) => sum + run.rawWidth, 0);
     const hitZones = [];
     const legendMap = new Map();
     const labelCtx = compact ? document.createElement('canvas').getContext('2d') : null;
@@ -838,23 +857,32 @@
       `<line x1="${leftPad}" y1="${bottomY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`
     ];
 
-    let x = leftPad;
+    let x = pieceStartX;
+
+    function marginBlock(from, length, label){
+      if(length <= 0) return;
+      const w = (length / barLength) * usableWidth;
+      fills.push(`<rect x="${from}" y="${topY}" width="${w}" height="${bottomY-topY}" fill="#e8edf2" stroke="none" />`);
+      if(w >= 52) labels.push(`<text x="${from+w/2}" y="${centerY+(compact ? 4 : 6)}" text-anchor="middle" font-size="${compact ? 15 : 19}" font-weight="700" font-family="Arial, sans-serif" fill="#24537b">${formatLength(length)}</text>`);
+      cuts.push(`<line class="cut-line" x1="${from+w}" y1="${topY}" x2="${from+w}" y2="${bottomY}" stroke="#24537b" stroke-width="1.7" />`);
+    }
+    marginBlock(leftPad, startMargin, 'Inicio');
 
     if(bar.pieces.length){
       const [firstLeft] = getCutSides(bar.pieces[0].cutType);
       if(firstLeft === '45'){
-        cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${bottomY}" x2="${leftPad + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`);
+        cuts.push(`<line class="cut-line" x1="${pieceStartX}" y1="${bottomY}" x2="${pieceStartX + facePx}" y2="${topY}" stroke="#3e342e" stroke-width="2.5" />`);
       } else {
-        cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${topY}" x2="${leftPad}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
+        cuts.push(`<line class="cut-line" x1="${pieceStartX}" y1="${topY}" x2="${pieceStartX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
       }
     } else {
       cuts.push(`<line class="cut-line" x1="${leftPad}" y1="${topY}" x2="${leftPad}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     }
 
     runs.forEach((run, runIndex) => {
-      const runWidth = totalRunWidth > 0 ? (run.rawWidth / totalRunWidth) * pieceAreaWidth : 0;
+      const runWidth = (run.pieces.reduce((sum, piece) => sum + (Number(piece.length) || 0) + kerf, 0) / barLength) * usableWidth;
       const xStart = x;
-      const xEnd = runIndex === runs.length - 1 ? leftPad + pieceAreaWidth : x + runWidth;
+      const xEnd = x + runWidth;
       const innerWidth = Math.max(2, xEnd - xStart);
 
       if(run.type === 'piece'){
@@ -969,17 +997,16 @@
       x = xEnd;
     });
 
-    const wasteStart = leftPad + pieceAreaWidth;
-    if(waste > 0 && endX > wasteStart){
-      fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${Math.max(2, endX - wasteStart)}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
-      const wasteWidth = endX - wasteStart;
+    const wasteStart = pieceStartX + pieceAreaWidth;
+    const wasteWidth = (waste / barLength) * usableWidth;
+    if(waste > 0 && wasteWidth > 0){
+      fills.push(`<rect class="waste-fill" x="${wasteStart}" y="${topY}" width="${wasteWidth}" height="${bottomY-topY}" fill="#9a9a9a" stroke="none" />`);
       if(wasteWidth >= 90){
         labels.push(`<text x="${wasteStart + wasteWidth/2}" y="${centerY+(compact ? 5 : 8)}" text-anchor="middle" font-size="30" font-family="Arial, sans-serif" font-weight="${compact ? 700 : 400}" fill="#ffffff">${formatLength(waste)}</text>`);
       }
-      cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
-    } else {
-      cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
     }
+    marginBlock(endX - (endMargin / barLength) * usableWidth, endMargin, 'Final');
+    cuts.push(`<line class="cut-line" x1="${endX}" y1="${topY}" x2="${endX}" y2="${bottomY}" stroke="#3e342e" stroke-width="2.5" />`);
 
     const legendItems = Array.from(legendMap.values());
     const legendRowHeight = compact ? 22 : 46;
@@ -1411,6 +1438,7 @@
     stockList.sort((a,b)=>a-b);
 
     const kerf = Math.max(0, Number(currentKerfMm()) || 0);
+    const margins = currentStartMarginMm() + currentEndMarginMm();
     const pieceGroups = new Map();
     pieces.forEach(piece => {
       const len = Number(piece.length) || 0;
@@ -1424,8 +1452,8 @@
     const initialStockCounts = stockLengths.map(len => stockList.filter(v => v === len).length);
 
     function fitsWithUsed(stockLen, usedLen, pieceCount, nextLen){
-      const nextUsed = usedLen + nextLen + (pieceCount > 0 ? kerf : 0);
-      return nextUsed <= stockLen ? nextUsed : -1;
+      const nextUsed = usedLen + nextLen + kerf;
+      return nextUsed + margins <= stockLen ? nextUsed : -1;
     }
 
     function buildPlanFromPatterns(patterns){
@@ -1439,15 +1467,14 @@
           for(let i=0;i<qty;i++){
             const original = source.shift();
             if(!original) continue;
-            if(barPieces.length > 0) used += kerf;
-            used += len;
+            used += len + kerf;
             barPieces.push({ uid: original.uid, length: len, cutType: normalizeCutType(original.cutType) });
           }
         });
         usageMap.set(pattern.stockLen, (usageMap.get(pattern.stockLen) || 0) + 1);
         return {
           length: pattern.stockLen,
-          remaining: Math.max(0, pattern.stockLen - used),
+          remaining: Math.max(0, pattern.stockLen - margins - used),
           pieces: barPieces
         };
       });
@@ -1467,7 +1494,7 @@
         let bestBar = null;
         let bestLeft = Infinity;
         for(const bar of bars){
-          const needed = pieceLen + (bar.pieces.length > 0 ? kerf : 0);
+          const needed = pieceLen + kerf;
           if(bar.remaining >= needed){
             const left = bar.remaining - needed;
             if(left < bestLeft){
@@ -1477,7 +1504,7 @@
           }
         }
         if(!bestBar) return false;
-        const needed = pieceLen + (bestBar.pieces.length > 0 ? kerf : 0);
+        const needed = pieceLen + kerf;
         bestBar.pieces.push({ uid: piece.uid, length: pieceLen, cutType: normalizeCutType(piece.cutType) });
         bestBar.remaining -= needed;
         return true;
@@ -1488,8 +1515,8 @@
         const candidates = [];
         for(let i=0;i<availableStock.length;i++){
           const stockLen = availableStock[i];
-          if(stockLen < pieceLen) continue;
-          let used = pieceLen;
+          if(stockLen < pieceLen + kerf + margins) continue;
+          let used = pieceLen + kerf;
           let pieceCount = 1;
           for(let j=0;j<remainingPieces.length;j++){
             const nextLen = Number(remainingPieces[j].length) || 0;
@@ -1499,7 +1526,7 @@
               pieceCount += 1;
             }
           }
-          candidates.push({ index:i, stockLen, waste: stockLen - used, fill: used, pieceCount });
+          candidates.push({ index:i, stockLen, waste: stockLen - margins - used, fill: used, pieceCount });
         }
         if(!candidates.length) return -1;
         candidates.sort((a,b)=> b.pieceCount - a.pieceCount || a.waste - b.waste || a.stockLen - b.stockLen || a.index - b.index);
@@ -1514,7 +1541,7 @@
         const stockLen = availableStock.splice(stockIndex,1)[0];
         bars.push({
           length: stockLen,
-          remaining: Math.max(0, stockLen - (Number(piece.length) || 0)),
+          remaining: Math.max(0, stockLen - margins - (Number(piece.length) || 0) - kerf),
           pieces:[{ uid: piece.uid, length: Number(piece.length) || 0, cutType: normalizeCutType(piece.cutType) }]
         });
         usageMap.set(stockLen, (usageMap.get(stockLen) || 0) + 1);
@@ -1577,7 +1604,8 @@
         const seen = new Set();
         const base = makeEmptyPattern(stockLen);
         base.counts[firstIdx] = 1;
-        base.used = uniqueLengths[firstIdx];
+        base.used = uniqueLengths[firstIdx] + kerf;
+        if(base.used + margins > stockLen){ patternCache.set(cacheKey, []); return []; }
         base.pieces = 1;
 
         function pushPattern(pattern){
@@ -1630,7 +1658,7 @@
         for(let stockIdx=0; stockIdx<stockLengths.length; stockIdx++){
           if(stockCounts[stockIdx] <= 0) continue;
           const stockLen = stockLengths[stockIdx];
-          if(stockLen < uniqueLengths[firstIdx]) continue;
+          if(stockLen < uniqueLengths[firstIdx] + kerf + margins) continue;
           const patterns = generatePatternsForStock(stockLen, counts, firstIdx);
           for(const pattern of patterns){
             const nextCounts = counts.slice();
@@ -1647,7 +1675,7 @@
             const patternDistinct = distinctLengthsInPattern(pattern);
             const candidate = {
               bars: sub.bars + 1,
-              waste: sub.waste + Math.max(0, stockLen - pattern.used),
+              waste: sub.waste + Math.max(0, stockLen - margins - pattern.used),
               mixPenalty: sub.mixPenalty + Math.max(0, patternDistinct - 1),
               patterns: [clonePattern(pattern)].concat(sub.patterns)
             };
@@ -1977,6 +2005,8 @@
             if(importedSettings){
               state.settings.unit = importedSettings.unit === 'cm' ? 'cm' : 'mm';
               state.settings.kerfMm = Math.max(0, Number(importedSettings.kerfMm) || 0);
+              if(Number.isFinite(Number(importedSettings.startMarginMm)) && Number(importedSettings.startMarginMm) >= 0) state.settings.startMarginMm = Number(importedSettings.startMarginMm);
+              if(Number.isFinite(Number(importedSettings.endMarginMm)) && Number(importedSettings.endMarginMm) >= 0) state.settings.endMarginMm = Number(importedSettings.endMarginMm);
               saveSettings();
             }
             state.currentProjectId = state.projects[0] ? state.projects[0].id : null;
@@ -2507,7 +2537,7 @@
       y = ensureBlockFits(y, materialBlockHeight);
 
       y += materialGapBefore;
-      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#075ea8' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
+      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
       y += materialGapAfter;
 
       if(!mat.bars.length){
@@ -2734,6 +2764,8 @@
   $('saveSettingsBtn').addEventListener('click', function(){
     state.settings.unit = $('unitSelect').value === 'cm' ? 'cm' : 'mm';
     state.settings.kerfMm = Math.max(0, fromDisplayLength($('kerfInput').value || '0'));
+    state.settings.startMarginMm = Math.max(0, fromDisplayLength($('startMarginInput').value || '0'));
+    state.settings.endMarginMm = Math.max(0, fromDisplayLength($('endMarginInput').value || '0'));
     saveSettings();
     renderPieces();
     renderStock();
@@ -2766,6 +2798,8 @@
       if(external.settings){
         if(external.settings.unit === 'mm' || external.settings.unit === 'cm') state.settings.unit = external.settings.unit;
         if(Number(external.settings.kerfMm) >= 0) state.settings.kerfMm = Number(external.settings.kerfMm);
+        if(Number.isFinite(Number(external.settings.startMarginMm)) && Number(external.settings.startMarginMm) >= 0) state.settings.startMarginMm = Number(external.settings.startMarginMm);
+        if(Number.isFinite(Number(external.settings.endMarginMm)) && Number(external.settings.endMarginMm) >= 0) state.settings.endMarginMm = Number(external.settings.endMarginMm);
         state.settings.colorCuts = !!external.settings.colorCuts;
         saveSettings();
       }

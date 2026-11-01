@@ -2,7 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2</title>
+    <title>Ventana Pro v96.2.6</title>
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
     <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
@@ -1234,7 +1234,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.6"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.6</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -3538,18 +3538,14 @@ function cambiarColorMarco(c) {
     }
 
     function toggleFijo(position) {
-        let altoTotalInput = +document.getElementById('alto').value;
-
         if (position === 'top') {
             fijoSuperior = !fijoSuperior;
             if (fijoSuperior) {
-                altoTotalInput += altoFijoSuperiorMM;
                 altoFijoSupIzqMM = altoFijoSuperiorMM;
                 altoFijoSupDerMM = altoFijoSuperiorMM;
                 altoFijoSupCenMM = altoFijoSuperiorMM;
                 initColorMatrix('superior');
             } else {
-                altoTotalInput -= modoArco ? Math.max(altoFijoSupIzqMM, altoFijoSupDerMM, altoFijoSupCenMM) : Math.max(altoFijoSupIzqMM, altoFijoSupDerMM);
                 travesanosSupHorizontales = [];
                 travesanosSupVerticales = [];
                 matrixColoresFijoSup = [];
@@ -3557,10 +3553,8 @@ function cambiarColorMarco(c) {
         } else if (position === 'bottom') {
             fijoInferior = !fijoInferior;
             if (fijoInferior) {
-                altoTotalInput += altoFijoInferiorMM;
                 initColorMatrix('inferior');
             } else {
-                altoTotalInput -= altoFijoInferiorMM;
                 travesanosInfHorizontales = [];
                 travesanosInfVerticales = [];
                 matrixColoresFijoInf = [];
@@ -3585,9 +3579,8 @@ function cambiarColorMarco(c) {
             }
         }
 
-        document.getElementById('alto').value = Math.max(0, altoTotalInput);
-
         ajustarAltosConFijos();
+        actualizarAltosLados();
         recalcularAnchosHojas();
         actualizarOpcionesFijos();
         actualizarHojas();
@@ -3626,17 +3619,17 @@ function cambiarColorMarco(c) {
                     <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px; gap: 40px;">
                         <div>
                             <label for="altoFijoSupIzq">Sup. Izq:</label>
-                            <input type="number" id="altoFijoSupIzq" value="${altoFijoSupIzqMM}" onchange="altoFijoSupIzqMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                            <input type="number" id="altoFijoSupIzq" value="${altoFijoSupIzqMM}" onchange="altoFijoSupIzqMM = +this.value; ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
                         </div>
                         <div>
                             <label for="altoFijoSupDer">Sup. Dcho:</label>
-                            <input type="number" id="altoFijoSupDer" value="${altoFijoSupDerMM}" onchange="altoFijoSupDerMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                            <input type="number" id="altoFijoSupDer" value="${altoFijoSupDerMM}" onchange="altoFijoSupDerMM = +this.value; ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
                         </div>
                     </div>
 
                     <div id="altoFijoSupCenControl" class="${!modoArco ? 'hidden-input' : ''}">
                         <label for="altoFijoSupCen">Alto Fijo Sup. Central:</label>
-                        <input type="number" id="altoFijoSupCen" value="${altoFijoSupCenMM}" onchange="altoFijoSupCenMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                        <input type="number" id="altoFijoSupCen" value="${altoFijoSupCenMM}" onchange="altoFijoSupCenMM = +this.value; ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
                     </div>
 
                     <div style="margin-top: 10px;">
@@ -3679,7 +3672,7 @@ function cambiarColorMarco(c) {
                     <div class="dimension-inputs-row" style="justify-content: center; margin-top: 10px;">
                         <div>
                             <label for="altoFijoInferior">Fijo Inf:</label>
-                            <input type="number" id="altoFijoInferior" value="${altoFijoInferiorMM}" onchange="altoFijoInferiorMM = +this.value; ajustarAltosConFijos(); actualizarVista()">
+                            <input type="number" id="altoFijoInferior" value="${altoFijoInferiorMM}" onchange="altoFijoInferiorMM = +this.value; ajustarAltosConFijos(); actualizarAltosLados(); actualizarVista()">
                         </div>
                     </div>
 
@@ -9670,6 +9663,161 @@ function volverIndexSeguro(){
     }catch(e){}
   }
 
+
+  const DESIGN_OPEN_KEY = 'REY_VENTANA_DESIGN_OPEN_V1';
+  const DESIGN_RETURN_KEY = 'REY_VENTANA_DESIGN_RETURN_V1';
+
+  function captureFullDesign(){
+    const data = {version:1, inputs:{}, geometry:{}};
+    document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el){
+      if(el.type === 'file') return;
+      data.inputs[el.id] = el.type === 'checkbox' || el.type === 'radio' ? !!el.checked : el.value;
+    });
+    try{ data.geometry.colorMarco = clone(colorMarco); }catch(e){}
+    try{ data.geometry.mostrarPersiana = clone(mostrarPersiana); }catch(e){}
+    try{ data.geometry.mostrarMedidas = clone(mostrarMedidas); }catch(e){}
+    try{ data.geometry.marcoTextura = clone(marcoTextura); }catch(e){}
+    try{ data.geometry.colorActivo = clone(colorActivo); }catch(e){}
+    try{ data.geometry.colorCristalGlobal = clone(colorCristalGlobal); }catch(e){}
+    try{ data.geometry.subHojas = clone(subHojas); }catch(e){}
+    try{ data.geometry.barrotillosHuecos = clone(barrotillosHuecos); }catch(e){}
+    try{ data.geometry.mostrarBarrotillosActivos = clone(mostrarBarrotillosActivos); }catch(e){}
+    try{ data.geometry.mostrarAltoTotalDer = clone(mostrarAltoTotalDer); }catch(e){}
+    try{ data.geometry.marcoThickness = clone(marcoThickness); }catch(e){}
+    try{ data.geometry.hojaThickness = clone(hojaThickness); }catch(e){}
+    try{ data.geometry.travesanoThickness = clone(travesanoThickness); }catch(e){}
+    try{ data.geometry.fijoSuperior = clone(fijoSuperior); }catch(e){}
+    try{ data.geometry.fijoInferior = clone(fijoInferior); }catch(e){}
+    try{ data.geometry.fijoIzquierdo = clone(fijoIzquierdo); }catch(e){}
+    try{ data.geometry.fijoDerecho = clone(fijoDerecho); }catch(e){}
+    try{ data.geometry.altoFijoSuperiorMM = clone(altoFijoSuperiorMM); }catch(e){}
+    try{ data.geometry.altoFijoInferiorMM = clone(altoFijoInferiorMM); }catch(e){}
+    try{ data.geometry.altoFijoSupIzqMM = clone(altoFijoSupIzqMM); }catch(e){}
+    try{ data.geometry.altoFijoSupDerMM = clone(altoFijoSupDerMM); }catch(e){}
+    try{ data.geometry.altoFijoSupCenMM = clone(altoFijoSupCenMM); }catch(e){}
+    try{ data.geometry.anchoFijoIzquierdoMM = clone(anchoFijoIzquierdoMM); }catch(e){}
+    try{ data.geometry.anchoFijoDerechoMM = clone(anchoFijoDerechoMM); }catch(e){}
+    try{ data.geometry.matrixColoresFijoSup = clone(matrixColoresFijoSup); }catch(e){}
+    try{ data.geometry.matrixColoresFijoInf = clone(matrixColoresFijoInf); }catch(e){}
+    try{ data.geometry.matrixColoresFijoIzq = clone(matrixColoresFijoIzq); }catch(e){}
+    try{ data.geometry.matrixColoresFijoDer = clone(matrixColoresFijoDer); }catch(e){}
+    try{ data.geometry.modoArco = clone(modoArco); }catch(e){}
+    try{ data.geometry.altoVentanaPrincipalBaseMM = clone(altoVentanaPrincipalBaseMM); }catch(e){}
+    try{ data.geometry.drawBorderTop = clone(drawBorderTop); }catch(e){}
+    try{ data.geometry.drawBorderBottom = clone(drawBorderBottom); }catch(e){}
+    try{ data.geometry.drawBorderLeft = clone(drawBorderLeft); }catch(e){}
+    try{ data.geometry.drawBorderRight = clone(drawBorderRight); }catch(e){}
+    try{ data.geometry.travesanosSupHorizontales = clone(travesanosSupHorizontales); }catch(e){}
+    try{ data.geometry.travesanosSupVerticales = clone(travesanosSupVerticales); }catch(e){}
+    try{ data.geometry.travesanosInfHorizontales = clone(travesanosInfHorizontales); }catch(e){}
+    try{ data.geometry.travesanosInfVerticales = clone(travesanosInfVerticales); }catch(e){}
+    try{ data.geometry.travesanosIzqHorizontales = clone(travesanosIzqHorizontales); }catch(e){}
+    try{ data.geometry.travesanosIzqVerticales = clone(travesanosIzqVerticales); }catch(e){}
+    try{ data.geometry.travesanosDerHorizontales = clone(travesanosDerHorizontales); }catch(e){}
+    try{ data.geometry.travesanosDerVerticales = clone(travesanosDerVerticales); }catch(e){}
+    try{ data.geometry.travesanosHojas = clone(travesanosHojas); }catch(e){}
+    try{ data.geometry.marcoFijoTravesanosHorizontales = clone(marcoFijoTravesanosHorizontales); }catch(e){}
+    try{ data.geometry.marcoFijoTravesanosVerticales = clone(marcoFijoTravesanosVerticales); }catch(e){}
+    try{ data.geometry.marcoFijoColorCristal = clone(marcoFijoColorCristal); }catch(e){}
+    try{ data.geometry.matrixColoresMarcoFijo = clone(matrixColoresMarcoFijo); }catch(e){}
+    try{ data.geometry.hojasData = clone(hojasData); }catch(e){}
+    return data;
+  }
+
+  function applyFullDesign(data){
+    if(!data || data.version !== 1 || !data.geometry || !data.inputs) return false;
+    const inputs = data.inputs;
+    // La serie y el número de hojas deben estar preparados antes de regenerar sus controles.
+    ['presetSerie','hojas'].forEach(function(id){
+      const el = document.getElementById(id);
+      if(el && Object.prototype.hasOwnProperty.call(inputs,id)) el.value = inputs[id];
+    });
+    const geometry = data.geometry;
+    if(Object.prototype.hasOwnProperty.call(geometry, 'colorMarco')) try{ colorMarco = clone(geometry.colorMarco); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarPersiana')) try{ mostrarPersiana = clone(geometry.mostrarPersiana); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarMedidas')) try{ mostrarMedidas = clone(geometry.mostrarMedidas); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'marcoTextura')) try{ marcoTextura = clone(geometry.marcoTextura); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'colorActivo')) try{ colorActivo = clone(geometry.colorActivo); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'colorCristalGlobal')) try{ colorCristalGlobal = clone(geometry.colorCristalGlobal); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'subHojas')) try{ subHojas = clone(geometry.subHojas); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'barrotillosHuecos')) try{ barrotillosHuecos = clone(geometry.barrotillosHuecos); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarBarrotillosActivos')) try{ mostrarBarrotillosActivos = clone(geometry.mostrarBarrotillosActivos); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarAltoTotalDer')) try{ mostrarAltoTotalDer = clone(geometry.mostrarAltoTotalDer); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'marcoThickness')) try{ marcoThickness = clone(geometry.marcoThickness); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'hojaThickness')) try{ hojaThickness = clone(geometry.hojaThickness); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanoThickness')) try{ travesanoThickness = clone(geometry.travesanoThickness); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'fijoSuperior')) try{ fijoSuperior = clone(geometry.fijoSuperior); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'fijoInferior')) try{ fijoInferior = clone(geometry.fijoInferior); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'fijoIzquierdo')) try{ fijoIzquierdo = clone(geometry.fijoIzquierdo); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'fijoDerecho')) try{ fijoDerecho = clone(geometry.fijoDerecho); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoFijoSuperiorMM')) try{ altoFijoSuperiorMM = clone(geometry.altoFijoSuperiorMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoFijoInferiorMM')) try{ altoFijoInferiorMM = clone(geometry.altoFijoInferiorMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoFijoSupIzqMM')) try{ altoFijoSupIzqMM = clone(geometry.altoFijoSupIzqMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoFijoSupDerMM')) try{ altoFijoSupDerMM = clone(geometry.altoFijoSupDerMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoFijoSupCenMM')) try{ altoFijoSupCenMM = clone(geometry.altoFijoSupCenMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'anchoFijoIzquierdoMM')) try{ anchoFijoIzquierdoMM = clone(geometry.anchoFijoIzquierdoMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'anchoFijoDerechoMM')) try{ anchoFijoDerechoMM = clone(geometry.anchoFijoDerechoMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoSup')) try{ matrixColoresFijoSup = clone(geometry.matrixColoresFijoSup); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoInf')) try{ matrixColoresFijoInf = clone(geometry.matrixColoresFijoInf); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoIzq')) try{ matrixColoresFijoIzq = clone(geometry.matrixColoresFijoIzq); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoDer')) try{ matrixColoresFijoDer = clone(geometry.matrixColoresFijoDer); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'modoArco')) try{ modoArco = clone(geometry.modoArco); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'altoVentanaPrincipalBaseMM')) try{ altoVentanaPrincipalBaseMM = clone(geometry.altoVentanaPrincipalBaseMM); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderTop')) try{ drawBorderTop = clone(geometry.drawBorderTop); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderBottom')) try{ drawBorderBottom = clone(geometry.drawBorderBottom); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderLeft')) try{ drawBorderLeft = clone(geometry.drawBorderLeft); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderRight')) try{ drawBorderRight = clone(geometry.drawBorderRight); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosSupHorizontales')) try{ travesanosSupHorizontales = clone(geometry.travesanosSupHorizontales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosSupVerticales')) try{ travesanosSupVerticales = clone(geometry.travesanosSupVerticales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosInfHorizontales')) try{ travesanosInfHorizontales = clone(geometry.travesanosInfHorizontales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosInfVerticales')) try{ travesanosInfVerticales = clone(geometry.travesanosInfVerticales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosIzqHorizontales')) try{ travesanosIzqHorizontales = clone(geometry.travesanosIzqHorizontales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosIzqVerticales')) try{ travesanosIzqVerticales = clone(geometry.travesanosIzqVerticales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosDerHorizontales')) try{ travesanosDerHorizontales = clone(geometry.travesanosDerHorizontales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosDerVerticales')) try{ travesanosDerVerticales = clone(geometry.travesanosDerVerticales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'travesanosHojas')) try{ travesanosHojas = clone(geometry.travesanosHojas); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'marcoFijoTravesanosHorizontales')) try{ marcoFijoTravesanosHorizontales = clone(geometry.marcoFijoTravesanosHorizontales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'marcoFijoTravesanosVerticales')) try{ marcoFijoTravesanosVerticales = clone(geometry.marcoFijoTravesanosVerticales); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'marcoFijoColorCristal')) try{ marcoFijoColorCristal = clone(geometry.marcoFijoColorCristal); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresMarcoFijo')) try{ matrixColoresMarcoFijo = clone(geometry.matrixColoresMarcoFijo); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'hojasData')) try{ hojasData = clone(geometry.hojasData); }catch(e){}
+    Object.keys(inputs).forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el || el.type === 'file') return;
+      if(el.type === 'checkbox' || el.type === 'radio') el.checked = !!inputs[id];
+      else el.value = inputs[id];
+    });
+    // Retirar controles antiguos: actualizarHojas podría copiar su apertura sobre la restaurada.
+    const oldHojas = document.getElementById('hoja-options');
+    if(oldHojas) oldHojas.innerHTML = '';
+    try{ ajustarAltosConFijos(); }catch(e){}
+    try{ recalcularAnchosHojas(); }catch(e){}
+    try{ actualizarAltosLados(); }catch(e){}
+    try{ actualizarOpcionesFijos(); }catch(e){}
+    try{ actualizarHojas(); }catch(e){}
+    try{ sincronizarBotonPersianaRapida_v950(); }catch(e){}
+    try{ actualizarBotonesVisualizacionInferior(); }catch(e){}
+    try{ actualizarVista(); }catch(e){}
+    return true;
+  }
+
+  window.__reyCaptureVentanaDesign = captureFullDesign;
+  window.__reyApplyVentanaDesign = applyFullDesign;
+  window.addEventListener('load', function(){
+    let raw = '';
+    try{ raw = sessionStorage.getItem(DESIGN_OPEN_KEY) || localStorage.getItem(DESIGN_OPEN_KEY) || ''; }catch(e){}
+    if(!raw) return;
+    let payload;
+    try{ payload = JSON.parse(raw); }catch(e){ return; }
+    // Se aplica después de la restauración global y de los controles de carga.
+    setTimeout(function(){
+      if(applyFullDesign(payload && payload.design)){
+        try{ sessionStorage.removeItem(DESIGN_OPEN_KEY); }catch(e){}
+        try{ localStorage.removeItem(DESIGN_OPEN_KEY); }catch(e){}
+      }
+    }, 0);
+  });
+
   function loadFabList(){ return safeParse(localStorage.getItem(FAB_KEY), []) || []; }
   function saveFabList(list){ try{ localStorage.setItem(FAB_KEY, JSON.stringify(Array.isArray(list) ? list : [])); }catch(e){} }
 
@@ -10102,18 +10250,22 @@ function volverIndexSeguro(){
     const id=serieSel?serieSel.value:'';
     const nombre=serieSel&&serieSel.selectedOptions&&serieSel.selectedOptions[0]?serieSel.selectedOptions[0].textContent:'';
     const mapa=leerMapaSeriesMotor();
-    if(mapa[id]&&serieMotorExiste(mapa[id])) return {ok:true,familia:nombre,motor:mapa[id]};
+    // La asociación guardada solo vale dentro de la familia elegida en Ventana Pro.
+    // Una selección antigua de Ventana 600 para Ventana CE no debe arrastrarse a Motor.
+    const cePermitidas=id==='ventanace'?['COR-60','COR-2300']:(id==='puertace'?['COR-60','Puerta 2300']:null);
+    if(mapa[id]&&serieMotorExiste(mapa[id])&&(!cePermitidas||cePermitidas.includes(mapa[id]))) return {ok:true,familia:nombre,motor:mapa[id]};
     if(id==='ventana600'&&serieMotorExiste('Ventana 600')) return {ok:true,familia:nombre,motor:'Ventana 600'};
     if(id==='g90'&&serieMotorExiste('Serie G-90')) return {ok:true,familia:nombre,motor:'Serie G-90'};
     if(id==='c70'&&serieMotorExiste('C-70')) return {ok:true,familia:nombre,motor:'C-70'};
     if(id==='nicho'&&serieMotorExiste('Nicho')) return {ok:true,familia:nombre,motor:'Nicho'};
     if((id==='ventanapvc'||id==='puertapvc')&&serieMotorExiste('PVC A-70')) return {ok:true,familia:nombre,motor:'PVC A-70'};
-    /* CE y cualquier familia sin asociación muestran TODAS las series reales de Motor. */
+    /* CE solicita una serie técnica de su familia; las demás conservan sus opciones. */
     return {ok:true,familia:nombre,motor:null,requiereEleccion:true,idVentana:id};
   }
   function elegirSerieCEMotor(familia,idVentana){
     return new Promise(resolve=>{
-      const series=leerSeriesMotor();
+      const permitidas=idVentana==='ventanace'?['COR-60','COR-2300']:(idVentana==='puertace'?['COR-60','Puerta 2300']:null);
+      const series=leerSeriesMotor().filter(s=>!permitidas||permitidas.includes(s.nombre));
       const fondo=document.createElement('div');
       fondo.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px';
       const caja=document.createElement('div');
@@ -10157,6 +10309,17 @@ function volverIndexSeguro(){
       hojas:Number((document.getElementById('hojas')||{}).value)||0,
       acabado:{codigo:acabadoNombre,nombre:acabadoNombre,tipo:acabadoNombre?'acabado':'pendiente'},
       opciones:{vidrio:{activo:true,id:''},panel:{activo:false,id:''},persiana:{activo:(typeof mostrarPersiana!=='undefined'?!!mostrarPersiana:!!window.mostrarPersiana),id:''}},
+      modulos:(function(){
+        const ancho=Number((document.getElementById('ancho')||{}).value)||0;
+        const alto=Number((document.getElementById('alto')||{}).value)||0;
+        const sup=fijoSuperior?Math.max(altoFijoSupIzqMM,altoFijoSupDerMM):0;
+        const inf=fijoInferior?Number(altoFijoInferiorMM)||0:0;
+        const lista=[];
+        if(sup>0) lista.push({id:'superior',nombre:'Fijo superior',ancho:ancho,alto:sup,hojas:0,relleno:'vidrio',travesanos:(travesanosSupVerticales.length+travesanosSupHorizontales.length),irregular:!!modoArco||altoFijoSupIzqMM!==altoFijoSupDerMM});
+        lista.push({id:'central',nombre:'Ventana central',ancho:ancho,alto:alto-sup-inf,hojas:Number((document.getElementById('hojas')||{}).value)||0,relleno:'vidrio'});
+        if(inf>0) lista.push({id:'inferior',nombre:'Fijo inferior',ancho:ancho,alto:inf,hojas:0,relleno:'chapa',travesanos:(travesanosInfVerticales.length+travesanosInfHorizontales.length)});
+        return lista;
+      })(),
       geometria:{
         fijoIzquierdo:Number(window.anchoFijoIzquierdoMM)||0,fijoDerecho:Number(window.anchoFijoDerechoMM)||0,
         fijoInferior:Number(window.altoFijoInferiorMM)||0,
@@ -10185,6 +10348,13 @@ function volverIndexSeguro(){
           sessionStorage.setItem(FROM,'1'); localStorage.setItem(FROM,'1');
           const c=document.getElementById('canvas');
           if(c){ const img=(typeof window.__capturarDisenoParaDocumentos==='function'?window.__capturarDisenoParaDocumentos(c):c.toDataURL('image/png')); sessionStorage.setItem(IMG,img); localStorage.setItem(IMG,img); }
+          // Motor puede volver directamente a Documentos: conservar también
+          // la configuración editable, no solo la imagen y las medidas.
+          if(idx!==null && typeof window.__reyCaptureVentanaDesign==='function'){
+            const stateRaw=JSON.stringify({index:Number(idx),design:window.__reyCaptureVentanaDesign()});
+            sessionStorage.setItem('REY_VENTANA_DESIGN_RETURN_V1',stateRaw);
+            localStorage.setItem('REY_VENTANA_DESIGN_RETURN_V1',stateRaw);
+          }
         }else{
           sessionStorage.removeItem(FROM); localStorage.removeItem(FROM);
           sessionStorage.removeItem(IMG); localStorage.removeItem(IMG);
@@ -10354,6 +10524,19 @@ function volverIndexSeguro(){
 
           try{ sessionStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
           try{ localStorage.setItem(DESIGN_RETURN_IMG_KEY, dataUrl); }catch(_){}
+
+          // La imagen sirve al presupuesto; la configuración editable vuelve al mismo V.
+          try{
+            var designIndex = sessionStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+            if(designIndex == null) designIndex = localStorage.getItem(DESIGN_RETURN_INDEX_KEY);
+            if(designIndex != null && typeof window.__reyCaptureVentanaDesign === 'function'){
+              var designPayload = JSON.stringify({
+                index:Number(designIndex), design:window.__reyCaptureVentanaDesign()
+              });
+              sessionStorage.setItem('REY_VENTANA_DESIGN_RETURN_V1', designPayload);
+              localStorage.setItem('REY_VENTANA_DESIGN_RETURN_V1', designPayload);
+            }
+          }catch(e){ console.warn('No se pudo guardar la configuración editable',e); }
 
           try{
             var _pvcPersiana = false;
