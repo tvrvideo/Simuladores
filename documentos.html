@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.90</title>
+  <title>Documentos Rey v4.8.91</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -73,6 +73,19 @@
     .fab-pdf{background:var(--primary);color:#fff}
     .fab-png{background:var(--violet);color:#fff}
     .fab-settings{background:#fff;color:var(--text);border-color:var(--line)}
+    .pdf-page-overlay{position:fixed;inset:0;z-index:100001;background:rgba(15,23,42,.58);align-items:flex-end;justify-content:center;padding:10px 10px calc(10px + env(safe-area-inset-bottom));}
+    .pdf-page-panel{width:min(100%,560px);max-height:85vh;overflow:auto;background:#fff;border-radius:24px;padding:18px;box-shadow:0 18px 44px #0f172a55;color:#0f172a;}
+    .pdf-page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:22px;}
+    .pdf-page-head button{border:0;border-radius:12px;background:#dc2626;color:#fff;font-weight:900;padding:10px 16px;}
+    .pdf-page-panel p{margin:12px 0;color:#475569;font-size:14px;font-weight:700;}
+    .pdf-page-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:9px;margin:12px 0;}
+    .pdf-page-choice{min-height:48px;border:2px solid #cbd5e1;border-radius:14px;background:linear-gradient(#fff,#e2e8f0);color:#0f172a;font-size:20px;font-weight:900;}
+    .pdf-page-choice.selected{border-color:#078f4a;background:linear-gradient(#22c55e,#0ca451);color:#fff;}
+    .pdf-page-status{font-size:13px;color:#475569;font-weight:800;min-height:20px;}
+    .pdf-page-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px;margin-top:14px;}
+    .pdf-page-actions button{border:0;border-radius:14px;padding:13px 6px;min-height:48px;font-weight:900;color:#fff;background:#475569;}
+    #pdfPageSelectorExport{background:#2563eb;}
+    #pdfPageSelectorExport:disabled{opacity:.45;}
     .btn,.btn-secondary{
       border:1px solid var(--line);background:#fff;color:var(--text);border-radius:14px;
       min-height:42px;padding:0 14px;font-weight:800;cursor:pointer;
@@ -4467,7 +4480,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.90</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.91</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4501,7 +4514,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.90</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.91</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4533,6 +4546,16 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
   <button type="button" class="fab fab-pdf" id="btnExportPdf">PDF</button>
   <button type="button" class="fab fab-png" id="btnExportPng">PNG</button>
   <button type="button" class="fab fab-settings btn-ajustes" id="btnSettings">Ajustes</button>
+</div>
+
+<div id="pdfPageSelector" class="pdf-page-overlay" role="dialog" aria-modal="true" aria-label="Seleccionar hojas del PDF" style="display:none">
+  <div class="pdf-page-panel">
+    <div class="pdf-page-head"><strong>Hojas del PDF</strong><button type="button" id="pdfPageSelectorClose">Cerrar</button></div>
+    <p>Selecciona las hojas que quieres incluir.</p>
+    <div id="pdfPageSelectorGrid" class="pdf-page-grid"></div>
+    <div id="pdfPageSelectorStatus" class="pdf-page-status" aria-live="polite"></div>
+    <div class="pdf-page-actions"><button type="button" id="pdfPageSelectorAll">Todas</button><button type="button" id="pdfPageSelectorExport">Crear PDF</button></div>
+  </div>
 </div>
 
 <div class="backdrop" id="sheetBackdrop"></div>
@@ -5780,7 +5803,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.8.90', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.8.91', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5823,7 +5846,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.90',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.8.91',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6483,7 +6506,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const content = document.getElementById('sheetContent');
     if(content) negativePriceObserver.observe(content,{childList:true,subtree:true});
   });
-  // v4.8.90: Delegación táctil compatible con Safari/WKWebView en iPhone.
+  // v4.8.91: Delegación táctil compatible con Safari/WKWebView en iPhone.
   // Los handlers inline no accedían a la función encerrada en este módulo.
   document.addEventListener('click', function(ev){
     const btn = ev.target.closest && ev.target.closest('[data-negative-price]');
@@ -8398,7 +8421,7 @@ COLOCACIÓN INCLUIDA` }
     return desc || ref || prov || 'Producto externo';
   }
 
-  // v4.8.90: normalizar solo imágenes de Pasamanos al recibirlas.
+  // v4.8.91: normalizar solo imágenes de Pasamanos al recibirlas.
   // La celda GRÁFICO utiliza "meet" (no recorta); si el PNG trae mucho
   // fondo blanco, se ve pequeño o descentrado. Se quita ese fondo manteniendo
   // un margen uniforme antes de guardar el concepto.
@@ -10249,13 +10272,55 @@ COLOCACIÓN INCLUIDA` }
     // v4.8.35: exponer el motor PDF existente para la Hoja de materiales.
     window.__reyExportSvgToEditablePdf = exportSvgToEditablePdf;
 
-    async function exportPDF(){
+    async function exportPDF(selectedIndexes){
     try{
-      const exportPages = buildExportPageSvgs();
+      const allPages = buildExportPageSvgs();
+      const exportPages = Array.isArray(selectedIndexes)
+        ? selectedIndexes.map(function(i){ return allPages[i]; }).filter(Boolean)
+        : allPages;
+      if(!exportPages.length){ toast('Selecciona al menos una hoja'); return; }
       await exportSvgToEditablePdf(exportPages, { filename: safeFilename() || 'presupuesto' });
     }catch(err){
       toast((err && err.message) ? err.message : 'Error al preparar PDF');
     }
+  }
+  function openPdfPageSelector(){
+    const refs = getExportPageRefs();
+    if(refs.length <= 1){ hideReturnAppButton(); exportPDF(); return; }
+    const overlay = document.getElementById('pdfPageSelector');
+    const grid = document.getElementById('pdfPageSelectorGrid');
+    const status = document.getElementById('pdfPageSelectorStatus');
+    const selected = refs.map(function(){ return true; });
+    grid.innerHTML = '';
+    function refresh(){
+      const count = selected.filter(Boolean).length;
+      status.textContent = count + ' de ' + refs.length + ' hojas seleccionadas';
+      Array.prototype.forEach.call(grid.children, function(btn, i){
+        btn.classList.toggle('selected', selected[i]);
+        btn.setAttribute('aria-pressed', selected[i] ? 'true' : 'false');
+      });
+      document.getElementById('pdfPageSelectorExport').disabled = count === 0;
+    }
+    refs.forEach(function(originalIndex, i){
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pdf-page-choice';
+      btn.textContent = String(originalIndex + 1);
+      btn.setAttribute('aria-label', 'Hoja ' + (originalIndex + 1));
+      btn.addEventListener('click', function(){ selected[i] = !selected[i]; refresh(); });
+      grid.appendChild(btn);
+    });
+    document.getElementById('pdfPageSelectorAll').onclick = function(){ selected.fill(true); refresh(); };
+    document.getElementById('pdfPageSelectorClose').onclick = function(){ overlay.style.display = 'none'; };
+    document.getElementById('pdfPageSelectorExport').onclick = function(){
+      const indexes = selected.map(function(on, i){ return on ? i : -1; }).filter(function(i){ return i >= 0; });
+      if(!indexes.length) return;
+      overlay.style.display = 'none';
+      hideReturnAppButton();
+      exportPDF(indexes);
+    };
+    refresh();
+    overlay.style.display = 'flex';
   }
   let returnToSettingsAfterSheet = false;
   let documentListSheetOpen = false;
@@ -10951,7 +11016,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.8.90',
+      app:'Documentos Rey', version:'v4.8.91',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11087,7 +11152,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.8.90',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.8.91',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -14659,7 +14724,7 @@ $('btnCloseSheet').addEventListener('click', function(){
   });
   $('btnBackFromPng').addEventListener('click', returnToAppView, false);
   $('btnClosePngScreen').addEventListener('click', returnToAppView, false);
-  $('btnExportPdf').addEventListener('click', function(){ hideReturnAppButton(); exportPDF(); }, false);
+  $('btnExportPdf').addEventListener('click', openPdfPageSelector, false);
   $('btnSendToFacturacion').addEventListener('click', function(){
     hideReturnAppButton();
     closeSettings();
@@ -15163,7 +15228,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.8.90', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.8.91', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
