@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora de Cortes para Marco Inclinado V10.1</title>
+    <title>Calculadora de Cortes para Marco Inclinado V10.1.1</title>
     <style>
         /* Variables CSS para colores */
         :root {
@@ -569,7 +569,7 @@ body.dock-on #dockArea{
 
 
     
-<h1>GRADOS DE CORTE <span class="ver">V10.1</span></h1>
+<h1>GRADOS DE CORTE <span class="ver">V10.1.1</span></h1>
 
     <div class="controls">
         
@@ -741,8 +741,8 @@ body.dock-on #dockArea{
     btn.classList.toggle('active', on);
   }
 
-  // Por defecto: desactivado (gris)
-  setDock(false);
+  // Por defecto: gráfico fijo activado
+  setDock(true);
 
   btn.addEventListener('click', () => {
     const on = !btn.classList.contains('active');
@@ -989,7 +989,11 @@ body.dock-on #dockArea{
             // 2. Clonar el SVG para modificarlo sin afectar el original
             const tempSvg = svgElement.cloneNode(true);
             tempSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-            tempSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink'); 
+            tempSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+             // La exportación debe respetar los controles de visibilidad.
+             // El SVG exportado no hereda la regla CSS .hidden de la página.
+             if (dimHidden) tempSvg.querySelector('#dimensiones')?.remove();
+             if (angHidden) tempSvg.querySelector('#gradosCorte')?.remove(); 
 
             // 3. Obtener los valores de las variables CSS de color actuales
             const style = getComputedStyle(document.documentElement);
@@ -1508,7 +1512,7 @@ if (dockArea) dockArea.style.display = '';
 
 
 <script>
-/* V10.1 - Volver seguro al index desde iframe/GitHub/iPhone */
+/* V10.1.1 - Volver seguro al index desde iframe/GitHub/iPhone */
 function volverIndexSeguro(){
   try{
     if(window.parent && window.parent !== window && typeof window.parent.volverMenu === 'function'){
