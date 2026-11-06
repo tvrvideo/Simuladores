@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.91</title>
+  <title>Documentos Rey v4.8.92</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -14426,35 +14426,28 @@ $('btnCloseSheet').addEventListener('click', function(){
     sourcePage = Math.max(0, Number(sourcePage || 0));
     mode = mode === 'independent' ? 'independent' : 'continuar';
     const perPage = isSimpleBudget() ? getSimpleRowsPerPage() : CONCEPTS_PER_PAGE;
-
-    if(isSimpleBudget()){
-      const pages = simplePaginateItems().map(function(pg){ return (pg || []).slice(); });
-      while(pages.length <= sourcePage) pages.push([]);
-      const source = pages[sourcePage].slice();
-      const copy = [];
-      source.forEach(function(it, i){ copy.push(cloneConceptForPageV478(it, (sourcePage+1)*perPage+i)); });
-      while(copy.length < perPage) copy.push(blankConcept(conceptCodeForIndex((sourcePage+1)*perPage+copy.length)));
-      pages.splice(sourcePage+1, 0, copy);
-
-      const flat = [];
-      pages.forEach(function(pg){ pg.forEach(function(it){ flat.push(it); }); });
-      state.items = ensureConceptList(flat);
-      state.simpleExtraPages = pages.length;
-      ensurePageModes();
-      state.pageModes.splice(sourcePage+1, 0, mode);
-      state.pageModes = state.pageModes.slice(0, pages.length);
-    }else{
-      const items = getAllItems().slice();
-      const startIndex = sourcePage * perPage;
-      const source = items.slice(startIndex, startIndex+perPage);
-      const copy = source.map(function(it,i){ return cloneConceptForPageV478(it, startIndex+perPage+i); });
-      while(copy.length < perPage) copy.push(blankConcept(conceptCodeForIndex(startIndex+perPage+copy.length)));
-      items.splice(startIndex+perPage, 0, ...copy);
-      state.items = ensureConceptList(items);
-      ensurePageModes();
-      state.pageModes.splice(sourcePage+1, 0, mode);
+    const oldCount = getStoredPageCount();
+    if(sourcePage >= oldCount){ toast('Página no encontrada'); return; }
+    ensurePageModes();
+    const oldModes = state.pageModes.slice(0, oldCount);
+    const items = getAllItems().slice();
+    const startIndex = sourcePage * perPage;
+    // Las páginas sencillas también ocupan bloques fijos de 99 conceptos.
+    // Nunca aplanar las páginas visibles: desplazaría sus líneas a la página 1.
+    while(items.length < oldCount * perPage){
+      items.push(blankConcept(conceptCodeForIndex(items.length)));
     }
-
+    const copy = [];
+    for(let i=0;i<perPage;i++){
+      const index = startIndex+i;
+      copy.push(cloneConceptForPageV478(items[index] || blankConcept(conceptCodeForIndex(index)), index));
+    }
+    items.splice(startIndex+perPage, 0, ...copy);
+    state.items = ensureConceptList(items);
+    if(isSimpleBudget()) state.simpleExtraPages = oldCount+1;
+    // Insertar el modo una sola vez, sin que ensurePageModes lo añada antes.
+    oldModes.splice(sourcePage+1, 0, mode);
+    state.pageModes = oldModes;
     ensurePageModes();
     await render();
     toast(mode === 'independent' ? 'Página duplicada como independiente' : 'Página duplicada como continuación');
