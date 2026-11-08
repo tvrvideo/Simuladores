@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.92</title>
+  <title>Documentos Rey v4.8.93</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -12017,7 +12017,11 @@ COLOCACIÓN INCLUIDA` }
   async function openCierreForConcept(index){
     const safeIndex = Number(index);
     if(!Number.isFinite(safeIndex) || !state.items[safeIndex]) return;
+    ensureStableDocumentId(state);
     try{ await persistCurrent(); }catch(_){}
+    const budgetContext=JSON.stringify({documentId:state.documentId,index:safeIndex,sourceKey:'V'+(safeIndex+1)});
+    try{ sessionStorage.setItem('REY_BUDGET_CUT_CONTEXT_V1',budgetContext); }catch(_){}
+    try{ localStorage.setItem('REY_BUDGET_CUT_CONTEXT_V1',budgetContext); }catch(_){}
     try{ sessionStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
     try{ localStorage.setItem(DESIGN_RETURN_INDEX_KEY, String(safeIndex)); }catch(_){}
     const targetUrl = CIERRE_APP_URL + '?from_budget=1&target=' + encodeURIComponent(String(safeIndex)) + '&return_to=' + encodeURIComponent(currentDocumentsFileV458());

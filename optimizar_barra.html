@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.20</title>
+  <title>Cut Máster v2.4.21</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.20</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.21</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -463,7 +463,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.20');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.21');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1309,7 +1309,11 @@
           const limit = project.wasteLimitMm == null ? 1000 : Number(project.wasteLimitMm);
           const selected = waste > 0 && (manual === 'yes' || (manual !== 'no' && limit > 0 && waste <= limit));
           if(waste > 0) selectableBars++;
-          if(selected){ selectedBars++; chargedLength += waste; if(price) chargedCost += waste * price / 1000; else missingPrices++; }
+          if(selected){
+            const barrasIguales=Math.max(1,Number(bar.multiplicity)||1);
+            selectedBars++; chargedLength += waste*barrasIguales;
+            if(price) chargedCost += waste*barrasIguales*price/1000; else missingPrices++;
+          }
           const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, false, true);
           const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
           return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(mat.bars, idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
@@ -2918,6 +2922,12 @@
         const payload={documentId:project.documentId,projectId:project.id,sourceKey:project.sourceKey||project.id,
           cost:Number(project.wasteCalculatedCost)||0,fecha:Date.now()};
         try{const raw=JSON.stringify(payload);sessionStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);localStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);}catch(e){setExportStatus('No se pudo guardar el desperdicio para Documentos.');return;}
+      }
+      if(project && volverMotor){
+        renderResults();
+        if(project.wasteMissingPrices){setExportStatus('Falta el precio de algún perfil marcado. Completa los precios antes de volver a Motor.');return;}
+        const payload={sourceKey:project.sourceKey||'',documentId:project.documentId||'',cost:Number(project.wasteCalculatedCost)||0,fecha:Date.now()};
+        try{const raw=JSON.stringify(payload);sessionStorage.setItem('REY_CUTMASTER_MOTOR_WASTE_RETURN_V1',raw);localStorage.setItem('REY_CUTMASTER_MOTOR_WASTE_RETURN_V1',raw);}catch(e){setExportStatus('No se pudo enviar el desperdicio a Motor.');return;}
       }
       let returnUrl = volverMotor ? 'motor_series.html?from=pasamanos&cut_return=1' : (volverPasamanos ? 'pasamanos.html' : 'ventana.html');
       try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}

@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.54</title>
+  <title>Cierre v3.7.57</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -346,19 +346,29 @@
       max-width: 600px;
     }
     #dockActionRow{
-      display:flex;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:8px;
       width:100%;
       max-width:600px;
       box-sizing:border-box;
     }
     #dockActionRow .action-button{
-      flex:1 1 0;
       min-width:0;
-      min-height:42px;
-      font-size:12px;
-      padding:7px 8px;
+      min-height:46px;
+      font-size:14px;
+      padding:7px 5px;
     }
+    #dockActionRow #btnExportPng{grid-column:auto;}
+    #dockActionRow.with-docs{grid-template-columns:repeat(3,minmax(0,1fr));}
+    #dockActionRow.with-docs .action-button{font-size:12px;}
+    #dockActionRow .action-button[hidden]{display:none!important;}
+    #cierreMotorAviso{grid-column:1/-1;}
+    #cierreMotorAviso:empty{display:none;}
+    #cierreMotorOpciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;}
+    #cierreMotorOpciones select,#cierreMotorOpciones label{min-width:0;min-height:46px;font-size:16px;}
+    #cierreMotorOpciones label{display:flex;align-items:center;justify-content:center;gap:7px;padding:5px;border:2px solid #263f65;border-radius:8px;background:#fffacd;}
+    #cierreMotorOpciones input[type="checkbox"]{width:22px;height:22px;flex:none;}
 
 
 /* Versión en el título (más pequeña) */
@@ -498,7 +508,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.54</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.57</span></h1>
 </div>
 
 <form id="form">
@@ -509,7 +519,7 @@ body.dock-on #controls{
         <div class="dimension-field"><label for="sep">Hueco</label><input type="number" id="sep" value="20" step="0.5"></div>
         <div class="dimension-field" id="portalProfileGroup" hidden><label for="perfilHoja">Hoja</label><input type="number" id="perfilHoja" min="1" value="50" inputmode="numeric"></div>
         <div class="dimension-field" id="postThicknessGroup"><label for="grosorPostes">Poste</label><input type="number" id="grosorPostes" min="1" value="50" inputmode="numeric"></div>
-        <div class="dimension-field" id="marcoField"><label for="marco" id="labelMarco">Marco</label><input type="number" id="marco" value="50"></div>
+        <div class="dimension-field" id="marcoField"><label for="marco" id="labelMarco">Marco</label><input type="number" id="marco" value="40"></div>
     </div>
     <div class="button-row" id="portalControls">
         <button type="button" class="action-button active" id="modeCierre">Cierre</button>
@@ -518,6 +528,12 @@ body.dock-on #controls{
         <button type="button" class="action-button two-line" id="modeSliding1" aria-label="Corredera 1 hoja"><span>Corredera</span><span>1 hoja</span></button>
         <button type="button" class="action-button two-line" id="modeSliding2" aria-label="Corredera 2 hojas"><span>Corredera</span><span>2 hojas</span></button>
         <button type="button" class="action-button" id="portalOpening" hidden>Bisagras: izquierda</button>
+    </div>
+    <div id="cierreMotorOpciones">
+      <select id="cierreAcabado" aria-label="Acabado"><option value="crudo">Crudo</option><option value="lacado">Lacado</option></select>
+      <select id="cierreAccion" aria-label="Accionamiento"><option value="manual">Manual</option><option value="motor">Motorizado</option></select>
+      <select id="cierreMarcoPortal" aria-label="Marco portal"><option value="9689">Marco 50</option><option value="9685">Marco 80</option></select>
+      <label id="cierreTuboFinalLabel"><input type="checkbox" id="cierreTuboFinal" checked> Tubo final</label>
     </div>
     <div id="mixedSlatsGroup" hidden>
         <button type="button" class="action-button" id="toggleMixedSlats">Lamas juntas</button>
@@ -612,7 +628,9 @@ body.dock-on #controls{
 <svg id="canvas" viewBox="0 0 900 800"></svg>
 <div class="stats" id="stats"></div>
 <div id="dockActionRow">
+  <div id="cierreMotorAviso" role="status" style="font-size:12px;color:#a33;font-weight:700"></div>
   <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
+  <button type="button" class="action-button" id="btnCierreMotor" style="background:#0b8064;color:#fff;font-weight:900">€ Motor</button>
   <button type="button" class="action-button" id="btnAddDocsCierre" hidden style="background:#2563eb;color:#fff;font-weight:900">Volver a Documentos</button>
 </div>
 </div></div>
@@ -940,6 +958,13 @@ body.dock-on #controls{
         return Math.min(Math.max(0, requested - extension), Math.max(0, alto - profile));
     }
 
+    let cierreLamasCapturadas=[], cierreTarifaLama='9679',cierreLamaVertical=false;
+    function registrarLamaRect(){
+        const r=createRect.apply(null,arguments);
+        const w=Number(r.getAttribute('width')),h=Number(r.getAttribute('height'));
+        if(w>0&&h>0)cierreLamasCapturadas.push({ancho:w,alto:h,ref:cierreTarifaLama,vertical:cierreLamaVertical});
+        return r;
+    }
     function drawPortalLamas(g, fillLeft, fillTop, fillRight, fillBottom, alto, lamaSize, hueco, cLama) {
         const requested = portalClosedHeight(alto, alto - fillBottom);
         const mixed = requested > 0;
@@ -962,10 +987,11 @@ body.dock-on #controls{
             }
             if(actualLama <= 0) n = 0;
         }
+        cierreTarifaLama=actualGap<0.01?'9680':'9679';cierreLamaVertical=upperVertical;
         for(let k = 0; k < n; k++) {
             const pos = actualGap + k * (actualLama + actualGap);
-            if(upperVertical) g.appendChild(createRect(fillLeft + pos, fillTop, actualLama, upperEnd - fillTop, cLama, '#111827', 0.5));
-            else g.appendChild(createRect(fillLeft, fillTop + pos, fillRight - fillLeft, actualLama, cLama, '#111827', 0.5));
+            if(upperVertical) g.appendChild(registrarLamaRect(fillLeft + pos, fillTop, actualLama, upperEnd - fillTop, cLama, '#111827', 0.5));
+            else g.appendChild(registrarLamaRect(fillLeft, fillTop + pos, fillRight - fillLeft, actualLama, cLama, '#111827', 0.5));
         }
         let closedN = 0, closedLama = 0;
         const closedSpan = mixed ? Math.max(0, fillBottom - upperEnd) : 0;
@@ -977,10 +1003,11 @@ body.dock-on #controls{
             closedLama = closedAxis - (closedN - 1) * lamaSize;
             let cursor = isVertical ? fillLeft : upperEnd;
             const joins = [];
+            cierreTarifaLama='9680';cierreLamaVertical=isVertical;
             for(let k = 0; k < closedN; k++) {
                 const blade = k === 0 ? closedLama : lamaSize;
-                if(isVertical) g.appendChild(createRect(cursor, upperEnd, blade, closedSpan, cLama, '#111827', 0.5));
-                else g.appendChild(createRect(fillLeft, cursor, fillRight - fillLeft, blade, cLama, '#111827', 0.5));
+                if(isVertical) g.appendChild(registrarLamaRect(cursor, upperEnd, blade, closedSpan, cLama, '#111827', 0.5));
+                else g.appendChild(registrarLamaRect(fillLeft, cursor, fillRight - fillLeft, blade, cLama, '#111827', 0.5));
                 cursor += blade;
                 if(k < closedN - 1) joins.push(cursor);
             }
@@ -1219,6 +1246,7 @@ body.dock-on #controls{
     }
 
     function drawCierre() {
+        cierreLamasCapturadas=[];
         let ancho = +document.getElementById("ancho").value;
         // Alto introducido = altura TOTAL, incluida la pata cuando está activa.
         let alto = +document.getElementById("alto").value - (showFloorExtension ? 50 : 0);
@@ -1345,6 +1373,7 @@ body.dock-on #controls{
         }
         const wholeN = n, wholeEsp = esp, wholeAL = nuevoAL;
 
+        cierreTarifaLama=esp<0.01?'9680':'9679';cierreLamaVertical=isVertical;
         // Cada espacio libre entre postes recibe sus propias lamas. Así los
         // postes paralelos reparten de nuevo el hueco y los perpendiculares
         // cortan cada lama en piezas independientes.
@@ -1370,16 +1399,17 @@ body.dock-on #controls{
                 }
                 if (!firstResult) firstResult = {count, gap, blade, start:bayStart};
                 totalPieces += count;
+                cierreTarifaLama=gap<0.01?'9680':'9679';cierreLamaVertical=isVertical;
                 for (let i = 0; i < count; i++) {
                     const position = (parallelPosts ? bayStart : startBase) + gap + i * (blade + gap);
                     if (isVertical) {
-                        g.appendChild(createRect(position, parallelPosts ? marco : bayStart,
+                        g.appendChild(registrarLamaRect(position, parallelPosts ? marco : bayStart,
                             blade, parallelPosts ? alto - 2 * marco : length, cLama, '#000', 0.5));
                         if (i > 0 && Math.abs(gap) < 0.01)
                             g.appendChild(createLine(position, parallelPosts ? marco : bayStart,
                                 position, parallelPosts ? alto - marco : bayEnd, separatorColor, 1.5));
                     } else {
-                        g.appendChild(createRect(parallelPosts ? marco : bayStart, position,
+                        g.appendChild(registrarLamaRect(parallelPosts ? marco : bayStart, position,
                             parallelPosts ? ancho - 2 * marco : length, blade, cLama, '#000', 0.5));
                         if (i > 0 && Math.abs(gap) < 0.01)
                             g.appendChild(createLine(parallelPosts ? marco : bayStart, position,
@@ -1395,6 +1425,7 @@ body.dock-on #controls{
             }
         } else {
 
+        cierreTarifaLama=esp<0.01?'9680':'9679';cierreLamaVertical=isVertical;
         for(let i=0; i<n; i++) {
             let pos;
             if(fenceMode && !isVertical) {
@@ -1406,8 +1437,8 @@ body.dock-on #controls{
                 pos = startBase + esp + i * (nuevoAL + esp);
             }
 
-            if(isVertical) g.appendChild(createRect(pos, lamaY, nuevoAL, lamaH, cLama, "#000", 0.5));
-            else g.appendChild(createRect(lamaX, pos, lamaW, nuevoAL, cLama, "#000", 0.5));
+            if(isVertical) g.appendChild(registrarLamaRect(pos, lamaY, nuevoAL, lamaH, cLama, "#000", 0.5));
+            else g.appendChild(registrarLamaRect(lamaX, pos, lamaW, nuevoAL, cLama, "#000", 0.5));
         }
         }
 
@@ -1803,6 +1834,9 @@ function updatePortalControls(){
     updatePostDirectionButton();
     updatePosteBtns();
     updateClosureSidesButton();
+    document.getElementById('cierreAccion').style.display=portalLeaves?'block':'none';
+    document.getElementById('cierreMarcoPortal').style.display=portalLeaves&&!slidingMode?'block':'none';
+    document.getElementById('cierreTuboFinal').parentElement.style.display=slidingMode?'flex':'none';
 }
 for (const [id, value] of [['modeCierre', 0], ['modePortal1', 1], ['modePortal2', 2]]) {
     document.getElementById(id).addEventListener('click', () => {
@@ -2144,7 +2178,8 @@ updatePortalControls();
     const addDocsBtn = document.getElementById('btnAddDocsCierre');
     if(addDocsBtn && (cierreBudgetMode() || cierreCatalogMode())){
         addDocsBtn.hidden = false;
-        addDocsBtn.textContent = cierreCatalogMode() ? 'Texto + gráfico → Presupuesto' : 'Gráfico → Presupuesto';
+        document.getElementById('dockActionRow').classList.add('with-docs');
+        addDocsBtn.textContent = cierreCatalogMode() ? 'Texto + gráfico → Doc.' : 'Gráfico → Doc.';
         addDocsBtn.addEventListener('click', function(){
             if(cierreCatalogMode()) addCierreCatalogToDocumentos();
             else addCierreGraphicToBudget();
@@ -2245,6 +2280,98 @@ function volverIndexSeguro(){
 
   return false;
 }
+
+    // Los cortes de lama se capturan en las mismas operaciones que dibujan cada pieza.
+    // Las tarifas se resuelven en Motor desde el JSON independiente.
+    function prepararDespieceCierre(){
+      drawCierre();
+      const ancho=Number(document.getElementById('ancho').value),totalAlto=Number(document.getElementById('alto').value);
+      const alto=totalAlto-(showFloorExtension?50:0),marco=Number(document.getElementById('marco').value);
+      const hojaPerfil=Number(document.getElementById('perfilHoja').value);
+      if(!(ancho>0&&alto>0&&marco>0))throw Error('Comprueba las medidas del diseño.');
+      const cortes=[];
+      function add(ref,nombre,longitud,cantidad,corte){
+        const mm=Math.round(longitud);
+        if(mm<=0||mm>6600)throw Error('Hay una pieza de '+nombre+' fuera del largo de barra de 6600 mm.');
+        if(cantidad>0)cortes.push({referencia:ref,nombre,longitud:mm,cantidad,corte:corte||'recto'});
+      }
+      const perfiles='40203';
+      if(!portalLeaves){
+        if(!fenceMode){
+          if(!isVertical||closureSides){add(perfiles,'Marco vertical',alto,2,'45/45');}
+          add(perfiles,'Marco horizontal',ancho,2,isVertical&&!closureSides?'recto':'45/45');
+        }
+        if(fenceMode&&fenceSides)add(perfiles,'Poste lateral',totalAlto,2,'recto');
+        if(posteCount){
+          const vertical=postsAreVertical();
+          add(perfiles,vertical?'Poste vertical':'Travesaño horizontal',vertical?totalAlto:ancho-(fenceMode?0:80),posteCount,'recto');
+        }
+      }else if(slidingMode){
+        const leaf=ancho/portalLeaves;
+        add('9685','Marco hoja corredera vertical',alto,2*portalLeaves,'45/45');
+        add('9685','Marco hoja corredera horizontal',leaf,2*portalLeaves,'45/45');
+        add('9677','Emboque lateral',alto,1,'recto');
+        if(document.getElementById('cierreTuboFinal').checked)add(perfiles,'Tubo extremo',alto,1,'recto');
+        add('9683','Guía superior',leaf,portalLeaves,'recto');
+        // El carril se une por tramos iguales cuando supera la barra comercial.
+        const carrilTotal=Math.round(2*ancho),tramos=Math.ceil(carrilTotal/6600);
+        const baseCarril=Math.floor(carrilTotal/tramos),extraCarril=carrilTotal%tramos;
+        for(let i=0;i<tramos;i++)add('9691',tramos===1?'Carril suelo':'Carril suelo · tramo '+(i+1)+'/'+tramos,baseCarril+(i<extraCarril?1:0),1,'recto');
+        if(slidingPostCount)add('50503',postsAreVertical()?'Refuerzo vertical':'Refuerzo horizontal',postsAreVertical()?Math.max(1,alto-2*hojaPerfil):Math.max(1,leaf-2*hojaPerfil),slidingPostCount*portalLeaves,'recto');
+      }else{
+        const post=Math.max(1,Math.min(marco,ancho/8)),leaf=(ancho-2*post)/portalLeaves;
+        const ref=document.getElementById('cierreMarcoPortal').value;
+        add('9687','Marco lateral con batiente',totalAlto,2,'recto');
+        add(ref,'Marco hoja vertical',alto,2*portalLeaves,'45/45');
+        add(ref,'Marco hoja horizontal',leaf,2*portalLeaves,'45/45');
+        if(posteCount)add('50503',postsAreVertical()?'Refuerzo vertical':'Refuerzo horizontal',postsAreVertical()?Math.max(1,alto-2*hojaPerfil):Math.max(1,leaf-2*hojaPerfil),posteCount*portalLeaves,'recto');
+      }
+      for(const l of cierreLamasCapturadas){
+        add(l.ref,l.ref==='9680'?'Lama 200×20':'Tablón 200×25',l.vertical?l.alto:l.ancho,1,'recto');
+      }
+      if(!cierreLamasCapturadas.length)throw Error('El diseño no contiene lamas calculadas.');
+      return {formato:'rey-cierre-motor-v1',fecha:Date.now(),ancho:Math.round(ancho),alto:Math.round(totalAlto),tipo:slidingMode?'corredera':portalLeaves?'abatible':fenceMode?'valla':'cierre',hojas:portalLeaves||0,
+        postes:!portalLeaves?((postsAreVertical()?posteCount:0)+(fenceMode&&fenceSides?2:0)):0,accion:document.getElementById('cierreAccion').value,acabado:document.getElementById('cierreAcabado').value,
+        color:cierreColorText(),descripcion:cierreBudgetText(),cortes,return_to:cierreReturnFile(),target:(cierreBudgetMode()||cierreCatalogMode()?cierreTargetIndex():null)};
+    }
+    if(new URLSearchParams(location.search).get('motor_return')==='1'){
+      try{
+        const est=JSON.parse(sessionStorage.getItem('REY_CIERRE_MOTOR_ESTADO_V1')||'null');
+        if(est&&est.inputs){
+          Object.entries(est.inputs).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value;});
+          ({portalLeaves,slidingMode,fenceMode,fenceSides,closureSides,isVertical,isLamaMode,showMarco,showFloorExtension,posteCount,slidingPostCount,postDirectionOverride,mixedSlatsEnabled,mixedUpperVertical,slidingDirection,portalHinge}=est);
+          document.getElementById('cierreTuboFinal').checked=!!est.tuboFinal;
+          updateFenceBtn();updatePortalControls();drawCierre();
+        }
+      }catch(e){document.getElementById('cierreMotorAviso').textContent='No se pudo restaurar el diseño.';}
+    }
+    document.getElementById('perfilHoja').addEventListener('change',function(){const v=Number(this.value);if(v===50||v===80)document.getElementById('cierreMarcoPortal').value=v===80?'9685':'9689';});
+    document.getElementById('cierreMarcoPortal').addEventListener('change',function(){document.getElementById('perfilHoja').value=this.value==='9685'?80:50;drawCierre();});
+    document.getElementById('btnCierreMotor').addEventListener('click',async function(){
+      const aviso=document.getElementById('cierreMotorAviso');aviso.textContent='';this.disabled=true;
+      try{
+        const data=prepararDespieceCierre(),raw=JSON.stringify(data);
+        sessionStorage.setItem('REY_CIERRE_MOTOR_IN_V1',raw);localStorage.setItem('REY_CIERRE_MOTOR_IN_V1',raw);
+        const destino=location.pathname.split('/').pop()||'cierre.html';
+        const query=location.search||'';
+        sessionStorage.setItem('REY_MOTOR_RETURN_URL_V1',destino+query);
+        localStorage.setItem('REY_MOTOR_RETURN_URL_V1',destino+query);
+        if(data.target!==null){
+          const idx=String(data.target),img=await cierrePngDataUrl(1);
+          sessionStorage.setItem('presupuesto_visual_design_target_index_v1',idx);
+          localStorage.setItem('presupuesto_visual_design_target_index_v1',idx);
+          sessionStorage.setItem('REY_MOTOR_DESIGN_IMG_V1',img);
+          localStorage.setItem('REY_MOTOR_DESIGN_IMG_V1',img);
+          sessionStorage.setItem('REY_MOTOR_FROM_DOCUMENTOS_V1','1');
+          localStorage.setItem('REY_MOTOR_FROM_DOCUMENTOS_V1','1');
+        }
+        const ids=['ancho','alto','altoLama','sep','marco','perfilHoja','grosorPostes','closedSlatsHeight','upperSlatSize','colorMarcoPicker','colorLamaPicker','cierreAcabado','cierreAccion','cierreMarcoPortal'];
+        const inputs={};ids.forEach(id=>{const el=document.getElementById(id);if(el)inputs[id]=el.value;});
+        const estado={inputs,portalLeaves,slidingMode,fenceMode,fenceSides,closureSides,isVertical,isLamaMode,showMarco,showFloorExtension,posteCount,slidingPostCount,postDirectionOverride,mixedSlatsEnabled,mixedUpperVertical,slidingDirection,portalHinge,tuboFinal:document.getElementById('cierreTuboFinal').checked};
+        sessionStorage.setItem('REY_CIERRE_MOTOR_ESTADO_V1',JSON.stringify(estado));
+        window.location.href='motor_series.html?from=cierre';
+      }catch(e){aviso.textContent=e.message||'No se pudo abrir Motor.';this.disabled=false;}
+    });
 </script>
 
 </body>
