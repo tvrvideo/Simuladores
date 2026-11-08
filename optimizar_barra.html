@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.21</title>
+  <title>Cut Máster v2.4.24</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.21</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.24</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -268,6 +268,7 @@
     <a id="manualDownloadLink" class="manual-download-link" href="#" download>Descarga manual</a>
     <div class="cut-options">
       <div class="cut-options-row"><span class="cut-options-label">Junquillos</span><button id="junquilloModeBtn" type="button" class="cut-option-btn">Pares · 2 a 2</button></div>
+      <div class="cut-options-row"><span class="cut-options-label">Anclaje 2304</span><button id="anclajeModeBtn" type="button" class="cut-option-btn">Pares · 2 a 2</button></div>
       <div class="cut-options-row"><label class="cut-options-label" for="wasteLimitInput">Desperdicio</label><span>Auto ≤</span><input id="wasteLimitInput" class="cut-limit" type="number" min="0" step="1" inputmode="numeric" value="1000"><span>mm</span><button id="markAllWasteBtn" type="button" class="cut-option-btn waste-btn">Marcar todas</button><strong id="wasteSummary" class="cut-waste-total"></strong></div>
     </div>
     <div id="diagramPanel" class="result-panel active"></div>
@@ -463,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.21');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.24');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1278,6 +1279,7 @@
     const listPanel = $('listPanel');
     const result = calculateProject(project);
     $('junquilloModeBtn').textContent = project.junquilloMode === 'normal' ? 'Normal · 1 a 1' : 'Pares · 2 a 2';
+    $('anclajeModeBtn').textContent = project.anclajeMode === 'normal' ? 'Normal · 1 a 1' : 'Pares · 2 a 2';
     $('wasteLimitInput').value = project.wasteLimitMm == null ? 1000 : Math.max(0, Number(project.wasteLimitMm) || 0);
     const measureColorMap = buildMeasureColorMap(result);
     updateColorCutsToggle();
@@ -1304,7 +1306,7 @@
       } else {
         barsHtml = mat.bars.map((bar, idx) => {
           const waste = Math.max(0, Number(bar.remaining) || 0);
-          const wasteKey = `${project.junquilloMode === 'normal' ? 'normal' : 'pares'}|${mat.id}|${idx}|${bar.length}|${bar.pieces.map(p => p.length + ':' + p.cutType).join(',')}`;
+          const wasteKey = `${/anclaje\s*2304/i.test(mat.name) ? (project.anclajeMode === 'normal' ? 'anclaje-normal' : 'anclaje-pares') : (project.junquilloMode === 'normal' ? 'normal' : 'pares')}|${mat.id}|${idx}|${bar.length}|${bar.pieces.map(p => p.length + ':' + p.cutType).join(',')}`;
           const manual = project.wasteSelections && project.wasteSelections[wasteKey];
           const limit = project.wasteLimitMm == null ? 1000 : Number(project.wasteLimitMm);
           const selected = waste > 0 && (manual === 'yes' || (manual !== 'no' && limit > 0 && waste <= limit));
@@ -1354,12 +1356,12 @@
 
   function calculateProject(project){
     const normal = project.junquilloMode === 'normal';
-    const materials = project.materials.map(material => calculateMaterial(material, normal)).filter(Boolean);
+    const materials = project.materials.map(material => calculateMaterial(material, /anclaje\s*2304/i.test(String(material.name || '')) ? project.anclajeMode === 'normal' : normal)).filter(Boolean);
     return { materials };
   }
 
   function calculateMaterial(material, singlePass = false){
-    if(!singlePass && /junquill/i.test(String(material.name || ''))){
+    if(!singlePass && (/junquill/i.test(String(material.name || '')) || /anclaje\s*2304/i.test(String(material.name || '')))){
       const pairedPieces = [], oddPieces = [];
       const groups = new Map();
       (material.pieces || []).forEach(piece => {
@@ -1388,7 +1390,7 @@
             if(oddPlan) oddPlan.stockUsage.forEach(s => usage.set(Number(s.length), (usage.get(Number(s.length)) || 0) + s.qty));
             const summary = new Map();
             (material.pieces || []).forEach(p => summary.set(normalizeCutType(p.cutType), (summary.get(normalizeCutType(p.cutType)) || 0) + Number(p.qty || 0)));
-            // Cada patrón de junquillo se corta en dos barras iguales. Mostrarlas
+            // Cada patrón de junquillo o anclaje 2304 se corta en dos barras iguales. Mostrarlas
             // por separado facilita seguir el corte y marcar cada pieza físicamente.
             const originalUids = new Map();
             (material.pieces || []).forEach(p => {
@@ -1925,6 +1927,7 @@
       createdAt: project && project.createdAt ? String(project.createdAt) : new Date().toISOString(),
       cutProgress: project && project.cutProgress && typeof project.cutProgress === 'object' ? project.cutProgress : {},
       junquilloMode: project && project.junquilloMode === 'normal' ? 'normal' : 'pares',
+      anclajeMode: project && project.anclajeMode === 'normal' ? 'normal' : 'pares',
       wasteLimitMm: project && project.wasteLimitMm != null ? Math.max(0, Number(project.wasteLimitMm) || 0) : 1000,
       wasteSelections: project && project.wasteSelections && typeof project.wasteSelections === 'object' ? project.wasteSelections : {},
       documentId: project && project.documentId ? String(project.documentId) : '',
@@ -2701,6 +2704,11 @@
       project.junquilloMode = project.junquilloMode === 'normal' ? 'pares' : 'normal';
       saveProjects(); renderResults(); return;
     }
+    if(t.id === 'anclajeModeBtn'){
+      const project = currentProject(); if(!project) return;
+      project.anclajeMode = project.anclajeMode === 'normal' ? 'pares' : 'normal';
+      saveProjects(); renderResults(); return;
+    }
     if(t.id === 'markAllWasteBtn'){
       const project=currentProject(); if(!project)return;
       if(!project.wasteSelections)project.wasteSelections={};
@@ -2896,7 +2904,7 @@
     btn.id = 'returnToSourceBtn';
     const origen = new URLSearchParams(location.search).get('from');
     const returnDestino = (function(){try{return sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || '';}catch(e){return '';}})();
-    const volverMotor = origen === 'motor' || /^motor_series\.html/i.test(returnDestino);
+    const volverMotor = origen === 'motor' || (origen !== 'pasamanos' && /^motor_series\.html/i.test(returnDestino));
     const volverPasamanos = origen === 'pasamanos' || /^pasamanos\.html/i.test(returnDestino);
     btn.textContent = volverMotor ? '← Motor' : (volverPasamanos ? '← Pasamanos' : '← Ventanas');
     btn.setAttribute('aria-label', 'Volver a la aplicación de origen');
@@ -2918,19 +2926,20 @@
       const project=currentProject();
       if(project && project.documentId){
         renderResults();
-        if(project.wasteMissingPrices){setExportStatus('Falta el precio de algún perfil marcado. Completa los precios antes de volver a Documentos.');return;}
+        if(project.wasteMissingPrices && !volverMotor){setExportStatus('Falta el precio de algún perfil marcado. Completa los precios antes de volver a Documentos.');return;}
         const payload={documentId:project.documentId,projectId:project.id,sourceKey:project.sourceKey||project.id,
           cost:Number(project.wasteCalculatedCost)||0,fecha:Date.now()};
         try{const raw=JSON.stringify(payload);sessionStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);localStorage.setItem('REY_CUTMASTER_WASTE_RETURN_V1',raw);}catch(e){setExportStatus('No se pudo guardar el desperdicio para Documentos.');return;}
       }
       if(project && volverMotor){
         renderResults();
-        if(project.wasteMissingPrices){setExportStatus('Falta el precio de algún perfil marcado. Completa los precios antes de volver a Motor.');return;}
+        if(project.wasteMissingPrices){setExportStatus('Aviso: faltan precios de perfiles marcados; el desperdicio enviado a Motor puede ser parcial.');}
         const payload={sourceKey:project.sourceKey||'',documentId:project.documentId||'',cost:Number(project.wasteCalculatedCost)||0,fecha:Date.now()};
         try{const raw=JSON.stringify(payload);sessionStorage.setItem('REY_CUTMASTER_MOTOR_WASTE_RETURN_V1',raw);localStorage.setItem('REY_CUTMASTER_MOTOR_WASTE_RETURN_V1',raw);}catch(e){setExportStatus('No se pudo enviar el desperdicio a Motor.');return;}
       }
-      let returnUrl = volverMotor ? 'motor_series.html?from=pasamanos&cut_return=1' : (volverPasamanos ? 'pasamanos.html' : 'ventana.html');
-      try{ returnUrl = sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || returnUrl; }catch(e){}
+      let returnUrl = volverMotor ? 'motor_series.html?cut_return=1' : (volverPasamanos ? 'pasamanos.html' : 'ventana.html');
+      try{ const saved=sessionStorage.getItem('CUT_MASTER_RETURN_URL') || localStorage.getItem('CUT_MASTER_RETURN_URL') || ''; if(saved && (!volverMotor || /^motor_series\.html/i.test(saved))) returnUrl=saved; }catch(e){}
+      if(volverMotor && !/[?&]cut_return=1(?:&|$)/.test(returnUrl)) returnUrl += (returnUrl.includes('?')?'&':'?')+'cut_return=1';
       try{
         if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
           window.parent.abrir(returnUrl);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pasamanos v1.31</title>
+<title>Pasamanos v1.41</title>
 <style>
 :root{--bg:#eef2f5;--card:#fff;--ink:#111827;--muted:#667085;--red:#a40000;--gold:#ffe66b;--green:#009d38;--green2:#20ef29;--blue:#e8eef5;--line:#d9e2ec;--edit:#fff4a8;--edit2:#fff9cf}*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}header{position:sticky;top:0;z-index:10;background:#111;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:18px;margin:0}.ver{font-weight:950;background:#2b3842;border-radius:8px;padding:6px 10px}.wrap{width:100%;max-width:980px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid #dfe6ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.title{font-size:18px;font-weight:950;margin:0 0 12px}.sub{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;margin:6px 0}.hint{font-size:12px;color:#667085;font-weight:850;margin-top:8px}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd5df;border-radius:12px;padding:11px;font-size:20px;font-weight:950;background:#fff;color:#111}.dato input,.dato select{background:var(--edit);border-color:#e0c94d;box-shadow:inset 0 0 0 1px #fff6}.dato input:focus,.dato select:focus{outline:3px solid #ffe16a;background:#fff7bd}.autoBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.autoBox .dato input{background:#fffbe2}button{border:0;border-radius:13px;padding:13px 14px;font-size:16px;font-weight:950;background:#1f2937;color:#fff}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btns button{flex:1;min-width:135px}.ok{background:var(--green)}.warn{background:#ffca28;color:#111}.light{background:#e8eef5;color:#111}.danger{background:#b00020}.mini{font-size:13px;padding:8px 10px}.switch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.switch button{background:#e8eef5;color:#111}.switch button.active{background:#111;color:white}.checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.checkrow{display:flex;align-items:center;gap:9px;background:#f3f6f9;border-radius:12px;padding:12px;font-weight:950}.checkrow input{width:24px;height:24px;accent-color:#111}.hidden{display:none}.canvasBox{overflow:hidden}.svgWrap{width:100%;max-width:900px;margin:auto;overflow:hidden;display:flex;justify-content:center;align-items:center;background:white;border:1px solid #dfe6ee;border-radius:14px}#svgWrap svg{width:100%;height:auto;display:block}.result{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}@media(min-width:760px){.result{grid-template-columns:repeat(5,1fr)}}.kpi{background:#eef6ea;border:1px solid #d8ead2;border-radius:14px;padding:11px;text-align:center}.kpi b{display:block;font-size:12px;color:#4d5b68}.kpi span{font-size:22px;font-weight:950}.total{background:var(--green2)}.mid{background:#fff3bd}.bad{background:#ffd1d1}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tag{font-size:14px;font-weight:950;padding:9px 11px;border-radius:10px}.lg70{background:#bbb}.lg30{background:#8fb3e8}.lgova{background:#555;color:#fff}.lgpas{background:#ddd}.lganc{background:#f5d56a}
 .fabricacion{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}.fabBox{border:1px solid #d9e2ec;border-radius:12px;background:#f8fafc;padding:10px}.fabBox b{display:block;color:#667085;font-size:12px}.fabBox span{display:block;font-size:22px;font-weight:950}.fabTitle{font-size:18px;font-weight:950;margin:10px 0 8px}.markNote{font-size:13px;color:#667085;font-weight:850;margin:6px 0 10px}.marktable th{font-size:13px}.marktable td{font-size:15px}.marktable .num{background:#eaf7ff}.marktable .cen{background:#fff3bd}.marktable .edge{background:#d8ffff}@media(min-width:760px){.fabricacion{grid-template-columns:repeat(6,1fr)}}
@@ -211,7 +211,7 @@ body:has(.pantallaColores:not([hidden])) .floatingGraph{max-width:500px}
 .costeTramo{padding:9px 10px;background:#e7f1df;font-weight:900;text-align:right;border-radius:8px;margin-top:5px}
 @media(max-width:390px){.selectorDespiece button{font-size:11px}}
 
-/* v1.31: acceso a Documentos justo encima del precio, a la derecha. */
+/* v1.32: acceso a Documentos justo encima del precio, a la derecha. */
 #volverConDatosDocs{display:none;position:fixed;right:9px;top:auto;bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height, 44px) + 5px);
   z-index:41;width:auto;max-width:80px;min-height:34px;padding:7px 9px;border-radius:10px;
   background:rgba(8,125,112,.88);color:#fff;box-shadow:0 2px 8px #0003;
@@ -230,12 +230,12 @@ body.fromBudget #cancelarDocs,body.fromConceptos #cancelarDocs{display:block}
 </style>
 </head>
 <body>
-<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><span class="ver">v1.31</span><button class="gearBtn" id="toggleAjustes" title="Ajustes" aria-label="Ajustes">⚙️</button><button id="fijarGrafico" class="pinButton" type="button" aria-pressed="true">Soltar</button></div></header>
+<header><button class="backMenuBtn" id="btnVolverIndex" type="button">← Menú</button><h1>Pasamanos</h1><div class="headRight"><span class="ver">v1.41</span><button class="gearBtn" id="toggleAjustes" title="Ajustes" aria-label="Ajustes">⚙️</button><button id="fijarGrafico" class="pinButton" type="button" aria-pressed="true">Soltar</button></div></header>
 <div id="floatingGraph" class="floatingGraph" aria-label="Gráfico fijado"><div class="floatingGraphHead"><button id="vistaFijaPerspectiva" class="active" type="button">Perspectiva</button><button id="vistaFijaSuperior" type="button">Vista superior</button></div><div id="floatingGraphBody"></div></div>
 <button id="btnEnviarDespieceMotor" type="button" title="Enviar el despiece a Motor Series" style="position:fixed;left:9px;bottom:calc(53px + env(safe-area-inset-bottom) + var(--price-bar-height,44px) + 5px);z-index:41;width:auto;max-width:85px;padding:7px 9px;border-radius:10px;background:#1e3a8a;color:#fff;font-weight:800;font-size:12px;box-shadow:0 2px 8px #0003">€ Motor</button>
 <button id="cancelarDocs" type="button" title="Volver a Documentos sin modificar el presupuesto">✕ Cancelar</button>
 <button id="volverConDatosDocs" type="button" title="Guardar el gráfico y el texto en el concepto y volver a Documentos" aria-label="Volver a Documentos con gráfico y datos">↩ Docs</button>
-<div id="priceBar" class="priceBar" aria-label="Precio total del conjunto"><span id="avisoPrecioMotor" role="status">⚠ Precio orientativo · pasar por € Motor</span><div>Sin IVA <strong id="precioSinIva">—</strong></div><div class="iva">Con IVA <strong id="precioConIva">—</strong></div></div>
+<div id="priceBar" class="priceBar" aria-label="Precio total del conjunto"><span id="avisoPrecioMotor" role="status">✓ Precio Pasamanos · Motor opcional</span><div>Sin IVA <strong id="precioSinIva">—</strong></div><div class="iva">Con IVA <strong id="precioConIva">—</strong></div></div>
 <div class="pngModal" id="pngModal"><div class="pngCard"><h2>PNG generado</h2><p>En iPhone, mantén pulsada la imagen y pulsa “Guardar en Fotos”. También puedes usar Descargar si el navegador lo permite.</p><img id="pngPreview" alt="Pasamanos PNG"><div class="pngActions"><a id="pngDownload" download="pasamanos.png">Descargar PNG</a><button id="cerrarPng">Cerrar</button></div></div></div>
 
 <div class="wrap">
@@ -339,7 +339,7 @@ ANCHO: {ancho} - ALTO: {alto} - PENDIENTE {pendiente}°</textarea>
     </div>
   </div>
 </section>
-<section class="card" data-vista="despiece"><details class="compactDetails" open><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details><div class="btns"><button type="button" class="ok" id="exportarDespieceJson">Exportar despiece JSON</button><button type="button" class="docsBtn" id="enviarCutMaster" style="background:#196f4b;color:white">✂ Cut Máster</button></div><p class="hint">Envía directamente los cortes a Cut Máster para optimizar las barras. También puedes exportar el JSON.</p></section>
+<section class="card" data-vista="despiece"><details class="compactDetails" open><summary>Despiece y marcado</summary><div id="tabla" style="margin-top:10px"></div></details><div class="btns"><button type="button" class="docsBtn" id="exportarDespiecePdf" style="background:#ba3c20;color:#fff">PDF fabricación</button><button type="button" class="ok" id="exportarDespieceJson">Exportar despiece JSON</button><button type="button" class="docsBtn" id="enviarCutMaster" style="background:#196f4b;color:white">✂ Cut Máster</button></div><p class="hint">Envía directamente los cortes a Cut Máster para optimizar las barras. También puedes exportar el JSON.</p></section>
 <section class="card" data-vista="png"><p class="title">Exportar PNG</p><div class="btns"><button class="ok" id="exportPNGHD" type="button">PNG HD</button><button class="light" id="exportPNG" type="button">PNG</button><button class="docsBtn" id="exportDocs" type="button">Añadir a Documentos</button></div></section>
 <section class="card" id="textoPresupuestoOculto" hidden><textarea id="texto" readonly></textarea><button id="copiar" type="button" hidden>Copiar</button></section>
 </div>
@@ -514,7 +514,7 @@ function precioMotorVigente(){return precioMotorAplicado && precioMotorAplicado.
 function actualizarAvisoPrecioMotor(){
  const aviso=$('avisoPrecioMotor');if(!aviso)return;
  const validado=!!precioMotorVigente();
- aviso.textContent=validado?'✓ Precio actualizado con Motor · '+tarifaActualMotor():'⚠ Precio orientativo · pasar por € Motor para actualizar tarifa';
+ aviso.textContent=validado?'✓ Precio Motor · tarifa '+tarifaActualMotor():'✓ Precio Pasamanos · tarifas propias (Motor opcional)';
  aviso.classList.toggle('validado',validado);
 }
 function recibirPrecioMotor(){
@@ -1232,6 +1232,78 @@ function renderTabla(c){
   }
   $('tabla').innerHTML=html;
 }
+// PDF vectorial real, sin ventanas emergentes ni window.print: compatible con Safari iOS.
+async function exportarPdfFabricacion(){
+  const c=calc(), total=totalConjunto(c);
+  const tramos=[{nombre:'Frontal',m:c,frontal:true},...total.lados.map(l=>({nombre:l.lado==='izq'?'Lateral izquierdo':'Lateral derecho',m:l,frontal:false}))];
+  // Una sola hoja A4 apaisada para TODO el conjunto: despieces, frontal y laterales.
+  const W=841.89,H=595.28,margin=22,gap=11,colW=(W-2*margin-2*gap)/3;
+  const pages=[];let ops=[];
+  const encoder=new TextEncoder();
+  const cp=s=>String(s??'').replace(/€/g,'EUR').replace(/×/g,'x').replace(/·/g,'-').replace(/[–—]/g,'-').replace(/[°]/g,' grados').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x20-\x7e]/g,'?');
+  const esc=s=>cp(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+  function txt(t,x,y,size=8,bold=false,white=false){ops.push(`${white?'1 1 1':'0.08 0.12 0.18'} rg BT /${bold?'F2':'F1'} ${size} Tf 1 0 0 1 ${x.toFixed(2)} ${y.toFixed(2)} Tm (${esc(t)}) Tj ET`)}
+  function rect(x,y,w,h,color){ops.push(`${color} rg ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`)}
+  function line(x1,y1,x2,y2){ops.push(`0.68 0.72 0.76 RG .45 w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`)}
+  function newPage(){if(ops.length)pages.push(ops.join('\n'));ops=[]}
+  function wrap(t,width,size=8){const max=Math.max(7,Math.floor(width/(size*.51)));let rest=cp(t),out=[];while(rest.length>max){let n=rest.lastIndexOf(' ',max);if(n<max*.45)n=max;out.push(rest.slice(0,n).trim());rest=rest.slice(n).trim()}out.push(rest);return out}
+  function heading(t,x,y,w){rect(x,y-9,w,17,'0.69 0.04 0.03');txt(t,x+5,y-3,8.2,true,true);return y-23}
+  function table(x,y,width,headers,rows,weights,opts={}){
+    const xs=[x];weights.forEach(v=>xs.push(xs.at(-1)+width*v));
+    const h=opts.rh||14,sz=opts.size||7.4,lh=opts.lh||9;
+    rect(x,y-h,width,h,'0.72 0.06 0.04');headers.forEach((t,i)=>txt(t,xs[i]+3,y-10,7.1,true,true));y-=h;
+    rows.forEach((r,j)=>{
+      const parts=r.map((v,i)=>wrap(v,xs[i+1]-xs[i]-6,sz));const height=Math.max(h,Math.max(...parts.map(v=>v.length))*lh+4);
+      if(j%2===0)rect(x,y-height,width,height,'0.94 0.97 0.98');
+      parts.forEach((lines,i)=>lines.forEach((v,k)=>txt(v,xs[i]+3,y-10-k*lh,sz,i===0)));
+      line(x,y-height,x+width,y-height);y-=height;
+    });return y-7;
+  }
+  function marcas(t,x,y,width,rh){
+    const m=generarMarcas(t.frontal?t.m:{...t.m,grados:0,cos:1,entradaIzq:t.m.entradaIzq||0},!t.frontal);
+    y=heading('MARCAS POR HUECO',x,y,width);
+    y=table(x,y,width,['Tubo','Inicio','Centro','Final'],m.filasPorHueco.map(r=>[r.n,nf(r.inicio),nf(r.centro),nf(r.final)]),[.18,.27,.27,.28],{rh,size:7.6});
+    y=heading('MARCAS ACUMULADAS',x,y,width);
+    y=table(x,y,width,['Hueco','Tubo','Inicio','Centro','Final'],m.filas.map(r=>[r.h,r.n,nf(r.inicio),nf(r.centro),nf(r.final)]),[.17,.16,.22,.22,.23],{rh,size:7.2});
+    return y;
+  }
+  try{
+    const x0=margin,x1=margin+colW+gap,x2=margin+2*(colW+gap);
+    txt('PASAMANOS - FABRICACION',margin,H-27,13,true);
+    txt(`${nf(c.largo)} x ${nf(c.alto)} mm  |  Pendiente ${nf(c.grados)} grados  |  ${new Date().toLocaleDateString('es-ES')}`,margin,H-43,8.3);
+    line(margin,H-50,W-margin,H-50);
+    // Columna 1: todos los despieces; columna 2: marcado frontal;
+    // columna 3: marcado de los laterales, sin hojas adicionales.
+    let yl=H-67;
+    for(const t of tramos){
+      yl=heading(`DESPIECE - ${t.nombre.toUpperCase()} (${nf(t.m.largo)} mm)`,x0,yl,colW);
+      yl=table(x0,yl,colW,['Perfil','Uds','Corte'],piezasDeTramo(t.m,t.frontal).map(r=>[r.nombre,r.cantidad,`${nf(r.corte)} mm`]),[.64,.12,.24],{rh:15,size:7.1,lh:8.4});
+      yl-=4;
+    }
+    txt('Todos los cortes en mm. Sin precios.',x0,Math.max(yl-4,margin-4),7.1);
+    const frontal=tramos[0];
+    txt(`FRONTAL - ${nf(frontal.m.largo)} mm  |  ${frontal.m.totalOva} tubos`,x1,H-66,9,true);
+    let ym=marcas(frontal,x1,H-80,colW,15);
+    let yr=H-67;
+    for(const t of tramos.slice(1)){
+      txt(`${t.nombre.toUpperCase()} - ${nf(t.m.largo)} mm`,x2,yr,9,true);
+      yr=marcas(t,x2,yr-14,colW,14)-8;
+    }
+    if(tramos.length===1)txt('SIN LATERALES',x2,yr,9,true);
+    if(Math.min(yl,ym,yr)<margin-3)throw new Error('Este diseno tiene demasiadas marcas para una sola hoja A4 legible.');
+  }catch(e){const aviso=document.getElementById('pasamanosPdfAviso')||document.createElement('div');aviso.id='pasamanosPdfAviso';aviso.style.cssText='padding:8px;color:#a21d16;font-weight:bold';aviso.textContent=e.message;document.getElementById('tabla').prepend(aviso);return}
+  newPage();
+  // PDF 1.4: tablas y textos vectoriales, varias paginas A4.
+  const objects=[null];const add=o=>(objects.push(o),objects.length-1);
+  const catalog=add('');const pagesId=add('');const font1=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');const font2=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');const ids=[];
+  pages.forEach(content=>{const bytes=encoder.encode(content);const stream=add(`<< /Length ${bytes.length} >>\nstream\n${content}\nendstream`);const page=add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${font1} 0 R /F2 ${font2} 0 R >> >> /Contents ${stream} 0 R >>`);ids.push(page)});
+  objects[catalog]=`<< /Type /Catalog /Pages ${pagesId} 0 R >>`;objects[pagesId]=`<< /Type /Pages /Kids [${ids.map(id=>id+' 0 R').join(' ')}] /Count ${ids.length} >>`;
+  let pdf='%PDF-1.4\n';const offsets=[0];for(let i=1;i<objects.length;i++){offsets[i]=encoder.encode(pdf).length;pdf+=`${i} 0 obj\n${objects[i]}\nendobj\n`};const start=encoder.encode(pdf).length;pdf+=`xref\n0 ${objects.length}\n0000000000 65535 f \n`;for(let i=1;i<objects.length;i++)pdf+=`${String(offsets[i]).padStart(10,'0')} 00000 n \n`;pdf+=`trailer\n<< /Size ${objects.length} /Root ${catalog} 0 R >>\nstartxref\n${start}\n%%EOF`;
+  const blob=new Blob([encoder.encode(pdf)],{type:'application/pdf'}),filename='Pasamanos_fabricacion.pdf';
+  try{if(navigator.canShare&&navigator.canShare({files:[new File([blob],filename,{type:'application/pdf'})]})){await navigator.share({files:[new File([blob],filename,{type:'application/pdf'})],title:'Pasamanos - Fabricacion'});return}}catch(e){if(e.name==='AbortError')return}
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+$('exportarDespiecePdf').addEventListener('click',exportarPdfFabricacion);
 $('tabla').addEventListener('click',e=>{
   const boton=e.target.closest('[data-tramo]');if(!boton)return;
   tramoDespieceActual=boton.dataset.tramo;renderTabla(calc());
@@ -1260,7 +1332,7 @@ function construirDespieceIntercambio(){
     if(!resumen.has(clave))resumen.set(clave,{...pieza});
     else{const dato=resumen.get(clave);dato.cantidad+=pieza.cantidad;dato.coste+=pieza.coste;}
   }
-  return {formato:'pasamanos-despiece',version_formato:1,origen:'Pasamanos v1.31',
+  return {formato:'pasamanos-despiece',version_formato:1,origen:'Pasamanos v1.41',
     fecha:new Date().toISOString(),unidad_longitud:'mm',moneda:'EUR',precios_referencia:'aluminio blanco',
     configuracion:Object.fromEntries(ids.map(id=>[id,$(id)?.value])),
     acabado:{...acabados},descripcion:$('texto').value,
@@ -1351,7 +1423,8 @@ async function enviarGraficoAlPresupuesto(){
       nombre:'Pasamanos', descripcion, texto:descripcion,
       imagen:png.dataUrl, image:png.dataUrl,
       targetIndex:index,
-      preserveConceptValues:true, // no alterar precio ni unidades ya editados
+      preserveConceptValues:false, // enviar siempre el precio mostrado, incluso sin utilizar Motor
+      precio:totalConjunto(c).bruto.toFixed(2),price:totalConjunto(c).bruto.toFixed(2),cantidad:1,units:1,
       configuracionPasamanos:Object.fromEntries(ids.map(id=>[id,$(id)?.value]))
     };
     const datos=JSON.stringify(producto);
@@ -1439,6 +1512,7 @@ function cropCanvasToContent(canvas,pad=24){
 }
 
 function openedFromDocumentos(){
+  if(budgetGraphicMode())return true;
   try{ const qs = new URLSearchParams(location.search || ''); if(String(qs.get('from')||'').toLowerCase()==='documentos') return true; }catch(e){}
   try{ return !!(sessionStorage.getItem('rey_docs_external_target_index_v1') || localStorage.getItem('rey_docs_external_target_index_v1')); }catch(e){}
   return false;
@@ -1492,7 +1566,7 @@ async function enviarADocumentos(){
   try{ window.location.href=url; }catch(e){}
 }
 
-// v1.31: exportación fiable también con Diseño oculto (pestaña PNG).
+// v1.34: exportación fiable también con Diseño oculto (pestaña PNG).
 // Medimos una copia temporal visible para el motor SVG; nunca se usa getBBox()
 // sobre el gráfico de la pestaña oculta. El recorte contiene todas las cotas.
 async function svgToPng(scale=2,recortar=false){
@@ -1566,7 +1640,7 @@ async function svgToPng(scale=2,recortar=false){
 
 async function guardarPNG(scale=2){let r=await svgToPng(scale);if(!r)return;let filename='pasamanos_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+(scale>1?'_HD':'')+'.png';let file=new File([r.blob],filename,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Pasamanos'});return}catch(e){}}$('pngDownload').download=filename;$('pngDownload').href=r.dataUrl;$('pngPreview').src=r.dataUrl;$('pngModal').classList.add('show')}
 const calcBtn=$('calcular');if(calcBtn)calcBtn.onclick=render;
-// v1.31: las dos vistas deben encuadrarse con el SVG medible.
+// v1.32: las dos vistas deben encuadrarse con el SVG medible.
 // Cuando se selecciona una vista desde Colores el panel Diseño está oculto:
 // getBBox() no puede medirlo y el dibujo queda desplazado hacia abajo.
 function renderVistaConEncuadre(){
@@ -1664,11 +1738,28 @@ if(pasDesdeGrafico||pasDesdeConceptos){
 
 // Paso 1: envío comprobable del despiece. No cambia precios ni cálculos.
 const REY_PAS_MOTOR_ENTRADA='REY_PASAMANOS_MOTOR_IN_V2';
-function enviarDespieceAMotor(){
+async function enviarDespieceAMotor(){
+  const boton=$('btnEnviarDespieceMotor');if(boton)boton.disabled=true;
   try{
     render();
     const d=construirDespieceIntercambio();
     if(!Array.isArray(d.resumen_cortes)||!d.resumen_cortes.length)throw new Error('No se han calculado piezas');
+    // Preparar el concepto y el gráfico antes de salir: Motor podrá volver
+    // DIRECTAMENTE a Documentos, sin depender de recargar Pasamanos.
+    if(openedFromDocumentos()){
+      const c=calc(), total=totalConjunto(c);
+      const png=await svgToPng(1.5,true);
+      if(!png||!png.dataUrl)throw new Error('No se pudo preparar el gráfico para el presupuesto');
+      const borrador={targetIndex:budgetGraphicMode()?budgetGraphicTargetIndex():docsTargetIndex(),return_to:docsReturnFile(),
+        desdeGrafico:budgetGraphicMode(),
+        descripcion:($('texto')?.value||'').trim()||`Pasamanos de ${nf(c.largo)} mm`,
+        referencia:`PASAMANOS ${nf(c.largo)}x${nf(c.alto70)}`,
+        imagen:png.dataUrl,montaje:Number(total.mont)||0,margenPorcentaje:val('margen'),ivaPorcentaje:val('iva'),
+        firma:firmaConfiguracionEstableMotor(),fecha:Date.now()};
+      const texto=JSON.stringify(borrador);
+      try{sessionStorage.setItem('REY_PASAMANOS_DOCS_DRAFT_V1',texto);localStorage.setItem('REY_PASAMANOS_DOCS_DRAFT_V1',texto)}
+      catch(e){throw new Error('No se pudo guardar el gráfico para Documentos. Libera espacio en Safari.');}
+    }
     d.return_to=(location.pathname.split('/').pop()||'pasamanos.html');
     d.return_search=location.search||'';
     d.id_envio=Date.now();
@@ -1679,6 +1770,7 @@ function enviarDespieceAMotor(){
     localStorage.setItem(REY_PAS_MOTOR_ENTRADA,raw);
     location.href='motor_series.html?from=pasamanos&pas_payload=2&t='+d.id_envio;
   }catch(err){ alert('No se pudo enviar el despiece a Motor: '+(err.message||err)); }
+  finally{if(boton)boton.disabled=false;}
 }
 $('btnEnviarDespieceMotor').addEventListener('click',enviarDespieceAMotor);
 // Comunicación directa Pasamanos → Cut Máster. No interviene Motor Series.
@@ -1748,6 +1840,19 @@ document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()
 $('exportarDespieceJson').onclick=exportarDespieceJson;
 $('exportPNGHD').onclick=()=>guardarPNG(2);$('exportPNG').onclick=()=>guardarPNG(1);$('exportDocs').onclick=enviarADocumentos;
 load();iniciarColores();recibirPrecioMotor();graficoFijado=true;render();cambiarPantalla('diseno');
+// Regreso Motor → Pasamanos → Documentos: el cálculo final lo hace Pasamanos.
+// Solo se entrega automáticamente si Motor devolvió una tarifa validada y hay origen presupuesto.
+try{
+  const q=new URLSearchParams(location.search);
+  if(q.get('motor_docs_auto')==='1' && openedFromDocumentos()){
+    if(precioMotorVigente()){
+      setTimeout(()=>{if(precioMotorVigente())enviarADocumentos();},100);
+    }else{
+      const aviso=$('avisoPrecioMotor');
+      if(aviso)aviso.textContent='⚠ No se pudo validar el precio de Motor. Revisa el cálculo antes de enviar a Documentos.';
+    }
+  }
+}catch(e){console.error('Retorno presupuesto Pasamanos',e);}
 </script>
 </body>
 </html>
