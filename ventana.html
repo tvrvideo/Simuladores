@@ -2,7 +2,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2.6</title>
+    <title>Ventana Pro v96.2.8</title>
+    <!-- v96.2.8: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
+    <!-- v96.2.7: Las líneas de apertura siguen el contorno de la hoja, no el hueco del vidrio. -->
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
     <!-- v95.0: Corrige default 4 hojas: hoja 1 apertura izquierda con bisagras sin manilla. -->
@@ -1234,7 +1236,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2.6"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.6</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.8"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.8</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -5233,9 +5235,13 @@ function cambiarColorMarco(c) {
                 dibujarBarrotillosEnPoligono(ctx, [p1, p2, p3, p4], cfgBarrotillosSub, esc);
             }
 
-            const centerYTop = (p1.y + p2.y) / 2;
-            const centerYBot = (p3.y + p4.y) / 2;
-            const centerYMid = (centerYTop + centerYBot) / 2;
+            // La marca se apoya en la hoja; glassPoly se reserva para el cristal.
+            const [a1, a2, a3, a4] = drawPoly;
+            const centerHojaX = (a1.x + a2.x + a3.x + a4.x) / 4;
+            const centerHojaYTop = (a1.y + a2.y) / 2;
+            const centerHojaYBot = (a3.y + a4.y) / 2;
+            const centerHojaYMid = (centerHojaYTop + centerHojaYBot) / 2;
+            const centerGlassYMid = ((p1.y + p2.y) / 2 + (p3.y + p4.y) / 2) / 2;
 
             if(esContraTexturadaSubHoja){
                 ctx.strokeStyle = lineaContraColor;
@@ -5250,36 +5256,32 @@ function cambiarColorMarco(c) {
 
             if (ap === "izquierda" || ap === "izq-ob") {
                 ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, centerYMid);
-                ctx.lineTo(p4.x, p4.y);
-                ctx.closePath();
+                ctx.moveTo(a1.x, a1.y);
+                ctx.lineTo(a2.x, centerHojaYMid);
+                ctx.lineTo(a4.x, a4.y);
                 ctx.stroke();
             } else if (ap === "derecha" || ap === "der-ob") {
                 ctx.beginPath();
-                ctx.moveTo(p2.x, p2.y);
-                ctx.lineTo(p1.x, centerYMid);
-                ctx.lineTo(p3.x, p3.y);
-                ctx.closePath();
+                ctx.moveTo(a2.x, a2.y);
+                ctx.lineTo(a1.x, centerHojaYMid);
+                ctx.lineTo(a3.x, a3.y);
                 ctx.stroke();
             } else if (ap === "proyectante") {
                 ctx.beginPath();
-                ctx.moveTo(centerX, p4.y);
-                ctx.lineTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, p2.y);
-                ctx.closePath();
+                ctx.moveTo(a1.x, a1.y);
+                ctx.lineTo(centerHojaX, a4.y);
+                ctx.lineTo(a2.x, a2.y);
                 ctx.stroke();
             } else if (ap === "abatible-inf") {
                 ctx.beginPath();
-                ctx.moveTo(centerX, p1.y);
-                ctx.lineTo(p3.x, p3.y);
-                ctx.lineTo(p4.x, p4.y);
-                ctx.closePath();
+                ctx.moveTo(a4.x, a4.y);
+                ctx.lineTo(centerHojaX, centerHojaYTop);
+                ctx.lineTo(a3.x, a3.y);
                 ctx.stroke();
             } else if (ap === "corredera") {
                 ctx.beginPath();
-                ctx.moveTo(minX + boxW * 0.18, centerYMid);
-                ctx.lineTo(maxX - boxW * 0.18, centerYMid);
+                ctx.moveTo(minX + boxW * 0.18, centerGlassYMid);
+                ctx.lineTo(maxX - boxW * 0.18, centerGlassYMid);
                 ctx.stroke();
             }
 
@@ -5289,10 +5291,9 @@ function cambiarColorMarco(c) {
                 window.__aperturaExteriorActiva = !!cfg.aperturaExterior;
                 aplicarEstiloApertura(ctx, true);
                 ctx.beginPath();
-                ctx.moveTo(centerX, centerYTop);
-                ctx.lineTo(p4.x, p4.y);
-                ctx.lineTo(p3.x, p3.y);
-                ctx.closePath();
+                ctx.moveTo(a4.x, a4.y);
+                ctx.lineTo(centerHojaX, centerHojaYTop);
+                ctx.lineTo(a3.x, a3.y);
                 ctx.stroke();
                 if(esContraTexturadaSubHoja){
                     ctx.strokeStyle = lineaContraColor;
@@ -6191,6 +6192,14 @@ function cambiarColorMarco(c) {
                 const centerYGlassTopLine = (p1.y + p2.y) / 2;
                 const centerYGlassBottomLine = (p3.y + p4.y) / 2;
                 const centerYGlassMid = (centerYGlassTopLine + centerYGlassBottomLine) / 2;
+                // Esquinas exteriores de la hoja, también para hojas trapezoidales.
+                const a1 = {x: xHojaLeft, y: yHojaTopLeft};
+                const a2 = {x: xHojaRight, y: yHojaTopRight};
+                const a3 = {x: xHojaRight, y: yHojaBottom};
+                const a4 = {x: xHojaLeft, y: yHojaBottom};
+                const centerHojaX = (xHojaLeft + xHojaRight) / 2;
+                const centerHojaYTop = (yHojaTopLeft + yHojaTopRight) / 2;
+                const centerHojaYMid = (centerHojaYTop + yHojaBottom) / 2;
 
                 // v93.4.5: barrotillos por hueco guardado antes de aperturas.
                 dibujarBarrotillosHuecosGuardados(ctx);
@@ -6200,43 +6209,38 @@ function cambiarColorMarco(c) {
                 aplicarEstiloApertura(ctx, false);
                 if (ap === "izquierda" || ap === "izq-ob") {
                     ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, centerYGlassMid);
-                    ctx.lineTo(p4.x, p4.y);
-                    ctx.closePath();
+                    ctx.moveTo(a1.x, a1.y);
+                    ctx.lineTo(a2.x, centerHojaYMid);
+                    ctx.lineTo(a4.x, a4.y);
                     ctx.stroke();
                 }
                 if (ap === "derecha" || ap === "der-ob") {
                     ctx.beginPath();
-                    ctx.moveTo(p2.x, p2.y);
-                    ctx.lineTo(p1.x, centerYGlassMid);
-                    ctx.lineTo(p3.x, p3.y);
-                    ctx.closePath();
+                    ctx.moveTo(a2.x, a2.y);
+                    ctx.lineTo(a1.x, centerHojaYMid);
+                    ctx.lineTo(a3.x, a3.y);
                     ctx.stroke();
                 }
                 if (ap === "proyectante") {
                     ctx.beginPath();
-                    ctx.moveTo(centerXGlass, p4.y);
-                    ctx.lineTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.closePath();
+                    ctx.moveTo(a1.x, a1.y);
+                    ctx.lineTo(centerHojaX, a4.y);
+                    ctx.lineTo(a2.x, a2.y);
                     ctx.stroke();
                 }
                 if (ap === "abatible-inf") {
                     ctx.beginPath();
-                    ctx.moveTo(centerXGlass, p1.y);
-                    ctx.lineTo(p3.x, p3.y);
-                    ctx.lineTo(p4.x, p4.y);
-                    ctx.closePath();
+                    ctx.moveTo(a4.x, a4.y);
+                    ctx.lineTo(centerHojaX, centerHojaYTop);
+                    ctx.lineTo(a3.x, a3.y);
                     ctx.stroke();
                 }
                 if (ap === "izq-ob" || ap === "der-ob") {
                     aplicarEstiloApertura(ctx, true);
                     ctx.beginPath();
-                    ctx.moveTo(centerXGlass, centerYGlassTopLine);
-                    ctx.lineTo(p4.x, p4.y);
-                    ctx.lineTo(p3.x, p3.y);
-                    ctx.closePath();
+                    ctx.moveTo(a4.x, a4.y);
+                    ctx.lineTo(centerHojaX, centerHojaYTop);
+                    ctx.lineTo(a3.x, a3.y);
                     ctx.stroke();
                     aplicarEstiloApertura(ctx, false);
                 }
