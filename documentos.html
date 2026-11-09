@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.97</title>
+  <title>Documentos Rey v4.8.98</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4480,7 +4480,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.97</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.8.98</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4514,7 +4514,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.8.97</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.8.98</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -10600,6 +10600,30 @@ COLOCACIÓN INCLUIDA` }
     return suffix > 0 ? (base + '-' + suffix) : base;
   }
 
+  function getBudgetFabricationReference(){
+    if(!state || getDocumentType() !== 'presupuesto') return '';
+    const f = state.fabricacion;
+    if(f && Object.prototype.hasOwnProperty.call(f, 'referencia')) return String(f.referencia || '').trim();
+    // Conserva referencias de documentos antiguos guardadas solo en el espejo local.
+    const key = state.documentId ? 'id_' + String(state.documentId) :
+      'num_' + String(state.documentoTipo || 'doc') + '_' + String(state.numero || '');
+    try{ return String(localStorage.getItem('doc_fabricacion_' + key + '_referencia') || '').trim(); }
+    catch(_){ return ''; }
+  }
+
+  function setBudgetFabricationReference(value){
+    if(!state || getDocumentType() !== 'presupuesto') return;
+    if(!state.fabricacion || typeof state.fabricacion !== 'object') state.fabricacion = {};
+    state.fabricacion.referencia = String(value || '').trim();
+    const key = state.documentId ? 'id_' + String(state.documentId) :
+      'num_' + String(state.documentoTipo || 'doc') + '_' + String(state.numero || '');
+    try{ localStorage.setItem('doc_fabricacion_' + key + '_referencia', state.fabricacion.referencia); }catch(_){}
+  }
+  window.__reyFabricacionRefChanged = function(value){
+    setBudgetFabricationReference(value);
+    return render();
+  };
+
   function getAppPageCount(){
     if(isSimpleBudget()){
       return Math.max(simplePaginateItems().length, Math.max(1, Number(state.simpleExtraPages || 1)));
@@ -11400,6 +11424,21 @@ COLOCACIÓN INCLUIDA` }
       : (getDocumentType()==='albaran' ? 'Número de albarán: ' : 'Número de presupuesto: ');
     const displayNumber = getDisplayDocumentNumber(pageNumber || 1, !!forExport);
     addText(root, 26, numberY, numberLabel + safe(displayNumber), { fs:numberFs, fw:'700', fill:s.titleColor });
+    const ref = getBudgetFabricationReference();
+    if(getDocumentType() === 'presupuesto'){
+      const prefixWidth = approxSvgTextWidthV304(numberLabel + displayNumber, numberFs, '700');
+      const refX = Math.min(570, 26 + prefixWidth + 18);
+      const refText = 'Ref. ' + ref;
+      const refEl = addText(root, refX, numberY, refText, { fs:numberFs, fw:'700', fill:s.titleColor });
+      const available = 766 - refX;
+      const width = approxSvgTextWidthV304(refText, numberFs, '700');
+      if(width > available){
+        refEl.setAttribute('textLength', String(available));
+        refEl.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+      }
+      addSvgTapHaloV304(root, refX - 6, numberY - 34, 772 - refX, 52,
+        () => openEdit('referencia', 'Referencia'), 'Editar referencia');
+    }
 
     hit(root, 28, 50, 340, 105, () => openEdit('company', 'Empresa'), 'Editar empresa o logo');
     hit(root, 410, 76, 350, 150, () => openEdit('client', 'Cliente'), 'Editar cliente');
@@ -11410,7 +11449,9 @@ COLOCACIÓN INCLUIDA` }
 
     const labelW = approxSvgTextWidthV304(numberLabel, numberFs, '700');
     const numberTapX = 26 + labelW - 8;
-    const numberTapW = Math.max(128, approxSvgTextWidthV304(displayNumber, numberFs, '700') + 34);
+    const numberTapW = getDocumentType() === 'presupuesto'
+      ? Math.max(90, approxSvgTextWidthV304(displayNumber, numberFs, '700') + 14)
+      : Math.max(128, approxSvgTextWidthV304(displayNumber, numberFs, '700') + 34);
     addSvgTapHaloV304(root, numberTapX, numberY - 34, numberTapW, 52, () => openEdit('numero', 'Número presupuesto'), 'Editar número');
   }
 
@@ -12607,6 +12648,8 @@ COLOCACIÓN INCLUIDA` }
           toast('Número asignado: ' + nextNum);
         };
       }
+    } else if(type === 'referencia'){
+      body.innerHTML = `<label>Referencia del presupuesto y hoja de fabricación</label><input id="editReferenciaFabricacion" type="text" value="${esc(getBudgetFabricationReference())}" placeholder="Referencia"><div class="sheet-actions"><button type="button" class="btn btn-primary" id="sheetSave">Guardar</button><button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button></div>`;
     } else if(type === 'validez'){
       const fechaBaseValidez = state.fecha || today();
       const diasActuales = isFacturaDocument() ? Math.max(0, daysBetweenDates(fechaBaseValidez, state.validez || fechaBaseValidez)) : clampBudgetValidityDays(Math.max(1, daysBetweenDates(fechaBaseValidez, state.validez || addDays(fechaBaseValidez, getBudgetValidityDays()))));
@@ -13919,6 +13962,8 @@ body.innerHTML = `
         nextNumeroValue = normalizeFacturaNumberV289093(nextNumeroValue);
       }
       state.numero = nextNumeroValue;
+    } else if(currentEdit.type === 'referencia') {
+      setBudgetFabricationReference(($('editReferenciaFabricacion') && $('editReferenciaFabricacion').value) || '');
     } else if(currentEdit.type === 'validez') {
       if(isFacturaDocument()){
         state.validez = $('editValidez').value || (state.fecha || today());
@@ -20443,13 +20488,18 @@ const mo = new MutationObserver(function(){
   function fabLoadReferencia(){
     var f = fabGetDocFabricacion();
     if(f && typeof f.referencia !== 'undefined') return String(f.referencia || '');
-    try{ return localStorage.getItem(fabStorageKey('referencia')) || ''; }catch(_){ return ''; }
+    try{
+      var oldRef=localStorage.getItem(fabStorageKey('referencia')) || '';
+      if(oldRef && f) f.referencia=oldRef;
+      return oldRef;
+    }catch(_){ return ''; }
   }
   function fabSaveReferencia(value){
     value = String(value || '').trim();
     var f = fabGetDocFabricacion();
     if(f) f.referencia = value;
     try{ localStorage.setItem(fabStorageKey('referencia'), value); }catch(_){ }
+    try{ if(typeof window.__reyFabricacionRefChanged==='function') window.__reyFabricacionRefChanged(value); }catch(_){}
   }
   function fabLoadNota(key, baseData){
     key = String(key || '').toUpperCase();
@@ -20658,7 +20708,10 @@ const mo = new MutationObserver(function(){
     var modoNotasChk=document.getElementById('fabricarModoNotas');
     if(modoNotasChk) modoNotasChk.checked = true;
     var refInput=document.getElementById('fabricarReferencia');
-    if(refInput) refInput.value = fabLoadReferencia();
+    if(refInput){
+      refInput.value = fabLoadReferencia();
+      refInput.onchange = function(){ fabSaveReferencia(refInput.value); };
+    }
     var res=document.getElementById('fabricarTestResultado');
     if(res){ res.classList.remove('show'); res.textContent=''; }
     var ov=document.getElementById('fabricarTestOverlay');
