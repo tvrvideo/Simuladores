@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2.8</title>
-    <!-- v96.2.8: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
+    <title>Ventana Pro v96.2.10</title>
+    <!-- v96.2.10: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
     <!-- v96.2.7: Las líneas de apertura siguen el contorno de la hoja, no el hueco del vidrio. -->
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
@@ -1236,7 +1236,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2.8"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.8</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.10"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.10</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -4172,6 +4172,7 @@ function cambiarColorMarco(c) {
                                 <input type="checkbox" ${travesanosHojas[i].cotasH && travesanosHojas[i].cotasH[j] ? 'checked' : ''} onchange="toggleCotaTravesanoH(${i}, ${j}, this.checked)">
                                 <span>Cota</span>
                             </label>
+                            <button class="remove-button" style="background:#26754a" onclick="centrarTravesanosHoja(${i}, 'horizontal')">Centrar</button>
                             <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'horizontal')">Quitar</button>
                         </div>
                     `;
@@ -4185,6 +4186,7 @@ function cambiarColorMarco(c) {
                                 <input type="checkbox" ${travesanosHojas[i].cotasV && travesanosHojas[i].cotasV[j] ? 'checked' : ''} onchange="toggleCotaTravesanoV(${i}, ${j}, this.checked)">
                                 <span>Cota</span>
                             </label>
+                            <button class="remove-button" style="background:#26754a" onclick="centrarTravesanosHoja(${i}, 'vertical')">Centrar</button>
                             <button class="remove-button" onclick="removeTravesanoHoja(${i}, ${j}, 'vertical')">Quitar</button>
                         </div>
                     `;
@@ -4365,122 +4367,52 @@ function cambiarColorMarco(c) {
         });
     }
 
+    // Las cotas guardadas son ejes desde el borde exterior de la hoja/módulo.
+    // El dibujo escala esas cotas con el alto principal o ancho exterior de hoja.
+    // Repartir los huecos dentro de la hoja y sumar el borde de hoja a cada eje.
+    function centrarTravesanosHoja(hojaIndex, orientation) {
+        const datos=travesanosHojas[hojaIndex];if(!datos)return;
+        const horizontal=orientation==='horizontal',n=horizontal?datos.numH:datos.numV;
+        if(!n)return;
+        const anchoEl=document.getElementById(`anchoHoja${hojaIndex}`);
+        const ref=horizontal?Number(altoVentanaPrincipalRealMM):Number(anchoEl&&anchoEl.value);
+        const borde=Number(hojaThickness),grosor=Number(travesanoThickness);
+        if(!(ref>2*borde+n*grosor))return;
+        const hueco=(ref-2*borde-n*grosor)/(n+1);
+        const ejes=Array.from({length:n},(_,k)=>Math.round(borde+(k+1)*hueco+(k+0.5)*grosor));
+        if(horizontal)datos.alturasH=ejes;else datos.posicionesV=ejes;
+        actualizarHojas();actualizarVista();
+    }
     function addTravesanoHoja(hojaIndex, orientation) {
-        if (!travesanosHojas[hojaIndex]) {
-             travesanosHojas[hojaIndex] = { numH: 0, alturasH: [], coloresHuecosH: [colorActivo], cotasH: [], numV: 0, posicionesV: [], cotasV: [] };
+        if(!travesanosHojas[hojaIndex]){
+            travesanosHojas[hojaIndex]={numH:0,alturasH:[],coloresHuecosH:[colorActivo],cotasH:[],numV:0,posicionesV:[],cotasV:[]};
         }
-
-        if (orientation === 'horizontal') {
-            const totalHeight = altoVentanaPrincipalRealMM - (2 * hojaThickness);
-            let currentCount = travesanosHojas[hojaIndex].numH;
-            let newCount = currentCount + 1;
-            
-            // FIX: Equal Gaps Calculation (Bottom-aligned for horizontal bars)
-            const gapHeight = (totalHeight - (newCount * travesanoThickness)) / (newCount + 1);
-            let newAlturas = [];
-            let currentH = 0;
-            for(let k=0; k<newCount; k++) {
-                currentH += gapHeight;
-                newAlturas.push(Math.round(currentH));
-                currentH += travesanoThickness;
-            }
-            
-            travesanosHojas[hojaIndex].alturasH = newAlturas;
-            travesanosHojas[hojaIndex].numH = newCount;
-            
-            // FIX: Preserve Colors
-            let oldColors = travesanosHojas[hojaIndex].coloresHuecosH || [];
-            let newColors = [];
-            // Keep existing colors for existing gaps, add new color for new gap
-            for(let k=0; k < newCount + 1; k++) {
-                if(k < oldColors.length) newColors.push(oldColors[k]);
-                else newColors.push(hojasData[hojaIndex].colorCristal || colorActivo);
-            }
-            travesanosHojas[hojaIndex].coloresHuecosH = newColors;
-            const oldCotasH = Array.isArray(travesanosHojas[hojaIndex].cotasH) ? travesanosHojas[hojaIndex].cotasH : [];
-            travesanosHojas[hojaIndex].cotasH = Array.from({length:newCount}, (_, k) => !!oldCotasH[k]);
-
-        } else if (orientation === 'vertical') {
-            const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
-            let currentCount = travesanosHojas[hojaIndex].numV;
-            let newCount = currentCount + 1;
-            
-            // Equal Gaps for Vertical (Center-aligned for vertical bars)
-            const gapWidthV = (totalWidth - (newCount * travesanoThickness)) / (newCount + 1);
-            let newPosiciones = [];
-            let currentWV = 0;
-            for(let k=0; k<newCount; k++) {
-                currentWV += gapWidthV;
-                newPosiciones.push(Math.round(currentWV + travesanoThickness/2));
-                currentWV += travesanoThickness;
-            }
-            
-            travesanosHojas[hojaIndex].posicionesV = newPosiciones;
-            travesanosHojas[hojaIndex].numV = newCount;
-            const oldCotasV = Array.isArray(travesanosHojas[hojaIndex].cotasV) ? travesanosHojas[hojaIndex].cotasV : [];
-            travesanosHojas[hojaIndex].cotasV = Array.from({length:newCount}, (_, k) => !!oldCotasV[k]);
+        const datos=travesanosHojas[hojaIndex];
+        if(orientation==='horizontal'){
+            datos.numH++;
+            const colores=datos.coloresHuecosH||[];
+            while(colores.length<datos.numH+1)colores.push(hojasData[hojaIndex].colorCristal||colorActivo);
+            datos.coloresHuecosH=colores;
+            datos.cotasH=Array.from({length:datos.numH},(_,k)=>!!(datos.cotasH||[])[k]);
+        }else{
+            datos.numV++;
+            datos.cotasV=Array.from({length:datos.numV},(_,k)=>!!(datos.cotasV||[])[k]);
         }
-        actualizarHojas();
-        actualizarVista();
+        centrarTravesanosHoja(hojaIndex,orientation);
     }
 
     function removeTravesanoHoja(hojaIndex, tIndex, orientation) {
-         if (!travesanosHojas[hojaIndex]) return;
-         const hojaData = travesanosHojas[hojaIndex];
-
-         if (orientation === 'horizontal') {
-            if (hojaData.numH > 0) {
-                hojaData.numH--;
-                hojaData.alturasH.splice(tIndex, 1);
-                if (Array.isArray(hojaData.cotasH)) hojaData.cotasH.splice(tIndex, 1);
-                
-                // Recalculate Equal Gaps
-                const totalHeight = altoVentanaPrincipalRealMM - (2 * hojaThickness);
-                const newCount = hojaData.numH;
-                if(newCount > 0) {
-                    const gapHeight = (totalHeight - (newCount * travesanoThickness)) / (newCount + 1);
-                    let newAlturas = [];
-                    let currentH = 0;
-                    for(let k=0; k<newCount; k++) {
-                        currentH += gapHeight;
-                        newAlturas.push(Math.round(currentH));
-                        currentH += travesanoThickness;
-                    }
-                    hojaData.alturasH = newAlturas;
-                } else {
-                    hojaData.alturasH = [];
-                }
-
-                // Remove color (preserve if possible)
-                if(hojaData.coloresHuecosH && hojaData.coloresHuecosH.length > 1) {
-                    hojaData.coloresHuecosH.splice(tIndex, 1);
-                }
-            }
-         } else if (orientation === 'vertical') {
-            if (hojaData.numV > 0) {
-                hojaData.numV--;
-                hojaData.posicionesV.splice(tIndex, 1);
-                if (Array.isArray(hojaData.cotasV)) hojaData.cotasV.splice(tIndex, 1);
-                
-                const totalWidth = +document.getElementById(`anchoHoja${hojaIndex}`).value - (2 * hojaThickness);
-                const newCount = hojaData.numV;
-                 if(newCount > 0) {
-                    const gapWidthV = (totalWidth - (newCount * travesanoThickness)) / (newCount + 1);
-                    let newPosiciones = [];
-                    let currentWV = 0;
-                    for(let k=0; k<newCount; k++) {
-                        currentWV += gapWidthV;
-                        newPosiciones.push(Math.round(currentWV + travesanoThickness/2));
-                        currentWV += travesanoThickness;
-                    }
-                    hojaData.posicionesV = newPosiciones;
-                 } else {
-                    hojaData.posicionesV = [];
-                 }
-            }
-         }
-         actualizarHojas();
-         actualizarVista();
+        const datos=travesanosHojas[hojaIndex];if(!datos)return;
+        if(orientation==='horizontal'&&datos.numH>0){
+            datos.numH--;datos.alturasH.splice(tIndex,1);
+            if(Array.isArray(datos.cotasH))datos.cotasH.splice(tIndex,1);
+            if(datos.coloresHuecosH&&datos.coloresHuecosH.length>1)datos.coloresHuecosH.splice(tIndex,1);
+        }else if(orientation==='vertical'&&datos.numV>0){
+            datos.numV--;datos.posicionesV.splice(tIndex,1);
+            if(Array.isArray(datos.cotasV))datos.cotasV.splice(tIndex,1);
+        }
+        if(orientation==='horizontal'?datos.numH:datos.numV)centrarTravesanosHoja(hojaIndex,orientation);
+        else {actualizarHojas();actualizarVista();}
     }
 
     function actualizarTravesanoHoja(hojaIndex, travesanoIndex, propiedad, valor) {
@@ -10311,6 +10243,12 @@ function volverIndexSeguro(){
       serie:{id:serieSel?serieSel.value:'',nombre:serieNombre,motor:serieMotor||''},
       medidas:{ancho:Number((document.getElementById('ancho')||{}).value)||0,alto:Number((document.getElementById('alto')||{}).value)||0},
       hojas:Number((document.getElementById('hojas')||{}).value)||0,
+      // Cotas H desde abajo y V desde la izquierda, medidas al eje en Ventana Pro.
+      travesanosHojas:travesanosHojas.slice(0,Number((document.getElementById('hojas')||{}).value)||0).map((t,i)=>({
+        anchoHoja:Number((document.getElementById('anchoHoja'+i)||{}).value)||Number(hojasData[i]&&hojasData[i].savedAncho)||0,
+        horizontales:(t.alturasH||[]).slice(0,t.numH||0).map(x=>Math.round(Number(x))),
+        verticales:(t.posicionesV||[]).slice(0,t.numV||0).map(x=>Math.round(Number(x)))
+      })),
       acabado:{codigo:acabadoNombre,nombre:acabadoNombre,tipo:acabadoNombre?'acabado':'pendiente'},
       opciones:{vidrio:{activo:true,id:''},panel:{activo:false,id:''},persiana:{activo:(typeof mostrarPersiana!=='undefined'?!!mostrarPersiana:!!window.mostrarPersiana),id:''}},
       modulos:(function(){
