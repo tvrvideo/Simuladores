@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.8.99</title>
+  <title>Documentos Rey v4.9.03</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -6097,6 +6097,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       accountLine3: String(state && state.accountLine3 || '')
     };
     state = await createDefaultState();
+    // v4.9.03: la aceptación se activa solo a petición en cada documento nuevo.
+    state.acceptanceEnabled = false;
     const storedBankInfo = getStoredBankInfo();
     state.accountLine2 = previousBankInfo.accountLine2 || String(storedBankInfo.accountLine2 || '');
     state.accountLine3 = previousBankInfo.accountLine3 || String(storedBankInfo.accountLine3 || '');
@@ -6212,6 +6214,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     closeSettings();
     closeSheet();
     state = await createDefaultState();
+    // v4.9.03: la aceptación se activa solo a petición en cada documento nuevo.
+    state.acceptanceEnabled = false;
     state.documentoTipo = state.documentoTipo || 'presupuesto';
     state.tipoPresupuesto = (type === 'sencillo') ? 'sencillo' : 'visual';
     state.simpleExtraPages = 1;
@@ -10418,8 +10422,8 @@ COLOCACIÓN INCLUIDA` }
     if(title) el.setAttribute('aria-label', title);
 
     let tapState = null;
-    const MOVE_LIMIT = 12;
-    const TIME_LIMIT = 450;
+    const MOVE_LIMIT = 18;
+    const TIME_LIMIT = 950;
 
     el.addEventListener('pointerdown', function(e){
       tapState = {
@@ -10776,11 +10780,11 @@ COLOCACIÓN INCLUIDA` }
           maxLines: Math.max(1, Math.floor((rowH - 8) / lineHeight))
         });
 
-        addText(root, colUds + ((colBaseUds-colUds)/2), cy+14, units ? String(it.units) : '', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
+        addText(root, colUds + ((colBaseUds-colUds)/2), cy+14, (Math.abs(price)>0.000001 && units) ? String(it.units) : '', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
         addText(root, (showDto ? colDto : colBaseTotal)-6, cy+14, price ? money(price) : '', { fs:10.4, fw:'400', anchor:'end', fill:price<0?'#c62828':(s.textColor || '#111827') });
         if(showDto) addText(root, colBaseTotal-6, cy+14, dto ? (dto + '%') : '', { fs:10.4, fw:'400', anchor:'end', fill:s.textColor || '#111827' });
         addText(root, colIvaPct-6, cy+14, calc.base ? money(calc.base) : '', { fs:10.4, fw:'400', anchor:'end', fill:calc.base<0?'#c62828':(s.textColor || '#111827') });
-        if(ivaEnabled()) addText(root, colIvaPct + ((colIva-colIvaPct)/2), cy+14, '21%', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
+        if(ivaEnabled() && Number.isFinite(calc.base) && Math.abs(calc.base) > 0.000001) addText(root, colIvaPct + ((colIva-colIvaPct)/2), cy+14, '21%', { fs:10.4, fw:'400', anchor:'middle', fill:s.textColor || '#111827' });
         if(ivaEnabled()) addText(root, x+w-8, cy+14, calc.iva ? money(calc.iva) : '', { fs:10.4, fw:'400', anchor:'end', fill:calc.iva<0?'#c62828':(s.textColor || '#111827') });
       }
 
@@ -11294,7 +11298,7 @@ COLOCACIÓN INCLUIDA` }
     hit(root, 28, 50, 360, 90, () => openEdit('company', 'Empresa'), 'Editar empresa');
     hit(root, 500, 30, 260, 110, () => openEdit('facturaLogo', 'Logo facturas'), 'Editar logo facturas');
     hit(root, boxX, boxY, boxW, boxH, () => openEdit('client', 'Cliente'), 'Editar cliente');
-    hit(root, 30, 176, 250, 45, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
+    hit(root, 30, 164, 250, 36, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
     hit(root, 30, 200, 260, 45, () => openEdit('numero', 'Número'), 'Editar número');
   }
 
@@ -11446,8 +11450,8 @@ COLOCACIÓN INCLUIDA` }
     hit(root, 410, 76, 350, 150, () => openEdit('client', 'Cliente'), 'Editar cliente');
 
     // v3.0.4: zonas táctiles separadas y más amplias para iPhone.
-    const dateTapW = Math.max(112, approxSvgTextWidthV304(dateText, dateFs, '400') + 32);
-    addSvgTapHaloV304(root, 18, dateY - 32, dateTapW, 48, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
+    const dateTapW = Math.max(210, approxSvgTextWidthV304(dateText, dateFs, '400') + 48);
+    addSvgTapHaloV304(root, 18, dateY - 38, dateTapW, 58, () => openEdit('fecha', 'Fecha'), 'Editar fecha');
 
     const labelW = approxSvgTextWidthV304(numberLabel, numberFs, '700');
     const numberTapX = 26 + labelW - 8;
@@ -11574,14 +11578,14 @@ COLOCACIÓN INCLUIDA` }
       addText(root, subX+subCol1+subCol2+(subCol3/2), subY+14, 'Importe', { fs:numStyle('conceptMetaHeaderSize'), anchor:'middle' });
     }
 
-    addText(root, subX+(subCol1/2), subY+33, safe(item.units), { fs:numStyle('conceptMetaValueSize'), anchor:'middle' });
-    addText(root, subX+subCol1+subCol2-4, subY+33, money(item.price), { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(item.price)<0?'#c62828':undefined });
+    addText(root, subX+(subCol1/2), subY+33, Math.abs(Number(item.price)||0)>0.000001 ? safe(item.units) : '', { fs:numStyle('conceptMetaValueSize'), anchor:'middle' });
+    addText(root, subX+subCol1+subCol2-4, subY+33, Math.abs(Number(item.price)||0)>0.000001 ? money(item.price) : '', { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(item.price)<0?'#c62828':undefined });
 
     if(showDiscountColumn){
       addText(root, subX+subCol1+subCol2+subCol3-4, subY+33, String(itemDiscount).replace('.', ',') + '%', { fs:numStyle('conceptMetaValueSize'), anchor:'end' });
     }
 
-    addText(root, subX+subW-6, subY+33, money(itemCalc.base), { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(itemCalc.base)<0?'#c62828':undefined });
+    addText(root, subX+subW-6, subY+33, Math.abs(Number(itemCalc.base)||0)>0.000001 ? money(itemCalc.base) : '', { fs:numStyle('conceptMetaValueSize'), anchor:'end', fill:Number(itemCalc.base)<0?'#c62828':undefined });
 
     if(!isSimpleBudget()) hit(root, graphicX, graphicY, graphicW, graphicH, () => openConceptImage(item.code), 'Cambiar gráfico ' + item.code);
     hit(root, isSimpleBudget() ? x+8 : x+171, y+24, isSimpleBudget() ? 520 : 350, 98, () => openEdit('conceptText', 'Texto ' + item.code, Number(item.code.slice(1))-1), 'Editar texto ' + item.code);
@@ -12954,12 +12958,18 @@ body.innerHTML = `
           <button type="button" class="external-catalog-btn-v42 cierre" data-ext-catalog="cierre">Cierre</button>
         </div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
+        <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
+        <label class="import-field-label">Precio base ${it.code}</label><span class="negative-units-row"><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editPrice" aria-label="Cambiar signo del precio">−</button></span>
+        <div class="import-gain-grid"><div><label class="import-field-label">Ganancia (€)</label><input id="editGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€"></div><div><label class="import-field-label">Ganancia (%)</label><input id="editGain" class="import-field import-gain" inputmode="decimal" value="${esc(gainForEditor(it))}" placeholder="%"></div></div>
+        <div id="gainPreview" class="price-gain-preview"></div>
+        <label class="import-field-label">Descuento (%)</label><input id="editDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
         <div class="sheet-actions" style="grid-template-columns:repeat(4,minmax(0,1fr))">
           <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
           <button type="button" class="btn" id="sheetImageBtn" style="background:linear-gradient(180deg,#22d3ee 0%,#0891b2 100%) !important;color:#fff !important;border-color:#0891b2 !important;">Gráfico</button>
           <button type="button" class="btn btn-danger" id="sheetCancel">Cancelar</button>
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
         </div>`;
+      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
@@ -13011,20 +13021,36 @@ body.innerHTML = `
         </div>
         <div id="simpleGainPreview" class="price-gain-preview"></div>
         <label class="import-field-label">Descuento (%)</label><input id="editSimpleDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
-        <div class="sheet-actions" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="sheet-actions" style="grid-template-columns:repeat(3,minmax(0,1fr))">
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
-          <button type="button" class="btn btn-success" id="sheetCatalogBtn">Catálogo</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btnDeleteSimpleLineV4900">Eliminar línea</button>
         </div>`;
 
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
-      $('sheetCatalogBtn').onclick = async () => { saveConceptTextDraftV4413(); currentEdit = { type:'catalogPicker', index:index }; await loadProducts(); openEdit('catalogPicker', 'Catálogo de facturación', index); };
+      $('btnDeleteSimpleLineV4900').onclick = async function(){
+        const idx = Number(index);
+        if(!Number.isInteger(idx) || idx < 0 || idx >= state.items.length) return;
+        // Desplazar solo dentro de la página: no alterar conceptos de otras páginas.
+        const pageStart = Math.floor(idx / CONCEPTS_PER_PAGE) * CONCEPTS_PER_PAGE;
+        const pageEnd = Math.min(pageStart + CONCEPTS_PER_PAGE, state.items.length);
+        for(let j=idx; j<pageEnd-1; j++) state.items[j] = state.items[j+1];
+        state.items[pageEnd-1] = blankConcept(conceptCodeForIndex(pageEnd-1));
+        state.items = ensureConceptList(state.items);
+        closeSheet();
+        await render();
+        await persistCurrent();
+        toast('Línea eliminada; conceptos desplazados');
+      };
       bindGainPreview('editSimplePrice', 'editSimpleGain', 'editSimpleGainAmount', 'simpleGainPreview');
     } else if(type === 'conceptMeta'){
       const it = state.items[index];
+      const redDataMetaV4903 = splitRedLineV481(it.text || '');
       body.innerHTML = `
+        <label>Texto ${it.code}</label><textarea id="editConceptText" class="rich-editor concept-editor-field" inputmode="text" rows="7" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true">${esc(redDataMetaV4903.main)}</textarea>
+        <div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1">${esc(redDataMetaV4903.red)}</textarea></div>
         <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
         <label class="import-field-label">Precio base ${it.code}</label><span class="negative-units-row"><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editPrice" aria-label="Cambiar signo del precio">−</button></span>
         <div class="import-gain-grid">
@@ -14033,6 +14059,28 @@ body.innerHTML = `
       state.items[currentEdit.index].fabricacionObs = String(($('editConceptFabricacionObs') && $('editConceptFabricacionObs').value) || '');
       delete state.items[currentEdit.index].obsFabricacion;
       delete state.items[currentEdit.index].observacionesFabricacion;
+      state.items[currentEdit.index].units = $('editUnits').value || '1';
+      const basePrice = String(($('editPrice').value || '0').replace(',','.')).trim() || '0';
+      const gain = String(($('editGain') ? $('editGain').value : '') || '').replace(',','.').trim();
+      const gainAmount = String(($('editGainAmount') ? $('editGainAmount').value : '') || '').replace(',','.').trim();
+      state.items[currentEdit.index].costPrice = basePrice;
+      if(gainAmount || gain){
+        const baseNum = parseDecimalInputValue(basePrice);
+        let amountNum = parseDecimalInputValue(gainAmount);
+        let pctNum = parseDecimalInputValue(gain);
+        if(!amountNum && pctNum) amountNum = Math.abs(baseNum) * pctNum / 100;
+        if(amountNum && !pctNum && baseNum) pctNum = amountNum / Math.abs(baseNum) * 100;
+        state.items[currentEdit.index].gain = String(Number(pctNum || 0).toFixed(2));
+        state.items[currentEdit.index].gainAmount = String(Number(amountNum || 0).toFixed(2));
+        state.items[currentEdit.index].price = String(calcPriceWithGainAmount(basePrice, amountNum));
+      }else{
+        delete state.items[currentEdit.index].gain;
+        delete state.items[currentEdit.index].gainAmount;
+        state.items[currentEdit.index].price = basePrice;
+      }
+      const d = String(($('editDiscount').value || '').replace(',','.')).trim();
+      if(d) state.items[currentEdit.index].discount = d; else delete state.items[currentEdit.index].discount;
+      state.items[currentEdit.index].internalNotes = String(($('editConceptInternalNotes') && $('editConceptInternalNotes').value) || '');
     } else if(currentEdit.type === 'simpleLine') {
       const it = state.items[currentEdit.index] || blankConcept(conceptCodeForIndex(currentEdit.index));
       it.code = it.code || conceptCodeForIndex(currentEdit.index);
@@ -14066,6 +14114,7 @@ body.innerHTML = `
       while(state.items.length < currentEdit.index) state.items.push(blankConcept(conceptCodeForIndex(state.items.length)));
       state.items[currentEdit.index] = it;
     } else if(currentEdit.type === 'conceptMeta') {
+      state.items[currentEdit.index].text = appendRedLineV447(getRichEditorValue('editConceptText'), 'editConceptRedLine');
       state.items[currentEdit.index].units = $('editUnits').value || '1';
       const basePrice = String(($('editPrice').value || '0').replace(',','.')).trim() || '0';
       const gain = String(($('editGain') ? $('editGain').value : '') || '').replace(',','.').trim();
