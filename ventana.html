@@ -2,8 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2.10</title>
-    <!-- v96.2.10: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
+    <title>Ventana Pro v96.2.11</title>
+    <!-- v96.2.11: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
     <!-- v96.2.7: Las líneas de apertura siguen el contorno de la hoja, no el hueco del vidrio. -->
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
     <!-- v95.1: Corrige JavaScript visible en pantalla por cierre </script> dentro de Cut Master integrado. -->
@@ -1236,7 +1236,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2.10"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.10</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.11"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.11</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1548,6 +1548,7 @@ body.dock-off #canvasDock{
       <option value="insertar">Poner hoja dentro del hueco</option>
       <option value="borrar">Borrar hoja del hueco</option>
       <option value="barrotillos">Solo barrotillos</option>
+      <option value="mosquitera">Mosquitera (poner/quitar malla)</option>
     </select>
 
     <label style="margin:0; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #d7d7d7; border-radius:8px; padding:8px 10px; font-weight:800;">
@@ -1607,7 +1608,7 @@ body.dock-off #canvasDock{
       <input class="subbarrotes-color-custom hidden" type="color" id="subBarrotesColor" value="#FFFFFF" onchange="this.dataset.tocado=\'1\'">
     </div>
 
-    <small style="color:#555; flex-basis:100%;">Tip: Usa “Poner hoja…” para insertar hoja, “Solo barrotillos” para añadirlos al vidrio, y “Borrar hoja…” para quitar la hoja interior.</small>
+    <small style="color:#555; flex-basis:100%;">Tip: “Mosquitera” añade o quita la malla tocando el hueco. Usa “Poner hoja…” para insertar hoja, “Solo barrotillos” para añadirlos al vidrio, y “Borrar hoja…” para quitar la hoja interior.</small>
   </div>
 </div>
 
@@ -2168,6 +2169,7 @@ function aplicarRellenoMarco(ctx){
     let subHojas = {};
     let barrotillosHuecos = {};
     let barrotillosHuecosPolys = {};
+    let mosquiterasHuecos = {};
     let mostrarBarrotillosActivos = true;
 
     function zonaKey(data) {
@@ -7039,6 +7041,8 @@ if (mostrarAltoTotalDer) {
         }
     }
 
+        dibujarMosquiterasHuecos(ctx);
+
         // v88.4: contorno exterior REAL por encima de todo.
         // Este trazo sí controla el marco exterior visible.
         dibujarContornoExteriorReal(ctx, puntosContornoExteriorActual());
@@ -7076,6 +7080,13 @@ if (mostrarAltoTotalDer) {
                 borrarSubHojaDeZona(zonaEncontrada);
             } else if (modoSel === 'barrotillos') {
                 aplicarBarrotillosSoloHueco(zonaEncontrada, zonaEncontradaPoly);
+            } else if (modoSel === 'mosquitera') {
+                const key = keyHuecoBarrotillos(zonaEncontrada);
+                if (key) {
+                    if (mosquiterasHuecos[key]) delete mosquiterasHuecos[key];
+                    else mosquiterasHuecos[key] = true;
+                    actualizarVista();
+                }
             } else {
                 aplicarColorAZona(zonaEncontrada, colorActivo);
             }
@@ -7180,6 +7191,45 @@ if (mostrarAltoTotalDer) {
                 }
             });
         } catch(e) {}
+    }
+
+    // v96.2.11: malla visual, sin marco adicional ni impacto en fabricación/precios.
+    // Se recorta al polígono exacto de cada hueco (incluidos fijos inclinados).
+    function dibujarMosquiterasHuecos(ctx) {
+        if (!mosquiterasHuecos || !zonasInteractivas) return;
+        const dibujados = new Set();
+        zonasInteractivas.forEach(z => {
+            const key = keyHuecoBarrotillos(z.data);
+            if (!key || !mosquiterasHuecos[key] || dibujados.has(key)) return;
+            const poly = z.poly;
+            if (!Array.isArray(poly) || poly.length < 3) return;
+            dibujados.add(key);
+            const xs = poly.map(p => p.x), ys = poly.map(p => p.y);
+            const l = Math.min(...xs), r = Math.max(...xs);
+            const t = Math.min(...ys), b = Math.max(...ys);
+            if (r-l < 3 || b-t < 3) return;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(poly[0].x, poly[0].y);
+            poly.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.closePath(); ctx.clip();
+            // Un leve velo grafito y filamentos cruzados, suficientemente suaves
+            // para mantener visibles los cristales y las líneas de apertura.
+            ctx.fillStyle = 'rgba(49,59,67,0.095)';
+            ctx.fillRect(l,t,r-l,b-t);
+            const paso = Math.max(6, Math.min(11, Math.round(Math.min(r-l,b-t)/23)));
+            ctx.lineWidth = 0.65;
+            ctx.strokeStyle = 'rgba(35,45,52,0.20)';
+            ctx.beginPath();
+            for (let x = Math.floor(l/paso)*paso; x <= r; x += paso) {
+                ctx.moveTo(x,t); ctx.lineTo(x,b);
+            }
+            for (let y = Math.floor(t/paso)*paso; y <= b; y += paso) {
+                ctx.moveTo(l,y); ctx.lineTo(r,y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        });
     }
 
     function actualizarVista() {
@@ -9617,6 +9667,7 @@ function volverIndexSeguro(){
     try{ data.geometry.colorCristalGlobal = clone(colorCristalGlobal); }catch(e){}
     try{ data.geometry.subHojas = clone(subHojas); }catch(e){}
     try{ data.geometry.barrotillosHuecos = clone(barrotillosHuecos); }catch(e){}
+    try{ data.geometry.mosquiterasHuecos = clone(mosquiterasHuecos); }catch(e){}
     try{ data.geometry.mostrarBarrotillosActivos = clone(mostrarBarrotillosActivos); }catch(e){}
     try{ data.geometry.mostrarAltoTotalDer = clone(mostrarAltoTotalDer); }catch(e){}
     try{ data.geometry.marcoThickness = clone(marcoThickness); }catch(e){}
@@ -9677,6 +9728,7 @@ function volverIndexSeguro(){
     if(Object.prototype.hasOwnProperty.call(geometry, 'colorCristalGlobal')) try{ colorCristalGlobal = clone(geometry.colorCristalGlobal); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'subHojas')) try{ subHojas = clone(geometry.subHojas); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'barrotillosHuecos')) try{ barrotillosHuecos = clone(geometry.barrotillosHuecos); }catch(e){}
+    mosquiterasHuecos = Object.prototype.hasOwnProperty.call(geometry, 'mosquiterasHuecos') ? clone(geometry.mosquiterasHuecos) : {};
     if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarBarrotillosActivos')) try{ mostrarBarrotillosActivos = clone(geometry.mostrarBarrotillosActivos); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'mostrarAltoTotalDer')) try{ mostrarAltoTotalDer = clone(geometry.mostrarAltoTotalDer); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'marcoThickness')) try{ marcoThickness = clone(geometry.marcoThickness); }catch(e){}
