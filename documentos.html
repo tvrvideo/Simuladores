@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.23</title>
+  <title>Documentos Rey v4.9.25</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4543,7 +4543,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.23</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.25</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4577,7 +4577,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.23</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.25</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5872,7 +5872,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.23', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.25', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5915,7 +5915,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.23',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.25',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8160,7 +8160,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.23',
+      version:'v4.9.25',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -8443,7 +8443,9 @@ COLOCACIÓN INCLUIDA` }
       municipio: String(c && c.municipio != null ? c.municipio : ''),
       provincia: String(c && c.provincia != null ? c.provincia : ''),
       pais: String(c && c.pais != null ? c.pais : 'España'),
-      nif: String(c && c.nif != null ? c.nif : '')
+      nif: String(c && c.nif != null ? c.nif : ''),
+      createdAt: Number(c && c.createdAt) || 0,
+      updatedAt: Number(c && c.updatedAt) || 0
     };
   }
 
@@ -8469,6 +8471,8 @@ COLOCACIÓN INCLUIDA` }
           if(!rawShared[i].municipio && old.municipio) c.municipio = String(old.municipio);
           if(!rawShared[i].pais && old.pais) c.pais = String(old.pais);
           if(!Object.prototype.hasOwnProperty.call(rawShared[i], 'apodo') && old.apodo) c.apodo = String(old.apodo);
+          if(!c.createdAt && old.createdAt) c.createdAt = Number(old.createdAt) || 0;
+          if(!c.updatedAt && old.updatedAt) c.updatedAt = Number(old.updatedAt) || 0;
         });
       }
       return;
@@ -8493,7 +8497,9 @@ COLOCACIÓN INCLUIDA` }
       municipio: String(c && c.municipio != null ? c.municipio : ''),
       provincia: String(c && c.provincia != null ? c.provincia : ''),
       pais: String(c && c.pais != null ? c.pais : 'España'),
-      telefono: String(c && c.telefono != null ? c.telefono : '')
+      telefono: String(c && c.telefono != null ? c.telefono : ''),
+      createdAt: Number(c && c.createdAt) || 0,
+      updatedAt: Number(c && c.updatedAt) || 0
     }));
     try{
       localStorage.setItem(SHARED_CLIENTS_KEY, JSON.stringify(sharedPayload));
@@ -9040,7 +9046,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.23',
+      version:'v4.9.25',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9097,7 +9103,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.23',
+      version:'v4.9.25',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -11372,7 +11378,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.23',
+      app:'Documentos Rey', version:'v4.9.25',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11405,6 +11411,7 @@ COLOCACIÓN INCLUIDA` }
       const previous = merged.get(normalized.id);
       // Las copias antiguas sin campo apodo conservan el apodo local.
       if(previous && !Object.prototype.hasOwnProperty.call(raw, 'apodo')) normalized.apodo = previous.apodo || '';
+      if(previous && Number(previous.updatedAt || 0) > Number(normalized.updatedAt || 0)) return;
       merged.set(normalized.id, normalized);
     });
     savedClients = Array.from(merged.values());
@@ -11508,7 +11515,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.23',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.25',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -12958,6 +12965,8 @@ COLOCACIÓN INCLUIDA` }
         };
         if(!clientHasData(c)){ toast('Rellena algún dato'); return; }
         await updatePostalBaseFromClientFormV2985(false);
+        c.id = 'cli_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+        c.createdAt = c.updatedAt = Date.now();
         savedClients.push(c);
         await saveClients();
         toast('Cliente guardado en lista compartida');
@@ -13959,9 +13968,12 @@ body.innerHTML = `
         const orderAddress = searchNormV4416(c.direccion || '');
         const phone = String(c.telefono || '').trim();
         const address = String(c.direccion || '').trim();
+        const edited = Number(c.updatedAt || c.createdAt || 0);
+        const editedLabel = edited ? 'Editado ' + new Date(edited).toLocaleDateString('es-ES') : 'Sin fecha registrada';
         listHtml += `
           <div class="saved-item template-card client-list-card" role="button" tabindex="0" aria-label="Abrir cliente ${esc(c.apodo || c.nombre || 'Sin nombre')}" data-client-item="1" data-client-filter="${esc(searchable)}" data-client-name="${esc(orderName)}" data-client-town="${esc(orderTown)}" data-client-address="${esc(orderAddress)}" data-client-original="${idx}">
             <div class="client-list-name">${esc(c.apodo || c.nombre || 'Sin nombre')}</div>
+            <div style="font-size:11px;color:#dbeafe;margin-top:2px">${esc(editedLabel)}</div>
             ${(phone || address) ? `<div class="client-list-details">${phone ? `<span class="client-list-phone">${esc(phone)}</span>` : ''}${phone && address ? '<span aria-hidden="true">·</span>' : ''}${address ? `<span class="client-list-address" title="${esc(address)}">${esc(address)}</span>` : ''}</div>` : ''}
           </div>`;
       });
@@ -14058,6 +14070,7 @@ body.innerHTML = `
       $('btnClientSaveCurrent').onclick = async function(){
         const c = Object.assign({ id:'cli_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) }, currentClientData());
         if(!clientHasData(c)){ toast('Rellena algún dato del cliente'); return; }
+        c.createdAt = c.updatedAt = Date.now();
         savedClients.push(c);
         await saveClients();
         openEdit('clients', 'Lista de clientes');
@@ -14511,7 +14524,9 @@ body.innerHTML = `
         municipio: String(($('editClienteMunicipio') && $('editClienteMunicipio').value) || '').trim(),
         provincia: String(($('editClienteProvincia') && $('editClienteProvincia').value) || '').trim(),
         pais: String(($('editClientePais') && $('editClientePais').value) || 'España').trim() || 'España',
-        nif: String($('editSavedClientNif').value || '').trim()
+        nif: String($('editSavedClientNif').value || '').trim(),
+        createdAt: Number(prevClient && prevClient.createdAt) || Date.now(),
+        updatedAt: Date.now()
       };
       if(!clientHasData(c)){
         toast('Rellena algún dato');
@@ -15506,7 +15521,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.23', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.25', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
@@ -15729,6 +15744,32 @@ $('btnCloseSheet').addEventListener('click', function(){
     });
   }
 
+  function findImportedNumberConflict(localList, importedList){
+    const incoming = Array.isArray(importedList) ? importedList : [];
+    const local = Array.isArray(localList) ? localList : [];
+    const all = local.concat(incoming);
+    for(const doc of incoming){
+      if(!doc || isPlaceholderDocumentNumber(doc.numero)) continue;
+      // Un documento ya presente por ID no introduce una colisión nueva al restaurarlo.
+      const alreadyHere = local.some(other => other && doc.documentId &&
+        String(other.documentId || '') === String(doc.documentId));
+      const type = String(doc.documentoTipo || 'presupuesto');
+      const num = String(doc.numero || '').trim();
+      if(!num) continue;
+      const key = type === 'factura' ? normalizeFacturaNumberV289093(num) : num.toUpperCase();
+      const clash = all.find(other => {
+        if(!other || other === doc || String(other.documentoTipo || 'presupuesto') !== type) return false;
+        if(String(other.documentId || '') === String(doc.documentId || '')) return false;
+        if(alreadyHere && local.includes(other)) return false;
+        const otherNum = String(other.numero || '').trim();
+        const otherKey = type === 'factura' ? normalizeFacturaNumberV289093(otherNum) : otherNum.toUpperCase();
+        return key && otherKey === key;
+      });
+      if(clash) return {type:type, number:num};
+    }
+    return null;
+  }
+
   async function restoreAnyBackupFromParsed(parsed){
     if(!parsed || typeof parsed !== 'object'){
       toast('Archivo no válido');
@@ -15752,6 +15793,23 @@ $('btnCloseSheet').addEventListener('click', function(){
       return restored;
     }
 
+    const importedPreview = Array.isArray(parsed.all) ? parsed.all :
+      (Array.isArray(parsed.saved) ? parsed.saved :
+      (parsed.document && typeof parsed.document === 'object' ? [parsed.document] : []));
+    if(importedPreview.length){
+      const replacing = Array.isArray(parsed.replaceDocumentTypes) ? parsed.replaceDocumentTypes : [];
+      const localForCheck = replacing.length ?
+        (await loadSavedList()).filter(doc => !replacing.includes(String(doc && doc.documentoTipo || 'presupuesto'))) :
+        await loadSavedList();
+      const conflict = findImportedNumberConflict(localForCheck, importedPreview);
+      if(conflict){
+        const typeLabel = conflict.type === 'factura' ? 'factura' :
+          (conflict.type === 'albaran' ? 'albarán' : 'presupuesto');
+        toast('No importado: número repetido de ' + typeLabel + ' ' + conflict.number +
+          '. Revisa los documentos o usa Sustituir tipos.', 9000);
+        return false;
+      }
+    }
     const archivedBackup = /^presupuestos?_archivados?_/.test(String(parsed.backupType || ''));
     const archivedSources = archivedBackup ? budgetDocumentsInBackup(parsed) : [];
     const archivedMode = archivedSources.length ? await chooseArchivedBackupMode(archivedSources.length) : null;
@@ -15789,7 +15847,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.23',
+        version:'v4.9.25',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -15958,7 +16016,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.23',
+      version: 'v4.9.25',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16045,7 +16103,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.23', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.25', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16099,7 +16157,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.23',
+        version: 'v4.9.25',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -17745,7 +17803,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.23',
+      version: 'v4.9.25',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
