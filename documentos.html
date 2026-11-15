@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.16</title>
+  <title>Documentos Rey v4.9.23</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4543,7 +4543,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.16</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.23</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4577,7 +4577,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.16</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.23</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -4603,6 +4603,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
   </div>
 </div>
 
+<div id="saveFailureNotice" role="alert" style="display:none;position:fixed;z-index:9999;top:58px;left:10px;right:10px;padding:13px;background:#991b1b;color:white;border:2px solid #fecaca;border-radius:12px;font-weight:800;box-shadow:0 6px 24px #0005">⚠ No se ha podido guardar. Los cambios siguen en esta pantalla. Libera espacio y guarda una copia antes de cerrarla.</div>
 <div class="floating-actions" aria-label="Acciones principales">
   <button type="button" class="fab fab-new btn-nuevo" id="btnNew">Nuevo</button>
   <button type="button" class="fab fab-save" id="btnSave">Guardar</button>
@@ -4655,20 +4656,24 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <span>Enviar a facturación<small>Crea este documento en la app de facturación.</small></span>
       <span>›</span>
     </button>
+    <div id="backupStorageStatus" role="status" style="padding:9px 12px;margin:7px 0;border-radius:10px;background:#eef6ff;color:#17365b;font-size:12px;line-height:1.35">Almacenamiento: comprobando…</div>
+    <button type="button" class="settings-item menu-backup" id="btnExportEverything" style="background:linear-gradient(135deg,#b45309,#f59e0b)!important;border-color:#fbbf24!important;color:#fff!important">
+      <span>Copia completa · un archivo<small>Todos los documentos, imágenes disponibles, clientes, productos, plantillas y ajustes. Puede ser grande.</small></span><span>›</span>
+    </button>
     <button type="button" class="settings-item menu-backup" id="btnExportAll">
-      <span>Guardar copia general ligera<small>Guarda clientes, productos, ajustes, facturas y albaranes. Los presupuestos van por rango.</small></span>
+      <span>Guardar copia general ligera<small>Incluye facturas, albaranes, clientes, productos, plantillas y ajustes. Excluye presupuestos e imágenes archivadas.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-backup" id="btnExportPresuRange">
-      <span>Exportar presupuestos por rango<small>Ejemplo: 0000 a 0020, 0021 a 0040. Incluye imágenes del bloque.</small></span>
+      <span>Exportar presupuestos por rango<small>Incluye los presupuestos guardados del rango y sus imágenes. Exporta todos los rangos para una copia completa.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-backup" id="btnExportSettingsOnly">
-      <span>Exportar solo ajustes<small>Guarda clientes, productos, diseño y configuración sin documentos.</small></span>
+      <span>Exportar solo ajustes<small>Incluye clientes, productos, diseño y configuración. Excluye documentos y plantillas.</small></span>
       <span>›</span>
     </button>
     <button type="button" class="settings-item menu-restore" id="btnRestoreAll">
-      <span>Restaurar copia<small>También permite recuperar presupuestos archivados sin imágenes desde su copia.</small></span>
+      <span>Restaurar copia<small>Permite mezclar, sustituir tipos o elegir un documento o rango.</small></span>
       <span>+</span>
     </button>
     <button type="button" class="settings-item menu-restore hidden" id="btnRestoreSettingsOnly" aria-hidden="true">
@@ -5867,7 +5872,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.16', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.23', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5910,7 +5915,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.16',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.23',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -7563,6 +7568,37 @@ function appendRedLineV447(html, inputId){
       }
     }
   }
+  function showStorageFailure(){
+    const el = document.getElementById('saveFailureNotice');
+    if(el) el.style.display = 'block';
+    toast('⚠ Guardado fallido: libera espacio y exporta una copia antes de cerrar', 9000);
+  }
+  function clearStorageFailure(){
+    const el = document.getElementById('saveFailureNotice');
+    if(el) el.style.display = 'none';
+  }
+  async function refreshBackupStorageStatus(){
+    const el = document.getElementById('backupStorageStatus');
+    if(!el) return;
+    try{
+      if(!navigator.storage || !navigator.storage.estimate){
+        el.textContent = 'El navegador no informa del espacio disponible. Si no cabe un guardado, aparecerá un aviso rojo.';
+        return;
+      }
+      const result = await navigator.storage.estimate();
+      const mb = n => (n / 1048576).toFixed(1).replace('.', ',') + ' MB';
+      const used = Number(result.usage || 0), quota = Number(result.quota || 0);
+      el.textContent = quota ? 'Espacio web estimado: ' + mb(used) + ' usados de ' + mb(quota) + '. Disponible aprox.: ' + mb(Math.max(0, quota-used)) + '. Incluye otros datos de esta web; no garantiza el próximo guardado.' : 'El navegador no indica un límite fiable. Se avisará si un guardado falla.';
+      if(quota && (quota-used) < Math.max(20*1048576, quota*0.05)){
+        el.style.background = '#fef2f2'; el.style.color = '#991b1b';
+        el.textContent += ' ⚠ Queda poco espacio: exporta las copias ahora.';
+      }else{ el.style.background = '#eef6ff'; el.style.color = '#17365b'; }
+    }catch(_){ el.textContent = 'No se pudo medir el espacio. Se avisará si falla un guardado.'; }
+  }
+  document.getElementById('backupStorageStatus')?.addEventListener('click', refreshBackupStorageStatus);
+  refreshBackupStorageStatus();
+  ['btnSettings','btnHomeSettings'].forEach(id => document.getElementById(id)?.addEventListener('click', refreshBackupStorageStatus));
+
   async function storageSetJSON(key, value){
     const raw = JSON.stringify(value);
     const maxLocalStorageMirror = 1800000; // v2.87.49: espejo ligero para evitar límite iPhone/Safari
@@ -7572,7 +7608,8 @@ function appendRedLineV447(html, inputId){
       if(key === SAVE_LIST_KEY) await idbReplaceSavedList(raw, false);
       else await idbSet(key, raw);
       idbOk = true;
-    }catch(_){
+    }catch(err){
+      console.error('No se pudo escribir en IndexedDB', err);
       idbOk = false;
     }
 
@@ -7581,6 +7618,7 @@ function appendRedLineV447(html, inputId){
       // El documento actual y la lista ya están en IndexedDB. Evitar una
       // segunda escritura síncrona con imágenes en el iPhone.
       lsRemove(key);
+      clearStorageFailure();
       return true;
     }
 
@@ -7601,6 +7639,7 @@ function appendRedLineV447(html, inputId){
 
     const saved = idbOk || lsSet(key, raw);
     if(key === SAVE_LIST_KEY && saved) savedListCache = value;
+    if(saved) clearStorageFailure(); else showStorageFailure();
     return saved;
   }
   async function backupBeforeHardReset(){
@@ -8121,7 +8160,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.16',
+      version:'v4.9.23',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -8971,6 +9010,7 @@ COLOCACIÓN INCLUIDA` }
       await idbSaveOneDocument(doc, ids);
       savedListCache = list;
       lsRemove(SAVE_LIST_KEY);
+      clearStorageFailure();
       return true;
     }catch(err){
       console.error('Guardado individual no disponible; guardando lista completa', err);
@@ -9000,7 +9040,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.16',
+      version:'v4.9.23',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9057,7 +9097,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.16',
+      version:'v4.9.23',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -9350,6 +9390,7 @@ COLOCACIÓN INCLUIDA` }
     const listStart = performance.now();
     const okList = await persistOneSavedDocument(payload, list);
     const listEnd = performance.now();
+    if(!okList){ showStorageFailure(); return; }
     // 2) Después sincronizar con facturación sin romper el guardado propio
     let okFact = false;
     let bridgePayload = null;
@@ -9390,7 +9431,7 @@ COLOCACIÓN INCLUIDA` }
       'No se guardó en la lista; inténtalo de nuevo', 6500);
     }catch(err){
       console.error(err);
-      toast('Error al guardar; comprueba el presupuesto en la lista', 6500);
+      showStorageFailure();
     }finally{
       saveNamedPending = false;
       if(saveButton){ saveButton.disabled = false; saveButton.textContent = 'Guardar'; }
@@ -9469,7 +9510,7 @@ COLOCACIÓN INCLUIDA` }
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 800);
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
   }
   function safeFilename(){
     function cleanPart(v){
@@ -11331,7 +11372,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.16',
+      app:'Documentos Rey', version:'v4.9.23',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11467,7 +11508,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.16',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.23',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -15427,8 +15468,11 @@ $('btnCloseSheet').addEventListener('click', function(){
       if(!doc || typeof doc !== 'object') return;
       const k = keyOf(doc, idx);
       const current = map.get(k);
-      // Una copia antigua no debe volver a cargar imágenes en un archivado local.
-      if(current && current.archivadoImagenes && String(current.documentoTipo || 'presupuesto') === 'presupuesto') return;
+      // Recuperar gráficos reales de la copia cuando el documento local está archivado.
+      if(current && current.archivadoImagenes && String(current.documentoTipo || 'presupuesto') === 'presupuesto'){
+        if(budgetContainsInlineImages(doc.items)) map.set(k, doc);
+        return;
+      }
       if(!current){
         map.set(k, doc);
         return;
@@ -15441,6 +15485,248 @@ $('btnCloseSheet').addEventListener('click', function(){
     });
 
     return Array.from(map.values());
+  }
+
+  const FULL_BACKUP_LOCAL_KEYS = [
+    'documentos_rey_bank_info_v1','documentos_rey_budget_validity_days_v1',
+    'documentos_rey_factura_numero_formato_v2901','documentos_rey_template_categories_v28904',
+    'documentos_rey_custom_template_categories_v289083',
+    'documentos_rey_custom_template_category_colors_v289086',
+    'templateCategoryMapV28904','rey_empresa_activa'
+  ];
+  async function exportCompleteBackup(){
+    hideReturnAppButton(); closeSettings();
+    const button = $('btnExportEverything');
+    button.disabled = true;
+    toast('Preparando copia completa…', 5000);
+    try{
+      const documents = await loadSavedList();
+      const templates = await storageGetJSON(TEMPLATE_STORAGE_KEY, conceptTemplates || []);
+      const postalCodes = await storageGetJSON(CP_DB_KEY, []);
+      const extra = {};
+      FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
+      const payload = {
+        app:'Documentos Rey', version:'v4.9.23', backupType:'completa_documentos_rey',
+        timestamp:new Date().toISOString(),
+        incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
+        current:state, all:documents,
+        plantillasConceptos:Array.isArray(templates) ? templates : [],
+        codigosPostales:Array.isArray(postalCodes) ? postalCodes : [],
+        datosLocales:extra,
+        settings:buildBackupSettingsPayload()
+      };
+      const filename = 'documentos_rey_copia_completa_' + timestampForFilename() + '.json';
+      const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+      const counts = {presupuesto:0,factura:0,albaran:0};
+      documents.forEach(doc => { const t=String(doc && doc.documentoTipo || 'presupuesto'); if(t in counts) counts[t]++; });
+      const msg = 'Copia de ' + counts.presupuesto + ' presupuestos, ' + counts.factura + ' facturas y ' + counts.albaran + ' albaranes · ' + (blob.size/1048576).toFixed(1).replace('.',',') + ' MB';
+      if(navigator.share && navigator.canShare){
+        try{
+          const file = new File([blob], filename, {type:'application/json'});
+          if(navigator.canShare({files:[file]})){
+            await navigator.share({files:[file],title:filename,text:msg});
+            toast(msg + '. Comprueba que aparece en Archivos.', 8000);
+            return;
+          }
+        }catch(err){ if(err && err.name === 'AbortError') return; console.error(err); }
+      }
+      downloadBlob(filename, blob);
+      toast(msg + '. Comprueba la descarga en Archivos.', 8000);
+    }catch(err){ console.error(err); toast('No se pudo crear la copia completa. Usa las copias separadas.', 9000); }
+    finally{ button.disabled = false; }
+  }
+  $('btnExportEverything').addEventListener('click', exportCompleteBackup, false);
+
+  function backupRestorePreview(parsed, filename){
+    const type = String(parsed && parsed.backupType || '');
+    const singleClients = type === 'clientes_solo' && Array.isArray(parsed.data && parsed.data.clientes);
+    const singleProducts = type === 'productos_solo' && Array.isArray(parsed.data && parsed.data.catalogo);
+    const catalog = type === 'catalogo_productos';
+    const list = Array.isArray(parsed.all) ? parsed.all :
+      (Array.isArray(parsed.saved) ? parsed.saved :
+      (parsed.document && typeof parsed.document === 'object' ? [parsed.document] : []));
+    const hasSettings = !!(parsed.settings || parsed.settingsOnly);
+    const current = parsed.current && typeof parsed.current === 'object' ? parsed.current : null;
+    if(!singleClients && !singleProducts && !catalog && !hasSettings &&
+       !list.length && !current && !Array.isArray(parsed.plantillasConceptos)){
+      toast('Copia no reconocida; no se ha restaurado nada', 5000);
+      return Promise.resolve(false);
+    }
+    const clients = singleClients ? parsed.data.clientes :
+      (Array.isArray(parsed.clientesCompartidos) ? parsed.clientesCompartidos :
+       (Array.isArray(parsed.settings && parsed.settings.clientesCompartidos) ? parsed.settings.clientesCompartidos : null));
+    const products = singleProducts ? parsed.data.catalogo :
+      (Array.isArray(parsed.catalogoCompartido) ? parsed.catalogoCompartido :
+       (Array.isArray(parsed.settings && parsed.settings.catalogoCompartido) ? parsed.settings.catalogoCompartido : null));
+    const counts = {presupuesto:0,factura:0,albaran:0};
+    list.forEach(function(doc){
+      if(!doc || typeof doc !== 'object') return;
+      const t = String(doc.documentoTipo || doc.tipo || 'presupuesto');
+      counts[t in counts ? t : 'presupuesto']++;
+    });
+    const sections = [];
+    if(counts.presupuesto) sections.push('Presupuestos: ' + counts.presupuesto);
+    if(counts.factura) sections.push('Facturas: ' + counts.factura);
+    if(counts.albaran) sections.push('Albaranes: ' + counts.albaran);
+    if(current && !list.some(d => d && d.documentId && d.documentId === current.documentId))
+      sections.push('Documento actual: 1 (también se incorporará)');
+    if(clients) sections.push('Clientes: ' + clients.length);
+    if(products) sections.push('Productos: ' + products.length);
+    if(Array.isArray(parsed.plantillasConceptos)) sections.push('Plantillas de conceptos: ' + parsed.plantillasConceptos.length);
+    if(Array.isArray(parsed.codigosPostales)) sections.push('Códigos postales: ' + parsed.codigosPostales.length);
+    if(parsed.backupType === 'completa_documentos_rey') sections.push('Otros ajustes locales de Documentos: incluidos');
+    if(hasSettings) sections.push('Ajustes, diseño y logos: incluidos');
+    if(!sections.length) sections.push('Esta copia no contiene documentos guardados');
+    const archived = /^presupuestos?_archivados?_/.test(type);
+    return new Promise(function(resolve){
+      const overlay = document.createElement('div');
+      overlay.id = 'archiveConfirmOverlay';
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
+      const card = document.createElement('div');
+      card.className = 'archive-confirm-card';
+      const title = document.createElement('h2'); title.textContent = 'Revisar copia antes de restaurar';
+      const name = document.createElement('p');
+      name.style.cssText = 'font-size:12px;font-weight:800;word-break:break-all;color:#475569';
+      name.textContent = filename;
+      const detail = document.createElement('div');
+      detail.style.cssText = 'padding:10px 12px;border-radius:10px;background:#eff6ff;color:#16345a;font-size:14px;line-height:1.5';
+      sections.forEach(function(line){
+        const row = document.createElement('div'); row.textContent = '• ' + line; detail.appendChild(row);
+      });
+      const note = document.createElement('p');
+      note.style.cssText = 'font-size:13px;color:#475569';
+      note.textContent = archived ?
+        'Después podrás elegir si recuperas los presupuestos archivados con imágenes o sin ellas.' :
+        'Se incorporarán a los datos existentes. Si un documento ya existe, se conservará la versión más reciente según su fecha.';
+      const yes = document.createElement('button'); yes.type='button'; yes.textContent='Restaurar estos datos';
+      const replace = document.createElement('button'); replace.type='button';
+      replace.style.background='#b45309';
+      const presentTypes = ['presupuesto','factura','albaran'].filter(t => counts[t]>0);
+      replace.textContent='Sustituir documentos de estos tipos';
+      const choose = document.createElement('button'); choose.type='button';
+      choose.className='archive-retry'; choose.textContent='Elegir 1 documento o un rango';
+      const no = document.createElement('button'); no.type='button'; no.className='archive-cancel'; no.textContent='Cancelar';
+      [title,name,detail,note,yes].forEach(el => card.appendChild(el));
+      if(presentTypes.length) card.appendChild(replace);
+      if(list.length || current) card.appendChild(choose);
+      card.appendChild(no);
+      overlay.appendChild(card); document.body.appendChild(overlay);
+      function finish(value){ overlay.remove(); resolve(value); }
+      yes.onclick = () => finish(parsed);
+      replace.onclick = () => {
+        note.textContent='Se quitarán los documentos actuales de estos tipos: '+presentTypes.join(', ')+'. Se pondrán los del archivo. Los otros tipos permanecerán. Comprueba que has elegido la copia correcta.';
+        replace.textContent='Confirmar sustitución';
+        replace.onclick=() => finish(Object.assign({}, parsed, {replaceDocumentTypes:presentTypes}));
+      };
+      choose.onclick = async () => {
+        overlay.remove();
+        resolve(await chooseDocumentsFromBackup(parsed, list, current));
+      };
+      no.onclick = () => finish(false);
+    });
+  }
+
+  function chooseDocumentsFromBackup(parsed, saved, current){
+    const documents = saved.slice();
+    if(current && !documents.some(doc => doc && doc.documentId && doc.documentId === current.documentId))
+      documents.push(current);
+    const typeOf = doc => {
+      const t = String(doc && (doc.documentoTipo || doc.tipo) || 'presupuesto');
+      return ['presupuesto','factura','albaran'].includes(t) ? t : 'presupuesto';
+    };
+    const numberOf = doc => {
+      const groups = String(doc && doc.numero || '').match(/\d+/g) || [];
+      return groups.length ? Number(groups[groups.length-1]) : null;
+    };
+    return new Promise(function(resolve){
+      const overlay = document.createElement('div');
+      overlay.id='archiveConfirmOverlay';
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
+      const card = document.createElement('div'); card.className='archive-confirm-card';
+      const heading = document.createElement('h2'); heading.textContent='Elegir documentos';
+      const description = document.createElement('p');
+      description.textContent='Solo se recuperarán los documentos seleccionados. Los demás datos de la copia no se modificarán.';
+      const type = document.createElement('select');
+      const mode = document.createElement('select');
+      const search = document.createElement('input');
+      const results = document.createElement('div');
+      let selectedIndex = null;
+      const from = document.createElement('input');
+      const to = document.createElement('input');
+      const count = document.createElement('p');
+      const apply = document.createElement('button'); apply.type='button'; apply.textContent='Restaurar selección';
+      const cancel = document.createElement('button'); cancel.type='button'; cancel.className='archive-cancel'; cancel.textContent='Cancelar';
+      [type,mode,search,from,to].forEach(el => el.style.cssText='display:block;width:100%;box-sizing:border-box;min-height:44px;margin:9px 0;padding:8px;border:1px solid #94a3b8;border-radius:10px;background:white;color:#172b4d;font-size:16px');
+      [['presupuesto','Presupuestos'],['factura','Facturas'],['albaran','Albaranes']].forEach(([value,label]) => {
+        if(documents.some(d => typeOf(d) === value)){
+          const option=document.createElement('option'); option.value=value; option.textContent=label; type.appendChild(option);
+        }
+      });
+      [['one','Un documento'],['range','Rango de números']].forEach(([value,label]) => {
+        const option=document.createElement('option'); option.value=value; option.textContent=label; mode.appendChild(option);
+      });
+      search.type='search'; search.placeholder='Buscar número o cliente'; search.autocomplete='off';
+      results.style.cssText='max-height:260px;overflow-y:auto;border:1px solid #cbd5e1;border-radius:10px;background:#fff;overscroll-behavior:contain';
+      from.type='text'; from.inputMode='numeric'; from.placeholder='Desde · 0000'; from.value='0000';
+      to.type='text'; to.inputMode='numeric'; to.placeholder='Hasta · 0200'; to.value='0200';
+      count.style.cssText='font-size:13px;color:#475569;font-weight:800';
+      function selected(){
+        const matches=documents.map((d,i) => ({doc:d,index:i})).filter(x => typeOf(x.doc)===type.value);
+        if(mode.value==='one') return matches.filter(x => x.index===selectedIndex).map(x => x.doc);
+        if(!from.value.trim() || !to.value.trim()) return [];
+        const a=Number(from.value.replace(/\D/g,'')), b=Number(to.value.replace(/\D/g,''));
+        if(!Number.isFinite(a) || !Number.isFinite(b)) return [];
+        return matches.filter(x => {
+          const n=numberOf(x.doc);
+          return n!==null && n>=Math.min(a,b) && n<=Math.max(a,b);
+        }).map(x => x.doc);
+      }
+      function normalized(value){
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      }
+      function refresh(){
+        const single=mode.value==='one';
+        search.style.display=results.style.display=single ? 'block' : 'none';
+        from.style.display=to.style.display=single ? 'none' : 'block';
+        if(single){
+          results.replaceChildren();
+          const query=normalized(search.value.trim());
+          const matches=documents.map((doc,index) => ({doc,index})).filter(x => typeOf(x.doc)===type.value)
+            .sort((a,b) => {
+              const na=numberOf(a.doc), nb=numberOf(b.doc);
+              if(na!==nb) return (na===null ? 999999 : na)-(nb===null ? 999999 : nb);
+              return String(a.doc.numero||'').localeCompare(String(b.doc.numero||''),'es',{numeric:true});
+            }).filter(x => normalized([x.doc.numero,x.doc.clienteNombre,x.doc.cliente,x.doc.fecha].join(' ')).includes(query));
+          matches.slice(0,80).forEach(x => {
+            const row=document.createElement('button'); row.type='button';
+            row.style.cssText='display:block;width:100%;min-height:40px;margin:0;padding:9px 11px;text-align:left;border:0;border-bottom:1px solid #e2e8f0;border-radius:0;background:'+(selectedIndex===x.index?'#dbeafe':'white')+';color:#172b4d;font-size:14px';
+            row.textContent=String(x.doc.numero||'Sin número')+' · '+String(x.doc.clienteNombre||x.doc.cliente||x.doc.fecha||'Documento').slice(0,65);
+            row.onclick=() => { selectedIndex=x.index; refresh(); };
+            results.appendChild(row);
+          });
+          if(matches.length>80){ const tip=document.createElement('p'); tip.style.cssText='padding:8px;font-size:12px'; tip.textContent='Mostrando 80 de '+matches.length+'. Escribe un número o cliente para acotar.'; results.appendChild(tip); }
+          if(!matches.length){ const empty=document.createElement('p'); empty.style.cssText='padding:9px;font-size:13px'; empty.textContent='Sin coincidencias'; results.appendChild(empty); }
+        }
+        count.textContent='Se restaurarán '+selected().length+' documento(s).';
+      }
+      type.onchange=() => { selectedIndex=null; search.value=''; refresh(); };
+      mode.onchange=refresh; search.oninput=() => { selectedIndex=null; refresh(); };
+      from.oninput=refresh; to.oninput=refresh;
+      [heading,description,type,mode,search,results,from,to,count,apply,cancel].forEach(el => card.appendChild(el));
+      overlay.appendChild(card); document.body.appendChild(overlay); refresh();
+      cancel.onclick=() => { overlay.remove(); resolve(false); };
+      apply.onclick=() => {
+        const chosen=selected();
+        if(!chosen.length){ count.textContent='No hay documentos en esa selección.'; return; }
+        overlay.remove();
+        resolve({
+          app:parsed.app, backupType:/^presupuestos?_archivados?_/.test(String(parsed.backupType||'')) ? parsed.backupType : 'seleccion_documentos',
+          all:chosen, current:null
+        });
+      };
+    });
   }
 
   async function restoreAnyBackupFromParsed(parsed){
@@ -15471,7 +15757,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const archivedMode = archivedSources.length ? await chooseArchivedBackupMode(archivedSources.length) : null;
     if(archivedSources.length && !archivedMode) return false;
 
-    const hasSettings = archivedBackup ? !!(parsed.settings || parsed.settingsOnly) : !!normalizeSettingsPayload(parsed);
+    const hasSettings = !!(parsed.settings || parsed.settingsOnly);
     const hasDocuments = Array.isArray(parsed.all) || Array.isArray(parsed.saved) || !!parsed.current || !!parsed.document;
 
     if(hasSettings){
@@ -15482,13 +15768,28 @@ $('btnCloseSheet').addEventListener('click', function(){
       await restoreSharedCatalogFromBackupPayload(parsed, false);
     }
 
+    if(parsed.backupType === 'completa_documentos_rey') {
+      if(Array.isArray(parsed.codigosPostales) && !await storageSetJSON(CP_DB_KEY, parsed.codigosPostales)) return false;
+      if(parsed.datosLocales && typeof parsed.datosLocales === 'object') {
+        FULL_BACKUP_LOCAL_KEYS.forEach(key => {
+          if(typeof parsed.datosLocales[key] === 'string' && !lsSet(key, parsed.datosLocales[key])) showStorageFailure();
+        });
+      }
+    }
+    if(Array.isArray(parsed.plantillasConceptos)){
+      const existing = await storageGetJSON(TEMPLATE_STORAGE_KEY, []);
+      const mergedTemplates = new Map((Array.isArray(existing) ? existing : []).filter(t => t && t.id).map(t => [String(t.id), t]));
+      parsed.plantillasConceptos.forEach(t => { if(t && t.id) mergedTemplates.set(String(t.id), t); });
+      if(!await storageSetJSON(TEMPLATE_STORAGE_KEY, Array.from(mergedTemplates.values()))) return false;
+      conceptTemplates = Array.from(mergedTemplates.values()).map(normalizeConceptTemplate);
+    }
     const currentListBeforeRestore = await loadSavedList();
 
     // Copia interna de seguridad antes de restaurar cualquier archivo.
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.16',
+        version:'v4.9.23',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -15505,10 +15806,17 @@ $('btnCloseSheet').addEventListener('click', function(){
     else if(archivedBackup && parsed.document) importedList = [parsed.document];
 
     if(importedList.length){
-      finalList = archivedBackup && archivedMode ?
-        mergeArchivedBudgetBackup(currentListBeforeRestore, importedList, archivedMode === 'full') :
-        mergeDocumentoListas(currentListBeforeRestore, importedList);
-      await storageSetJSON(SAVE_LIST_KEY, finalList);
+      const replacing = Array.isArray(parsed.replaceDocumentTypes) ? parsed.replaceDocumentTypes : [];
+      finalList = replacing.length ?
+        currentListBeforeRestore.filter(doc => !replacing.includes(String(doc && doc.documentoTipo || 'presupuesto'))).concat(importedList) :
+        (archivedBackup && archivedMode ?
+          mergeArchivedBudgetBackup(currentListBeforeRestore, importedList, archivedMode === 'full') :
+          mergeDocumentoListas(currentListBeforeRestore, importedList));
+      if(!await storageSetJSON(SAVE_LIST_KEY, finalList)) return false;
+      if(replacing.length && !parsed.current){
+        state = normalizeLoadedState(importedList[0]);
+        if(!await persistCurrent()) return false;
+      }
     }
 
     if(parsed.current && typeof parsed.current === 'object'){
@@ -15522,19 +15830,22 @@ $('btnCloseSheet').addEventListener('click', function(){
         });
         if(!existsBefore){
           finalList.push(normalizedCurrent);
-          await storageSetJSON(SAVE_LIST_KEY, finalList);
+          if(!await storageSetJSON(SAVE_LIST_KEY, finalList)) return false;
         }
-        state = existingArchived || normalizedCurrent;
-        await persistCurrent();
+        state = existingArchived && !budgetContainsInlineImages(normalizedCurrent.items) ?
+          existingArchived : normalizedCurrent;
+        if(!await persistCurrent()) return false;
       }
     }else if(hasSettings){
-      await persistCurrent();
+      if(!await persistCurrent()) return false;
     }
 
     render();
 
     const bt = String(parsed.backupType || '').toLowerCase();
-    if(archivedBackup){
+    if(Array.isArray(parsed.replaceDocumentTypes) && parsed.replaceDocumentTypes.length){
+      toast('Documentos sustituidos: ' + importedList.length + ' del archivo', 5500);
+    }else if(archivedBackup){
       toast('Restaurados ' + archivedSources.length + ' presupuestos ' + (archivedMode === 'light' ? 'sin imágenes' : 'con imágenes'));
     }else if(bt.indexOf('presupuestos_rango') >= 0){
       toast('Presupuestos restaurados: ' + importedList.length);
@@ -15554,9 +15865,11 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const txt = await file.text();
       const parsed = JSON.parse(txt);
-      await restoreAnyBackupFromParsed(parsed);
-    }catch(_){
-      toast('Archivo no válido');
+      const selection = await backupRestorePreview(parsed, file.name);
+      if(selection) await restoreAnyBackupFromParsed(selection);
+    }catch(err){
+      console.error(err);
+      toast('No se pudo leer o restaurar la copia', 5000);
     }
     e.target.value='';
   }, false);
@@ -15573,21 +15886,22 @@ $('btnCloseSheet').addEventListener('click', function(){
       // v2.86.04: SUSTITUIR = comportamiento antiguo exacto.
       // No mezcla. No filtra por Array.isArray. Deja la app como la copia.
       if(parsed && parsed.all){
-        await storageSetJSON(SAVE_LIST_KEY, parsed.all);
+        if(!await storageSetJSON(SAVE_LIST_KEY, parsed.all)) throw new Error('Sin espacio para documentos');
       }else if(parsed && parsed.saved){
-        await storageSetJSON(SAVE_LIST_KEY, parsed.saved);
+        if(!await storageSetJSON(SAVE_LIST_KEY, parsed.saved)) throw new Error('Sin espacio para documentos');
       }
 
       if(parsed && parsed.current){
         state = normalizeLoadedState(parsed.current);
         restoreFacturaLogoFromBackupPayload(parsed, true);
-        await persistCurrent();
+        if(!await persistCurrent()) throw new Error('Sin espacio para documento actual');
       }
 
       render();
       toast('Copia restaurada sustituyendo todo');
-    }catch(_){
-      toast('Archivo no válido');
+    }catch(err){
+      console.error(err);
+      showStorageFailure();
     }
     e.target.value='';
   }, false);
@@ -15622,6 +15936,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const selected = (savedList || []).filter(function(doc){
       if(!doc || String(doc.documentoTipo || 'presupuesto') !== 'presupuesto') return false;
       const seq = presupuestoSequenceForRange(doc);
+      if(min === 0 && max === 9999) return true;
       if(seq == null) return false;
       return seq >= min && seq <= max;
     });
@@ -15634,7 +15949,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     selected.sort(function(a,b){
       const sa = presupuestoSequenceForRange(a);
       const sb = presupuestoSequenceForRange(b);
-      if(sa !== sb) return sa - sb;
+      if(sa !== sb) return (sa == null ? 10000 : sa) - (sb == null ? 10000 : sb);
       const da = String(a.fecha || a.updatedAt || a.createdAt || '');
       const db = String(b.fecha || b.updatedAt || b.createdAt || '');
       return da.localeCompare(db);
@@ -15643,13 +15958,14 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.16',
+      version: 'v4.9.23',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
       current: currentInRange || selected[0],
       all: selected,
-      settings: buildBackupSettingsPayload()
+      settings: buildBackupSettingsPayload(),
+      incluye: 'Solo presupuestos guardados del rango, con imágenes conservadas. Las imágenes archivadas previamente no están en la app.'
     };
 
     const filename = 'documentos_rey_presupuestos_' + presupuestoRangeLabel(min, max) + '_' + timestampForFilename() + '.json';
@@ -15683,6 +15999,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       </div>
       <label>Desde</label><input id="exportPresuFrom" inputmode="numeric" value="0000" placeholder="0000">
       <label>Hasta</label><input id="exportPresuTo" inputmode="numeric" value="0020" placeholder="0020">
+      <button type="button" class="btn btn-light" id="btnPresuAll" style="width:100%;margin-top:10px">Seleccionar todos (0000 a 9999)</button>
       <div id="exportPresuPreview" style="margin-top:10px;color:var(--muted);font-size:12px;font-weight:900;line-height:1.25"></div>
       <div class="sheet-actions">
         <button type="button" class="btn btn-primary" id="btnDoExportPresuRange">Exportar rango</button>
@@ -15698,14 +16015,15 @@ $('btnCloseSheet').addEventListener('click', function(){
         const count = (list || []).filter(function(doc){
           if(!doc || String(doc.documentoTipo || 'presupuesto') !== 'presupuesto') return false;
           const seq = presupuestoSequenceForRange(doc);
-          return seq != null && seq >= min && seq <= max;
+          return (min === 0 && max === 9999) || (seq != null && seq >= min && seq <= max);
         }).length;
-        $('exportPresuPreview').textContent = 'Se exportarán ' + count + ' presupuestos del rango ' + presupuestoRangeLabel(min, max) + '.';
+        $('exportPresuPreview').textContent = 'Se exportarán ' + count + ' presupuestos ' + (min===0 && max===9999 ? '(todos los guardados, incluso sin número)' : 'del rango ' + presupuestoRangeLabel(min, max)) + '.';
       }catch(_){
         $('exportPresuPreview').textContent = '';
       }
     }
 
+    $('btnPresuAll').onclick = function(){ $('exportPresuFrom').value='0000'; $('exportPresuTo').value='9999'; updatePreview(); };
     $('exportPresuFrom').addEventListener('input', updatePreview, false);
     $('exportPresuTo').addEventListener('input', updatePreview, false);
     $('btnDoExportPresuRange').onclick = async function(){
@@ -15727,7 +16045,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.16', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.23', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -15774,17 +16092,20 @@ $('btnExportAll').addEventListener('click', async function(){
     closeSettings();
     try{
       const savedList = await loadSavedList();
+      const templates = await storageGetJSON(TEMPLATE_STORAGE_KEY, conceptTemplates || []);
       const nonPresupuestos = (savedList || []).filter(function(doc){
         return doc && String(doc.documentoTipo || 'presupuesto') !== 'presupuesto';
       });
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.16',
+        version: 'v4.9.23',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
         all: nonPresupuestos,
+        plantillasConceptos: Array.isArray(templates) ? templates : [],
+        incluye: 'Facturas y albaranes guardados con sus imágenes, clientes, productos, plantillas de conceptos y ajustes. No incluye presupuestos ni imágenes archivadas, códigos postales descargados ni datos de otras apps.',
         excluded: {
           presupuestos: (savedList || []).length - nonPresupuestos.length,
           motivo: 'Los presupuestos se exportan por rango para evitar copias grandes con imágenes.'
@@ -17424,7 +17745,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.16',
+      version: 'v4.9.23',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
