@@ -2,7 +2,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2.11</title>
+    <title>Ventana Pro v96.2.14</title>
+    <!-- v96.2.14: Abanico desde el centro inferior seleccionable al tocar vidrio del fijo superior. -->
+    <!-- v96.2.13: Vidrio concéntrico al arco exterior y barrotillos radiales opcionales en fijo superior. -->
+    <!-- v96.2.12: Arco superior circular alcanza la altura central, cotas y travesaños del fijo alineados. -->
     <!-- v96.2.11: Corrige las dos diagonales de proyectante, abatible y oscilobatiente. -->
     <!-- v96.2.7: Las líneas de apertura siguen el contorno de la hoja, no el hueco del vidrio. -->
     <!-- v95.5: Añade ajuste de línea interior de hojas y valores numéricos directos para deslizadores visuales. -->
@@ -1236,7 +1239,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2.11"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.11</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.14"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.14</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -1589,6 +1592,11 @@ body.dock-off #canvasDock{
     <button type="button" class="btn-subbarrotillos" onclick="toggleSubBarrotillosPanel()">Barrotillos</button>
 
     <div id="subBarrotillosPanel" class="subbarrotillos-panel">
+      <label style="grid-column:1/-1;display:flex;align-items:center;gap:8px;background:#e7f1fa;border:1px solid #91bce0;border-radius:8px;padding:8px;font-size:15px;">
+        <input type="checkbox" id="subBarrotesAbanico" onchange="document.getElementById('subBarrotesH').disabled=this.checked;document.getElementById('subBarrotesV').disabled=this.checked">
+        Abanico en arco: 3 radios desde centro inferior
+      </label>
+      <small style="grid-column:1/-1;color:#345;">Selecciona «Solo barrotillos» y toca el vidrio del fijo superior.</small>
       <label for="subBarrotesH">Horizontales</label>
       <input type="number" id="subBarrotesH" min="0" max="20" placeholder="0">
 
@@ -2307,6 +2315,19 @@ function aplicarRellenoMarco(ctx){
         if (!key) return false;
 
         const cfg = normalizarSubBarrotesDesdePanel();
+        const abanico = document.getElementById('subBarrotesAbanico');
+        if (data.type === 'fijoSup' && modoArco) {
+            barrotillosArcoSuperior = !!(abanico && abanico.checked);
+            if (barrotillosArcoSuperior) {
+                barrotillosArcoConfig = cfg;
+                // La selección afecta al arco completo, aunque se toque una mitad.
+                Object.keys(barrotillosHuecos).filter(k => k.startsWith('fijoSup_')).forEach(k => {
+                    delete barrotillosHuecos[k]; delete barrotillosHuecosPolys[k];
+                });
+                actualizarVista();
+                return false;
+            }
+        }
         const h = parseInt(cfg.h || 0, 10) || 0;
         const v = parseInt(cfg.v || 0, 10) || 0;
 
@@ -2410,6 +2431,8 @@ function aplicarRellenoMarco(ctx){
     let matrixColoresFijoDer = [];
 
     let modoArco = false;
+    let barrotillosArcoSuperior = false;
+    let barrotillosArcoConfig = {grosor:25,colorMode:"ventana",color:"#FFFFFF"};
     let altoVentanaPrincipalBaseMM = 1400;
     let altoVentanaPrincipalRealMM;
     
@@ -4728,7 +4751,7 @@ function cambiarColorMarco(c) {
     // Función especial para dibujar celda con top curvo/inclinado
     function dibujarCeldaSuperior(ctx, xL, xR, yB, funcYTop, baseColor, idData) {
         // Muestreamos la curva para el borde superior
-        const steps = 5;
+        const steps = 32;
         let points = [];
         // Puntos borde superior (de izq a der)
         for(let i=0; i<=steps; i++) {
@@ -5291,35 +5314,42 @@ function cambiarColorMarco(c) {
         });
     }
 
+    // y1 es la cota que debe atravesar la curva en el centro, no un punto de control.
     function getCurvedY(x, x0, y0, x1, y1, x2, y2) {
-        const t = (x - x0) / (x2 - x0);
-        // Curva cuadrática Bezier B(t) = (1-t)^2 P0 + 2(1-t)t P1 + t^2 P2
-        // Nota: El punto de control p1 no está en la curva, pero la función CSS/Canvas usa control point.
-        // Aquí aproximamos: x1,y1 es el punto de control.
-        
-        // Pero para simplificar y asegurar que pasa por el centro (alto central):
-        // Calculamos Y en funcion de X para una parabola o lineas
-        
-        // Si no es arco (Trapecio)
-        if (!modoArco) {
-             // Interpolacion lineal entre top-izq y top-der? 
-             // Ojo: Trapecio en ventana suele ser dos pendientes si hay central.
-             // Asumimos techo a dos aguas si hay central definido, o pendiente simple si no?
-             // El codigo original usaba un path simple. Asumamos pendiente simple entre extremos.
-             return y0 + (y2 - y0) * t;
+        const ancho = x2 - x0;
+        if (ancho <= 0) return y0;
+        const t = Math.max(0, Math.min(1, (x - x0) / ancho));
+        if (!modoArco) return y0 + (y2 - y0) * t;
+        // Para jambas a igual altura, el arco es circular y pasa por los tres puntos.
+        if (Math.abs(y0 - y2) < 0.01 && y1 < y0 && (y0 - y1) <= ancho / 2) {
+            const flecha = y0 - y1;
+            const mitad = ancho / 2;
+            const radio = (mitad * mitad + flecha * flecha) / (2 * flecha);
+            const dx = x - (x0 + mitad);
+            return y0 + (radio - flecha) - Math.sqrt(Math.max(0, radio * radio - dx * dx));
         }
+        // Extremos desiguales: curva cuadrática que atraviesa el centro introducido.
+        const controlY = 2 * y1 - (y0 + y2) / 2;
+        return (1-t)*(1-t)*y0 + 2*(1-t)*t*controlY + t*t*y2;
+    }
 
-        // Para Arco cuadratico:
-        // P0=(x0,y0), P2=(x2,y2). P1=(x1,y1) es control.
-        const invT = 1 - t;
-        const y = (invT * invT * y0) + (2 * invT * t * y1) + (t * t * y2);
-        return y;
+    function trazarArcoSuperior(ctx, p1, p2, p3) {
+        ctx.moveTo(p1.x, p1.y);
+        const pasos = 48;
+        for (let i = 1; i <= pasos; i++) {
+            const x = p1.x + (p3.x - p1.x) * i / pasos;
+            ctx.lineTo(x, getCurvedY(x, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y));
+        }
     }
-    
+
     function calcularLongitudArco(base, altura) {
-      return Math.sqrt(Math.pow(base, 2) + (16/3) * Math.pow(altura, 2));
+        if (base <= 0) return 0;
+        if (altura <= 0) return base;
+        const mitad = base / 2;
+        const radio = (mitad * mitad + altura * altura) / (2 * altura);
+        return 2 * radio * Math.asin(Math.min(1, mitad / radio));
     }
-    
+
     function dibujarManilla(ctx, manillaX, manillaY, color, verticalManilla, isSliding) {
         ctx.fillStyle = color;
         ctx.strokeStyle = color === 'white' ? 'black' : 'white';
@@ -5635,8 +5665,7 @@ function cambiarColorMarco(c) {
             
             if (modoArco) {
                 const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc };
-                ctx.moveTo(p1.x, p1.y);
-                ctx.quadraticCurveTo(p2.x, p2.y, p3.x, p3.y);
+                trazarArcoSuperior(ctx, p1, p2, p3);
             } else {
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p3.x, p3.y);
@@ -5662,8 +5691,41 @@ function cambiarColorMarco(c) {
             // Coordenadas X de cortes verticales
             const xLeftGlass = x0 + marcoThicknessEsc;
             const xRightGlass = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
+            // El canto interior es concéntrico al exterior cuando el arco es simétrico.
+            // Cerca de las jambas se cierra contra el borde inferior del fijo.
+            const yFijoSupInterior = (x) => {
+                const yExterior = getCurvedY(x, p1.x, p1.y,
+                    x0 + anchoVentanaTotalEsc / 2, fijoSupYBottom - altoFijoSupCenEsc,
+                    p3.x, p3.y);
+                if (!modoArco) return Math.min(yBottomGlass, yExterior + marcoThicknessEsc);
+                const flecha = altoFijoSupCenEsc - altoFijoSupIzqEsc;
+                if (Math.abs(altoFijoSupIzqEsc - altoFijoSupDerEsc) < 0.01 &&
+                    flecha > 0 && flecha <= anchoVentanaTotalEsc / 2) {
+                    const mitad = anchoVentanaTotalEsc / 2;
+                    const radio = (mitad * mitad + flecha * flecha) / (2 * flecha);
+                    const radioInterior = Math.max(0, radio - marcoThicknessEsc);
+                    const dx = x - (x0 + mitad);
+                    if (Math.abs(dx) >= radioInterior) return yBottomGlass;
+                    const centroY = p1.y + radio - flecha;
+                    return Math.min(yBottomGlass,
+                        centroY - Math.sqrt(radioInterior * radioInterior - dx * dx));
+                }
+                return Math.min(yBottomGlass, yExterior + marcoThicknessEsc);
+            };
+            // Un único recorte gobierna vidrio, travesaños y radios del abanico.
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(xLeftGlass, yFijoSupInterior(xLeftGlass));
+            for (let i=1; i<=64; i++) {
+                const x=xLeftGlass+(xRightGlass-xLeftGlass)*i/64;
+                ctx.lineTo(x,yFijoSupInterior(x));
+            }
+            ctx.lineTo(xRightGlass,yBottomGlass);
+            ctx.lineTo(xLeftGlass,yBottomGlass);
+            ctx.closePath();
+            ctx.clip();
             let vCuts = [];
-            let sortedV = [...travesanosSupVerticales].sort((a,b) => a.posicion - b.posicion);
+            let sortedV = (modoArco && barrotillosArcoSuperior ? [] : [...travesanosSupVerticales]).sort((a,b) => a.posicion - b.posicion);
             sortedV.forEach(t => {
                 vCuts.push(xLeftGlass + t.posicion * esc);
             });
@@ -5722,22 +5784,7 @@ function cambiarColorMarco(c) {
                         let xRDraw = xR;
                         if(c < gridXs.length - 2) xRDraw -= travesanoThicknessEsc/2;
                         
-                        const yFunc = (xVal) => {
-                             // Definir curva marco superior interno
-                            if(modoArco) {
-                                const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
-                                const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
-                                const p3 = { x: x0 + anchoVentanaTotalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
-                                return getCurvedY(xVal, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-                            } else {
-                                const xStart = x0 + marcoThicknessEsc;
-                                const xEnd = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
-                                const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
-                                const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
-                                const norm = (xVal - xStart)/(xEnd - xStart);
-                                return yStart + (yEnd - yStart)*norm;
-                            }
-                        };
+                        const yFunc = yFijoSupInterior;
                         dibujarCeldaSuperior(ctx, xLDraw, xRDraw, yBottomDraw, yFunc, cellColor, {type:'fijoSup', row:r, col:c});
                     }
                 }
@@ -5753,7 +5800,7 @@ function cambiarColorMarco(c) {
                 
                 // Calculamos X inicial y final para que no pise el marco
                 let xStart = x0 + marcoThicknessEsc;
-                let xEnd = x0 + anchoVentanaPrincipalEsc - marcoThicknessEsc;
+                let xEnd = xRightGlass;
 
                 // Restamos la mitad del grosor de los travesaños verticales que toquen los extremos
                 // En este caso el grid ya está definido por xLeftGlass y xRightGlass
@@ -5766,22 +5813,7 @@ function cambiarColorMarco(c) {
             sortedV.forEach(vT => {
                 const xVal = xLeftGlass + vT.posicion * esc;
                 // Hay que calcular hasta dónde llega arriba el travesaño vertical
-                const yTopFunc = (xV) => {
-                    if(modoArco) {
-                        const p1 = { x: x0 + marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc };
-                        const p2 = { x: x0 + anchoVentanaTotalEsc / 2, y: fijoSupYBottom - altoFijoSupCenEsc + marcoThicknessEsc };
-                        const p3 = { x: x0 + anchoVentanaTotalEsc - marcoThicknessEsc, y: fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc };
-                        return getCurvedY(xV, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-                    } else {
-                        const xStart = x0 + marcoThicknessEsc;
-                        const xEnd = x0 + anchoVentanaTotalEsc - marcoThicknessEsc;
-                        const yStart = fijoSupYBottom - altoFijoSupIzqEsc + marcoThicknessEsc;
-                        const yEnd = fijoSupYBottom - altoFijoSupDerEsc + marcoThicknessEsc;
-                        const norm = (xV - xStart)/(xEnd - xStart);
-                        return yStart + (yEnd - yStart)*norm;
-                    }
-                };
-                
+                const yTopFunc = yFijoSupInterior;
                 let yTop = yTopFunc(xVal);
                 let heightV = (fijoSupYBottom - marcoThicknessEsc) - yTop;
                 
@@ -5789,6 +5821,31 @@ function cambiarColorMarco(c) {
                 if (drawBorderTop) ctx.strokeRect(xVal - travesanoThicknessEsc/2, yTop, travesanoThicknessEsc, heightV);
             });
 
+            // Abanico visual del fijo superior, independiente de los barrotillos
+            // rectos de las hojas y ocultable con "Mostrar barrotillos".
+            if (modoArco && barrotillosArcoSuperior && mostrarBarrotillosActivos &&
+                xRightGlass > xLeftGlass && altoFijoSupCenEsc > Math.max(altoFijoSupIzqEsc, altoFijoSupDerEsc)) {
+                const xCentro = x0 + anchoVentanaTotalEsc / 2;
+                const xCuarto = x0 + anchoVentanaTotalEsc / 4;
+                const xTresCuartos = x0 + anchoVentanaTotalEsc * 3 / 4;
+                const cima = yFijoSupInterior(xCentro);
+                const origenY = yBottomGlass;
+                const trazos = [
+                    [xCentro, origenY, xCuarto, yFijoSupInterior(xCuarto)],
+                    [xCentro, origenY, xCentro, cima],
+                    [xCentro, origenY, xTresCuartos, yFijoSupInterior(xTresCuartos)]
+                ];
+                ctx.lineCap = 'butt';
+                const cfg = barrotillosArcoConfig || {};
+                const grosorRadios = Math.max(2, (Number(cfg.grosor) || 25) * esc);
+                const color = cfg.colorMode === 'personalizado' ? (cfg.color || '#FFFFFF') : colorPerfilActualParaBarrotillos();
+                trazos.forEach(([ax,ay,bx,by]) => {
+                    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by);
+                    ctx.strokeStyle = '#333'; ctx.lineWidth = grosorRadios + 1.5; ctx.stroke();
+                    ctx.strokeStyle = color; ctx.lineWidth = grosorRadios; ctx.stroke();
+                });
+            }
+            ctx.restore();
             mainWinY0 += maxAltoFijoSupMM * esc;
         }
 
@@ -6814,9 +6871,15 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
             if (fijoSuperior && (modoArco || altoFijoSupIzqMM !== altoFijoSupDerMM)) {
                 let diagonalFijoMM;
                 if (modoArco) {
-                    const anchoBase = anchoVentanaPrincipalMM;
-                    const alturaArco = Math.abs(Math.max(altoFijoSupIzqMM, altoFijoSupDerMM) - altoFijoSupCenMM);
-                    diagonalFijoMM = calcularLongitudArco(anchoBase, alturaArco);
+                    const anchoBase = anchoVentanaTotalMM;
+                    const alturaArco = altoFijoSupCenMM - (altoFijoSupIzqMM + altoFijoSupDerMM) / 2;
+                    diagonalFijoMM = Math.abs(altoFijoSupIzqMM - altoFijoSupDerMM) < 0.01
+                        ? calcularLongitudArco(anchoBase, alturaArco)
+                        : (() => { let longitud = 0, anterior = {x:0,y:altoFijoSupIzqMM};
+                            for (let i=1;i<=120;i++) { const x=anchoBase*i/120;
+                                const y=getCurvedY(x,0,-altoFijoSupIzqMM,anchoBase/2,-altoFijoSupCenMM,anchoBase,-altoFijoSupDerMM);
+                                longitud+=Math.hypot(x-anterior.x,y+anterior.y); anterior={x,y:-y}; }
+                            return longitud; })();
                 } else {
                     const diffAlto = Math.abs(altoFijoSupIzqMM - altoFijoSupDerMM);
                     diagonalFijoMM = Math.sqrt(Math.pow(anchoVentanaPrincipalMM, 2) + Math.pow(diffAlto, 2));
@@ -6830,51 +6893,27 @@ my_ancho_total_ventana_principal = Math.min(marcoY0SuperiorIzq, marcoY0SuperiorD
                 ctx.lineWidth = getMeasureDiagonalLineWidth();
                 ctx.font = getMeasureDiagonalFontSize() + "px Arial";
                 
-                let yOffsetMedida = - 65;
+                let yOffsetMedida = modoArco
+                    ? Math.max(25, altoFijoSupCenEsc - Math.min(altoFijoSupIzqEsc, altoFijoSupDerEsc) + 25)
+                    : 25;
                 const diagonalShiftY = getMeasureDiagonalTextOffset();
                 const fijoSupYBottom = y0 + (mostrarPersiana ? cajonHEsc : 0) + maxAltoFijoSupMM * esc;
                 const fijoSupYTopIzq = fijoSupYBottom - altoFijoSupIzqEsc;
                 const fijoSupYTopDer = fijoSupYBottom - altoFijoSupDerEsc;
                 
                 if (modoArco) {
-                    const fijoSupYTopCen = fijoSupYBottom - altoFijoSupCenEsc;
-
-                    const p1 = { x: x0, y: fijoSupYTopIzq };
-                    const p3 = { x: x0 + anchoVentanaPrincipalEsc, y: fijoSupYTopDer };
-
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y - yOffsetMedida + diagonalShiftY);
-                    ctx.lineTo(p3.x, p3.y - yOffsetMedida + diagonalShiftY);
-                    ctx.stroke();
-
-                    const angle = Math.atan2((p3.y - yOffsetMedida + diagonalShiftY) - (p1.y - yOffsetMedida + diagonalShiftY), p3.x - p1.x);
-                    const arrowLength = 8;
-                    const arrowAngle = Math.PI / 6;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y - yOffsetMedida + diagonalShiftY);
-                    ctx.lineTo(p1.x + arrowLength * Math.cos(angle + arrowAngle), (p1.y - yOffsetMedida + diagonalShiftY) + arrowLength * Math.sin(angle + arrowAngle));
-                    ctx.moveTo(p1.x, p1.y - yOffsetMedida + diagonalShiftY);
-                    ctx.lineTo(p1.x + arrowLength * Math.cos(angle - arrowAngle), (p1.y - yOffsetMedida + diagonalShiftY) + arrowLength * Math.sin(angle - arrowAngle));
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.moveTo(p3.x, p3.y - yOffsetMedida + diagonalShiftY);
-                    ctx.lineTo(p3.x - arrowLength * Math.cos(angle + arrowAngle), (p3.y - yOffsetMedida + diagonalShiftY) - arrowLength * Math.sin(angle + arrowAngle));
-                    ctx.moveTo(p3.x, p3.y - yOffsetMedida + diagonalShiftY);
-                    ctx.lineTo(p3.x - arrowLength * Math.cos(angle - arrowAngle), (p3.y - yOffsetMedida + diagonalShiftY) - arrowLength * Math.sin(angle - arrowAngle));
-                    ctx.stroke();
-
+                    // Longitud desarrollada: texto propio para no tapar la cota de ancho.
                     ctx.save();
-                    ctx.translate((p1.x + p3.x) / 2, (p1.y + p3.y) / 2 - yOffsetMedida + diagonalShiftY - 8);
-                    ctx.rotate(angle);
-                    ctx.fillText(diagonalFijoTexto, 0, 0);
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Arco ' + diagonalFijoTexto + ' mm',
+                        x0 + anchoVentanaTotalEsc / 2,
+                        Math.max(20, fijoSupYBottom - altoFijoSupCenEsc - 65));
                     ctx.restore();
-
                 } else {
                     const lineX1 = x0;
                     const lineY1 = fijoSupYTopIzq - yOffsetMedida + diagonalShiftY;
-                    const lineX2 = x0 + anchoVentanaPrincipalEsc;
+                    const lineX2 = x0 + anchoVentanaTotalEsc;
                     const lineY2 = fijoSupYTopDer - yOffsetMedida + diagonalShiftY;
                     
                     ctx.beginPath();
@@ -9689,6 +9728,8 @@ function volverIndexSeguro(){
     try{ data.geometry.matrixColoresFijoIzq = clone(matrixColoresFijoIzq); }catch(e){}
     try{ data.geometry.matrixColoresFijoDer = clone(matrixColoresFijoDer); }catch(e){}
     try{ data.geometry.modoArco = clone(modoArco); }catch(e){}
+    try{ data.geometry.barrotillosArcoSuperior = clone(barrotillosArcoSuperior); }catch(e){}
+    try{ data.geometry.barrotillosArcoConfig = clone(barrotillosArcoConfig); }catch(e){}
     try{ data.geometry.altoVentanaPrincipalBaseMM = clone(altoVentanaPrincipalBaseMM); }catch(e){}
     try{ data.geometry.drawBorderTop = clone(drawBorderTop); }catch(e){}
     try{ data.geometry.drawBorderBottom = clone(drawBorderBottom); }catch(e){}
@@ -9750,6 +9791,8 @@ function volverIndexSeguro(){
     if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoIzq')) try{ matrixColoresFijoIzq = clone(geometry.matrixColoresFijoIzq); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'matrixColoresFijoDer')) try{ matrixColoresFijoDer = clone(geometry.matrixColoresFijoDer); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'modoArco')) try{ modoArco = clone(geometry.modoArco); }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'barrotillosArcoSuperior')) try{ barrotillosArcoSuperior = !!geometry.barrotillosArcoSuperior; }catch(e){}
+    if(Object.prototype.hasOwnProperty.call(geometry, 'barrotillosArcoConfig')) try{ barrotillosArcoConfig = clone(geometry.barrotillosArcoConfig); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'altoVentanaPrincipalBaseMM')) try{ altoVentanaPrincipalBaseMM = clone(geometry.altoVentanaPrincipalBaseMM); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderTop')) try{ drawBorderTop = clone(geometry.drawBorderTop); }catch(e){}
     if(Object.prototype.hasOwnProperty.call(geometry, 'drawBorderBottom')) try{ drawBorderBottom = clone(geometry.drawBorderBottom); }catch(e){}
