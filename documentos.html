@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.25</title>
+  <title>Documentos Rey v4.9.36</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4543,7 +4543,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.25</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.36</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4563,6 +4563,8 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="documents-home-directory" aria-label="Datos compartidos">
         <button type="button" id="btnHomeClients">Clientes<small>Ver y gestionar</small></button>
         <button type="button" id="btnHomeProducts">Productos<small>Ver catálogo</small></button>
+        <button type="button" id="btnHomeExpenses">Gastos<small>Ver y gestionar</small></button>
+        <button type="button" id="btnHomeResults">Resultado<small>Ingresos e IVA</small></button>
       </div>
       <h3 class="documents-home-section-title">Acceso rápido</h3>
       <div class="documents-home-actions"><button type="button" id="btnHomeContinue">Continuar último</button><button type="button" class="documents-home-settings" id="btnHomeSettings">Ajustes</button></div>
@@ -4577,7 +4579,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.25</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.36</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5872,7 +5874,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.25', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.36', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5915,7 +5917,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.25',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.36',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8160,7 +8162,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.25',
+      version:'v4.9.36',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -9046,7 +9048,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.25',
+      version:'v4.9.36',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9103,7 +9105,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.25',
+      version:'v4.9.36',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -10691,6 +10693,7 @@ COLOCACIÓN INCLUIDA` }
   $('btnCreateInvoiceHome').addEventListener('click', function(){ homeCreationFlow = true; hideDocumentsHome(); openTemplateChooserForDocumentType('factura'); });
   $('btnHomeClients').addEventListener('click', async function(){ await loadClients(); openEdit('clients', 'Lista de clientes'); });
   $('btnHomeProducts').addEventListener('click', async function(){ await loadProducts(); openEdit('catalog', 'Catálogo compartido'); });
+  window.__docsReadInvoices = async function(){ return (await loadSavedList()).filter(d => d && d.documentoTipo === 'factura'); };
   $('btnHomeContinue').addEventListener('click', hideDocumentsHome);
   $('btnHomeSettings').addEventListener('click', openSettings);
   $('btnReturnListDocuments').addEventListener('click', function(){
@@ -11378,7 +11381,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.25',
+      app:'Documentos Rey', version:'v4.9.36',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11515,7 +11518,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.25',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.36',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -15521,14 +15524,15 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.25', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.36', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
         plantillasConceptos:Array.isArray(templates) ? templates : [],
         codigosPostales:Array.isArray(postalCodes) ? postalCodes : [],
         datosLocales:extra,
-        settings:buildBackupSettingsPayload()
+        settings:buildBackupSettingsPayload(),
+        gastos:window.__docsExpensesRead ? window.__docsExpensesRead() : []
       };
       const filename = 'documentos_rey_copia_completa_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
@@ -15563,7 +15567,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const hasSettings = !!(parsed.settings || parsed.settingsOnly);
     const current = parsed.current && typeof parsed.current === 'object' ? parsed.current : null;
     if(!singleClients && !singleProducts && !catalog && !hasSettings &&
-       !list.length && !current && !Array.isArray(parsed.plantillasConceptos)){
+       !list.length && !current && !Array.isArray(parsed.plantillasConceptos) && !Array.isArray(parsed.gastos)){
       toast('Copia no reconocida; no se ha restaurado nada', 5000);
       return Promise.resolve(false);
     }
@@ -15585,6 +15589,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     if(counts.albaran) sections.push('Albaranes: ' + counts.albaran);
     if(current && !list.some(d => d && d.documentId && d.documentId === current.documentId))
       sections.push('Documento actual: 1 (también se incorporará)');
+    if(Array.isArray(parsed.gastos)) sections.push('Gastos: ' + parsed.gastos.length);
     if(clients) sections.push('Clientes: ' + clients.length);
     if(products) sections.push('Productos: ' + products.length);
     if(Array.isArray(parsed.plantillasConceptos)) sections.push('Plantillas de conceptos: ' + parsed.plantillasConceptos.length);
@@ -15847,12 +15852,13 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.25',
+        version:'v4.9.36',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
         all:currentListBeforeRestore,
-        settings: buildBackupSettingsPayload()
+        settings: buildBackupSettingsPayload(),
+        gastos:window.__docsExpensesRead ? window.__docsExpensesRead() : []
       };
       localStorage.setItem('documentos_rey_backup_antes_restore_' + Date.now(), JSON.stringify(safety));
     }catch(_){ }
@@ -15898,6 +15904,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       if(!await persistCurrent()) return false;
     }
 
+    if(Array.isArray(parsed.gastos) && window.__docsExpensesMerge) window.__docsExpensesMerge(parsed.gastos);
     render();
 
     const bt = String(parsed.backupType || '').toLowerCase();
@@ -16016,7 +16023,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.25',
+      version: 'v4.9.36',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16103,7 +16110,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.25', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.36', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16157,7 +16164,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.25',
+        version: 'v4.9.36',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -17803,7 +17810,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.25',
+      version: 'v4.9.36',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
@@ -22762,6 +22769,202 @@ body.template-picker-open-v456{overflow:hidden;}
     }catch(e){alert(e&&e.message?e.message:String(e));}
     return false;
   };
+})();
+</script>
+
+<style>
+.documents-home-directory #btnHomeExpenses{background:#a74d2d;border-color:#ee9e70}.documents-home-directory #btnHomeResults{background:#295eab;border-color:#7faee9}
+#docsExpenseOverlay{position:fixed;inset:0;z-index:110;background:#10213df2;color:#fff;overflow:auto;padding:calc(12px + env(safe-area-inset-top)) 12px calc(24px + env(safe-area-inset-bottom));display:none}
+#docsExpenseOverlay.show{display:block}#docsExpenseOverlay .de-box{max-width:620px;margin:auto;background:#243c5e;border:1px solid #7292ae;border-radius:18px;padding:14px}#docsExpenseOverlay button,#docsExpenseOverlay input,#docsExpenseOverlay select{font:inherit}#docsExpenseOverlay button{border:0;border-radius:10px;padding:10px;color:#fff;background:#2862b1;font-weight:750}#docsExpenseOverlay .de-row{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}#docsExpenseOverlay .de-row>*{flex:1 1 115px;min-width:0}#docsExpenseOverlay input,#docsExpenseOverlay select{width:100%;box-sizing:border-box;padding:9px;background:#f7f4e9;color:#17243a;border:1px solid #b9c8d8;border-radius:9px}#docsExpenseOverlay label{font-size:12px;font-weight:750}#docsExpenseOverlay .de-item{display:block;width:100%;text-align:left;background:#314f70;border:1px solid #5c80a6;margin:5px 0}#docsExpenseOverlay .de-muted{color:#d7e5f4;font-size:12px}#docsExpenseOverlay .de-summary{background:#173047;padding:10px;border-radius:10px;line-height:1.55}#docsExpenseOverlay .de-danger{background:#a33535}#docsExpenseOverlay .de-amber{background:#a55e14}
+</style>
+<style>
+body.docs-expense-open .btn-menu-index{display:none!important}
+#docsExpenseOverlay{background:linear-gradient(155deg,#122b4d,#eef2f6 55%);padding:calc(10px + env(safe-area-inset-top)) 10px calc(24px + env(safe-area-inset-bottom));color:#142a44}
+#docsExpenseOverlay .de-box{max-width:620px;border:0;border-radius:20px;background:#f1f5fa;padding:12px;box-shadow:0 12px 32px #0a1c3855}
+#docsExpenseOverlay .de-row.de-nav{display:grid;grid-template-columns:auto 1fr 1fr;margin:0 0 12px;gap:6px}
+#docsExpenseOverlay .de-nav button{min-height:43px;padding:7px 8px;border-radius:11px;background:#dbe7f5;color:#18416e;font-size:14px}
+#docsExpenseOverlay .de-nav button:first-child{background:#ed4c3b;color:white;max-width:145px}
+#docsExpenseOverlay .de-nav button.active{background:#2563c6;color:white}
+#docsExpenseOverlay .de-filter{background:#fff;border:1px solid #d7e2ee;border-radius:14px;padding:9px;margin-bottom:10px}
+#docsExpenseOverlay .de-filter label{color:#364e68;font-size:12px}
+#docsExpenseOverlay .de-filter select{background:#e8f0fa;border:1px solid #c5d9ec;font-weight:800;font-size:15px;padding:8px}
+#docsExpenseOverlay .de-cards{display:grid;gap:8px}
+#docsExpenseOverlay .de-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px;padding:12px 14px;border-radius:13px;background:#fff;box-shadow:0 2px 7px #17345418;border:1px solid #e1e8ef}
+#docsExpenseOverlay .de-card .de-label{font-size:15px;color:#33465a}
+#docsExpenseOverlay .de-card .de-value{font-size:20px;color:#142436;font-weight:850;text-align:right;white-space:nowrap}
+#docsExpenseOverlay .de-card .de-detail{grid-column:1/-1;font-size:11px;color:#65788e}
+#docsExpenseOverlay .de-card.de-expense .de-value{color:#be3931}
+#docsExpenseOverlay .de-card.de-profit{background:#277e70;border-color:#277e70}
+#docsExpenseOverlay .de-card.de-profit .de-label,#docsExpenseOverlay .de-card.de-profit .de-value,#docsExpenseOverlay .de-card.de-profit .de-detail{color:#fff}
+#docsExpenseOverlay .de-tax{border-radius:14px;padding:12px;background:#e7effb;margin-top:12px}
+#docsExpenseOverlay .de-tax h3{font-size:16px;margin:0 0 9px;color:#183d69}
+#docsExpenseOverlay .de-tax .de-card{box-shadow:none;border-radius:0;border-bottom:1px solid #d9e4ee}
+#docsExpenseOverlay .de-tax .de-card:first-of-type{border-radius:10px 10px 0 0}
+#docsExpenseOverlay .de-tax .de-card:last-child{border-radius:0 0 10px 10px;border-bottom:0}
+#docsExpenseOverlay .de-tax .de-final .de-value{color:#2464c6}
+#docsExpenseOverlay .de-muted{color:#53677f;line-height:1.35;font-size:11px;padding:0 3px}
+#docsExpenseOverlay .de-summary{color:#fff}
+@media(max-width:390px){#docsExpenseOverlay .de-card .de-value{font-size:17px}#docsExpenseOverlay .de-card .de-label{font-size:13px}}
+</style>
+<style>
+/* Gastos y Resultado: misma paleta que el inicio de Documentos Rey. */
+#docsExpenseOverlay{background:radial-gradient(circle at 85% 8%,#3a6294 0,transparent 36%),radial-gradient(circle at 8% 90%,#176969 0,transparent 42%),linear-gradient(160deg,#14233e,#193453 58%,#153f4c);color:#f7fbff}
+#docsExpenseOverlay .de-box{background:#ffffff14;border:1px solid #ffffff3d;border-radius:22px;box-shadow:0 18px 42px #07182d60;padding:12px;backdrop-filter:blur(8px)}
+#docsExpenseOverlay .de-nav button{background:#284969;color:#e7f2ff;border:1px solid #7495b5;box-shadow:0 3px 7px #071c3455}
+#docsExpenseOverlay .de-nav button:first-child{background:#ec493b;border-color:#ed6c61}
+#docsExpenseOverlay .de-nav button.active{background:linear-gradient(180deg,#4b8ae2,#2557ba);border-color:#7aabeb}
+#docsExpenseOverlay.form-active #deTabExpenses,#docsExpenseOverlay.form-active #deTabResults{display:none}
+#docsExpenseOverlay.form-active .de-nav{display:flex}
+#docsExpenseOverlay.form-active .de-nav button:first-child{width:auto;max-width:none}
+#docsExpenseOverlay .de-filter{background:#1b3956;border:1px solid #698aaa;color:#f6fbff;padding:9px}
+#docsExpenseOverlay .de-filter label,#docsExpenseOverlay label{color:#e8f2fc}
+#docsExpenseOverlay .de-filter select,#docsExpenseOverlay input,#docsExpenseOverlay select{background:#f6f4ed;color:#152b44;border:1px solid #9ab4cf;border-radius:10px;min-height:43px}
+#docsExpenseOverlay .de-filter select:focus,#docsExpenseOverlay input:focus{outline:2px solid #f6ba51}
+#docsExpenseOverlay .de-card{background:#233f5e;border:1px solid #6383a4;box-shadow:0 3px 9px #071b3055;padding:11px 13px}
+#docsExpenseOverlay .de-card .de-label,#docsExpenseOverlay .de-card .de-value{color:#fff}
+#docsExpenseOverlay .de-card .de-detail{color:#bfcfe0}
+#docsExpenseOverlay .de-card.de-expense{background:#493c50;border-color:#ad717c}
+#docsExpenseOverlay .de-card.de-expense .de-value{color:#ffb6a9}
+#docsExpenseOverlay .de-card.de-profit{background:linear-gradient(135deg,#178a79,#12635d);border-color:#71c6b7}
+#docsExpenseOverlay .de-tax{background:#122e4b;border:1px solid #6386a8;padding:10px;margin-top:11px}
+#docsExpenseOverlay .de-tax h3{color:#eaf5ff;font-size:15px}
+#docsExpenseOverlay .de-tax .de-card{border-color:#547494;border-bottom:1px solid #547494;border-radius:9px;margin:4px 0}
+#docsExpenseOverlay .de-tax .de-card:first-of-type,#docsExpenseOverlay .de-tax .de-card:last-child{border-radius:9px}
+#docsExpenseOverlay .de-tax .de-final{background:#244c7a;border-color:#87ace2}
+#docsExpenseOverlay .de-tax .de-final .de-value{color:#8ec0ff}
+#docsExpenseOverlay .de-muted{color:#d4e1ed}
+#docsExpenseOverlay #deForm{background:#1b3856;border:1px solid #7292b1;border-radius:17px;padding:12px}
+#docsExpenseOverlay #deForm h3{font-size:19px;margin:0 0 10px;color:#fff}
+#docsExpenseOverlay #deForm label{display:block;min-width:0;font-size:12px;letter-spacing:.1px}
+#docsExpenseOverlay #deForm>label{margin:8px 0}
+#docsExpenseOverlay #deForm .de-row{margin:7px 0;gap:8px}
+#docsExpenseOverlay #deForm .de-row>*{flex:1 1 42%}
+#docsExpenseOverlay #deForm input{margin-top:4px;padding:7px 9px;font-size:15px}
+#docsExpenseOverlay #deForm input[name=concepto]{width:100%}
+#docsExpenseOverlay #dePreview{background:#102d49;border:1px solid #6387ac;color:#e5f6ff;font-size:15px;font-weight:750;text-align:right;padding:10px;margin:10px 0}
+#docsExpenseOverlay #deForm .de-form-actions{position:sticky;bottom:calc(5px + env(safe-area-inset-bottom));background:#1b3856ed;padding:7px 0;margin-bottom:0;z-index:1}
+#docsExpenseOverlay #deForm .de-form-actions button{min-height:44px}
+#docsExpenseOverlay #deForm .de-form-actions button[type=submit]{background:#159b65}
+#docsExpenseOverlay #deForm .de-form-actions #deCancel{background:#376084}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete{background:#aa3636}
+#docsExpenseOverlay .de-item{background:#284967;border:1px solid #6383a5;color:#fff}
+#docsExpenseOverlay #deListSummary{background:#153a53}
+@media(max-width:390px){#docsExpenseOverlay .de-card .de-value{font-size:17px}#docsExpenseOverlay #deForm .de-row>*{flex-basis:42%}}
+</style>
+<style>
+#docsExpenseOverlay{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+#docsExpenseOverlay .de-box{padding-bottom:15px}
+#deExpenses>.de-row:has(#deYear) label:nth-child(2),#deResults .de-filter label:nth-child(2){display:none}
+#docsExpenseOverlay #dePeriods{position:fixed;z-index:4;bottom:calc(8px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 20px));box-sizing:border-box;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;background:#193554f2;border:1px solid #7194b9;border-radius:15px;padding:6px;box-shadow:0 5px 22px #061829a8;backdrop-filter:blur(10px)}
+#docsExpenseOverlay #dePeriods button{min-height:43px;padding:4px 2px;background:#2b4e73;border:1px solid #7798bd;border-radius:10px;color:#fff;font-size:14px;font-weight:850}
+#docsExpenseOverlay #dePeriods button.active{background:linear-gradient(180deg,#63a0fa,#2258c6);border-color:#b4d1ff;box-shadow:inset 0 1px #ffffff60}
+#docsExpenseOverlay.form-active #dePeriods{display:none}
+#docsExpenseOverlay.form-active{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+#docsExpenseOverlay .de-filter{display:block}
+#docsExpenseOverlay .de-filter label{max-width:200px}
+#docsExpenseOverlay .de-tax .de-final{background:#235c70;border-color:#80c5d3}
+#docsExpenseOverlay .de-tax .de-final .de-value{color:#a5edfa}
+</style>
+<style>
+#docsExpenseOverlay.form-active .de-box{padding:10px}
+#docsExpenseOverlay.form-active .de-nav{margin-bottom:9px}
+#docsExpenseOverlay.form-active .de-nav button:first-child{width:100%;max-width:none;min-height:42px}
+#docsExpenseOverlay #deForm{padding:12px;border-radius:16px}
+#docsExpenseOverlay #deForm h3{font-size:19px;margin:0 0 11px}
+#docsExpenseOverlay #deForm>label{margin:7px 0;line-height:1.25}
+#docsExpenseOverlay #deForm input{min-height:42px;font-size:15px;margin-top:4px}
+#docsExpenseOverlay #deForm .de-tax-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:7px 0}
+#docsExpenseOverlay #deForm .de-tax-inputs label{min-width:0}
+#docsExpenseOverlay #deForm input[readonly]{background:#dce9f4;color:#133757;font-weight:850}
+#docsExpenseOverlay #deForm .de-form-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;position:sticky;bottom:calc(4px + env(safe-area-inset-bottom));padding:8px 0 2px;background:#1b3856f2}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete:not([hidden]){grid-column:1/-1}
+#docsExpenseOverlay #deForm .de-form-actions button{min-height:43px}
+</style>
+<style>
+#docsExpenseOverlay #deForm .de-form-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete{grid-column:auto;background:#b63838}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete:disabled{background:#456078;color:#b9ccda;opacity:.65}
+#docsExpenseOverlay #deForm .de-form-actions button{padding:7px 3px;font-size:13px;white-space:nowrap}
+</style>
+<style>
+#docsExpenseOverlay #deForm .de-form-head{display:grid;grid-template-columns:minmax(80px,.85fr) minmax(0,1.55fr) minmax(122px,1.35fr);gap:7px;margin:6px 0 10px}
+#docsExpenseOverlay #deForm .de-form-head label,#docsExpenseOverlay #deForm .de-form-iva label{min-width:0;margin:0;font-size:11px}
+#docsExpenseOverlay #deForm .de-form-head input,#docsExpenseOverlay #deForm .de-form-iva input{width:100%;box-sizing:border-box;padding:7px 6px;font-size:14px}
+#docsExpenseOverlay #deForm .de-form-head .de-num input{font-weight:850}
+#docsExpenseOverlay #deForm .de-concept{display:block;margin:7px 0}
+#docsExpenseOverlay #deForm textarea{display:block;width:100%;box-sizing:border-box;min-height:92px;margin-top:5px;padding:10px;border:1px solid #9ab4cf;border-radius:11px;background:#f6f4ed;color:#152b44;font:inherit;font-size:15px;resize:vertical}
+#docsExpenseOverlay #deForm .de-form-iva{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(65px,.7fr) minmax(0,1fr);gap:7px;margin:9px 0}
+#docsExpenseOverlay #deForm .de-total{display:block;margin:8px 0}
+#docsExpenseOverlay #deForm .de-total input{font-weight:850;text-align:right}
+#docsExpenseOverlay #deForm .de-form-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete:not([hidden]){grid-column:auto;background:#d7242e;color:#fff;border:1px solid #ff7373;opacity:1}
+#docsExpenseOverlay #deForm .de-form-actions #deDelete:disabled{background:#ac2530;color:#fff;opacity:.55}
+#docsExpenseOverlay #deForm .de-form-actions button{min-width:0;font-size:13px;min-height:44px;padding:7px 2px}
+@media(max-width:390px){#docsExpenseOverlay #deForm .de-form-head{grid-template-columns:minmax(75px,.8fr) minmax(0,1.4fr) minmax(115px,1.3fr);gap:5px}#docsExpenseOverlay #deForm .de-form-head input,#docsExpenseOverlay #deForm .de-form-iva input{font-size:13px;padding:6px 4px}}
+</style>
+<style>
+#docsExpenseOverlay #deForm .de-form-head{grid-template-columns:minmax(92px,.8fr) minmax(0,1.8fr);gap:9px;margin-bottom:7px}
+#docsExpenseOverlay #deForm .de-provider{display:block;margin:7px 0 9px}
+#docsExpenseOverlay #deForm .de-provider input{width:100%;box-sizing:border-box}
+@media(max-width:390px){#docsExpenseOverlay #deForm .de-form-head{grid-template-columns:minmax(82px,.78fr) minmax(0,1.7fr);gap:7px}}
+</style>
+<style>
+#docsExpenseOverlay #deForm .de-form-head{align-items:end}
+#docsExpenseOverlay #deForm .de-form-head label{display:block;min-width:0}
+#docsExpenseOverlay #deForm .de-form-head input{display:block;width:100%!important;max-width:100%;height:44px!important;min-height:44px!important;box-sizing:border-box!important;margin:4px 0 0!important;padding:7px 9px!important;line-height:28px!important;border-radius:10px!important;vertical-align:middle}
+#docsExpenseOverlay #deForm .de-form-head input[type=date]{-webkit-appearance:none;appearance:none;text-align:center;font-size:15px!important;background:#f6f4ed;color:#152b44}
+#docsExpenseOverlay #deForm .de-form-head input[type=date]::-webkit-date-and-time-value{text-align:center;min-height:28px;line-height:28px}
+#docsExpenseOverlay #deForm .de-form-head input[type=date]::-webkit-datetime-edit{padding:0;line-height:28px}
+#docsExpenseOverlay #deForm .de-form-head input[type=date]::-webkit-calendar-picker-indicator{opacity:.7;margin:0 0 0 2px}
+</style>
+<div id="docsExpenseOverlay" role="dialog" aria-modal="true" aria-label="Gastos y resultado"><div class="de-box">
+ <div class="de-row de-nav"><button id="deClose" type="button">← Volver</button><button id="deTabExpenses" type="button">Gastos</button><button id="deTabResults" type="button">Resultado</button></div>
+ <div id="deExpenses"><div class="de-row"><button id="deNew" type="button">+ Gasto</button><button id="deImport" type="button">Importar copia Facturación</button><input id="deImportFile" type="file" accept=".json,application/json" hidden></div><input id="deSearch" type="search" placeholder="Buscar gasto, proveedor, concepto…"><div class="de-row"><label>Año<select id="deYear"></select></label><label>Trimestre<select id="deQuarter"><option value="0">Todo el año</option><option value="1">1.º</option><option value="2">2.º</option><option value="3">3.º</option><option value="4">4.º</option></select></label></div><div id="deListSummary" class="de-summary"></div><div id="deList"></div></div>
+ <div id="deResults" hidden><div class="de-row de-filter"><label>Año<select id="deResultYear"></select></label><label>Trimestre<select id="deResultQuarter"><option value="0">Todo el año</option><option value="1">1.º</option><option value="2">2.º</option><option value="3">3.º</option><option value="4">4.º</option></select></label></div><div id="deResultBody" class="de-summary"></div><p class="de-muted">Estimación con los registros de la app. Comprueba las facturas recibidas, la deducibilidad y los anticipos antes de declarar.</p></div>
+ <form id="deForm" hidden><h3 id="deFormTitle">Nuevo gasto</h3>
+ <div class="de-form-head"><label class="de-num">N.º gasto<input name="numero" inputmode="numeric" autocomplete="off" required placeholder="G-091"></label><label class="de-date">Fecha<input name="fecha" type="date" required></label></div>
+ <label class="de-provider">Proveedor<input name="proveedor" autocomplete="organization" required placeholder="Nombre del proveedor"></label>
+ <label class="de-concept">Concepto<textarea name="concepto" rows="3" required placeholder="Material o servicio"></textarea></label>
+ <div class="de-form-iva"><label>Base sin IVA<input name="importe" inputmode="decimal" required placeholder="0,00"></label><label>IVA %<input name="ivaPct" inputmode="decimal" value="21" required></label><label>IVA €<input id="deIvaValue" readonly value="0,00 €"></label></div>
+ <label class="de-total">Total con IVA<input id="deTotalValue" readonly value="0,00 €"></label>
+ <label>Referencia factura recibida<input name="refFactura" placeholder="Opcional"></label>
+ <div id="dePreview" class="de-summary" hidden></div>
+ <div class="de-row de-form-actions"><button id="deCancel" type="button">Cancelar</button><button type="submit">Guardar</button><button id="deDelete" class="de-danger" type="button" disabled>Eliminar</button></div></form>
+ <div id="deMessage" role="status" class="de-muted"></div>
+</div>
+ <nav id="dePeriods" aria-label="Período"><button type="button" data-quarter="1">T1</button><button type="button" data-quarter="2">T2</button><button type="button" data-quarter="3">T3</button><button type="button" data-quarter="4">T4</button><button type="button" data-quarter="0" class="active">Año</button></nav>
+</div>
+<script>
+(function(){
+'use strict';
+var KEY='rey_gastos_v1', $=id=>document.getElementById(id), edit=null, mode='expenses';
+var money=n=>(Number(n)||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+function num(x){if(typeof x==='number')return x;var t=String(x||'').replace(/\s|€/g,'');if(t.includes(','))t=t.replace(/\./g,'').replace(',','.');return Number(t)||0}
+function round(x){return Math.round((x+Number.EPSILON)*100)/100}
+function read(){try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(_){return []}}
+function write(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catch(_){msg('No se pudo guardar. Conserva la copia y libera espacio.');return false}}
+function msg(t){$('deMessage').textContent=t}
+function identity(g){return g.n!=null?'n:'+g.n:'f:'+g.fecha+'|'+g.proveedor+'|'+g.concepto+'|'+g.importe}
+function expenseIva(g){if(g.iva!==undefined&&g.iva!==null&&g.iva!=='')return num(g.iva);if(g.ivaSoportado!==undefined&&g.ivaSoportado!==null&&g.ivaSoportado!=='')return num(g.ivaSoportado);var pct=g.ivaPct!==undefined&&g.ivaPct!==null&&g.ivaPct!==''?num(g.ivaPct):21;return round(num(g.importe)*pct/100)}
+function ivaEstimated(g){return (g.iva===undefined||g.iva===null||g.iva==='')&&(g.ivaSoportado===undefined||g.ivaSoportado===null||g.ivaSoportado==='')}
+function merge(incoming){var a=read(),seen=new Map(a.map((g,i)=>[identity(g),i])),added=0;incoming.forEach(g=>{if(!g||typeof g!=='object'||!g.fecha)return;var k=identity(g);if(!seen.has(k)){seen.set(k,a.length);a.push(g);added++}else{var old=a[seen.get(k)];if(ivaEstimated(old)&&!ivaEstimated(g)&&num(old.importe)===num(g.importe)){old.iva=expenseIva(g);old.ivaSoportado=expenseIva(g);old.ivaPct=g.ivaPct??21}}});if(!write(a))return -1;draw();return added}
+window.__docsExpensesRead=read;window.__docsExpensesMerge=merge;
+function years(){var y=new Set([new Date().getFullYear()]);read().forEach(g=>{if(/^\d{4}/.test(g.fecha))y.add(Number(g.fecha.slice(0,4)))});return [...y].sort((a,b)=>b-a)}
+function selectYears(){['deYear','deResultYear'].forEach(id=>{var el=$(id),old=el.value;el.replaceChildren();years().forEach(y=>el.add(new Option(y,y)));if([...el.options].some(o=>o.value===old))el.value=old})}
+function match(d,y,q){return d&&d.slice(0,4)===String(y)&&(!Number(q)||Math.ceil(Number(d.slice(5,7))/3)===Number(q))}
+function draw(){selectYears();var arr=read().filter(g=>match(g.fecha,$('deYear').value,$('deQuarter').value));var search=$('deSearch').value.toLocaleLowerCase('es');if(search)arr=arr.filter(g=>(g.num+' '+g.proveedor+' '+g.concepto+' '+(g.refFactura||'')).toLocaleLowerCase('es').includes(search));var missing=arr.filter(ivaEstimated).length;$('deListSummary').textContent=($('deQuarter').value==='0'?'Año completo':'T'+$('deQuarter').value)+' · '+arr.length+' gastos · Base '+money(arr.reduce((s,g)=>s+num(g.importe),0))+' · IVA '+money(arr.reduce((s,g)=>s+expenseIva(g),0))+(missing?' · '+missing+' IVA estimados al 21 %':'');var list=$('deList');list.replaceChildren();arr.slice().sort((a,b)=>Number(b.n||0)-Number(a.n||0)||String(b.fecha).localeCompare(String(a.fecha))).forEach(g=>{var b=document.createElement('button');b.type='button';b.className='de-item';b.textContent=(g.num||'G-'+g.n)+' · '+g.fecha+' · '+(g.proveedor||'')+' · '+money(g.importe)+' · '+(g.concepto||'');b.onclick=()=>form(g);list.append(b)})}
+function form(g){edit=g||null;$('docsExpenseOverlay').classList.add('form-active');$('deClose').textContent='← Gastos';$('deForm').hidden=false;$('deExpenses').hidden=true;$('deResults').hidden=true;var f=$('deForm');f.elements.numero.value=g?.num||'G-'+String(Math.max(0,...read().map(x=>num(x.n)))+1).padStart(3,'0');f.elements.fecha.value=g?.fecha||new Date().toISOString().slice(0,10);f.elements.proveedor.value=g?.proveedor||'';f.elements.concepto.value=g?.concepto||'';f.elements.importe.value=g?String(g.importe).replace('.',','):'';f.elements.ivaPct.value=g?String(g.ivaPct??21):'21';f.elements.refFactura.value=g?.refFactura||'';$('deFormTitle').textContent=g?'Editar '+(g.num||'gasto'):'Nuevo gasto';$('deDelete').disabled=!g;$('deDelete').dataset.confirm='';$('deDelete').textContent='Eliminar';preview()}
+function preview(){var f=$('deForm').elements,b=num(f.importe.value),pct=num(f.ivaPct.value),iv=round(b*pct/100);$('deIvaValue').value=money(iv);$('deTotalValue').value=money(round(b+iv))}
+function closeForm(){$('deForm').hidden=true;$('docsExpenseOverlay').classList.remove('form-active');$('deClose').textContent='← Volver';show(mode)}
+function show(m){mode=m;updatePeriodButtons();$('deTabExpenses').classList.toggle('active',m==='expenses');$('deTabResults').classList.toggle('active',m==='results');$('deExpenses').hidden=m!=='expenses';$('deResults').hidden=m!=='results';if(m==='expenses')draw();else result()}
+async function result(){selectYears();var y=$('deResultYear').value,q=$('deResultQuarter').value,g=read().filter(x=>match(x.fecha,y,q)),f=[];try{f=await window.__docsReadInvoices()}catch(_){msg('No se pudieron leer las facturas')};f=f.filter(x=>match(x.fecha,y,q)&&!['cancelado','anulado'].includes(String(x.estado||'').toLowerCase()));var base=0,iva=0;f.forEach(d=>{var b=(d.items||[]).reduce((s,i)=>s+num(i.units)*num(i.price)*(1-Math.max(0,Math.min(100,num(i.discount||i.dto)))/100),0);base+=b;iva+=d.ivaEnabled===false?0:b*.21});var gb=g.reduce((s,x)=>s+num(x.importe),0),gi=g.reduce((s,x)=>s+expenseIva(x),0),missingIva=g.filter(ivaEstimated).length;var host=$('deResultBody');host.className='de-cards';host.replaceChildren();function card(parent,label,value,detail,kind){var c=document.createElement('div');c.className='de-card '+(kind||'');var l=document.createElement('span');l.className='de-label';l.textContent=label;var v=document.createElement('strong');v.className='de-value';v.textContent=value;c.append(l,v);if(detail){var d=document.createElement('small');d.className='de-detail';d.textContent=detail;c.append(d)}parent.append(c)}
+card(host,'Ingresos',money(base),f.length+' facturas emitidas · sin IVA');card(host,'Gastos',money(gb),g.length+' gastos registrados · sin IVA','de-expense');card(host,'Resultado',money(base-gb),'Ingresos menos gastos registrados','de-profit');var tax=document.createElement('section');tax.className='de-tax';var h=document.createElement('h3');h.textContent='IVA · '+(Number(q)?q+'.º trimestre':'Año completo')+' '+y;tax.append(h);card(tax,'IVA ventas',money(iva),'Facturas emitidas');card(tax,'IVA compras',money(gi),missingIva?missingIva+' gastos antiguos sin desglose: IVA estimado al 21 %':'Gastos registrados');card(tax,iva-gi>=0?'IVA estimado a pagar':'IVA estimado a compensar',money(Math.abs(iva-gi)),'IVA ventas menos IVA compras · estimación','de-final');host.append(tax)}
+function updatePeriodButtons(){var q=mode==='results'?$('deResultQuarter').value:$('deQuarter').value;document.querySelectorAll('#dePeriods button').forEach(b=>b.classList.toggle('active',b.dataset.quarter===q))}
+document.querySelectorAll('#dePeriods button').forEach(b=>b.addEventListener('click',()=>{var q=b.dataset.quarter;$('deQuarter').value=q;$('deResultQuarter').value=q;updatePeriodButtons();if(mode==='expenses')draw();else result();$('docsExpenseOverlay').scrollTo({top:0,behavior:'smooth'})}));
+$('btnHomeExpenses').onclick=()=>{document.body.classList.add('docs-expense-open');$('docsExpenseOverlay').classList.add('show');show('expenses')};$('btnHomeResults').onclick=()=>{document.body.classList.add('docs-expense-open');$('docsExpenseOverlay').classList.add('show');show('results')};$('deClose').onclick=()=>{if(!$('deForm').hidden){closeForm();return}$('docsExpenseOverlay').classList.remove('show');document.body.classList.remove('docs-expense-open');$('deForm').hidden=true};$('deTabExpenses').onclick=()=>{closeForm();show('expenses')};$('deTabResults').onclick=()=>{closeForm();show('results')};$('deNew').onclick=()=>form(null);$('deCancel').onclick=closeForm;['deSearch','deYear','deQuarter'].forEach(id=>$(id).addEventListener(id==='deSearch'?'input':'change',draw));['deResultYear','deResultQuarter'].forEach(id=>$(id).addEventListener('change',result));['importe','ivaPct'].forEach(k=>$('deForm').elements[k].addEventListener('input',preview));
+$('deForm').onsubmit=e=>{e.preventDefault();var a=read(),f=e.target.elements,b=num(f.importe.value),pct=num(f.ivaPct.value);if(!f.fecha.value||!f.proveedor.value.trim()||!f.concepto.value.trim()||b<=0||pct<0||pct>100){msg('Revisa fecha, proveedor, concepto, base e IVA');return}var rawNumber=f.numero.value.trim().toUpperCase(),m=rawNumber.match(/^(?:G-?)?0*([1-9]\d*)$/);if(!m){msg('Escribe un número válido, por ejemplo G-091');f.numero.focus();return}var n=Number(m[1]);if(a.some(x=>Number(x.n)===n&&(!edit||identity(x)!==identity(edit)))){msg('Ese número de gasto ya existe');f.numero.focus();return}var g={...(edit||{}),n,num:'G-'+String(n).padStart(3,'0'),fecha:f.fecha.value,proveedor:f.proveedor.value.trim(),concepto:f.concepto.value.trim(),importe:round(b),ivaPct:pct,iva:round(b*pct/100),ivaSoportado:round(b*pct/100),totalConIva:round(b+round(b*pct/100)),refFactura:f.refFactura.value.trim()};if(edit){var i=a.findIndex(x=>identity(x)===identity(edit));if(i>=0)a[i]=g;else a.push(g)}else a.push(g);if(write(a)){msg('Gasto guardado');closeForm()}};
+$('deDelete').onclick=()=>{if(!edit)return;var b=$('deDelete');if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='¿Borrar?';msg('Pulsa ¿Borrar? otra vez para confirmar');return}if(write(read().filter(x=>identity(x)!==identity(edit)))){b.dataset.confirm='';b.textContent='Eliminar';msg('Gasto eliminado');closeForm()}};
+$('deImport').onclick=()=>$('deImportFile').click();$('deImportFile').onchange=async e=>{var file=e.target.files[0];if(!file)return;try{var v=JSON.parse(await file.text()),rows=Array.isArray(v.gastos)?v.gastos:null;if(!rows&&v.storage){var raw=v.storage.rey_gastos_v1||v.storage.rey_gastos_history;rows=typeof raw==='string'?JSON.parse(raw):raw}if(!Array.isArray(rows))throw Error('La copia no contiene gastos');var n=merge(rows);msg(n>=0?'Importados '+n+' gastos nuevos; se completó el IVA antiguo cuando coincidía la base. Total: '+read().length:'No se pudieron guardar los gastos')}catch(err){msg('Archivo no válido para gastos: '+err.message)}e.target.value=''};
 })();
 </script>
 
