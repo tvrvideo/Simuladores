@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.30</title>
+  <title>Cut Máster v2.4.32</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.30</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.32</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -464,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.30');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.32');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -764,8 +764,8 @@
     return map;
   }
 
-  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap, compact = false, fullWidth = false, printWidth = 0){
-    const width = compact ? (printWidth || 1064) : 900;
+  function buildBarSketchSvg(bar, index, profileFace, materialName, materialId, sharedMeasureColorMap, compact = false, fullWidth = false){
+    const width = compact ? 1064 : 900;
     const height = compact ? 59 : 118;
     const topY = compact ? 5 : 18;
     const bottomY = compact ? 37 : 68;
@@ -2531,15 +2531,13 @@
     await shareOrDownloadBlob(pdfBlob, filename, options.title || 'Resultado PDF');
     return { blob: pdfBlob, filename };
   }
-  function buildExportDiagramSvg(compact = false){
+  function buildExportDiagramSvg(compact = false, miniaturasPdfGrandes = false){
     const project = currentProject();
     if(!project) return null;
     const result = calculateProject(project);
     if(!result.materials.length) return null;
 
-    // A4: 800 unidades dan textos y miniaturas un 40 % mayores que 1120.
-    // El ancho de las barras se recalcula para ocupar el mismo ancho físico.
-    const width = compact ? 800 : 1120;
+    const width = 1120;
     const pagePadX = 28;
     const contentX = compact ? pagePadX : 190;
     const labelX = 34;
@@ -2556,7 +2554,7 @@
     const qtyYOffset = compact ? 18 : 30;
     const afterBarGap = compact ? 10 : 8;
     const emptyMsgSize = 16;
-    const PAGE_H_SVG = 841.89 / (595.28 / width);
+    const PAGE_H_SVG = 1583.989;
 
     function getPageIndex(yPos){
       return Math.max(0, Math.floor(Math.max(0, yPos - 0.001) / PAGE_H_SVG));
@@ -2595,7 +2593,7 @@
 
     result.materials.forEach((mat) => {
       const barSketches = (mat.bars || []).map((bar, idx) => {
-        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, compact, false, compact ? width - 2 * pagePadX : 0);
+        const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, compact);
         const sketchInner = sketchPack.svg
           .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
           .replace('</svg>', '');
@@ -2610,16 +2608,17 @@
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
       const srcMat = project.materials.find(m=>m.id===mat.id);
       const imgUrl = cutPerfilUrl(mat.name, srcMat && srcMat.referencia, srcMat && srcMat.serie);
-      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight + 24 + (imgUrl ? 48 : 0);
+      const miniaturaGrande = miniaturasPdfGrandes && !!imgUrl;
+      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight + 24 + (miniaturaGrande ? 8 : 0);
       y = ensureBlockFits(y, materialBlockHeight);
 
-      y += materialGapBefore;
+      y += materialGapBefore + (miniaturaGrande ? 8 : 0);
       if(imgUrl){
         // Marker for the vector PDF exporter; PNG/SVG export also includes this image.
-        parts.push('<image class="rey-profile-pdf" href="'+escapeHtml(imgUrl)+'" x="'+pagePadX+'" y="'+(y-26)+'" width="64" height="64" preserveAspectRatio="xMidYMid meet"/>');
+        parts.push('<image class="rey-profile-pdf" href="'+escapeHtml(imgUrl)+'" x="'+pagePadX+'" y="'+(y-23)+'" width="'+(miniaturaGrande?90:42)+'" height="'+(miniaturaGrande?90:42)+'" preserveAspectRatio="xMidYMid meet"/>');
       }
-      parts.push('<text x="' + (pagePadX+(imgUrl?76:0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
-      y += materialGapAfter + (imgUrl?48:0);
+      parts.push('<text x="' + (pagePadX+(imgUrl?(miniaturaGrande?98:50):0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
+      y += materialGapAfter + (imgUrl?24:0);
 
       if(!mat.bars.length){
         y = ensureBlockFits(y, 32);
@@ -2641,7 +2640,9 @@
 
         if(compact){
           const barInfo = (bar.multiplicity || 1) + 'x · ' + physicalBarLabel(mat.bars, idx) + ' · ' + formatLength(bar.length) + ' ' + currentUnit() + ' · Sobra ' + formatLength(wasteValue) + ' ' + currentUnit();
-          parts.push('<text x="' + pagePadX + '" y="' + metricsY + '" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">' + escapeHtml(barInfo) + '</text>');
+          // La primera fila informativa ocupa el espacio libre a la derecha de la foto.
+          const infoX = miniaturaGrande && idx === 0 ? pagePadX + 98 : pagePadX;
+          parts.push('<text x="' + infoX + '" y="' + metricsY + '" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">' + escapeHtml(barInfo) + '</text>');
         } else {
           parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">' + physicalBarLabel(mat.bars, idx) + '</text>');
           parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
@@ -2730,8 +2731,7 @@
     await loaded;
 
     const canvas = document.createElement('canvas');
-    // 2400 px de ancho: aproximadamente 290 ppp en A4.
-    const scale = 3;
+    const scale = 2;
     canvas.width = Math.round(pack.width * scale);
     canvas.height = Math.round(pack.height * scale);
     const ctx = canvas.getContext('2d');
@@ -2759,7 +2759,7 @@
     await shareOrDownloadBlob(pngBlob, safeFileName(pack.projectName + '_resultado_corte', '.png'), 'Resultado PNG');
   }
   async function exportCurrentResultsToPdf(){
-    const pack = buildExportDiagramSvg(true);
+    const pack = buildExportDiagramSvg(true, true);
     if(!pack) throw new Error('No hay resultados para exportar');
     setExportStatus('Cargando miniaturas para PDF...');
     pack.svg=await integrarFotosEnSvg(pack.svg);
