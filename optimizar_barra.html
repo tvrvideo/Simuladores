@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.27</title>
+  <title>Cut Máster v2.4.28</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.27</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.28</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -464,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.27');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.28');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -2384,14 +2384,10 @@
       if(!url || profileImageIndex.has(url))return;
       profileImageIndex.set(url,-1);
       try{
-        const resp=await fetch(url,{mode:'cors'});
-        if(!resp.ok)throw new Error('Imagen no disponible');
-        const blob=await resp.blob();
-        const bitmap=await createImageBitmap(blob);
+        const bitmap=await cargarMiniatura(url);
         const cv=document.createElement('canvas');
-        cv.width=bitmap.width;cv.height=bitmap.height;
+        cv.width=bitmap.naturalWidth;cv.height=bitmap.naturalHeight;
         const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.drawImage(bitmap,0,0);
-        if(bitmap.close)bitmap.close();
         const data=cv.toDataURL('image/jpeg',0.88).split(',')[1];
         const idx=profileImages.length;
         profileImages.push({bytes:_b64ToBytes(data),width:cv.width,height:cv.height});
@@ -2411,7 +2407,7 @@
       function pageOfY(yAbs){ let pi = Math.floor((yAbs + 0.0001) / PAGE_H_SVG); if(pi < 0) pi = 0; if(pi >= pages) pi = pages - 1; return pi; }
       function relY(yAbs,p){ return yAbs - (p * PAGE_H_SVG); }
 
-      profileNodes.forEach(node=>{
+      function dibujarMiniaturasPdf(){ profileNodes.forEach(node=>{
         const url=node.getAttribute('href')||node.getAttribute('xlink:href');
         const idx=profileImageIndex.get(url);
         if(idx==null||idx<0)return;
@@ -2422,7 +2418,7 @@
         const p=pageOfY(y+h/2);
         const yRel=relY(y,p);
         contents[p].push('q\n'+pdfNum(w*scale)+' 0 0 '+pdfNum(h*scale)+' '+pdfNum(x*scale)+' '+pdfNum(svgYToPdfRel(yRel)-h*scale)+' cm\n/Pr'+idx+' Do\nQ\n');
-      });
+      }); }
       const rects = svgEl.querySelectorAll('rect');
       for(let i=0;i<rects.length;i++){
         const r = rects[i], tr = getAccumTranslate(r);
@@ -2480,6 +2476,9 @@
         }
       }
 
+      // El fondo y las barras se pintan antes: si se pinta primero la foto,
+      // el rectángulo blanco de la página la tapa en el PDF.
+      dibujarMiniaturasPdf();
       const texts = svgEl.querySelectorAll('text');
       for(let ti=0;ti<texts.length;ti++){
         const t = texts[ti];
@@ -2669,7 +2668,16 @@
     return { svg, width, height, projectName: project.name };
   }
 
-  // v2.4.27: convertir las fotos externas a datos integrados ANTES de exportar.
+  // Las imágenes se cargan fuera del SVG para Safari iOS y se incrustan al exportar.
+  function cargarMiniatura(src){
+    return new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>reject(new Error('No se pudo abrir la miniatura'));
+      img.src=src;
+    });
+  }
+  // v2.4.28: convertir las fotos externas a datos integrados ANTES de exportar.
   // Safari no dibuja recursos externos de un SVG cargado como imagen en canvas.
   async function integrarFotosEnSvg(svgText){
     const doc=new DOMParser().parseFromString(svgText,'image/svg+xml');
@@ -2701,6 +2709,14 @@
     if(!pack) throw new Error('No hay resultados para exportar');
     setExportStatus('Preparando PNG...');
     pack.svg=await integrarFotosEnSvg(pack.svg);
+    // Safari puede ignorar las imágenes anidadas en un SVG usado como Image.
+    // Se dibujan sobre el PNG final a partir de los JPEG integrados.
+    const svgDoc=new DOMParser().parseFromString(pack.svg,'image/svg+xml');
+    const miniaturas=Array.from(svgDoc.querySelectorAll('image.rey-profile-pdf')).map(el=>{
+      const data={src:el.getAttribute('href')||el.getAttribute('xlink:href'),x:Number(el.getAttribute('x')),y:Number(el.getAttribute('y')),w:Number(el.getAttribute('width')),h:Number(el.getAttribute('height'))};
+      el.remove();return data;
+    });
+    pack.svg=new XMLSerializer().serializeToString(svgDoc.documentElement);
     const img = new Image();
     img.decoding = 'sync';
     img.crossOrigin = 'anonymous';
@@ -2720,6 +2736,13 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    for(const mini of miniaturas){
+      if(!mini.src)continue;
+      const foto=await cargarMiniatura(mini.src);
+      const ratio=Math.min(mini.w/foto.naturalWidth,mini.h/foto.naturalHeight);
+      const w=foto.naturalWidth*ratio,h=foto.naturalHeight*ratio;
+      ctx.drawImage(foto,(mini.x+(mini.w-w)/2)*scale,(mini.y+(mini.h-h)/2)*scale,w*scale,h*scale);
+    }
 
     let pngBlob = null;
     if(canvas.toBlob){
