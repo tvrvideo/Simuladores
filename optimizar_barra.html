@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.24</title>
+  <title>Cut Máster v2.4.26</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.24</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.26</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -464,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.24');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.26');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1271,6 +1271,22 @@
     return first === last ? `Barra ${first} de ${total}` : `Barras ${first}–${last} de ${total}`;
   }
 
+  // Miniaturas de perfiles: solo se consultan si la referencia está en el nombre.
+  function cutPerfilRef(nombre){
+    const m=String(nombre||'').match(/(?:^|\D)(\d{4,5})(?!\d)/g);
+    return m ? m[m.length-1].match(/\d{4,5}/)[0] : '';
+  }
+  function cutPerfilUrl(nombre, referencia, serie){
+    const ref=String(referencia||cutPerfilRef(nombre)).trim();
+    if(!ref)return '';
+    // COR-60: la carpeta de imágenes publicada en GitHub Pages.
+    const serieDir=String(serie||'cor60').toLowerCase().replace(/[^a-z0-9-]/g,'');
+    return 'perfiles/'+serieDir+'/'+ref+'.jpg';
+  }
+  function cutPerfilMini(nombre, referencia, serie){
+    const url=cutPerfilUrl(nombre,referencia,serie);
+    return url?'<img src="'+url+'" alt="Perfil '+cutPerfilRef(nombre)+'" loading="lazy" onerror="this.remove()" style="width:45px;height:45px;object-fit:contain;background:#fff;border:1px solid #c5c5bb;border-radius:5px;flex:none">':'';
+  }
   function renderResults(){
     const project = currentProject();
     if(!project) return showScreen('homeScreen');
@@ -1321,7 +1337,7 @@
           return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(mat.bars, idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
-      card.innerHTML = `<div class="diagram-title">${escapeHtml(mat.name)}</div>
+      card.innerHTML = `<div class="diagram-title" style="display:flex;align-items:center;gap:8px">${cutPerfilMini(mat.name, sourceMaterial && sourceMaterial.referencia, sourceMaterial && sourceMaterial.serie)}<span>${escapeHtml(mat.name)}</span></div>
         
         ${barsHtml}`;
       diagramPanel.appendChild(card);
@@ -1935,6 +1951,8 @@
       materials: Array.isArray(project && project.materials) && project.materials.length ? project.materials.map(material => ({
         id: material && material.id ? String(material.id) : uid(),
         name: material && material.name ? String(material.name) : 'Material 1',
+        referencia: String(material && (material.referencia || material.ref) || cutPerfilRef(material && material.name) || ''),
+        serie: String(material && material.serie || 'cor60'),
         profileFace: Math.max(1, Number(material && material.profileFace) || 40),
         pricePerMeter: Math.max(0, Number(material && material.pricePerMeter) || 0),
         collapsed: !!(material && material.collapsed),
@@ -2181,7 +2199,8 @@
     }
     return out;
   }
-  function _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx){
+  function _pdf_buildA4VectorPDF_MULTI(contentBytesArr, jpegBytes, imgWpx, imgHpx, profileImages){
+    profileImages = Array.isArray(profileImages) ? profileImages : [];
     const pageW = 595.28, pageH = 841.89;
     const hasImg = !!(jpegBytes && jpegBytes.length);
     const pagesN = (contentBytesArr && contentBytesArr.length) ? contentBytesArr.length : 1;
@@ -2194,7 +2213,8 @@
     const objCatalog = 1, objPages = 2, objFirstPage = 3;
     const objFont1 = objFirstPage + pagesN, objFont2 = objFirstPage + pagesN + 1;
     const objImg = hasImg ? (objFirstPage + pagesN + 2) : null;
-    const objFirstContent = hasImg ? (objFirstPage + pagesN + 3) : (objFirstPage + pagesN + 2);
+    const objFirstContent = (hasImg ? (objFirstPage + pagesN + 3) : (objFirstPage + pagesN + 2)) + profileImages.length;
+    const objProfileStart = objFirstContent - profileImages.length;
     const objMax = objFirstContent + pagesN - 1, size = objMax + 1;
     mark(objCatalog); addStr(objCatalog + ' 0 obj\n<< /Type /Catalog /Pages ' + objPages + ' 0 R >>\nendobj\n');
     let kids = '';
@@ -2203,7 +2223,12 @@
     for(let p=0;p<pagesN;p++){
       const objPage = objFirstPage + p, objContent = objFirstContent + p;
       let res = '/Resources << /Font << /F1 ' + objFont1 + ' 0 R /F2 ' + objFont2 + ' 0 R >>';
-      if(hasImg) res += ' /XObject << /Im0 ' + objImg + ' 0 R >>';
+      if(hasImg || profileImages.length){
+        res += ' /XObject <<';
+        if(hasImg) res += ' /Im0 ' + objImg + ' 0 R';
+        profileImages.forEach((im,ix)=>{res += ' /Pr'+ix+' '+(objProfileStart+ix)+' 0 R';});
+        res += ' >>';
+      }
       res += ' >>';
       mark(objPage);
       addStr(objPage + ' 0 obj\n<< /Type /Page /Parent ' + objPages + ' 0 R /MediaBox [0 0 ' + pageW + ' ' + pageH + '] ' + res + ' /Contents ' + objContent + ' 0 R >>\nendobj\n');
@@ -2216,6 +2241,13 @@
       addBytes(jpegBytes);
       addStr('\nendstream\nendobj\n');
     }
+    profileImages.forEach((im,ix)=>{
+      const n=objProfileStart+ix;
+      mark(n);
+      addStr(n+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+im.width+' /Height '+im.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n');
+      addBytes(im.bytes);
+      addStr('\nendstream\nendobj\n');
+    });
     for(let c=0;c<pagesN;c++){
       const objC = objFirstContent + c;
       const bytes = contentBytesArr[c] || new Uint8Array(0);
@@ -2344,6 +2376,29 @@
       return one ? [one] : [];
     }
 
+    const profileImages=[];
+    const profileImageIndex=new Map();
+    const profileNodes=Array.from(svgEl.querySelectorAll('image.rey-profile-pdf'));
+    await Promise.all(profileNodes.map(async node=>{
+      const url=node.getAttribute('href') || node.getAttribute('xlink:href');
+      if(!url || profileImageIndex.has(url))return;
+      profileImageIndex.set(url,-1);
+      try{
+        const resp=await fetch(url,{mode:'cors'});
+        if(!resp.ok)throw new Error('Imagen no disponible');
+        const blob=await resp.blob();
+        const bitmap=await createImageBitmap(blob);
+        const cv=document.createElement('canvas');
+        cv.width=bitmap.width;cv.height=bitmap.height;
+        const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.drawImage(bitmap,0,0);
+        if(bitmap.close)bitmap.close();
+        const data=cv.toDataURL('image/jpeg',0.88).split(',')[1];
+        const idx=profileImages.length;
+        profileImages.push({bytes:_b64ToBytes(data),width:cv.width,height:cv.height});
+        profileImageIndex.set(url,idx);
+      }catch(e){profileImageIndex.set(url,-1);}
+    }));
+
     function buildPdf(){
       const vbNow = (svgEl.getAttribute('viewBox') || '0 0 800 1132').split(/\s+/).map(Number);
       const vbWNow = vbNow[2] || vbW || 800;
@@ -2356,6 +2411,18 @@
       function pageOfY(yAbs){ let pi = Math.floor((yAbs + 0.0001) / PAGE_H_SVG); if(pi < 0) pi = 0; if(pi >= pages) pi = pages - 1; return pi; }
       function relY(yAbs,p){ return yAbs - (p * PAGE_H_SVG); }
 
+      profileNodes.forEach(node=>{
+        const url=node.getAttribute('href')||node.getAttribute('xlink:href');
+        const idx=profileImageIndex.get(url);
+        if(idx==null||idx<0)return;
+        const tr=getAccumTranslate(node);
+        const x=Number(node.getAttribute('x')||0)+tr.x;
+        const y=Number(node.getAttribute('y')||0)+tr.y;
+        const w=Number(node.getAttribute('width')||42),h=Number(node.getAttribute('height')||42);
+        const p=pageOfY(y+h/2);
+        const yRel=relY(y,p);
+        contents[p].push('q\n'+pdfNum(w*scale)+' 0 0 '+pdfNum(h*scale)+' '+pdfNum(x*scale)+' '+pdfNum(svgYToPdfRel(yRel)-h*scale)+' cm\n/Pr'+idx+' Do\nQ\n');
+      });
       const rects = svgEl.querySelectorAll('rect');
       for(let i=0;i<rects.length;i++){
         const r = rects[i], tr = getAccumTranslate(r);
@@ -2456,7 +2523,7 @@
       }
       const contentBytesArr = [];
       for(let p2=0;p2<pages;p2++) contentBytesArr.push(_pdf_bytes_cp1252((preByPage[p2] || '') + contents[p2].join('')));
-      return _pdf_buildA4VectorPDF_MULTI(contentBytesArr, null, 0, 0);
+      return _pdf_buildA4VectorPDF_MULTI(contentBytesArr, null, 0, 0, profileImages);
     }
 
     const pdfBytes = buildPdf();
@@ -2544,7 +2611,13 @@
       y = ensureBlockFits(y, materialBlockHeight);
 
       y += materialGapBefore;
-      parts.push('<text x="' + pagePadX + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
+      const srcMat = project.materials.find(m=>m.id===mat.id);
+      const imgUrl = cutPerfilUrl(mat.name, srcMat && srcMat.referencia, srcMat && srcMat.serie);
+      if(imgUrl){
+        // Marker for the vector PDF exporter; PNG/SVG export also includes this image.
+        parts.push('<image class="rey-profile-pdf" href="'+escapeHtml(imgUrl)+'" x="'+pagePadX+'" y="'+(y-23)+'" width="42" height="42" preserveAspectRatio="xMidYMid meet"/>');
+      }
+      parts.push('<text x="' + (pagePadX+(imgUrl?50:0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
       y += materialGapAfter;
 
       if(!mat.bars.length){
@@ -2819,6 +2892,8 @@
       const materials = (Array.isArray(external.materials) ? external.materials : []).map((mat, idx) => ({
         id: uid(),
         name: String(mat.name || ('Barra ' + (idx + 1))),
+        referencia: String(mat.referencia || mat.ref || cutPerfilRef(mat.name) || ''),
+        serie: String(mat.serie || 'cor60'),
         pricePerMeter: Math.max(0, Number(mat.pricePerMeter) || 0),
         profileFace: Number(mat.profileFace) > 0 ? Number(mat.profileFace) : 40,
         pieces: (Array.isArray(mat.pieces) ? mat.pieces : []).map((p, pidx) => ({
