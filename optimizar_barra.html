@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.32</title>
+  <title>Cut Máster v2.4.33</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.32</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.33</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -464,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.32');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.33');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1271,7 +1271,7 @@
     return first === last ? `Barra ${first} de ${total}` : `Barras ${first}–${last} de ${total}`;
   }
 
-  // Miniaturas de perfiles: solo se consultan si la referencia está en el nombre.
+  // La referencia viaja separada del nombre; los proyectos anteriores siguen siendo compatibles.
   function cutPerfilRef(nombre){
     const m=String(nombre||'').match(/(?:^|\D)(\d{4,5})(?!\d)/g);
     return m ? m[m.length-1].match(/\d{4,5}/)[0] : '';
@@ -1283,9 +1283,16 @@
     const serieDir=String(serie||'cor60').toLowerCase().replace(/[^a-z0-9-]/g,'');
     return 'https://tvrvideo.github.io/Simuladores/perfiles/'+serieDir+'/'+ref+'.jpg';
   }
+  function cutPerfilTitulo(nombre, referencia){
+    const ref=String(referencia||'').trim();
+    if(!ref)return String(nombre||'');
+    const escaped=ref.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const limpio=String(nombre||'').replace(new RegExp('(?:^|\\s*[·–—-]\\s*|\\s+)(?:Ref\\.?\\s*)?'+escaped+'(?=$|\\s*[·–—]\\s*|\\s+)','gi'),' ').replace(/\s*[·–—]\s*[·–—]\s*/g,' · ').replace(/^[\s·–—-]+|[\s·–—-]+$/g,'').replace(/\s{2,}/g,' ').trim();
+    return ref+' · '+(limpio||'Perfil');
+  }
   function cutPerfilMini(nombre, referencia, serie){
     const url=cutPerfilUrl(nombre,referencia,serie);
-    return url?'<img src="'+url+'" alt="Perfil '+cutPerfilRef(nombre)+'" loading="lazy" onerror="this.remove()" style="width:45px;height:45px;object-fit:contain;background:#fff;border:1px solid #c5c5bb;border-radius:5px;flex:none">':'';
+    return url?'<img src="'+url+'" alt="Perfil '+escapeHtml(String(referencia||cutPerfilRef(nombre)))+'" loading="lazy" onerror="this.remove()" style="width:45px;height:45px;object-fit:contain;background:#fff;border:1px solid #c5c5bb;border-radius:5px;flex:none">':'';
   }
   function renderResults(){
     const project = currentProject();
@@ -1337,7 +1344,7 @@
           return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(mat.bars, idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
-      card.innerHTML = `<div class="diagram-title" style="display:flex;align-items:center;gap:8px">${cutPerfilMini(mat.name, sourceMaterial && sourceMaterial.referencia, sourceMaterial && sourceMaterial.serie)}<span>${escapeHtml(mat.name)}</span></div>
+      card.innerHTML = `<div class="diagram-title" style="display:flex;align-items:center;gap:8px">${cutPerfilMini(mat.name, sourceMaterial && sourceMaterial.referencia, sourceMaterial && sourceMaterial.serie)}<span>${escapeHtml(cutPerfilTitulo(mat.name,sourceMaterial && sourceMaterial.referencia))}</span></div>
         
         ${barsHtml}`;
       diagramPanel.appendChild(card);
@@ -1350,12 +1357,12 @@
       listCard.className = 'card';
       let rows = '';
       if(mat.cutSummary && mat.cutSummary.length){
-        rows += `<div class="material-list-row"><div><strong>${escapeHtml(mat.name)}</strong><div class="piece-meta">Tipos de corte: ${mat.cutSummary.map(item => `<span class="cut-badge">${cutTypeLabel(item.cutType)} · ${item.qty} ud.</span>`).join(' ')}</div></div></div>`;
+        rows += `<div class="material-list-row"><div><strong>${escapeHtml(cutPerfilTitulo(mat.name,sourceMaterial && sourceMaterial.referencia))}</strong><div class="piece-meta">Tipos de corte: ${mat.cutSummary.map(item => `<span class="cut-badge">${cutTypeLabel(item.cutType)} · ${item.qty} ud.</span>`).join(' ')}</div></div></div>`;
       }
       if(!mat.stockUsage.length){
         rows += '<div class="material-list-row"><div>No se ha podido optimizar con el stock actual.</div></div>';
       } else {
-        rows += mat.stockUsage.map(item => `<div class="material-list-row"><div><strong>${escapeHtml(mat.name)}</strong> · barra ${item.length} mm</div><div>${item.qty} ud.</div></div>`).join('');
+        rows += mat.stockUsage.map(item => `<div class="material-list-row"><div><strong>${escapeHtml(cutPerfilTitulo(mat.name,sourceMaterial && sourceMaterial.referencia))}</strong> · barra ${item.length} mm</div><div>${item.qty} ud.</div></div>`).join('');
       }
       listCard.innerHTML = rows;
       listPanel.appendChild(listCard);
@@ -2617,7 +2624,7 @@
         // Marker for the vector PDF exporter; PNG/SVG export also includes this image.
         parts.push('<image class="rey-profile-pdf" href="'+escapeHtml(imgUrl)+'" x="'+pagePadX+'" y="'+(y-23)+'" width="'+(miniaturaGrande?90:42)+'" height="'+(miniaturaGrande?90:42)+'" preserveAspectRatio="xMidYMid meet"/>');
       }
-      parts.push('<text x="' + (pagePadX+(imgUrl?(miniaturaGrande?98:50):0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
+      parts.push('<text x="' + (pagePadX+(imgUrl?(miniaturaGrande?98:50):0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(cutPerfilTitulo(mat.name,srcMat && srcMat.referencia)) + '</text>');
       y += materialGapAfter + (imgUrl?24:0);
 
       if(!mat.bars.length){
