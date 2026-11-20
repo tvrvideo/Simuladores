@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.26</title>
+  <title>Cut Máster v2.4.27</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -216,7 +216,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.26</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.27</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -464,7 +464,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.26');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.27');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1281,7 +1281,7 @@
     if(!ref)return '';
     // COR-60: la carpeta de imágenes publicada en GitHub Pages.
     const serieDir=String(serie||'cor60').toLowerCase().replace(/[^a-z0-9-]/g,'');
-    return 'perfiles/'+serieDir+'/'+ref+'.jpg';
+    return 'https://tvrvideo.github.io/Simuladores/perfiles/'+serieDir+'/'+ref+'.jpg';
   }
   function cutPerfilMini(nombre, referencia, serie){
     const url=cutPerfilUrl(nombre,referencia,serie);
@@ -2607,7 +2607,7 @@
         return { bar, idx, sketchPack, sketchInner: printSketchInner, blockHeight: barGapBefore + (compact ? 12 : 30) + sketchPack.height + afterBarGap };
       });
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
-      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight;
+      const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight + 24;
       y = ensureBlockFits(y, materialBlockHeight);
 
       y += materialGapBefore;
@@ -2618,7 +2618,7 @@
         parts.push('<image class="rey-profile-pdf" href="'+escapeHtml(imgUrl)+'" x="'+pagePadX+'" y="'+(y-23)+'" width="42" height="42" preserveAspectRatio="xMidYMid meet"/>');
       }
       parts.push('<text x="' + (pagePadX+(imgUrl?50:0)) + '" y="' + y + '" font-family="Arial, Helvetica, sans-serif" font-size="' + materialTitleSize + '" font-weight="700" fill="' + (compact ? '#c62828' : '#2f241f') + '">' + escapeHtml(mat.name) + '</text>');
-      y += materialGapAfter;
+      y += materialGapAfter + (imgUrl?24:0);
 
       if(!mat.bars.length){
         y = ensureBlockFits(y, 32);
@@ -2669,10 +2669,38 @@
     return { svg, width, height, projectName: project.name };
   }
 
+  // v2.4.27: convertir las fotos externas a datos integrados ANTES de exportar.
+  // Safari no dibuja recursos externos de un SVG cargado como imagen en canvas.
+  async function integrarFotosEnSvg(svgText){
+    const doc=new DOMParser().parseFromString(svgText,'image/svg+xml');
+    const imgs=Array.from(doc.querySelectorAll('image.rey-profile-pdf'));
+    const cache=new Map();
+    await Promise.all(imgs.map(async el=>{
+      const src=el.getAttribute('href')||el.getAttribute('xlink:href');
+      if(!src)return;
+      if(!cache.has(src))cache.set(src,(async()=>{
+        try{
+          const resp=await fetch(src,{mode:'cors'});
+          if(!resp.ok)throw Error('HTTP '+resp.status);
+          const blob=await resp.blob();
+          return await new Promise((resolve,reject)=>{
+            const fr=new FileReader();fr.onload=()=>resolve(fr.result);
+            fr.onerror=()=>reject(Error('Lectura JPG'));fr.readAsDataURL(blob);
+          });
+        }catch(e){return null;}
+      })());
+      const data=await cache.get(src);
+      if(data){el.setAttribute('href',data);el.removeAttribute('xlink:href');}
+      else el.remove();
+    }));
+    return new XMLSerializer().serializeToString(doc.documentElement);
+  }
+
   async function exportCurrentResultsToPng(){
     const pack = buildExportDiagramSvg(true);
     if(!pack) throw new Error('No hay resultados para exportar');
     setExportStatus('Preparando PNG...');
+    pack.svg=await integrarFotosEnSvg(pack.svg);
     const img = new Image();
     img.decoding = 'sync';
     img.crossOrigin = 'anonymous';
@@ -2707,6 +2735,8 @@
   async function exportCurrentResultsToPdf(){
     const pack = buildExportDiagramSvg(true);
     if(!pack) throw new Error('No hay resultados para exportar');
+    setExportStatus('Cargando miniaturas para PDF...');
+    pack.svg=await integrarFotosEnSvg(pack.svg);
     const host = document.createElement('div');
     host.style.position = 'fixed';
     host.style.left = '-99999px';
