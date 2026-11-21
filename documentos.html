@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.41</title>
+  <title>Documentos Rey v4.9.42</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4543,7 +4543,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.41</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.42</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4579,7 +4579,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.41</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.42</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5876,7 +5876,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.41', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.42', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5919,7 +5919,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.41',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.42',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6705,11 +6705,12 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(item && item.__newConceptDefaultGain === true) return '200.00';
     return '';
   }
-  function bindGainPreview(priceId, gainPctId, gainAmountId, previewId){
+  function bindGainPreview(priceId, gainPctId, gainAmountId, previewId, wasteId){
     const priceEl = $(priceId);
     const gainPctEl = $(gainPctId);
     const gainAmountEl = $(gainAmountId);
     const previewEl = $(previewId);
+    const wasteEl = wasteId ? $(wasteId) : null;
     if(!priceEl || !gainPctEl || !gainAmountEl || !previewEl) return;
     let gainMode = gainAmountEl.value ? 'amount' : 'pct';
 
@@ -6733,17 +6734,20 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
         setVal(gainAmountEl, pct ? amount : '');
       }
 
-      const finalPrice = signedBase < 0 ? -(base + amount) : base + amount;
+      const waste = wasteEl ? normalize(wasteEl.value) : 0;
+      const finalPrice = (signedBase < 0 ? -(base + amount) : base + amount) + waste;
       const hasGain = amount > 0 || pct > 0;
       previewEl.innerHTML = 'Precio en presupuesto: ' + money(finalPrice) +
         '<small>Precio base ' + money(signedBase) +
         (hasGain ? ' + ganancia ' + money(amount) + ' (' + String(Number(pct).toFixed(2)).replace('.', ',').replace(',00','') + '%)' : ' · sin ganancia') +
+        (waste ? ' + desperdicio ' + money(waste) : '') +
         '</small>';
     };
 
     gainAmountEl.addEventListener('input', () => update('amount'));
     gainPctEl.addEventListener('input', () => update('pct'));
     priceEl.addEventListener('input', () => update(gainMode));
+    if(wasteEl) wasteEl.addEventListener('input', () => update(gainMode));
     update(gainMode);
   }
   function toggleNegativeUnits(id){
@@ -7423,6 +7427,30 @@ function appendRedLineV447(html, inputId){
       src[i] || {},
       { code: conceptCodeForIndex(i) }
     ));
+  }
+
+  // El desperdicio es un componente del precio unitario del propio concepto.
+  // Sustituir su importe anterior evita duplicarlo al recalcular Cut Máster.
+  function setConceptWasteAmount(item, amount, projectId, source){
+    const previous=Math.max(0,parseDecimalInputValue(item.cutWasteCost));
+    const next=Math.max(0,Number(amount)||0);
+    const current=parseDecimalInputValue(item.price);
+    item.price=String(Number((current-previous+next).toFixed(2)));
+    item.cutWasteCost=Number(next.toFixed(2));
+    if(projectId) item.cutWasteProjectId=projectId;
+    if(source) item.cutWasteSourceKey=source;
+  }
+  function migrateLegacyCutWaste(items){
+    if(!Array.isArray(items)) return;
+    items.forEach((legacy,index)=>{
+      if(!legacy || String(legacy.text||'').trim()!=='Desperdicio de perfiles') return;
+      const match=String(legacy.cutWasteSourceKey||'').match(/^V(\d+)$/i);
+      const sourceIndex=match ? Number(match[1])-1 : -1;
+      if(sourceIndex<0 || sourceIndex===index || !items[sourceIndex]) return;
+      setConceptWasteAmount(items[sourceIndex],parseDecimalInputValue(legacy.price),
+        legacy.cutWasteProjectId,legacy.cutWasteSourceKey);
+      items[index]=blankConcept(legacy.code||conceptCodeForIndex(index));
+    });
   }
 
   function lsGet(key){
@@ -8164,7 +8192,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.41',
+      version:'v4.9.42',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -8907,6 +8935,7 @@ COLOCACIÓN INCLUIDA` }
     const merged = Object.assign({}, base, raw || {});
     merged.style = Object.assign(defaultStyle(), raw && raw.style ? raw.style : {});
     merged.items = ensureConceptList(raw && raw.items);
+    migrateLegacyCutWaste(merged.items);
     const visualPageCount = Math.max(1, Math.ceil(merged.items.length / CONCEPTS_PER_PAGE));
     const simplePageCount = (merged.tipoPresupuesto === 'sencillo') ? Math.max(1, Number(merged.simpleExtraPages || 1)) : 1;
     const pageModeCount = Math.max(visualPageCount, simplePageCount);
@@ -9052,7 +9081,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.41',
+      version:'v4.9.42',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9109,7 +9138,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.41',
+      version:'v4.9.42',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -11385,7 +11414,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.41',
+      app:'Documentos Rey', version:'v4.9.42',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11522,7 +11551,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.41',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.42',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -12760,28 +12789,18 @@ COLOCACIÓN INCLUIDA` }
     if(!Array.isArray(state.items))state.items=[];
     const cost=Number(pack.cost);
     if(!Number.isFinite(cost)||cost<0)return false;
-    const source=pack.sourceKey||pack.projectId;
-    const match=String(source).match(/^V(\d+)$/i);
+    const source=String(pack.sourceKey||'');
+    const match=source.match(/^V(\d+)$/i);
     const sourceIndex=match?Number(match[1])-1:-1;
-    let it=state.items.find((x,i)=>x&&x.cutWasteSourceKey===source&&i!==sourceIndex);
-    // Reparar presupuestos afectados por la versión anterior: el desperdicio
-    // ocupó el concepto de la propia ventana antes de regresar el precio Motor.
-    if(sourceIndex>=0 && state.items[sourceIndex] && state.items[sourceIndex].cutWasteSourceKey===source){
-      const original=state.items[sourceIndex];
-      if(String(original.text||'').trim()==='Desperdicio de perfiles')original.text='';
-      delete original.cutWasteSourceKey;delete original.cutWasteProjectId;
+    if(sourceIndex<0 || !state.items[sourceIndex]) return false;
+    // Una línea V2 creada por versiones anteriores se traslada a V1.
+    migrateLegacyCutWaste(state.items);
+    const it=state.items[sourceIndex];
+    if(String(it.text||'').trim()==='Desperdicio de perfiles'){
+      it.text='';it.price='0';delete it.costPrice;delete it.basePrice;
+      delete it.cutWasteCost;
     }
-    if(!it && cost>0){
-      const emptyIndex=state.items.findIndex((x,i)=>i!==sourceIndex && i>sourceIndex && x && !conceptHasContent(x) && !x.ventanaProDesign && !x.configuracionVentana && !x.despieceFabricacion);
-      if(emptyIndex>=0){it=blankConcept(state.items[emptyIndex].code||conceptCodeForIndex(emptyIndex));state.items[emptyIndex]=it;}
-      else{it=blankConcept(conceptCodeForIndex(state.items.length));state.items.push(it);}
-    }
-    if(it){
-      it.text='Desperdicio de perfiles';it.units='1';it.price=cost.toFixed(2);
-      it.basePrice=cost;it.costPrice=cost;it.gain='';it.gainAmount=0;it.margin='';
-      it.cutWasteProjectId=pack.projectId;
-      it.cutWasteSourceKey=source;
-    }
+    setConceptWasteAmount(it,cost,pack.projectId,source);
     await persistCurrent();render();
     try{sessionStorage.removeItem('REY_CUTMASTER_WASTE_RETURN_V1');localStorage.removeItem('REY_CUTMASTER_WASTE_RETURN_V1');}catch(_){}
     toast('Desperdicio incorporado al presupuesto: '+cost.toFixed(2)+' €');
@@ -12840,7 +12859,15 @@ COLOCACIÓN INCLUIDA` }
     it.gainAmount = 0;
     it.gain = '';
     it.margin = '';
-    it.price = finalSale;
+    if(String(payload.origen||'').toLowerCase()==='cierre'){
+      const motorGain=Number((finalSale-finalCost).toFixed(2));
+      if(motorGain>=0){
+        it.basePrice=finalCost;
+        it.gainAmount=motorGain;
+        it.gain=finalCost ? String(Number((motorGain*100/finalCost).toFixed(2))) : '';
+      }
+    }
+    it.price = Number((finalSale+Math.max(0,parseDecimalInputValue(it.cutWasteCost))).toFixed(2));
     if(!it.units) it.units = 1;
     it.alu600PriceData = payload;
     if(String(payload.origen || payload.origin || '').toLowerCase()==='cierre')
@@ -12854,19 +12881,19 @@ COLOCACIÓN INCLUIDA` }
     try{
       const priceInput = $('editPrice');
       if(priceInput){
-        priceInput.value = String(finalSale.toFixed(2)).replace('.', ',');
+        priceInput.value = String(Number(it.basePrice).toFixed(2)).replace('.', ',');
         priceInput.dispatchEvent(new Event('input', {bubbles:true}));
       }
 
       const gainInput = $('editGainAmount');
       if(gainInput){
-        gainInput.value = '0';
+        gainInput.value = String(it.gainAmount||0).replace('.', ',');
         gainInput.dispatchEvent(new Event('input', {bubbles:true}));
       }
 
       const gainPctInput = $('editGain');
       if(gainPctInput){
-        gainPctInput.value = '0';
+        gainPctInput.value = String(it.gain||0).replace('.', ',');
         gainPctInput.dispatchEvent(new Event('input', {bubbles:true}));
       }
 
@@ -13327,6 +13354,7 @@ body.innerHTML = `
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
         <label class="import-field-label">Precio base ${it.code}</label><span class="negative-units-row"><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editPrice" aria-label="Cambiar signo del precio">−</button></span>
+        <label class="import-field-label">Desperdicio de perfiles (€) ${it.code}</label><input id="editWasteCost" class="import-field import-neutral" inputmode="decimal" value="${esc(it.cutWasteCost || '')}" placeholder="0,00">
         <div class="import-gain-grid"><div><label class="import-field-label">Ganancia (€)</label><input id="editGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€"></div><div><label class="import-field-label">Ganancia (%)</label><input id="editGain" class="import-field import-gain" inputmode="decimal" value="${esc(gainForEditor(it))}" placeholder="%"></div></div>
         <div id="gainPreview" class="price-gain-preview"></div>
         <label class="import-field-label">Descuento (%)</label><input id="editDiscount" class="import-field import-discount" inputmode="decimal" value="${esc(it.discount || it.dto || '')}" placeholder="Vacío si no hay descuento">
@@ -13336,7 +13364,7 @@ body.innerHTML = `
           <button type="button" class="btn btn-danger" id="sheetCancel">Cancelar</button>
           <button type="button" class="btn btn-primary" id="sheetSave">Guardar</button>
         </div>`;
-      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
+      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview', 'editWasteCost');
       $('btnUseTemplate').onclick = () => applyConceptTemplate('replace');
       $('btnAppendTemplate').onclick = () => applyConceptTemplate('append');
       Array.from(document.querySelectorAll('[data-ext-catalog]')).forEach(function(btn){ btn.onclick = function(){ openExternalCatalogV42(btn.getAttribute('data-ext-catalog'), index); }; });
@@ -13420,6 +13448,7 @@ body.innerHTML = `
         <div class="optional-red-line-v447"><label>Línea roja al final</label><textarea id="editConceptRedLine" inputmode="text" rows="1">${esc(redDataMetaV4903.red)}</textarea></div>
         <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
         <label class="import-field-label">Precio base ${it.code}</label><span class="negative-units-row"><input id="editPrice" class="import-field import-neutral" inputmode="decimal" value="${esc(priceForGainEditor(it))}"><button type="button" class="negative-units-toggle" data-negative-price="editPrice" aria-label="Cambiar signo del precio">−</button></span>
+        <label class="import-field-label">Desperdicio de perfiles (€) ${it.code}</label><input id="editWasteCost" class="import-field import-neutral" inputmode="decimal" value="${esc(it.cutWasteCost || '')}" placeholder="0,00">
         <div class="import-gain-grid">
           <div>
             <label class="import-field-label">Ganancia (€) ${it.code}</label><input id="editGainAmount" class="import-field import-gain" inputmode="decimal" value="${esc(gainAmountForEditor(it))}" placeholder="€">
@@ -13438,7 +13467,7 @@ body.innerHTML = `
           <button type="button" class="btn btn-success" id="sheet600BtnV47">600</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
         </div>`;
-      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview');
+      bindGainPreview('editPrice', 'editGain', 'editGainAmount', 'gainPreview', 'editWasteCost');
       $('sheetPVCBtnV13').onclick = function(ev){
         try{ ev.preventDefault(); ev.stopPropagation(); }catch(_){}
         openPVCForConceptV1(index);
@@ -14449,6 +14478,9 @@ body.innerHTML = `
         delete state.items[currentEdit.index].gainAmount;
         state.items[currentEdit.index].price = basePrice;
       }
+      const wasteCost=Math.max(0,parseDecimalInputValue($('editWasteCost')?.value));
+      state.items[currentEdit.index].cutWasteCost=Number(wasteCost.toFixed(2));
+      state.items[currentEdit.index].price=String(Number((parseDecimalInputValue(state.items[currentEdit.index].price)+wasteCost).toFixed(2)));
       const d = String(($('editDiscount').value || '').replace(',','.')).trim();
       if(d) state.items[currentEdit.index].discount = d; else delete state.items[currentEdit.index].discount;
       state.items[currentEdit.index].internalNotes = String(($('editConceptInternalNotes') && $('editConceptInternalNotes').value) || '');
@@ -14505,6 +14537,9 @@ body.innerHTML = `
         delete state.items[currentEdit.index].gainAmount;
         state.items[currentEdit.index].price = basePrice;
       }
+      const wasteCost=Math.max(0,parseDecimalInputValue($('editWasteCost')?.value));
+      state.items[currentEdit.index].cutWasteCost=Number(wasteCost.toFixed(2));
+      state.items[currentEdit.index].price=String(Number((parseDecimalInputValue(state.items[currentEdit.index].price)+wasteCost).toFixed(2)));
       const d = String(($('editDiscount').value || '').replace(',','.')).trim();
       if(d) state.items[currentEdit.index].discount = d; else delete state.items[currentEdit.index].discount;
       state.items[currentEdit.index].internalNotes = String(($('editConceptInternalNotes') && $('editConceptInternalNotes').value) || '');
@@ -15551,7 +15586,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.41', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.42', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
@@ -15889,7 +15924,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.41',
+        version:'v4.9.42',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -16060,7 +16095,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.41',
+      version: 'v4.9.42',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16147,7 +16182,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.41', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.42', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16201,7 +16236,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.41',
+        version: 'v4.9.42',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -17848,7 +17883,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.41',
+      version: 'v4.9.42',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
