@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.61</title>
+  <title>Cierre v3.7.63</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -509,7 +509,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.61</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.63</span></h1>
 </div>
 
 <form id="form">
@@ -546,7 +546,7 @@ body.dock-on #controls{
         </div>
     </div>
     <div id="slidingFabricationGroup" hidden style="align-items:center;gap:8px;flex-wrap:wrap">
-        <button type="button" class="action-button" id="toggleSlidingRip" aria-pressed="true" style="flex:1 1 160px">Lamas juntas · última refendida</button>
+        <button type="button" class="action-button" id="toggleSlidingRip" aria-pressed="true" style="flex:1 1 160px">Lamas juntas · ajuste extremos</button>
         <label for="slidingWheelRise" style="font-size:12px;font-weight:700">Ruedas +</label>
         <input type="number" id="slidingWheelRise" min="0" step="1" value="30" inputmode="numeric" style="width:65px;min-width:65px" aria-label="Elevación de las ruedas en milímetros">
         <span style="font-size:12px">mm</span>
@@ -1000,21 +1000,34 @@ body.dock-on #controls{
             }
             if(actualLama <= 0) n = 0;
         }
+        // Si la última lama quedaría menor de media lama, repartir el ajuste
+        // entre arriba y abajo para mantener una composición equilibrada.
+        let ripBlades = null;
+        if(ripFinal && n){
+            const rest = span - (n - 1) * upperLamaSize;
+            if(n >= 2 && rest <= upperLamaSize / 2 + 0.001){
+                const edges = rest + upperLamaSize;
+                const topBlade = Math.floor(edges / 2);
+                ripBlades = [topBlade, ...Array(n - 2).fill(upperLamaSize), edges - topBlade];
+            } else ripBlades = [rest, ...Array(n - 1).fill(upperLamaSize)];
+        }
         cierreTarifaLama=actualGap<0.01?'9680':'9679';cierreLamaVertical=upperVertical;
+        let cursor = 0;
         for(let k = 0; k < n; k++) {
-            const blade = ripFinal && k === 0 ? span - (n - 1) * upperLamaSize : actualLama;
-            const pos = ripFinal ? (k === 0 ? 0 : span - (n - 1) * upperLamaSize + (k - 1) * upperLamaSize) : actualGap + k * (actualLama + actualGap);
+            const blade = ripFinal ? ripBlades[k] : actualLama;
+            const pos = ripFinal ? cursor : actualGap + k * (actualLama + actualGap);
+            if(ripFinal) cursor += blade;
             if(upperVertical) g.appendChild(registrarLamaRect(fillLeft + pos, fillTop, blade, upperEnd - fillTop, cLama, '#111827', 0.5));
             else g.appendChild(registrarLamaRect(fillLeft, fillTop + pos, fillRight - fillLeft, blade, cLama, '#111827', 0.5));
-            if(ripFinal && k === 0 && blade < upperLamaSize - 0.001)
+            if(ripFinal && blade < upperLamaSize - 0.001)
                 cierreLamasCapturadas[cierreLamasCapturadas.length - 1].refendida = Math.round(blade);
         }
         // Las piezas contiguas no dejan fondo blanco: marcar sus juntas por encima
         // de los rectángulos para que se distingan también en el PNG.
         if(ripFinal && n > 1) {
-            const firstBlade = span - (n - 1) * upperLamaSize;
+            let jointY = fillTop;
             for(let k = 1; k < n; k++) {
-                const jointY = fillTop + firstBlade + (k - 1) * upperLamaSize;
+                jointY += ripBlades[k - 1];
                 const seam = createLine(fillLeft, jointY, fillRight, jointY, getContrastColor(cLama), 1.7);
                 seam.setAttribute('stroke-opacity', '0.82');
                 g.appendChild(seam);
@@ -1050,7 +1063,8 @@ body.dock-on #controls{
             }
         }
         return {n:n + closedN, actualGap, actualLama, span, closedN, closedLama, ripFinal,
-            ripHeight: ripFinal ? Math.round(span - (n - 1) * upperLamaSize) : 0,
+            ripHeights: ripBlades ? ripBlades.filter(h=>h<upperLamaSize-0.001).map(h=>Math.round(h)) : [],
+            fullCount: ripBlades ? ripBlades.filter(h=>h>=upperLamaSize-0.001).length : 0,
             closedHeight: closedN ? alto - upperEnd : 0};
     }
 
@@ -1164,12 +1178,13 @@ body.dock-on #controls{
             g.appendChild(createRect(fillLeft, 0, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
             g.appendChild(createRect(fillLeft, fillBottom, fillRight - fillLeft, profile, cMarco, '#111827', 0.7));
             if(layout.ripFinal && layout.n){
-                // Marcar también la unión de la lama inferior con el perfil:
-                // su borde queda cubierto cuando se dibuja el marco por encima.
-                const baseSeam = createLine(fillLeft, fillBottom, fillRight, fillBottom,
-                    getContrastColor(cLama), 2);
-                baseSeam.setAttribute('stroke-opacity', '0.95');
-                g.appendChild(baseSeam);
+                // Ambas uniones con el marco se pintan DESPUÉS de los perfiles.
+                for(const edgeY of [fillTop, fillBottom]){
+                    const seam = createLine(fillLeft, edgeY, fillRight, edgeY,
+                        getContrastColor(cLama), 2.2);
+                    seam.setAttribute('stroke-opacity', '0.98');
+                    g.appendChild(seam);
+                }
             }
             if(layout.closedN) drawClosedSlatBottom(g, fillLeft, fillRight, fillBottom, cLama);
             // Refuerzos repartidos dentro de cada hoja, sin crear apoyos al suelo.
@@ -1233,7 +1248,7 @@ body.dock-on #controls{
         lastComputedUtil = first.n * first.actualLama + Math.max(0, first.n - 1) * first.actualGap;
         const utilEl = document.getElementById('altoUtillamas');
         if(document.activeElement !== utilEl) utilEl.value = Math.round(lastComputedUtil);
-        document.getElementById('stats').textContent = `Portal corredera ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Altura hoja: ${Math.round(alto)} mm + ruedas: ${Math.round(wheelRise)} mm | Ancho hoja: ${Math.round(leafSpan)} mm | Grosor hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.ripFinal ? ` (${first.ripHeight < lamaSize ? first.n-1 + ' enteras + 1 refendida a ' + first.ripHeight + ' mm' : first.n + ' enteras'}; juntas)` : ''}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''} | Refuerzos: ${slidingPostCount} ${reinforcementVertical ? 'verticales' : 'horizontales'} por hoja${slidingPostCount ? ` (${Math.round(reinforcementThickness)} mm; huecos ${Math.round(reinforcementGap)} mm)` : ''} | 2 ruedas por hoja | Apertura: ${portalLeaves === 1 ? (slidingDirection === 'both' ? 'ambos lados' : slidingDirection === 'left' ? 'izquierda' : 'derecha') : 'ambos lados'}`;
+        document.getElementById('stats').textContent = `Portal corredera ${portalLeaves} ${portalLeaves === 1 ? 'hoja' : 'hojas'} | Altura hoja: ${Math.round(alto)} mm + ruedas: ${Math.round(wheelRise)} mm | Ancho hoja: ${Math.round(leafSpan)} mm | Grosor hoja: ${Math.round(profile)} mm | Lamas por hoja: ${first.n}${first.ripFinal ? ` (${first.fullCount} enteras${first.ripHeights.length ? ' + ' + (first.ripHeights.length === 2 && first.ripHeights[0] === first.ripHeights[1] ? '2 refendidas a ' + first.ripHeights[0] + ' mm, arriba y abajo' : first.ripHeights.map((h,i) => '1 refendida ' + (i === 0 ? 'arriba' : 'abajo') + ' a ' + h + ' mm').join(' + ')) : ''}; juntas)` : ''}${first.closedHeight ? ' | Abajo: lamas ' + (isVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(lamaSize) + ' mm juntas hasta ' + Math.round(first.closedHeight) + ' mm | Arriba: lamas ' + (mixedUpperVertical ? 'verticales' : 'horizontales') + ' de ' + Math.round(first.actualLama) + ' mm, hueco: ' + Math.round(first.actualGap) + ' mm' : ''} | Refuerzos: ${slidingPostCount} ${reinforcementVertical ? 'verticales' : 'horizontales'} por hoja${slidingPostCount ? ` (${Math.round(reinforcementThickness)} mm; huecos ${Math.round(reinforcementGap)} mm)` : ''} | 2 ruedas por hoja | Apertura: ${portalLeaves === 1 ? (slidingDirection === 'both' ? 'ambos lados' : slidingDirection === 'left' ? 'izquierda' : 'derecha') : 'ambos lados'}`;
     }
 
     function fitDesignPreview(svg, ancho, alto, offsetX, offsetY) {
@@ -1850,7 +1865,7 @@ function updatePortalControls(){
     ripButton.disabled = !ripAvailable;
     ripButton.classList.toggle('active', ripAvailable && slidingRipFinal);
     ripButton.setAttribute('aria-pressed', String(ripAvailable && slidingRipFinal));
-    ripButton.textContent = 'Lamas juntas · última refendida';
+    ripButton.textContent = 'Lamas juntas · ajuste extremos';
     document.getElementById('mixedSlatsGroup').hidden = !mixedAvailable;
     document.getElementById('closedHeightField').hidden = !mixedActive;
     document.getElementById('upperSlatField').hidden = !mixedActive;
@@ -2079,6 +2094,99 @@ updatePortalControls();
         }catch(_){}
         return 'documentos.html';
     }
+    const CIERRE_DESIGN_OPEN_KEY = 'REY_CIERRE_DESIGN_OPEN_V1';
+    const CIERRE_DESIGN_RETURN_KEY = 'REY_CIERRE_DESIGN_RETURN_V1';
+    function capturarEstadoCierre(){
+        const ids = ['ancho','alto','altoLama','sep','marco','perfilHoja','grosorPostes',
+            'closedSlatsHeight','upperSlatSize','slidingWheelRise','colorMarcoPicker',
+            'colorLamaPicker','colorAperturaPicker','cierreAcabado','cierreAccion','cierreMarcoPortal'];
+        const inputs = {};
+        ids.forEach(id => { const el = document.getElementById(id); if(el) inputs[id] = el.value; });
+        return {version:1, inputs, portalLeaves, slidingMode, fenceMode, fenceSides,
+            closureSides, isVertical, isLamaMode, showMarco, showFloorExtension,
+            posteCount, slidingPostCount, postDirectionOverride, mixedSlatsEnabled,
+            mixedUpperVertical, upperSlatCustomized, slidingDirection, portalHinge,
+            slidingRipFinal, showWidthCota, showHeightCota, showRedCota,
+            showPostMeasures, showClosedCota, distrModeSnapshot,
+            tuboFinal:document.getElementById('cierreTuboFinal').checked};
+    }
+    function restaurarEstadoCierre(est){
+        if(!est || !est.inputs || (est.version != null && est.version !== 1)) return false;
+        Object.entries(est.inputs).forEach(([id,value]) => {
+            const el = document.getElementById(id); if(el && value != null) el.value = value;
+        });
+        for(const key of ['portalLeaves','slidingMode','fenceMode','fenceSides',
+            'closureSides','isVertical','isLamaMode','showMarco','showFloorExtension',
+            'posteCount','slidingPostCount','postDirectionOverride','mixedSlatsEnabled',
+            'mixedUpperVertical','upperSlatCustomized','slidingDirection','portalHinge',
+            'showWidthCota','showHeightCota','showRedCota','showPostMeasures','showClosedCota']){
+            if(!Object.prototype.hasOwnProperty.call(est,key)) continue;
+            switch(key){
+                case 'portalLeaves': portalLeaves=est[key]; break;
+                case 'slidingMode': slidingMode=est[key]; break;
+                case 'fenceMode': fenceMode=est[key]; break;
+                case 'fenceSides': fenceSides=est[key]; break;
+                case 'closureSides': closureSides=est[key]; break;
+                case 'isVertical': isVertical=est[key]; break;
+                case 'isLamaMode': isLamaMode=est[key]; break;
+                case 'showMarco': showMarco=est[key]; break;
+                case 'showFloorExtension': showFloorExtension=est[key]; break;
+                case 'posteCount': posteCount=est[key]; break;
+                case 'slidingPostCount': slidingPostCount=est[key]; break;
+                case 'postDirectionOverride': postDirectionOverride=est[key]; break;
+                case 'mixedSlatsEnabled': mixedSlatsEnabled=est[key]; break;
+                case 'mixedUpperVertical': mixedUpperVertical=est[key]; break;
+                case 'upperSlatCustomized': upperSlatCustomized=est[key]; break;
+                case 'slidingDirection': slidingDirection=est[key]; break;
+                case 'portalHinge': portalHinge=est[key]; break;
+                case 'showWidthCota': showWidthCota=est[key]; break;
+                case 'showHeightCota': showHeightCota=est[key]; break;
+                case 'showRedCota': showRedCota=est[key]; break;
+                case 'showPostMeasures': showPostMeasures=est[key]; break;
+                case 'showClosedCota': showClosedCota=est[key]; break;
+            }
+        }
+        if('slidingRipFinal' in est) slidingRipFinal=est.slidingRipFinal;
+        distrModeSnapshot=est.distrModeSnapshot || null;
+        document.getElementById('cierreTuboFinal').checked=!!est.tuboFinal;
+        updateColorBtn('btnMarcoWrapper',document.getElementById('colorMarcoPicker').value);
+        updateColorBtn('btnLamaWrapper',document.getElementById('colorLamaPicker').value);
+        updateColorBtn('btnAperturaWrapper',document.getElementById('colorAperturaPicker').value);
+        document.getElementById('lblUtiles').textContent=isVertical?'Ancho lamas (mm)':'Alto lamas (mm)';
+        updateFenceBtn(); updatePortalControls(); drawCierre();
+        return true;
+    }
+    function cierreContextoDocumento(){
+        const index=cierreTargetIndex();
+        if(index === null) return null;
+        try{
+            const raw=sessionStorage.getItem('REY_BUDGET_CUT_CONTEXT_V1') ||
+                localStorage.getItem('REY_BUDGET_CUT_CONTEXT_V1');
+            const ctx=raw ? JSON.parse(raw) : null;
+            return ctx && Number(ctx.index)===index && ctx.documentId != null
+                ? {documentId:ctx.documentId,index} : null;
+        }catch(_){return null;}
+    }
+    function guardarCierreDesignParaDocumento(){
+        const ctx=cierreContextoDocumento();
+        if(!ctx) return;
+        const payload=JSON.stringify({...ctx,design:capturarEstadoCierre()});
+        let saved=false;
+        try{sessionStorage.setItem(CIERRE_DESIGN_RETURN_KEY,payload);saved=true;}catch(_){}
+        try{localStorage.setItem(CIERRE_DESIGN_RETURN_KEY,payload);saved=true;}catch(_){}
+        if(!saved) throw new Error('No se pudo guardar el diseño editable para Documentos');
+    }
+    if(cierreBudgetMode() || cierreCatalogMode()){
+        try{
+            const raw=sessionStorage.getItem(CIERRE_DESIGN_OPEN_KEY) ||
+                localStorage.getItem(CIERRE_DESIGN_OPEN_KEY);
+            const payload=raw ? JSON.parse(raw) : null;
+            const ctx=cierreContextoDocumento();
+            if(ctx && payload && String(payload.documentId)===String(ctx.documentId) &&
+                Number(payload.index)===ctx.index && payload.design && payload.design.version===1)
+                restaurarEstadoCierre(payload.design);
+        }catch(_){ /* Un diseño antiguo o dañado no impide abrir Cierre. */ }
+    }
     function cierrePngDataUrl(scale){
         scale = scale || 2;
         return new Promise(function(resolve, reject){
@@ -2203,8 +2311,17 @@ updatePortalControls();
         if(slidingMode) {
             const wheelRise = Math.max(0, Number(document.getElementById('slidingWheelRise').value) || 0);
             description += '\nALTURA HOJA: ' + cierreNumber(totalHeight - wheelRise) + ' mm + RUEDAS: ' + cierreNumber(wheelRise) + ' mm';
-            const ripped = cierreLamasCapturadas.find(l => l.refendida);
-            if(ripped) description += '\nLAMAS: ' + (cierreLamasCapturadas.length / portalLeaves - 1) + ' ENTERAS DE ' + cierreNumber(document.getElementById('altoLama').value) + ' mm + 1 REFENDIDA A ' + ripped.refendida + ' mm POR HOJA';
+            if(slidingRipFinal && !isLamaMode && !mixedSlatsEnabled && !isVertical){
+                const perLeaf = cierreLamasCapturadas.length / portalLeaves;
+                const trimmed = cierreLamasCapturadas.slice(0, perLeaf).filter(l=>l.refendida);
+                if(trimmed.length){
+                    const full = perLeaf - trimmed.length;
+                    const suffix = trimmed.length === 2 && trimmed[0].refendida === trimmed[1].refendida
+                        ? '2 REFENDIDAS A ' + trimmed[0].refendida + ' mm (ARRIBA Y ABAJO)'
+                        : trimmed.map((l,i)=>'1 REFENDIDA ' + (i === 0 ? 'ARRIBA' : 'ABAJO') + ' A ' + l.refendida + ' mm').join(' + ');
+                    description += '\nLAMAS POR HOJA: ' + full + ' ENTERAS DE ' + cierreNumber(document.getElementById('altoLama').value) + ' mm + ' + suffix;
+                }
+            }
         }
         if((portalLeaves === 1 || slidingMode) && !/\bAPERTURA\s*:/i.test(description)) description += '\nAPERTURA: ' + values.apertura;
         return description;
@@ -2260,6 +2377,7 @@ updatePortalControls();
                 if(imageStored) break;
             }
             if(!imageStored) throw new Error('No se pudo guardar el gráfico para Documentos');
+            guardarCierreDesignParaDocumento();
             const url = cierreReturnFile() + '?budget_return=1';
             try{
                 if(window.parent && window.parent !== window && typeof window.parent.abrir === 'function'){
@@ -2296,8 +2414,10 @@ updatePortalControls();
             let stored = false;
             for(const scale of [2, 1]){
                 const image = await cierrePngDataUrl(scale);
+                const ctx=cierreContextoDocumento();
                 const payload = JSON.stringify({proveedor:'Cierre', origen:'cierre', referencia:reference,
-                    descripcion:description, imagen:image, targetIndex:index, preserveConceptValues:true});
+                    descripcion:description, imagen:image, targetIndex:index, preserveConceptValues:true,
+                    documentId:ctx&&ctx.documentId, cierreDesign:capturarEstadoCierre()});
                 try{ sessionStorage.setItem('rey_docs_external_product_v1', payload); stored = true; }catch(_){}
                 if(!stored) try{ localStorage.setItem('rey_docs_external_product_v1', payload); stored = true; }catch(_){}
                 if(stored) break;
@@ -2449,13 +2569,7 @@ function volverIndexSeguro(){
     if(new URLSearchParams(location.search).get('motor_return')==='1'){
       try{
         const est=JSON.parse(sessionStorage.getItem('REY_CIERRE_MOTOR_ESTADO_V1')||'null');
-        if(est&&est.inputs){
-          Object.entries(est.inputs).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value;});
-          ({portalLeaves,slidingMode,fenceMode,fenceSides,closureSides,isVertical,isLamaMode,showMarco,showFloorExtension,posteCount,slidingPostCount,postDirectionOverride,mixedSlatsEnabled,mixedUpperVertical,slidingDirection,portalHinge}=est);
-          slidingRipFinal=est.slidingRipFinal!==false;
-          document.getElementById('cierreTuboFinal').checked=!!est.tuboFinal;
-          updateFenceBtn();updatePortalControls();drawCierre();
-        }
+        if(est&&est.inputs) restaurarEstadoCierre(est);
       }catch(e){document.getElementById('cierreMotorAviso').textContent='No se pudo restaurar el diseño.';}
     }
     document.getElementById('perfilHoja').addEventListener('change',function(){const v=Number(this.value);if(v===50||v===80)document.getElementById('cierreMarcoPortal').value=v===80?'9685':'9689';});
@@ -2478,10 +2592,8 @@ function volverIndexSeguro(){
           sessionStorage.setItem('REY_MOTOR_FROM_DOCUMENTOS_V1','1');
           localStorage.setItem('REY_MOTOR_FROM_DOCUMENTOS_V1','1');
         }
-        const ids=['ancho','alto','altoLama','sep','marco','perfilHoja','grosorPostes','closedSlatsHeight','upperSlatSize','slidingWheelRise','colorMarcoPicker','colorLamaPicker','cierreAcabado','cierreAccion','cierreMarcoPortal'];
-        const inputs={};ids.forEach(id=>{const el=document.getElementById(id);if(el)inputs[id]=el.value;});
-        const estado={inputs,portalLeaves,slidingMode,fenceMode,fenceSides,closureSides,isVertical,isLamaMode,showMarco,showFloorExtension,posteCount,slidingPostCount,postDirectionOverride,mixedSlatsEnabled,mixedUpperVertical,slidingDirection,portalHinge,slidingRipFinal,tuboFinal:document.getElementById('cierreTuboFinal').checked};
-        sessionStorage.setItem('REY_CIERRE_MOTOR_ESTADO_V1',JSON.stringify(estado));
+        sessionStorage.setItem('REY_CIERRE_MOTOR_ESTADO_V1',JSON.stringify(capturarEstadoCierre()));
+        if(data.target!==null) guardarCierreDesignParaDocumento();
         window.location.href='motor_series.html?from=cierre';
       }catch(e){aviso.textContent=e.message||'No se pudo abrir Motor.';this.disabled=false;}
     });
