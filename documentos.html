@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.42</title>
+  <title>Documentos Rey v4.9.43</title>
 <style>
     :root{
       --app-vh:100vh;
@@ -4543,7 +4543,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.42</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.43</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4579,7 +4579,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.42</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.43</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5876,7 +5876,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.42', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.43', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5919,7 +5919,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.42',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.43',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8192,7 +8192,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.42',
+      version:'v4.9.43',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -9081,7 +9081,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.42',
+      version:'v4.9.43',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9138,7 +9138,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.42',
+      version:'v4.9.43',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -11414,7 +11414,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.42',
+      app:'Documentos Rey', version:'v4.9.43',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11551,7 +11551,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.42',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.43',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -13778,14 +13778,14 @@ body.innerHTML = `
         <label>Gráfico del concepto</label>
         <div id="conceptImagePreviewWrap">${currentImg ? `<img class="catalog-thumb" src="${esc(currentImg)}" alt="" style="width:140px;height:110px;object-fit:contain;background:#fff">` : `<div class="saved-item template-card" style="padding:12px 14px">Sin imagen</div>`}</div>
         <label style="display:block;margin-top:12px">Crear gráfico desde</label>
-        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
+        <div class="concept-image-choices" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
           <button type="button" class="btn btn-success" id="btnConceptImageDesign">Ventana</button>
           <button type="button" class="btn btn-modulos" id="btnConceptImageModules">Módulos</button>
           <button type="button" class="btn btn-modulos" id="btnConceptImagePasamanos">Pasamanos</button>
           <button type="button" class="btn btn-modulos" id="btnConceptImageTelefonillo">Telefonillo / Nicho</button>
           <button type="button" class="btn btn-modulos" id="btnConceptImageCierre">Cierre</button>
         </div>
-        <div class="sheet-actions" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <div class="sheet-actions concept-image-actions" style="grid-template-columns:repeat(3,minmax(0,1fr));">
           <button type="button" class="btn btn-primary" id="btnConceptImagePick">Seleccionar imagen</button>
           <button type="button" class="btn btn-danger" id="btnConceptImageRemove">Quitar imagen</button>
           <button type="button" class="btn btn-light" id="sheetCancel">Cancelar</button>
@@ -15586,7 +15586,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.42', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.43', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
@@ -15924,7 +15924,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.42',
+        version:'v4.9.43',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -16095,7 +16095,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.42',
+      version: 'v4.9.43',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16182,7 +16182,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.42', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.43', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16236,7 +16236,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.42',
+        version: 'v4.9.43',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -17883,7 +17883,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.42',
+      version: 'v4.9.43',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
@@ -22570,6 +22570,30 @@ body.template-picker-open-v456{overflow:hidden;}
 @media(max-width:430px){
   #editSheet.concept-editor-theme #sheetContent .external-catalog-grid-v42{padding:7px}
   #editSheet.concept-editor-theme #sheetContent .direct-graphic-grid-v466{padding:7px 14px}
+}
+/* Selector de origen del gráfico: cada aplicación se reconoce por su color. */
+#editSheet #sheetContent .concept-image-choices .btn{
+  color:#fff!important;font-weight:850;
+  box-shadow:inset 0 1px 0 #ffffff55,0 4px 9px #172b4333;
+}
+#editSheet #sheetContent .concept-image-choices #btnConceptImageDesign{
+  background:linear-gradient(180deg,#22c55e,#15803d)!important;border-color:#15803d!important;
+}
+#editSheet #sheetContent .concept-image-choices #btnConceptImageModules{
+  background:linear-gradient(180deg,#3b82f6,#1d4ed8)!important;border-color:#1d4ed8!important;
+}
+#editSheet #sheetContent .concept-image-choices #btnConceptImagePasamanos{
+  background:linear-gradient(180deg,#14b8a6,#0f766e)!important;border-color:#0f766e!important;
+}
+#editSheet #sheetContent .concept-image-choices #btnConceptImageTelefonillo{
+  background:linear-gradient(180deg,#a855f7,#6d28d9)!important;border-color:#6d28d9!important;
+}
+#editSheet #sheetContent .concept-image-choices #btnConceptImageCierre{
+  background:linear-gradient(180deg,#d97706,#92400e)!important;border-color:#92400e!important;
+}
+#editSheet #sheetContent .concept-image-actions #sheetCancel{
+  background:linear-gradient(180deg,#64748b,#334155)!important;
+  border-color:#334155!important;color:#fff!important;
 }
 </style>
 <script>
