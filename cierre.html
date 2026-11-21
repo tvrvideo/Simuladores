@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cierre v3.7.57</title>
+  <title>Cierre v3.7.58</title>
   <style>
     /* =========================================
        ESTILOS GENERALES
@@ -508,7 +508,7 @@ body.dock-on #controls{
 
 
 <div class="header">
-  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.57</span></h1>
+  <h1 style="display:flex;justify-content:center;align-items:baseline;gap:10px;"><span>Cierre</span><span class="ver">v3.7.58</span></h1>
 </div>
 
 <form id="form">
@@ -630,6 +630,7 @@ body.dock-on #controls{
 <div id="dockActionRow">
   <div id="cierreMotorAviso" role="status" style="font-size:12px;color:#a33;font-weight:700"></div>
   <button type="button" class="action-button" id="btnExportPng">Exportar PNG</button>
+  <span id="cierrePngAviso" role="status" aria-live="polite" style="display:none;grid-column:1/-1;text-align:center;font-size:12px;font-weight:700;color:#1e3a8a"></span>
   <button type="button" class="action-button" id="btnCierreMotor" style="background:#0b8064;color:#fff;font-weight:900">€ Motor</button>
   <button type="button" class="action-button" id="btnAddDocsCierre" hidden style="background:#2563eb;color:#fff;font-weight:900">Volver a Documentos</button>
 </div>
@@ -1924,45 +1925,83 @@ updatePortalControls();
     updateColorBtn("btnLamaWrapper", document.getElementById("colorLamaPicker").value);
     updateColorBtn("btnAperturaWrapper", document.getElementById("colorAperturaPicker").value);
     drawCierre();
-    // --- EXPORTAR PNG (como en poligono) ---
-    function exportarPNG() {
-        const svg = document.getElementById('canvas');
-        const svgData = (new XMLSerializer()).serializeToString(svg);
-        const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(svgBlob);
-
-        const img = new Image();
-        img.onload = function() {
-            const ratio = 2; // calidad
-            const canvas = document.createElement('canvas');
+    // Exportación asíncrona: evita bloquear Safari con PNG grandes en base64.
+    let cierrePngExportando = false, cierrePngResultadoUrl = null;
+    async function exportarPNG() {
+        if(cierrePngExportando) return;
+        const boton = document.getElementById('btnExportPng');
+        const aviso = document.getElementById('cierrePngAviso');
+        cierrePngExportando = true;
+        boton.disabled = true;
+        boton.textContent = 'Generando PNG…';
+        aviso.style.display = 'block';
+        aviso.style.color = '#1e3a8a';
+        aviso.textContent = 'Preparando imagen…';
+        // Dejar que Safari pinte el aviso antes del trabajo de dibujo.
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+        let svgUrl;
+        try {
+            const svg = document.getElementById('canvas');
             const view = svg.viewBox.baseVal;
-            canvas.width = 900 * ratio;
-            canvas.height = Math.round(900 * view.height / view.width * ratio);
+            if(!view.width || !view.height) throw new Error('El dibujo no tiene medidas válidas');
+            const baseWidth = 900, baseHeight = 900 * view.height / view.width;
+            const ratio = Math.min(2, 4096 / baseWidth, 4096 / baseHeight,
+                Math.sqrt(8000000 / (baseWidth * baseHeight)));
+            if(!Number.isFinite(ratio) || ratio <= 0) throw new Error('El dibujo no tiene medidas válidas');
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(baseWidth * ratio));
+            canvas.height = Math.max(1, Math.round(baseHeight * ratio));
             const ctx = canvas.getContext('2d');
-
+            if(!ctx) throw new Error('No hay memoria suficiente para generar el PNG');
+            svgUrl = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],
+                {type:'image/svg+xml;charset=utf-8'}));
+            const svgImg = await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('No se pudo cargar el dibujo'));
+                img.src = svgUrl;
+            });
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            document.getElementById('img-resultado').src = canvas.toDataURL('image/png');
-
-            // Guardar estado de FIJAR y desactivarlo para exportar
+            ctx.drawImage(svgImg, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(svgUrl);
+            svgUrl = null;
+            const pngBlob = await new Promise((resolve, reject) => {
+                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('No se pudo crear el PNG')), 'image/png');
+            });
+            canvas.width = canvas.height = 0;
+            const resultUrl = URL.createObjectURL(pngBlob);
+            const resultImg = document.getElementById('img-resultado');
+            try {
+                await new Promise((resolve, reject) => {
+                    resultImg.onload = resolve;
+                    resultImg.onerror = () => reject(new Error('No se pudo mostrar el PNG'));
+                    resultImg.src = resultUrl;
+                });
+            } catch(e) { URL.revokeObjectURL(resultUrl); throw e; }
+            if(cierrePngResultadoUrl) URL.revokeObjectURL(cierrePngResultadoUrl);
+            cierrePngResultadoUrl = resultUrl;
             window.__cierreWasDockOn = document.body.classList.contains('dock-on');
             setDockCierre(false);
-            const _scrollArea = document.getElementById('scrollArea');
-            const _dockArea = document.getElementById('dockArea');
-            if(_scrollArea) _scrollArea.style.display = 'none';
-            if(_dockArea) _dockArea.style.display = 'none';
+            const scrollArea = document.getElementById('scrollArea');
+            const dockArea = document.getElementById('dockArea');
+            if(scrollArea) scrollArea.style.display = 'none';
+            if(dockArea) dockArea.style.display = 'none';
             document.getElementById('vista-diseno').style.display = 'none';
             document.getElementById('vista-exportar').style.display = 'block';
-
-            URL.revokeObjectURL(url);
-        };
-        img.onerror = function() {
-            URL.revokeObjectURL(url);
-            alert('No se pudo generar la imagen.');
-        };
-        img.src = url;
+        } catch(e) {
+            aviso.style.color = '#b91c1c';
+            aviso.textContent = e.message || 'No se pudo generar el PNG. Inténtalo de nuevo.';
+        } finally {
+            if(svgUrl) URL.revokeObjectURL(svgUrl);
+            boton.disabled = false;
+            boton.textContent = 'Exportar PNG';
+            cierrePngExportando = false;
+            if(document.getElementById('vista-exportar').style.display === 'block') {
+                aviso.style.display = 'none';
+                aviso.textContent = '';
+            }
+        }
     }
 
     function cierreBudgetMode(){
@@ -2222,6 +2261,10 @@ updatePortalControls();
     document.getElementById('btnExportPng').addEventListener('click', exportarPNG, {passive:true});
     document.getElementById('btnBackDesign').addEventListener('click', () => {
         document.getElementById('vista-exportar').style.display = 'none';
+        const resultImg = document.getElementById('img-resultado');
+        resultImg.removeAttribute('src');
+        if(cierrePngResultadoUrl) URL.revokeObjectURL(cierrePngResultadoUrl);
+        cierrePngResultadoUrl = null;
         // Mostrar diseño completo
         const _scrollArea = document.getElementById('scrollArea');
         const _dockArea = document.getElementById('dockArea');
