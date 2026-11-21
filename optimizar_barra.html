@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.33</title>
+  <title>Cut Máster v2.4.36</title>
   <style>
     :root{
       --bg:#f3eeee;
@@ -96,6 +96,7 @@
     .bar-info-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 0 3px}
     .bar-chip{display:inline-flex;align-items:center;flex:none;min-height:25px;padding:3px 7px;border:1px solid #665e5a;border-radius:5px;background:#f5efe8;color:#3c312b;font-size:clamp(11px,3vw,14px);font-weight:700;line-height:1.1;white-space:nowrap}
     .bar-chip-qty{background:#fff}
+    .bar-chip-qty-multi{background:#174ea6;border-color:#174ea6;color:#fff;font-weight:900}
     .bar-chip-waste{background:#e4e4e4;border-color:#cfcfcf}
     .bar-sketch-wrap{width:100%;min-width:0}
     .bar-sketch{width:100%;height:auto;display:block;pointer-events:none}
@@ -216,7 +217,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.33</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.36</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -268,6 +269,7 @@
     <a id="manualDownloadLink" class="manual-download-link" href="#" download>Descarga manual</a>
     <div class="cut-options">
       <div class="cut-options-row"><span class="cut-options-label">Junquillos</span><button id="junquilloModeBtn" type="button" class="cut-option-btn">Pares · 2 a 2</button></div>
+      <div class="cut-options-row"><span class="cut-options-label">Barras iguales</span><button id="groupSlatsBtn" type="button" class="cut-option-btn">Agrupar gráficos</button></div>
       <div class="cut-options-row"><span class="cut-options-label">Anclaje 2304</span><button id="anclajeModeBtn" type="button" class="cut-option-btn">Pares · 2 a 2</button></div>
       <div class="cut-options-row"><label class="cut-options-label" for="wasteLimitInput">Desperdicio</label><span>Auto ≤</span><input id="wasteLimitInput" class="cut-limit" type="number" min="0" step="1" inputmode="numeric" value="1000"><span>mm</span><button id="markAllWasteBtn" type="button" class="cut-option-btn waste-btn">Marcar todas</button><strong id="wasteSummary" class="cut-waste-total"></strong></div>
     </div>
@@ -464,7 +466,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.33');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.36');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -1294,14 +1296,44 @@
     const url=cutPerfilUrl(nombre,referencia,serie);
     return url?'<img src="'+url+'" alt="Perfil '+escapeHtml(String(referencia||cutPerfilRef(nombre)))+'" loading="lazy" onerror="this.remove()" style="width:45px;height:45px;object-fit:contain;background:#fff;border:1px solid #c5c5bb;border-radius:5px;flex:none">':'';
   }
+  // Agrupa solo barras físicas con el mismo stock, cortes, sobrante y tipo de pieza.
+  // El plan real y los identificadores de cada corte permanecen intactos.
+  function displayBarGroups(mat, sourceMaterial, enabled){
+    const pieces = sourceMaterial && sourceMaterial.pieces || [];
+    const byId = new Map(pieces.map(p=>[String(p.id),
+      (String(p.label||'').match(/refender\s+a\s+\d+\s*mm/i)||[''])[0].toLowerCase()]));
+    const groups=[], byPattern=new Map();
+    (mat.bars||[]).forEach((bar, idx)=>{
+      const pattern = JSON.stringify([Number(bar.length),Number(bar.remaining),
+        (bar.pieces||[]).map(p=>{
+          const uid=String(p.uid||''), id=uid.replace(/__(?:\d+|\d+_suelto)$/,'');
+          return [Number(p.length),normalizeCutType(p.cutType),byId.get(id)||''];
+        })]);
+      let group=enabled ? byPattern.get(pattern) : null;
+      if(!group){
+        group={bar:{...bar,multiplicity:0},indices:[]};
+        groups.push(group);
+        if(enabled)byPattern.set(pattern,group);
+      }
+      group.indices.push(idx);
+      group.bar.multiplicity+=Math.max(1,Math.round(Number(bar.multiplicity)||1));
+    });
+    return groups;
+  }
+  function physicalWasteKey(project, mat, bar, idx){
+    const mode=/anclaje\s*2304/i.test(mat.name) ? (project.anclajeMode==='normal'?'anclaje-normal':'anclaje-pares') : (project.junquilloMode==='normal'?'normal':'pares');
+    return `${mode}|${mat.id}|${idx}|${bar.length}|${bar.pieces.map(p=>p.length+':'+p.cutType).join(',')}`;
+  }
   function renderResults(){
     const project = currentProject();
     if(!project) return showScreen('homeScreen');
+    if(project.groupBarsView == null && project.groupSlatsView) project.groupBarsView = true;
     ensureProjectProgress(project);
     const diagramPanel = $('diagramPanel');
     const listPanel = $('listPanel');
     const result = calculateProject(project);
     $('junquilloModeBtn').textContent = project.junquilloMode === 'normal' ? 'Normal · 1 a 1' : 'Pares · 2 a 2';
+    $('groupSlatsBtn').textContent = project.groupBarsView ? 'Ver una a una' : 'Agrupar gráficos';
     $('anclajeModeBtn').textContent = project.anclajeMode === 'normal' ? 'Normal · 1 a 1' : 'Pares · 2 a 2';
     $('wasteLimitInput').value = project.wasteLimitMm == null ? 1000 : Math.max(0, Number(project.wasteLimitMm) || 0);
     const measureColorMap = buildMeasureColorMap(result);
@@ -1320,6 +1352,7 @@
     let chargedLength = 0, chargedCost = 0, missingPrices = 0, selectableBars = 0, selectedBars = 0;
     result.materials.forEach(mat => {
       const sourceMaterial = project.materials.find(m => m.id === mat.id);
+      const displayGroups = displayBarGroups(mat, sourceMaterial, !!project.groupBarsView);
       const price = Math.max(0, Number(sourceMaterial && sourceMaterial.pricePerMeter) || 0);
       const card = document.createElement('div');
       card.className = 'diagram-card';
@@ -1327,21 +1360,27 @@
       if(!mat.bars.length){
         barsHtml = '<div class="empty">No hay combinación posible con el stock indicado.</div>';
       } else {
-        barsHtml = mat.bars.map((bar, idx) => {
+        barsHtml = displayGroups.map(({bar,indices}, idx) => {
           const waste = Math.max(0, Number(bar.remaining) || 0);
-          const wasteKey = `${/anclaje\s*2304/i.test(mat.name) ? (project.anclajeMode === 'normal' ? 'anclaje-normal' : 'anclaje-pares') : (project.junquilloMode === 'normal' ? 'normal' : 'pares')}|${mat.id}|${idx}|${bar.length}|${bar.pieces.map(p => p.length + ':' + p.cutType).join(',')}`;
-          const manual = project.wasteSelections && project.wasteSelections[wasteKey];
-          const limit = project.wasteLimitMm == null ? 1000 : Number(project.wasteLimitMm);
-          const selected = waste > 0 && (manual === 'yes' || (manual !== 'no' && limit > 0 && waste <= limit));
-          if(waste > 0) selectableBars++;
-          if(selected){
-            const barrasIguales=Math.max(1,Number(bar.multiplicity)||1);
-            selectedBars++; chargedLength += waste*barrasIguales;
-            if(price) chargedCost += waste*barrasIguales*price/1000; else missingPrices++;
+          const wasteKeys=indices.map(i=>physicalWasteKey(project,mat,mat.bars[i],i));
+          const limit=project.wasteLimitMm==null ? 1000 : Number(project.wasteLimitMm);
+          const selectedCount=indices.reduce((sum,i)=>{
+            const manual=project.wasteSelections && project.wasteSelections[physicalWasteKey(project,mat,mat.bars[i],i)];
+            const chosen=waste>0 && (manual==='yes'||(manual!=='no'&&limit>0&&waste<=limit));
+            return sum+(chosen?Math.max(1,Number(mat.bars[i].multiplicity)||1):0);
+          },0);
+          const selected=selectedCount===bar.multiplicity && waste>0;
+          if(waste>0) selectableBars+=bar.multiplicity;
+          if(selectedCount){
+            selectedBars+=selectedCount;
+            chargedLength+=waste*selectedCount;
+            if(price)chargedCost+=waste*selectedCount*price/1000;else missingPrices+=selectedCount;
           }
+          const wasteKey=wasteKeys[0];
+          const wasteKeysAttr=escapeHtml(JSON.stringify(wasteKeys));
           const sketch = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, false, true);
-          const hits = sketch.hitZones.map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
-          return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(mat.bars, idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
+          const hits = (indices.length>1 ? [] : sketch.hitZones).map(zone => `<button type="button" class="bar-hit-zone" data-piece-key="${escapeHtml(zone.key)}" data-piece-id="${escapeHtml(zone.pieceId)}" data-piece-scope="${escapeHtml(zone.materialId)}" style="pointer-events:auto;left:${zone.leftPct}%;top:${zone.topPct}%;width:${zone.widthPct}%;height:${zone.heightPct}%"></button>`).join('');
+          return `<div class="bar-block"><div class="bar-info-row"><span class="bar-chip bar-chip-qty${Number(bar.multiplicity)>1?' bar-chip-qty-multi':''}">${bar.multiplicity || 1}x</span><span class="bar-chip">${physicalBarLabel(displayGroups.map(g=>g.bar), idx)}</span><span class="bar-chip">Barra ${escapeHtml(formatLength(bar.length))} ${escapeHtml(currentUnit())}</span><span class="bar-chip bar-chip-waste">Sobra ${escapeHtml(formatLength(waste))} ${escapeHtml(currentUnit())}</span><label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;white-space:nowrap"><input type="checkbox" data-waste-key="${escapeHtml(wasteKey)}" data-waste-keys="${wasteKeysAttr}" ${selected?'checked':''} ${waste?'':'disabled'} style="width:18px;height:18px;accent-color:#148958">Facturar sobra</label></div><div class="bar-sketch-wrap"><div class="bar-canvas">${sketch.svg}<div class="bar-touch-layer">${hits}</div></div></div></div>`;
         }).join('');
       }
       card.innerHTML = `<div class="diagram-title" style="display:flex;align-items:center;gap:8px">${cutPerfilMini(mat.name, sourceMaterial && sourceMaterial.referencia, sourceMaterial && sourceMaterial.serie)}<span>${escapeHtml(cutPerfilTitulo(mat.name,sourceMaterial && sourceMaterial.referencia))}</span></div>
@@ -1949,6 +1988,7 @@
       name: project && project.name ? String(project.name) : 'Proyecto',
       createdAt: project && project.createdAt ? String(project.createdAt) : new Date().toISOString(),
       cutProgress: project && project.cutProgress && typeof project.cutProgress === 'object' ? project.cutProgress : {},
+      groupBarsView: !!(project && (project.groupBarsView || project.groupSlatsView)),
       junquilloMode: project && project.junquilloMode === 'normal' ? 'normal' : 'pares',
       anclajeMode: project && project.anclajeMode === 'normal' ? 'normal' : 'pares',
       wasteLimitMm: project && project.wasteLimitMm != null ? Math.max(0, Number(project.wasteLimitMm) || 0) : 1000,
@@ -1965,6 +2005,7 @@
         collapsed: !!(material && material.collapsed),
         pieces: Array.isArray(material && material.pieces) && material.pieces.length ? material.pieces.map(piece => ({
           id: piece && piece.id ? String(piece.id) : uid(),
+          label: piece && piece.label ? String(piece.label) : '',
           length: Math.max(1, Number(piece && piece.length) || 1000),
           qty: Math.max(1, parseInt(piece && piece.qty, 10) || 1),
           cutType: normalizeCutType(piece && piece.cutType)
@@ -2599,7 +2640,9 @@
     y += compact ? 34 : 20;
 
     result.materials.forEach((mat) => {
-      const barSketches = (mat.bars || []).map((bar, idx) => {
+      const srcMat = project.materials.find(m=>m.id===mat.id);
+      const displayBars=displayBarGroups(mat,srcMat,!!project.groupBarsView).map(g=>g.bar);
+      const barSketches = displayBars.map((bar, idx) => {
         const sketchPack = buildBarSketchSvg(bar, idx, mat.profileFace, mat.name, mat.id, measureColorMap, compact);
         const sketchInner = sketchPack.svg
           .replace('<svg class="bar-sketch" viewBox="0 0 ' + sketchPack.width + ' ' + sketchPack.height + '" xmlns="http://www.w3.org/2000/svg" aria-label="Barra ' + (idx+1) + '">', '')
@@ -2613,7 +2656,6 @@
         return { bar, idx, sketchPack, sketchInner: printSketchInner, blockHeight: barGapBefore + (compact ? 12 : 30) + sketchPack.height + afterBarGap };
       });
       const firstBarHeight = barSketches.length ? barSketches[0].blockHeight : 30;
-      const srcMat = project.materials.find(m=>m.id===mat.id);
       const imgUrl = cutPerfilUrl(mat.name, srcMat && srcMat.referencia, srcMat && srcMat.serie);
       const miniaturaGrande = miniaturasPdfGrandes && !!imgUrl;
       const materialBlockHeight = materialGapBefore + materialGapAfter + firstBarHeight + 24 + (miniaturaGrande ? 8 : 0);
@@ -2646,16 +2688,25 @@
         const wasteValue = Math.max(0, Number(bar.remaining) || 0);
 
         if(compact){
-          const barInfo = (bar.multiplicity || 1) + 'x · ' + physicalBarLabel(mat.bars, idx) + ' · ' + formatLength(bar.length) + ' ' + currentUnit() + ' · Sobra ' + formatLength(wasteValue) + ' ' + currentUnit();
+          const qty = Math.max(1,Number(bar.multiplicity)||1);
+          const barInfo = physicalBarLabel(displayBars, idx) + ' · ' + formatLength(bar.length) + ' ' + currentUnit() + ' · Sobra ' + formatLength(wasteValue) + ' ' + currentUnit();
           // La primera fila informativa ocupa el espacio libre a la derecha de la foto.
           const infoX = miniaturaGrande && idx === 0 ? pagePadX + 98 : pagePadX;
-          parts.push('<text x="' + infoX + '" y="' + metricsY + '" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">' + escapeHtml(barInfo) + '</text>');
+          if(qty > 1){
+            const badgeW=24+String(qty).length*13;
+            parts.push('<rect x="'+infoX+'" y="'+(metricsY-19)+'" width="'+badgeW+'" height="25" rx="5" fill="#174ea6"/>');
+            parts.push('<text x="'+(infoX+7)+'" y="'+metricsY+'" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#ffffff">'+qty+'x</text>');
+            parts.push('<text x="'+(infoX+badgeW+9)+'" y="'+metricsY+'" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">'+escapeHtml(barInfo)+'</text>');
+          } else parts.push('<text x="'+infoX+'" y="'+metricsY+'" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#3c312b">1x · '+escapeHtml(barInfo)+'</text>');
         } else {
-          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">' + physicalBarLabel(mat.bars, idx) + '</text>');
+          parts.push('<text x="' + contentX + '" y="' + headY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + barTitleSize + '" font-weight="700" text-anchor="start" fill="#3c312b">' + physicalBarLabel(displayBars, idx) + '</text>');
           parts.push('<g transform="translate(' + contentX + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="126" height="22" fill="#f5efe8" stroke="#665e5a" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Barra ' + escapeHtml(String(bar.length)) + ' mm</text></g>');
           parts.push('<g transform="translate(' + (contentX + 138) + ',' + metricsY + ')"><rect x="0" y="-14" rx="8" ry="8" width="128" height="22" fill="#e4e4e4" stroke="#cfcfcf" stroke-width="1.2"/><text x="12" y="1" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#3c312b">Sobra ' + escapeHtml(String(wasteValue)) + ' mm</text></g>');
         }
-        if(!compact) parts.push('<text x="' + labelX + '" y="' + qtyY + '" font-family="Arial, Helvetica, sans-serif" font-size="' + qtySize + '" font-weight="500" fill="#2f241f">' + (bar.multiplicity || 1) + 'x</text>');
+        if(!compact){
+          const qty=Math.max(1,Number(bar.multiplicity)||1);
+          parts.push('<text x="'+labelX+'" y="'+qtyY+'" font-family="Arial, Helvetica, sans-serif" font-size="'+qtySize+'" font-weight="'+(qty>1?900:500)+'" fill="'+(qty>1?'#174ea6':'#2f241f')+'">'+qty+'x</text>');
+        }
         parts.push('<g transform="translate(' + contentX + ',' + sketchY + ')">' + sketchInner + '</g>');
 
         y = sketchY + sketchPack.height + afterBarGap;
@@ -2840,6 +2891,11 @@
       project.junquilloMode = project.junquilloMode === 'normal' ? 'pares' : 'normal';
       saveProjects(); renderResults(); return;
     }
+    if(t.id === 'groupSlatsBtn'){
+      const project=currentProject(); if(!project)return;
+      project.groupBarsView=!project.groupBarsView;
+      saveProjects(); renderResults(); return;
+    }
     if(t.id === 'anclajeModeBtn'){
       const project = currentProject(); if(!project) return;
       project.anclajeMode = project.anclajeMode === 'normal' ? 'pares' : 'normal';
@@ -2850,7 +2906,10 @@
       if(!project.wasteSelections)project.wasteSelections={};
       const boxes=[...document.querySelectorAll('#diagramPanel input[data-waste-key]:not(:disabled)')];
       const markAll=boxes.some(el=>!el.checked);
-      boxes.forEach(el=>{project.wasteSelections[el.dataset.wasteKey]=markAll?'yes':'no';});
+      boxes.forEach(el=>{
+        const keys=el.dataset.wasteKeys ? JSON.parse(el.dataset.wasteKeys) : [el.dataset.wasteKey];
+        keys.forEach(key=>{project.wasteSelections[key]=markAll?'yes':'no';});
+      });
       saveProjects(); renderResults(); return;
     }
 
@@ -2904,7 +2963,8 @@
       saveProjects(); renderResults();
     }else if(el.dataset.wasteKey){
       if(!project.wasteSelections)project.wasteSelections={};
-      project.wasteSelections[el.dataset.wasteKey]=el.checked?'yes':'no';
+      const keys=el.dataset.wasteKeys ? JSON.parse(el.dataset.wasteKeys) : [el.dataset.wasteKey];
+      keys.forEach(key=>{project.wasteSelections[key]=el.checked?'yes':'no';});
       saveProjects(); renderResults();
     }else if(el.dataset.materialPrice){ renderResults(); }
   });
