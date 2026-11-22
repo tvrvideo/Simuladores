@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>iNote Pro v1.13.1</title>
+    <title>iNote Pro v1.13.10</title>
     <style>
         :root { --blue: #54a0d9; --bg: #f5f5f7; --green: #2ecc71; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -52,7 +52,7 @@
         .menu-item .menu-symbol { margin-right: 15px; width: 25px; color: var(--blue); font-size: 1.2em; text-align: center; }
 
         /* CONTENIDO */
-        #main-content { padding: 0 0 90px; position: relative; z-index: 1; }
+        #main-content { padding: 0 0 20px; position: relative; z-index: 1; }
         
         .note-card {
             padding: 18px 15px; margin: 0 12px 12px 12px;
@@ -72,6 +72,13 @@
         .rows-list .note-title { font-size:16px; font-weight:650; line-height:1.22; color:#17202a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .rows-list .note-preview { margin-top:3px; font-size:14px; line-height:1.25; color:#24313b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .rows-list .note-date { margin-top:5px; font-size:12px; color:#53616b; }
+        .rows-list .note-contact { margin-top:3px; font-size:13px; font-weight:700; color:#31516d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rows-list .note-card.strong-red .note-title,
+        .rows-list .note-card.strong-red .note-preview,
+        .rows-list .note-card.strong-red .note-date,
+        .rows-list .note-card.strong-red .note-contact,
+        .rows-list .note-card.strong-red .check-summary { color:#fff; }
+        .rows-list .note-card.strong-red .check-actions button { background:#fff; color:#9d141e; }
         .rows-list .check-preview { padding-top:4px; font-size:13px; }
         .rows-list .check-actions { margin-top:5px; }
         .rows-list .check-actions button { padding:5px 8px; flex:0 0 auto; font-size:12px; background:rgba(255,255,255,.6); }
@@ -98,9 +105,9 @@
         .check-summary { margin-top:7px; font-size:13px; color:#596475; }
 
         /* CALENDARIO */
-        #calendar-view { display: none; background: white; padding: 15px; border-radius: 0 0 15px 15px; margin-bottom: 10px; touch-action: pan-y; overscroll-behavior-x: contain; }
+        #calendar-view { display: none; background: #f1f6fa; padding: 15px; border-radius: 0 0 15px 15px; margin-bottom: 10px; touch-action: pan-y; overscroll-behavior-x: contain; }
         .cal-header { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
-        .cal-header select { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; background: #fff; font-weight: bold; }
+        .cal-header select { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #d2e0ea; font-size: 16px; background: #f8fbfd; font-weight: bold; }
 
         .btn-today { background: var(--blue); color: white; border: none; padding: 12px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
         .btn-today.different { background: var(--green) !important; }
@@ -125,8 +132,8 @@
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
-            background: #eee;
-            border: 1px solid #eee;
+            background: #dce7f1;
+            border: 1px solid #dce7f1;
             border-radius: 14px;
             overflow: hidden;
             touch-action: pan-y;
@@ -136,7 +143,7 @@
         }
         .cal-swipe-hint { margin: 10px 0 14px; text-align: center; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: #8c98ab; user-select: none; }
         .cal-day {
-            background: white;
+            background: #f9fbfd;
             aspect-ratio: 1;
             display: flex;
             flex-direction: column;
@@ -151,12 +158,12 @@
         }
         .cal-day:active { transform: scale(0.98); }
         .cal-day.empty {
-            background: #fafbfc;
+            background: #edf3f7;
             pointer-events: none;
         }
         .cal-day.is-weekend {
             color: #98a1b3;
-            background: #fcfcfd;
+            background: #f4f8fb;
         }
         .cal-day.has-note {
             color: #172332;
@@ -201,8 +208,11 @@
         .btn-save { background: var(--blue); color: white; }
         .btn-del { background: #fff0f0; color: #e53935; }
 
-        .bottom-actions { position:fixed; left:0; right:0; bottom:0; z-index:900; display:flex; gap:8px; padding:7px 12px calc(env(safe-area-inset-bottom) + 7px); background:rgba(255,255,255,.97); border-top:1px solid #dfe6ed; }
-        .bottom-actions button { padding:10px 8px; border:1px solid #c7d7e6; border-radius:10px; background:#eff6fc; color:#225f90; font-size:14px; }
+        .create-actions { display:flex; gap:8px; padding:7px 10px 8px; background:#eaf2f9; border-bottom:1px solid #cbdbe9; }
+        .create-actions button { min-height:42px; padding:9px 8px; border:0; border-radius:10px; color:#fff; font-size:15px; font-weight:800; box-shadow:0 2px 5px rgba(25,55,85,.18); }
+        .create-actions .create-note { background:#17669d; }
+        .create-actions .create-list { background:#27734b; }
+        .create-actions button:active { filter:brightness(.85); }
     
         /* v1.5 — Editor de nota refinado para iPhone */
         .note-modal { background: #f4f6fb !important; padding: 0 !important; align-items: stretch !important; justify-content: stretch !important; }
@@ -259,15 +269,16 @@
             flex-direction: row;
             justify-content: center;
             gap: 8px;
-            background: #eef2ff;
-            color: #24324a;
-            border: 1px solid #d9e4ff;
+            background: #205f90;
+            color: #fff;
+            border: 1px solid #174a70;
         }
+        .date-btn::after { content:'▾'; font-size:18px; line-height:1; margin-left:4px; }
         .date-btn .btn-label {
             font-size: 10px;
             line-height: 1;
             font-weight: 800;
-            color: #6d7a94;
+            color: #fff;
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
@@ -338,6 +349,25 @@
             color: #101418;
         }
         #noteText::placeholder { color: #9aa5b5; }
+        #noteTitle { width:calc(100% - 32px); flex:0 0 auto; margin:12px 16px 0; padding:11px 12px; border:1px solid #a8c5dc; border-radius:10px; background:#fff; color:#17202a; font-size:17px; font-weight:700; outline-color:#17669d; }
+        #noteTitle::placeholder { color:#62778b; font-weight:500; }
+        .recado-fields { flex:0 0 auto; padding:9px 12px 0; max-height:38vh; overflow-y:auto; background:var(--note-paper, #fff); }
+        .recado-search-row { display:flex; gap:6px; }
+        .recado-fields input, .recado-fields select { min-width:0; width:100%; padding:9px 10px; border:1px solid #b4c8d9; border-radius:9px; background:#fff; color:#172332; font-size:15px; }
+        .recado-fields input::placeholder { color:#637487; }
+        .recado-search-row input { flex:1; }
+        .recado-search-row button { flex:0 0 auto; width:auto; padding:7px 10px; border-radius:9px; background:#225f90; color:#fff; font-size:13px; }
+        .recado-results { display:none; margin:4px 0 6px; max-height:140px; overflow-y:auto; border:1px solid #bed0de; border-radius:9px; background:#fff; }
+        .recado-results button { display:block; width:100%; padding:9px; border-radius:0; border-bottom:1px solid #dce5ec; background:#fff; color:#172332; font-size:13px; text-align:left; }
+        .recado-results button:active { background:#d8ebf8; }
+        .recado-results p { padding:9px; font-size:13px; color:#41566b; }
+        .recado-field-row { display:flex; gap:6px; margin-top:6px; }
+        .recado-field-row #recadoClientName { flex:1.35; }
+        .recado-field-row #recadoClientPhone { flex:1; }
+        #recadoClientAddress { margin-top:6px; }
+        .recado-state-row { display:flex; gap:7px; align-items:center; margin-top:6px; font-size:13px; font-weight:700; color:#354d62; }
+        .recado-state-row select { width:auto; flex:1; padding:7px; }
+        #noteText { min-height:95px; }
 
         /* Bottom sheet de colores */
         .sheet-backdrop {
@@ -382,26 +412,31 @@
         .sheet-body { padding: 12px 14px 8px; overflow: auto; -webkit-overflow-scrolling: touch; }
 
 
+        #notesStorageMessage { display:none; position:fixed; z-index:8000; left:10px; right:10px; bottom:calc(env(safe-area-inset-bottom) + 12px); padding:12px; border-radius:10px; color:#fff; text-align:center; font-size:14px; font-weight:700; box-shadow:0 3px 10px #0004; }
         /* Regreso al índice REY sin interferir con el menú propio de Notas */
         .btn-index-rey { flex:0 0 auto; width:auto; padding:9px 11px; font-size:14px;
             background:#e74c3c; color:white; border:0; border-radius:11px;
             font-weight:800; box-shadow:0 2px 5px #0002; white-space:nowrap; }
         .btn-index-rey:active { transform:scale(.97); }
         header { gap:6px; padding:0 8px; }
-        header .header-title { min-width:0; flex:1; justify-content:center; }
+        header .header-title { min-width:0; flex:1; display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto; justify-content:center; align-items:baseline; column-gap:5px; row-gap:0; }
+        #notesStorageBadge { grid-column:1 / -1; justify-self:center; padding:1px 6px; border-radius:7px; background:#206343; color:#fff; font-size:10px; font-weight:800; line-height:1.3; white-space:nowrap; }
+        header .header-control[aria-label="Menú de Notas"] { margin-left:11px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border:1px solid #a9d9f3; background:#286f9d; border-radius:9px; font-size:18px; }
         header #view-title-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         header .header-control { flex:0 0 auto; padding:8px 3px; font-size:14px; }
     </style>
 </head>
 <body>
+<div id="notesStorageMessage" role="status"></div>
 
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <nav id="side-menu">
-    <div class="menu-header">iNote Pro <span class="version-text">v1.13.1</span></div>
+    <div class="menu-header">iNote Pro <span class="version-text">v1.13.10</span></div>
     <div class="menu-item" onclick="switchView('list')"><span class="menu-symbol">☷</span> Vista Lista</div>
     <div class="menu-item" onclick="switchView('calendar')"><span class="menu-symbol">▦</span> Vista Calendario</div>
     <div style="padding: 20px 20px 5px; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Ajustes</div>
+    <div class="menu-item" id="notesStorageStatus" style="font-size:13px; padding:9px 18px; color:#24557d;">Cargando almacenamiento…</div>
     <div class="menu-item" id="btnExportMenu"><span class="menu-symbol">↑</span> Exportar Notas</div>
     <div class="menu-item" onclick="document.getElementById('fileIn').click()"><span class="menu-symbol">↓</span> Importar Notas</div>
     <div class="menu-item" onclick="openClearDataSheet()"><span class="menu-symbol">×</span> Borrar datos</div>
@@ -413,7 +448,8 @@
     <button type="button" class="header-control" onclick="openMenu()" aria-label="Menú de Notas">☰</button>
     <div class="header-title">
         <h2 id="view-title-text" style="font-size: 1.18em;">Notas</h2>
-        <span class="version-text">v1.13.1</span>
+        <span class="version-text">v1.13.10</span>
+        <span id="notesStorageBadge" aria-live="polite">…</span>
     </div>
     <button type="button" class="header-control" onclick="toggleSearch()" aria-label="Buscar notas">Buscar</button>
 </header>
@@ -427,6 +463,10 @@
         <div class="view-switch" aria-label="Vista de notas">
             <button type="button" id="btnViewList" class="active" aria-pressed="true" onclick="switchView('list')">☷ Lista</button>
             <button type="button" id="btnViewCalendar" aria-pressed="false" onclick="switchView('calendar')">▦ Calendario</button>
+        </div>
+        <div class="create-actions" aria-label="Crear">
+            <button type="button" class="create-note" onclick="createNoteOfType('note')">+ Nota</button>
+            <button type="button" class="create-list" onclick="createNoteOfType('checklist')">+ Lista</button>
         </div>
         <div class="list-tools" id="listTools">
             <div class="list-options">
@@ -458,10 +498,7 @@
     </div>
 </main>
 
-<div class="bottom-actions" aria-label="Crear">
-    <button type="button" onclick="createNoteOfType('note')">+ Nota</button>
-    <button type="button" onclick="createNoteOfType('checklist')">+ Lista</button>
-</div>
+
 
 <div class="modal" id="confirmDeleteListModal">
     <div class="modal-content" style="max-width:400px;">
@@ -478,8 +515,8 @@
     <div class="note-editor" role="dialog" aria-modal="true">
         <div class="note-topbar">
             <div class="date-row">
-                <button type="button" class="control-btn date-btn" onclick="openDateSheetFor()">
-                    <span class="btn-label">Fecha</span>
+                <button type="button" class="control-btn date-btn" onclick="openDateSheetFor()" aria-label="Cambiar fecha de la nota">
+                    <span class="btn-label">Cambiar fecha</span>
                     <span id="startSummary" class="btn-value">--/--/----</span>
                 </button>
             </div>
@@ -492,7 +529,21 @@
             </div>
         </div>
 
-        <textarea id="noteText" placeholder="Escribe tu nota..."></textarea>
+        <div class="recado-fields" id="recadoFields">
+            <div class="recado-search-row">
+                <input id="recadoClientSearch" type="search" autocomplete="off" placeholder="Buscar cliente: nombre o teléfono" aria-label="Buscar cliente en Documentos" oninput="searchRecadoClients()">
+                <button type="button" onclick="clearRecadoClient()">Nuevo</button>
+            </div>
+            <div id="recadoClientResults" class="recado-results" aria-live="polite"></div>
+            <div class="recado-field-row">
+                <input id="recadoClientName" type="text" placeholder="Nombre" aria-label="Nombre del cliente" oninput="selectedClientId=null">
+                <input id="recadoClientPhone" type="tel" placeholder="Teléfono" aria-label="Teléfono del cliente">
+            </div>
+            <input id="recadoClientAddress" type="text" placeholder="Dirección" aria-label="Dirección del cliente">
+            <div class="recado-state-row"><label for="recadoStatus">Estado</label><select id="recadoStatus"><option value="pending">Pendiente</option><option value="resolved">Resuelto</option></select></div>
+        </div>
+        <input id="noteTitle" type="text" placeholder="Título (opcional)" aria-label="Título de la nota (opcional)">
+        <textarea id="noteText" placeholder="Escribe el recado o la nota..."></textarea>
         <div id="checklistEditor" class="checklist-editor">
             <input id="checklistTitle" class="checklist-title" type="text" placeholder="Título de la lista">
             <div id="checklistRows"></div>
@@ -524,10 +575,11 @@
         <div class="sheet-body">
             <div class="date-sheet-grid">
                 <label class="date-field">
-                    <span>Fecha</span>
+                    <span>Selecciona la nueva fecha</span>
                     <input type="date" id="dateStart" inputmode="none" onchange="updateDateSummary()">
                 </label>
             </div>
+            <p style="font-size:13px; color:#41556b; margin:10px 0 5px;">Después pulsa Guardar en la nota para aplicar la fecha.</p>
         </div>
     </div>
 
@@ -560,28 +612,129 @@
 
 <script>
     const STORAGE_KEY = 'inote_pro_v1_0_final_stable';
-    let notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let notes = [];
+    let notesDb = null;
+    let storageMode = 'loading';
+    let writeInProgress = false;
+    const NOTES_DB_NAME = 'ventanas_rey_notas_v1';
+    const NOTES_DB_STORE = 'data';
+    const NOTES_DB_KEY = 'notes';
+
+    function storageMessage(message, error) {
+        const el = document.getElementById('notesStorageMessage');
+        if (!el) return;
+        el.textContent = message;
+        el.style.background = error ? '#9f2025' : '#225f90';
+        el.style.display = 'block';
+        clearTimeout(storageMessage.timer);
+        storageMessage.timer = setTimeout(() => { el.style.display = 'none'; }, 6500);
+    }
+
+    function openNotesDb() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(NOTES_DB_NAME, 1);
+            req.onupgradeneeded = () => {
+                if (!req.result.objectStoreNames.contains(NOTES_DB_STORE)) req.result.createObjectStore(NOTES_DB_STORE);
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error || new Error('No se pudo abrir IndexedDB'));
+            req.onblocked = () => reject(new Error('Base de datos bloqueada'));
+        });
+    }
+
+    function idbSnapshot(value) {
+        return new Promise((resolve, reject) => {
+            const tx = notesDb.transaction(NOTES_DB_STORE, value === undefined ? 'readonly' : 'readwrite');
+            const req = value === undefined ? tx.objectStore(NOTES_DB_STORE).get(NOTES_DB_KEY) : tx.objectStore(NOTES_DB_STORE).put(value, NOTES_DB_KEY);
+            let result;
+            req.onsuccess = () => { result = req.result; };
+            tx.oncomplete = () => resolve(result);
+            tx.onerror = () => reject(tx.error || new Error('No se pudo guardar'));
+            tx.onabort = () => reject(tx.error || new Error('Guardado cancelado'));
+        });
+    }
+
+    async function persistNotes(value) {
+        if (writeInProgress) throw new Error('Espera a que termine el guardado anterior.');
+        writeInProgress = true;
+        try {
+            if (storageMode === 'indexeddb') await idbSnapshot(value);
+            else if (storageMode === 'legacy') localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+            else throw new Error('Almacenamiento aún no disponible');
+        } finally { writeInProgress = false; }
+    }
+
+    async function initNotesStorage() {
+        let legacy = [];
+        try {
+            const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            if (Array.isArray(parsed)) legacy = parsed;
+        } catch (_) {}
+        try {
+            if (!window.indexedDB) throw new Error('IndexedDB no disponible');
+            notesDb = await openNotesDb();
+            let stored = await idbSnapshot();
+            if (stored === undefined) {
+                await idbSnapshot(legacy);  // Migración: solo se usa el registro antiguo si no existe dato nuevo.
+                stored = legacy;
+            }
+            if (!Array.isArray(stored)) throw new Error('Datos guardados no válidos');
+            notes = stored;
+            storageMode = 'indexeddb';
+            const status = document.getElementById('notesStorageStatus');
+            if (status) status.textContent = 'Notas en IndexedDB · Haz copias JSON periódicas';
+            const badge = document.getElementById('notesStorageBadge');
+            if (badge) badge.textContent = 'IndexedDB';
+
+        } catch (error) {
+            // El archivo antiguo sigue intacto para recuperarlo si falla la migración.
+            notes = legacy;
+            storageMode = notesDb ? 'blocked' : 'legacy';
+            const status = document.getElementById('notesStorageStatus');
+            if (status) status.textContent = notesDb ? 'Error al leer Notas · Exporta una copia JSON' : 'Almacenamiento limitado · Exporta una copia JSON';
+            const badge = document.getElementById('notesStorageBadge');
+            if (badge) { badge.textContent = notesDb ? 'Error' : 'Local'; badge.style.background = '#a42b27'; }
+            storageMessage(notesDb ? 'No se pudo leer IndexedDB. No se guardarán cambios hasta recuperar el acceso.' : 'IndexedDB no está disponible; se usa el almacenamiento anterior.', true);
+        }
+        notes = notes.filter(n => n && typeof n === 'object').map(n => ({...n, id:String(n.id)}));
+        refreshColorFilterOptions();
+        if (currentView === 'calendar') {
+            renderCal();
+            if (selectedDateStr) updateDayDetail(selectedDateStr);
+        } else {
+            renderNotesList();
+        }
+        if (storageMode === 'indexeddb' && navigator.storage && navigator.storage.persist) {
+            navigator.storage.persist().then(granted => {
+                const status = document.getElementById('notesStorageStatus');
+                if (granted && status) status.textContent = 'Almacenamiento persistente · Haz copias JSON periódicas';
+            }).catch(() => {});
+        }
+    }
     let pendingImport = null;
     // Normaliza IDs a string para evitar fallos al eliminar tras importaciones
-    notes = notes.map(n => ({ ...n, id: String(n.id) }));
+    // Los datos se leen después de abrir IndexedDB. El almacenamiento antiguo queda como copia de migración.
     let editingId = null;
     let pendingDeleteListId = null;
     let currentNoteType = 'note';
     let workingItems = [];
     let selectedDateStr = null; 
     let selectedColor = "#ffffff";
+    let selectedClientId = null;
     let currentView = 'list';
     let calendarResultLimit = 80;
     let lastCalendarQuery = '';
 
+    const STRONG_RED = '#c51622';
     const vividColors = [
-        "#ffffff", "#fff176", "#ffd54f", "#ffb74d", "#ff8a65", "#e57373",
+        "#ffffff", "#fff176", "#ffd54f", "#ffb74d", "#ff8a65", "#e57373", STRONG_RED,
         "#f06292", "#ba68c8", "#9575cd", "#7986cb", "#64b5f6", "#4fc3f7",
         "#4dd0e1", "#4db6ac", "#81c784", "#aed581", "#dce775", "#cfd8dc"
     ];
     const colorFilter = document.getElementById('colorFilter');
 
     function colorLabel(hex) {
+        if (String(hex).toLowerCase() === STRONG_RED) return 'Rojo fuerte';
         const value = String(hex || '#ffffff').replace('#','');
         const [r,g,b] = [0,2,4].map(i => parseInt(value.slice(i,i+2),16));
         if (![r,g,b].every(Number.isFinite)) return 'Color';
@@ -597,6 +750,16 @@
         if (hue < 255) return 'Azul';
         if (hue < 285) return 'Violeta';
         return 'Rosa';
+    }
+
+    function displayNoteColor(hex) {
+        const color = String(hex || '#ffffff').toLowerCase();
+        if (color === STRONG_RED) return STRONG_RED;
+        if (!/^#[0-9a-f]{6}$/.test(color)) return '#ffffff';
+        return '#' + [1,3,5].map(i => {
+            const channel = parseInt(color.slice(i,i+2),16);
+            return Math.round(255 * .76 + channel * .24).toString(16).padStart(2,'0');
+        }).join('');
     }
 
     function stripeColor(hex) {
@@ -642,7 +805,7 @@
             const option = document.createElement('option');
             option.value = label === 'Gris' ? 'group:gray' : color;
             option.textContent = '● ' + label + (label !== 'Gris' && counts[label] > 1 ? ' ' + counts[label] : '');
-            option.style.backgroundColor = label === 'Gris' ? '#e5e5e7' : color;
+            option.style.backgroundColor = label === 'Gris' ? '#e5e5e7' : displayNoteColor(color);
             colorFilter.appendChild(option);
         });
         colorFilter.value = previous === 'group:gray' && hasGray ? previous : used.includes(previous) ? (colorLabel(previous) === 'Gris' ? 'group:gray' : previous) : 'all';
@@ -662,7 +825,10 @@
     vividColors.forEach(c => {
         const div = document.createElement('div');
         div.className = 'color-opt';
-        div.style.backgroundColor = c;
+        div.style.backgroundColor = displayNoteColor(c);
+        div.dataset.color = c;
+        div.title = c === STRONG_RED ? 'Rojo fuerte' : colorLabel(c);
+        div.setAttribute('aria-label', div.title);
         div.onclick = () => selectColor(c);
         cp.appendChild(div);
     });
@@ -670,7 +836,7 @@
     function selectColor(c) {
         selectedColor = c;
         document.querySelectorAll('.color-opt').forEach(opt => {
-            opt.classList.toggle('active', opt.style.backgroundColor === c);
+            opt.classList.toggle('active', opt.dataset.color === c);
         });
         updateColorSwatch();
         updateNotePaper();
@@ -679,7 +845,7 @@
     function updateNotePaper() {
         const raw = String(selectedColor || '#ffffff').replace('#', '');
         const channels = /^[0-9a-f]{6}$/i.test(raw) ? [0,2,4].map(i => parseInt(raw.slice(i,i+2),16)) : [255,255,255];
-        const paper = '#' + channels.map(value => Math.round(255 * .6 + value * .4).toString(16).padStart(2,'0')).join('');
+        const paper = '#' + channels.map(value => Math.round(255 * .76 + value * .24).toString(16).padStart(2,'0')).join('');
         document.querySelector('.note-editor').style.setProperty('--note-paper', paper);
     }
 
@@ -688,8 +854,8 @@
         const btn = document.getElementById('colorButton');
         if (!btn) return;
         const color = selectedColor || "#f1f4f9";
-        btn.style.background = color;
-        btn.style.color = getContrastColor(color);
+        btn.style.background = displayNoteColor(color);
+        btn.style.color = getContrastColor(displayNoteColor(color));
         btn.style.boxShadow = '0 8px 18px rgba(35, 55, 88, 0.08), inset 0 1px 0 rgba(255,255,255,0.45)';
     }
 
@@ -760,8 +926,67 @@
     }
 
     function noteMatches(n, filter) {
-        return !filter || String(n.text || '').toLowerCase().includes(filter) ||
+        return !filter || [n.title, n.text, n.clientName, n.clientPhone, n.clientAddress].some(v => String(v || '').toLowerCase().includes(filter)) ||
             (Array.isArray(n.items) && n.items.some(item => String(item.text || '').toLowerCase().includes(filter)));
+    }
+
+    function noteHeading(n) {
+        return String(n.title || '').trim() || String(n.text || '').split(/\r?\n/).map(line => line.trim()).find(Boolean) || '(Nota sin texto)';
+    }
+
+    function recadoClientKey(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    }
+
+    function loadRecadoClients() {
+        try {
+            const clients = JSON.parse(localStorage.getItem('rey_clients') || '[]');
+            return Array.isArray(clients) ? clients.filter(c => c && typeof c === 'object') : [];
+        } catch (_) { return []; }
+    }
+
+    function searchRecadoClients() {
+        const results = document.getElementById('recadoClientResults');
+        const query = recadoClientKey(document.getElementById('recadoClientSearch').value);
+        results.replaceChildren();
+        results.style.display = query.length >= 2 ? 'block' : 'none';
+        if (query.length < 2) return;
+        const clients = loadRecadoClients();
+        const matches = clients.filter(c => [c.nombre, c.apodo, c.telefono].some(value => recadoClientKey(value).includes(query))).slice(0, 10);
+        if (!matches.length) {
+            const hint = document.createElement('p');
+            hint.textContent = clients.length ? 'Sin coincidencias. Puedes escribir los datos a mano.' : 'No hay clientes compartidos. Abre Documentos una vez o escribe los datos a mano.';
+            results.appendChild(hint);
+        }
+        matches.forEach(c => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = [c.nombre || c.apodo || 'Sin nombre', c.apodo && c.nombre ? '(' + c.apodo + ')' : '', c.telefono || ''].filter(Boolean).join(' · ');
+            button.onclick = () => {
+                selectedClientId = c.id == null ? null : String(c.id);
+                document.getElementById('recadoClientName').value = String(c.nombre || c.apodo || '');
+                document.getElementById('recadoClientPhone').value = String(c.telefono || '');
+                document.getElementById('recadoClientAddress').value = [c.direccion, c.cp, c.localidad || c.poblacion].map(v => String(v || '').trim()).filter(Boolean).join(', ');
+                document.getElementById('recadoClientSearch').value = '';
+                results.replaceChildren();
+                results.style.display = 'none';
+            };
+            results.appendChild(button);
+        });
+    }
+
+    function clearRecadoClientFields() {
+        selectedClientId = null;
+        ['recadoClientSearch','recadoClientName','recadoClientPhone','recadoClientAddress'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('recadoStatus').value = 'pending';
+        const results = document.getElementById('recadoClientResults');
+        results.replaceChildren();
+        results.style.display = 'none';
+    }
+
+    function clearRecadoClient() {
+        clearRecadoClientFields();
+        document.getElementById('recadoClientName').focus();
     }
 
     function createNoteOfType(type) {
@@ -809,12 +1034,14 @@
             check.type = 'checkbox';
             check.checked = !!entry.done;
             check.onclick = e => e.stopPropagation();
-            check.onchange = e => {
+            check.onchange = async e => {
                 e.stopPropagation();
-                const original = notes.find(n => String(n.id) === String(note.id));
-                if (!original || !Array.isArray(original.items)) return;
-                original.items[index].done = check.checked;
-                refreshUI();
+                const originalIndex = notes.findIndex(n => String(n.id) === String(note.id));
+                if (originalIndex < 0 || !Array.isArray(notes[originalIndex].items)) return;
+                const updated = notes.slice();
+                updated[originalIndex] = {...notes[originalIndex], items:notes[originalIndex].items.map((item,i) => i === index ? {...item, done:check.checked} : item)};
+                try { await persistNotes(updated); notes = updated; refreshUI(); }
+                catch (_) { check.checked = !check.checked; storageMessage('No se pudo guardar el cambio.', true); }
             };
             const label = document.createElement('span');
             label.textContent = entry.text;
@@ -850,11 +1077,15 @@
         document.getElementById('confirmDeleteListModal').style.display = 'none';
     }
 
-    function deleteConfirmedList() {
+    async function deleteConfirmedList() {
         if (pendingDeleteListId === null) return;
-        notes = notes.filter(n => String(n.id) !== pendingDeleteListId);
-        closeDeleteList();
-        refreshUI();
+        const updated = notes.filter(n => String(n.id) !== pendingDeleteListId);
+        try {
+            await persistNotes(updated);
+            notes = updated;
+            closeDeleteList();
+            refreshUI();
+        } catch (_) { storageMessage('No se pudo borrar la lista. Se conserva.', true); }
     }
 
     function getContrastColor(color) {
@@ -1060,7 +1291,6 @@ function toggleSearch() {
     }
 
     function refreshUI() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
         refreshColorFilterOptions();
         const filter = getActiveFilter();
         renderNotesList(filter);
@@ -1075,8 +1305,8 @@ function toggleSearch() {
         const selectedColor = colorFilter.value;
         let filtered = notes.filter(n => noteMatches(n, filter) && (selectedColor === 'all' || (selectedColor === 'group:gray' ? colorLabel(n.color) === 'Gris' : String(n.color || '#ffffff').toLowerCase() === selectedColor)));
         const order = document.getElementById('sortNotes').value;
-        if (order === 'title') filtered.sort((a,b) => a.text.localeCompare(b.text, 'es'));
-        else if (order === 'color') filtered.sort((a,b) => String(a.color).localeCompare(String(b.color)) || a.text.localeCompare(b.text, 'es'));
+        if (order === 'title') filtered.sort((a,b) => noteHeading(a).localeCompare(noteHeading(b), 'es'));
+        else if (order === 'color') filtered.sort((a,b) => String(a.color).localeCompare(String(b.color)) || noteHeading(a).localeCompare(noteHeading(b), 'es'));
         else filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
         if (!filtered.length) {
             const empty = document.createElement('div');
@@ -1087,21 +1317,28 @@ function toggleSearch() {
         filtered.forEach(n => {
             const el = document.createElement('div');
             el.className = 'note-card';
-            el.style.backgroundColor = n.color || '#ffffff';
+            el.style.backgroundColor = displayNoteColor(n.color);
+            if (String(n.color || '').toLowerCase() === STRONG_RED) el.classList.add('strong-red');
             el.onclick = () => showModal(n.id);
             el.style.borderLeftColor = n.color && n.color !== '#ffffff' ? stripeColor(n.color) : '#b8c1cb';
             const lines = String(n.text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
             const title = document.createElement('div');
             title.className = 'note-title';
-            title.textContent = lines[0] || '(Nota sin texto)';
+            title.textContent = [String(n.clientName || '').trim(), noteHeading(n)].filter(Boolean).join(' · ');
             const preview = document.createElement('div');
             preview.className = 'note-preview';
-            preview.textContent = lines.slice(1).join(' ').trim() || (n.type === 'checklist' && n.items?.length ? n.items[0].text : '');
+            preview.textContent = (String(n.title || '').trim() ? lines : lines.slice(1)).join(' ').trim() || (n.type === 'checklist' && n.items?.length ? n.items[0].text : '');
             const date = document.createElement('div');
             date.className = 'note-date';
             const [year,month,day] = String(n.start || '').slice(0,10).split('-');
             date.textContent = day && month && year ? `${Number(day)}/${Number(month)}/${year}` : '';
             el.append(title, preview, date);
+            if (n.clientName || n.clientPhone) {
+                const contact = document.createElement('div');
+                contact.className = 'note-contact';
+                contact.textContent = [n.clientPhone, n.status === 'resolved' ? 'Resuelto' : 'Pendiente'].filter(Boolean).join(' · ');
+                el.insertBefore(contact, date);
+            }
             if (!preview.textContent) preview.style.display = 'none';
             if (n.type === 'checklist') {
                 appendChecklistPreview(el, n, 2);
@@ -1246,7 +1483,7 @@ function toggleSearch() {
             const body = String(n.text || '').replace(/\s+/g, ' ');
             const itemHit = Array.isArray(n.items) ? n.items.find(item => String(item.text || '').toLowerCase().includes(query)) : null;
             const hit = body.toLowerCase().indexOf(query);
-            excerpt.textContent = hit > 45 ? '…' + body.slice(hit - 35, hit + 145) : body.slice(0, 180);
+            excerpt.textContent = (String(n.title || '').trim() ? n.title.trim() + ' · ' : '') + (hit > 45 ? '…' + body.slice(hit - 35, hit + 145) : body.slice(0, 180));
             if (itemHit) excerpt.textContent += ' · ' + itemHit.text;
             const go = document.createElement('button');
             go.type = 'button';
@@ -1274,11 +1511,11 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         res.innerHTML = `<h4 style="margin-bottom: 12px; color:#555; border-bottom: 1px solid #ddd; padding-bottom: 5px;">${parseInt(d)} de ${months[parseInt(m)-1]}</h4>`;
         dayNotes.forEach(dn => {
             const item = document.createElement('div');
-            item.style = `background:${dn.color}; padding:14px; border-radius:12px; margin-bottom:10px; cursor:pointer; border:1px solid rgba(0,0,0,0.1);`;
+            item.style = `background:${displayNoteColor(dn.color)}; color:${String(dn.color || '').toLowerCase() === STRONG_RED ? '#ffffff' : '#333333'}; padding:14px; border-radius:12px; margin-bottom:10px; cursor:pointer; border:1px solid rgba(0,0,0,0.1);`;
             const textEl = document.createElement('div');
             textEl.className = 'note-text-cal';
             textEl.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;';
-            textEl.textContent = dn.text;
+            textEl.textContent = [dn.clientName, dn.title, dn.text].filter(Boolean).join(' · ');
             item.appendChild(textEl);
             if (dn.type === 'checklist') {
                 appendChecklistPreview(item, dn);
@@ -1293,6 +1530,7 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         editingId = (id !== null && id !== undefined) ? String(id) : null;
         document.getElementById('noteModal').style.display = 'flex';
         document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
+        clearRecadoClientFields();
         
         if(id) {
             const sid = String(id);
@@ -1301,6 +1539,12 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
             currentNoteType = n.type === 'checklist' ? 'checklist' : 'note';
             workingItems = Array.isArray(n.items) ? n.items.map(item => ({text:String(item.text || ''), done:!!item.done})) : [];
             document.getElementById('noteText').value = n.text;
+            document.getElementById('noteTitle').value = n.title || '';
+            selectedClientId = n.clientId == null ? null : String(n.clientId);
+            document.getElementById('recadoClientName').value = n.clientName || '';
+            document.getElementById('recadoClientPhone').value = n.clientPhone || '';
+            document.getElementById('recadoClientAddress').value = n.clientAddress || '';
+            document.getElementById('recadoStatus').value = n.status === 'resolved' ? 'resolved' : 'pending';
             document.getElementById('checklistTitle').value = n.text;
             document.getElementById('dateStart').value = String(n.start || '').slice(0,10);
             selectColor(n.color || "#ffffff");
@@ -1308,6 +1552,7 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
             currentNoteType = requestedType === 'checklist' ? 'checklist' : 'note';
             workingItems = currentNoteType === 'checklist' ? [{text:'',done:false}] : [];
             document.getElementById('noteText').value = '';
+            document.getElementById('noteTitle').value = '';
             document.getElementById('checklistTitle').value = '';
             const today = new Date();
             const localDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -1315,6 +1560,8 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
             selectColor("#ffffff");
         }
         document.getElementById('noteText').style.display = currentNoteType === 'note' ? 'block' : 'none';
+        document.getElementById('noteTitle').style.display = currentNoteType === 'note' ? 'block' : 'none';
+        document.getElementById('recadoFields').style.display = currentNoteType === 'note' ? 'block' : 'none';
         document.getElementById('checklistEditor').style.display = currentNoteType === 'checklist' ? 'block' : 'none';
         if (currentNoteType === 'checklist') renderChecklistEditor();
         updateDateSummary();
@@ -1327,38 +1574,67 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         document.getElementById('noteModal').style.display = 'none';
     }
 
-    function saveNote() {
+    async function saveNote() {
         const items = currentNoteType === 'checklist' ? workingItems.filter(item => item.text.trim()).map(item => ({text:item.text.trim(), done:!!item.done})) : [];
+        const title = currentNoteType === 'note' ? document.getElementById('noteTitle').value.trim() : '';
+        const client = currentNoteType === 'note' ? {
+            clientId:selectedClientId, clientName:document.getElementById('recadoClientName').value.trim(),
+            clientPhone:document.getElementById('recadoClientPhone').value.trim(),
+            clientAddress:document.getElementById('recadoClientAddress').value.trim(),
+            status:document.getElementById('recadoStatus').value === 'resolved' ? 'resolved' : 'pending'
+        } : {};
         const text = currentNoteType === 'checklist' ? (document.getElementById('checklistTitle').value.trim() || 'Lista') : document.getElementById('noteText').value;
         const date = document.getElementById('dateStart').value;
         const existing = editingId ? notes.find(n => String(n.id) === editingId) : null;
         const originalSuffix = existing && /^\d{4}-\d{2}-\d{2}T/.test(String(existing.start || '')) ? String(existing.start).slice(10) : null;
         const start = date + (originalSuffix || 'T' + new Date().toLocaleTimeString('it-IT').slice(0,5));
-        const end = existing ? existing.end : start;
+        const end = start;
         if (!date) { alert('Selecciona una fecha.'); return; }
-        if(!text.trim() || (currentNoteType === 'checklist' && !items.length)) {
+        if((!text.trim() && !title) || (currentNoteType === 'checklist' && !items.length)) {
             alert(currentNoteType === 'checklist' ? 'Añade al menos un elemento a la lista.' : 'Escribe la nota antes de guardar.');
             return;
         }
+        let updated;
         if(editingId) {
-            const idx = notes.findIndex(x => x.id === editingId);
+            const idx = notes.findIndex(x => String(x.id) === editingId);
             if (idx < 0) return;
-            notes[idx] = { ...notes[idx], text, start, end, color: selectedColor, type:currentNoteType, items };
+            updated = notes.slice();
+            updated[idx] = { ...notes[idx], ...client, title, text, start, end, color: selectedColor, type:currentNoteType, items };
         } else {
             const id = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 9);
-            notes.push({ id, text, start, end, color: selectedColor, type:currentNoteType, items });
+            updated = [...notes, { id, ...client, title, text, start, end, color: selectedColor, type:currentNoteType, items }];
         }
-        refreshUI();
-        closeModal();
+        try {
+            await persistNotes(updated);
+            notes = updated;
+            if (currentView === 'calendar') {
+                selectedDateStr = date;
+                selM.value = String(Number(date.slice(5,7)) - 1);
+                const year = date.slice(0,4);
+                if (![...selY.options].some(option => option.value === year)) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    selY.appendChild(option);
+                }
+                selY.value = year;
+            }
+            refreshUI();
+            closeModal();
+        }
+        catch (_) { storageMessage('No se pudo guardar. La nota permanece abierta para que puedas copiarla.', true); }
     }
 
-    function deleteNoteAction() {
+    async function deleteNoteAction() {
         if(!editingId) return;
-        // Eliminado directo (más fiable en iPhone/local). Si quieres confirmación, la hacemos con un modal propio.
-        notes = notes.filter(x => String(x.id) !== String(editingId));
-        editingId = null;
-        refreshUI();
-        closeModal();
+        const updated = notes.filter(x => String(x.id) !== String(editingId));
+        try {
+            await persistNotes(updated);
+            notes = updated;
+            editingId = null;
+            refreshUI();
+            closeModal();
+        } catch (_) { storageMessage('No se pudo borrar. La nota se conserva.', true); }
     }
 
     function generateBackupFilename() {
@@ -1428,6 +1704,12 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
 
         return {
             id: String(raw.id != null ? raw.id : (Date.now() + idx)),
+            title: typeof raw.title === 'string' ? raw.title : '',
+            clientId: raw.clientId == null ? null : String(raw.clientId),
+            clientName: typeof raw.clientName === 'string' ? raw.clientName : '',
+            clientPhone: typeof raw.clientPhone === 'string' ? raw.clientPhone : '',
+            clientAddress: typeof raw.clientAddress === 'string' ? raw.clientAddress : '',
+            status: raw.status === 'resolved' ? 'resolved' : 'pending',
             text,
             start,
             end,
@@ -1484,9 +1766,8 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         document.getElementById('importModal').style.display = 'none';
     }
 
-    function completeImport(mode) {
+    async function completeImport(mode) {
         if (!pendingImport || !['merge', 'replace'].includes(mode)) return;
-        const original = notes;
         const result = mode === 'merge' ? [...notes] : [];
         const ids = new Set(result.map(n => String(n.id)));
         let added = 0;
@@ -1497,15 +1778,14 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
             added++;
         }
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+            await persistNotes(result);
             notes = result;
             const action = mode === 'merge' ? `Añadidas ${added} notas` : `Importadas ${added} notas`;
             closeImportModal();
             refreshUI();
-            alert(action + '.');
+            storageMessage(action + '.', false);
         } catch(err) {
-            notes = original;
-            alert('No se pudieron guardar las notas. Los datos actuales se mantienen.');
+            storageMessage('No se pudieron importar. Las notas actuales se mantienen.', true);
         }
     }
 
@@ -1531,12 +1811,13 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         } catch(e) { return false; }
     }
 
-        function clearAllDataNow() {
-        // Confirma la escritura antes de cambiar la pantalla o el estado en memoria.
+        async function clearAllDataNow() {
         try {
-            localStorage.setItem(STORAGE_KEY, '[]');
+            await persistNotes([]);
+            // Impide que la copia antigua reaparezca si se reinstala una versión vieja.
+            try { localStorage.setItem(STORAGE_KEY, '[]'); } catch (_) {}
         } catch(e) {
-            alert('No se pudieron borrar las notas del almacenamiento.');
+            storageMessage('No se pudieron borrar las notas. Se conservan.', true);
             return;
         }
         // Reset estado en memoria
@@ -1571,7 +1852,7 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
 
         // Evita depender de confirm/alert del sistema para el flujo crítico,
         // pero dejamos el aviso final porque suele funcionar bien.
-        alert('Datos eliminados. La app queda limpia.');
+        storageMessage('Notas eliminadas.', false);
     }
 
 
@@ -1597,8 +1878,8 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
 
 document.getElementById('btnExportMenu').addEventListener('click', exportBackup);
     setupCalendarSwipe();
-    refreshColorFilterOptions();
-    renderNotesList();
+    switchView('calendar');
+    initNotesStorage();
 </script>
 <script>
 function volverAlIndexRey(){
