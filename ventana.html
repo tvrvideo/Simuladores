@@ -2,7 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ventana Pro v96.2.14</title>
+    <title>Ventana Pro v96.2.15</title>
+    <!-- v96.2.15: malla de mosquitera visible al reducir e imprimir el dibujo en Documentos. -->
     <!-- v96.2.14: Abanico desde el centro inferior seleccionable al tocar vidrio del fijo superior. -->
     <!-- v96.2.13: Vidrio concéntrico al arco exterior y barrotillos radiales opcionales en fijo superior. -->
     <!-- v96.2.12: Arco superior circular alcanza la altura central, cotas y travesaños del fijo alineados. -->
@@ -1239,7 +1240,7 @@ body.dock-off #canvasDock{
 <div id="scrollArea">
 
 
-<div class="top-title" aria-label="Ventana Pro v96.2.14"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.14</span></div>
+<div class="top-title" aria-label="Ventana Pro v96.2.15"><span class="title-main">Ventana Pro</span><span class="title-version">v96.2.15</span></div>
 
 
 <div id="despieceOverlayPuerta800" onclick="if(event.target===this) cerrarOverlayDespiecePuerta800()" style="display:none; position:fixed; inset:0; z-index:99997; background:rgba(0,0,0,0.55); padding:18px; box-sizing:border-box;">
@@ -7252,13 +7253,13 @@ if (mostrarAltoTotalDer) {
             ctx.moveTo(poly[0].x, poly[0].y);
             poly.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
             ctx.closePath(); ctx.clip();
-            // Un leve velo grafito y filamentos cruzados, suficientemente suaves
-            // para mantener visibles los cristales y las líneas de apertura.
-            ctx.fillStyle = 'rgba(49,59,67,0.095)';
+            // Trama contrastada: al reducir el dibujo en el presupuesto las líneas
+            // finas y transparentes desaparecían con el escalado y la compresión JPEG.
+            ctx.fillStyle = 'rgba(49,59,67,0.11)';
             ctx.fillRect(l,t,r-l,b-t);
-            const paso = Math.max(6, Math.min(11, Math.round(Math.min(r-l,b-t)/23)));
-            ctx.lineWidth = 0.65;
-            ctx.strokeStyle = 'rgba(35,45,52,0.20)';
+            const paso = Math.max(13, Math.min(18, Math.round(Math.min(r-l,b-t)/17)));
+            ctx.lineWidth = 1.8;
+            ctx.strokeStyle = 'rgba(35,45,52,0.65)';
             ctx.beginPath();
             for (let x = Math.floor(l/paso)*paso; x <= r; x += paso) {
                 ctx.moveTo(x,t); ctx.lineTo(x,b);
