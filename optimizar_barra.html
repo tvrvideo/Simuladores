@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <title>Cut Máster v2.4.36</title>
+  <title>Cut Máster v2.4.37</title>
+  <!-- v2.4.37: compartir solo el archivo, sin texto adjunto en iPhone. -->
   <style>
     :root{
       --bg:#f3eeee;
@@ -217,7 +218,7 @@
 <div class="app">
   <div class="topbar">
     <button id="leftTopBtn" class="icon-btn nav-home-btn" aria-label="Inicio">⌂</button>
-    <div id="topTitle" class="title">Cut Máster v2.4.36</div>
+    <div id="topTitle" class="title">Cut Máster v2.4.37</div>
     <button id="rightTopBtn" class="icon-btn" aria-label="Ajustes">⚙</button>
   </div>
 
@@ -466,7 +467,7 @@
   }
   function updateTopbar(){
     const project = currentProject();
-    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.36');
+    $('topTitle').textContent = project && ['piecesScreen','stockScreen','resultsScreen'].includes(state.currentScreen) ? project.name : (state.currentScreen === 'settingsScreen' ? 'Ajustes' : 'Cut Máster v2.4.37');
     $('leftTopBtn').textContent = state.currentScreen === 'homeScreen' ? 'ⓘ' : '⌂'; $('leftTopBtn').style.fontWeight = state.currentScreen === 'homeScreen' ? '700' : '900';
     $('leftTopBtn').setAttribute('aria-label', state.currentScreen === 'homeScreen' ? 'Información' : 'Inicio');
   }
@@ -2171,7 +2172,7 @@
 
     try{
       if(file && navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
-        await navigator.share({ files:[file], title: titleText || filename });
+        await navigator.share({ files:[file] });
         setExportStatus('Se abrió Compartir. Elige “Guardar en Archivos”.');
         return { method:'share' };
       }
