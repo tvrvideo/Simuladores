@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>iNote Pro v1.13.20</title>
+    <title>iNote Pro v1.13.21</title>
     <style>
         :root { --blue: #54a0d9; --bg: #f5f5f7; --green: #2ecc71; --recado-text-size:18px; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -444,7 +444,7 @@
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <nav id="side-menu">
-    <div class="menu-header">iNote Pro <span class="version-text">v1.13.20</span></div>
+    <div class="menu-header">iNote Pro <span class="version-text">v1.13.21</span></div>
     <div class="menu-item" onclick="switchView('list')"><span class="menu-symbol">☷</span> Vista Lista</div>
     <div class="menu-item" onclick="switchView('calendar')"><span class="menu-symbol">▦</span> Vista Calendario</div>
     <div style="padding: 20px 20px 5px; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Ajustes</div>
@@ -468,7 +468,7 @@
     <button type="button" class="header-control" onclick="openMenu()" aria-label="Menú de Notas">☰</button>
     <div class="header-title">
         <h2 id="view-title-text" style="font-size: 1.18em;">Notas</h2>
-        <span class="version-text">v1.13.20</span>
+        <span class="version-text">v1.13.21</span>
         <span id="notesStorageBadge" aria-live="polite">…</span>
     </div>
     <button type="button" class="header-control" onclick="toggleSearch()" aria-label="Buscar notas">Buscar</button>
@@ -1021,9 +1021,42 @@
         return input ? input.value.toLowerCase() : '';
     }
 
+    // Búsqueda flexible: palabras en cualquier campo y teléfonos sin separadores ni prefijo +34.
+    function searchTextKey(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+    function searchPhoneDigits(value) {
+        const digits = String(value || '').replace(/\D/g, '');
+        return digits.startsWith('0034') && digits.length >= 13 ? digits.slice(4) :
+               digits.startsWith('34') && digits.length >= 11 ? digits.slice(2) : digits;
+    }
+    function searchPhoneSequences(value) {
+        const source = String(value || '');
+        const matches = source.match(/(?:\+?34[\s().-]*)?[6789](?:[\s().-]*\d){8}(?!\d)/g) || [];
+        return matches.map(searchPhoneDigits);
+    }
+    function flexibleSearchMatch(fields, query) {
+        const raw = String(query || '').trim();
+        if (!raw) return true;
+        const haystack = searchTextKey(fields.join(' '));
+        const terms = searchTextKey(raw).split(/\s+/).filter(Boolean);
+        const numericQuery = searchPhoneDigits(raw);
+        const isPhoneQuery = /^[+\d\s().-]+$/.test(raw) && numericQuery.length >= 5;
+        if (isPhoneQuery) {
+            return fields.some(field => searchPhoneSequences(field).some(phone => phone.includes(numericQuery))) ||
+                   fields.some(field => searchPhoneDigits(field).includes(numericQuery) && /\d/.test(field));
+        }
+        return terms.every(term => {
+            if (haystack.includes(term)) return true;
+            const digits = searchPhoneDigits(term);
+            return digits.length >= 5 && /^\+?[\d().-]+$/.test(term) &&
+                fields.some(field => searchPhoneSequences(field).some(phone => phone.includes(digits)));
+        });
+    }
     function noteMatches(n, filter) {
-        return !filter || [n.title, n.text, n.clientName, n.clientPhone, n.clientAddress].some(v => String(v || '').toLowerCase().includes(filter)) ||
-            (Array.isArray(n.items) && n.items.some(item => String(item.text || '').toLowerCase().includes(filter)));
+        const fields = [n.title, n.text, n.clientName, n.clientPhone, n.clientAddress];
+        if (Array.isArray(n.items)) n.items.forEach(item => fields.push(item && item.text));
+        return flexibleSearchMatch(fields.map(v => String(v || '')), filter);
     }
 
     function noteHeading(n) {
@@ -1088,12 +1121,12 @@
 
     function searchRecadoClients() {
         const results = document.getElementById('recadoClientResults');
-        const query = recadoClientKey(document.getElementById('recadoClientSearch').value);
+        const query = document.getElementById('recadoClientSearch').value.trim();
         results.replaceChildren();
         results.style.display = query.length >= 2 ? 'block' : 'none';
         if (query.length < 2) return;
         const clients = loadRecadoClients();
-        const matches = clients.filter(c => [c.nombre, c.apodo, c.telefono].some(value => recadoClientKey(value).includes(query))).slice(0, 10);
+        const matches = clients.filter(c => flexibleSearchMatch([c.nombre, c.apodo, c.telefono].map(v => String(v || '')), query)).slice(0, 10);
         if (!matches.length) {
             const hint = document.createElement('p');
             hint.textContent = clients.length ? 'Sin coincidencias. Puedes escribir los datos a mano.' : 'No hay clientes compartidos. Abre Documentos una vez o escribe los datos a mano.';
