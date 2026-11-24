@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.60</title>
-  <!-- v4.9.60: rectificativa compacta con referencia y motivo en líneas propias. -->
-  <!-- v4.9.60: comparte solo el archivo PDF, sin título de texto adicional en iPhone. -->
+  <title>Documentos Rey v4.9.62</title>
+  <!-- v4.9.62: rectificativa compacta con referencia y motivo en líneas propias. -->
+  <!-- v4.9.62: comparte solo el archivo PDF, sin título de texto adicional en iPhone. -->
 <style>
     :root{
       --app-vh:100vh;
@@ -4547,7 +4547,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.60</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.62</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4583,7 +4583,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.60</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.62</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5922,7 +5922,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.60', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.62', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5965,7 +5965,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.60',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.62',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -6732,6 +6732,13 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     return base < 0 ? -(Math.abs(base) + gain) : base + gain;
   }
   function priceForGainEditor(item){
+    // Los VELUX anteriores guardaban el PVP en price pero podían conservar
+    // costPrice=0 de la línea que ocupaban. Recuperar ese PVP al editar.
+    if(item && /velux/i.test(String(item.externalProduct && item.externalProduct.origen || '')) &&
+       parseDecimalInputValue(item.price) !== 0 &&
+       parseDecimalInputValue(item.costPrice) === 0 &&
+       !parseDecimalInputValue(item.gain) && !parseDecimalInputValue(item.gainAmount) &&
+       !parseDecimalInputValue(item.cutWasteCost)) return String(item.price);
     if(item && item.costPrice != null && String(item.costPrice).trim() !== '') return String(item.costPrice);
     if(item && item.basePrice != null && String(item.basePrice).trim() !== '') return String(item.basePrice);
     return String((item && item.price != null) ? item.price : '0');
@@ -8238,7 +8245,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.60',
+      version:'v4.9.62',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -8890,9 +8897,24 @@ COLOCACIÓN INCLUIDA` }
     const qty = product.cantidad != null ? product.cantidad : (product.units != null ? product.units : '1');
     const price = product.precio != null ? product.precio : (product.price != null ? product.price : 0);
     item.text = externalProductTextV42(product);
+    if(String(product.origen || product.source || '').toLowerCase().includes('velux')){
+      // El importe recibido ya incluye la instalación: mostrarlo en la línea roja editable.
+      item.text = item.text.replace(/(?:\r?\n|<br\s*\/?\s*>)*INSTALACI[ÓO]N INCLUIDA\s*$/i, '').trim();
+      item.text += '<br><span style="color:#dc2626"><b>INSTALACIÓN INCLUIDA</b></span>';
+    }
     if(product.preserveConceptValues !== true){
       item.units = String(qty || '1');
       item.price = String(Number(String(price).replace(',','.')) || 0);
+      // El PVP recibido debe ser también la base editable del concepto.
+      // Limpiar cálculos anteriores si el producto sustituye una línea usada.
+      item.costPrice = item.price;
+      item.basePrice = item.price;
+      delete item.gain;
+      delete item.gainAmount;
+      delete item.margin;
+      delete item.discount;
+      delete item.dto;
+      delete item.cutWasteCost;
     }
     item.externalProduct = {
       proveedor: String(product.proveedor || product.marca || '').trim(),
@@ -9149,7 +9171,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.60',
+      version:'v4.9.62',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9206,7 +9228,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.60',
+      version:'v4.9.62',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -10415,6 +10437,20 @@ COLOCACIÓN INCLUIDA` }
       img.src = src;
     });
   }
+  async function fabPrepareImgSrc(it){
+    var src=fabImgSrc(it);
+    if(!src || /^data:image\//i.test(src)) return;
+    try{
+      var response=await fetch(src);
+      if(!response.ok) return;
+      var blob=await response.blob();
+      if(!blob.type.startsWith('image/')) return;
+      var embedded=await new Promise(function(resolve,reject){
+        var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=reject;reader.readAsDataURL(blob);
+      });
+      it.image=embedded;
+    }catch(_){ /* Conservar la ruta original si no se puede incrustar. */ }
+  }
   function fabPlainText(text){
     // Los conceptos se guardan como HTML enriquecido; fabricación solo muestra texto.
     return richPlainText(String(text == null ? '' : text)).replace(/\r/g,'');
@@ -10644,6 +10680,8 @@ COLOCACIÓN INCLUIDA` }
       srcItems = srcItems.filter(function(it){ return selectedCodes.indexOf(fabNormTxt(it._fabCode).toUpperCase()) >= 0; });
     }
     if(!srcItems.length){ throw new Error('No hay diseños seleccionados para fabricar'); }
+    // También recupera los gráficos VELUX añadidos antes de esta versión.
+    await Promise.all(srcItems.map(fabPrepareImgSrc));
     if(opts.notas){
       await Promise.all(srcItems.map(async function(it){
         var dim = await fabLoadImgSize(fabImgSrc(it));
@@ -11521,7 +11559,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.60',
+      app:'Documentos Rey', version:'v4.9.62',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11658,7 +11696,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.60',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.62',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -15825,7 +15863,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.60', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.62', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
@@ -16163,7 +16201,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.60',
+        version:'v4.9.62',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -16334,7 +16372,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.60',
+      version: 'v4.9.62',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16421,7 +16459,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.60', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.62', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16475,7 +16513,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.60',
+        version: 'v4.9.62',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -18130,7 +18168,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.60',
+      version: 'v4.9.62',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
