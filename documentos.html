@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Documentos Rey v4.9.62</title>
-  <!-- v4.9.62: rectificativa compacta con referencia y motivo en líneas propias. -->
-  <!-- v4.9.62: comparte solo el archivo PDF, sin título de texto adicional en iPhone. -->
+  <title>Documentos Rey v4.9.64</title>
+  <!-- v4.9.64: rectificativa compacta con referencia y motivo en líneas propias. -->
+  <!-- v4.9.64: comparte solo el archivo PDF, sin título de texto adicional en iPhone. -->
 <style>
     :root{
       --app-vh:100vh;
@@ -4547,7 +4547,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
 <button type="button" class="fact-return-top" id="btnFactReturnTop" title="Volver a Facturación">← Facturación</button>
 <div class="documents-home show" id="documentsHome" aria-label="Inicio de documentos">
   <div class="documents-home-inner">
-    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.62</span></div><p>Abre uno guardado o crea uno nuevo.</p>
+    <div class="documents-home-title"><h2>Documentos Rey</h2><span class="documents-home-version">v4.9.64</span></div><p>Abre uno guardado o crea uno nuevo.</p>
     <div class="documents-home-columns">
       <div class="documents-home-group" aria-label="Abrir documentos guardados">
         <h3>Abrir guardados</h3>
@@ -4583,7 +4583,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
       <div class="topbar-row">
         <div class="brand">
           <h1 class="title">Documentos Rey</h1>
-          <div class="version-inline">v4.9.62</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
+          <div class="version-inline">v4.9.64</div><div id="idbStatusPill" class="idb-status-pill brand-idb-pill">IndexedDB</div>
         </div>
       </div>
 
@@ -5922,7 +5922,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     const selected = selectedIndexes.map(function(i){ return list[i]; }).filter(Boolean);
     const filename = 'Presupuestos_archivo_' + timestampForFilename() + '.json';
     const payload = {app:'Documentos Rey', backupType:'presupuestos_archivados_lote_con_imagenes',
-      version:'v4.9.62', timestamp:new Date().toISOString(), all:selected};
+      version:'v4.9.64', timestamp:new Date().toISOString(), all:selected};
     const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
     try{ await exportBudgetArchiveFile(filename, blob); }
     catch(err){ console.error(err); toast('No se pudo exportar la copia'); return; }
@@ -5965,7 +5965,7 @@ body:is(.theme-doc-light,.theme-doc-beige) #editSheet.catalog-form-theme #sheetC
     if(original.archivadoImagenes){ toast('Este presupuesto ya está archivado'); return false; }
     const number = String(original.numero || 'sin_numero');
     const filename = 'Presupuesto_' + number.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + timestampForFilename() + '_archivo_completo.json';
-    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.62',
+    const backup = {app:'Documentos Rey', backupType:'presupuesto_archivado_imagenes', version:'v4.9.64',
       exportedAt:new Date().toISOString(), document:original};
     const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
     try{
@@ -8245,7 +8245,7 @@ async function updateIndexedDBStatus(){
 
   function defaultState(){
     return {
-      version:'v4.9.62',
+      version:'v4.9.64',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: uid(),
       documentoTipo:'presupuesto',
@@ -8815,6 +8815,11 @@ COLOCACIÓN INCLUIDA` }
   }
 
   async function openExternalCatalogV42(name, index){
+    if(name==='tapajuntas'){
+      const idx=Number(index);if(!state.items[idx])return;
+      try{saveConceptTextDraftV4413();await persistCurrent();const ctx={documentId:state.documentId,index:idx,list:state.items[idx].tapajuntasDesign||[],returnUrl:currentDocumentsFileV458()};const raw=JSON.stringify(ctx);sessionStorage.setItem('REY_TAP_DOC_CTX',raw);localStorage.setItem('REY_TAP_DOC_CTX',raw);location.href='motor_series.html?tap_docs=1';}catch(e){toast('No se pudo abrir Tapajuntas: '+e.message)}return;
+    }
+
     const idx = Number(index);
     if(!Number.isFinite(idx) || idx < 0) return;
     if(!state.items[idx]) state.items[idx] = blankConcept(conceptCodeForIndex(idx));
@@ -9171,7 +9176,7 @@ COLOCACIÓN INCLUIDA` }
 
   async function createDefaultState(){
     const base = {
-      version:'v4.9.62',
+      version:'v4.9.64',
       documentId: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
       numero: await nextDocumentNumberForType('presupuesto'),
       tipoPresupuesto:'visual',
@@ -9228,7 +9233,7 @@ COLOCACIÓN INCLUIDA` }
       visualTheme.font = localStorage.getItem('documentos_rey_visual_theme_font_v1') || 'normal';
     }catch(_){ }
     return {
-      version:'v4.9.62',
+      version:'v4.9.64',
       empresaNombre:String(s.empresaNombre || ''),
       empresaLine1:String(s.empresaLine1 || ''),
       empresaLine2:String(s.empresaLine2 || ''),
@@ -11559,7 +11564,7 @@ COLOCACIÓN INCLUIDA` }
       });
     }
     const payload = {
-      app:'Documentos Rey', version:'v4.9.62',
+      app:'Documentos Rey', version:'v4.9.64',
       backupType:isClients ? 'clientes_solo' : 'productos_solo',
       timestamp:new Date().toISOString(),
       data:isClients ? {clientes:rows} : {catalogo:rows}
@@ -11696,7 +11701,7 @@ COLOCACIÓN INCLUIDA` }
       if(mode === 'skip') return false;
       if(mode === 'replace'){
         const filename = 'documentos_rey_catalogo_antes_sustituir_' + timestampForFilename() + '.json';
-        const payload = {app:'Documentos Rey',version:'v4.9.62',backupType:'catalogo_productos',
+        const payload = {app:'Documentos Rey',version:'v4.9.64',backupType:'catalogo_productos',
           timestamp:new Date().toISOString(),catalogoCompartido:getSharedCatalogBackupSnapshot()};
         const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
         if(!await exportBudgetArchiveFile(filename, blob)) return false;
@@ -13618,7 +13623,7 @@ body.innerHTML = `
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
           <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
-          <button type="button" class="external-catalog-btn-v42 cierre" data-ext-catalog="cierre">Cierre</button>
+          <button type="button" class="external-catalog-btn-v42 cierre" data-ext-catalog="cierre">Cierre</button><button type="button" class="external-catalog-btn-v42" style="background:#087767;color:white" data-ext-catalog="tapajuntas">Tapajuntas</button>
         </div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación ${it.code}</label><textarea id="editConceptFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades ${it.code}</label><input id="editUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units)}">
@@ -13670,7 +13675,7 @@ body.innerHTML = `
           <button type="button" class="external-catalog-btn-v42 cortizo" data-ext-catalog="cortizo">Cortizo</button>
           <button type="button" class="external-catalog-btn-v42 nicho" data-ext-catalog="telefonillo">Nicho</button>
           <button type="button" class="external-catalog-btn-v42 pasamanos" data-ext-catalog="pasamanos">Pasamanos</button>
-          <button type="button" class="external-catalog-btn-v42 cierre" data-ext-catalog="cierre">Cierre</button>
+          <button type="button" class="external-catalog-btn-v42 cierre" data-ext-catalog="cierre">Cierre</button><button type="button" class="external-catalog-btn-v42" style="background:#087767;color:white" data-ext-catalog="tapajuntas">Tapajuntas</button>
         </div>
         <label class="import-field-label" style="color:#dc2626">Observaciones fabricación</label><textarea id="editSimpleFabricacionObs" class="concept-editor-field" style="min-height:90px;color:#dc2626;font-weight:900;background:#fff8f6" placeholder="Solo visible en hoja de fabricación">${esc(it.fabricacionObs || it.obsFabricacion || it.observacionesFabricacion || '')}</textarea>
         <label class="import-field-label">Unidades</label><input id="editSimpleUnits" class="import-field import-neutral" inputmode="decimal" value="${esc(it.units || '1')}">
@@ -15863,7 +15868,7 @@ $('btnCloseSheet').addEventListener('click', function(){
       const extra = {};
       FULL_BACKUP_LOCAL_KEYS.forEach(key => { const value = lsGet(key); if(value !== null) extra[key] = value; });
       const payload = {
-        app:'Documentos Rey', version:'v4.9.62', backupType:'completa_documentos_rey',
+        app:'Documentos Rey', version:'v4.9.64', backupType:'completa_documentos_rey',
         timestamp:new Date().toISOString(),
         incluye:'Todos los documentos guardados, imágenes que aún conserva la app, documento actual, clientes, productos, plantillas, ajustes y códigos postales. Las imágenes retiradas de presupuestos archivados requieren sus copias originales.',
         current:state, all:documents,
@@ -16201,7 +16206,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const safety = {
         app:'Documentos Rey',
-        version:'v4.9.62',
+        version:'v4.9.64',
         timestamp:new Date().toISOString(),
         backupType:'seguridad_antes_restaurar',
         current:state,
@@ -16372,7 +16377,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     const currentInRange = selected.find(function(doc){ return String(doc.documentId || '') === String(state && state.documentId || ''); });
     const payload = {
       app: 'Documentos Rey',
-      version: 'v4.9.62',
+      version: 'v4.9.64',
       backupType: 'presupuestos_rango_con_imagenes',
       range: { from: String(from).padStart(4,'0'), to: String(to).padStart(4,'0') },
       timestamp: new Date().toISOString(),
@@ -16459,7 +16464,7 @@ $('btnCloseSheet').addEventListener('click', function(){
     try{
       const snapshot = buildSettingsSnapshot();
       await saveSettingsSnapshot(snapshot);
-      const payload = { app:'Documentos Rey', version:'v4.9.62', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
+      const payload = { app:'Documentos Rey', version:'v4.9.64', backupType:'ajustes_solo', timestamp:new Date().toISOString(), settings:buildBackupSettingsPayload(), settingsOnly:snapshot };
       const filename = 'documentos_rey_ajustes_' + timestampForFilename() + '.json';
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
       if(navigator.share && navigator.canShare){
@@ -16513,7 +16518,7 @@ $('btnExportAll').addEventListener('click', async function(){
       const currentIsPresupuesto = String(state && state.documentoTipo || 'presupuesto') === 'presupuesto';
       const payload = {
         app: 'Documentos Rey',
-        version: 'v4.9.62',
+        version: 'v4.9.64',
         backupType: 'general_ligera_sin_presupuestos',
         timestamp: new Date().toISOString(),
         current: currentIsPresupuesto ? null : state,
@@ -17130,7 +17135,9 @@ $('btnExport').addEventListener('click', async function(){
       window.visualViewport.addEventListener('scroll', setViewportVars, { passive:true });
     }
     let externalReturnAppliedV458 = false;
-    try{ externalReturnAppliedV458 = await applyExternalProductReturnV42(); }catch(_){ }
+    try{const raw=sessionStorage.getItem('REY_TAP_DOC_RETURN')||localStorage.getItem('REY_TAP_DOC_RETURN');if(raw){const p=JSON.parse(raw);if(String(p.documentId)===String(state.documentId)&&state.items[p.index]){const it=state.items[p.index];it.tapajuntasDesign=p.list;it.despieceFabricacion=p.despiece;it.text=p.text;it.image=isSimpleBudget()?'':p.image;it.units='1';it.costPrice=it.basePrice=it.price=Number(p.price).toFixed(2);delete it.gain;delete it.gainAmount;delete it.margin;delete it.discount;delete it.dto;delete it.cutWasteCost;await persistCurrent();sessionStorage.removeItem('REY_TAP_DOC_RETURN');localStorage.removeItem('REY_TAP_DOC_RETURN');externalReturnAppliedV458=true;toast('Tapajuntas incorporados');}}}catch(e){toast('No se pudo recibir Tapajuntas: '+e.message)}
+
+    try{ externalReturnAppliedV458 = (await applyExternalProductReturnV42()) || externalReturnAppliedV458; }catch(_){ }
     render();
     setTimeout(function(){ try{ applyPVCPriceReturnV1(); }catch(_){ } }, 350);
     setTimeout(function(){ try{ applyALU600PriceReturnV1(); }catch(_){ } }, 350);
@@ -18168,7 +18175,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var docStats = analyzeDocuments(docs);
 
     var report = {
-      version: 'v4.9.62',
+      version: 'v4.9.64',
       fecha: new Date().toISOString(),
       indexedDB: {
         db: 'presupuesto_directo_pdf_db',
