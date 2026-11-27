@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>iNote Pro v1.13.21</title>
+    <title>iNote Pro v1.13.22</title>
     <style>
         :root { --blue: #54a0d9; --bg: #f5f5f7; --green: #2ecc71; --recado-text-size:18px; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -436,6 +436,16 @@
         header .header-control[aria-label="Menú de Notas"] { margin-left:11px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border:1px solid #a9d9f3; background:#286f9d; border-radius:9px; font-size:18px; }
         header #view-title-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         header .header-control { flex:0 0 auto; padding:8px 3px; font-size:14px; }
+
+        /* v1.13.22: buscador fijo y cuatro acciones en una fila */
+        .search-bar-container { display:block; padding:5px 8px; background:#eaf2f9; box-shadow:none; border-bottom:0; z-index:auto; }
+        #searchInput { height:38px; padding:6px 40px 6px 10px; font-size:16px; }
+        .search-clear { width:30px; height:30px; right:5px; padding:0; }
+        .view-switch { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; padding:4px 8px 7px; background:#eaf2f9; }
+        .view-switch button { min-width:0; min-height:40px; padding:6px 2px; font-size:clamp(12px,3.5vw,15px); white-space:nowrap; }
+        .view-switch .create-note { background:#b2681e; color:#fff; }
+        .view-switch .create-list { background:#27734b; color:#fff; }
+        header .header-control[aria-label="Menú de Notas"] { margin-left:3px; }
     </style>
 </head>
 <body>
@@ -444,7 +454,7 @@
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <nav id="side-menu">
-    <div class="menu-header">iNote Pro <span class="version-text">v1.13.21</span></div>
+    <div class="menu-header">iNote Pro <span class="version-text">v1.13.22</span></div>
     <div class="menu-item" onclick="switchView('list')"><span class="menu-symbol">☷</span> Vista Lista</div>
     <div class="menu-item" onclick="switchView('calendar')"><span class="menu-symbol">▦</span> Vista Calendario</div>
     <div style="padding: 20px 20px 5px; font-size: 0.85em; color: #999; font-weight: bold; text-transform: uppercase;">Ajustes</div>
@@ -468,26 +478,22 @@
     <button type="button" class="header-control" onclick="openMenu()" aria-label="Menú de Notas">☰</button>
     <div class="header-title">
         <h2 id="view-title-text" style="font-size: 1.18em;">Notas</h2>
-        <span class="version-text">v1.13.21</span>
+        <span class="version-text">v1.13.22</span>
         <span id="notesStorageBadge" aria-live="polite">…</span>
     </div>
-    <button type="button" class="header-control" onclick="toggleSearch()" aria-label="Buscar notas">Buscar</button>
 </header>
-
-<div class="search-bar-container" id="searchBar">
-    <div class="search-field">
-        <input type="text" id="searchInput" placeholder="Escribe para buscar..." oninput="filterNotes()">
-        <button type="button" class="search-clear" id="searchClear" aria-label="Borrar búsqueda" onclick="clearNotesSearch()">×</button>
-    </div>
-</div>
 
 <main id="main-content">
     <div class="view-controls">
-        <div class="view-switch" aria-label="Vista de notas">
-            <button type="button" id="btnViewList" class="active" aria-pressed="true" onclick="switchView('list')">☷ Lista</button>
-            <button type="button" id="btnViewCalendar" aria-pressed="false" onclick="switchView('calendar')">▦ Calendario</button>
-        </div>
-        <div class="create-actions" aria-label="Crear">
+        <div class="search-bar-container" id="searchBar">
+    <div class="search-field">
+        <input type="text" id="searchInput" placeholder="Buscar notas, nombres o teléfonos…" aria-label="Buscar notas" oninput="filterNotes()">
+        <button type="button" class="search-clear" id="searchClear" aria-label="Borrar búsqueda" onclick="clearNotesSearch()">×</button>
+    </div>
+</div>
+        <div class="view-switch" aria-label="Vistas y creación de notas">
+            <button type="button" id="btnViewList" class="active" aria-pressed="true" onclick="switchView('list')">Lista</button>
+            <button type="button" id="btnViewCalendar" aria-pressed="false" onclick="switchView('calendar')">Calendario</button>
             <button type="button" class="create-note" onclick="createNoteOfType('note')">+ Nota</button>
             <button type="button" class="create-list" onclick="createNoteOfType('checklist')">+ Lista</button>
         </div>
@@ -1268,18 +1274,6 @@
         const b = parseInt(raw.slice(4,6), 16);
         const lum = (0.299 * r + 0.587 * g + 0.114 * b);
         return lum > 170 ? '#22314b' : '#ffffff';
-    }
-
-function toggleSearch() {
-        const bar = document.getElementById('searchBar');
-        const isVisible = bar.style.display === 'block';
-        bar.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
-            document.getElementById('searchInput').focus();
-        } else {
-            document.getElementById('searchInput').value = '';
-            filterNotes();
-        }
     }
 
     function clearNotesSearch() {
@@ -2218,8 +2212,6 @@ function updateDayDetail(dateStr, filter = getActiveFilter()) {
         document.getElementById('searchClear').style.display = 'none';
         colorFilter.value = 'all';
         document.getElementById('sortNotes').value = 'date';
-        var sb = document.getElementById('searchBar');
-        if (sb) sb.style.display = 'none';
 
         switchView('list');
 
